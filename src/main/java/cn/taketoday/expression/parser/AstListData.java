@@ -56,9 +56,10 @@ public class AstListData extends SimpleNode {
   @Override
   public Object getValue(final EvaluationContext ctx) {
     final ArrayList<Object> list = new ArrayList<>();
-    if (children != null) for (final Node child : children) {
-      list.add(child.getValue(ctx));
-    }
+    if (children != null)
+      for (final Node child : children) {
+        list.add(child.getValue(ctx));
+      }
     return list;
   }
 }

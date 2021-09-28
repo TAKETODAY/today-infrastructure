@@ -27,7 +27,7 @@ import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2018-12-30 21:02
+ * 2018-12-30 21:02
  */
 public class TransactionTemplate extends DefaultTransactionDefinition implements TransactionOperations {
 
@@ -73,11 +73,12 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
    * Perform a rollback, handling rollback exceptions properly.
    *
    * @param status
-   *            object representing the transaction
+   *         object representing the transaction
    * @param ex
-   *            the thrown application exception or error
+   *         the thrown application exception or error
+   *
    * @throws TransactionException
-   *             in case of a rollback error
+   *         in case of a rollback error
    */
   protected void rollbackOnException(TransactionManager transactionManager, TransactionStatus status, Throwable ex)
           throws TransactionException //

@@ -22,7 +22,7 @@ package cn.taketoday.transaction;
 /**
  * @author Today <br>
  *
- *         2018-12-30 20:58
+ * 2018-12-30 20:58
  */
 public interface TransactionOperations {
 
@@ -36,12 +36,14 @@ public interface TransactionOperations {
    * Such an exception gets propagated to the caller of the template.
    *
    * @param action
-   *            the callback object that specifies the transactional action
+   *         the callback object that specifies the transactional action
+   *
    * @return a result object returned by the callback, or {@code null} if none
+   *
    * @throws TransactionException
-   *             in case of initialization, rollback, or system errors
+   *         in case of initialization, rollback, or system errors
    * @throws RuntimeException
-   *             if thrown by the TransactionCallback
+   *         if thrown by the TransactionCallback
    */
   <T> T execute(TransactionCallback<T> action) throws TransactionException;
 

@@ -32,7 +32,7 @@ import lombok.Setter;
  * Configuration for the server's JSP servlet.
  *
  * @author TODAY <br>
- *         2019-01-26 16:39
+ * 2019-01-26 16:39
  */
 @Getter
 @Setter

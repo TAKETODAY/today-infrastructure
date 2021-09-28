@@ -37,7 +37,7 @@ public class CompositeCacheManager implements CacheManager {
 
   private final ArrayList<CacheManager> cacheManagers = new ArrayList<>();
 
-  public CompositeCacheManager() {}
+  public CompositeCacheManager() { }
 
   public CompositeCacheManager(CacheManager... cacheManagers) {
     Assert.notNull(cacheManagers, "cacheManager s can't be null");

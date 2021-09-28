@@ -57,7 +57,7 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
       throw new BeanInstantiationException("ReflectionFactory not found", e);
     }
 
-    javaLangObjectConstructor = ReflectionUtils.getConstructor(Object.class, (Class<?>[]) null);
+    javaLangObjectConstructor = ReflectionUtils.getConstructor(Object.class);
     newConstructorForSerialization = ReflectionUtils.getMethod(
             ReflectionFactoryClass, "newConstructorForSerialization", Class.class, Constructor.class);
 

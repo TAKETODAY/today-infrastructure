@@ -20,10 +20,11 @@
 
 package cn.taketoday.web.socket;
 
-import javax.websocket.Extension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.websocket.Extension;
 
 /**
  * Standard websocket extension

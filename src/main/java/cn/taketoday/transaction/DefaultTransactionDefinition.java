@@ -26,7 +26,7 @@ import cn.taketoday.core.Constants;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:57
+ * 2018-10-09 11:57
  */
 public class DefaultTransactionDefinition implements TransactionDefinition, Serializable {
 
@@ -99,10 +99,11 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * TransactionDefinition, e.g. "PROPAGATION_REQUIRED".
    *
    * @param constantName
-   *            name of the constant
+   *         name of the constant
+   *
    * @throws IllegalArgumentException
-   *             if the supplied value is not resolvable to one of the
-   *             {@code PROPAGATION_} constants or is {@code null}
+   *         if the supplied value is not resolvable to one of the
+   *         {@code PROPAGATION_} constants or is {@code null}
    * @see #setPropagationBehavior
    * @see #PROPAGATION_REQUIRED
    */
@@ -130,8 +131,8 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * {@link #ISOLATION_DEFAULT}.
    *
    * @throws IllegalArgumentException
-   *             if the supplied value is not one of the {@code PROPAGATION_}
-   *             constants
+   *         if the supplied value is not one of the {@code PROPAGATION_}
+   *         constants
    * @see #PROPAGATION_REQUIRED
    */
   public final DefaultTransactionDefinition setPropagationBehavior(int propagationBehavior) {
@@ -152,10 +153,11 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * TransactionDefinition, e.g. "ISOLATION_DEFAULT".
    *
    * @param constantName
-   *            name of the constant
+   *         name of the constant
+   *
    * @throws IllegalArgumentException
-   *             if the supplied value is not resolvable to one of the
-   *             {@code ISOLATION_} constants or is {@code null}
+   *         if the supplied value is not resolvable to one of the
+   *         {@code ISOLATION_} constants or is {@code null}
    * @see #setIsolationLevel
    * @see #ISOLATION_DEFAULT
    */
@@ -183,8 +185,8 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * {@link #ISOLATION_DEFAULT}.
    *
    * @throws IllegalArgumentException
-   *             if the supplied value is not one of the {@code ISOLATION_}
-   *             constants
+   *         if the supplied value is not one of the {@code ISOLATION_}
+   *         constants
    * @see #ISOLATION_DEFAULT
    */
   public final DefaultTransactionDefinition setIsolationLevel(int isolationLevel) {

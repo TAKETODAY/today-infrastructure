@@ -27,15 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.bytecode.MethodVisitor;
-import cn.taketoday.core.bytecode.TypeReference;
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ConstantDynamic;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Label;
+import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.TypePath;
+import cn.taketoday.core.bytecode.TypeReference;
 
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.

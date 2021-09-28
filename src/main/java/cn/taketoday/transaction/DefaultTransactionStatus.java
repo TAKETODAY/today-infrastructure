@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-11-16 21:29
+ * 2018-11-16 21:29
  */
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
@@ -36,19 +36,19 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
    * Create a new DefaultTransactionStatus instance.
    *
    * @param transaction
-   *            underlying transaction object that can hold state for the internal
-   *            transaction implementation
+   *         underlying transaction object that can hold state for the internal
+   *         transaction implementation
    * @param newTransaction
-   *            if the transaction is new, else participating in an existing
-   *            transaction
+   *         if the transaction is new, else participating in an existing
+   *         transaction
    * @param newSynchronization
-   *            if a new transaction synchronization has been opened for the given
-   *            transaction
+   *         if a new transaction synchronization has been opened for the given
+   *         transaction
    * @param readOnly
-   *            whether the transaction is read-only
+   *         whether the transaction is read-only
    * @param suspendedResources
-   *            a holder for resources that have been suspended for this
-   *            transaction, if any
+   *         a holder for resources that have been suspended for this
+   *         transaction, if any
    */
   public DefaultTransactionStatus(Object transaction, boolean newTransaction, //
                                   boolean newSynchronization, boolean readOnly, Object suspendedResources) //

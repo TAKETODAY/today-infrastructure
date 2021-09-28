@@ -38,7 +38,7 @@ abstract public class BulkBean {
   protected String[] getters, setters;
   protected Class[] types;
 
-  protected BulkBean() {}
+  protected BulkBean() { }
 
   abstract public void getPropertyValues(Object bean, Object[] values);
 

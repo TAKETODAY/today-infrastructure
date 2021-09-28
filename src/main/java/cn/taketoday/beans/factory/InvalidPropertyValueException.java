@@ -31,7 +31,7 @@ import cn.taketoday.beans.PropertyValueException;
 public class InvalidPropertyValueException extends PropertyValueException {
   private static final long serialVersionUID = 1L;
 
-  public InvalidPropertyValueException() {}
+  public InvalidPropertyValueException() { }
 
   public InvalidPropertyValueException(String message) {
     super(message);

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.framework.server;
 
-import cn.taketoday.util.ObjectUtils;
 import org.apache.catalina.servlets.DefaultServlet;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -69,13 +68,13 @@ import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import cn.taketoday.web.session.SessionConfiguration;
 import lombok.Getter;
 import lombok.Setter;
-import org.omg.CORBA.Object;
 
 /**
  * Jetty Servlet web server.
@@ -156,7 +155,7 @@ public class JettyServer
     try {
       this.server.stop();
     }
-    catch (Exception ignored) {}
+    catch (Exception ignored) { }
   }
 
   @Override

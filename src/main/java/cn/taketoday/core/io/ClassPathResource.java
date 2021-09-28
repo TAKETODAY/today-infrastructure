@@ -209,8 +209,10 @@ public class ClassPathResource implements Resource, WritableResource {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ClassPathResource)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof ClassPathResource))
+      return false;
     final ClassPathResource that = (ClassPathResource) o;
     return Objects.equals(location, that.location)
             && Objects.equals(resourceClass, that.resourceClass)

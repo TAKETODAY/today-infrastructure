@@ -23,11 +23,11 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-12-20 19:15
+ * 2019-12-20 19:15
  */
 public class FunctionRequestAdapter extends AbstractHandlerAdapter {
 
-  public FunctionRequestAdapter() {}
+  public FunctionRequestAdapter() { }
 
   public FunctionRequestAdapter(int order) {
     setOrder(order);

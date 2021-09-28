@@ -25,7 +25,7 @@ import cn.taketoday.web.WebApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2018-07-10 13:13:57
+ * 2018-07-10 13:13:57
  */
 public interface WebServletApplicationContext extends WebApplicationContext {
 

@@ -70,8 +70,10 @@ public final class DefaultComponent implements Component {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Component)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof Component))
+      return false;
     final Component that = (Component) o;
     return Objects.equals(scope, that.scope())
             && Arrays.equals(value, that.value())

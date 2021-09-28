@@ -19,7 +19,6 @@
  */
 package cn.taketoday.core.conversion.support;
 
-
 import java.util.Currency;
 
 import cn.taketoday.core.conversion.Converter;
@@ -33,9 +32,9 @@ import cn.taketoday.core.conversion.Converter;
  */
 class StringToCurrencyConverter implements Converter<String, Currency> {
 
-	@Override
-	public Currency convert(String source) {
-		return Currency.getInstance(source);
-	}
+  @Override
+  public Currency convert(String source) {
+    return Currency.getInstance(source);
+  }
 
 }

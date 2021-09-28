@@ -30,59 +30,59 @@ import cn.taketoday.web.session.SessionConfiguration;
 
 /**
  * @author TODAY <br>
- *         2019-06-18 17:35
+ * 2019-06-18 17:35
  */
 public interface WebApplicationConfiguration {
 
   /**
    * Configure compression
    */
-  default void configureCompression(CompressionConfiguration compressionConfiguration) {}
+  default void configureCompression(CompressionConfiguration compressionConfiguration) { }
 
   /**
    * Configure session
    */
-  default void configureSession(SessionConfiguration sessionConfiguration) {}
+  default void configureSession(SessionConfiguration sessionConfiguration) { }
 
   /**
    * Configure jsp servlet
    */
-  default void configureJspServlet(JspServletConfiguration jspServletConfiguration) {}
+  default void configureJspServlet(JspServletConfiguration jspServletConfiguration) { }
 
   /**
    * Configure default servlet
    */
-  default void configureDefaultServlet(DefaultServletConfiguration defaultServletConfiguration) {}
+  default void configureDefaultServlet(DefaultServletConfiguration defaultServletConfiguration) { }
 
   /**
    * Configure {@link WebServer}
    *
    * @param webServer
-   *            {@link WebServer} instance
+   *         {@link WebServer} instance
    */
-  default void configureWebServer(AbstractWebServer webServer) {}
+  default void configureWebServer(AbstractWebServer webServer) { }
 
   /**
    * Configure {@link ErrorPage}s
    *
    * @param errorPages
-   *            a set of {@link ErrorPage}s
+   *         a set of {@link ErrorPage}s
    */
-  default void configureErrorPages(Set<ErrorPage> errorPages) {}
+  default void configureErrorPages(Set<ErrorPage> errorPages) { }
 
   /**
    * Configure {@link MimeMappings}
    *
    * @param mimeMappings
-   *            {@link MimeMappings}
+   *         {@link MimeMappings}
    */
-  default void configureMimeMappings(MimeMappings mimeMappings) {}
+  default void configureMimeMappings(MimeMappings mimeMappings) { }
 
   /**
    * Configure welcome pages
    */
-  default void configureWelcomePages(Set<String> welcomePages) {}
+  default void configureWelcomePages(Set<String> welcomePages) { }
 
-  default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {}
+  default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) { }
 
 }

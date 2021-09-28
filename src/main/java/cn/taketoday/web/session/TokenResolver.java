@@ -23,11 +23,10 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-10-03 10:56
+ * 2019-10-03 10:56
  */
 public interface TokenResolver {
   String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
-
 
   String getToken(RequestContext context);
 

@@ -54,9 +54,12 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DefaultPropertySetter)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof DefaultPropertySetter))
+      return false;
+    if (!super.equals(o))
+      return false;
     final DefaultPropertySetter that = (DefaultPropertySetter) o;
     return Objects.equals(value, that.value);
   }

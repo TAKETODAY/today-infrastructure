@@ -53,8 +53,10 @@ final class DefaultParameterIndexHolder extends ParameterIndexHolder {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DefaultParameterIndexHolder)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof DefaultParameterIndexHolder))
+      return false;
     final DefaultParameterIndexHolder that = (DefaultParameterIndexHolder) o;
     return index == that.index;
   }

@@ -30,7 +30,7 @@ public class CacheOperations {
 
   private CacheExceptionResolver exceptionResolver;
 
-  public CacheOperations() {}
+  public CacheOperations() { }
 
   public CacheOperations(CacheExceptionResolver exceptionResolver) {
     this.exceptionResolver = exceptionResolver;

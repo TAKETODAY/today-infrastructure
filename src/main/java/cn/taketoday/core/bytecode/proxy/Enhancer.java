@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
@@ -61,12 +63,11 @@ import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.core.bytecode.core.RejectModifierPredicate;
 import cn.taketoday.core.bytecode.core.VisibilityPredicate;
 import cn.taketoday.core.bytecode.core.WeakCacheKey;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
+import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_FRAMES;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PRIVATE;
@@ -78,7 +79,6 @@ import static cn.taketoday.core.bytecode.Type.BOOLEAN_TYPE;
 import static cn.taketoday.core.bytecode.Type.INT_TYPE;
 import static cn.taketoday.core.bytecode.Type.LONG_TYPE;
 import static cn.taketoday.core.bytecode.Type.VOID_TYPE;
-import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
 
 /**
  * Generates dynamic subclasses to enable method interception. This class

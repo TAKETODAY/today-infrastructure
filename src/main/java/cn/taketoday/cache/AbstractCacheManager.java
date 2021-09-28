@@ -49,7 +49,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   private final HashMap<String, Cache> cacheMap = new HashMap<>(32);
   private final HashMap<String, CacheConfig> configMap = new HashMap<>();
 
-  public AbstractCacheManager() {}
+  public AbstractCacheManager() { }
 
   public AbstractCacheManager(String... cacheNames) {
     Assert.notNull(cacheNames, "cacheNames s can't be null");

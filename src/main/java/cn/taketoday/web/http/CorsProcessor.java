@@ -24,7 +24,6 @@ import java.io.IOException;
 import cn.taketoday.web.RequestContext;
 
 /**
- *
  * A strategy that takes a request and a {@link CorsConfiguration} and updates
  * the response.
  *
@@ -36,7 +35,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev@author TODAY <br>
- *         2019-12-23 21:01
+ * 2019-12-23 21:01
  * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
  */
 public interface CorsProcessor {
@@ -45,9 +44,10 @@ public interface CorsProcessor {
    * Process a request given a {@code CorsConfiguration}.
    *
    * @param configuration
-   *            the applicable CORS configuration (possibly {@code null})
+   *         the applicable CORS configuration (possibly {@code null})
    * @param context
-   *            the current HTTP context
+   *         the current HTTP context
+   *
    * @return {@code false} if the request is rejected, {@code true} otherwise
    */
   boolean process(CorsConfiguration configuration, RequestContext context) throws IOException;

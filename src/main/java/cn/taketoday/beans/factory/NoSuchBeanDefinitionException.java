@@ -29,7 +29,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
 
   private static final long serialVersionUID = 1L;
 
-  public NoSuchBeanDefinitionException() {}
+  public NoSuchBeanDefinitionException() { }
 
   public NoSuchBeanDefinitionException(Throwable cause) {
     super(cause);

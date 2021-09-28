@@ -20,13 +20,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.ClassEmitter;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.core.Constant;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PRIVATE;

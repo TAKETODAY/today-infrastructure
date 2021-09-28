@@ -30,6 +30,7 @@ package cn.taketoday.core.bytecode.commons;
 
 import java.util.List;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassVisitor;
@@ -38,7 +39,6 @@ import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.ModuleVisitor;
 import cn.taketoday.core.bytecode.RecordComponentVisitor;
 import cn.taketoday.core.bytecode.TypePath;
-import cn.taketoday.core.Nullable;
 
 /**
  * A {@link ClassVisitor} that remaps types with a {@link Remapper}.

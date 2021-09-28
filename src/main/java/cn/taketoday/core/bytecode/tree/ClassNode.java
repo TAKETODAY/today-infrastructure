@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.core.bytecode.AnnotationVisitor;
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.FieldVisitor;
@@ -31,6 +30,7 @@ import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.ModuleVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.RecordComponentVisitor;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.TypePath;
 
 /**

@@ -23,6 +23,7 @@ package cn.taketoday.beans.support;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
@@ -31,7 +32,6 @@ import cn.taketoday.core.bytecode.core.ClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.GeneratorSupport;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;

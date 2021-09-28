@@ -28,9 +28,9 @@ import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.bytecode.core.MethodWrapper;
 
+import static cn.taketoday.core.Constant.SOURCE_FILE;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.core.bytecode.Opcodes.JAVA_VERSION;
-import static cn.taketoday.core.Constant.SOURCE_FILE;
 
 /**
  * @author Chris Nokleberg

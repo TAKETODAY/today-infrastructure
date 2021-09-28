@@ -20,21 +20,23 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Strategies Detector
@@ -98,10 +100,20 @@ public class StrategiesDetector {
     strategiesReader.read(strategiesLocation, strategies);
   }
 
+  @Nullable
   public <T> T getFirst(Class<T> strategyClass) {
     return getFirst(strategyClass, beanFactory);
   }
 
+  public <T> T getFirst(Class<T> strategyClass, Supplier<T> defaultValue) {
+    final T first = getFirst(strategyClass);
+    if (first == null) {
+      return defaultValue.get();
+    }
+    return first;
+  }
+
+  @Nullable
   public <T> T getFirst(Class<T> strategyClass, BeanFactory beanFactory) {
     return CollectionUtils.firstElement(getStrategies(strategyClass, beanFactory));
   }
@@ -136,6 +148,8 @@ public class StrategiesDetector {
         strategiesObject.add((T) instance);
       }
     });
+    // sort
+    AnnotationAwareOrderComparator.sort(strategiesObject);
     return strategiesObject;
   }
 
@@ -265,6 +279,7 @@ public class StrategiesDetector {
         ret.add(convert);
       }
     }
+    AnnotationAwareOrderComparator.sort(ret);
     return ret;
   }
 

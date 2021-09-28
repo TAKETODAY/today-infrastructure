@@ -22,7 +22,6 @@ package cn.taketoday.beans;
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 
-
 /**
  * Default implementation of {@link BeanNameCreator}
  *

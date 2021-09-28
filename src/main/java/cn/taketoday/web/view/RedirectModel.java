@@ -23,7 +23,7 @@ package cn.taketoday.web.view;
  * Redirect data model
  *
  * @author TODAY <br>
- *         2018-11-18 16:39
+ * 2018-11-18 16:39
  * @since 2.3.3
  */
 public interface RedirectModel extends Model {

@@ -30,7 +30,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author TODAY <br>
- *         2020-08-16 12:45
+ * 2020-08-16 12:45
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })

@@ -23,7 +23,7 @@ import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
  * @author TODAY <br>
- *         2019-02-14 21:09
+ * 2019-02-14 21:09
  */
 public class WebServerException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;

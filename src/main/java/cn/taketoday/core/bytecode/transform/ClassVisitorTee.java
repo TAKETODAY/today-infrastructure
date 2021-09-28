@@ -51,16 +51,20 @@ public class ClassVisitorTee extends ClassVisitor {
   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
     FieldVisitor fv1 = cv1.visitField(access, name, desc, signature, value);
     FieldVisitor fv2 = cv2.visitField(access, name, desc, signature, value);
-    if (fv1 == null) return fv2;
-    if (fv2 == null) return fv1;
+    if (fv1 == null)
+      return fv2;
+    if (fv2 == null)
+      return fv1;
     return new FieldVisitorTee(fv1, fv2);
   }
 
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv1 = cv1.visitMethod(access, name, desc, signature, exceptions);
     MethodVisitor mv2 = cv2.visitMethod(access, name, desc, signature, exceptions);
-    if (mv1 == null) return mv2;
-    if (mv2 == null) return mv1;
+    if (mv1 == null)
+      return mv2;
+    if (mv2 == null)
+      return mv1;
     return new MethodVisitorTee(mv1, mv2);
   }
 

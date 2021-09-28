@@ -102,7 +102,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   private final int jjStopStringLiteralDfa_0(int pos, long active0) {
 
     if (pos == 0) {
-      if ((active0 & 0x10L) != 0L) return 2;
+      if ((active0 & 0x10L) != 0L)
+        return 2;
       if ((active0 & 0xcL) != 0L) {
         jjmatchedKind = 1;
         return 4;
@@ -144,8 +145,10 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       return 1;
     }
     if (curChar == 123) {
-      if ((active0 & 0x4L) != 0L) return jjStopAtPos(1, 2);
-      else if ((active0 & 0x8L) != 0L) return jjStopAtPos(1, 3);
+      if ((active0 & 0x4L) != 0L)
+        return jjStopAtPos(1, 2);
+      else if ((active0 & 0x8L) != 0L)
+        return jjStopAtPos(1, 3);
     }
     return jjStartNfa_0(0, active0);
   }
@@ -172,38 +175,49 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     jjstateSet[0] = startState;
     int kind = 0x7fffffff;
     for (; ; ) {
-      if (++jjround == 0x7fffffff) ReInitRounds();
+      if (++jjround == 0x7fffffff)
+        ReInitRounds();
       if (curChar < 64) {
         long l = 1L << curChar;
         do {
           switch (jjstateSet[--i]) {
             case 6:
               if ((0xffffffe7ffffffffL & l) != 0L) {
-                if (kind > 1) kind = 1;
+                if (kind > 1)
+                  kind = 1;
                 jjCheckNAddStates(0, 3);
               }
               else if ((0x1800000000L & l) != 0L) {
-                if (kind > 1) kind = 1;
+                if (kind > 1)
+                  kind = 1;
               }
-              if (curChar == 35) jjCheckNAdd(4);
-              else if (curChar == 36) jjCheckNAdd(4);
+              if (curChar == 35)
+                jjCheckNAdd(4);
+              else if (curChar == 36)
+                jjCheckNAdd(4);
               break;
             case 0:
             case 4:
-              if ((0xffffffe7ffffffffL & l) == 0L) break;
-              if (kind > 1) kind = 1;
+              if ((0xffffffe7ffffffffL & l) == 0L)
+                break;
+              if (kind > 1)
+                kind = 1;
               jjCheckNAddStates(0, 3);
               break;
             case 2:
-              if ((0x1800000000L & l) == 0L) break;
-              if (kind > 1) kind = 1;
+              if ((0x1800000000L & l) == 0L)
+                break;
+              if (kind > 1)
+                kind = 1;
               jjCheckNAddStates(0, 3);
               break;
             case 3:
-              if (curChar == 36) jjCheckNAdd(4);
+              if (curChar == 36)
+                jjCheckNAdd(4);
               break;
             case 5:
-              if (curChar == 35) jjCheckNAdd(4);
+              if (curChar == 35)
+                jjCheckNAdd(4);
               break;
             default:
               break;
@@ -217,27 +231,36 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           switch (jjstateSet[--i]) {
             case 6:
               if ((0xffffffffefffffffL & l) != 0L) {
-                if (kind > 1) kind = 1;
+                if (kind > 1)
+                  kind = 1;
                 jjCheckNAddStates(0, 3);
               }
-              else if (curChar == 92) jjstateSet[jjnewStateCnt++] = 2;
+              else if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 2;
               break;
             case 0:
-              if ((0xffffffffefffffffL & l) == 0L) break;
-              if (kind > 1) kind = 1;
+              if ((0xffffffffefffffffL & l) == 0L)
+                break;
+              if (kind > 1)
+                kind = 1;
               jjCheckNAddStates(0, 3);
               break;
             case 1:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 2;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 2;
               break;
             case 2:
-              if (curChar != 92) break;
-              if (kind > 1) kind = 1;
+              if (curChar != 92)
+                break;
+              if (kind > 1)
+                kind = 1;
               jjCheckNAddStates(0, 3);
               break;
             case 4:
-              if ((0xf7ffffffffffffffL & l) == 0L) break;
-              if (kind > 1) kind = 1;
+              if ((0xf7ffffffffffffffL & l) == 0L)
+                break;
+              if (kind > 1)
+                kind = 1;
               jjCheckNAddStates(0, 3);
               break;
             default:
@@ -257,8 +280,10 @@ public class ExpressionParserTokenManager implements ELParserConstants {
             case 6:
             case 0:
             case 4:
-              if (!jjCanMove_0(hiByte, i1, i2, l1, l2)) break;
-              if (kind > 1) kind = 1;
+              if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                break;
+              if (kind > 1)
+                kind = 1;
               jjCheckNAddStates(0, 3);
               break;
             default:
@@ -273,7 +298,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         kind = 0x7fffffff;
       }
       ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 7 - (jjnewStateCnt = startsAt))) return curPos;
+      if ((i = jjnewStateCnt) == (startsAt = 7 - (jjnewStateCnt = startsAt)))
+        return curPos;
       try {
         curChar = input_stream.readChar();
       }
@@ -286,14 +312,16 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   private final int jjStopStringLiteralDfa_2(int pos, long active0) {
     switch (pos) {
       case 0:
-        if ((active0 & 0x80000L) != 0L) return 1;
+        if ((active0 & 0x80000L) != 0L)
+          return 1;
         if ((active0 & 0x50755550070000L) != 0L) {
           jjmatchedKind = 58;
           return 6;
         }
         return -1;
       case 1:
-        if ((active0 & 0x105550000000L) != 0L) return 6;
+        if ((active0 & 0x105550000000L) != 0L)
+          return 6;
         if ((active0 & 0x50650000070000L) != 0L) {
           jjmatchedKind = 58;
           jjmatchedPos = 1;
@@ -301,7 +329,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         }
         return -1;
       case 2:
-        if ((active0 & 0x50050000000000L) != 0L) return 6;
+        if ((active0 & 0x50050000000000L) != 0L)
+          return 6;
         if ((active0 & 0x600000070000L) != 0L) {
           jjmatchedKind = 58;
           jjmatchedPos = 2;
@@ -309,7 +338,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         }
         return -1;
       case 3:
-        if ((active0 & 0x50000L) != 0L) return 6;
+        if ((active0 & 0x50000L) != 0L)
+          return 6;
         if ((active0 & 0x600000020000L) != 0L) {
           jjmatchedKind = 58;
           jjmatchedPos = 3;
@@ -322,7 +352,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           jjmatchedPos = 4;
           return 6;
         }
-        if ((active0 & 0x200000020000L) != 0L) return 6;
+        if ((active0 & 0x200000020000L) != 0L)
+          return 6;
         return -1;
       case 5:
         if ((active0 & 0x400000000000L) != 0L) {
@@ -450,24 +481,34 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 38:
-        if ((active0 & 0x20000000000L) != 0L) return jjStopAtPos(1, 41);
+        if ((active0 & 0x20000000000L) != 0L)
+          return jjStopAtPos(1, 41);
         break;
       case 61:
-        if ((active0 & 0x80000000L) != 0L) return jjStopAtPos(1, 31);
-        else if ((active0 & 0x200000000L) != 0L) return jjStopAtPos(1, 33);
-        else if ((active0 & 0x800000000L) != 0L) return jjStopAtPos(1, 35);
-        else if ((active0 & 0x2000000000L) != 0L) return jjStopAtPos(1, 37);
-        else if ((active0 & 0x80000000000000L) != 0L) return jjStopAtPos(1, 55);
+        if ((active0 & 0x80000000L) != 0L)
+          return jjStopAtPos(1, 31);
+        else if ((active0 & 0x200000000L) != 0L)
+          return jjStopAtPos(1, 33);
+        else if ((active0 & 0x800000000L) != 0L)
+          return jjStopAtPos(1, 35);
+        else if ((active0 & 0x2000000000L) != 0L)
+          return jjStopAtPos(1, 37);
+        else if ((active0 & 0x80000000000000L) != 0L)
+          return jjStopAtPos(1, 55);
         break;
       case 62:
-        if ((active0 & 0x200000000000000L) != 0L) return jjStopAtPos(1, 57);
+        if ((active0 & 0x200000000000000L) != 0L)
+          return jjStopAtPos(1, 57);
         break;
       case 97:
         return jjMoveStringLiteralDfa2_2(active0, 0x20000L);
       case 101:
-        if ((active0 & 0x100000000L) != 0L) return jjStartNfaWithStates_2(1, 32, 6);
-        else if ((active0 & 0x400000000L) != 0L) return jjStartNfaWithStates_2(1, 34, 6);
-        else if ((active0 & 0x4000000000L) != 0L) return jjStartNfaWithStates_2(1, 38, 6);
+        if ((active0 & 0x100000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 32, 6);
+        else if ((active0 & 0x400000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 34, 6);
+        else if ((active0 & 0x4000000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 38, 6);
         break;
       case 105:
         return jjMoveStringLiteralDfa2_2(active0, 0x10000000000000L);
@@ -478,19 +519,24 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 111:
         return jjMoveStringLiteralDfa2_2(active0, 0x40010000000000L);
       case 113:
-        if ((active0 & 0x1000000000L) != 0L) return jjStartNfaWithStates_2(1, 36, 6);
+        if ((active0 & 0x1000000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 36, 6);
         break;
       case 114:
-        if ((active0 & 0x100000000000L) != 0L) return jjStartNfaWithStates_2(1, 44, 6);
+        if ((active0 & 0x100000000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 44, 6);
         return jjMoveStringLiteralDfa2_2(active0, 0x10000L);
       case 116:
-        if ((active0 & 0x10000000L) != 0L) return jjStartNfaWithStates_2(1, 28, 6);
-        else if ((active0 & 0x40000000L) != 0L) return jjStartNfaWithStates_2(1, 30, 6);
+        if ((active0 & 0x10000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 28, 6);
+        else if ((active0 & 0x40000000L) != 0L)
+          return jjStartNfaWithStates_2(1, 30, 6);
         break;
       case 117:
         return jjMoveStringLiteralDfa2_2(active0, 0x40000L);
       case 124:
-        if ((active0 & 0x80000000000L) != 0L) return jjStopAtPos(1, 43);
+        if ((active0 & 0x80000000000L) != 0L)
+          return jjStopAtPos(1, 43);
         break;
       default:
         break;
@@ -499,7 +545,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa2_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(0, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(0, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -509,8 +556,10 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 100:
-        if ((active0 & 0x40000000000L) != 0L) return jjStartNfaWithStates_2(2, 42, 6);
-        else if ((active0 & 0x40000000000000L) != 0L) return jjStartNfaWithStates_2(2, 54, 6);
+        if ((active0 & 0x40000000000L) != 0L)
+          return jjStartNfaWithStates_2(2, 42, 6);
+        else if ((active0 & 0x40000000000000L) != 0L)
+          return jjStartNfaWithStates_2(2, 54, 6);
         break;
       case 108:
         return jjMoveStringLiteralDfa3_2(active0, 0x60000L);
@@ -519,12 +568,14 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 115:
         return jjMoveStringLiteralDfa3_2(active0, 0x400000000000L);
       case 116:
-        if ((active0 & 0x10000000000L) != 0L) return jjStartNfaWithStates_2(2, 40, 6);
+        if ((active0 & 0x10000000000L) != 0L)
+          return jjStartNfaWithStates_2(2, 40, 6);
         break;
       case 117:
         return jjMoveStringLiteralDfa3_2(active0, 0x10000L);
       case 118:
-        if ((active0 & 0x10000000000000L) != 0L) return jjStartNfaWithStates_2(2, 52, 6);
+        if ((active0 & 0x10000000000000L) != 0L)
+          return jjStartNfaWithStates_2(2, 52, 6);
         break;
       default:
         break;
@@ -533,7 +584,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa3_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(1, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(1, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -543,10 +595,12 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 101:
-        if ((active0 & 0x10000L) != 0L) return jjStartNfaWithStates_2(3, 16, 6);
+        if ((active0 & 0x10000L) != 0L)
+          return jjStartNfaWithStates_2(3, 16, 6);
         break;
       case 108:
-        if ((active0 & 0x40000L) != 0L) return jjStartNfaWithStates_2(3, 18, 6);
+        if ((active0 & 0x40000L) != 0L)
+          return jjStartNfaWithStates_2(3, 18, 6);
         break;
       case 115:
         return jjMoveStringLiteralDfa4_2(active0, 0x20000L);
@@ -559,7 +613,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa4_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(2, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(2, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -571,10 +626,12 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 97:
         return jjMoveStringLiteralDfa5_2(active0, 0x400000000000L);
       case 101:
-        if ((active0 & 0x20000L) != 0L) return jjStartNfaWithStates_2(4, 17, 6);
+        if ((active0 & 0x20000L) != 0L)
+          return jjStartNfaWithStates_2(4, 17, 6);
         break;
       case 121:
-        if ((active0 & 0x200000000000L) != 0L) return jjStartNfaWithStates_2(4, 45, 6);
+        if ((active0 & 0x200000000000L) != 0L)
+          return jjStartNfaWithStates_2(4, 45, 6);
         break;
       default:
         break;
@@ -583,7 +640,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa5_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(3, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(3, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -601,7 +659,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa6_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(4, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(4, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -619,7 +678,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa7_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(5, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(5, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -637,7 +697,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa8_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(6, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(6, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -655,7 +716,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa9_2(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_2(7, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_2(7, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -665,7 +727,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 102:
-        if ((active0 & 0x400000000000L) != 0L) return jjStartNfaWithStates_2(9, 46, 6);
+        if ((active0 & 0x400000000000L) != 0L)
+          return jjStartNfaWithStates_2(9, 46, 6);
         break;
       default:
         break;
@@ -705,124 +768,167 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     jjstateSet[0] = startState;
     int kind = 0x7fffffff;
     for (; ; ) {
-      if (++jjround == 0x7fffffff) ReInitRounds();
+      if (++jjround == 0x7fffffff)
+        ReInitRounds();
       if (curChar < 64) {
         long l = 1L << curChar;
         do {
           switch (jjstateSet[--i]) {
             case 0:
               if ((0x3ff000000000000L & l) != 0L) {
-                if (kind > 11) kind = 11;
+                if (kind > 11)
+                  kind = 11;
                 jjCheckNAddStates(4, 8);
               }
               else if ((0x1800000000L & l) != 0L) {
-                if (kind > 58) kind = 58;
+                if (kind > 58)
+                  kind = 58;
                 jjCheckNAdd(6);
               }
-              else if (curChar == 39) jjCheckNAddStates(9, 13);
-              else if (curChar == 34) jjCheckNAddStates(14, 18);
-              else if (curChar == 46) jjCheckNAdd(1);
+              else if (curChar == 39)
+                jjCheckNAddStates(9, 13);
+              else if (curChar == 34)
+                jjCheckNAddStates(14, 18);
+              else if (curChar == 46)
+                jjCheckNAdd(1);
               break;
             case 1:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAddTwoStates(1, 2);
               break;
             case 3:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(4);
+              if ((0x280000000000L & l) != 0L)
+                jjCheckNAdd(4);
               break;
             case 4:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAdd(4);
               break;
             case 5:
-              if ((0x1800000000L & l) == 0L) break;
-              if (kind > 58) kind = 58;
+              if ((0x1800000000L & l) == 0L)
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 6:
-              if ((0x3ff001000000000L & l) == 0L) break;
-              if (kind > 58) kind = 58;
+              if ((0x3ff001000000000L & l) == 0L)
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 7:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 11) kind = 11;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 11)
+                kind = 11;
               jjCheckNAddStates(4, 8);
               break;
             case 8:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 11) kind = 11;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 11)
+                kind = 11;
               jjCheckNAdd(8);
               break;
             case 9:
-              if ((0x3ff000000000000L & l) != 0L) jjCheckNAddTwoStates(9, 10);
+              if ((0x3ff000000000000L & l) != 0L)
+                jjCheckNAddTwoStates(9, 10);
               break;
             case 10:
-              if (curChar != 46) break;
-              if (kind > 12) kind = 12;
+              if (curChar != 46)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAddTwoStates(11, 12);
               break;
             case 11:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAddTwoStates(11, 12);
               break;
             case 13:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(14);
+              if ((0x280000000000L & l) != 0L)
+                jjCheckNAdd(14);
               break;
             case 14:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAdd(14);
               break;
             case 15:
-              if ((0x3ff000000000000L & l) != 0L) jjCheckNAddTwoStates(15, 16);
+              if ((0x3ff000000000000L & l) != 0L)
+                jjCheckNAddTwoStates(15, 16);
               break;
             case 17:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(18);
+              if ((0x280000000000L & l) != 0L)
+                jjCheckNAdd(18);
               break;
             case 18:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAdd(18);
               break;
             case 19:
-              if (curChar == 34) jjCheckNAddStates(14, 18);
+              if (curChar == 34)
+                jjCheckNAddStates(14, 18);
               break;
             case 20:
-              if ((0xfffffffbffffffffL & l) != 0L) jjCheckNAddStates(19, 21);
+              if ((0xfffffffbffffffffL & l) != 0L)
+                jjCheckNAddStates(19, 21);
               break;
             case 22:
-              if (curChar == 34) jjCheckNAddStates(19, 21);
+              if (curChar == 34)
+                jjCheckNAddStates(19, 21);
               break;
             case 23:
-              if (curChar == 34 && kind > 14) kind = 14;
+              if (curChar == 34 && kind > 14)
+                kind = 14;
               break;
             case 24:
-              if ((0xfffffffbffffffffL & l) != 0L) jjCheckNAddTwoStates(24, 25);
+              if ((0xfffffffbffffffffL & l) != 0L)
+                jjCheckNAddTwoStates(24, 25);
               break;
             case 26:
-              if ((0xfffffffbffffffffL & l) != 0L && kind > 15) kind = 15;
+              if ((0xfffffffbffffffffL & l) != 0L && kind > 15)
+                kind = 15;
               break;
             case 27:
-              if (curChar == 39) jjCheckNAddStates(9, 13);
+              if (curChar == 39)
+                jjCheckNAddStates(9, 13);
               break;
             case 28:
-              if ((0xffffff7fffffffffL & l) != 0L) jjCheckNAddStates(22, 24);
+              if ((0xffffff7fffffffffL & l) != 0L)
+                jjCheckNAddStates(22, 24);
               break;
             case 30:
-              if (curChar == 39) jjCheckNAddStates(22, 24);
+              if (curChar == 39)
+                jjCheckNAddStates(22, 24);
               break;
             case 31:
-              if (curChar == 39 && kind > 14) kind = 14;
+              if (curChar == 39 && kind > 14)
+                kind = 14;
               break;
             case 32:
-              if ((0xffffff7fffffffffL & l) != 0L) jjCheckNAddTwoStates(32, 33);
+              if ((0xffffff7fffffffffL & l) != 0L)
+                jjCheckNAddTwoStates(32, 33);
               break;
             case 34:
-              if ((0xffffff7fffffffffL & l) != 0L && kind > 15) kind = 15;
+              if ((0xffffff7fffffffffL & l) != 0L && kind > 15)
+                kind = 15;
               break;
             default:
               break;
@@ -836,52 +942,68 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           switch (jjstateSet[--i]) {
             case 0:
             case 6:
-              if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 58) kind = 58;
+              if ((0x7fffffe87fffffeL & l) == 0L)
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 2:
-              if ((0x2000000020L & l) != 0L) jjAddStates(25, 26);
+              if ((0x2000000020L & l) != 0L)
+                jjAddStates(25, 26);
               break;
             case 12:
-              if ((0x2000000020L & l) != 0L) jjAddStates(27, 28);
+              if ((0x2000000020L & l) != 0L)
+                jjAddStates(27, 28);
               break;
             case 16:
-              if ((0x2000000020L & l) != 0L) jjAddStates(29, 30);
+              if ((0x2000000020L & l) != 0L)
+                jjAddStates(29, 30);
               break;
             case 20:
-              if ((0xffffffffefffffffL & l) != 0L) jjCheckNAddStates(19, 21);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjCheckNAddStates(19, 21);
               break;
             case 21:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 22;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 22;
               break;
             case 22:
-              if (curChar == 92) jjCheckNAddStates(19, 21);
+              if (curChar == 92)
+                jjCheckNAddStates(19, 21);
               break;
             case 24:
-              if ((0xffffffffefffffffL & l) != 0L) jjAddStates(31, 32);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjAddStates(31, 32);
               break;
             case 25:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 26;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 26;
               break;
             case 26:
             case 34:
-              if ((0xffffffffefffffffL & l) != 0L && kind > 15) kind = 15;
+              if ((0xffffffffefffffffL & l) != 0L && kind > 15)
+                kind = 15;
               break;
             case 28:
-              if ((0xffffffffefffffffL & l) != 0L) jjCheckNAddStates(22, 24);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjCheckNAddStates(22, 24);
               break;
             case 29:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 30;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 30;
               break;
             case 30:
-              if (curChar == 92) jjCheckNAddStates(22, 24);
+              if (curChar == 92)
+                jjCheckNAddStates(22, 24);
               break;
             case 32:
-              if ((0xffffffffefffffffL & l) != 0L) jjAddStates(33, 34);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjAddStates(33, 34);
               break;
             case 33:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 34;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 34;
               break;
             default:
               break;
@@ -899,25 +1021,32 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           switch (jjstateSet[--i]) {
             case 0:
             case 6:
-              if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) break;
-              if (kind > 58) kind = 58;
+              if (!jjCanMove_1(hiByte, i1, i2, l1, l2))
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 20:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(19, 21);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(19, 21);
               break;
             case 24:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(31, 32);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(31, 32);
               break;
             case 26:
             case 34:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 15) kind = 15;
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 15)
+                kind = 15;
               break;
             case 28:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(22, 24);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(22, 24);
               break;
             case 32:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(33, 34);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(33, 34);
               break;
             default:
               break;
@@ -931,7 +1060,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         kind = 0x7fffffff;
       }
       ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 35 - (jjnewStateCnt = startsAt))) return curPos;
+      if ((i = jjnewStateCnt) == (startsAt = 35 - (jjnewStateCnt = startsAt)))
+        return curPos;
       try {
         curChar = input_stream.readChar();
       }
@@ -944,14 +1074,16 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   private final int jjStopStringLiteralDfa_1(int pos, long active0) {
     switch (pos) {
       case 0:
-        if ((active0 & 0x80000L) != 0L) return 1;
+        if ((active0 & 0x80000L) != 0L)
+          return 1;
         if ((active0 & 0x50755550070000L) != 0L) {
           jjmatchedKind = 58;
           return 6;
         }
         return -1;
       case 1:
-        if ((active0 & 0x105550000000L) != 0L) return 6;
+        if ((active0 & 0x105550000000L) != 0L)
+          return 6;
         if ((active0 & 0x50650000070000L) != 0L) {
           jjmatchedKind = 58;
           jjmatchedPos = 1;
@@ -959,7 +1091,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         }
         return -1;
       case 2:
-        if ((active0 & 0x50050000000000L) != 0L) return 6;
+        if ((active0 & 0x50050000000000L) != 0L)
+          return 6;
         if ((active0 & 0x600000070000L) != 0L) {
           jjmatchedKind = 58;
           jjmatchedPos = 2;
@@ -967,7 +1100,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         }
         return -1;
       case 3:
-        if ((active0 & 0x50000L) != 0L) return 6;
+        if ((active0 & 0x50000L) != 0L)
+          return 6;
         if ((active0 & 0x600000020000L) != 0L) {
           jjmatchedKind = 58;
           jjmatchedPos = 3;
@@ -980,7 +1114,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           jjmatchedPos = 4;
           return 6;
         }
-        if ((active0 & 0x200000020000L) != 0L) return 6;
+        if ((active0 & 0x200000020000L) != 0L)
+          return 6;
         return -1;
       case 5:
         if ((active0 & 0x400000000000L) != 0L) {
@@ -1108,24 +1243,34 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 38:
-        if ((active0 & 0x20000000000L) != 0L) return jjStopAtPos(1, 41);
+        if ((active0 & 0x20000000000L) != 0L)
+          return jjStopAtPos(1, 41);
         break;
       case 61:
-        if ((active0 & 0x80000000L) != 0L) return jjStopAtPos(1, 31);
-        else if ((active0 & 0x200000000L) != 0L) return jjStopAtPos(1, 33);
-        else if ((active0 & 0x800000000L) != 0L) return jjStopAtPos(1, 35);
-        else if ((active0 & 0x2000000000L) != 0L) return jjStopAtPos(1, 37);
-        else if ((active0 & 0x80000000000000L) != 0L) return jjStopAtPos(1, 55);
+        if ((active0 & 0x80000000L) != 0L)
+          return jjStopAtPos(1, 31);
+        else if ((active0 & 0x200000000L) != 0L)
+          return jjStopAtPos(1, 33);
+        else if ((active0 & 0x800000000L) != 0L)
+          return jjStopAtPos(1, 35);
+        else if ((active0 & 0x2000000000L) != 0L)
+          return jjStopAtPos(1, 37);
+        else if ((active0 & 0x80000000000000L) != 0L)
+          return jjStopAtPos(1, 55);
         break;
       case 62:
-        if ((active0 & 0x200000000000000L) != 0L) return jjStopAtPos(1, 57);
+        if ((active0 & 0x200000000000000L) != 0L)
+          return jjStopAtPos(1, 57);
         break;
       case 97:
         return jjMoveStringLiteralDfa2_1(active0, 0x20000L);
       case 101:
-        if ((active0 & 0x100000000L) != 0L) return jjStartNfaWithStates_1(1, 32, 6);
-        else if ((active0 & 0x400000000L) != 0L) return jjStartNfaWithStates_1(1, 34, 6);
-        else if ((active0 & 0x4000000000L) != 0L) return jjStartNfaWithStates_1(1, 38, 6);
+        if ((active0 & 0x100000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 32, 6);
+        else if ((active0 & 0x400000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 34, 6);
+        else if ((active0 & 0x4000000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 38, 6);
         break;
       case 105:
         return jjMoveStringLiteralDfa2_1(active0, 0x10000000000000L);
@@ -1136,19 +1281,24 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 111:
         return jjMoveStringLiteralDfa2_1(active0, 0x40010000000000L);
       case 113:
-        if ((active0 & 0x1000000000L) != 0L) return jjStartNfaWithStates_1(1, 36, 6);
+        if ((active0 & 0x1000000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 36, 6);
         break;
       case 114:
-        if ((active0 & 0x100000000000L) != 0L) return jjStartNfaWithStates_1(1, 44, 6);
+        if ((active0 & 0x100000000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 44, 6);
         return jjMoveStringLiteralDfa2_1(active0, 0x10000L);
       case 116:
-        if ((active0 & 0x10000000L) != 0L) return jjStartNfaWithStates_1(1, 28, 6);
-        else if ((active0 & 0x40000000L) != 0L) return jjStartNfaWithStates_1(1, 30, 6);
+        if ((active0 & 0x10000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 28, 6);
+        else if ((active0 & 0x40000000L) != 0L)
+          return jjStartNfaWithStates_1(1, 30, 6);
         break;
       case 117:
         return jjMoveStringLiteralDfa2_1(active0, 0x40000L);
       case 124:
-        if ((active0 & 0x80000000000L) != 0L) return jjStopAtPos(1, 43);
+        if ((active0 & 0x80000000000L) != 0L)
+          return jjStopAtPos(1, 43);
         break;
       default:
         break;
@@ -1157,7 +1307,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa2_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(0, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(0, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1167,8 +1318,10 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 100:
-        if ((active0 & 0x40000000000L) != 0L) return jjStartNfaWithStates_1(2, 42, 6);
-        else if ((active0 & 0x40000000000000L) != 0L) return jjStartNfaWithStates_1(2, 54, 6);
+        if ((active0 & 0x40000000000L) != 0L)
+          return jjStartNfaWithStates_1(2, 42, 6);
+        else if ((active0 & 0x40000000000000L) != 0L)
+          return jjStartNfaWithStates_1(2, 54, 6);
         break;
       case 108:
         return jjMoveStringLiteralDfa3_1(active0, 0x60000L);
@@ -1177,12 +1330,14 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 115:
         return jjMoveStringLiteralDfa3_1(active0, 0x400000000000L);
       case 116:
-        if ((active0 & 0x10000000000L) != 0L) return jjStartNfaWithStates_1(2, 40, 6);
+        if ((active0 & 0x10000000000L) != 0L)
+          return jjStartNfaWithStates_1(2, 40, 6);
         break;
       case 117:
         return jjMoveStringLiteralDfa3_1(active0, 0x10000L);
       case 118:
-        if ((active0 & 0x10000000000000L) != 0L) return jjStartNfaWithStates_1(2, 52, 6);
+        if ((active0 & 0x10000000000000L) != 0L)
+          return jjStartNfaWithStates_1(2, 52, 6);
         break;
       default:
         break;
@@ -1191,7 +1346,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa3_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(1, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(1, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1201,10 +1357,12 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     }
     switch (curChar) {
       case 101:
-        if ((active0 & 0x10000L) != 0L) return jjStartNfaWithStates_1(3, 16, 6);
+        if ((active0 & 0x10000L) != 0L)
+          return jjStartNfaWithStates_1(3, 16, 6);
         break;
       case 108:
-        if ((active0 & 0x40000L) != 0L) return jjStartNfaWithStates_1(3, 18, 6);
+        if ((active0 & 0x40000L) != 0L)
+          return jjStartNfaWithStates_1(3, 18, 6);
         break;
       case 115:
         return jjMoveStringLiteralDfa4_1(active0, 0x20000L);
@@ -1217,7 +1375,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa4_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(2, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(2, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1229,10 +1388,12 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 97:
         return jjMoveStringLiteralDfa5_1(active0, 0x400000000000L);
       case 101:
-        if ((active0 & 0x20000L) != 0L) return jjStartNfaWithStates_1(4, 17, 6);
+        if ((active0 & 0x20000L) != 0L)
+          return jjStartNfaWithStates_1(4, 17, 6);
         break;
       case 121:
-        if ((active0 & 0x200000000000L) != 0L) return jjStartNfaWithStates_1(4, 45, 6);
+        if ((active0 & 0x200000000000L) != 0L)
+          return jjStartNfaWithStates_1(4, 45, 6);
         break;
       default:
         break;
@@ -1241,7 +1402,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa5_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(3, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(3, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1259,7 +1421,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa6_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(4, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(4, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1277,7 +1440,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa7_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(5, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(5, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1292,7 +1456,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa8_1(long old0, long active0) {
-    if (((active0 &= old0)) == 0L) return jjStartNfa_1(6, old0);
+    if (((active0 &= old0)) == 0L)
+      return jjStartNfa_1(6, old0);
     try {
       curChar = input_stream.readChar();
     }
@@ -1346,124 +1511,167 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     jjstateSet[0] = startState;
     int kind = 0x7fffffff;
     for (; ; ) {
-      if (++jjround == 0x7fffffff) ReInitRounds();
+      if (++jjround == 0x7fffffff)
+        ReInitRounds();
       if (curChar < 64) {
         long l = 1L << curChar;
         do {
           switch (jjstateSet[--i]) {
             case 0:
               if ((0x3ff000000000000L & l) != 0L) {
-                if (kind > 11) kind = 11;
+                if (kind > 11)
+                  kind = 11;
                 jjCheckNAddStates(4, 8);
               }
               else if ((0x1800000000L & l) != 0L) {
-                if (kind > 58) kind = 58;
+                if (kind > 58)
+                  kind = 58;
                 jjCheckNAdd(6);
               }
-              else if (curChar == 39) jjCheckNAddStates(9, 13);
-              else if (curChar == 34) jjCheckNAddStates(14, 18);
-              else if (curChar == 46) jjCheckNAdd(1);
+              else if (curChar == 39)
+                jjCheckNAddStates(9, 13);
+              else if (curChar == 34)
+                jjCheckNAddStates(14, 18);
+              else if (curChar == 46)
+                jjCheckNAdd(1);
               break;
             case 1:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAddTwoStates(1, 2);
               break;
             case 3:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(4);
+              if ((0x280000000000L & l) != 0L)
+                jjCheckNAdd(4);
               break;
             case 4:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAdd(4);
               break;
             case 5:
-              if ((0x1800000000L & l) == 0L) break;
-              if (kind > 58) kind = 58;
+              if ((0x1800000000L & l) == 0L)
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 6:
-              if ((0x3ff001000000000L & l) == 0L) break;
-              if (kind > 58) kind = 58;
+              if ((0x3ff001000000000L & l) == 0L)
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 7:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 11) kind = 11;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 11)
+                kind = 11;
               jjCheckNAddStates(4, 8);
               break;
             case 8:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 11) kind = 11;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 11)
+                kind = 11;
               jjCheckNAdd(8);
               break;
             case 9:
-              if ((0x3ff000000000000L & l) != 0L) jjCheckNAddTwoStates(9, 10);
+              if ((0x3ff000000000000L & l) != 0L)
+                jjCheckNAddTwoStates(9, 10);
               break;
             case 10:
-              if (curChar != 46) break;
-              if (kind > 12) kind = 12;
+              if (curChar != 46)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAddTwoStates(11, 12);
               break;
             case 11:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAddTwoStates(11, 12);
               break;
             case 13:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(14);
+              if ((0x280000000000L & l) != 0L)
+                jjCheckNAdd(14);
               break;
             case 14:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAdd(14);
               break;
             case 15:
-              if ((0x3ff000000000000L & l) != 0L) jjCheckNAddTwoStates(15, 16);
+              if ((0x3ff000000000000L & l) != 0L)
+                jjCheckNAddTwoStates(15, 16);
               break;
             case 17:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(18);
+              if ((0x280000000000L & l) != 0L)
+                jjCheckNAdd(18);
               break;
             case 18:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 12) kind = 12;
+              if ((0x3ff000000000000L & l) == 0L)
+                break;
+              if (kind > 12)
+                kind = 12;
               jjCheckNAdd(18);
               break;
             case 19:
-              if (curChar == 34) jjCheckNAddStates(14, 18);
+              if (curChar == 34)
+                jjCheckNAddStates(14, 18);
               break;
             case 20:
-              if ((0xfffffffbffffffffL & l) != 0L) jjCheckNAddStates(19, 21);
+              if ((0xfffffffbffffffffL & l) != 0L)
+                jjCheckNAddStates(19, 21);
               break;
             case 22:
-              if (curChar == 34) jjCheckNAddStates(19, 21);
+              if (curChar == 34)
+                jjCheckNAddStates(19, 21);
               break;
             case 23:
-              if (curChar == 34 && kind > 14) kind = 14;
+              if (curChar == 34 && kind > 14)
+                kind = 14;
               break;
             case 24:
-              if ((0xfffffffbffffffffL & l) != 0L) jjCheckNAddTwoStates(24, 25);
+              if ((0xfffffffbffffffffL & l) != 0L)
+                jjCheckNAddTwoStates(24, 25);
               break;
             case 26:
-              if ((0xfffffffbffffffffL & l) != 0L && kind > 15) kind = 15;
+              if ((0xfffffffbffffffffL & l) != 0L && kind > 15)
+                kind = 15;
               break;
             case 27:
-              if (curChar == 39) jjCheckNAddStates(9, 13);
+              if (curChar == 39)
+                jjCheckNAddStates(9, 13);
               break;
             case 28:
-              if ((0xffffff7fffffffffL & l) != 0L) jjCheckNAddStates(22, 24);
+              if ((0xffffff7fffffffffL & l) != 0L)
+                jjCheckNAddStates(22, 24);
               break;
             case 30:
-              if (curChar == 39) jjCheckNAddStates(22, 24);
+              if (curChar == 39)
+                jjCheckNAddStates(22, 24);
               break;
             case 31:
-              if (curChar == 39 && kind > 14) kind = 14;
+              if (curChar == 39 && kind > 14)
+                kind = 14;
               break;
             case 32:
-              if ((0xffffff7fffffffffL & l) != 0L) jjCheckNAddTwoStates(32, 33);
+              if ((0xffffff7fffffffffL & l) != 0L)
+                jjCheckNAddTwoStates(32, 33);
               break;
             case 34:
-              if ((0xffffff7fffffffffL & l) != 0L && kind > 15) kind = 15;
+              if ((0xffffff7fffffffffL & l) != 0L && kind > 15)
+                kind = 15;
               break;
             default:
               break;
@@ -1477,52 +1685,68 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           switch (jjstateSet[--i]) {
             case 0:
             case 6:
-              if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 58) kind = 58;
+              if ((0x7fffffe87fffffeL & l) == 0L)
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 2:
-              if ((0x2000000020L & l) != 0L) jjAddStates(25, 26);
+              if ((0x2000000020L & l) != 0L)
+                jjAddStates(25, 26);
               break;
             case 12:
-              if ((0x2000000020L & l) != 0L) jjAddStates(27, 28);
+              if ((0x2000000020L & l) != 0L)
+                jjAddStates(27, 28);
               break;
             case 16:
-              if ((0x2000000020L & l) != 0L) jjAddStates(29, 30);
+              if ((0x2000000020L & l) != 0L)
+                jjAddStates(29, 30);
               break;
             case 20:
-              if ((0xffffffffefffffffL & l) != 0L) jjCheckNAddStates(19, 21);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjCheckNAddStates(19, 21);
               break;
             case 21:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 22;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 22;
               break;
             case 22:
-              if (curChar == 92) jjCheckNAddStates(19, 21);
+              if (curChar == 92)
+                jjCheckNAddStates(19, 21);
               break;
             case 24:
-              if ((0xffffffffefffffffL & l) != 0L) jjAddStates(31, 32);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjAddStates(31, 32);
               break;
             case 25:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 26;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 26;
               break;
             case 26:
             case 34:
-              if ((0xffffffffefffffffL & l) != 0L && kind > 15) kind = 15;
+              if ((0xffffffffefffffffL & l) != 0L && kind > 15)
+                kind = 15;
               break;
             case 28:
-              if ((0xffffffffefffffffL & l) != 0L) jjCheckNAddStates(22, 24);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjCheckNAddStates(22, 24);
               break;
             case 29:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 30;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 30;
               break;
             case 30:
-              if (curChar == 92) jjCheckNAddStates(22, 24);
+              if (curChar == 92)
+                jjCheckNAddStates(22, 24);
               break;
             case 32:
-              if ((0xffffffffefffffffL & l) != 0L) jjAddStates(33, 34);
+              if ((0xffffffffefffffffL & l) != 0L)
+                jjAddStates(33, 34);
               break;
             case 33:
-              if (curChar == 92) jjstateSet[jjnewStateCnt++] = 34;
+              if (curChar == 92)
+                jjstateSet[jjnewStateCnt++] = 34;
               break;
             default:
               break;
@@ -1540,25 +1764,32 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           switch (jjstateSet[--i]) {
             case 0:
             case 6:
-              if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) break;
-              if (kind > 58) kind = 58;
+              if (!jjCanMove_1(hiByte, i1, i2, l1, l2))
+                break;
+              if (kind > 58)
+                kind = 58;
               jjCheckNAdd(6);
               break;
             case 20:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(19, 21);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(19, 21);
               break;
             case 24:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(31, 32);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(31, 32);
               break;
             case 26:
             case 34:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 15) kind = 15;
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 15)
+                kind = 15;
               break;
             case 28:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(22, 24);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(22, 24);
               break;
             case 32:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(33, 34);
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                jjAddStates(33, 34);
               break;
             default:
               break;
@@ -1572,7 +1803,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         kind = 0x7fffffff;
       }
       ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 35 - (jjnewStateCnt = startsAt))) return curPos;
+      if ((i = jjnewStateCnt) == (startsAt = 35 - (jjnewStateCnt = startsAt)))
+        return curPos;
       try {
         curChar = input_stream.readChar();
       }
@@ -1610,7 +1842,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       case 61:
         return ((jjbitVec8[i2] & l2) != 0L);
       default:
-        if ((jjbitVec3[i1] & l1) != 0L) return true;
+        if ((jjbitVec3[i1] & l1) != 0L)
+          return true;
         return false;
     }
   }
@@ -1658,7 +1891,7 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   int curLexState = 0;
-//  int defaultLexState = 0;
+  //  int defaultLexState = 0;
   int jjnewStateCnt;
   int jjround;
   int jjmatchedPos;
@@ -1723,15 +1956,18 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           break;
       }
       if (jjmatchedKind != 0x7fffffff) {
-        if (jjmatchedPos + 1 < curPos) input_stream.backup(curPos - jjmatchedPos - 1);
+        if (jjmatchedPos + 1 < curPos)
+          input_stream.backup(curPos - jjmatchedPos - 1);
         if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
           matchedToken = jjFillToken();
           TokenLexicalActions(matchedToken);
-          if (jjnewLexState[jjmatchedKind] != -1) curLexState = jjnewLexState[jjmatchedKind];
+          if (jjnewLexState[jjmatchedKind] != -1)
+            curLexState = jjnewLexState[jjmatchedKind];
           return matchedToken;
         }
         else {
-          if (jjnewLexState[jjmatchedKind] != -1) curLexState = jjnewLexState[jjmatchedKind];
+          if (jjnewLexState[jjmatchedKind] != -1)
+            curLexState = jjnewLexState[jjmatchedKind];
           continue EOFLoop;
         }
       }

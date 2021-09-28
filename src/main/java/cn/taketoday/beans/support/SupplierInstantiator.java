@@ -28,8 +28,7 @@ import java.util.function.Supplier;
  * @author TODAY 2021/5/28 22:16
  * @since 3.0.2
  */
-@SuppressWarnings("rawtypes")
-final class SupplierInstantiator extends BeanInstantiator {
+@SuppressWarnings("rawtypes") final class SupplierInstantiator extends BeanInstantiator {
   private final Supplier supplier;
 
   SupplierInstantiator(Supplier supplier) {

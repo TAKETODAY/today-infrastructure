@@ -67,7 +67,7 @@ public class FreeMarkerTemplateRenderer
   @SuppressWarnings("rawtypes")
   private List/*<MetaInfTldSource>*/ metaInfTldSources;
 
-  public FreeMarkerTemplateRenderer() {}
+  public FreeMarkerTemplateRenderer() { }
 
   public FreeMarkerTemplateRenderer(WebServletApplicationContext context) {
     this(context, null, null, null);

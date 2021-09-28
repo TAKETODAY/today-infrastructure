@@ -19,6 +19,10 @@
  */
 package cn.taketoday.web;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.TodayStrategies;
@@ -30,11 +34,6 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.support.FastJSONMessageConverter;
 import cn.taketoday.web.support.JacksonMessageBodyConverter;
 import cn.taketoday.web.view.JsonSequence;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.util.List;
 
 /**
  * Http message body (request-body, response-body) read/write strategy
@@ -165,6 +164,5 @@ public abstract class MessageBodyConverter {
     }
     return messageBodyConverter;
   }
-
 
 }

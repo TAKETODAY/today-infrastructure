@@ -125,8 +125,6 @@ public final class AstIdentifier extends SimpleNode {
     return ret;
   }
 
-
-
   @Override
   public boolean isReadOnly(final EvaluationContext ctx) {
     final String image = this.image;

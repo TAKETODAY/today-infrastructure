@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.FieldVisitor;
 import cn.taketoday.core.bytecode.MethodVisitor;
@@ -27,7 +28,6 @@ import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
-import cn.taketoday.core.Constant;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg

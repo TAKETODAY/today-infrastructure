@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 20:09
+ * 2019-08-18 20:09
  */
 public interface UpdateOperation {
 
@@ -36,7 +36,8 @@ public interface UpdateOperation {
    * statement).
    *
    * @param sql
-   *            static SQL to execute
+   *         static SQL to execute
+   *
    * @return the number of rows affected @ if there is any problem.
    */
   int update(String sql) throws SQLException;
@@ -46,14 +47,15 @@ public interface UpdateOperation {
    * statement) via a prepared statement, binding the given arguments.
    *
    * @param sql
-   *            SQL containing bind parameters
+   *         SQL containing bind parameters
    * @param args
-   *            arguments to bind to the query (leaving it to the
-   *            PreparedStatement to guess the corresponding SQL type); may also
-   *            contain {@link SqlParameterValue} objects which indicate not only
-   *            the argument value but also the SQL type and optionally the scale
+   *         arguments to bind to the query (leaving it to the
+   *         PreparedStatement to guess the corresponding SQL type); may also
+   *         contain {@link SqlParameterValue} objects which indicate not only
+   *         the argument value but also the SQL type and optionally the scale
+   *
    * @return the number of rows affected @ if there is any problem issuing the
-   *         update
+   * update
    */
   int update(String sql, Object[] args) throws SQLException;
 
@@ -64,9 +66,10 @@ public interface UpdateOperation {
    * does not support batch updates.
    *
    * @param sql
-   *            defining an array of SQL statements that will be executed.
+   *         defining an array of SQL statements that will be executed.
+   *
    * @return an array of the number of rows affected by each statement @ if there
-   *         is any problem executing the batch
+   * is any problem executing the batch
    */
   int[] batchUpdate(String... sql) throws SQLException;
 
@@ -75,12 +78,13 @@ public interface UpdateOperation {
    * arguments.
    *
    * @param sql
-   *            the SQL statement to execute
+   *         the SQL statement to execute
    * @param batchArgs
-   *            the List of Object arrays containing the batch of arguments for
-   *            the query
+   *         the List of Object arrays containing the batch of arguments for
+   *         the query
+   *
    * @return an array containing the numbers of rows affected by each update in
-   *         the batch
+   * the batch
    */
   int[] batchUpdate(String sql, List<Object[]> batchArgs) throws SQLException;
 

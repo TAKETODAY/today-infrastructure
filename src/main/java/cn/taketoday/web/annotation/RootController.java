@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * Root Controller indicate that its a 'Controller'
  *
  * @author TODAY <br>
- *         2019-09-01 16:39
+ * 2019-09-01 16:39
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

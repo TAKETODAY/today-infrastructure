@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.util.Properties;
+
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.context.Env;
@@ -43,8 +45,6 @@ import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.view.RedirectModelManager;
-
-import java.util.Properties;
 
 import static cn.taketoday.context.ContextUtils.resolveProps;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.from;

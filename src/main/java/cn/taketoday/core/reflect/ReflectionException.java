@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -26,7 +26,6 @@ import cn.taketoday.core.NestedRuntimeException;
  * 2020-08-13 18:46
  */
 public class ReflectionException extends NestedRuntimeException {
-
   private static final long serialVersionUID = 1L;
 
   public ReflectionException() { }

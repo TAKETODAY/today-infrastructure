@@ -31,9 +31,9 @@ import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.util.ReflectionUtils;
 
+import static cn.taketoday.core.Constant.SOURCE_FILE;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.core.bytecode.Opcodes.JAVA_VERSION;
-import static cn.taketoday.core.Constant.SOURCE_FILE;
 
 /**
  * This class implements a simple String->int mapping for a fixed set of keys.

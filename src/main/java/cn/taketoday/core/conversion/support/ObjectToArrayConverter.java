@@ -40,15 +40,15 @@ final class ObjectToArrayConverter extends ToArrayConverter {
     this.conversionService = conversionService;
   }
 
-	@Override
-	protected boolean supportsInternal(TypeDescriptor targetType, final Class<?> sourceType) {
-		// Object.class, Object[].class
+  @Override
+  protected boolean supportsInternal(TypeDescriptor targetType, final Class<?> sourceType) {
+    // Object.class, Object[].class
     final Class<?> componentType = targetType.getComponentType();
     return conversionService.canConvert(sourceType, componentType);
-	}
+  }
 
-	@Override
-	public Object convert(TypeDescriptor targetType, Object source) {
+  @Override
+  public Object convert(TypeDescriptor targetType, Object source) {
     final TypeDescriptor targetElementType = targetType.getElementDescriptor();
 
     Object target = Array.newInstance(targetElementType.getType(), 1);

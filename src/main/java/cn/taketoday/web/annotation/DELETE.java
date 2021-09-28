@@ -30,7 +30,7 @@ import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
- *         2018-07-01 14:05:15
+ * 2018-07-01 14:05:15
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ActionMapping(method = HttpMethod.DELETE)
@@ -42,7 +42,6 @@ public @interface DELETE {
 
   /** Exclude url on class */
   boolean exclude() default false;
-
 
   /**
    * Narrows the primary mapping by media types that can be
@@ -130,5 +129,5 @@ public @interface DELETE {
    * @since 3.0
    */
   String[] produces() default {};
-  
+
 }

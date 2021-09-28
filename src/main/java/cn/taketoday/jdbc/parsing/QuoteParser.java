@@ -36,7 +36,8 @@ public class QuoteParser extends CharParser {
 
     do {
       parsedSql.append(c);
-      if (++idx == length) return idx;
+      if (++idx == length)
+        return idx;
       c = sql.charAt(idx);
     }
     while (c != quoteChar);

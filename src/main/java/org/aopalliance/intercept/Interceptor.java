@@ -1,4 +1,3 @@
-
 package org.aopalliance.intercept;
 
 import org.aopalliance.aop.Advice;
@@ -17,7 +16,7 @@ import org.aopalliance.aop.Advice;
  * interceptors in order to implement a debugger:
  *
  * <pre class=code>
- * class DebuggingInterceptor implements MethodInterceptor, 
+ * class DebuggingInterceptor implements MethodInterceptor,
  *     ConstructorInterceptor, FieldInterceptor {
  *
  *   Object invoke(MethodInvocation i) throws Throwable {
@@ -29,7 +28,7 @@ import org.aopalliance.aop.Advice;
  *     debug(i.getConstructor(), i.getThis(), i.getArgs());
  *     return i.proceed();
  *   }
- * 
+ *
  *   Object get(FieldAccess fa) throws Throwable {
  *     debug(fa.getField(), fa.getThis(), null);
  *     return fa.proceed();

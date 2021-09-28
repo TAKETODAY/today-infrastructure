@@ -23,7 +23,7 @@ import java.util.Objects;
 
 /**
  * @author TODAY <br>
- *         2019-07-21 14:30
+ * 2019-07-21 14:30
  */
 public class ObjectError {
 
@@ -56,8 +56,10 @@ public class ObjectError {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ObjectError)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof ObjectError))
+      return false;
     final ObjectError that = (ObjectError) o;
     return Objects.equals(field, that.field) && Objects.equals(message, that.message);
   }

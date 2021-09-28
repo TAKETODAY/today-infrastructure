@@ -131,9 +131,12 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof BeanReferencePropertySetter)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof BeanReferencePropertySetter))
+      return false;
+    if (!super.equals(o))
+      return false;
     final BeanReferencePropertySetter that = (BeanReferencePropertySetter) o;
     return required == that.required
             && Objects.equals(referenceName, that.referenceName)

@@ -69,7 +69,7 @@ class ServletContainerInitializerConfig
     CandidateComponentScanner componentScannerToUse = context.getCandidateComponentScanner();
     if (target != null) {
       final String[] scanPackages = target.scanPackages();
-      if(ObjectUtils.isNotEmpty(scanPackages)) {
+      if (ObjectUtils.isNotEmpty(scanPackages)) {
         componentScannerToUse.scan(scanPackages);
       }
     }
@@ -95,7 +95,6 @@ class ServletContainerInitializerConfig
       initializer.onStartup(c, servletContext);
     }
   }
-
 
   @Override
   public void setImportBeanDefinition(

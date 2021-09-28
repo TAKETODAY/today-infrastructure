@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-11-16 21:28
+ * 2018-11-16 21:28
  */
 public abstract class AbstractTransactionStatus implements TransactionStatus {
 
@@ -114,7 +114,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
    * Create a savepoint and hold it for the transaction.
    *
    * @throws TransactionException
-   *             if the underlying transaction does not support savepoints
+   *         if the underlying transaction does not support savepoints
    */
   public void createAndHoldSavepoint() throws TransactionException {
     setSavepoint(getSavepointManager().createSavepoint());

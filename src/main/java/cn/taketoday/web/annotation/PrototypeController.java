@@ -29,7 +29,7 @@ import cn.taketoday.context.Scope;
 
 /**
  * @author TODAY <br>
- *         2019-09-01 16:14
+ * 2019-09-01 16:14
  */
 @RootController
 @Component(scope = Scope.PROTOTYPE)

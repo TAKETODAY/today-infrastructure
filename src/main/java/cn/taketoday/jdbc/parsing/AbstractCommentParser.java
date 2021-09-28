@@ -25,7 +25,7 @@ package cn.taketoday.jdbc.parsing;
  */
 public abstract class AbstractCommentParser extends CharParser {
 
-  protected void startParsing() {}
+  protected void startParsing() { }
 
   @Override
   public int parse(char c, int idx, StringBuilder parsedSql, String sql, int length) {

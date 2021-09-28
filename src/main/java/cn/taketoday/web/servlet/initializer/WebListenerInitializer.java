@@ -30,14 +30,14 @@ import cn.taketoday.logger.LoggerFactory;
  * Initialize a Servlet Listener
  *
  * @author TODAY <br>
- *         2019-02-25 17:59
+ * 2019-02-25 17:59
  */
 public class WebListenerInitializer<T extends EventListener>
         extends OrderedSupport implements ServletContextInitializer {
 
   private T listener;
 
-  public WebListenerInitializer() {}
+  public WebListenerInitializer() { }
 
   public WebListenerInitializer(T listener) {
     this.listener = listener;

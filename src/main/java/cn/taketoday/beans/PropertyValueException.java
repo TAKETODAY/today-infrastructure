@@ -30,7 +30,7 @@ import cn.taketoday.core.NestedRuntimeException;
 public class PropertyValueException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public PropertyValueException() {}
+  public PropertyValueException() { }
 
   public PropertyValueException(Throwable cause) {
     super(cause);

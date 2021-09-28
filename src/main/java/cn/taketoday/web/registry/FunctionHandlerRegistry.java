@@ -35,7 +35,7 @@ import static cn.taketoday.web.http.HttpMethod.TRACE;
 
 /**
  * @author TODAY <br>
- *         2019-12-26 17:33
+ * 2019-12-26 17:33
  */
 public class FunctionHandlerRegistry extends MappedHandlerRegistry {
 
@@ -167,11 +167,12 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
    * Map a handler to the given URL path (or pattern)
    *
    * @param method
-   *            Target HTTP request method
+   *         Target HTTP request method
    * @param pathPattern
-   *            Target path pattern
+   *         Target path pattern
    * @param handler
-   *            Handler object
+   *         Handler object
+   *
    * @return This {@link FunctionHandlerRegistry}
    */
   public FunctionHandlerRegistry register(HttpMethod method, String pathPattern, Object handler) {

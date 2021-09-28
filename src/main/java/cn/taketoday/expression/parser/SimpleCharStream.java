@@ -178,12 +178,15 @@ public class SimpleCharStream {
           bufpos = maxNextCharInd = 0;
           available = tokenBegin;
         }
-        else if (tokenBegin < 0) bufpos = maxNextCharInd = 0;
+        else if (tokenBegin < 0)
+          bufpos = maxNextCharInd = 0;
         else
           ExpandBuff(false);
       }
-      else if (available > tokenBegin) available = bufsize;
-      else if ((tokenBegin - available) < 2048) ExpandBuff(true);
+      else if (available > tokenBegin)
+        available = bufsize;
+      else if ((tokenBegin - available) < 2048)
+        ExpandBuff(true);
       else
         available = tokenBegin;
     }
@@ -200,7 +203,8 @@ public class SimpleCharStream {
     catch (IOException e) {
       --bufpos;
       backup(0);
-      if (tokenBegin == -1) tokenBegin = bufpos;
+      if (tokenBegin == -1)
+        tokenBegin = bufpos;
       throw e;
     }
   }
@@ -254,12 +258,14 @@ public class SimpleCharStream {
     if (inBuf > 0) {
       --inBuf;
 
-      if (++bufpos == bufsize) bufpos = 0;
+      if (++bufpos == bufsize)
+        bufpos = 0;
 
       return buffer[bufpos];
     }
 
-    if (++bufpos >= maxNextCharInd) FillBuff();
+    if (++bufpos >= maxNextCharInd)
+      FillBuff();
 
     char c = buffer[bufpos];
 
@@ -309,7 +315,8 @@ public class SimpleCharStream {
   public void backup(int amount) {
 
     inBuf += amount;
-    if ((bufpos -= amount) < 0) bufpos += bufsize;
+    if ((bufpos -= amount) < 0)
+      bufpos += bufsize;
   }
 
   /** Get token literal value. */
@@ -372,7 +379,8 @@ public class SimpleCharStream {
       bufcolumn[j] = newCol + columnDiff;
 
       while (i++ < len) {
-        if (bufline[j = start % bufsize] != bufline[++start % bufsize]) bufline[j] = newLine++;
+        if (bufline[j = start % bufsize] != bufline[++start % bufsize])
+          bufline[j] = newLine++;
         else
           bufline[j] = newLine;
       }

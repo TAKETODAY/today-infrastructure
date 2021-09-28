@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-11-06 22:46
+ * 2018-11-06 22:46
  */
 public class TransactionException extends RuntimeException {
 

@@ -147,7 +147,7 @@ public class MultipartIterator {
       }
       else {
         final byte[] bytes = Utils.readBytes(inputStream, partSize);
-        return new LightMultipartFile(bytes, contentDisposition,contentType,  partSize); // inputStream memory
+        return new LightMultipartFile(bytes, contentDisposition, contentType, partSize); // inputStream memory
       }
     }
     else {

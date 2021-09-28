@@ -27,6 +27,14 @@ import org.apache.tomcat.websocket.pojo.PojoMethodMapping;
 import org.apache.tomcat.websocket.server.Constants;
 import org.apache.tomcat.websocket.server.UriTemplate;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+
 import javax.servlet.ServletContext;
 import javax.websocket.CloseReason;
 import javax.websocket.DeploymentException;
@@ -35,13 +43,6 @@ import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import javax.websocket.server.ServerEndpointConfig.Configurator;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * @author TODAY 2021/5/4 23:40

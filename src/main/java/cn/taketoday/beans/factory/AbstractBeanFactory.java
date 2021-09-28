@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
@@ -60,6 +59,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;

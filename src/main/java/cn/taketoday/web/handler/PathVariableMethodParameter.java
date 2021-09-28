@@ -79,9 +79,12 @@ public class PathVariableMethodParameter extends MethodParameter {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (!(o instanceof PathVariableMethodParameter)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof PathVariableMethodParameter))
+      return false;
+    if (!super.equals(o))
+      return false;
     final PathVariableMethodParameter that = (PathVariableMethodParameter) o;
     return variableIndex == that.variableIndex
             && Objects.equals(pathPattern, that.pathPattern)

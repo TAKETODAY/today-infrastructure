@@ -687,9 +687,10 @@ public abstract class CollectionUtils {
    * <p>list can be {@code null}, then returns {@code null}
    *
    * @param index
-   * 				index of the element to return
+   *         index of the element to return
    *
    * @return the element at the specified position in this list
+   *
    * @since 4.0
    */
   @Nullable
@@ -897,44 +898,52 @@ public abstract class CollectionUtils {
     return buckets;
   }
 
-	/**
-	 * Retrieve the first element of the given Collection, using {@link SortedSet#first()}
-	 * or otherwise using the iterator.
-	 * @param collection the Collection to check (may be {@code null} or empty)
-	 * @return the first element, or {@code null} if none
-	 * @since 4.0
-	 * @see SortedSet
+  /**
+   * Retrieve the first element of the given Collection, using {@link SortedSet#first()}
+   * or otherwise using the iterator.
+   *
+   * @param collection
+   *         the Collection to check (may be {@code null} or empty)
+   *
+   * @return the first element, or {@code null} if none
+   *
+   * @see SortedSet
    * @see java.util.Queue
-	 * @see LinkedHashMap#keySet()
-	 * @see java.util.LinkedHashSet
-	 */
-	@Nullable
-	public static <T> T firstElement(@Nullable Collection<T> collection) {
-		if (isEmpty(collection)) {
-			return null;
-		}
-		if (collection instanceof SortedSet) {
-			return ((SortedSet<T>) collection).first();
-		}
+   * @see LinkedHashMap#keySet()
+   * @see java.util.LinkedHashSet
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> T firstElement(@Nullable Collection<T> collection) {
+    if (isEmpty(collection)) {
+      return null;
+    }
+    if (collection instanceof SortedSet) {
+      return ((SortedSet<T>) collection).first();
+    }
 
-		Iterator<T> it = collection.iterator();
-		T first = null;
-		if (it.hasNext()) {
-			first = it.next();
-		}
-		return first;
-	}
+    Iterator<T> it = collection.iterator();
+    T first = null;
+    if (it.hasNext()) {
+      first = it.next();
+    }
+    return first;
+  }
 
-	/**
-	 * Retrieve the first element of the given List, accessing the zero index.
-	 * @param list the List to check (may be {@code null} or empty)
-	 * @return the first element, or {@code null} if none
-	 * @since 4.0
-	 */
-	@Nullable
-	public static <T> T firstElement(@Nullable List<T> list) {
-		return getElement(list, 0);
-	}
+  /**
+   * Retrieve the first element of the given List, accessing the zero index.
+   *
+   * @param list
+   *         the List to check (may be {@code null} or empty)
+   *
+   * @return the first element, or {@code null} if none
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> T firstElement(@Nullable List<T> list) {
+    return getElement(list, 0);
+  }
 
   /**
    * Retrieve the last element of the given List, accessing the highest index.
@@ -959,7 +968,8 @@ public abstract class CollectionUtils {
    * Enumeration elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.
    *
-   * @throws NullPointerException if the specified array or enumeration is null
+   * @throws NullPointerException
+   *         if the specified array or enumeration is null
    * @since 4.0
    */
   public static <A, E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {

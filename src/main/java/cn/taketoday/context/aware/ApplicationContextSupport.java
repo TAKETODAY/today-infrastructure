@@ -80,7 +80,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
-  protected void initApplicationContext() {}
+  protected void initApplicationContext() { }
 
   public final ApplicationContext getApplicationContext() {
     return applicationContext;

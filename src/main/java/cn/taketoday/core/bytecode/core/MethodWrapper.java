@@ -33,7 +33,7 @@ public class MethodWrapper {
     Object newInstance(String name, String[] parameterTypes, String returnType);
   }
 
-  private MethodWrapper() {}
+  private MethodWrapper() { }
 
   public static Object create(Method method) {
 

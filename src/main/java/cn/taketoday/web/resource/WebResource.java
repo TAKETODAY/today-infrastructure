@@ -23,7 +23,7 @@ import cn.taketoday.core.io.Resource;
 
 /**
  * @author TODAY <br>
- *         2019-05-14 19:56
+ * 2019-05-14 19:56
  * @since 2.3.7
  */
 public interface WebResource extends Resource {

@@ -99,7 +99,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
   public T get() {
     T instance = this.singletonInstance;
     if (instance == null) {
-      synchronized (this) {
+      synchronized(this) {
         instance = this.singletonInstance;
         if (instance == null) {
           if (this.instanceSupplier != null) {

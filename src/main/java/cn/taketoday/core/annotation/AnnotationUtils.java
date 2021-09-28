@@ -28,6 +28,7 @@ import java.util.List;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ObjectUtils;
 
@@ -36,25 +37,9 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class AnnotationUtils {
-  public static final String ANNOTATION_META_READER_KEY = "cn.taketoday.core.annotation.AnnotationMetaReader.impl";
-  private static final AnnotationMetaReader annotationMetaReader;
-
-  static {
-    String impl = System.getProperty(ANNOTATION_META_READER_KEY, null);
-    if (impl == null) {
-      annotationMetaReader = new ReflectiveAnnotationMetaReader();
-    }
-    else {
-      AnnotationMetaReader metaReader;
-      try {
-        metaReader = (AnnotationMetaReader) Class.forName(impl).newInstance();
-      }
-      catch (Exception e) {
-        metaReader = new ReflectiveAnnotationMetaReader();
-      }
-      annotationMetaReader = metaReader;
-    }
-  }
+  private static final AnnotationMetaReader reader =
+          TodayStrategies.getDetector().getFirst(
+                  AnnotationMetaReader.class, ReflectiveAnnotationMetaReader::new);
 
   /**
    * Get the array of {@link Annotation} instance
@@ -75,7 +60,7 @@ public abstract class AnnotationUtils {
           final Class<T> annotationClass,
           final Class<? extends T> implClass
   ) {
-    return annotationMetaReader.getAnnotationArray(element, annotationClass, implClass);
+    return reader.getAnnotationArray(element, annotationClass, implClass);
   }
 
   /**
@@ -95,7 +80,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> T[] getAnnotationArray(
           final AnnotatedElement element, @Nullable final Class<T> targetClass
   ) {
-    return annotationMetaReader.getAnnotationArray(element, targetClass);
+    return reader.getAnnotationArray(element, targetClass);
   }
 
   /**
@@ -117,7 +102,7 @@ public abstract class AnnotationUtils {
           final Class<A> annotationClass,
           final Class<? extends A> implClass
   ) {
-    return annotationMetaReader.getAnnotation(element, annotationClass, implClass);
+    return reader.getAnnotation(element, annotationClass, implClass);
   }
 
   /**
@@ -138,7 +123,7 @@ public abstract class AnnotationUtils {
    */
   public static <A> A injectAttributes(final AnnotationAttributes source,
                                        final Class<?> annotationClass, final A instance) {
-    return annotationMetaReader.injectAttributes(source, annotationClass, instance);
+    return reader.injectAttributes(source, annotationClass, instance);
   }
 
   /**
@@ -169,7 +154,7 @@ public abstract class AnnotationUtils {
    */
   public static AnnotationAttributes getAttributes(
           final Class<? extends Annotation> annotationType, final Object annotation) {
-    return annotationMetaReader.getAttributes(annotationType, annotation);
+    return reader.getAttributes(annotationType, annotation);
   }
 
   /**
@@ -188,7 +173,7 @@ public abstract class AnnotationUtils {
           final AnnotatedElement annotatedElement,
           final Class<T> annotationClass
   ) {
-    return annotationMetaReader.getAnnotation(annotatedElement, annotationClass);
+    return reader.getAnnotation(annotatedElement, annotationClass);
   }
 
   /**
@@ -210,7 +195,7 @@ public abstract class AnnotationUtils {
           final Class<? extends T> implClass,
           final AnnotatedElement element
   ) {
-    return annotationMetaReader.getAnnotation(annotationClass, implClass, element);
+    return reader.getAnnotation(annotationClass, implClass, element);
   }
 
   /**
@@ -228,7 +213,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> T getAnnotation(
           final Object annotated, final Class<T> annotationClass
   ) {
-    return annotationMetaReader.getAnnotation(annotated, annotationClass);
+    return reader.getAnnotation(annotated, annotationClass);
   }
 
   /**
@@ -245,7 +230,7 @@ public abstract class AnnotationUtils {
    */
   public static <T extends Annotation> T getAnnotation(
           final Class<T> annotationClass, final AnnotatedElement annotatedElement) {
-    return annotationMetaReader.getAnnotation(annotationClass, annotatedElement);
+    return reader.getAnnotation(annotationClass, annotatedElement);
   }
 
   /**
@@ -262,7 +247,7 @@ public abstract class AnnotationUtils {
    */
   public static <T extends Annotation> T getAnnotationProxy(
           final Class<T> annotationClass, final AnnotationAttributes attributes) {
-    return annotationMetaReader.getAnnotationProxy(annotationClass, attributes);
+    return reader.getAnnotationProxy(annotationClass, attributes);
   }
 
   /**
@@ -280,7 +265,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final AnnotatedElement element, final Class<T> annotationClass
   ) {
-    return annotationMetaReader.getAttributes(element, annotationClass);
+    return reader.getAttributes(element, annotationClass);
   }
 
   /**
@@ -298,7 +283,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> AnnotationAttributes getAttributes(
           final Class<T> annotationClass, final AnnotatedElement element
   ) {
-    return annotationMetaReader.getAttributes(annotationClass, element);
+    return reader.getAttributes(annotationClass, element);
   }
 
   /**
@@ -317,7 +302,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotatedElement element, final Class<T> targetClass
   ) {
-    return annotationMetaReader.getAttributesArray(element, targetClass);
+    return reader.getAttributesArray(element, targetClass);
   }
 
   /**
@@ -330,13 +315,13 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotationKey<T> key
   ) {
-    return annotationMetaReader.getAttributesArray(key);
+    return reader.getAttributesArray(key);
   }
 
   public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final AnnotationAttributes annotation, final Class<T> target
   ) {
-    return annotationMetaReader.searchAttributes(annotation, target);
+    return reader.searchAttributes(annotation, target);
   }
 
   /**
@@ -354,7 +339,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final Annotation annotation, final Class<T> target
   ) {
-    return annotationMetaReader.searchAttributes(annotation, target);
+    return reader.searchAttributes(annotation, target);
   }
 
   /**
@@ -380,7 +365,7 @@ public abstract class AnnotationUtils {
    * clear cache
    */
   public static void clearCache() {
-    annotationMetaReader.clearCache();
+    reader.clearCache();
   }
 
 }

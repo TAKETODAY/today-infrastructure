@@ -20,15 +20,16 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import java.util.Arrays;
+
+import javax.websocket.server.ServerEndpoint;
+import javax.websocket.server.ServerEndpointConfig;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
-
-import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig;
-import java.util.Arrays;
 
 /**
  * @author TODAY 2021/5/12 23:39

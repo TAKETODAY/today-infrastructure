@@ -23,7 +23,7 @@ import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY <br>
- *         2019-12-13 13:12
+ * 2019-12-13 13:12
  */
 @FunctionalInterface
 public interface HandlerInterceptorsCapable {

@@ -62,7 +62,7 @@ public class DebugInterceptor extends SimpleTraceInterceptor {
 
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-    synchronized (this) {
+    synchronized(this) {
       this.count++;
     }
     return super.invoke(invocation);

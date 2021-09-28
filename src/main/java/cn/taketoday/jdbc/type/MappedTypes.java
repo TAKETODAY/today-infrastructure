@@ -32,6 +32,7 @@ import java.lang.annotation.Target;
  *   // ...
  * }
  * </pre>
+ *
  * @author Eduardo Macarron
  */
 @Documented

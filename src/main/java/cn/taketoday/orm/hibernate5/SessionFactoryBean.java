@@ -42,7 +42,7 @@ import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY <br>
- *         2018-08-03 16:36
+ * 2018-08-03 16:36
  */
 public class SessionFactoryBean extends Configuration //
         implements FactoryBean<SessionFactory>, InitializingBean, DisposableBean {

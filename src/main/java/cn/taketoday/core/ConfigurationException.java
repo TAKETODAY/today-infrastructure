@@ -34,7 +34,7 @@ public class ConfigurationException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(ConfigurationException.class);
 
-  public ConfigurationException() {}
+  public ConfigurationException() { }
 
   public ConfigurationException(String message) {
     this(message, null);

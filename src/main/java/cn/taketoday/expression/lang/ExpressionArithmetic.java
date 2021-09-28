@@ -262,8 +262,10 @@ public abstract class ExpressionArithmetic {
 
     @Override
     protected Number convert(Number num) {
-      if (num instanceof Double) return num;
-      if (num instanceof BigInteger) return new BigDecimal((BigInteger) num);
+      if (num instanceof Double)
+        return num;
+      if (num instanceof BigInteger)
+        return new BigDecimal((BigInteger) num);
       return num.doubleValue();
     }
 

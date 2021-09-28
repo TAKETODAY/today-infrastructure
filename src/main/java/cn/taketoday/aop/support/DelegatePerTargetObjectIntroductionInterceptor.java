@@ -102,7 +102,6 @@ public class DelegatePerTargetObjectIntroductionInterceptor
 //        }
 //      }
 
-
       return AopUtils.invokeJoinpointUsingReflection(delegate, mi.getMethod(), mi.getArguments());
     }
 
@@ -122,7 +121,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor
   }
 
   private Object getIntroductionDelegateFor(Object targetObject) {
-    synchronized (this.delegateMap) {
+    synchronized(this.delegateMap) {
       if (this.delegateMap.containsKey(targetObject)) {
         return this.delegateMap.get(targetObject);
       }

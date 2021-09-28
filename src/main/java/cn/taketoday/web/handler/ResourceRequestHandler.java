@@ -38,7 +38,6 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
 
-
 /**
  * @author TODAY 2019-12-25 16:12
  */

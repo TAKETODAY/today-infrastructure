@@ -21,7 +21,7 @@ package cn.taketoday.web.view;
 
 /**
  * @author TODAY <br>
- *         2019-11-19 18:58
+ * 2019-11-19 18:58
  */
 public interface JsonSequence {
 

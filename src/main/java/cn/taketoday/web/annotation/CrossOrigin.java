@@ -44,7 +44,7 @@ import cn.taketoday.web.http.HttpMethod;
  * @author Sebastien Deleuze
  * @author Sam Brannen
  * @author TODAY <br>
- *         2019-12-08 18:14
+ * 2019-12-08 18:14
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

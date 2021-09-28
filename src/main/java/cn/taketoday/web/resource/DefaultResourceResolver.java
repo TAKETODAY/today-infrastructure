@@ -41,7 +41,7 @@ import cn.taketoday.web.handler.ResourceMatchResult;
 
 /**
  * @author TODAY <br>
- *         2019-05-17 11:26
+ * 2019-05-17 11:26
  */
 public class DefaultResourceResolver implements WebResourceResolver {
 
@@ -90,7 +90,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
           }
         }
       }
-      catch (IOException ignored) {}
+      catch (IOException ignored) { }
     }
     return null;
   }

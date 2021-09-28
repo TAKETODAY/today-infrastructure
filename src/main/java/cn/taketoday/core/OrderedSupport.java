@@ -26,7 +26,7 @@ public class OrderedSupport implements Ordered {
 
   protected Integer order;
 
-  public OrderedSupport() {}
+  public OrderedSupport() { }
 
   public OrderedSupport(int order) {
     this.order = order;

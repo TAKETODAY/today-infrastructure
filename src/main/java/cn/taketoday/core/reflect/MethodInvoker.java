@@ -24,18 +24,18 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.bytecode.core.ClassEmitter;
 import cn.taketoday.core.bytecode.core.ClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.core.Assert;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -51,6 +51,46 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     this.method = method;
   }
 
+  /**
+   * Invokes the underlying method represented by this {@code Invoker}
+   * object, on the specified object with the specified parameters.
+   * Individual parameters are automatically unwrapped to match
+   * primitive formal parameters, and both primitive and reference
+   * parameters are subject to method invocation conversions as
+   * necessary.
+   *
+   * <p>If the underlying method is static, then the specified {@code obj}
+   * argument is ignored. It may be null.
+   *
+   * <p>If the number of formal parameters required by the underlying method is
+   * 0, the supplied {@code args} array may be of length 0 or null.
+   *
+   * <p>If the underlying method is static, the class that declared
+   * the method is initialized if it has not already been initialized.
+   *
+   * <p>If the method completes normally, the value it returns is
+   * returned to the caller of invoke; if the value has a primitive
+   * type, it is first appropriately wrapped in an object. However,
+   * if the value has the type of array of a primitive type, the
+   * elements of the array are <i>not</i> wrapped in objects; in
+   * other words, an array of primitive type is returned.  If the
+   * underlying method return type is void, the invocation returns
+   * null.
+   *
+   * @param obj
+   *         the object the underlying method is invoked from
+   * @param args
+   *         the arguments used for the method call
+   *
+   * @return the result of dispatching the method represented by
+   * this object on {@code obj} with parameters
+   * {@code args}
+   *
+   * @throws NullPointerException
+   *         if the specified object is null and the method is an instance method.
+   * @throws ExceptionInInitializerError
+   *         if the initialization provoked by this method fails.
+   */
   @Override
   public abstract Object invoke(Object obj, Object[] args);
 

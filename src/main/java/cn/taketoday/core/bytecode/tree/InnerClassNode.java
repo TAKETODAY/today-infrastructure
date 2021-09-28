@@ -19,8 +19,8 @@
  */
 package cn.taketoday.core.bytecode.tree;
 
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Type;
 
 /**
  * A node that represents an inner class.

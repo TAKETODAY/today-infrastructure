@@ -25,7 +25,7 @@ import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 10:27
+ * 2018-10-09 10:27
  */
 public interface TransactionSynchronization extends Flushable {
 
@@ -44,7 +44,7 @@ public interface TransactionSynchronization extends Flushable {
    *
    * @see SynchronizationManager#unbindResource
    */
-  default void suspend(SynchronizationMetaData metaData) {}
+  default void suspend(SynchronizationMetaData metaData) { }
 
   /**
    * Resume this synchronization. Supposed to rebind resources to
@@ -52,14 +52,14 @@ public interface TransactionSynchronization extends Flushable {
    *
    * @see SynchronizationManager#bindResource
    */
-  default void resume(SynchronizationMetaData metaData) {}
+  default void resume(SynchronizationMetaData metaData) { }
 
   @Override
   default void flush() {
     flush(SynchronizationManager.getMetaData());
   }
 
-  default void flush(SynchronizationMetaData metaData) {}
+  default void flush(SynchronizationMetaData metaData) { }
 
   /**
    * Invoked before transaction commit (before "beforeCompletion"). Can e.g. flush
@@ -75,13 +75,14 @@ public interface TransactionSynchronization extends Flushable {
    * rollback of the transaction.
    *
    * @param readOnly
-   *            whether the transaction is defined as read-only transaction
+   *         whether the transaction is defined as read-only transaction
+   *
    * @throws RuntimeException
-   *             in case of errors; will be <b>propagated to the caller</b> (note:
-   *             do not throw TransactionException subclasses here!)
+   *         in case of errors; will be <b>propagated to the caller</b> (note:
+   *         do not throw TransactionException subclasses here!)
    * @see #beforeCompletion
    */
-  default void beforeCommit(SynchronizationMetaData metaData, boolean readOnly) {}
+  default void beforeCommit(SynchronizationMetaData metaData, boolean readOnly) { }
 
   /**
    * Invoked before transaction commit/rollback. Can perform resource cleanup
@@ -92,12 +93,12 @@ public interface TransactionSynchronization extends Flushable {
    * resources before transaction completion, for any outcome.
    *
    * @throws RuntimeException
-   *             in case of errors; will be <b>logged but not propagated</b>
-   *             (note: do not throw TransactionException subclasses here!)
+   *         in case of errors; will be <b>logged but not propagated</b>
+   *         (note: do not throw TransactionException subclasses here!)
    * @see #beforeCommit
    * @see #afterCompletion
    */
-  default void beforeCompletion(SynchronizationMetaData metaData) {}
+  default void beforeCompletion(SynchronizationMetaData metaData) { }
 
   /**
    * Invoked after transaction commit. Can perform further operations right
@@ -117,11 +118,11 @@ public interface TransactionSynchronization extends Flushable {
    * called from here.</b>
    *
    * @throws RuntimeException
-   *             in case of errors; will be <b>propagated to the caller</b> (note:
-   *             do not throw TransactionException subclasses here!)
+   *         in case of errors; will be <b>propagated to the caller</b> (note:
+   *         do not throw TransactionException subclasses here!)
    */
-  default void afterCommit(SynchronizationMetaData metaData) {}
+  default void afterCommit(SynchronizationMetaData metaData) { }
 
-  default void afterCompletion(SynchronizationMetaData metaData, int status) {}
+  default void afterCompletion(SynchronizationMetaData metaData, int status) { }
 
 }

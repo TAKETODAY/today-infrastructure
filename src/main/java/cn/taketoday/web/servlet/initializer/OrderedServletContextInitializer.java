@@ -23,7 +23,7 @@ import cn.taketoday.core.Ordered;
 
 /**
  * @author TODAY <br>
- *         2019-02-03 17:37
+ * 2019-02-03 17:37
  */
 @FunctionalInterface
 public interface OrderedServletContextInitializer extends ServletContextInitializer, Ordered {

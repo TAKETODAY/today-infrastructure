@@ -42,7 +42,7 @@ import cn.taketoday.core.OrderedSupport;
 public abstract class AbstractPointcutAdvisor
         extends OrderedSupport implements PointcutAdvisor, Serializable {
   private static final long serialVersionUID = 1L;
-  
+
   private Advice advice = EMPTY_ADVICE;
 
   @Override

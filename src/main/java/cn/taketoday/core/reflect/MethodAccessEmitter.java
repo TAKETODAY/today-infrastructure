@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -42,7 +43,6 @@ import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.bytecode.core.MethodInfoTransformer;
 import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.core.bytecode.core.VisibilityPredicate;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -50,8 +50,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY <br>
  * 2018-11-08 15:08
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
-final class MethodAccessEmitter extends ClassEmitter {
+@SuppressWarnings({ "rawtypes", "unchecked" }) final class MethodAccessEmitter extends ClassEmitter {
 
   static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
   static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");

@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 
 /**
- * @since 3.4.5
  * @author Tomas Rohovsky
+ * @since 3.4.5
  */
 public class LocalDateTypeHandler extends BaseTypeHandler<LocalDate> {
 
