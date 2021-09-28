@@ -487,158 +487,173 @@ class StringUtilsTest {
     assertThat(StringUtils.endsWithIgnoreCase("barfoobar", suffix)).isFalse();
   }
 
+  @Test
+  void substringMatch() {
+    assertThat(StringUtils.substringMatch("foo", 0, "foo")).isTrue();
+    assertThat(StringUtils.substringMatch("foo", 1, "oo")).isTrue();
+    assertThat(StringUtils.substringMatch("foo", 2, "o")).isTrue();
+    assertThat(StringUtils.substringMatch("foo", 0, "fOo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 1, "fOo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 2, "fOo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 3, "fOo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 1, "Oo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 2, "Oo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 3, "Oo")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 2, "O")).isFalse();
+    assertThat(StringUtils.substringMatch("foo", 3, "O")).isFalse();
+  }
   //
 
-	@Test
-	void parseLocaleStringSunnyDay() {
-		Locale expectedLocale = Locale.UK;
-		Locale locale = StringUtils.parseLocaleString(expectedLocale.toString());
-		assertThat(locale).as("When given a bona-fide Locale string, must not return null.").isNotNull();
-		assertThat(locale).isEqualTo(expectedLocale);
-	}
+  @Test
+  void parseLocaleStringSunnyDay() {
+    Locale expectedLocale = Locale.UK;
+    Locale locale = StringUtils.parseLocaleString(expectedLocale.toString());
+    assertThat(locale).as("When given a bona-fide Locale string, must not return null.").isNotNull();
+    assertThat(locale).isEqualTo(expectedLocale);
+  }
 
-	@Test
-	void parseLocaleStringWithMalformedLocaleString() {
-		Locale locale = StringUtils.parseLocaleString("_banjo_on_my_knee");
-		assertThat(locale).as("When given a malformed Locale string, must not return null.").isNotNull();
-	}
+  @Test
+  void parseLocaleStringWithMalformedLocaleString() {
+    Locale locale = StringUtils.parseLocaleString("_banjo_on_my_knee");
+    assertThat(locale).as("When given a malformed Locale string, must not return null.").isNotNull();
+  }
 
-	@Test
-	void parseLocaleStringWithEmptyLocaleStringYieldsNullLocale() {
-		Locale locale = StringUtils.parseLocaleString("");
-		assertThat(locale).as("When given an empty Locale string, must return null.").isNull();
-	}
+  @Test
+  void parseLocaleStringWithEmptyLocaleStringYieldsNullLocale() {
+    Locale locale = StringUtils.parseLocaleString("");
+    assertThat(locale).as("When given an empty Locale string, must return null.").isNull();
+  }
 
-	@Test  // SPR-8637
-	void parseLocaleWithMultiSpecialCharactersInVariant() {
-		String variant = "proper-northern";
-		String localeString = "en_GB_" + variant;
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-	}
+  @Test  // SPR-8637
+  void parseLocaleWithMultiSpecialCharactersInVariant() {
+    String variant = "proper-northern";
+    String localeString = "en_GB_" + variant;
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
+  }
 
-	@Test  // SPR-3671
-	void parseLocaleWithMultiValuedVariant() {
-		String variant = "proper_northern";
-		String localeString = "en_GB_" + variant;
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-	}
+  @Test  // SPR-3671
+  void parseLocaleWithMultiValuedVariant() {
+    String variant = "proper_northern";
+    String localeString = "en_GB_" + variant;
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
+  }
 
-	@Test  // SPR-3671
-	void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparators() {
-		String variant = "proper northern";
-		String localeString = "en GB " + variant;
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-	}
+  @Test  // SPR-3671
+  void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparators() {
+    String variant = "proper northern";
+    String localeString = "en GB " + variant;
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
+  }
 
-	@Test  // SPR-3671
-	void parseLocaleWithMultiValuedVariantUsingMixtureOfUnderscoresAndSpacesAsSeparators() {
-		String variant = "proper northern";
-		String localeString = "en_GB_" + variant;
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-	}
+  @Test  // SPR-3671
+  void parseLocaleWithMultiValuedVariantUsingMixtureOfUnderscoresAndSpacesAsSeparators() {
+    String variant = "proper northern";
+    String localeString = "en_GB_" + variant;
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
+  }
 
-	@Test  // SPR-3671
-	void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparatorsWithLotsOfLeadingWhitespace() {
-		String variant = "proper northern";
-		String localeString = "en GB            " + variant;  // lots of whitespace
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-	}
+  @Test  // SPR-3671
+  void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparatorsWithLotsOfLeadingWhitespace() {
+    String variant = "proper northern";
+    String localeString = "en GB            " + variant;  // lots of whitespace
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
+  }
 
-	@Test  // SPR-3671
-	void parseLocaleWithMultiValuedVariantUsingUnderscoresAsSeparatorsWithLotsOfLeadingWhitespace() {
-		String variant = "proper_northern";
-		String localeString = "en_GB_____" + variant;  // lots of underscores
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-	}
+  @Test  // SPR-3671
+  void parseLocaleWithMultiValuedVariantUsingUnderscoresAsSeparatorsWithLotsOfLeadingWhitespace() {
+    String variant = "proper_northern";
+    String localeString = "en_GB_____" + variant;  // lots of underscores
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
+  }
 
-	@Test  // SPR-7779
-	void parseLocaleWithInvalidCharacters() {
-		assertThatIllegalArgumentException()
+  @Test  // SPR-7779
+  void parseLocaleWithInvalidCharacters() {
+    assertThatIllegalArgumentException()
             .isThrownBy(() -> StringUtils.parseLocaleString("%0D%0AContent-length:30%0D%0A%0D%0A%3Cscript%3Ealert%28123%29%3C/script%3E"));
-	}
+  }
 
-	@Test  // SPR-9420
-	void parseLocaleWithSameLowercaseTokenForLanguageAndCountry() {
-		assertThat(StringUtils.parseLocaleString("tr_tr").toString()).isEqualTo("tr_TR");
-		assertThat(StringUtils.parseLocaleString("bg_bg_vnt").toString()).isEqualTo("bg_BG_vnt");
-	}
+  @Test  // SPR-9420
+  void parseLocaleWithSameLowercaseTokenForLanguageAndCountry() {
+    assertThat(StringUtils.parseLocaleString("tr_tr").toString()).isEqualTo("tr_TR");
+    assertThat(StringUtils.parseLocaleString("bg_bg_vnt").toString()).isEqualTo("bg_BG_vnt");
+  }
 
-	@Test  // SPR-11806
-	void parseLocaleWithVariantContainingCountryCode() {
-		String variant = "GBtest";
-		String localeString = "en_GB_" + variant;
-		Locale locale = StringUtils.parseLocaleString(localeString);
-		assertThat(locale.getVariant()).as("Variant containing country code not extracted correctly").isEqualTo(variant);
-	}
+  @Test  // SPR-11806
+  void parseLocaleWithVariantContainingCountryCode() {
+    String variant = "GBtest";
+    String localeString = "en_GB_" + variant;
+    Locale locale = StringUtils.parseLocaleString(localeString);
+    assertThat(locale.getVariant()).as("Variant containing country code not extracted correctly").isEqualTo(variant);
+  }
 
-	@Test  // SPR-14718, SPR-7598
-	void parseJava7Variant() {
-		assertThat(StringUtils.parseLocaleString("sr__#LATN").toString()).isEqualTo("sr__#LATN");
-	}
+  @Test  // SPR-14718, SPR-7598
+  void parseJava7Variant() {
+    assertThat(StringUtils.parseLocaleString("sr__#LATN").toString()).isEqualTo("sr__#LATN");
+  }
 
-	@Test  // SPR-16651
-	void availableLocalesWithLocaleString() {
-		for (Locale locale : Locale.getAvailableLocales()) {
-			Locale parsedLocale = StringUtils.parseLocaleString(locale.toString());
-			if (parsedLocale == null) {
-				assertThat(locale.getLanguage()).isEqualTo("");
-			}
-			else {
-				assertThat(locale.toString()).isEqualTo(parsedLocale.toString());
-			}
-		}
-	}
+  @Test  // SPR-16651
+  void availableLocalesWithLocaleString() {
+    for (Locale locale : Locale.getAvailableLocales()) {
+      Locale parsedLocale = StringUtils.parseLocaleString(locale.toString());
+      if (parsedLocale == null) {
+        assertThat(locale.getLanguage()).isEqualTo("");
+      }
+      else {
+        assertThat(locale.toString()).isEqualTo(parsedLocale.toString());
+      }
+    }
+  }
 
-	@Test  // SPR-16651
-	void availableLocalesWithLanguageTag() {
-		for (Locale locale : Locale.getAvailableLocales()) {
-			Locale parsedLocale = StringUtils.parseLocale(locale.toLanguageTag());
-			if (parsedLocale == null) {
-				assertThat(locale.getLanguage()).isEqualTo("");
-			}
-			else {
-				assertThat(locale.toLanguageTag()).isEqualTo(parsedLocale.toLanguageTag());
-			}
-		}
-	}
+  @Test  // SPR-16651
+  void availableLocalesWithLanguageTag() {
+    for (Locale locale : Locale.getAvailableLocales()) {
+      Locale parsedLocale = StringUtils.parseLocale(locale.toLanguageTag());
+      if (parsedLocale == null) {
+        assertThat(locale.getLanguage()).isEqualTo("");
+      }
+      else {
+        assertThat(locale.toLanguageTag()).isEqualTo(parsedLocale.toLanguageTag());
+      }
+    }
+  }
 
-	@Test
-	void invalidLocaleWithLocaleString() {
-		assertThat(StringUtils.parseLocaleString("invalid")).isEqualTo(new Locale("invalid"));
-		assertThat(StringUtils.parseLocaleString("invalidvalue")).isEqualTo(new Locale("invalidvalue"));
-		assertThat(StringUtils.parseLocaleString("invalidvalue_foo")).isEqualTo(new Locale("invalidvalue", "foo"));
-		assertThat(StringUtils.parseLocaleString("")).isNull();
-	}
+  @Test
+  void invalidLocaleWithLocaleString() {
+    assertThat(StringUtils.parseLocaleString("invalid")).isEqualTo(new Locale("invalid"));
+    assertThat(StringUtils.parseLocaleString("invalidvalue")).isEqualTo(new Locale("invalidvalue"));
+    assertThat(StringUtils.parseLocaleString("invalidvalue_foo")).isEqualTo(new Locale("invalidvalue", "foo"));
+    assertThat(StringUtils.parseLocaleString("")).isNull();
+  }
 
-	@Test
-	void invalidLocaleWithLanguageTag() {
-		assertThat(StringUtils.parseLocale("invalid")).isEqualTo(new Locale("invalid"));
-		assertThat(StringUtils.parseLocale("invalidvalue")).isEqualTo(new Locale("invalidvalue"));
-		assertThat(StringUtils.parseLocale("invalidvalue_foo")).isEqualTo(new Locale("invalidvalue", "foo"));
-		assertThat(StringUtils.parseLocale("")).isNull();
-	}
+  @Test
+  void invalidLocaleWithLanguageTag() {
+    assertThat(StringUtils.parseLocale("invalid")).isEqualTo(new Locale("invalid"));
+    assertThat(StringUtils.parseLocale("invalidvalue")).isEqualTo(new Locale("invalidvalue"));
+    assertThat(StringUtils.parseLocale("invalidvalue_foo")).isEqualTo(new Locale("invalidvalue", "foo"));
+    assertThat(StringUtils.parseLocale("")).isNull();
+  }
 
-	@Test
-	void split() {
-		assertThat(StringUtils.split("Hello, world", ",")).containsExactly("Hello", " world");
-		assertThat(StringUtils.split(",Hello world", ",")).containsExactly("", "Hello world");
-		assertThat(StringUtils.split("Hello world,", ",")).containsExactly("Hello world", "");
-		assertThat(StringUtils.split("Hello, world,", ",")).containsExactly("Hello", " world,");
-	}
+  @Test
+  void split() {
+    assertThat(StringUtils.split("Hello, world", ",")).containsExactly("Hello", " world");
+    assertThat(StringUtils.split(",Hello world", ",")).containsExactly("", "Hello world");
+    assertThat(StringUtils.split("Hello world,", ",")).containsExactly("Hello world", "");
+    assertThat(StringUtils.split("Hello, world,", ",")).containsExactly("Hello", " world,");
+  }
 
-	@Test
-	void splitWithEmptyStringOrNull() {
-		assertThat(StringUtils.split("Hello, world", "")).isNull();
-		assertThat(StringUtils.split("", ",")).isNull();
-		assertThat(StringUtils.split(null, ",")).isNull();
-		assertThat(StringUtils.split("Hello, world", null)).isNull();
-		assertThat(StringUtils.split(null, null)).isNull();
-	}
+  @Test
+  void splitWithEmptyStringOrNull() {
+    assertThat(StringUtils.split("Hello, world", "")).isNull();
+    assertThat(StringUtils.split("", ",")).isNull();
+    assertThat(StringUtils.split(null, ",")).isNull();
+    assertThat(StringUtils.split("Hello, world", null)).isNull();
+    assertThat(StringUtils.split(null, null)).isNull();
+  }
 
 }
