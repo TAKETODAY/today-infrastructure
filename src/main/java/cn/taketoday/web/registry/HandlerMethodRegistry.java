@@ -61,7 +61,7 @@ import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 import static cn.taketoday.util.CollectionUtils.newHashSet;
-import static cn.taketoday.util.StringUtils.checkUrl;
+import static cn.taketoday.util.StringUtils.formatURL;
 
 /**
  * Store {@link HandlerMethod}
@@ -217,7 +217,7 @@ public class HandlerMethodRegistry
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
       for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
-        namespaces.add(checkUrl(value));
+        namespaces.add(formatURL(value));
       }
       Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", HttpMethod[].class));
       emptyNamespaces = namespaces.isEmpty();
@@ -233,7 +233,7 @@ public class HandlerMethodRegistry
         requestMethods.addAll(classRequestMethods);
 
       for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
-        final String checkedUrl = checkUrl(urlOnMethod);
+        final String checkedUrl = formatURL(urlOnMethod);
         // splice urls and request methods
         // ---------------------------------
         for (final HttpMethod requestMethod : requestMethods) {

@@ -60,7 +60,7 @@ public abstract class AbstractTemplateRenderer
   protected String prepareTemplate(String name) {
     return new StringBuilder(64)
             .append(prefix)
-            .append(StringUtils.checkUrl(name))
+            .append(StringUtils.formatURL(name))
             .append(suffix)
             .toString();
   }

@@ -160,15 +160,15 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       if (append) {
         for (int i = 0; i < length; i++) {
           final Object classElement = Array.get(attribute, i);
-          final String parentPath = StringUtils.checkUrl(classElement.toString());
+          final String parentPath = StringUtils.formatURL(classElement.toString());
           final boolean appendParentPathEmpty = !parentPath.isEmpty();
           for (int j = 0; j < actionLength; j++) {
             final Object element = Array.get(actionAttribute, j);
             if (appendParentPathEmpty) {
-              values.add(parentPath.concat(StringUtils.checkUrl(element.toString())));
+              values.add(parentPath.concat(StringUtils.formatURL(element.toString())));
             }
             else {
-              values.add(StringUtils.checkUrl(element.toString()));
+              values.add(StringUtils.formatURL(element.toString()));
             }
           }
         }

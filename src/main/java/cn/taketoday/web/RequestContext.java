@@ -58,8 +58,7 @@ import static cn.taketoday.core.Constant.DEFAULT_CHARSET;
 /**
  * Context holder for request-specific state.
  *
- * @author TODAY <br>
- * 2019-06-22 15:48
+ * @author TODAY 2019-06-22 15:48
  * @since 2.3.7
  */
 public abstract class RequestContext implements InputStreamSource, OutputStreamSource, Model, Flushable {
@@ -285,7 +284,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   protected Map<String, String[]> doGetParameters() {
-    final String queryString = StringUtils.decodeUrl(getQueryString());
+    final String queryString = StringUtils.decodeURL(getQueryString());
     final MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
     postGetParameters(parameters);
     if (!parameters.isEmpty()) {

@@ -187,7 +187,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
    * @return Target key
    */
   protected String putTargetInv(final Method method, GeneratorContext context, final List<String> fields) {
-    final String field = method.getName() + StringUtils.getRandomString(4);
+    final String field = method.getName() + StringUtils.generateRandomString(4);
     if (fields.contains(field)) {
       return putTargetInv(method, context, fields);
     }

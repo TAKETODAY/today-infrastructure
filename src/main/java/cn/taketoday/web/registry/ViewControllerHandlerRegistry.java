@@ -92,7 +92,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   }
 
   public void register(String requestURI, ViewController viewController) {
-    registerHandler(StringUtils.checkUrl(requestURI), viewController);
+    registerHandler(StringUtils.formatURL(requestURI), viewController);
   }
 
   public void register(ViewController viewController, String... requestURI) {
@@ -348,7 +348,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       mapping.setContentType(contentType);
     }
 
-    name = resolveVariables(getContextPath().concat(StringUtils.checkUrl(name)));
+    name = resolveVariables(getContextPath().concat(StringUtils.formatURL(name)));
     register(name, mapping);
   }
 

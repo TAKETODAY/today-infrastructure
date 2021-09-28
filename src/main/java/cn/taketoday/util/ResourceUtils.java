@@ -127,7 +127,7 @@ public abstract class ResourceUtils {
       return new ClassPathResource(BLANK);
     }
     if (location.startsWith(CLASSPATH_URL_PREFIX)) {
-      final String path = StringUtils.decodeUrl(location.substring(CLASSPATH_URL_PREFIX.length()));
+      final String path = StringUtils.decodeURL(location.substring(CLASSPATH_URL_PREFIX.length()));
       return new ClassPathResource(path.charAt(0) == PATH_SEPARATOR ? path.substring(1) : path);
     }
     try {
@@ -158,7 +158,7 @@ public abstract class ResourceUtils {
   public static Resource getResource(final URL url) {
     final String protocol = url.getProtocol();
     if (PROTOCOL_FILE.equals(protocol)) {
-      return new FileBasedResource(StringUtils.decodeUrl(url.getPath()));
+      return new FileBasedResource(StringUtils.decodeURL(url.getPath()));
     }
     if (PROTOCOL_JAR.equals(protocol)) {
       return new JarEntryResource(url);

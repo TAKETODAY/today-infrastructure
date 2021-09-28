@@ -116,7 +116,7 @@ public class MultipartIterator {
       if (partSize > config.getMaxMultipartInMemSize()) {
         final String tempLocation = multipartConfig.getLocation();
         final File tempFileDir = new File(tempLocation);
-        final String randomString = StringUtils.getRandomString(10);
+        final String randomString = StringUtils.generateRandomString(10);
         final File tempFile = new File(tempFileDir, randomString);
         // save to temp file
         try (final FileOutputStream fileOutput = new FileOutputStream(tempFile)) {

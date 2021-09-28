@@ -19,11 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.context.Environment;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
-
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -42,6 +37,12 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
+
+import cn.taketoday.context.Environment;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09
@@ -121,12 +122,12 @@ public abstract class StringUtils {
    * @return if source is null this will returns
    * {@link Constant#EMPTY_STRING_ARRAY}
    */
+  @NonNull
   public static String[] split(String source) {
     if (source == null) {
       return Constant.EMPTY_STRING_ARRAY;
     }
-    final List<String> splitList = splitAsList(source);
-    return splitList.toArray(new String[splitList.size()]);
+    return toStringArray(splitAsList(source));
   }
 
   /**
@@ -136,10 +137,12 @@ public abstract class StringUtils {
    *         source string
    *
    * @return if source is null this will returns
-   * {@link Constant#EMPTY_STRING_ARRAY}
+   * {@link Collections#emptyList()}
    *
+   * @see Collections#emptyList()
    * @since 4.0
    */
+  @NonNull
   public static List<String> splitAsList(String source) {
     if (source == null) {
       return Collections.emptyList();
@@ -168,37 +171,36 @@ public abstract class StringUtils {
     return splitList;
   }
 
-//  public static String[] split(String source) {
-//    if (isEmpty(source)) {
-//      return Constant.EMPTY_STRING_ARRAY;
-//    }
-//    final int length = source.length();
-//    final LinkedList<String> list = new LinkedList<>();
-//
-//    int count = 0;
-//    final char[] buffer = new char[length];
-//
-//    for (int i = 0; i < length; i++) {
-//      final char c = source.charAt(i);
-//      if (isSplitable(c)) {
-//        list.add(new String(buffer, 0, count));
-//        count = 0;
-//      }
-//      else {
-//        buffer[count++] = c;
-//      }
-//    }
-//    if (count != 0) { // 最后一次分割
-//      list.add(new String(buffer, 0, count));
-//    }
-//    if (list.isEmpty()) {
-//      return new String[] { source };
-//    }
-//    return list.toArray(new String[list.size()]);
-//  }
-
-  static boolean isSplitable(final char c) {
+  private static boolean isSplitable(final char c) {
     return c == ',' || c == ';';
+  }
+
+  /**
+   * Split a {@code String} at the first occurrence of the delimiter.
+   * Does not include the delimiter in the result.
+   *
+   * @param toSplit
+   *         the string to split (potentially {@code null} or empty)
+   * @param delimiter
+   *         to split the string up with (potentially {@code null} or empty)
+   *
+   * @return a two element array with index 0 being before the delimiter, and
+   * index 1 being after the delimiter (neither element includes the delimiter);
+   * or {@code null} if the delimiter wasn't found in the given input {@code String}
+   */
+  @Nullable
+  public static String[] split(@Nullable String toSplit, @Nullable String delimiter) {
+    if (isEmpty(toSplit) || isEmpty(delimiter)) {
+      return null;
+    }
+    int offset = toSplit.indexOf(delimiter);
+    if (offset < 0) {
+      return null;
+    }
+
+    String beforeDelimiter = toSplit.substring(0, offset);
+    String afterDelimiter = toSplit.substring(offset + delimiter.length());
+    return new String[] { beforeDelimiter, afterDelimiter };
   }
 
   /**
@@ -228,8 +230,8 @@ public abstract class StringUtils {
    * when illegal strings are encountered.
    * @since 3.0
    */
-  public static String decodeUrl(String s) {
-    return decodeUrl(s, Constant.DEFAULT_CHARSET);
+  public static String decodeURL(String s) {
+    return decodeURL(s, Constant.DEFAULT_CHARSET);
   }
 
   /**
@@ -261,7 +263,7 @@ public abstract class StringUtils {
    * when illegal strings are encountered.
    * @since 3.0
    */
-  public static String decodeUrl(String s, Charset charset) {
+  public static String decodeURL(String s, Charset charset) {
     Assert.notNull(charset, "Charset cannot be null");
     boolean needToChange = false;
     int numChars = s.length();
@@ -298,8 +300,7 @@ public abstract class StringUtils {
               int v = Integer.parseInt(s.substring(i + 1, i + 3), 16);
               if (v < 0)
                 throw new IllegalArgumentException(
-                        "URLDecoder: Illegal hex characters in escape "
-                                + "(%) pattern - negative value");
+                        "URLDecoder: Illegal hex characters in escape (%) pattern - negative value");
               bytes[pos++] = (byte) v;
               i += 3;
               if (i < numChars)
@@ -317,7 +318,7 @@ public abstract class StringUtils {
           catch (NumberFormatException e) {
             throw new IllegalArgumentException(
                     "URLDecoder: Illegal hex characters in escape (%) pattern - "
-                            + e.getMessage());
+                            + e.getMessage(), e);
           }
           needToChange = true;
           break;
@@ -350,8 +351,8 @@ public abstract class StringUtils {
    * @throws NullPointerException
    *         if {@code s} or {@code charset} is {@code null}.
    */
-  public static String encodeUrl(String s) {
-    return encodeUrl(s, Constant.DEFAULT_CHARSET);
+  public static String encodeURL(String s) {
+    return encodeURL(s, Constant.DEFAULT_CHARSET);
   }
 
   /**
@@ -376,7 +377,7 @@ public abstract class StringUtils {
    *         if {@code s} or {@code charset} is {@code null}.
    * @since 3.0
    */
-  public static String encodeUrl(String s, Charset charset) {
+  public static String encodeURL(String s, Charset charset) {
     Assert.notNull(charset, "Charset cannot be null");
     boolean needToChange = false;
     final int length = s.length();
@@ -443,9 +444,9 @@ public abstract class StringUtils {
     return (needToChange ? out.toString() : s);
   }
 
-	//---------------------------------------------------------------------
-	// Convenience methods for working with String arrays
-	//---------------------------------------------------------------------
+  //---------------------------------------------------------------------
+  // Convenience methods for working with String arrays
+  //---------------------------------------------------------------------
 
   /**
    * Tokenize the given {@code String} into a {@code String} array via a
@@ -468,6 +469,7 @@ public abstract class StringUtils {
    * @see String#trim()
    * @see #delimitedListToStringArray
    */
+  @NonNull
   public static String[] tokenizeToStringArray(final String str, final String delimiters) {
     return tokenizeToStringArray(str, delimiters, true, true);
   }
@@ -498,6 +500,7 @@ public abstract class StringUtils {
    * @see String#trim()
    * @see #delimitedListToStringArray
    */
+  @NonNull
   public static String[] tokenizeToStringArray(
           String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
     if (str == null) {
@@ -522,10 +525,11 @@ public abstract class StringUtils {
    * <p>The {@code Collection} must contain {@code String} elements only.
    *
    * @param collection
-   * 				the {@code Collection} to copy
-   * 				(potentially {@code null} or empty)
+   *         the {@code Collection} to copy
+   *         (potentially {@code null} or empty)
    *
    * @return the resulting {@code String} array
+   *
    * @since 4.0
    */
   public static String[] toStringArray(@Nullable Collection<String> collection) {
@@ -540,14 +544,17 @@ public abstract class StringUtils {
    * <p>The {@code Enumeration} must contain {@code String} elements only.
    *
    * @param enumeration
-   * 				the {@code Enumeration} to copy
-   * 				(potentially {@code null} or empty)
+   *         the {@code Enumeration} to copy
+   *         (potentially {@code null} or empty)
    *
    * @return the resulting {@code String} array
+   *
    * @since 4.0
    */
   public static String[] toStringArray(@Nullable Enumeration<String> enumeration) {
-    return (enumeration != null ? toStringArray(Collections.list(enumeration)) : Constant.EMPTY_STRING_ARRAY);
+    return enumeration == null
+           ? Constant.EMPTY_STRING_ARRAY
+           : toStringArray(Collections.list(enumeration));
   }
 
   /**
@@ -556,9 +563,9 @@ public abstract class StringUtils {
    * the given {@code String}.
    *
    * @param array
-   * 				the array to append to (can be {@code null})
+   *         the array to append to (can be {@code null})
    * @param str
-   * 				the {@code String} to append
+   *         the {@code String} to append
    *
    * @return the new array (never {@code null})
    *
@@ -579,19 +586,14 @@ public abstract class StringUtils {
    * Sort the given {@code String} array if necessary.
    *
    * @param array
-   * 				the original array (potentially empty)
-   *
-   * @return the array in sorted form (never {@code null})
+   *         the original array (potentially empty)
    *
    * @since 4.0
    */
-  public static String[] sortStringArray(String[] array) {
-    if (ObjectUtils.isEmpty(array)) {
-      return array;
+  public static void sortArray(String[] array) {
+    if (ObjectUtils.isNotEmpty(array)) {
+      Arrays.sort(array);
     }
-
-    Arrays.sort(array);
-    return array;
   }
 
   /**
@@ -599,7 +601,7 @@ public abstract class StringUtils {
    * {@code String.trim()} on each non-null element.
    *
    * @param array
-   * 				the original {@code String} array (potentially empty)
+   *         the original {@code String} array (potentially empty)
    *
    * @return the resulting array (of the same size) with trimmed elements
    *
@@ -622,9 +624,10 @@ public abstract class StringUtils {
    * Remove duplicate strings from the given array.
    *
    * @param array
-   * 				the {@code String} array (potentially empty)
+   *         the {@code String} array (potentially empty)
    *
    * @return an array without duplicates, in natural sort order
+   *
    * @since 4.0
    */
   public static String[] removeDuplicateStrings(String[] array) {
@@ -633,7 +636,7 @@ public abstract class StringUtils {
     }
 
     LinkedHashSet<String> set = new LinkedHashSet<>();
-    CollectionUtils.addAll(set,array);
+    CollectionUtils.addAll(set, array);
     return toStringArray(set);
   }
 
@@ -830,14 +833,18 @@ else */
   }
 
   /**
-	 * Compare two paths after normalization of them.
-	 * @param path1 first path for comparison
-	 * @param path2 second path for comparison
-	 * @return whether the two paths are equivalent after normalization
-	 */
-	public static boolean pathEquals(String path1, String path2) {
-		return cleanPath(path1).equals(cleanPath(path2));
-	}
+   * Compare two paths after normalization of them.
+   *
+   * @param path1
+   *         first path for comparison
+   * @param path2
+   *         second path for comparison
+   *
+   * @return whether the two paths are equivalent after normalization
+   */
+  public static boolean pathEquals(String path1, String path2) {
+    return cleanPath(path1).equals(cleanPath(path2));
+  }
 
   /**
    * Check Url, format url like :
@@ -850,7 +857,7 @@ else */
    * @param url
    *         Input url
    */
-  public static String checkUrl(String url) {
+  public static String formatURL(String url) {
     if (StringUtils.isEmpty(url)) {
       return Constant.BLANK;
     }
@@ -873,7 +880,8 @@ else */
    * @throws IOException
    *         If an I/O error occurs
    */
-  public static void appendLine(final BufferedReader reader, final StringBuilder builder) throws IOException {
+  public static void appendLine(
+          final BufferedReader reader, final StringBuilder builder) throws IOException {
     String line;
     while ((line = reader.readLine()) != null) {
       builder.append(line);
@@ -892,7 +900,7 @@ else */
    *
    * @return a {@code String} with the replacements
    */
-  public static String replace(String inString, String oldPattern, String newPattern) {
+  public static String replace(String inString, String oldPattern, @Nullable String newPattern) {
     if (isEmpty(inString) || isEmpty(oldPattern) || newPattern == null) {
       return inString;
     }
@@ -972,8 +980,7 @@ else */
    *
    * @return the resulting {@code String}
    */
-  public static String deleteAny(final String inString, final String charsToDelete) {
-
+  public static String deleteAny(final String inString, @Nullable final String charsToDelete) {
     if (isEmpty(inString) || isEmpty(charsToDelete)) {
       return inString;
     }
@@ -1009,6 +1016,7 @@ else */
    *
    * @see #tokenizeToStringArray
    */
+  @NonNull
   public static String[] delimitedListToStringArray(final String str, final String delimiter) {
     return delimitedListToStringArray(str, delimiter, null);
   }
@@ -1036,7 +1044,9 @@ else */
    *
    * @see #tokenizeToStringArray
    */
-  public static String[] delimitedListToStringArray(final String str, final String delimiter, final String charsToDelete) {
+  @NonNull
+  public static String[] delimitedListToStringArray(
+          final String str, final String delimiter, final String charsToDelete) {
 
     if (str == null) {
       return Constant.EMPTY_STRING_ARRAY;
@@ -1045,9 +1055,10 @@ else */
       return new String[] { str };
     }
 
+    int length = str.length();
     ArrayList<String> result = new ArrayList<>();
     if (delimiter.isEmpty()) {
-      for (int i = 0; i < str.length(); i++) {
+      for (int i = 0; i < length; i++) {
         result.add(deleteAny(str.substring(i, i + 1), charsToDelete));
       }
     }
@@ -1058,7 +1069,7 @@ else */
         result.add(deleteAny(str.substring(pos, delPos), charsToDelete));
         pos = delPos + delimiter.length();
       }
-      if (str.length() > 0 && pos <= str.length()) {
+      if (length > 0 && pos <= length) {
         // Add rest of String, but not in case of empty input.
         result.add(deleteAny(str.substring(pos), charsToDelete));
       }
@@ -1174,25 +1185,28 @@ else */
     return path.substring(extIndex + 1);
   }
 
-	/**
-	 * Strip the filename extension from the given Java resource path,
-	 * e.g. "mypath/myfile.txt" -> "mypath/myfile".
-	 * @param path the file path
-	 * @return the path with stripped filename extension
-	 */
-	public static String stripFilenameExtension(String path) {
-		int extIndex = path.lastIndexOf(EXTENSION_SEPARATOR);
-		if (extIndex == -1) {
-			return path;
-		}
+  /**
+   * Strip the filename extension from the given Java resource path,
+   * e.g. "mypath/myfile.txt" -> "mypath/myfile".
+   *
+   * @param path
+   *         the file path
+   *
+   * @return the path with stripped filename extension
+   */
+  public static String stripFilenameExtension(String path) {
+    int extIndex = path.lastIndexOf(EXTENSION_SEPARATOR);
+    if (extIndex == -1) {
+      return path;
+    }
 
-		int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR);
-		if (folderIndex > extIndex) {
-			return path;
-		}
+    int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR);
+    if (folderIndex > extIndex) {
+      return path;
+    }
 
-		return path.substring(0, extIndex);
-	}
+    return path.substring(0, extIndex);
+  }
 
   //
 
@@ -1240,9 +1254,9 @@ else */
       return false;
     }
 
-    return (str.length() >= firstIndex &&
-            pattern.substring(0, firstIndex).equals(str.substring(0, firstIndex)) &&
-            simpleMatch(pattern.substring(firstIndex), str.substring(firstIndex)));
+    return str.length() >= firstIndex
+            && pattern.substring(0, firstIndex).equals(str.substring(0, firstIndex))
+            && simpleMatch(pattern.substring(firstIndex), str.substring(firstIndex));
   }
 
   /**
@@ -1257,7 +1271,7 @@ else */
    *
    * @return whether the String matches any of the given patterns
    */
-  public static boolean simpleMatch(String[] patterns, String str) {
+  public static boolean simpleMatch(@Nullable String[] patterns, String str) {
     if (patterns != null) {
       for (String pattern : patterns) {
         if (simpleMatch(pattern, str)) {
@@ -1268,7 +1282,7 @@ else */
     return false;
   }
 
-  public static String getRandomString(int length) {
+  public static String generateRandomString(int length) {
     final char[] ret = new char[length];
     final Random random = StringUtils.random;
     for (int i = 0; i < length; i++) {
@@ -1414,7 +1428,8 @@ else */
     }
 
     int beginIdx = 0;
-    while (beginIdx < str.length() && Character.isWhitespace(str.charAt(beginIdx))) {
+    int length = str.length();
+    while (beginIdx < length && Character.isWhitespace(str.charAt(beginIdx))) {
       beginIdx++;
     }
     return str.substring(beginIdx);
@@ -1461,7 +1476,8 @@ else */
     }
 
     int beginIdx = 0;
-    while (beginIdx < str.length() && leadingCharacter == str.charAt(beginIdx)) {
+    int length = str.length();
+    while (beginIdx < length && leadingCharacter == str.charAt(beginIdx)) {
       beginIdx++;
     }
     return str.substring(beginIdx);
@@ -1496,9 +1512,9 @@ else */
    * ignoring upper/lower case.
    *
    * @param str
-   * 				the {@code String} to check
+   *         the {@code String} to check
    * @param prefix
-   * 				the prefix to look for
+   *         the prefix to look for
    *
    * @see java.lang.String#startsWith
    * @since 4.0
@@ -1515,9 +1531,9 @@ else */
    * ignoring upper/lower case.
    *
    * @param str
-   * 				the {@code String} to check
+   *         the {@code String} to check
    * @param suffix
-   * 				the suffix to look for
+   *         the suffix to look for
    *
    * @see java.lang.String#endsWith
    * @since 4.0
@@ -1630,7 +1646,8 @@ else */
   }
 
   private static void validateLocalePart(String localePart) {
-    for (int i = 0; i < localePart.length(); i++) {
+    int length = localePart.length();
+    for (int i = 0; i < length; i++) {
       char ch = localePart.charAt(i);
       if (ch != ' ' && ch != '_' && ch != '-' && ch != '#' && !Character.isLetterOrDigit(ch)) {
         throw new IllegalArgumentException(

@@ -141,7 +141,7 @@ public class ResourceHandlerRegistry
    * @return Decoded request path
    */
   protected String requestPath(final String requestURI, final int length) {
-    return StringUtils.decodeUrl(length == 0 ? requestURI : requestURI.substring(length));
+    return StringUtils.decodeURL(length == 0 ? requestURI : requestURI.substring(length));
   }
 
   public WebResourceResolver getResourceResolver() {
