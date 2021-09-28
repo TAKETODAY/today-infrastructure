@@ -92,6 +92,7 @@ public abstract class AnnotationMetaReader {
    *
    * @since 2.1.1
    */
+  @Nullable
   @SuppressWarnings("unchecked")
   public <T extends Annotation> T[] getAnnotationArray(
           final AnnotatedElement element,
@@ -294,7 +295,7 @@ public abstract class AnnotationMetaReader {
           final AnnotatedElement element
   ) {
     final T[] array = getAnnotationArray(element, annotationClass, implClass);
-    return ObjectUtils.isEmpty(array) ? null : array[0];
+    return CollectionUtils.firstElement(array);
   }
 
   /**
@@ -332,7 +333,7 @@ public abstract class AnnotationMetaReader {
   public <T extends Annotation> T getAnnotation(
           final Class<T> annotationClass, final AnnotatedElement annotatedElement) {
     final T[] annotationArray = getAnnotationArray(annotatedElement, annotationClass);
-    return ObjectUtils.isEmpty(annotationArray) ? null : annotationArray[0];
+    return CollectionUtils.firstElement(annotationArray);
   }
 
   /**
@@ -389,7 +390,7 @@ public abstract class AnnotationMetaReader {
           @Nullable final Class<T> annotationClass, final AnnotatedElement element
   ) {
     final AnnotationAttributes[] array = getAttributesArray(element, annotationClass);
-    return ObjectUtils.isEmpty(array) ? null : array[0];
+    return CollectionUtils.firstElement(array);
   }
 
   /**
