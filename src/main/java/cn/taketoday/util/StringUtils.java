@@ -998,6 +998,20 @@ else */
   }
 
   /**
+   * Convert a comma delimited list (e.g., a row from a CSV file) into an
+   * array of strings.
+   *
+   * @param str
+   *         the input {@code String} (potentially {@code null} or empty)
+   *
+   * @return an array of strings, or the empty array in case of empty input
+   */
+  @NonNull
+  public static String[] commaDelimitedListToStringArray(@Nullable String str) {
+    return delimitedListToStringArray(str, ",");
+  }
+
+  /**
    * Take a {@code String} that is a delimited list and convert it into a
    * {@code String} array.
    * <p>
@@ -1017,7 +1031,7 @@ else */
    * @see #tokenizeToStringArray
    */
   @NonNull
-  public static String[] delimitedListToStringArray(final String str, final String delimiter) {
+  public static String[] delimitedListToStringArray(@Nullable String str, @Nullable String delimiter) {
     return delimitedListToStringArray(str, delimiter, null);
   }
 
@@ -1046,7 +1060,7 @@ else */
    */
   @NonNull
   public static String[] delimitedListToStringArray(
-          final String str, final String delimiter, final String charsToDelete) {
+          @Nullable String str, @Nullable String delimiter, @Nullable String charsToDelete) {
 
     if (str == null) {
       return Constant.EMPTY_STRING_ARRAY;
@@ -1563,6 +1577,29 @@ else */
             && suffix != null
             && str.length() >= suffix.length()
             && str.regionMatches(true, str.length() - suffix.length(), suffix, 0, suffix.length());
+  }
+
+  /**
+   * Test whether the given string matches the given substring
+   * at the given index.
+   *
+   * @param str
+   *         the original string (or StringBuilder)
+   * @param index
+   *         the index in the original string to start matching against
+   * @param substring
+   *         the substring to match at the given index
+   */
+  public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
+    if (index + substring.length() > str.length()) {
+      return false;
+    }
+    for (int i = 0; i < substring.length(); i++) {
+      if (str.charAt(index + i) != substring.charAt(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
