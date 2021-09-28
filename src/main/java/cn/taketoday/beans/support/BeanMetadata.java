@@ -20,17 +20,11 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.PropertyAccessor;
@@ -38,6 +32,12 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author TODAY 2021/1/27 22:26
@@ -109,6 +109,7 @@ public class BeanMetadata {
     return getBeanProperty(propertyName).getPropertyAccessor();
   }
 
+  @Nullable
   public BeanProperty getBeanProperty(final String propertyName) {
     return beanProperties.get(propertyName);
   }
@@ -193,13 +194,12 @@ public class BeanMetadata {
 
   public Map<String, BeanProperty> createBeanProperties() {
     Map<String, BeanProperty> beanPropertyMap = new HashMap<>();
-    final Collection<Field> declaredFields = ReflectionUtils.getFields(beanClass);
-    for (final Field declaredField : declaredFields) {
+    ReflectionUtils.doWithFields(beanClass, declaredField -> {
       if (!shouldSkip(declaredField)) {
         String propertyName = getPropertyName(declaredField);
         beanPropertyMap.put(propertyName, new BeanProperty(declaredField));
       }
-    }
+    });
     return beanPropertyMap;
   }
 
@@ -215,10 +215,10 @@ public class BeanMetadata {
     return propertyName;
   }
 
-  protected String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
-    final Property property = AnnotationUtils.getAnnotation(Property.class, propertyElement);
-    if (property != null) {
-      final String name = property.value();
+  protected String getAnnotatedPropertyName(Field propertyElement) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Property.class, propertyElement);
+    if (attributes != null) {
+      final String name = attributes.getString(Constant.VALUE);
       if (StringUtils.isNotEmpty(name)) {
         return name;
       }
