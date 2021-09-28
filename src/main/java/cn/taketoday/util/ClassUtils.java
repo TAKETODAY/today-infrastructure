@@ -57,6 +57,7 @@ import java.util.StringJoiner;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.bytecode.ClassReader;
