@@ -22,7 +22,7 @@ package cn.taketoday.context.loader;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.Component;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;

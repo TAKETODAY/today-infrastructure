@@ -23,7 +23,7 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;

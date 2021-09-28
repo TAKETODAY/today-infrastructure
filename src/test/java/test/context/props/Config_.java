@@ -1,6 +1,6 @@
 package test.context.props;
 
-import cn.taketoday.beans.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.Props;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

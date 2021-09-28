@@ -22,7 +22,7 @@ package cn.taketoday.web.validation;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;

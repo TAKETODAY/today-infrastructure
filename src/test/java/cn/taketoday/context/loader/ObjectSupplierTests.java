@@ -27,7 +27,7 @@ import java.lang.reflect.Parameter;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.autowire.ObjectSupplierArgumentsResolver;

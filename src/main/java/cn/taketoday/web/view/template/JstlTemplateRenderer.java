@@ -28,7 +28,7 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;

@@ -36,12 +36,12 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.bytecode.tree.ClassNode;
-import cn.taketoday.beans.Component;
-import cn.taketoday.beans.DefaultComponent;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.DefaultComponent;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.context.Scope;
-import cn.taketoday.beans.Service;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Service;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logger.Logger;

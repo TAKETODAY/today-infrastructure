@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.demo;
 
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.web.demo.config.AppConfig;
 

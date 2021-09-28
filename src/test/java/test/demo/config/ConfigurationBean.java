@@ -21,9 +21,9 @@ package test.demo.config;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.beans.Configuration;
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 

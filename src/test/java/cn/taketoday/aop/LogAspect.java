@@ -33,7 +33,7 @@ import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Returning;
 import cn.taketoday.aop.support.annotation.Throwing;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.Order;
 import lombok.extern.slf4j.Slf4j;
 

@@ -32,10 +32,10 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.beans.MissingBean;
-import cn.taketoday.beans.Repository;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Repository;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.ApplicationContext;

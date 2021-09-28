@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;

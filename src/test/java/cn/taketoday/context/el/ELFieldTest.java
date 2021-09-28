@@ -26,7 +26,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.Value;
 import lombok.Getter;
 import lombok.Setter;

@@ -19,8 +19,8 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.beans.Configuration;
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.beans.factory.BeanDefinition;
 
 /**

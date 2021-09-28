@@ -17,27 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.core.Constant;
-
 /**
  * @author TODAY <br>
- * 2018-?-? ?:?
+ * 2019-11-13 23:52
  */
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
-public @interface Autowired {
+public @interface ComponentScan {
 
-  /** @return Bean name */
-  String value() default Constant.BLANK;
-
-  /** @return property is required ? */
-  boolean required() default true;
+  /**
+   * Scan package
+   */
+  String[] value();
 
 }

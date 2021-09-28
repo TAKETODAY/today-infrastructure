@@ -29,7 +29,7 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;

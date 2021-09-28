@@ -40,7 +40,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.StandardBeanDefinition;

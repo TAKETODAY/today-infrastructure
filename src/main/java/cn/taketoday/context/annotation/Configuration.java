@@ -17,24 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
+
 /**
  * @author TODAY <br>
- * 2019-11-13 23:52
+ * 2018-09-06 14:05
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ComponentScan {
-
-  /**
-   * Scan package
-   */
-  String[] value();
+@Component(scope = Scope.SINGLETON)
+public @interface Configuration {
 
 }

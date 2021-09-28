@@ -21,7 +21,7 @@ package test.context.props;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.Props;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;

@@ -909,7 +909,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
@@ -923,38 +923,38 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class LifecycleBean implements InitializingBean, DisposableBean {
 
-  @PostConstruct
-  public void initData() {
-    log.info("@PostConstruct");
-  }
+	@PostConstruct
+	public void initData() {
+		log.info("@PostConstruct");
+	}
 
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    log.info("afterPropertiesSet");
-  }
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		log.info("afterPropertiesSet");
+	}
 
-  @PreDestroy
-  public void preDestroy() {
-    log.info("preDestroy");
-  }
+	@PreDestroy
+	public void preDestroy() {
+		log.info("preDestroy");
+	}
 
-  @Override
-  public void destroy() throws Exception {
-    log.info("destroy");
-  }
+	@Override
+	public void destroy() throws Exception {
+		log.info("destroy");
+	}
 
-  @Test
-  public void testLifecycle() {
+	@Test
+	public void testLifecycle() {
 
-    final Set<Class<?>> beans = new HashSet<>();
-    beans.add(LifecycleBean.class);
+		final Set<Class<?>> beans = new HashSet<>();
+		beans.add(LifecycleBean.class);
 
-    try (final ApplicationContext applicationContext = new StandardApplicationContext(beans)) {
-      Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+		try (final ApplicationContext applicationContext = new StandardApplicationContext(beans)) {
+			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
 
-      System.out.println(beanDefinitionsMap);
-    }
-  }
+			System.out.println(beanDefinitionsMap);
+		}
+	}
 
 }
 ```

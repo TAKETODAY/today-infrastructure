@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.condition.WindowsCondition;
 import test.demo.config.User;
 

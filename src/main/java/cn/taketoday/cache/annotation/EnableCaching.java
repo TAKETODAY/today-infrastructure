@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.MissingBean;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.DefaultCacheManager;
 import cn.taketoday.cache.interceptor.CacheEvictInterceptor;

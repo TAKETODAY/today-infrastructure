@@ -26,7 +26,7 @@ import javax.annotation.PostConstruct;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.Order;
 import cn.taketoday.context.Props;
-import cn.taketoday.beans.Prototype;
+import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.logger.Logger;

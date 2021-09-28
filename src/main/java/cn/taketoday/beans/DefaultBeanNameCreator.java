@@ -40,7 +40,6 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
     this.useSimpleName = useSimpleName;
   }
 
-  @Autowired
   public DefaultBeanNameCreator(Environment environment) {
     this(environment.getFlag(KEY_USE_SIMPLE_NAME, true));
   }

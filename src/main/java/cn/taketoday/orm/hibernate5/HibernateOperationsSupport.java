@@ -36,7 +36,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.jdbc.PersistenceException;

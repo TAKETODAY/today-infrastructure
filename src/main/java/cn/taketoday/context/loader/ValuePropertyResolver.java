@@ -44,7 +44,7 @@ public class ValuePropertyResolver
   private ExpressionEvaluator expressionEvaluator;
 
   public ValuePropertyResolver(ApplicationContext context) {
-    this(context, Ordered.HIGHEST_PRECEDENCE - 1);
+    this(context, Ordered.HIGHEST_PRECEDENCE);
   }
 
   public ValuePropertyResolver(ApplicationContext context, int order) {

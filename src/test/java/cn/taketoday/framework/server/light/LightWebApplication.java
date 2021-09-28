@@ -24,9 +24,9 @@ package cn.taketoday.framework.server.light;
 import java.io.File;
 import java.io.IOException;
 
-import cn.taketoday.beans.Configuration;
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.HttpMethod;

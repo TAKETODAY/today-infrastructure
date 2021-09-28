@@ -26,8 +26,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.MissingBean;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;

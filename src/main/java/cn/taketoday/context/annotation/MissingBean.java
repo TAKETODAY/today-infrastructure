@@ -17,31 +17,55 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Scope;
+import cn.taketoday.core.Constant;
 
 /**
+ * Context will create a bean definition when current context were missing
+ *
  * @author TODAY <br>
- * 2018-07-02 22:46:11
+ * 2019-01-31 14:36
  */
-@Component(scope = Scope.SINGLETON)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Singleton {
+public @interface MissingBean {
 
   /**
-   * The value may indicate a suggestion for a logical component name, to be
-   * turned into a bean in case of an autodetected component.
-   *
-   * @return the suggested component name, if any (or empty String otherwise)
+   * Missing bean name
+   * <p>
+   * this attr determine the bean definition
+   * </p>
    */
-  String[] value() default {};
+  String value() default Constant.BLANK;
+
+  /**
+   * this attr determine the bean definition
+   */
+  Class<?> type() default void.class;
+
+  /**
+   * equals {@link #type()} ?
+   *
+   * @since 3.0
+   */
+  boolean equals() default false;
+
+  /**
+   * Specifies the name of the scope to use for the annotated component/bean.
+   * <p>
+   * Defaults to an empty string ({@code ""}) which implies {@link Scope#SINGLETON
+   * SINGLETON}.
+   */
+  String scope() default Scope.SINGLETON;
 
   /**
    * The optional name of a method to call on the bean instance during

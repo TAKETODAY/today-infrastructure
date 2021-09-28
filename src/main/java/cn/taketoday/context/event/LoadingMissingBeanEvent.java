@@ -21,7 +21,7 @@ package cn.taketoday.context.event;
 
 import java.util.Collection;
 
-import cn.taketoday.beans.MissingBean;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 

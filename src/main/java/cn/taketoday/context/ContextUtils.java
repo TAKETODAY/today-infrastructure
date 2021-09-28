@@ -42,7 +42,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.Component;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -315,7 +316,7 @@ public abstract class ContextUtils {
 
   /**
    * Add a method which annotated with {@link javax.annotation.PostConstruct}
-   * or {@link cn.taketoday.beans.Autowired}
+   * or {@link Autowired}
    *
    * @param beanClass
    *         Bean class

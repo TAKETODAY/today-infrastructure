@@ -22,10 +22,10 @@ package cn.taketoday.framework.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.Autowired;
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.MissingBean;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.Props;

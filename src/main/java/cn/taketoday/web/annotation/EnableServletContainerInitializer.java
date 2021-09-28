@@ -31,7 +31,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.annotation.HandlesTypes;
 
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.AnnotationImportAware;

@@ -50,9 +50,9 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.jdbc.JdbcConnection;

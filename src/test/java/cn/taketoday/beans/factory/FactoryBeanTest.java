@@ -35,8 +35,8 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.ContextUtils;
 

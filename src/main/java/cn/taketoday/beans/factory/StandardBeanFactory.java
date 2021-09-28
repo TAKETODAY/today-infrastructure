@@ -36,15 +36,15 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.beans.Component;
-import cn.taketoday.beans.ComponentScan;
-import cn.taketoday.beans.Configuration;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.beans.MissingBean;
-import cn.taketoday.beans.Prototype;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.ConfigurableEnvironment;
@@ -833,7 +833,6 @@ public class StandardBeanFactory
    * @since 3.0
    */
   public ArrayList<PropertyValueResolver> getPropertyValueResolvers() {
-    final ArrayList<PropertyValueResolver> propertyResolvers = this.propertyResolvers;
     if (propertyResolvers.isEmpty()) {
       final ConfigurableApplicationContext context = getApplicationContext();
       addPropertyValueResolvers(new ValuePropertyResolver(context),

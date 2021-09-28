@@ -39,7 +39,7 @@ public class PropsPropertyResolver
         extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
   public PropsPropertyResolver(ApplicationContext context) {
-    this(context, Ordered.HIGHEST_PRECEDENCE - 2);
+    this(context, Ordered.HIGHEST_PRECEDENCE);
   }
 
   public PropsPropertyResolver(ApplicationContext context, int order) {

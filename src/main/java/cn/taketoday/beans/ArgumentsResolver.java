@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.beans.autowire.ArrayArgumentsResolver;
-import cn.taketoday.beans.autowire.AutowiredArgumentsResolver;
+import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
 import cn.taketoday.beans.autowire.CollectionArgumentsResolver;
 import cn.taketoday.beans.autowire.MapArgumentsResolver;
 import cn.taketoday.beans.autowire.ObjectSupplierArgumentsResolver;

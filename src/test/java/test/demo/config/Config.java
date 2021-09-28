@@ -24,10 +24,10 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.Props;
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.Value;
 import lombok.Getter;
 import lombok.Setter;

@@ -65,7 +65,7 @@ import javax.naming.NamingException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;

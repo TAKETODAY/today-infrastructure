@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.Set;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.ApplicationContextException;
 
 /**

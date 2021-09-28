@@ -20,9 +20,9 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.beans.Autowired;
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;

@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.aop.EnableAspectAutoProxy;
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.transaction.aspect.TransactionInterceptor;
 
 import static java.lang.annotation.ElementType.METHOD;

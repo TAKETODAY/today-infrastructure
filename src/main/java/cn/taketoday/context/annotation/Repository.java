@@ -17,23 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Scope;
 
 /**
- * @author TODAY <br>
- * 2018-7-2 20:45:21
+ * @author TODAY<br>
+ * 2018-07-02 20:45:00
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Service {
+public @interface Repository {
 
   /**
    * The value may indicate a suggestion for a logical component name, to be

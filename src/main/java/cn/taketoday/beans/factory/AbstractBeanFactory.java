@@ -40,7 +40,7 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.Component;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.DefaultBeanNameCreator;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;

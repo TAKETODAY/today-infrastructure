@@ -17,25 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Scope;
 
 /**
- * This annotation indicates that an annotated element is a bean component in
- * your application
- *
  * @author TODAY <br>
- * 2018-07-2 22:46:39
+ * 2018-7-2 20:45:21
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Component {
+public @interface Service {
 
   /**
    * The value may indicate a suggestion for a logical component name, to be
@@ -44,14 +44,6 @@ public @interface Component {
    * @return the suggested component name, if any (or empty String otherwise)
    */
   String[] value() default {};
-
-  /**
-   * Specifies the name of the scope to use for the annotated component/bean.
-   * <p>
-   * Defaults to an empty string ({@code ""}) which implies {@link Scope#SINGLETON
-   * SINGLETON}.
-   */
-  String scope() default Scope.SINGLETON;
 
   /**
    * The optional name of a method to call on the bean instance during

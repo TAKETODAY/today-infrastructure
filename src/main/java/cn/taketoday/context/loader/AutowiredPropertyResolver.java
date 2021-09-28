@@ -24,8 +24,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
-import cn.taketoday.beans.Autowired;
-import cn.taketoday.beans.autowire.AutowiredArgumentsResolver;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;

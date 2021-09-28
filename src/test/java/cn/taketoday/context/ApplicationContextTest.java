@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
-import cn.taketoday.beans.Autowired;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.BeanDefinition;

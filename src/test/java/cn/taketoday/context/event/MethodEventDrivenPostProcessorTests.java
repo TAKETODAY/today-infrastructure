@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.EventObject;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.Value;
 import lombok.ToString;
 

@@ -1440,9 +1440,8 @@ public abstract class ReflectionUtils {
     return field;
   }
 
-  public static Method obtainMethod(final String methodName,
-                                    final Class<?> targetClass,
-                                    final Class<?>... parameterTypes) {
+  public static Method obtainMethod(
+          final Class<?> targetClass, final String methodName, final Class<?>... parameterTypes) {
     final Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
     if (declaredMethod == null) {
       throw new ReflectionException(

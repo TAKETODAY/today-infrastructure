@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 
 /**
  * @author TODAY <br>

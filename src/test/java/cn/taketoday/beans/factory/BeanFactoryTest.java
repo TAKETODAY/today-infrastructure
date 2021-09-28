@@ -27,11 +27,11 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.beans.Component;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;

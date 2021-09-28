@@ -30,9 +30,9 @@ import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Configuration;
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.beans.factory.BeanDefinition;

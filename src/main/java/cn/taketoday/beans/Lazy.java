@@ -20,6 +20,10 @@
 
 package cn.taketoday.beans;
 
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Configuration;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

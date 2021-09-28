@@ -22,7 +22,7 @@ package cn.taketoday.orm.hibernate5;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.Import;
+import cn.taketoday.context.annotation.Import;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

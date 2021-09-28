@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory;
 import org.junit.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.annotation.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

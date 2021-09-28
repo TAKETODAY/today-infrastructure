@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.Component;
+import cn.taketoday.context.annotation.Component;
 
 /**
  * Controller indicate that its a 'RestController' bean

@@ -24,8 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.MissingBean;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
