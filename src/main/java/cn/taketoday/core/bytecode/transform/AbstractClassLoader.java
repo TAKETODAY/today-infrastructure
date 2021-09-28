@@ -15,38 +15,28 @@
  */
 package cn.taketoday.core.bytecode.transform;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.ProtectionDomain;
-
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.core.ClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.core.DebuggingClassWriter;
+import cn.taketoday.util.ReflectionUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.ProtectionDomain;
 
 /**
  * @author Today <br>
  * 2018-11-08 15:07
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
-abstract public class AbstractClassLoader extends ClassLoader {
+@SuppressWarnings({ "rawtypes" })
+public abstract class AbstractClassLoader extends ClassLoader {
 
-  private ClassFilter filter;
-  private ClassLoader classPath;
-  private static ProtectionDomain DOMAIN;
-
-  static {
-
-    DOMAIN = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
-      public Object run() {
-        return AbstractClassLoader.class.getProtectionDomain();
-      }
-    });
-  }
+  private final ClassFilter filter;
+  private final ClassLoader classPath;
+  private static final ProtectionDomain DOMAIN = ReflectionUtils.getProtectionDomain(AbstractClassLoader.class);
 
   protected AbstractClassLoader(ClassLoader parent, ClassLoader classPath, ClassFilter filter) {
     super(parent);
@@ -54,15 +44,13 @@ abstract public class AbstractClassLoader extends ClassLoader {
     this.classPath = classPath;
   }
 
+  @Override
   public Class loadClass(String name) throws ClassNotFoundException {
-
     Class loaded = findLoadedClass(name);
 
-    if (loaded != null) {
-      if (loaded.getClassLoader() == this) {
+    if (loaded != null && loaded.getClassLoader() == this) {
         return loaded;
-      } // else reload with this class loader
-    }
+    } // else reload with this class loader
 
     if (!filter.accept(name)) {
       return super.loadClass(name);
@@ -92,10 +80,7 @@ abstract public class AbstractClassLoader extends ClassLoader {
       postProcess(c);
       return c;
     }
-    catch (RuntimeException e) {
-      throw e;
-    }
-    catch (Error e) {
+    catch (RuntimeException | Error e) {
       throw e;
     }
     catch (Exception e) {

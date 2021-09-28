@@ -27,6 +27,7 @@ public class TransformingClassLoader extends AbstractClassLoader {
     this.t = t;
   }
 
+  @Override
   protected ClassGenerator getGenerator(ClassReader r) {
     return new TransformingClassGenerator(super.getGenerator(r), t.newInstance());
   }
