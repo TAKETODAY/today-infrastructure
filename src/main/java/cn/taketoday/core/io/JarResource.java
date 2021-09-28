@@ -28,7 +28,7 @@ import java.util.jar.JarOutputStream;
  * 2019-05-15 16:58
  * @since 2.1.6
  */
-public interface JarResource extends WritableResource {
+public interface JarResource extends WritableResource, AutoCloseable {
 
   @Override
   JarOutputStream getOutputStream() throws IOException;

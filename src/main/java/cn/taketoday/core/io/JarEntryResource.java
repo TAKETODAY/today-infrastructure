@@ -19,6 +19,11 @@
  */
 package cn.taketoday.core.io;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilterInputStream;
@@ -34,11 +39,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
-
 /**
  * @author TODAY <br>
  * 2019-05-15 10:20
@@ -48,6 +48,9 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   private final String name;
   private final File jarFile;
+
+  // @since 4.0
+  private JarFile jar;
 
   public JarEntryResource(URL url) {
     this(url, new File(getJarFilePath(url.getPath())), getJarEntryName(url.getPath()));
@@ -61,6 +64,13 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     super(url);
     Assert.notNull(name, "name must not be null");
     Assert.notNull(jarFile, "name must not be null");
+    this.name = name;
+    this.jarFile = jarFile;
+  }
+
+  JarEntryResource(URL url, File jarFile, String name, JarFile jar) {
+    super(url);
+    this.jar = jar;
     this.name = name;
     this.jarFile = jarFile;
   }
@@ -113,11 +123,12 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     }
 
     final JarFile jarFile = getJarFile();
-    return new JarEntryInputStream(jarFile.getInputStream(jarFile.getEntry(name)), jarFile);
+    InputStream inputStream = jarFile.getInputStream(jarFile.getEntry(name));
+    return new JarEntryInputStream(inputStream, jarFile);
   }
 
   @Override
-  public JarOutputStream getOutputStream() throws IOException { // TODO
+  public JarOutputStream getOutputStream() throws IOException {
     return new JarOutputStream(Files.newOutputStream(getFile().toPath()));
   }
 
@@ -178,7 +189,9 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public JarEntryResource createRelative(String relativePath) throws IOException {
-    return new JarEntryResource(new URL(getLocation(), relativePath), getFile(), ResourceUtils.getRelativePath(name, relativePath));
+    URL url = new URL(getLocation(), relativePath);
+    String path = ResourceUtils.getRelativePath(name, relativePath);
+    return new JarEntryResource(url, getFile(), path, jar);
   }
 
   @Override
@@ -188,7 +201,6 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public boolean equals(Object other) {
-
     if (this == other) {
       return true;
     }
@@ -202,6 +214,20 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), name, jarFile);
+  }
+//
+//  @Override
+//  public JarFile getJarFile() throws IOException {
+//    if (jar == null) {
+//      jar = new JarFile(getFile());
+//    }
+//    return jar;
+//  }
+
+  @Override
+  public void close() throws Exception {
+    jar.close();
+    jar = null;
   }
 
   private static class JarEntryInputStream extends FilterInputStream {
