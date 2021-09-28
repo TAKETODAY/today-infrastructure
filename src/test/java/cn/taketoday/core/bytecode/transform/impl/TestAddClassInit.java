@@ -66,7 +66,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
         return new ClassTransformerFactory() {
 
-            public ClassTransformer newInstance() {
+            public ClassTransformer newTransformer() {
                 try {
                     return new AddStaticInitTransformer(TestAddClassInit.class.getMethod("register", Class.class));
                 }

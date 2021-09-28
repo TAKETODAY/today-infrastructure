@@ -42,6 +42,7 @@ public class AddStaticInitTransformer extends ClassEmitterTransformer {
     }
   }
 
+  @Override
   protected void init() {
     if (!Modifier.isInterface(getAccess())) {
       CodeEmitter e = getStaticHook();

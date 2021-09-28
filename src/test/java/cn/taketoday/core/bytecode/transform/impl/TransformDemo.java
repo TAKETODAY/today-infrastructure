@@ -73,7 +73,7 @@ public class TransformDemo {
 
             new ClassTransformerFactory() {
 
-              public ClassTransformer newInstance() {
+              public ClassTransformer newTransformer() {
                 try {
                   InterceptFieldTransformer t1 = new InterceptFieldTransformer(new Filter());
 

@@ -53,7 +53,7 @@ public class TestProvideFields extends AbstractTransformTest {
 
         return new ClassTransformerFactory() {
 
-            public ClassTransformer newInstance() {
+            public ClassTransformer newTransformer() {
 
                 return new FieldProviderTransformer();
             }

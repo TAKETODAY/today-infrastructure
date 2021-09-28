@@ -113,7 +113,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
             TEST_FILTER,
 
             new ClassTransformerFactory() {
-              public ClassTransformer newInstance() {
+              public ClassTransformer newTransformer() {
                 return t;
               }
             }

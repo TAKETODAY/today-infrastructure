@@ -22,5 +22,5 @@ package cn.taketoday.core.bytecode.transform;
 @FunctionalInterface
 public interface ClassTransformerFactory {
 
-  ClassTransformer newInstance();
+  ClassTransformer newTransformer();
 }

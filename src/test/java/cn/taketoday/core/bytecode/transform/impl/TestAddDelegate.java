@@ -73,7 +73,7 @@ public class TestAddDelegate extends AbstractTransformTest {
 
         return new ClassTransformerFactory() {
 
-            public ClassTransformer newInstance() {
+            public ClassTransformer newTransformer() {
 
                 return new AddDelegateTransformer(new Class[] { Interface.class }, ImplExclude.class);
 

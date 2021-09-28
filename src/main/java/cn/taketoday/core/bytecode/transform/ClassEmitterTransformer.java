@@ -21,4 +21,6 @@ import cn.taketoday.core.bytecode.core.ClassEmitter;
  * @author TODAY <br>
  * 2019-10-17 20:43
  */
-public abstract class ClassEmitterTransformer extends ClassEmitter { }
+public abstract class ClassEmitterTransformer extends ClassEmitter {
+
+}
