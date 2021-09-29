@@ -51,7 +51,6 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.beans.factory.StandardBeanDefinition;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
@@ -642,36 +641,6 @@ public abstract class ContextUtils {
       }
     }
     return true;
-  }
-
-  /**
-   * Validate bean definition
-   *
-   * @param def
-   *         Target {@link BeanDefinition}
-   *
-   * @throws ConfigurationException
-   *         invalid {@link BeanDefinition}
-   */
-  public static void validateBeanDefinition(BeanDefinition def) {
-
-    if (def instanceof StandardBeanDefinition) {
-      final StandardBeanDefinition standardDef = ((StandardBeanDefinition) def);
-
-      if (StringUtils.isEmpty(standardDef.getDeclaringName())) {
-        throw new ConfigurationException("Declaring name can't be null in: " + standardDef);
-      }
-      ConfigurationException.nonNull(standardDef.getFactoryMethod(), "Factory Method can't be null");
-    }
-    ConfigurationException.nonNull(def.getName(), "Definition's bean name can't be null");
-    ConfigurationException.nonNull(def.getBeanClass(), "Definition's bean class can't be null");
-
-    if (def.getDestroyMethods() == null) {
-      def.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
-    }
-    if (def.getInitMethods() == null) {
-      def.setInitMethods(resolveInitMethod(null, def.getBeanClass()));
-    }
   }
 
   /**

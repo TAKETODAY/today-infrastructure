@@ -610,7 +610,7 @@ public class StandardBeanFactory
       return null;
     }
 
-    ContextUtils.validateBeanDefinition(def);
+    def.validate();
     String nameToUse = name;
     final Class<?> beanClass = def.getBeanClass();
 

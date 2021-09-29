@@ -160,6 +160,7 @@ public interface Environment {
    *
    * @return {@link BeanNameCreator} never be null
    */
+  @Deprecated
   BeanNameCreator getBeanNameCreator();
 
   /**
@@ -167,6 +168,7 @@ public interface Environment {
    *
    * @return {@link BeanDefinitionLoader}
    */
+  @Deprecated
   BeanDefinitionLoader getBeanDefinitionLoader();
 
   /**
@@ -174,6 +176,7 @@ public interface Environment {
    *
    * @return {@link BeanDefinitionRegistry}
    */
+  @Deprecated
   BeanDefinitionRegistry getBeanDefinitionRegistry();
 
   /**
@@ -183,6 +186,7 @@ public interface Environment {
    *
    * @since 2.1.7
    */
+  @Deprecated
   ExpressionProcessor getExpressionProcessor();
 
   /**

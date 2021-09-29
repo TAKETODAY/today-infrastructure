@@ -221,7 +221,7 @@ public abstract class AbstractBeanFactory
 
     if (def.isSingleton()) {
       final class SingletonObjectSupplier implements ObjectSupplier<T> {
-        T targetSingleton;
+        volatile T targetSingleton;
 
         @Override
         public T getIfAvailable() throws BeansException {

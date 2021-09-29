@@ -308,7 +308,7 @@ public class ContextUtilsTest {
       beanDefinition.setPropertyValues(null);
 
       try {
-        ContextUtils.validateBeanDefinition(beanDefinition);
+        beanDefinition.validate();
         fail("beanDefinition");
       }
       catch (ConfigurationException e) {
@@ -317,14 +317,14 @@ public class ContextUtilsTest {
 
       StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition("", (Class<?>) null);
       try {
-        ContextUtils.validateBeanDefinition(standardBeanDefinition);
+        standardBeanDefinition.validate();
         fail("standardBeanDefinition");
       }
       catch (ConfigurationException e) {
         assert true;
       }
       try {
-        ContextUtils.validateBeanDefinition(standardBeanDefinition.setDeclaringName("test"));
+        standardBeanDefinition.setDeclaringName("test").validate();
         fail("setDeclaringName");
       }
       catch (ConfigurationException e) {

@@ -61,7 +61,6 @@ import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 import static cn.taketoday.util.CollectionUtils.newHashSet;
-import static cn.taketoday.util.StringUtils.formatURL;
 
 /**
  * Store {@link HandlerMethod}
@@ -73,7 +72,6 @@ public class HandlerMethodRegistry
         extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
   private ConfigurableBeanFactory beanFactory;
-  private BeanDefinitionLoader beanDefinitionLoader;
 
   /** @since 3.0 */
   private HandlerMethodBuilder<HandlerMethod> handlerBuilder;
@@ -102,26 +100,7 @@ public class HandlerMethodRegistry
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    final BeanFactory factory = context.getBeanFactory();
-    if (factory instanceof ConfigurableBeanFactory) {
-      setBeanFactory((ConfigurableBeanFactory) factory);
-    }
-    else {
-      setBeanFactory(context.getBean(ConfigurableBeanFactory.class));
-    }
-
-    final Environment environment = context.getEnvironment();
-    BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
-    if (beanDefinitionLoader == null) {
-      if (factory instanceof BeanDefinitionLoader) {
-        beanDefinitionLoader = (BeanDefinitionLoader) beanFactory;
-      }
-      else {
-        throw new IllegalStateException("No BeanDefinitionLoader");
-      }
-    }
-    setBeanDefinitionLoader(beanDefinitionLoader);
-
+    setBeanFactory(context.getBeanFactory(ConfigurableBeanFactory.class));
     setHandlerBuilder(new HandlerMethodBuilder<>(context));
     super.initApplicationContext(context);
   }
@@ -217,7 +196,7 @@ public class HandlerMethodRegistry
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
       for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
-        namespaces.add(formatURL(value));
+        namespaces.add(StringUtils.formatURL(value));
       }
       Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", HttpMethod[].class));
       emptyNamespaces = namespaces.isEmpty();
@@ -233,7 +212,7 @@ public class HandlerMethodRegistry
         requestMethods.addAll(classRequestMethods);
 
       for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
-        final String checkedUrl = formatURL(urlOnMethod);
+        final String checkedUrl = StringUtils.formatURL(urlOnMethod);
         // splice urls and request methods
         // ---------------------------------
         for (final HttpMethod requestMethod : requestMethods) {
@@ -436,8 +415,7 @@ public class HandlerMethodRegistry
     if (ObjectUtils.isEmpty(interceptors)) {
       return HandlerInterceptor.EMPTY_ARRAY;
     }
-    final ApplicationContext beanFactory = obtainApplicationContext();
-
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
     int i = 0;
     final HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
     for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
@@ -450,7 +428,7 @@ public class HandlerMethodRegistry
           throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
         }
       }
-      final HandlerInterceptor instance = beanFactory.getBean(interceptor);
+      final HandlerInterceptor instance = this.beanFactory.getBean(interceptor);
       Assert.state(instance != null, "Can't get target interceptor bean");
       ret[i++] = instance;
     }
@@ -471,16 +449,8 @@ public class HandlerMethodRegistry
     this.beanFactory = beanFactory;
   }
 
-  public void setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
-    this.beanDefinitionLoader = beanDefinitionLoader;
-  }
-
   public ConfigurableBeanFactory getBeanFactory() {
     return beanFactory;
-  }
-
-  public BeanDefinitionLoader getBeanDefinitionLoader() {
-    return beanDefinitionLoader;
   }
 
   public void setHandlerBuilder(HandlerMethodBuilder<HandlerMethod> handlerBuilder) {
