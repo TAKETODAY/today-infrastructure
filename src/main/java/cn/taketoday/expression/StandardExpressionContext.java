@@ -62,7 +62,7 @@ public class StandardExpressionContext extends ExpressionContext {
   private final FunctionMapper functionMapper;
   private final VariableMapper variableMapper;
 
-  private final Map<String, Object> beans = new HashMap<>(8);
+  private final HashMap<String, Object> beans = new HashMap<>(8);
 
   private final ExpressionContext delegate;
 

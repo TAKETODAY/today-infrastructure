@@ -98,12 +98,12 @@ public class PropertyPlaceholderHandler {
     Assert.notNull(placeholderSuffix, "'placeholderSuffix' must not be null");
     this.placeholderPrefix = placeholderPrefix;
     this.placeholderSuffix = placeholderSuffix;
-    String simplePrefixForSuffix = wellKnownSimplePrefixes.get(this.placeholderSuffix);
-    if (simplePrefixForSuffix != null && this.placeholderPrefix.endsWith(simplePrefixForSuffix)) {
+    String simplePrefixForSuffix = wellKnownSimplePrefixes.get(placeholderSuffix);
+    if (simplePrefixForSuffix != null && placeholderPrefix.endsWith(simplePrefixForSuffix)) {
       this.simplePrefix = simplePrefixForSuffix;
     }
     else {
-      this.simplePrefix = this.placeholderPrefix;
+      this.simplePrefix = placeholderPrefix;
     }
     this.valueSeparator = valueSeparator;
     this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;

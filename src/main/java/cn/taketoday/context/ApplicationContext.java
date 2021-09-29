@@ -56,7 +56,7 @@ public interface ApplicationContext
 
   /**
    * @throws IllegalArgumentException
-   *         beanFactory not a requiredType
+   *         not a requiredType
    * @since 4.0
    */
   @NonNull

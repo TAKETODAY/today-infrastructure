@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,19 +19,21 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.StringUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Supplier;
-
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.Scope;
-import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.Constant;
 
 /**
  * Bean definition
@@ -337,4 +339,38 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @since 4.0
    */
   <T> void setSupplier(Supplier<T> supplier);
+
+  /**
+   * Validate bean definition
+   *
+   * @throws BeanDefinitionValidationException
+   * 				invalid {@link BeanDefinition}
+   * @since 4.0
+   */
+  default void validate() throws BeanDefinitionValidationException {
+    if (this instanceof StandardBeanDefinition) {
+      final StandardBeanDefinition standardDef = ((StandardBeanDefinition) this);
+
+      if (StringUtils.isEmpty(standardDef.getDeclaringName())) {
+        throw new BeanDefinitionValidationException("Declaring name can't be null in: " + standardDef);
+      }
+      ConfigurationException.nonNull(standardDef.getFactoryMethod(), "Factory Method can't be null");
+    }
+    if (StringUtils.isEmpty(getName())) {
+      throw new BeanDefinitionValidationException("Definition's bean name can't be null");
+    }
+    if (getBeanClass() == null) {
+      throw new BeanDefinitionValidationException("Definition's bean class can't be null");
+    }
+
+    if (getDestroyMethods() == null) {
+      setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
+    }
+
+    if (getInitMethods() == null) {
+      setInitMethods(EMPTY_METHOD);
+    }
+  }
+
+
 }
