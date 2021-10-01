@@ -24,7 +24,6 @@ import cn.taketoday.beans.BeansException;
 /**
  * Exception thrown when the validation of a bean definition failed.
  *
- * @author Juergen Hoeller
  * @author TODAY 2021/9/29 10:42
  * @see BeanDefinition#validate()
  * @since 4.0
@@ -32,12 +31,12 @@ import cn.taketoday.beans.BeansException;
 @SuppressWarnings("serial")
 public class BeanDefinitionValidationException extends BeansException {
 
-	public BeanDefinitionValidationException(String msg) {
-		super(msg);
-	}
+  public BeanDefinitionValidationException(String msg) {
+    super(msg);
+  }
 
-	public BeanDefinitionValidationException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public BeanDefinitionValidationException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 
 }

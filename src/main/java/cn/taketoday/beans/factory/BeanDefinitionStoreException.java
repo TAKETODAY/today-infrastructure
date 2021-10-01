@@ -22,8 +22,7 @@ package cn.taketoday.beans.factory;
 import cn.taketoday.beans.BeansException;
 
 /**
- * @author TODAY <br>
- * 2018-07-08 19:54:46
+ * @author TODAY 2018-07-08 19:54:46
  */
 public class BeanDefinitionStoreException extends BeansException {
   private static final long serialVersionUID = 1L;

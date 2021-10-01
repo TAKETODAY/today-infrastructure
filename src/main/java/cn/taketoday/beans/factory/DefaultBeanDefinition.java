@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -40,7 +40,6 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.Scope;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
@@ -118,6 +117,15 @@ public class DefaultBeanDefinition
   private MethodInvoker[] methodInvokers;
   /** @since 3.0 bean instance supplier */
   private Supplier<?> instanceSupplier;
+
+  /** @since 4.0 */
+  private boolean synthetic = false;
+
+  /** @since 4.0 */
+  private int role = ROLE_APPLICATION;
+
+  /** @since 4.0 */
+  private boolean primary = false;
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
     setName(name);
@@ -481,6 +489,9 @@ public class DefaultBeanDefinition
     setLazyInit(newDef.isLazyInit());
     setInitialized(newDef.isInitialized());
 
+    setRole(newDef.getRole());
+    setSynthetic(newDef.isSynthetic());
+
     copyAttributesFrom(newDef);
   }
 
@@ -495,6 +506,71 @@ public class DefaultBeanDefinition
     return beanClass;
   }
 
+  /**
+   * Set whether this bean definition is 'synthetic', that is, not defined
+   * by the application itself (for example, an infrastructure bean such
+   * as a helper for auto-proxying, created through {@code <aop:config>}).
+   *
+   * @since 4.0
+   */
+  @Override
+  public void setSynthetic(boolean synthetic) {
+    this.synthetic = synthetic;
+  }
+
+  /**
+   * Return whether this bean definition is 'synthetic', that is,
+   * not defined by the application itself.
+   *
+   * @since 4.0
+   */
+  @Override
+  public boolean isSynthetic() {
+    return this.synthetic;
+  }
+
+  /**
+   * Set the role hint for this {@code BeanDefinition}.
+   *
+   * @since 4.0
+   */
+  @Override
+  public void setRole(int role) {
+    this.role = role;
+  }
+
+  /**
+   * Return the role hint for this {@code BeanDefinition}.
+   *
+   * @since 4.0
+   */
+  @Override
+  public int getRole() {
+    return this.role;
+  }
+
+  /**
+   * Set whether this bean is a primary autowire candidate.
+   * <p>If this value is {@code true} for exactly one bean among multiple
+   * matching candidates, it will serve as a tie-breaker.
+   *
+   * @since 4.0
+   */
+  @Override
+  public void setPrimary(boolean primary) {
+    this.primary = primary;
+  }
+
+  /**
+   * Return whether this bean is a primary autowire candidate.
+   *
+   * @since 4.0
+   */
+  @Override
+  public boolean isPrimary() {
+    return this.primary;
+  }
+
   // Object
 
   @Override
@@ -505,8 +581,11 @@ public class DefaultBeanDefinition
     if (obj instanceof DefaultBeanDefinition) {
       final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
       return Objects.equals(name, other.name)
+              && role == other.role
               && lazyInit == other.lazyInit
               && beanClass == other.beanClass
+              && synthetic == other.synthetic
+              && instanceSupplier == other.instanceSupplier
               && Objects.equals(scope, other.scope)
               && Objects.equals(childDef, other.childDef)
               && Objects.deepEquals(initMethods, other.initMethods)
@@ -518,23 +597,23 @@ public class DefaultBeanDefinition
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, beanClass, lazyInit, scope);
+    return Objects.hash(name, beanClass, lazyInit, scope, synthetic, role);
   }
 
   @Override
   public String toString() {
-
-    return new StringBuilder()//
-            .append("{\n\t\"name\":\"").append(name)//
-            .append("\",\n\t\"scope\":\"").append(scope)//
-            .append("\",\n\t\"beanClass\":\"").append(beanClass)//
-            .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(initMethods))//
-            .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(destroyMethods))//
-            .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertySetters))//
-            .append("\",\n\t\"initialized\":\"").append(initialized)//
-            .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
-            .append("\",\n\t\"child\":\"").append(childDef)//
-            .append("\"\n}")//
-            .toString();
+    StringBuilder sb = new StringBuilder("class [");
+    sb.append(beanClass.getName()).append(']');
+    sb.append("; scope=").append(this.scope);
+    sb.append("; abstract=").append(isAbstract());
+    sb.append("; lazyInit=").append(this.lazyInit);
+    sb.append("; primary=").append(this.primary);
+    sb.append("; initialized=").append(this.initialized);
+    sb.append("; factoryBean=").append(this.factoryBean);
+    sb.append("; initMethods=").append(Arrays.toString(initMethods));
+    sb.append("; destroyMethods=").append(Arrays.toString(destroyMethods));
+    sb.append("; child=").append(this.childDef);
+    return sb.toString();
   }
+
 }

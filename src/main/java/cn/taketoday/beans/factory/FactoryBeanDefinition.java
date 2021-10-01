@@ -265,6 +265,36 @@ public class FactoryBeanDefinition<T>
     factoryDef.setSupplier(supplier);
   }
 
+  @Override
+  public void setSynthetic(boolean synthetic) {
+    factoryDef.setSynthetic(synthetic);
+  }
+
+  @Override
+  public boolean isSynthetic() {
+    return factoryDef.isSynthetic();
+  }
+
+  @Override
+  public void setRole(int role) {
+    factoryDef.setRole(role);
+  }
+
+  @Override
+  public int getRole() {
+    return factoryDef.getRole();
+  }
+
+  @Override
+  public boolean isPrimary() {
+    return factoryDef.isPrimary();
+  }
+
+  @Override
+  public void setPrimary(boolean primary) {
+    factoryDef.setPrimary(primary);
+  }
+
   public Supplier<FactoryBean<T>> getFactorySupplier() {
     return factorySupplier;
   }

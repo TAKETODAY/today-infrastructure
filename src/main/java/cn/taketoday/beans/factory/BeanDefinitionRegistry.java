@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -22,6 +22,8 @@ package cn.taketoday.beans.factory;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.core.Nullable;
+
 /**
  * Store bean definitions.
  *
@@ -29,7 +31,7 @@ import java.util.Set;
  *
  * 2018-07-08 19:56:53 2018-08-06 11:07
  */
-public interface BeanDefinitionRegistry {
+public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
 
   /**
    * Get {@link BeanDefinition}s map
@@ -42,9 +44,24 @@ public interface BeanDefinitionRegistry {
    * @param def
    *         Bean definition
    *
+   * @throws BeanDefinitionOverrideException
+   *         if there is already a BeanDefinition
+   *         * for the specified bean name and we are not allowed to override it
    * @since 1.2.0
    */
   void registerBeanDefinition(String name, BeanDefinition def);
+
+  /**
+   * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
+   *
+   * @param def
+   *         Target {@link BeanDefinition}
+   *
+   * @since 2.1.6
+   */
+  default void registerBeanDefinition(BeanDefinition def) {
+    registerBeanDefinition(def.getName(), def);
+  }
 
   /**
    * Remove the BeanDefinition for the given name.
@@ -63,6 +80,7 @@ public interface BeanDefinitionRegistry {
    *
    * @return the BeanDefinition for the given name (never {@code null})
    */
+  @Nullable
   BeanDefinition getBeanDefinition(String beanName);
 
   /**
@@ -137,22 +155,11 @@ public interface BeanDefinitionRegistry {
   int getBeanDefinitionCount();
 
   /**
-   * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
-   *
-   * @param def
-   *         Target {@link BeanDefinition}
-   *
-   * @since 2.1.6
-   */
-  default void registerBeanDefinition(BeanDefinition def) {
-    registerBeanDefinition(def.getName(), def);
-  }
-
-  /**
    * register a bean with the given bean class
    *
    * @since 3.0
    */
+  @Deprecated
   void registerBean(Class<?> beanClass) throws BeanDefinitionStoreException;
 
   /**
@@ -163,5 +170,28 @@ public interface BeanDefinitionRegistry {
    *
    * @since 3.0
    */
+  @Deprecated
   void registerBean(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
+
+  /**
+   * Determine whether the given bean name is already in use within this registry,
+   * i.e. whether there is a local bean or alias registered under this name.
+   *
+   * @param beanName
+   *         the name to check
+   *
+   * @return whether the given bean name is already in use
+   *
+   * @since 4.0
+   */
+  boolean isBeanNameInUse(String beanName);
+
+  /**
+   * Return whether it should be allowed to override bean definitions by registering
+   * a different definition with the same name, automatically replacing the former.
+   *
+   * @since 4.0
+   */
+  boolean isAllowBeanDefinitionOverriding();
+
 }
