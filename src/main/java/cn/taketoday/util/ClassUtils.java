@@ -29,6 +29,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
@@ -516,6 +517,19 @@ public abstract class ClassUtils {
 
   public static String getClassName(final InputStream inputStream) throws IOException {
     return getClassName(new ClassReader(inputStream));
+  }
+
+  /**
+   * Determine if the supplied class is an <em>inner class</em>,
+   * i.e. a non-static member of an enclosing class.
+   *
+   * @return {@code true} if the supplied class is an inner class
+   *
+   * @see Class#isMemberClass()
+   * @since 4.0
+   */
+  public static boolean isInnerClass(Class<?> clazz) {
+    return (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers()));
   }
 
   /**
