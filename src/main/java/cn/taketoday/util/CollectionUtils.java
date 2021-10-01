@@ -550,10 +550,10 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static Properties createStringAdaptingProperties() {
-    final class SortedProperties0 extends SortedProperties {
+    final class StringAdaptingProperties extends SortedProperties {
       private static final long serialVersionUID = 1L;
 
-      SortedProperties0() {
+      StringAdaptingProperties() {
         super(false);
       }
 
@@ -563,7 +563,7 @@ public abstract class CollectionUtils {
         return (value != null ? value.toString() : null);
       }
     }
-    return new SortedProperties0();
+    return new StringAdaptingProperties();
   }
 
   /**
