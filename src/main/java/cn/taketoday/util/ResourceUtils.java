@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
@@ -110,7 +111,7 @@ public abstract class ResourceUtils {
    * @throws IOException
    *         in case of I/O errors
    */
-  public static Resource[] getResources(String pathPattern, ClassLoader classLoader) throws IOException {
+  public static Resource[] getResources(String pathPattern, @Nullable ClassLoader classLoader) throws IOException {
     return new PathMatchingResourcePatternResolver(classLoader).getResources(pathPattern);
   }
 
