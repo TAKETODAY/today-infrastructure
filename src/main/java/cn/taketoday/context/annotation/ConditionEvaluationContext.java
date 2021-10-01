@@ -18,12 +18,33 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.resolver;
+package cn.taketoday.context.annotation;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Environment;
 
 /**
- * @author TODAY 2021/8/25 10:27
+ * for ConditionEvaluator Evaluation
+ *
+ * @author TODAY 2021/10/1 21:13
+ * @since 4.0
  */
-public interface MetaResolver<M, C> {
+public class ConditionEvaluationContext {
 
-  M resolve(C context);
+  private final Environment environment;
+  private final ApplicationContext context;
+
+  public ConditionEvaluationContext(ApplicationContext context) {
+    this.context = context;
+    this.environment = context.getEnvironment();
+  }
+
+  public ApplicationContext getContext() {
+    return context;
+  }
+
+  public Environment getEnvironment() {
+    return environment;
+  }
+
 }

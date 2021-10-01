@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -22,13 +22,15 @@ package cn.taketoday.context.loader;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Conditional;
-import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Nullable;
 
@@ -39,6 +41,8 @@ import cn.taketoday.core.Nullable;
  * 2018-06-23 11:18:22
  */
 public interface BeanDefinitionLoader {
+  String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
+  String ImportAnnotatedMetadata = Import.class.getName() + "-Metadata"; // @since 3.0
 
   /**
    * Create a bean definition with given class type
@@ -125,6 +129,7 @@ public interface BeanDefinitionLoader {
    *
    * @since 3.0
    */
+  @Deprecated
   ApplicationContext getApplicationContext();
 
   /**

@@ -1,0 +1,858 @@
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.context.annotation;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.IgnoreDuplicates;
+import cn.taketoday.beans.Lazy;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionOverrideException;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.StandardBeanDefinition;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.ConfigurableEnvironment;
+import cn.taketoday.context.ContextUtils;
+import cn.taketoday.context.aware.ImportAware;
+import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.event.LoadingMissingBeanEvent;
+import cn.taketoday.context.loader.AutowiredPropertyResolver;
+import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.loader.ObjectSupplierPropertyResolver;
+import cn.taketoday.context.loader.PropertyValueResolver;
+import cn.taketoday.context.loader.PropsPropertyResolver;
+import cn.taketoday.context.loader.ValuePropertyResolver;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+
+import static cn.taketoday.context.ContextUtils.findNames;
+import static cn.taketoday.context.ContextUtils.resolveInitMethod;
+import static cn.taketoday.context.ContextUtils.resolveProps;
+import static cn.taketoday.core.Constant.VALUE;
+import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
+import static cn.taketoday.util.ReflectionUtils.makeAccessible;
+
+/**
+ * read annotated bean-definition
+ *
+ * @author TODAY 2021/10/1 16:46
+ * @since 4.0
+ */
+public class AnnotatedBeanDefinitionReader implements BeanDefinitionLoader {
+  private static final Logger log = LoggerFactory.getLogger(AnnotatedBeanDefinitionReader.class);
+
+  /** bean name creator */
+  private BeanNameCreator beanNameCreator;
+
+  private final ConfigurableApplicationContext context;
+
+  private ConditionEvaluator conditionEvaluator;
+  private final BeanDefinitionRegistry registry;
+
+  private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
+
+  /**
+   * @since 3.0 Resolve {@link PropertySetter}
+   */
+  private final ArrayList<PropertyValueResolver> propertyResolvers = new ArrayList<>(4);
+
+  public AnnotatedBeanDefinitionReader(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
+    this.context = context;
+    this.registry = registry;
+  }
+
+  public BeanNameCreator getBeanNameCreator() {
+    return beanNameCreator;
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of BeanDefinitionLoader interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public BeanDefinitionRegistry getRegistry() {
+    return registry;
+  }
+
+  @Override
+  public List<BeanDefinition> load(final Class<?> candidate) {
+    // don't load abstract class
+    if (canRegister(candidate)) {
+      return register(candidate);
+    }
+    return null;
+  }
+
+  @Override
+  public void load(final Collection<Class<?>> candidates) {
+    for (Class<?> candidate : candidates) {
+      // don't load abstract class
+      if (canRegister(candidate)) {
+        doRegister(candidate, null);
+      }
+    }
+  }
+
+  private boolean canRegister(Class<?> candidate) {
+    return !Modifier.isAbstract(candidate.getModifiers())
+            && conditionEvaluator.passCondition(candidate);
+  }
+
+  @Override
+  public void load(String... locations) throws BeanDefinitionStoreException {
+    load(new CandidateComponentScanner().scan(locations));
+  }
+
+  @Override
+  public List<BeanDefinition> load(final String name, final Class<?> beanClass) {
+    return Collections.singletonList(getRegistered(name, beanClass, null));
+  }
+
+  @Override
+  public List<BeanDefinition> load(String name, Class<?> beanClass, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException {
+    if (ignoreAnnotation) {
+      return Collections.singletonList(getRegistered(name, beanClass, null));
+    }
+    final AnnotationAttributes[] annotationAttributes = getAttributesArray(beanClass, Component.class);
+    if (ObjectUtils.isEmpty(annotationAttributes)) {
+      return Collections.singletonList(getRegistered(name, beanClass, null));
+    }
+    final ArrayList<BeanDefinition> definitions = new ArrayList<>();
+    for (final AnnotationAttributes attributes : annotationAttributes) {
+      doRegister(beanClass, name, attributes, definitions::add);
+    }
+    return definitions;
+  }
+
+  @Nullable
+  private BeanDefinition getRegistered(
+          String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
+    final BeanDefinition newDef = createBeanDefinition(name, beanClass, attributes);
+    return register(name, newDef);
+  }
+
+  @Override
+  public List<BeanDefinition> register(final Class<?> candidate) {
+    final ArrayList<BeanDefinition> defs = new ArrayList<>();
+    doRegister(candidate, defs::add);
+    return defs;
+  }
+
+  private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
+    final AnnotationAttributes[] annotationAttributes = getAttributesArray(candidate, Component.class);
+    if (ObjectUtils.isNotEmpty(annotationAttributes)) {
+      final String defaultBeanName = beanNameCreator.create(candidate);
+      for (final AnnotationAttributes attributes : annotationAttributes) {
+        doRegister(candidate, defaultBeanName, attributes, registeredConsumer);
+      }
+    }
+  }
+
+  private void doRegister(
+          Class<?> candidate, String defaultBeanName,
+          AnnotationAttributes attributes, Consumer<BeanDefinition> registeredConsumer) {
+    for (final String name : findNames(defaultBeanName, attributes.getStringArray(VALUE))) {
+      final BeanDefinition registered = getRegistered(name, candidate, attributes);
+      if (registered != null && registeredConsumer != null) { // none null BeanDefinition
+        registeredConsumer.accept(registered);
+      }
+    }
+  }
+
+  /**
+   * Register bean definition with given name
+   *
+   * @param name
+   *         Bean name
+   * @param def
+   *         Bean definition
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store bean
+   */
+  @Override
+  @Nullable
+  public BeanDefinition register(final String name, BeanDefinition def) {
+    def = transformBeanDefinition(name, def);
+    if (def == null) {
+      return null;
+    }
+
+    def.validate();
+    String nameToUse = name;
+    final Class<?> beanClass = def.getBeanClass();
+
+    if (registry.containsBeanDefinition(name) && !def.hasAttribute(MissingBeanMetadata)) {
+      // has same name
+      final BeanDefinition existBeanDef = registry.getBeanDefinition(name);
+      final Class<?> existClass = existBeanDef.getBeanClass();
+      if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
+        return null; // ignore registering
+      }
+
+      if (!registry.isAllowBeanDefinitionOverriding()) {
+        throw new BeanDefinitionOverrideException(name, def, existBeanDef);
+      }
+      else if (existBeanDef.getRole() < def.getRole()) {
+        // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+        if (log.isInfoEnabled()) {
+          log.info("Overriding user-defined bean definition for bean '" + name +
+                           "' with a framework-generated bean definition: replacing [" +
+                           existBeanDef + "] with [" + def + "]");
+        }
+      }
+
+      log.info("=====================|repeat bean definition START|=====================");
+      log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
+      if (beanClass == existClass) {
+        log.warn("They have same bean class: [{}]. We will override it.", beanClass);
+      }
+      else {
+        nameToUse = beanClass.getName();
+        def.setName(nameToUse);
+        log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.", beanClass);
+        log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
+      }
+      log.info("======================|END|======================");
+    }
+
+    try {
+      registry.registerBeanDefinition(nameToUse, def);
+
+      postProcessRegisterBeanDefinition(def);
+      return def;
+    }
+    catch (Throwable ex) {
+      ex = ExceptionUtils.unwrapThrowable(ex);
+      throw new BeanDefinitionStoreException(
+              "An Exception Occurred When Register Bean Definition: [" + def + "]", ex);
+    }
+  }
+
+  @Override
+  public BeanDefinition createBeanDefinition(final Class<?> beanClass) {
+    return createBeanDefinition(getBeanNameCreator().create(beanClass),
+                                beanClass,
+                                AnnotationUtils.getAttributes(Component.class, beanClass));
+  }
+
+  @Override
+  public BeanDefinition createBeanDefinition(
+          final String beanName, final Class<?> beanClass,
+          @Nullable final AnnotationAttributes attributes
+  ) {
+    final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
+    if (attributes == null) {
+      ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
+              .setInitMethods(resolveInitMethod(null, beanClass));
+    }
+    else {
+      ret.setScope(attributes.getString(BeanDefinition.SCOPE))
+              .setDestroyMethods(attributes.getStringArray(BeanDefinition.DESTROY_METHODS))
+              .setInitMethods(resolveInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
+    }
+
+    ret.setPropertyValues(resolvePropertyValue(beanClass));
+    // fix missing @Props injection
+    resolveProps(ret, getApplicationContext().getEnvironment());
+    return ret;
+  }
+
+  @Override
+  public ApplicationContext getApplicationContext() {
+    return null;
+  }
+
+  /**
+   * @since 3.0
+   */
+  protected BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
+    final Class<?> beanClass = def.getBeanClass();
+
+    BeanDefinition missedDef = null;
+    if (registry.containsBeanDefinition(name)) {
+      missedDef = registry.getBeanDefinition(name);
+    }
+    else if (registry.containsBeanDefinition(beanClass)) {
+      missedDef = registry.getBeanDefinition(beanClass);
+    }
+
+    if (missedDef != null
+            && missedDef.hasAttribute(MissingBeanMetadata)) { // Have a corresponding missed bean
+      // copy all state
+      def.copy(missedDef);
+      def.setName(name); // fix bean name update error
+    }
+    // nothing
+    return def;
+  }
+
+  protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
+
+    // import beans
+    if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
+      importAnnotated(targetDef);
+    }
+    // scan components
+    if (targetDef.isAnnotationPresent(ComponentScan.class)) {
+      componentScan(targetDef);
+    }
+    // load application listener @since 2.1.7
+    if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
+      context.addApplicationListener(targetDef.getBeanClass());
+    }
+    // apply lazy init @since 3.0
+    applyLazyInit(targetDef);
+  }
+
+  protected void applyLazyInit(BeanDefinition def) {
+    final Lazy lazy = def.getAnnotation(Lazy.class);
+    if (lazy != null) {
+      def.setLazyInit(lazy.value());
+    }
+  }
+
+  /**
+   * Import beans from given package locations
+   *
+   * @param source
+   *         {@link BeanDefinition} that annotated {@link ComponentScan}
+   */
+  protected void componentScan(final AnnotatedElement source) {
+    if (!componentScanned.contains(source)) {
+      componentScanned.add(source);
+      for (final AnnotationAttributes attribute : getAttributesArray(source, ComponentScan.class)) {
+        load(attribute.getStringArray(VALUE));
+      }
+    }
+  }
+
+  // import
+
+  public void importBeans(final Class<?>... beans) {
+    Assert.notNull(beans, "Cannot import null beans");
+
+    for (final Class<?> bean : beans) {
+      final BeanDefinition def = createBeanDefinition(bean);
+      importAnnotated(def);
+      register(def);
+      loadConfigurationBeans(def); // scan config bean
+    }
+  }
+
+  public void importBeans(final Set<BeanDefinition> defs) {
+
+    for (final BeanDefinition def : defs) {
+      importAnnotated(def);
+    }
+  }
+
+  public void importAnnotated(final BeanDefinition annotated) {
+    for (final AnnotationAttributes attr : getAttributesArray(annotated, Import.class)) {
+      for (final Class<?> importClass : attr.getAttribute(VALUE, Class[].class)) {
+        if (!registry.containsBeanDefinition(importClass, true)) {
+          doImport(annotated, importClass);
+        }
+      }
+    }
+  }
+
+  /**
+   * Select import
+   *
+   * @param annotated
+   *         Target {@link BeanDefinition}
+   *
+   * @since 2.1.7
+   */
+  protected void doImport(final BeanDefinition annotated, final Class<?> importClass) {
+    log.debug("Importing: [{}]", importClass);
+
+    BeanDefinition importDef = createBeanDefinition(importClass);
+    importDef.setAttribute(ImportAnnotatedMetadata, annotated); // @since 3.0
+    register(importDef);
+    loadConfigurationBeans(importDef); // scan config bean
+    if (ImportSelector.class.isAssignableFrom(importClass)) {
+      final String[] imports = createImporter(importDef, ImportSelector.class).selectImports(annotated);
+      if (ObjectUtils.isNotEmpty(imports)) {
+        for (final String select : imports) {
+          final Class<Object> beanClass = ClassUtils.loadClass(select);
+          if (beanClass == null) {
+            throw new ConfigurationException("Bean class not in class-path: " + select);
+          }
+          register(createBeanDefinition(beanClass));
+        }
+      }
+    }
+    if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
+      createImporter(importDef, BeanDefinitionImporter.class)
+              .registerBeanDefinitions(annotated, registry);
+    }
+    if (ApplicationListener.class.isAssignableFrom(importClass)) {
+      getApplicationContext()
+              .addApplicationListener(createImporter(importDef, ApplicationListener.class));
+    }
+  }
+
+  /**
+   * Resolve bean from a class which annotated with @{@link Configuration}
+   */
+  public void loadConfigurationBeans() {
+    log.debug("Loading Configuration Beans");
+
+    for (final Map.Entry<String, BeanDefinition> entry : registry.getBeanDefinitions().entrySet()) {
+      if (entry.getValue().isAnnotationPresent(Configuration.class)) {
+        // @Configuration bean
+        loadConfigurationBeans(entry.getValue());
+      }
+    }
+  }
+
+  /**
+   * Load {@link Configuration} beans from input bean class
+   *
+   * @param declaringDef
+   *         current {@link Configuration} bean
+   *
+   * @since 2.1.7
+   */
+  protected void loadConfigurationBeans(final BeanDefinition declaringDef) {
+    for (final Method method : ReflectionUtils.getDeclaredMethods(declaringDef.getBeanClass())) {
+      final AnnotationAttributes[] components = getAttributesArray(method, Component.class);
+      if (ObjectUtils.isEmpty(components)) {
+        // detect missed bean
+        final AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, method);
+        if (isMissedBean(attributes, method, context)) {
+          // register directly @since 3.0
+          final Class<?> beanClass = method.getReturnType();
+          String name = attributes.getString(VALUE);
+          if (StringUtils.isEmpty(name)) {
+            name = method.getName();
+          }
+          StandardBeanDefinition stdDef = // @Configuration use default bean name
+                  new StandardBeanDefinition(name, beanClass)
+                          .setFactoryMethod(method)
+                          .setDeclaringName(beanNameCreator.create(method.getDeclaringClass()));
+
+          registerMissingBean(attributes, stdDef);
+
+          // @since 3.0.5
+          if (stdDef.isAnnotationPresent(Configuration.class)) {
+            loadConfigurationBeans(stdDef);
+          }
+        }
+      } // is a Component
+      else if (ContextUtils.passCondition(method, context)) { // pass the condition
+        registerConfigurationBean(declaringDef, method, components);
+      }
+    }
+  }
+
+  /**
+   * Create {@link Configuration} bean definition, and register it
+   *
+   * @param method
+   *         factory method
+   * @param components
+   *         {@link AnnotationAttributes}
+   */
+  protected void registerConfigurationBean(
+          final BeanDefinition declaringDef, final Method method, final AnnotationAttributes[] components
+  ) {
+    final Class<?> returnType = method.getReturnType();
+    final ConfigurableEnvironment environment = context.getEnvironment();
+    final Properties properties = environment.getProperties();
+    //final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
+    final String defaultBeanName = method.getName(); // @since v2.1.7
+    final String declaringBeanName = declaringDef.getName(); // @since v2.1.7
+
+    for (final AnnotationAttributes component : components) {
+      final String scope = component.getString(BeanDefinition.SCOPE);
+      final String[] initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
+      final String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
+
+      for (final String name : findNames(defaultBeanName, component.getStringArray(VALUE))) {
+
+        // register
+        final StandardBeanDefinition stdDef = new StandardBeanDefinition(name, returnType);
+
+        stdDef.setScope(scope);
+        stdDef.setDestroyMethods(destroyMethods);
+        stdDef.setInitMethods(resolveInitMethod(initMethods, returnType));
+        // fix Configuration bean shouldn't auto apply properties
+        // def.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
+        stdDef.setDeclaringName(declaringBeanName)
+                .setFactoryMethod(method);
+        // resolve @Props on a bean
+        stdDef.addPropertySetter(resolveProps(stdDef, properties));
+        register(name, stdDef);
+        // @since 3.0.5
+        if (stdDef.isAnnotationPresent(Configuration.class)) {
+          loadConfigurationBeans(stdDef);
+        }
+      }
+    }
+  }
+
+  /**
+   * Load missing beans, default beans
+   *
+   * @param candidates
+   *         candidate class set
+   */
+  public void loadMissingBean(final Collection<Class<?>> candidates) {
+    log.debug("Loading lost beans");
+    context.publishEvent(new LoadingMissingBeanEvent(context, candidates));
+
+    for (final Class<?> beanClass : candidates) {
+      final AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
+      if (isMissedBean(attributes, beanClass, context)) {
+        String beanName = attributes.getString(VALUE);
+        if (StringUtils.isEmpty(beanName)) {
+          beanName = beanNameCreator.create(beanClass);
+        }
+
+        final DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, beanClass);
+        registerMissingBean(attributes, def);
+      }
+    }
+  }
+
+  /**
+   * Is a context missed bean?
+   *
+   * @param missingBean
+   *         The {@link Annotation} declared on the class or a method
+   * @param annotated
+   *         Missed bean class or method
+   * @param context
+   *         Application context
+   *
+   * @return If the bean is missed in context
+   *
+   * @since 3.0
+   */
+  private boolean isMissedBean(
+          final AnnotationAttributes missingBean,
+          final AnnotatedElement annotated, final ApplicationContext context) {
+
+    if (missingBean != null && ContextUtils.passCondition(annotated, context)) {
+      // find by bean name
+      final String beanName = missingBean.getString(VALUE);
+      if (StringUtils.isNotEmpty(beanName) && registry.containsBeanDefinition(beanName)) {
+        return false;
+      }
+      // find by type
+      final Class<?> type = missingBean.getClass("type");
+      if (type != void.class) {
+        return !registry.containsBeanDefinition(type, missingBean.getBoolean("equals"));
+      }
+      else {
+        return !registry.containsBeanDefinition(ContextUtils.getBeanClass(annotated));
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Register {@link MissingBean}
+   *
+   * @param missingBean
+   *         {@link MissingBean} metadata
+   * @param def
+   *         Target {@link BeanDefinition}
+   */
+  protected void registerMissingBean(final AnnotationAttributes missingBean, final BeanDefinition def) {
+    final Class<?> beanClass = def.getBeanClass();
+
+    def.setScope(missingBean.getString("scope"))
+            .setDestroyMethods(missingBean.getStringArray("destroyMethods"))
+            .setInitMethods(resolveInitMethod(missingBean.getStringArray("initMethods"), beanClass))
+            .setPropertyValues(resolvePropertyValue(beanClass));
+
+    // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
+    def.setAttribute(MissingBeanMetadata, missingBean);
+
+    resolveProps(def, getApplicationContext().getEnvironment());
+
+    // register missed bean
+    register(def.getName(), def);
+  }
+
+  /**
+   * Resolve bean from META-INF/beans
+   *
+   * @see Constant#META_INFO_beans
+   * @since 2.1.6
+   */
+  public Set<Class<?>> loadMetaInfoBeans() {
+    log.debug("Loading META-INF/beans");
+
+    // Load the META-INF/beans @since 2.1.6
+    // ---------------------------------------------------
+    final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
+    // @since 4.0 load from StrategiesLoader strategy file
+    beans.addAll(TodayStrategies.getDetector().getTypes(MissingBean.class));
+
+    for (final Class<?> beanClass : beans) {
+      final AnnotationAttributes missingBean = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
+      if (missingBean != null) {
+        if (isMissedBean(missingBean, beanClass, context)) {
+          // MissingBean in 'META-INF/beans' @since 3.0
+          final BeanDefinition def = createBeanDefinition(beanClass);
+          final String name = missingBean.getString(VALUE);
+          if (StringUtils.isNotEmpty(name)) {
+            def.setName(name); // refresh bean name
+          }
+          registerMissingBean(missingBean, def);
+        }
+        else {
+          log.info("@MissingBean -> '{}' cannot pass the condition " +
+                           "or contains its bean definition, dont register to the map", beanClass);
+        }
+      }
+      else {
+        if (ContextUtils.passCondition(beanClass, context)) {
+          // can't be a missed bean. MissingBean load after normal loading beans
+          final List<BeanDefinition> defs =
+                  ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this);
+          for (final BeanDefinition def : defs) {
+            register(def);
+          }
+        }
+      }
+
+    }
+    return beans;
+  }
+
+  /**
+   * Create {@link ImportSelector} ,or {@link BeanDefinitionImporter},
+   * {@link ApplicationListener} object
+   *
+   * @param target
+   *         Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
+   *
+   * @return {@link ImportSelector} object
+   */
+  protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
+    try {
+      final Object bean = getBean(importDef);
+      if (bean instanceof ImportAware) {
+        ((ImportAware) bean).setImportBeanDefinition(importDef);
+      }
+      return target.cast(bean);
+    }
+    catch (Throwable e) {
+      throw new BeanDefinitionStoreException("Can't initialize a target: [" + importDef + "]");
+    }
+  }
+
+  //---------------------------------------------------------------------
+  // PropertyValue (PropertySetter) resolving @since 3.0
+  //---------------------------------------------------------------------
+
+  /**
+   * Process bean's property (field)
+   *
+   * @param beanClass
+   *         Bean class
+   *
+   * @since 3.0
+   */
+  public PropertySetter[] resolvePropertyValue(final Class<?> beanClass) {
+
+    final LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
+    for (final Field field : ReflectionUtils.getFields(beanClass)) {
+      // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
+      final PropertySetter created = createPropertyValue(makeAccessible(field));
+      // not required
+      if (created != null) {
+        propertySetters.add(created);
+      }
+    }
+
+    return propertySetters.isEmpty()
+           ? BeanDefinition.EMPTY_PROPERTY_SETTER
+           : propertySetters.toArray(new PropertySetter[propertySetters.size()]);
+  }
+
+  /**
+   * Create property value
+   *
+   * @param field
+   *         Property
+   *
+   * @return A new {@link PropertySetter}
+   */
+  public PropertySetter createPropertyValue(final Field field) {
+    for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
+      if (propertyValueResolver.supportsProperty(field)) {
+        return propertyValueResolver.resolveProperty(field);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public ArrayList<PropertyValueResolver> getPropertyValueResolvers() {
+    if (propertyResolvers.isEmpty()) {
+      addPropertyValueResolvers(new ValuePropertyResolver(context),
+                                new PropsPropertyResolver(context),
+                                new ObjectSupplierPropertyResolver(),
+                                new AutowiredPropertyResolver(context));
+
+      List<PropertyValueResolver> strategies =
+              TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, context);
+      // un-ordered
+      propertyResolvers.addAll(strategies); // @since 4.0
+      AnnotationAwareOrderComparator.sort(propertyResolvers);
+    }
+    return propertyResolvers;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void setPropertyValueResolvers(PropertyValueResolver... resolvers) {
+    Assert.notNull(resolvers, "PropertyValueResolver must not be null");
+
+    propertyResolvers.clear();
+    AnnotationAwareOrderComparator.sort(resolvers);
+    Collections.addAll(propertyResolvers, resolvers);
+  }
+
+  /**
+   * Add {@link PropertyValueResolver} to {@link #propertyResolvers}
+   *
+   * @param resolvers
+   *         {@link PropertyValueResolver} object
+   *
+   * @since 3.0
+   */
+  public void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
+    if (ObjectUtils.isNotEmpty(resolvers)) {
+      Collections.addAll(propertyResolvers, resolvers);
+      AnnotationAwareOrderComparator.sort(propertyResolvers);
+    }
+  }
+
+  //
+
+  public void registerBean(Class<?> clazz) {
+    registerBean(getBeanNameCreator().create(clazz), clazz);
+  }
+
+  public void registerBean(Set<Class<?>> candidates) {
+    final BeanNameCreator nameCreator = getBeanNameCreator();
+    for (final Class<?> candidate : candidates) {
+      registerBean(nameCreator.create(candidate), candidate);
+    }
+  }
+
+  public void registerBean(String name, Class<?> clazz) {
+    load(name, clazz);
+  }
+
+  public void registerBean(String name, BeanDefinition beanDefinition) {
+    register(name, beanDefinition);
+  }
+
+  public void registerBean(Object obj) {
+    registerBean(getBeanNameCreator().create(obj.getClass()), obj);
+  }
+
+  public void registerBean(final String name, final Object obj) {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(obj, "bean-instance must not be null");
+
+    final List<BeanDefinition> loaded = load(name, obj.getClass());
+    for (final BeanDefinition def : loaded) {
+      if (def.isSingleton()) {
+        registerSingleton(name, obj);
+      }
+    }
+  }
+
+  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException {
+    Assert.notNull(clazz, "bean-class must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    final String defaultName = getBeanNameCreator().create(clazz);
+    final List<BeanDefinition> loaded = load(defaultName, clazz, ignoreAnnotation);
+
+    if (CollectionUtils.isNotEmpty(loaded)) {
+      for (final BeanDefinition def : loaded) {
+        def.setSupplier(supplier);
+        if (prototype) {
+          def.setScope(Scope.PROTOTYPE);
+        }
+      }
+    }
+  }
+
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    beanSupplier.put(name, supplier);
+  }
+
+}
