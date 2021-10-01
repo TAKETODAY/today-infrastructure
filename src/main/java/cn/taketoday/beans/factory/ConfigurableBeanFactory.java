@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Prototype;
 

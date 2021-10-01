@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,15 +19,15 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.util.Set;
-
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.ApplicationContextException;
 
 /**
- * @author TODAY
- * 2020/9/13 10:54
+ * Extension of the {@link BeanFactory} interface to be implemented
+ * by bean factories that are capable of autowiring, provided that
+ * they want to expose this functionality for existing bean instances.
+ *
+ * @author TODAY 2020/9/13 10:54
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
 
@@ -47,10 +47,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @return the new bean instance
    *
-   * @throws ApplicationContextException
+   * @throws BeansException
    *         if instantiation or wiring failed
    */
-  default <T> T createBean(Class<T> beanClass) {
+  default <T> T createBean(Class<T> beanClass) throws BeansException {
     return createBean(beanClass, false);
   }
 
@@ -71,10 +71,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @return the new bean instance
    *
-   * @throws ApplicationContextException
+   * @throws BeansException
    *         if instantiation or wiring failed
    */
-  <T> T createBean(Class<T> beanClass, boolean cacheBeanDef);
+  <T> T createBean(Class<T> beanClass, boolean cacheBeanDef) throws BeansException;
 
   /**
    * Populate the given bean instance through applying after-instantiation
@@ -87,10 +87,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param existingBean
    *         the existing bean instance
    *
-   * @throws ApplicationContextException
+   * @throws BeansException
    *         if wiring failed
    */
-  void autowireBean(Object existingBean);
+  void autowireBean(Object existingBean) throws BeansException;
 
   /**
    * Autowire the bean properties of the given bean instance by name or type.
@@ -101,10 +101,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param existingBean
    *         the existing bean instance
    *
-   * @throws ApplicationContextException
+   * @throws BeansException
    *         if wiring failed
    */
-  void autowireBeanProperties(Object existingBean);
+  void autowireBeanProperties(Object existingBean) throws BeansException;
 
   /**
    * Initialize the given raw bean, applying factory callbacks such as
@@ -213,37 +213,5 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *         the bean instance to destroy
    */
   void destroyBean(Object existingBean);
-
-  /**
-   * Load {@link Import} beans from input bean classes
-   * <p>
-   * importBeans will register target beans's BeanDefinition
-   *
-   * @param beans
-   *         Input bean classes
-   *
-   * @since 3.0
-   */
-  void importBeans(Class<?>... beans);
-
-  /**
-   * Load {@link Import} beans from input {@link BeanDefinition}
-   *
-   * @param annotated
-   *         Target {@link BeanDefinition} Import
-   *
-   * @since 3.0
-   */
-  void importAnnotated(BeanDefinition annotated);
-
-  /**
-   * Load {@link Import} beans from input {@link BeanDefinition}s
-   *
-   * @param defs
-   *         Input {@link BeanDefinition}s
-   *
-   * @since 3.0
-   */
-  void importBeans(Set<BeanDefinition> defs);
 
 }

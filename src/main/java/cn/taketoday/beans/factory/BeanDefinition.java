@@ -19,6 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.context.Scope;
@@ -29,17 +35,10 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.function.Supplier;
-
 /**
  * Bean definition
  *
- * @author TODAY <br>
- * 2018-06-23 11:23:45
+ * @author TODAY 2018-06-23 11:23:45
  */
 public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   String SCOPE = "scope";
@@ -49,6 +48,19 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
   PropertySetter[] EMPTY_PROPERTY_SETTER = PropertySetter.EMPTY_ARRAY;
+
+  /**
+   * Role hint indicating that a {@code BeanDefinition} is a major part
+   * of the application. Typically， corresponds to a user-defined bean.
+   */
+  int ROLE_APPLICATION = 0;
+
+  /**
+   * Role hint indicating that a {@code BeanDefinition} is providing an
+   * entirely background role and has no relevance to the end-user. This hint is
+   * used when registering beans that are completely part of the internal workings
+   */
+  int ROLE_INFRASTRUCTURE = 2;
 
   /**
    * Get a property
@@ -344,7 +356,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * Validate bean definition
    *
    * @throws BeanDefinitionValidationException
-   * 				invalid {@link BeanDefinition}
+   *         invalid {@link BeanDefinition}
    * @since 4.0
    */
   default void validate() throws BeanDefinitionValidationException {
@@ -372,5 +384,59 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
     }
   }
 
+  /**
+   * Set whether this bean dClaefinition is 'synthetic', that is, not defined
+   * by the application itself (for example, an infrastructure bean such
+   * as a helper for auto-proxying, created through {@code <aop:config>}).
+   *
+   * @since 4.0
+   */
+  void setSynthetic(boolean synthetic);
+
+  /**
+   * Return whether this bean definition is 'synthetic', that is,
+   * not defined by the application itself.
+   *
+   * @since 4.0
+   */
+  boolean isSynthetic();
+
+  /**
+   * Set the role hint for this {@code BeanDefinition}. The role hint
+   * provides the frameworks as well as tools with an indication of
+   * the role and importance of a particular {@code BeanDefinition}.
+   *
+   * @see #ROLE_APPLICATION
+   * @see #ROLE_INFRASTRUCTURE
+   * @since 4.0
+   */
+  void setRole(int role);
+
+  /**
+   * Get the role hint for this {@code BeanDefinition}. The role hint
+   * provides the frameworks as well as tools with an indication of
+   * the role and importance of a particular {@code BeanDefinition}.
+   *
+   * @see #ROLE_APPLICATION
+   * @see #ROLE_INFRASTRUCTURE
+   * @since 4.0
+   */
+  int getRole();
+
+  /**
+   * Set whether this bean is a primary autowire candidate.
+   * <p>If this value is {@code true} for exactly one bean among multiple
+   * matching candidates, it will serve as a tie-breaker.
+   *
+   * @since 4.0
+   */
+  void setPrimary(boolean primary);
+
+  /**
+   * Return whether this bean is a primary autowire candidate.
+   *
+   * @since 4.0
+   */
+  boolean isPrimary();
 
 }
