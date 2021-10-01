@@ -20,10 +20,8 @@
 package cn.taketoday.context.event;
 
 /**
- * @author TODAY <br>
- * 2018-09-09 21:26
+ * @author TODAY 2018-09-09 21:26
  */
-@FunctionalInterface
 public interface ApplicationEventPublisher {
 
   /**
@@ -33,4 +31,27 @@ public interface ApplicationEventPublisher {
    *         Any Event object
    */
   void publishEvent(Object event);
+
+  /**
+   * Add an {@link ApplicationListener} that will be notified on context events
+   * such as context refresh and context shutdown.
+   * <p>
+   *
+   * @param listener
+   *         the {@link ApplicationListener}
+   *
+   * @throws IllegalArgumentException
+   *         if listener is null
+   * @since 2.1.6
+   */
+  void addApplicationListener(ApplicationListener<?> listener);
+
+  /**
+   * @param listener
+   *         listener class
+   *
+   * @since 4.0
+   */
+  void addApplicationListener(Class<?> listener);
+
 }

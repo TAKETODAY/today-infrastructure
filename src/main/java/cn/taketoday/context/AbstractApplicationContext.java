@@ -40,6 +40,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.ValueExpressionContext;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.event.ApplicationEventCapable;
@@ -614,6 +615,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       final Class<?> eventType = GenericTypeResolver.resolveTypeArgument(listener.getClass(), ApplicationListener.class);
       addApplicationListener(listener, eventType, listeners);
     }
+  }
+
+  @Override
+  public void addApplicationListener(Class<?> listener) {
+    registerListener(listener);
   }
 
   /**
