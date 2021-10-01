@@ -48,7 +48,6 @@ import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
@@ -62,8 +61,6 @@ import cn.taketoday.core.Nullable;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -73,9 +70,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2018-06-23 11:20:58
  */
 public abstract class AbstractBeanFactory
-        implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
-
-  private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
+        extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
 
   /** bean name creator */
   private BeanNameCreator beanNameCreator;
@@ -85,8 +80,6 @@ public abstract class AbstractBeanFactory
   private final HashSet<BeanReferencePropertySetter> dependencies = new HashSet<>(128);
   /** Bean Post Processors */
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
-  /** Map of bean instance, keyed by bean name */
-  private final HashMap<String, Object> singletons = new HashMap<>(128);
   private final HashMap<String, Scope> scopes = new HashMap<>();
   /** Map of bean definition objects, keyed by bean name */
   private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
@@ -108,6 +101,13 @@ public abstract class AbstractBeanFactory
   @Nullable
   private BeanFactory parentBeanFactory;
 
+  //
+
+  @Override
+  protected String createBeanName(Class<?> type) {
+    return getBeanNameCreator().create(type);
+  }
+
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
@@ -122,6 +122,10 @@ public abstract class AbstractBeanFactory
     if (singleton != null) {
       return singleton;
     }
+    return handleBeanNotFound(name);
+  }
+
+  protected Object handleBeanNotFound(String name) {
     // may exits in bean supplier @since 4.0
     final Supplier<?> supplier = beanSupplier.get(name);
     if (supplier != null) {
@@ -175,11 +179,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T> T getBean(final Class<T> requiredType) {
-    final Object bean = getBean(getBeanNameCreator().create(requiredType));
-    return (T) (requiredType.isInstance(bean) ? bean : doGetBeanForType(requiredType));
-  }
+  public abstract <T> T getBean(final Class<T> requiredType);
 
   /**
    * Get bean for required type
@@ -1082,69 +1082,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerSingleton(final String name, final Object singleton) {
-    Assert.notNull(name, "Bean name must not be null");
-    Assert.notNull(singleton, "Singleton object must not be null");
-
-    synchronized(singletons) {
-      final Object oldBean = singletons.put(name, singleton);
-      if (oldBean == null) {
-        if (log.isDebugEnabled()) {
-          log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.toHexString(singleton));
-        }
-      }
-      else if (oldBean != singleton) {
-        log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-                 name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(oldBean));
-      }
-    }
-  }
-
-  @Override
-  public void registerSingleton(Object bean) {
-    registerSingleton(getBeanNameCreator().create(bean.getClass()), bean);
-  }
-
-  @Override
-  public Map<String, Object> getSingletons() {
-    return singletons;
-  }
-
-  @Override
-  public Object getSingleton(String name) {
-    return singletons.get(name);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T getSingleton(final Class<T> requiredType) {
-    final String maybe = getBeanNameCreator().create(requiredType);
-    final Object singleton = getSingleton(maybe);
-    if (singleton == null) {
-      final Map<String, Object> singletons = getSingletons();
-      for (final Object value : singletons.values()) {
-        if (requiredType.isInstance(value)) {
-          return (T) value;
-        }
-      }
-    }
-    else if (requiredType.isInstance(singleton)) {
-      return (T) singleton;
-    }
-    return null;
-  }
-
-  @Override
-  public void removeSingleton(String name) {
-    singletons.remove(name);
-  }
-
-  @Override
-  public boolean containsSingleton(String name) {
-    return singletons.containsKey(name);
-  }
-
-  @Override
   public void registerBeanDefinition(final String beanName, final BeanDefinition def) {
     this.beanDefinitionMap.put(beanName, def);
 
@@ -1263,6 +1200,7 @@ public abstract class AbstractBeanFactory
 
   // -----------------------------
 
+  @Deprecated
   public abstract BeanDefinitionLoader getBeanDefinitionLoader();
 
   /**
@@ -1308,111 +1246,6 @@ public abstract class AbstractBeanFactory
 
   // AutowireCapableBeanFactory
   // ---------------------------------
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T createBean(final Class<T> beanClass, final boolean cacheBeanDef) {
-    BeanDefinition defToUse;
-    if (cacheBeanDef) {
-      if ((defToUse = getBeanDefinition(beanClass)) == null) {
-        defToUse = getPrototypeBeanDefinition(beanClass);
-        registerBean(defToUse);
-      }
-    }
-    else {
-      defToUse = getPrototypeBeanDefinition(beanClass);
-    }
-    return (T) createPrototype(defToUse);
-  }
-
-  @Override
-  public void autowireBean(final Object existingBean) {
-    final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
-    if (log.isDebugEnabled()) {
-      log.debug("Autowiring bean named: [{}].", prototypeDef.getName());
-    }
-    aware(existingBean, prototypeDef);
-    // apply properties
-    applyPropertyValues(existingBean, prototypeDef);
-    // invoke initialize methods
-    invokeInitMethods(existingBean, prototypeDef);
-  }
-
-  @Override
-  public void autowireBeanProperties(final Object existingBean) {
-    final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
-    if (log.isDebugEnabled()) {
-      log.debug("Autowiring bean properties named: [{}].", prototypeDef.getName());
-    }
-    // apply properties
-    applyPropertyValues(existingBean, prototypeDef);
-  }
-
-  @Override
-  public Object initializeBean(Object existingBean) throws BeanInitializingException {
-    return initializeBean(existingBean, getBeanNameCreator().create(existingBean.getClass()));
-  }
-
-  @Override
-  public Object initializeBean(final Object existingBean, final String beanName) {
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
-    return initializeBean(existingBean, prototypeDef);
-  }
-
-  @Override
-  public Object applyBeanPostProcessorsBeforeInitialization(
-          final Object existingBean, final String beanName
-  ) {
-    Object ret = existingBean;
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
-    // before properties
-    for (final BeanPostProcessor processor : getPostProcessors()) {
-      try {
-        ret = processor.postProcessBeforeInitialization(ret, prototypeDef);
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + existingBean + "] before properties set", e);
-      }
-    }
-    return ret;
-  }
-
-  @Override
-  public Object applyBeanPostProcessorsAfterInitialization(
-          final Object existingBean, final String beanName
-  ) {
-    Object ret = existingBean;
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
-    // after properties
-    for (final BeanPostProcessor processor : getPostProcessors()) {
-      try {
-        ret = processor.postProcessAfterInitialization(ret, prototypeDef);
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + existingBean + "] after properties set", e);
-      }
-    }
-    return ret;
-  }
-
-  @Override
-  public void destroyBean(Object existingBean) {
-    destroyBean(existingBean, getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)));
-  }
-
-  private BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
-    return getBeanDefinitionLoader()
-            .createBeanDefinition(beanClass)
-            .setScope(Scope.PROTOTYPE);
-  }
-
-  private BeanDefinition getPrototypeBeanDefinition(final Object existingBean, final String beanName) {
-    return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
-  }
 
   //---------------------------------------------------------------------
   // Implementation of ArgumentsResolverProvider interface
@@ -1645,8 +1478,6 @@ public abstract class AbstractBeanFactory
   @Override
   public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
     Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
-
-    final List<BeanPostProcessor> postProcessors = getPostProcessors();
     postProcessors.remove(beanPostProcessor);
     postProcessors.add(beanPostProcessor);
 

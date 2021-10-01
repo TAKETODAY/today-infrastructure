@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,8 +24,7 @@ import java.util.Map;
 import cn.taketoday.beans.BeanNameCreator;
 
 /**
- * @author TODAY <br>
- * 2018-11-14 19:47
+ * @author TODAY 2018-11-14 19:47
  * @since 2.0.1
  */
 public interface SingletonBeanRegistry {
