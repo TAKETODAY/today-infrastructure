@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -21,6 +21,8 @@ package cn.taketoday.context;
 
 import java.lang.reflect.AnnotatedElement;
 
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
+
 /**
  * @author TODAY <br>
  * 2018-11-10 13:44
@@ -37,6 +39,22 @@ public interface Condition {
    * @return Return {@code false} to indicate that the bean should not be
    * registered
    */
+  @Deprecated
   boolean matches(ApplicationContext context, AnnotatedElement annotated);
+
+  /**
+   * @param context
+   *         ConditionEvaluationContext
+   * @param annotated
+   *         AnnotatedElement
+   *
+   * @return Return {@code false} to indicate that the bean should not be
+   * * registered
+   *
+   * @since 4.0
+   */
+  default boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    return matches(context.getContext(), annotated);
+  }
 
 }
