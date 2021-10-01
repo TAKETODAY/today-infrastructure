@@ -38,6 +38,8 @@ import java.util.jar.JarFile;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -196,13 +198,13 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     this(ClassUtils.getClassLoader());
   }
 
-  public PathMatchingResourcePatternResolver(ClassLoader classLoader) {
+  public PathMatchingResourcePatternResolver(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader == null ? ClassUtils.getClassLoader() : classLoader;
   }
 
   @Override
   public ClassLoader getClassLoader() {
-    return classLoader;
+    return this.classLoader != null ? this.classLoader : ClassUtils.getDefaultClassLoader();
   }
 
   public void setClassLoader(ClassLoader classLoader) {
@@ -227,6 +229,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     return this.pathMatcher;
   }
 
+  @NonNull
   @Override
   public Resource getResource(String location) {
     return ResourceUtils.getResource(location);
@@ -348,11 +351,10 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
   protected void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result) {
     if (classLoader instanceof URLClassLoader) {
       try {
-        final String jar = ResourceUtils.JAR_FILE_EXTENSION;
         for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
           try { // jar file
             final String path = url.getPath();
-            if (path.endsWith(jar)) {
+            if (path.endsWith(ResourceUtils.JAR_FILE_EXTENSION)) {
               final JarEntryResource jarResource = new JarEntryResource(path);
               if (jarResource.exists()) {
                 result.add(jarResource);

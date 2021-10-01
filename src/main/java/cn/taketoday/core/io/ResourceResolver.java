@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -20,6 +20,9 @@
 package cn.taketoday.core.io;
 
 import java.io.IOException;
+
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 
 /**
  * Strategy interface for resolving a location pattern (for example, an
@@ -81,18 +84,22 @@ public interface ResourceResolver {
    * @see Resource#exists()
    * @see Resource#getInputStream()
    */
+  @NonNull
   Resource getResource(String location);
 
   /**
-   * Expose the ClassLoader used by this ResourceLoader.
-   * <p>
-   * Clients which need to access the ClassLoader directly can do so in a uniform
-   * manner with the ResourceLoader, rather than relying on the thread context
-   * ClassLoader.
+   * Expose the {@link ClassLoader} used by this {@code ResourceLoader}.
+   * <p>Clients which need to access the {@code ClassLoader} directly can do so
+   * in a uniform manner with the {@code ResourceLoader}, rather than relying
+   * on the thread context {@code ClassLoader}.
    *
-   * @return the ClassLoader (only {@code null} if even the system ClassLoader
-   * isn't accessible)
+   * @return the {@code ClassLoader}
+   * (only {@code null} if even the system {@code ClassLoader} isn't accessible)
+   *
+   * @see cn.taketoday.util.ClassUtils#getDefaultClassLoader()
+   * @see cn.taketoday.util.ClassUtils#forName(String, ClassLoader)
    */
+  @Nullable
   ClassLoader getClassLoader();
 
   /**

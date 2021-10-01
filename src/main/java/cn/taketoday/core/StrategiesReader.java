@@ -24,10 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceResolver;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -38,6 +39,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class StrategiesReader {
   public static final Logger log = LoggerFactory.getLogger(StrategiesReader.class);
+  private ResourceResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
   /**
    * read a key multi-value map
@@ -69,7 +71,7 @@ public abstract class StrategiesReader {
       final List<String> strategiesLocations = StringUtils.splitAsList(strategiesLocation);
       for (final String location : strategiesLocations) {
         log.info("Detecting strategies location '{}'", location);
-        final Resource[] resources = ResourceUtils.getResources(location);
+        final Resource[] resources = resourceResolver.getResources(location);
         for (final Resource resource : resources) {
           read(resource, strategies);
         }
@@ -104,5 +106,20 @@ public abstract class StrategiesReader {
    */
   protected abstract void readInternal(
           InputStream inputStream, MultiValueMap<String, String> strategies) throws IOException;
+
+  /**
+   * set resourceResolver to load strategies files
+   *
+   * @param resourceResolver
+   *         new ResourceResolver cannot be {@code null}
+   */
+  public void setResourceResolver(ResourceResolver resourceResolver) {
+    Assert.notNull(resourceResolver, "resourceResolver must not be null");
+    this.resourceResolver = resourceResolver;
+  }
+
+  public ResourceResolver getResourceResolver() {
+    return resourceResolver;
+  }
 
 }
