@@ -22,8 +22,10 @@ package cn.taketoday.beans.factory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -31,11 +33,6 @@ import cn.taketoday.util.ObjectUtils;
 
 /**
  * Default SingletonBeanRegistry implementation
- *
- * <p>
- * <b>not a thread-safe implementation</b>
- * Beans are prepared at startup and generally do not add or modify beans at runtime
- * </p>
  *
  * @author TODAY 2021/10/1 22:47
  * @since 4.0
@@ -50,16 +47,26 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
   public void registerSingleton(final String name, final Object singleton) {
     Assert.notNull(name, "Bean name must not be null");
     Assert.notNull(singleton, "Singleton object must not be null");
-    final Object oldBean = singletons.put(name, singleton);
-    if (oldBean == null) {
-      if (log.isDebugEnabled()) {
-        log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.toHexString(singleton));
+    synchronized(singletons) {
+      final Object oldBean = singletons.put(name, singleton);
+      if (oldBean == null) {
+        singletonRegistered(name, singleton);
+      }
+      else if (oldBean != singleton) {
+        singletonAlreadyExist(name, singleton, oldBean);
       }
     }
-    else if (oldBean != singleton) {
-      log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-               name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(oldBean));
+  }
+
+  protected void singletonRegistered(String name, Object singleton) {
+    if (log.isDebugEnabled()) {
+      log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.toHexString(singleton));
     }
+  }
+
+  protected void singletonAlreadyExist(String name, Object singleton, Object existBean) {
+    log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
+             name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(existBean));
   }
 
   @Override
@@ -77,23 +84,77 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     return singletons.get(name);
   }
 
+  /**
+   * Return the (raw) singleton object registered under the given name,
+   * creating and registering a new one if none registered yet.
+   *
+   * @param beanName
+   *         the name of the bean
+   * @param singletonFactory
+   *         the ObjectFactory to lazily create the singleton
+   *         with, if necessary
+   *
+   * @return the registered singleton object
+   */
+  public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
+    Assert.notNull(beanName, "Bean name must not be null");
+    Object singletonObject = singletons.get(beanName);
+    if (singletonObject == null) {
+      synchronized(singletons) {
+        singletonObject = singletons.get(beanName);
+        if (singletonObject == null) {
+          log.debug("Creating shared instance of singleton bean '{}'", beanName);
+          beforeSingletonCreation(beanName);
+          try {
+            singletonObject = singletonFactory.getObject();
+          }
+          finally {
+            afterSingletonCreation(beanName);
+          }
+          registerSingleton(beanName, singletonObject);
+        }
+      }
+    }
+    return singletonObject;
+  }
+
+  /**
+   * Callback before singleton creation.
+   * <p>The default implementation register the singleton as currently in creation.
+   *
+   * @param beanName
+   *         the name of the singleton about to be created
+   */
+  protected void beforeSingletonCreation(String beanName) {
+
+  }
+
+  /**
+   * Callback after singleton creation.
+   * <p>The default implementation marks the singleton as not in creation anymore.
+   *
+   * @param beanName
+   *         the name of the singleton that has been created
+   */
+  protected void afterSingletonCreation(String beanName) {
+
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getSingleton(final Class<T> requiredType) {
     final String maybe = createBeanName(requiredType);
     final Object singleton = getSingleton(maybe);
-    if (singleton == null) {
-      final Map<String, Object> singletons = getSingletons();
-      for (final Object value : singletons.values()) {
-        if (requiredType.isInstance(value)) {
-          return (T) value;
+    if (!requiredType.isInstance(singleton)) {
+      synchronized(singletons) {
+        for (final Object value : singletons.values()) {
+          if (requiredType.isInstance(value)) {
+            return (T) value;
+          }
         }
       }
     }
-    else if (requiredType.isInstance(singleton)) {
-      return (T) singleton;
-    }
-    return null;
+    return (T) singleton;
   }
 
   /**
@@ -116,12 +177,35 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   @Override
   public void removeSingleton(String name) {
-    singletons.remove(name);
+    synchronized(singletons) {
+      singletons.remove(name);
+    }
   }
 
   @Override
   public boolean containsSingleton(String name) {
     return singletons.containsKey(name);
+  }
+
+  @Override
+  public int getSingletonCount() {
+    synchronized(singletons) {
+      return singletons.size();
+    }
+  }
+
+  @Override
+  public Set<String> getSingletonNames() {
+    return singletons.keySet();
+  }
+
+  /**
+   * Removes all the mappings from this map. The map will be empty after this call returns.
+   *
+   * @since 4.0
+   */
+  public void clear() {
+    singletons.clear();
   }
 
 }

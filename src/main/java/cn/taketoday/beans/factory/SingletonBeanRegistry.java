@@ -20,31 +20,59 @@
 package cn.taketoday.beans.factory;
 
 import java.util.Map;
+import java.util.Set;
 
-import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.ObjectFactory;
 
 /**
+ * Interface that defines a registry for shared bean instances.
+ * Can be implemented by {@link BeanFactory} implementations in
+ * order to expose their singleton management facility in a uniform manner.
+ *
  * @author TODAY 2018-11-14 19:47
  * @since 2.0.1
  */
 public interface SingletonBeanRegistry {
 
   /**
-   * Register a singleton to context
+   * Register the given existing object as singleton in the bean registry,
+   * under the given bean name.
+   * <p>The given instance is supposed to be fully initialized; the registry
+   * will not perform any initialization callbacks (in particular, it won't
+   * call InitializingBean's {@code afterPropertiesSet} method).
+   * The given instance will not receive any destruction callbacks
+   * (like DisposableBean's {@code destroy} method) either.
+   * <p>When running within a full BeanFactory: <b>Register a bean definition
+   * instead of an existing instance if your bean is supposed to receive
+   * initialization and/or destruction callbacks.</b>
+   * <p>Typically invoked during registry configuration, but can also be used
+   * for runtime registration of singletons. As a consequence, a registry
+   * implementation should synchronize singleton access; it will have to do
+   * this anyway if it supports a BeanFactory's lazy initialization of singletons.
    *
    * @param name
-   *         bean name
-   * @param bean
-   *         bean instance
+   *         the name of the bean
+   * @param singletonObject
+   *         the existing singleton object
+   *
+   * @see cn.taketoday.beans.InitializingBean#afterPropertiesSet
+   * @see cn.taketoday.beans.DisposableBean#destroy
+   * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#registerBeanDefinition
    */
-  void registerSingleton(String name, Object bean);
+  void registerSingleton(String name, Object singletonObject);
 
   /**
-   * Register a singleton to context user {@link BeanNameCreator} to create a name
+   * Register a singleton
+   * <p>
+   * sub-classes provide a strategy to create bean name
+   * ,default is use {@link cn.taketoday.util.ClassUtils#getShortName(Class)}
+   * </p>
    *
    * @param bean
    *         bean instance
    *
+   * @see cn.taketoday.util.ClassUtils#getShortName(Class)
    * @since 2.1.2
    */
   void registerSingleton(Object bean);
@@ -57,15 +85,34 @@ public interface SingletonBeanRegistry {
   Map<String, Object> getSingletons();
 
   /**
-   * get bean instance, one {@link BeanDefinition} can have a lot of names, so
-   * can't put instances in BeanDefinition.
+   * Return the (raw) singleton object registered under the given name.
+   * <p>Only checks already instantiated singletons; does not return an Object
+   * for singleton bean definitions which have not been instantiated yet.
+   * <p>The main purpose of this method is to access manually registered singletons
+   * (see {@link #registerSingleton}). Can also be used to access a singleton
+   * defined by a bean definition that already been created, in a raw fashion.
    *
    * @param name
-   *         bean name
+   *         the name of the bean to look for
    *
-   * @return bean instance
+   * @return the registered singleton object, or {@code null} if none found
    */
+  @Nullable
   Object getSingleton(String name);
+
+  /**
+   * Return the (raw) singleton object registered under the given name,
+   * creating and registering a new one if none registered yet.
+   *
+   * @param beanName
+   *         the name of the bean
+   * @param singletonFactory
+   *         the ObjectFactory to lazily create the singleton
+   *         with, if necessary
+   *
+   * @return the registered singleton object
+   */
+  Object getSingleton(String beanName, ObjectFactory<?> singletonFactory);
 
   /**
    * Get singleton objects
@@ -96,5 +143,39 @@ public interface SingletonBeanRegistry {
    * @return if contains singleton
    */
   boolean containsSingleton(String name);
+
+  /**
+   * Return the number of singleton beans registered in this registry.
+   * <p>Only checks already instantiated singletons; does not count
+   * singleton bean definitions which have not been instantiated yet.
+   * <p>The main purpose of this method is to check manually registered singletons
+   * (see {@link #registerSingleton}). Can also be used to count the number of
+   * singletons defined by a bean definition that have already been created.
+   *
+   * @return the number of singleton beans
+   *
+   * @see #registerSingleton
+   * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#getBeanDefinitionCount
+   * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionCount
+   * @since 4.0
+   */
+  int getSingletonCount();
+
+  /**
+   * Return the names of singleton beans registered in this registry.
+   * <p>Only checks already instantiated singletons; does not return names
+   * for singleton bean definitions which have not been instantiated yet.
+   * <p>The main purpose of this method is to check manually registered singletons
+   * (see {@link #registerSingleton}). Can also be used to check which singletons
+   * defined by a bean definition have already been created.
+   *
+   * @return the list of names as a String array (never {@code null})
+   *
+   * @see #registerSingleton
+   * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#getBeanDefinitionNames
+   * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionNames
+   * @since 4.0
+   */
+  Set<String> getSingletonNames();
 
 }
