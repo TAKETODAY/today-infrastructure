@@ -96,7 +96,8 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    *
    * @return the registered singleton object
    */
-  public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
+  @SuppressWarnings("unchecked")
+  public <T> T getSingleton(String beanName, ObjectFactory<T> singletonFactory) {
     Assert.notNull(beanName, "Bean name must not be null");
     Object singletonObject = singletons.get(beanName);
     if (singletonObject == null) {
@@ -115,7 +116,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         }
       }
     }
-    return singletonObject;
+    return (T) singletonObject;
   }
 
   /**

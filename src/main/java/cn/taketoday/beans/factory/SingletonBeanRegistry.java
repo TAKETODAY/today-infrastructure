@@ -112,7 +112,7 @@ public interface SingletonBeanRegistry {
    *
    * @return the registered singleton object
    */
-  Object getSingleton(String beanName, ObjectFactory<?> singletonFactory);
+  <T> T getSingleton(String beanName, ObjectFactory<T> singletonFactory);
 
   /**
    * Get singleton objects
