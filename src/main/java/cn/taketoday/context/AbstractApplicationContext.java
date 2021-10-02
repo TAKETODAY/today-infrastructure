@@ -245,7 +245,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * Return the internal bean factory of the parent context if it implements
    * ConfigurableApplicationContext; else, return the parent context itself.
    *
-   * @see ConfigurableApplicationContext#getBeanFactory
+   * @see ConfigurableApplicationContext#unwrapFactory
    */
   @Nullable
   protected BeanFactory getInternalParentBeanFactory() {
@@ -723,12 +723,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @NonNull
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getBeanFactory(Class<T> requiredType) {
+  public <T> T unwrapFactory(Class<T> requiredType) {
     AbstractBeanFactory beanFactory = getBeanFactory();
     if (requiredType.isInstance(beanFactory)) {
-      throw new IllegalArgumentException("bean factory must be a " + requiredType);
+      return (T) beanFactory;
     }
-    return (T) beanFactory;
+    throw new IllegalArgumentException("bean factory must be a " + requiredType);
+  }
+
+  @NonNull
+  @Override
+  public <T> T unwrap(Class<T> requiredType) {
+    if (requiredType.isInstance(this)) {
+      return (T) this;
+    }
+    throw new IllegalArgumentException("bean factory must be a " + requiredType);
   }
 
   @Override

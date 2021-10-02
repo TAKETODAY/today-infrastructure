@@ -55,12 +55,25 @@ public interface ApplicationContext
   BeanFactory getBeanFactory();
 
   /**
+   * unwrap bean-factory to {@code requiredType}
+   *
+   * @throws IllegalArgumentException
+   *         not a requiredType
+   * @see #getBeanFactory()
+   * @since 4.0
+   */
+  @NonNull
+  <T> T unwrapFactory(Class<T> requiredType);
+
+  /**
+   * unwrap this ApplicationContext to {@code requiredType}
+   *
    * @throws IllegalArgumentException
    *         not a requiredType
    * @since 4.0
    */
   @NonNull
-  <T> T getBeanFactory(Class<T> requiredType);
+  <T> T unwrap(Class<T> requiredType);
 
   /**
    * Refresh factory, initialize singleton
