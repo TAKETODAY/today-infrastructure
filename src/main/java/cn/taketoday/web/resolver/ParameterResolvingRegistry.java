@@ -19,14 +19,14 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.util.Properties;
-
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
@@ -46,7 +46,6 @@ import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 
-import static cn.taketoday.context.ContextUtils.resolveProps;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.from;
 
 /**
@@ -276,24 +275,26 @@ public class ParameterResolvingRegistry
    * config ParameterResolver using {@link DataBinder}
    */
   public void configureDataBinder(ParameterResolvingStrategies strategies) {
-    WebApplicationContext context = obtainApplicationContext();
+    BeanDefinitionRegistry registry = obtainApplicationContext().unwrapFactory(
+            BeanDefinitionRegistry.class);
+
     if (!strategies.contains(DataBinderMapParameterResolver.class)
-            && !context.containsBeanDefinition(DataBinderMapParameterResolver.class)) {
+            && !registry.containsBeanDefinition(DataBinderMapParameterResolver.class)) {
       strategies.add(new DataBinderMapParameterResolver());
     }
     // resolve array of beans
     if (!contains(DataBinderArrayParameterResolver.class)
-            && !context.containsBeanDefinition(DataBinderArrayParameterResolver.class)) {
+            && !registry.containsBeanDefinition(DataBinderArrayParameterResolver.class)) {
       strategies.add(new DataBinderArrayParameterResolver());
     }
     // resolve a collection of beans
     if (!strategies.contains(DataBinderCollectionParameterResolver.class)
-            && !context.containsBeanDefinition(DataBinderCollectionParameterResolver.class)) {
+            && !registry.containsBeanDefinition(DataBinderCollectionParameterResolver.class)) {
       strategies.add(new DataBinderCollectionParameterResolver());
     }
     // resolve bean
     if (!strategies.contains(DataBinderParameterResolver.class)
-            && !context.containsBeanDefinition(DataBinderParameterResolver.class)) {
+            && !registry.containsBeanDefinition(DataBinderParameterResolver.class)) {
       DataBinderParameterResolver resolver = new DataBinderParameterResolver(this);
       strategies.add(resolver);
     }
@@ -414,19 +415,19 @@ public class ParameterResolvingRegistry
   // AnnotationParameterResolver
 
   static final class PropsParameterResolver extends AnnotationParameterResolver<Props> {
-    final Properties properties;
+    final PropsReader propsReader;
     final WebApplicationContext context;
 
     PropsParameterResolver(WebApplicationContext context) {
       super(Props.class);
       this.context = context;
-      this.properties = context.getEnvironment().getProperties();
+      this.propsReader = new PropsReader(context.getEnvironment());
     }
 
     @Override
     protected Object resolveInternal(Props target, RequestContext ctx, MethodParameter parameter) {
-      final Object bean = BeanUtils.newInstance(parameter.getParameterClass(), context);
-      return resolveProps(target, bean, properties);
+      final Object bean = BeanUtils.newInstance(parameter.getParameterClass(), context, new Object[] { ctx });
+      return propsReader.read(target, bean);
     }
   }
 
