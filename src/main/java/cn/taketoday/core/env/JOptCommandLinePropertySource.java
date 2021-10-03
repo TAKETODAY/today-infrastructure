@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
@@ -83,9 +83,10 @@ public class JOptCommandLinePropertySource extends CommandLinePropertySource<Opt
     return this.source.has(name);
   }
 
+  @NonNull
   @Override
-  public String[] getPropertyNames() {
-    List<String> names = new ArrayList<>();
+  public List<String> getPropertyNames() {
+    ArrayList<String> names = new ArrayList<>();
     for (OptionSpec<?> spec : this.source.specs()) {
       String lastOption = CollectionUtils.lastElement(spec.options());
       if (lastOption != null) {
@@ -93,7 +94,7 @@ public class JOptCommandLinePropertySource extends CommandLinePropertySource<Opt
         names.add(lastOption);
       }
     }
-    return StringUtils.toStringArray(names);
+    return names;
   }
 
   @Override

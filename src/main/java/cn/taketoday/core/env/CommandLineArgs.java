@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.Nullable;
@@ -35,8 +34,8 @@ import cn.taketoday.core.Nullable;
  */
 final class CommandLineArgs {
 
-  private final Map<String, List<String>> optionArgs = new HashMap<>();
-  private final List<String> nonOptionArgs = new ArrayList<>();
+  private final ArrayList<String> nonOptionArgs = new ArrayList<>();
+  private final HashMap<String, List<String>> optionArgs = new HashMap<>();
 
   /**
    * Add an option argument for the given option name and add the given value to the

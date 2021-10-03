@@ -31,7 +31,7 @@ import cn.taketoday.util.ObjectUtils;
  * implementations.
  *
  * <p>{@code PropertySource} objects are not typically used in isolation, but rather
- * through a {@link PropertySources0} object, which aggregates property sources and in
+ * through a {@link PropertySources} object, which aggregates property sources and in
  * conjunction with a {@link PropertyResolver} implementation that can perform
  * precedence-based searches across the set of {@code PropertySources}.
  *
@@ -45,7 +45,6 @@ import cn.taketoday.util.ObjectUtils;
  *         the source type
  *
  * @author Chris Beams
- * @see PropertySources0
  * @see PropertyResolver
  * @see PropertySourcesPropertyResolver
  * @see PropertySources

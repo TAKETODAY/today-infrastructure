@@ -18,6 +18,9 @@ package cn.taketoday.core.env;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
+import cn.taketoday.core.NonNull;
 
 /**
  * {@link PropertySource} implementation that extracts properties from a
@@ -44,8 +47,9 @@ public class PropertiesPropertySource extends MapPropertySource {
     super(name, source);
   }
 
+  @NonNull
   @Override
-  public String[] getPropertyNames() {
+  public Set<String> getPropertyNames() {
     synchronized(this.source) {
       return super.getPropertyNames();
     }

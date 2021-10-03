@@ -54,9 +54,9 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final Set<String> activeProfiles = new LinkedHashSet<>();
+  private final LinkedHashSet<String> activeProfiles = new LinkedHashSet<>();
 
-  private final Set<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());
+  private final LinkedHashSet<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());
 
   private final PropertySources propertySources;
 

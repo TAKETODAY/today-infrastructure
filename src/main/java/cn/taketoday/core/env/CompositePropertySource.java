@@ -21,9 +21,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Composite {@link PropertySource} implementation that iterates over a set of
@@ -74,18 +73,19 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
     return false;
   }
 
+  @NonNull
   @Override
-  public String[] getPropertyNames() {
+  public LinkedHashSet<String> getPropertyNames() {
     LinkedHashSet<String> names = new LinkedHashSet<>();
     for (PropertySource<?> propertySource : this.propertySources) {
       if (!(propertySource instanceof EnumerablePropertySource)) {
         throw new IllegalStateException(
                 "Failed to enumerate property names due to non-enumerable property source: " + propertySource);
       }
-      String[] propertyNames = ((EnumerablePropertySource<?>) propertySource).getPropertyNames();
-      CollectionUtils.addAll(names, propertyNames);
+      Collection<String> propertyNames = ((EnumerablePropertySource<?>) propertySource).getPropertyNames();
+      names.addAll(propertyNames);
     }
-    return StringUtils.toStringArray(names);
+    return names;
   }
 
   /**

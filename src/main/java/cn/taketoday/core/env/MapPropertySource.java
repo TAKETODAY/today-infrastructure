@@ -17,9 +17,10 @@
 package cn.taketoday.core.env;
 
 import java.util.Map;
+import java.util.Set;
 
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.util.StringUtils;
 
 /**
  * {@link PropertySource} that reads keys and values from a {@code Map} object.
@@ -57,9 +58,9 @@ public class MapPropertySource extends EnumerablePropertySource<Map<String, Obje
     return this.source.containsKey(name);
   }
 
-  @Override
-  public String[] getPropertyNames() {
-    return StringUtils.toStringArray(this.source.keySet());
+  @NonNull @Override
+  public Set<String> getPropertyNames() {
+    return this.source.keySet();
   }
 
 }

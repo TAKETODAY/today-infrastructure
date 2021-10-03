@@ -16,7 +16,9 @@
 
 package cn.taketoday.core.env;
 
-import cn.taketoday.util.ObjectUtils;
+import java.util.Collection;
+
+import cn.taketoday.core.NonNull;
 
 /**
  * A {@link PropertySource} implementation capable of interrogating its
@@ -79,13 +81,14 @@ public abstract class EnumerablePropertySource<T> extends PropertySource<T> {
    */
   @Override
   public boolean containsProperty(String name) {
-    return ObjectUtils.containsElement(getPropertyNames(), name);
+    return getPropertyNames().contains(name);
   }
 
   /**
    * Return the names of all properties contained by the
    * {@linkplain #getSource() source} object (never {@code null}).
    */
-  public abstract String[] getPropertyNames();
+  @NonNull
+  public abstract Collection<String> getPropertyNames();
 
 }

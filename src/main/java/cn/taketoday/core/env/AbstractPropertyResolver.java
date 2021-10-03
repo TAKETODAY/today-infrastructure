@@ -28,6 +28,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.SystemPropertyUtils;
 
@@ -38,7 +39,7 @@ import cn.taketoday.util.SystemPropertyUtils;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver {
+public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver, PlaceholderResolver {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   @Nullable
@@ -236,7 +237,13 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
   }
 
   private String doResolvePlaceholders(String text, PropertyPlaceholderHandler helper) {
-    return helper.replacePlaceholders(text, this::getPropertyAsRawString);
+    return helper.replacePlaceholders(text, this);
+  }
+
+  @Nullable
+  @Override
+  public String resolvePlaceholder(String placeholderName) {
+    return getPropertyAsRawString(placeholderName);
   }
 
   /**

@@ -20,16 +20,16 @@ import cn.taketoday.core.Nullable;
 
 /**
  * {@link PropertyResolver} implementation that resolves property values against
- * an underlying set of {@link PropertySources0}.
+ * an underlying set of {@link PropertySources}.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
  * @see PropertySource
- * @see PropertySources0
+ * @see PropertySources
  * @see AbstractEnvironment
  * @since 4.0
  */
-public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
+public class PropertySourcesPropertyResolver extends TypedPropertyResolver {
 
   @Nullable
   private final PropertySources propertySources;
@@ -56,26 +56,8 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
     return false;
   }
 
-  @Override
   @Nullable
-  public String getProperty(String key) {
-    return getProperty(key, String.class, true);
-  }
-
-  @Override
-  @Nullable
-  public <T> T getProperty(String key, Class<T> targetValueType) {
-    return getProperty(key, targetValueType, true);
-  }
-
-  @Override
-  @Nullable
-  protected String getPropertyAsRawString(String key) {
-    return getProperty(key, String.class, false);
-  }
-
-  @Nullable
-  protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+  public <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
     boolean traceEnabled = log.isTraceEnabled();
     if (this.propertySources != null) {
       for (PropertySource<?> propertySource : this.propertySources) {
