@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
@@ -37,10 +37,10 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Repository;
 import cn.taketoday.context.event.ApplicationListener;
@@ -51,10 +51,9 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
-
-import static cn.taketoday.context.ContextUtils.getResourceAsStream;
 
 /**
  * @author TODAY <br>
@@ -64,7 +63,8 @@ import static cn.taketoday.context.ContextUtils.getResourceAsStream;
 public class MybatisConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
-  public static final Method[] initMethods = ContextUtils.resolveInitMethod(null, MapperFactoryBean.class);
+  public static final Method[] initMethods =
+          BeanDefinitionBuilder.resolveInitMethod(null, MapperFactoryBean.class);
 
   @Override
   public void onApplicationEvent(LoadingMissingBeanEvent event) {
@@ -95,8 +95,10 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
 
   protected FactoryBeanDefinition<?> createBeanDefinition(final Class<?> beanClass, final String name) {
     final DefaultBeanDefinition ret = new DefaultBeanDefinition(name, beanClass);
-    ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
-            .setInitMethods(initMethods);
+    ret.setSynthetic(true);
+    ret.setInitMethods(initMethods);
+    ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
+    ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
     return new FactoryBeanDefinition<>(ret, SingletonSupplier.of(new MapperFactoryBean<>(beanClass)));
   }
 
@@ -118,7 +120,7 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
     }
 
     final Configuration configuration = new XMLConfigBuilder(
-            getResourceAsStream(configLocation), envId, properties).parse();
+            ResourceUtils.getResourceAsStream(configLocation), envId, properties).parse();
 
     if (transactionFactory == null) {
       transactionFactory = new MybatisTransactionFactory();
