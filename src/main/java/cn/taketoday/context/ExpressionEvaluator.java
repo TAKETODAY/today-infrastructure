@@ -31,6 +31,11 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.env.PropertiesPropertySource;
+import cn.taketoday.core.env.PropertyResolver;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.PropertySourcesPropertyResolver;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
@@ -39,6 +44,8 @@ import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.PlaceholderResolver;
+import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -59,16 +66,20 @@ public class ExpressionEvaluator {
 
   private ExpressionProcessor expressionProcessor;
 
-  private Properties variables;
-  private boolean throwIfPropertyNotFound = false;
   private ApplicationContext context;
+  private boolean throwIfPropertyNotFound = false;
+
+  private final PropertyResolver variablesResolver;
 
   public ExpressionEvaluator() {
-    this(System.getProperties());
+    this.variablesResolver = new StandardEnvironment();
   }
 
   public ExpressionEvaluator(Properties variables) {
-    setVariables(variables);
+    PropertiesPropertySource propertySource = new PropertiesPropertySource("variables", variables);
+    PropertySources propertySources = new PropertySources();
+    propertySources.addFirst(propertySource);
+    this.variablesResolver = new PropertySourcesPropertyResolver(propertySources);
   }
 
   public ExpressionEvaluator(ExpressionProcessor expressionProcessor) {
@@ -89,7 +100,7 @@ public class ExpressionEvaluator {
     Assert.notNull(context, "ApplicationContext must not be null");
     this.context = context;
     final Environment environment = context.getEnvironment();
-    this.variables = environment.getProperties();
+    this.variablesResolver = environment;
     this.expressionProcessor = expressionProcessor != null ? expressionProcessor : environment.getExpressionProcessor();
   }
 
@@ -98,12 +109,16 @@ public class ExpressionEvaluator {
   }
 
   public <T> T evaluate(final String expression, final Class<T> expectedType) {
-    return evaluate(expression, expectedType, variables);
+    return evaluate(expression, expectedType, variablesResolver::getProperty);
   }
 
-  public <T> T evaluate(final String expression, final Class<T> expectedType, final Map<Object, Object> variables) {
+  public <T> T evaluate(final String expression, Class<T> expectedType, Map<String, String> variables) {
+    return evaluate(expression, expectedType, variables::get);
+  }
+
+  public <T> T evaluate(String expression, Class<T> expectedType, PlaceholderResolver resolver) {
     if (expression.contains(PLACE_HOLDER_PREFIX)) {
-      final String replaced = resolvePlaceholder(variables, expression);
+      String replaced = resolvePlaceholder(expression, resolver, throwIfPropertyNotFound);
       return conversionService.convert(replaced, expectedType);
     }
     if (expression.contains(EL_PREFIX)) {
@@ -118,10 +133,9 @@ public class ExpressionEvaluator {
   }
 
   public <T> T evaluate(
-          final String expression, final ExpressionContext context, final Class<T> expectedType) {
-
+          String expression, ExpressionContext context, Class<T> expectedType) {
     if (expression.contains(PLACE_HOLDER_PREFIX)) {
-      final String replaced = resolvePlaceholder(variables, expression);
+      String replaced = resolvePlaceholder(expression, variablesResolver::getProperty, throwIfPropertyNotFound);
       return conversionService.convert(replaced, expectedType);
     }
     if (expression.contains(EL_PREFIX)) {
@@ -149,7 +163,7 @@ public class ExpressionEvaluator {
    *         Can't resolve expression
    * @since 2.1.6
    */
-  public <T> T evaluate(final Env value, final Class<T> expectedType) {
+  public <T> T evaluate(Env value, Class<T> expectedType) {
     final T resolveValue = evaluate(
             PLACE_HOLDER_PREFIX + value.value() + PLACE_HOLDER_SUFFIX, expectedType
     );
@@ -160,7 +174,7 @@ public class ExpressionEvaluator {
       throw new ConfigurationException("Can't resolve property: [" + value.value() + "]");
     }
 
-    final String defaultValue = value.defaultValue();
+    String defaultValue = value.defaultValue();
     if (StringUtils.isEmpty(defaultValue)) {
       return null;
     }
@@ -181,72 +195,37 @@ public class ExpressionEvaluator {
    *         Can't resolve expression
    * @since 2.1.6
    */
-  public <T> T evaluate(final Value value, final Class<T> expectedType) {
-    final T resolveValue = evaluate(value.value(), expectedType);
+  public <T> T evaluate(Value value, Class<T> expectedType) {
+    T resolveValue = evaluate(value.value(), expectedType);
     if (resolveValue != null) {
       return resolveValue;
     }
     if (value.required()) {
       throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
     }
-    final String defaultValue = value.defaultValue();
+    String defaultValue = value.defaultValue();
     if (StringUtils.isEmpty(defaultValue)) {
       return null;
     }
     return evaluate(defaultValue, expectedType);
   }
 
-  public String resolvePlaceholder(final Map<Object, Object> properties, String input) {
+  public String resolvePlaceholder(Map<String, String> properties, String input) {
     return resolvePlaceholder(properties, input, throwIfPropertyNotFound);
   }
 
-  /**
-   * Resolve placeholder s
-   *
-   * @param properties
-   *         {@link Properties} variables source
-   * @param input
-   *         Input expression
-   * @param throwIfPropertyNotFound
-   *         If there doesn't exist the key throw {@link Exception}
-   *
-   * @return A resolved string
-   *
-   * @throws ConfigurationException
-   *         If not exist target property
-   */
   public String resolvePlaceholder(
-          final Map<Object, Object> properties, String input, final boolean throwIfPropertyNotFound) {
-    if (input == null || input.length() <= 3) { // #{} > 3
-      return input;
-    }
-    int prefixIndex;
-    int suffixIndex;
+          Map<String, String> properties, String input, boolean throwIfPropertyNotFound) {
+    return resolvePlaceholder(input, properties::get, throwIfPropertyNotFound);
+  }
 
-    final StringBuilder builder = new StringBuilder();
-    while ((prefixIndex = input.indexOf(PLACE_HOLDER_PREFIX)) > -1 //
-            && (suffixIndex = input.indexOf(PLACE_HOLDER_SUFFIX)) > -1) {
-
-      builder.append(input, 0, prefixIndex);
-
-      final String key = input.substring(prefixIndex + 2, suffixIndex);
-
-      final Object property = properties.get(key);
-      if (property == null) {
-        if (throwIfPropertyNotFound) {
-          throw new ConfigurationException("Properties -> [" + key + "] , must specify a value.");
-        }
-        log.debug("There is no property for key: [{}]", key);
-        return null;
-      }
-      // find
-      builder.append(resolvePlaceholder(properties, (property instanceof String) ? (String) property : null, throwIfPropertyNotFound));
-      input = input.substring(suffixIndex + 1);
-    }
-    if (builder.length() == 0) {
-      return input;
-    }
-    return builder.append(input).toString();
+  /**
+   * @since 4.0
+   */
+  public String resolvePlaceholder(String input, PlaceholderResolver resolver, boolean throwIfPropertyNotFound) {
+    PropertyPlaceholderHandler placeholderHandler =
+            throwIfPropertyNotFound ? PropertyPlaceholderHandler.strict : PropertyPlaceholderHandler.defaults;
+    return placeholderHandler.replacePlaceholders(input, resolver);
   }
 
   public void setConversionService(ConversionService conversionService) {
@@ -259,15 +238,6 @@ public class ExpressionEvaluator {
 
   public void setThrowIfPropertyNotFound(boolean throwIfPropertyNotFound) {
     this.throwIfPropertyNotFound = throwIfPropertyNotFound;
-  }
-
-  public Properties getVariables() {
-    return variables;
-  }
-
-  public void setVariables(Properties variables) {
-    Assert.notNull(variables, "variables must not be null");
-    this.variables = variables;
   }
 
   public void setExpressionProcessor(ExpressionProcessor expressionProcessor) {
@@ -288,7 +258,7 @@ public class ExpressionEvaluator {
 
   private ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
-      final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+      ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
       ApplicationContext context = this.context;
       if (context == null) {
         context = ContextUtils.getLastStartupContext();
@@ -304,11 +274,11 @@ public class ExpressionEvaluator {
         globalContext = new StandardExpressionContext(exprFactory);
       }
       else {
-        final BeanFactory beanFactory = context.getBeanFactory();
+        BeanFactory beanFactory = context.getBeanFactory();
         globalContext = new ValueExpressionContext(exprFactory, (ConfigurableBeanFactory) beanFactory);
       }
 
-      globalContext.defineBean(ENV, variables);
+      globalContext.defineBean(ENV, variablesResolver);
       expressionProcessor = new ExpressionProcessor(new ExpressionManager(globalContext, exprFactory));
     }
     return expressionProcessor;
