@@ -20,11 +20,22 @@
 
 package cn.taketoday.beans.support;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.PropertyAccessor;
@@ -33,25 +44,21 @@ import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * @author TODAY 2021/1/27 22:26
  * @since 3.0
  */
-public class BeanMetadata {
+public class BeanMetadata implements Iterable<BeanProperty> {
 
   private static final Mappings<BeanMetadata, ?> metadataMappings = new Mappings<>(BeanMetadata::new);
-  private static final BeanPropertiesMappings beanPropertiesMappings = new BeanPropertiesMappings();
 
   private final Class<?> beanClass;
 
   private BeanInstantiator constructor;
-  private final Map<String, BeanProperty> beanProperties;
+  /**
+   * @since 4.0
+   */
+  private BeanPropertiesHolder propertyHolder;
 
   private BeanMetadata(Object key) {
     this((Class<?>) key);
@@ -59,7 +66,6 @@ public class BeanMetadata {
 
   public BeanMetadata(Class<?> beanClass) {
     this.beanClass = beanClass;
-    this.beanProperties = beanPropertiesMappings.get(beanClass, this);
   }
 
   public Class<?> getType() {
@@ -104,14 +110,17 @@ public class BeanMetadata {
    *         Property name
    *
    * @return {@link PropertyAccessor}
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
    */
   public PropertyAccessor getPropertyAccessor(String propertyName) {
-    return getBeanProperty(propertyName).getPropertyAccessor();
+    return obtainBeanProperty(propertyName).getPropertyAccessor();
   }
 
   @Nullable
   public BeanProperty getBeanProperty(final String propertyName) {
-    return beanProperties.get(propertyName);
+    return getBeanProperties().get(propertyName);
   }
 
   /**
@@ -188,16 +197,27 @@ public class BeanMetadata {
    *
    * @return map of properties
    */
+  @NonNull
   public Map<String, BeanProperty> getBeanProperties() {
-    return beanProperties;
+    return propertyHolder().mapping;
   }
 
-  public Map<String, BeanProperty> createBeanProperties() {
-    Map<String, BeanProperty> beanPropertyMap = new HashMap<>();
+  /**
+   * @since 4.0
+   */
+  private BeanPropertiesHolder propertyHolder() {
+    if (propertyHolder == null) {
+      propertyHolder = BeanPropertiesMappings.computeProperties(beanClass, this);
+    }
+    return propertyHolder;
+  }
+
+  public HashMap<String, BeanProperty> createBeanProperties() {
+    HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
     ReflectionUtils.doWithFields(beanClass, declaredField -> {
       if (!shouldSkip(declaredField)) {
         String propertyName = getPropertyName(declaredField);
-        beanPropertyMap.put(propertyName, new BeanProperty(declaredField));
+        beanPropertyMap.put(propertyName, new BeanProperty(propertyName, declaredField));
       }
     });
     return beanPropertyMap;
@@ -241,6 +261,29 @@ public class BeanMetadata {
     return Objects.hash(beanClass);
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of Iterable interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public Iterator<BeanProperty> iterator() {
+    return propertyHolder().beanProperties.iterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super BeanProperty> action) {
+    propertyHolder().beanProperties.forEach(action);
+  }
+
+  @Override
+  public Spliterator<BeanProperty> spliterator() {
+    return propertyHolder().beanProperties.spliterator();
+  }
+
+  //---------------------------------------------------------------------
+  // static
+  //---------------------------------------------------------------------
+
   /**
    * Create a {@link BeanMetadata} with given bean class
    *
@@ -270,13 +313,32 @@ public class BeanMetadata {
   }
 
   /**
+   * @since 4.0
+   */
+  static final class BeanPropertiesHolder {
+    final HashMap<String, BeanProperty> mapping;
+    final ArrayList<BeanProperty> beanProperties;
+
+    BeanPropertiesHolder(HashMap<String, BeanProperty> mapping) {
+      this.mapping = mapping;
+      this.beanProperties = new ArrayList<>(mapping.values());
+    }
+  }
+
+  /**
    * Mapping cache
    */
-  static class BeanPropertiesMappings extends Mappings<Map<String, BeanProperty>, BeanMetadata> {
+  static class BeanPropertiesMappings extends Mappings<BeanPropertiesHolder, BeanMetadata> {
+    private static final BeanPropertiesMappings beanPropertiesMappings = new BeanPropertiesMappings();
+
+    static BeanPropertiesHolder computeProperties(Class<?> beanClass, BeanMetadata metadata) {
+      return beanPropertiesMappings.get(beanClass, metadata);
+    }
 
     @Override
-    protected Map<String, BeanProperty> createValue(Object key, BeanMetadata param) {
-      return param.createBeanProperties();
+    protected BeanPropertiesHolder createValue(Object key, BeanMetadata param) {
+      HashMap<String, BeanProperty> propertyMap = param.createBeanProperties();
+      return new BeanPropertiesHolder(propertyMap);
     }
 
   }

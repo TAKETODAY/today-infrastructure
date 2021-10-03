@@ -51,7 +51,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
-    final BeanMetadata destinationMetadata = BeanMetadata.ofObject(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.ofObject(destination);
     copy(source, destinationMetadata, destination, null);
   }
 
@@ -70,7 +70,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
-    final BeanMetadata destinationMetadata = BeanMetadata.ofObject(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.ofObject(destination);
     copy(source, destinationMetadata, destination, ignoreProperties);
   }
 
@@ -92,8 +92,8 @@ public class BeanProperties {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination class must not be null");
 
-    final BeanMetadata destinationMetadata = BeanMetadata.ofClass(destination);
-    final Object destinationInstance = destinationMetadata.newInstance(); // destination
+    BeanMetadata destinationMetadata = BeanMetadata.ofClass(destination);
+    Object destinationInstance = destinationMetadata.newInstance(); // destination
     copy(source, destinationMetadata, destinationInstance, null);
     return (T) destinationInstance;
   }
@@ -109,8 +109,8 @@ public class BeanProperties {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination class must not be null");
 
-    final BeanMetadata destinationMetadata = BeanMetadata.ofClass(destination);
-    final Object destinationInstance = destinationMetadata.newInstance(); // destination
+    BeanMetadata destinationMetadata = BeanMetadata.ofClass(destination);
+    Object destinationInstance = destinationMetadata.newInstance(); // destination
     copy(source, destinationMetadata, destinationInstance, ignoreProperties);
     return (T) destinationInstance;
   }
@@ -123,25 +123,25 @@ public class BeanProperties {
           Object source, BeanMetadata destinationMetadata,
           Object destinationInstance, @Nullable String[] ignoreProperties) {
     if (source instanceof Map) {
-      for (final Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
-        final String propertyName = entry.getKey();
+      for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
+        String propertyName = entry.getKey();
         if (allowCopy(ignoreProperties, propertyName)) {
-          final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
+          BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
           if (beanProperty != null && !beanProperty.isReadOnly()) {
-            final Object value = entry.getValue();
+            Object value = entry.getValue();
             beanProperty.setValue(destinationInstance, value);
           }
         }
       }
     }
     else {
-      final BeanMetadata sourceMetadata = BeanMetadata.ofObject(source);
-      for (final Map.Entry<String, BeanProperty> entry : sourceMetadata.getBeanProperties().entrySet()) {
-        final String propertyName = entry.getKey();
+      BeanMetadata sourceMetadata = BeanMetadata.ofObject(source);
+      for (Map.Entry<String, BeanProperty> entry : sourceMetadata.getBeanProperties().entrySet()) {
+        String propertyName = entry.getKey();
         if (allowCopy(ignoreProperties, propertyName)) {
-          final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
+          BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
           if (beanProperty != null && !beanProperty.isReadOnly()) {
-            final Object value = entry.getValue().getValue(source);
+            Object value = entry.getValue().getValue(source);
             beanProperty.setValue(destinationInstance, value);
           }
         }
@@ -151,7 +151,7 @@ public class BeanProperties {
 
   private static boolean allowCopy(@Nullable String[] ignoreProperties, String propertyName) {
     if (ObjectUtils.isNotEmpty(ignoreProperties)) {
-      for (final String ignoreProperty : ignoreProperties) {
+      for (String ignoreProperty : ignoreProperties) {
         if (propertyName.equals(ignoreProperty)) {
           return false;
         }
@@ -193,7 +193,7 @@ public class BeanProperties {
    * @throws InvalidPropertyValueException
    *         Invalid property value
    */
-  public static void populate(final Object bean, final Map<String, Object> properties) {
+  public static void populate(Object bean, Map<String, Object> properties) {
     populate(bean, properties, true);
   }
 
@@ -228,16 +228,16 @@ public class BeanProperties {
    * @see BeanPropertyAccessor
    */
   public static void populate(
-          final Object bean, final Map<String, Object> properties, final boolean ignoreUnknownProperty) {
+          Object bean, Map<String, Object> properties, boolean ignoreUnknownProperty) {
     Assert.notNull(bean, "target bean must not be null");
     Assert.notNull(properties, "properties must not be null");
-    final BeanMetadata metadata = BeanMetadata.ofObject(bean);
-    final BeanPropertyAccessor accessor = BeanPropertyAccessor.from(metadata, bean);
+    BeanMetadata metadata = BeanMetadata.ofObject(bean);
+    BeanPropertyAccessor accessor = BeanPropertyAccessor.from(metadata, bean);
     accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
     accessor.setThrowsWhenReadOnly(false);
-    for (final Map.Entry<String, Object> entry : properties.entrySet()) {
-      final String key = entry.getKey();
-      final Object value = entry.getValue();
+    for (Map.Entry<String, Object> entry : properties.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
       accessor.setProperty(bean, metadata, key, value);
     }
   }

@@ -30,6 +30,7 @@ import java.util.Set;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -64,6 +65,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     this.metadata = metadata;
   }
 
+  @NonNull
   @Override
   public Set<Entry<String, Object>> entrySet() {
     final Object target = obtainTarget();
@@ -76,6 +78,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     return entrySet;
   }
 
+  @NonNull
   @Override
   public Set<String> keySet() {
     return Collections.unmodifiableSet(metadata.getBeanProperties().keySet());
@@ -189,6 +192,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public boolean equals(Object o) {
     if (o != this) {
       if (!(o instanceof Map)) {

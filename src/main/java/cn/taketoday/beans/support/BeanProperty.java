@@ -39,6 +39,7 @@ import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
@@ -46,7 +47,6 @@ import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY
@@ -78,11 +78,16 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   /** @since 3.0.4 */
   private TypeDescriptor typeDescriptor;
+  private final String alias;
 
-  public BeanProperty(Field field) {
-    Assert.notNull(field, "field must not be null");
+  BeanProperty(String alias, Field field) {
+    this.alias = alias;
     this.field = field;
     this.fieldType = field.getType();
+  }
+
+  BeanProperty(Field field) {
+    this(field.getName(), field);
   }
 
   /**
@@ -402,7 +407,35 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return Modifier.isFinal(field.getModifiers());
   }
 
+  /**
+   * Mapping name
+   *
+   * @since 4.0
+   */
+  public String getAlias() {
+    return alias;
+  }
+
+  /**
+   * Returns the {@code Class} object representing the class or interface
+   * that declares the field represented by this {@code Field} object.
+   *
+   * @see #getField()
+   * @since 4.0
+   */
+  public Class<?> getDeclaringClass() {
+    return field.getDeclaringClass();
+  }
+
   // static
+
+  /**
+   * @since 4.0
+   */
+  public static BeanProperty valueOf(Field field) {
+    Assert.notNull(field, "field must not be null");
+    return new BeanProperty(field);
+  }
 
   /**
    * @throws NoSuchPropertyException

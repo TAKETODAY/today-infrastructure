@@ -32,11 +32,11 @@ import cn.taketoday.beans.factory.InvalidPropertyValueException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY 2021/1/27 22:35
