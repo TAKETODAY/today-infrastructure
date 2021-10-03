@@ -25,7 +25,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -198,7 +197,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @return map of properties
    */
   @NonNull
-  public Map<String, BeanProperty> getBeanProperties() {
+  public HashMap<String, BeanProperty> getBeanProperties() {
     return propertyHolder().mapping;
   }
 

@@ -136,12 +136,12 @@ public class BeanProperties {
     }
     else {
       BeanMetadata sourceMetadata = BeanMetadata.ofObject(source);
-      for (Map.Entry<String, BeanProperty> entry : sourceMetadata.getBeanProperties().entrySet()) {
-        String propertyName = entry.getKey();
+      for (BeanProperty property : sourceMetadata) {
+        String propertyName = property.getAlias();
         if (allowCopy(ignoreProperties, propertyName)) {
           BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
           if (beanProperty != null && !beanProperty.isReadOnly()) {
-            Object value = entry.getValue().getValue(source);
+            Object value = property.getValue(source);
             beanProperty.setValue(destinationInstance, value);
           }
         }

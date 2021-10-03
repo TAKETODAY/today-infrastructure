@@ -68,12 +68,11 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   @NonNull
   @Override
   public Set<Entry<String, Object>> entrySet() {
-    final Object target = obtainTarget();
-    final LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
-    for (final Entry<String, BeanProperty> entry : metadata.getBeanProperties().entrySet()) {
-      final String key = entry.getKey();
-      final Object value = entry.getValue().getValue(target);
-      entrySet.add(new Node<>(key, value));
+    Object target = obtainTarget();
+    LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
+    for (BeanProperty property : metadata) {
+      Object value = property.getValue(target);
+      entrySet.add(new Node<>(property.getAlias(), value));
     }
     return entrySet;
   }
@@ -151,7 +150,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public Object put(Object target, String key, Object value) {
-    final BeanProperty beanProperty = this.metadata.obtainBeanProperty(key);
+    BeanProperty beanProperty = this.metadata.obtainBeanProperty(key);
     if (beanProperty.isReadOnly()) {
       if (!ignoreReadOnly) {
         throw new PropertyReadOnlyException(
@@ -159,7 +158,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
       }
     }
     else {
-      final Object property = beanProperty.getValue(target);
+      Object property = beanProperty.getValue(target);
       beanProperty.setValue(target, value);
       return property;
     }
@@ -202,7 +201,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
       if (size() != other.size()) {
         return false;
       }
-      for (final Object key : keySet()) {
+      for (Object key : keySet()) {
         if (!Objects.equals(get(key), other.get(key))) {
           return false;
         }
@@ -216,7 +215,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   private Object obtainTarget() {
-    final Object target = getTarget();
+    Object target = getTarget();
     Assert.state(target != null, "No target");
     return target;
   }
@@ -234,7 +233,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    * @return the type of the property, or null if the property does not exist
    */
   public Class<?> getPropertyType(String name) {
-    final BeanProperty beanProperty = metadata.getBeanProperty(name);
+    BeanProperty beanProperty = metadata.getBeanProperty(name);
     if (beanProperty != null) {
       return beanProperty.getType();
     }
@@ -256,7 +255,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   @SuppressWarnings("unchecked")
   public T newInstance() {
-    final T instance = (T) metadata.newInstance();
+    T instance = (T) metadata.newInstance();
     setTarget(instance);
     return instance;
   }
@@ -277,7 +276,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   @SuppressWarnings("unchecked")
   public static <T> BeanMapping<T> ofClass(Class<T> beanClass) {
-    final BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
+    BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
     return new BeanMapping<>((T) metadata.newInstance(), metadata);
   }
 
