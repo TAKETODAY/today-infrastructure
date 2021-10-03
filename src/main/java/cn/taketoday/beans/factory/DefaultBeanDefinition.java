@@ -38,12 +38,11 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -76,9 +75,6 @@ public class DefaultBeanDefinition
   private Method[] initMethods = EMPTY_METHOD;
 
   /**
-   * Invoke after when publish
-   * {@link ApplicationContext#publishEvent(Object)}
-   *
    * @since 2.3.3
    */
   private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
@@ -126,6 +122,12 @@ public class DefaultBeanDefinition
 
   /** @since 4.0 */
   private boolean primary = false;
+
+  public DefaultBeanDefinition() { }
+
+  public DefaultBeanDefinition(Class<?> beanClass) {
+    setBeanClass(beanClass);
+  }
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
     setName(name);
@@ -262,7 +264,7 @@ public class DefaultBeanDefinition
 
   @Override
   public BeanDefinition setInitMethods(String... initMethods) {
-    return setInitMethods(ContextUtils.resolveInitMethod(initMethods, obtainBeanClass()));
+    return setInitMethods(BeanDefinitionBuilder.resolveInitMethod(initMethods, obtainBeanClass()));
   }
 
   @Override
@@ -482,7 +484,6 @@ public class DefaultBeanDefinition
 
     setBeanClass(newDef.getBeanClass());
     setFactoryBean(newDef.isFactoryBean());
-    setInitMethods(newDef.getInitMethods());
     setDestroyMethods(newDef.getDestroyMethods());
     setPropertyValues(newDef.getPropertySetters());
 
@@ -491,6 +492,19 @@ public class DefaultBeanDefinition
 
     setRole(newDef.getRole());
     setSynthetic(newDef.isSynthetic());
+    setPrimary(newDef.isPrimary());
+
+    if (newDef instanceof DefaultBeanDefinition) {
+      DefaultBeanDefinition defaultBeanDefinition = (DefaultBeanDefinition) newDef;
+      setSupplier(defaultBeanDefinition.instanceSupplier);
+      this.executable = defaultBeanDefinition.executable;
+      this.initMethods = defaultBeanDefinition.initMethods;
+      this.constructor = defaultBeanDefinition.constructor;
+      this.methodInvokers = defaultBeanDefinition.methodInvokers;
+    }
+    else {
+      setInitMethods(newDef.getInitMethods());
+    }
 
     copyAttributesFrom(newDef);
   }
@@ -569,6 +583,18 @@ public class DefaultBeanDefinition
   @Override
   public boolean isPrimary() {
     return this.primary;
+  }
+
+  @Override
+  public boolean isAssignableTo(ResolvableType typeToMatch) {
+    BeanDefinition child = getChild();
+    if (child != null) {
+      Class<?> implementationClass = child.getBeanClass();
+      return ResolvableType.fromClass(getBeanClass(), implementationClass)
+              .isAssignableFrom(typeToMatch);
+    }
+    return ResolvableType.fromClass(getBeanClass())
+            .isAssignableFrom(typeToMatch);
   }
 
   // Object
