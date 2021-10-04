@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,31 +24,19 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextUtils;
+import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.Props;
-import cn.taketoday.context.aware.OrderedApplicationContextSupport;
-import cn.taketoday.core.Ordered;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
- * @author TODAY <br>
- * 2018-08-04 16:01
+ * @author TODAY 2018-08-04 16:01
  */
 public class PropsPropertyResolver
-        extends OrderedApplicationContextSupport implements PropertyValueResolver {
-
-  public PropsPropertyResolver(ApplicationContext context) {
-    this(context, Ordered.HIGHEST_PRECEDENCE);
-  }
-
-  public PropsPropertyResolver(ApplicationContext context, int order) {
-    super(order);
-    setApplicationContext(context);
-  }
+        extends AbstractPropertyValueResolver implements PropertyValueResolver {
 
   @Override
-  public boolean supportsProperty(Field field) {
+  protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
     return AnnotationUtils.isPresent(field, Props.class);
   }
 
@@ -56,18 +44,16 @@ public class PropsPropertyResolver
    * Resolve {@link Props} annotation property.
    */
   @Override
-  public DefaultPropertySetter resolveProperty(Field field) {
-
+  protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
     Props props = AnnotationUtils.getAnnotation(Props.class, field);
+    PropsReader propsReader = context.getPropsReader();
 
-    Properties properties =
-            ContextUtils.loadProps(props, obtainApplicationContext().getEnvironment().getProperties());
+    Properties properties = propsReader.loadProps(props);
 
     // feat: Enhance `Props`
     final Class<?> propertyClass = field.getType();
     if (!Map.class.isAssignableFrom(propertyClass)) {
-
-      return new DefaultPropertySetter(ContextUtils.resolveProps(props, propertyClass, properties), field);
+      return new DefaultPropertySetter(propsReader.read(props, propertyClass), field);
     }
     return new DefaultPropertySetter(properties, field);
   }

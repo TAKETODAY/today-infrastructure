@@ -15,40 +15,35 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.Nullable;
 
 /**
- * Resolve field property
- *
- * @author TODAY <br>
- * 2018-08-04 15:04
+ * @author TODAY 2021/10/3 22:01
+ * @since 4.0
  */
-@FunctionalInterface
-public interface PropertyValueResolver {
+public abstract class AbstractPropertyValueResolver implements PropertyValueResolver {
 
   /**
-   * Resolve {@link PropertySetter}.
-   *
-   * @param resolvingContext
-   *         resolving context
-   * @param field
-   *         bean's field
-   *
-   * @return property value
-   *
-   * @throws PropertyValueException
-   *         resolving error
+   * Whether the given field is supported by this resolver.
    */
-  @Nullable
-  PropertySetter resolveProperty(
-          PropertyResolvingContext resolvingContext, Field field) throws PropertyValueException;
+  protected abstract boolean supportsProperty(PropertyResolvingContext context, Field field);
 
+  @Nullable
+  @Override
+  public final PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
+    if (supportsProperty(context, field)) {
+      return resolveInternal(context, field);
+    }
+    return null;
+  }
+
+  protected abstract PropertySetter resolveInternal(PropertyResolvingContext context, Field field);
 }

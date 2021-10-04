@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,17 +24,17 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.OrderedApplicationContextSupport;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -49,27 +49,19 @@ import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
  * 2018-08-04 15:56
  */
 public class AutowiredPropertyResolver
-        extends OrderedApplicationContextSupport implements PropertyValueResolver {
+        extends AbstractPropertyValueResolver implements PropertyValueResolver {
+  private static final Logger log = LoggerFactory.getLogger(AutowiredPropertyResolver.class);
 
-  private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
-  private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
-  private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.loadClass("javax.annotation.Resource");
-
-  public AutowiredPropertyResolver(ApplicationContext context) {
-    this(context, Ordered.HIGHEST_PRECEDENCE);
-  }
-
-  public AutowiredPropertyResolver(ApplicationContext context, int order) {
-    super(order);
-    setApplicationContext(context);
-  }
+  private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.load("javax.inject.Named");
+  private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.load("javax.inject.Inject");
+  private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.load("javax.annotation.Resource");
 
   @Override
-  public boolean supportsProperty(final Field field) {
+  protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
     return isInjectable(field);
   }
 
-  public static boolean isInjectable(final AnnotatedElement element) {
+  public static boolean isInjectable(AnnotatedElement element) {
     return isPresent(element, Autowired.class)
             || isPresent(element, RESOURCE_CLASS)
             || isPresent(element, NAMED_CLASS)
@@ -77,11 +69,11 @@ public class AutowiredPropertyResolver
   }
 
   @Override
-  public PropertySetter resolveProperty(final Field field) {
-    final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
+  protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
+    Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
     String name = null;
-    final Class<?> propertyClass = field.getType();
+    Class<?> propertyClass = field.getType();
     if (autowired != null) {
       name = autowired.value();
     }
@@ -93,10 +85,10 @@ public class AutowiredPropertyResolver
     } // @Inject or name is empty
 
     if (StringUtils.isEmpty(name)) {
-      name = byType(propertyClass);
+      name = byType(context, propertyClass);
     }
     // @since 3.0
-    final boolean required = AutowiredArgumentsResolver.isRequired(field, autowired);
+    boolean required = AutowiredArgumentsResolver.isRequired(field, autowired);
     return new BeanReferencePropertySetter(name, required, field);
   }
 
@@ -108,17 +100,18 @@ public class AutowiredPropertyResolver
    *
    * @return a bean name none null
    */
-  protected String byType(final Class<?> targetClass) {
-    final ApplicationContext context = obtainApplicationContext();
+  protected String byType(PropertyResolvingContext resolvingContext, Class<?> targetClass) {
+    ApplicationContext context = resolvingContext.getContext();
 
     if (context.hasStarted()) {
-      final String name = findName(context, targetClass);
+      String name = findName(context, targetClass);
       if (StringUtils.isNotEmpty(name)) {
         return name;
       }
     }
-
-    return context.getEnvironment().getBeanNameCreator().create(targetClass);
+    String defaultName = ClassUtils.getShortName(targetClass);
+    log.debug("Autowired default bean-name using: [{}]", defaultName);
+    return defaultName;
   }
 
   /**

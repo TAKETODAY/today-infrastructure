@@ -22,14 +22,12 @@ package cn.taketoday.context.loader;
 import java.lang.reflect.Field;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Value;
-import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.Required;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.StringUtils;
@@ -39,36 +37,21 @@ import cn.taketoday.util.StringUtils;
  * 2018-08-04 15:58
  */
 public class ValuePropertyResolver
-        extends OrderedApplicationContextSupport implements PropertyValueResolver {
+        extends AbstractPropertyValueResolver implements PropertyValueResolver {
 
   private ExpressionEvaluator expressionEvaluator;
 
-  public ValuePropertyResolver(ApplicationContext context) {
-    this(context, Ordered.HIGHEST_PRECEDENCE);
-  }
-
-  public ValuePropertyResolver(ApplicationContext context, int order) {
-    super(order);
-    setApplicationContext(context);
-  }
-
   @Override
-  public boolean supportsProperty(final Field field) {
+  protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
     return AnnotationUtils.isPresent(field, Value.class)
             || AnnotationUtils.isPresent(field, Env.class);
-  }
-
-  @Override
-  protected void initApplicationContext(ApplicationContext context) {
-    super.initApplicationContext(context);
-    this.expressionEvaluator = new ExpressionEvaluator(context);
   }
 
   /**
    * Resolve {@link Value} and {@link Env} annotation property.
    */
   @Override
-  public DefaultPropertySetter resolveProperty(final Field field) {
+  protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
     String expression;
     final Value value = AnnotationUtils.getAnnotation(Value.class, field);
     if (value != null) {
