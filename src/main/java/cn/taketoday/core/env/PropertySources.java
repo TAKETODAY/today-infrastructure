@@ -18,7 +18,6 @@ package cn.taketoday.core.env;
 
 import java.util.Iterator;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
@@ -68,7 +67,7 @@ public class PropertySources implements Iterable<PropertySource<?>> {
 
   @Override
   public Spliterator<PropertySource<?>> spliterator() {
-    return Spliterators.spliterator(this.propertySourceList, 0);
+    return propertySourceList.spliterator();
   }
 
   /**
