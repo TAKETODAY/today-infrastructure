@@ -27,6 +27,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.SystemPropertyUtils;
@@ -59,7 +60,8 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
   @Nullable
   private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
 
-  private final LinkedHashSet<String> requiredProperties = new LinkedHashSet<>();
+  @Nullable
+  private LinkedHashSet<String> requiredProperties;
 
   @Override
   public ConfigurableConversionService getConversionService() {
@@ -137,25 +139,35 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   @Override
   public void setRequiredProperties(String... requiredProperties) {
-    this.requiredProperties.clear();
-    addRequiredProperties(requiredProperties);
+    if (this.requiredProperties == null) {
+      this.requiredProperties = new LinkedHashSet<>();
+    }
+    else {
+      this.requiredProperties.clear();
+    }
+    Collections.addAll(this.requiredProperties, requiredProperties);
   }
 
   @Override
   public void addRequiredProperties(String... requiredProperties) {
+    if (this.requiredProperties == null) {
+      this.requiredProperties = new LinkedHashSet<>();
+    }
     Collections.addAll(this.requiredProperties, requiredProperties);
   }
 
   @Override
   public void validateRequiredProperties() {
-    LinkedHashSet<String> missingRequiredProperties = new LinkedHashSet<>();
-    for (String key : this.requiredProperties) {
-      if (getProperty(key) == null) {
-        missingRequiredProperties.add(key);
+    if (CollectionUtils.isNotEmpty(requiredProperties)) {
+      LinkedHashSet<String> missingRequiredProperties = new LinkedHashSet<>();
+      for (String key : requiredProperties) {
+        if (getProperty(key) == null) {
+          missingRequiredProperties.add(key);
+        }
       }
-    }
-    if (!missingRequiredProperties.isEmpty()) {
-      throw new MissingRequiredPropertiesException(missingRequiredProperties);
+      if (!missingRequiredProperties.isEmpty()) {
+        throw new MissingRequiredPropertiesException(missingRequiredProperties);
+      }
     }
   }
 
@@ -202,18 +214,18 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   @Override
   public String resolvePlaceholders(String text) {
-    if (this.nonStrictHelper == null) {
-      this.nonStrictHelper = createPlaceholderHelper(true);
+    if (nonStrictHelper == null) {
+      nonStrictHelper = createPlaceholderHelper(true);
     }
-    return doResolvePlaceholders(text, this.nonStrictHelper);
+    return nonStrictHelper.replacePlaceholders(text, this);
   }
 
   @Override
   public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
-    if (this.strictHelper == null) {
-      this.strictHelper = createPlaceholderHelper(false);
+    if (strictHelper == null) {
+      strictHelper = createPlaceholderHelper(false);
     }
-    return doResolvePlaceholders(text, this.strictHelper);
+    return strictHelper.replacePlaceholders(text, this);
   }
 
   /**
@@ -241,10 +253,6 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
     return new PropertyPlaceholderHandler(
             placeholderPrefix, placeholderSuffix,
             valueSeparator, ignoreUnresolvablePlaceholders);
-  }
-
-  private String doResolvePlaceholders(String text, PropertyPlaceholderHandler helper) {
-    return helper.replacePlaceholders(text, this);
   }
 
   @Nullable

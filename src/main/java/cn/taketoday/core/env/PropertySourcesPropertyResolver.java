@@ -18,12 +18,8 @@ package cn.taketoday.core.env;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
 import cn.taketoday.core.Nullable;
-import cn.taketoday.util.CompositeIterator;
 
 /**
  * {@link PropertyResolver} implementation that resolves property values against
@@ -36,7 +32,7 @@ import cn.taketoday.util.CompositeIterator;
  * @see AbstractEnvironment
  * @since 4.0
  */
-public class PropertySourcesPropertyResolver extends TypedPropertyResolver implements Iterable<String> {
+public class PropertySourcesPropertyResolver extends TypedPropertyResolver {
 
   @Nullable
   private final PropertySources propertySources;
@@ -107,6 +103,23 @@ public class PropertySourcesPropertyResolver extends TypedPropertyResolver imple
       log.debug("Found key '{}' in PropertySource '{}' with value of type {}",
                 key, propertySource.getName(), value.getClass().getSimpleName());
     }
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of Iterable interface
+  //---------------------------------------------------------------------
+
+  public Iterable<String> getPropertyNames() {
+    ArrayList<String> ret = new ArrayList<>();
+    if (propertySources != null) {
+      for (PropertySource<?> propertySource : propertySources) {
+        if (propertySource instanceof EnumerablePropertySource) {
+          Collection<String> propertyNames = ((EnumerablePropertySource<?>) propertySource).getPropertyNames();
+          ret.addAll(propertyNames);
+        }
+      }
+    }
+    return ret;
   }
 
 }
