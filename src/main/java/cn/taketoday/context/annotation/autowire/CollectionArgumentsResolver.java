@@ -18,46 +18,42 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.autowire;
+package cn.taketoday.context.annotation.autowire;
 
 import java.lang.reflect.Parameter;
-import java.util.function.Supplier;
+import java.util.Collection;
+import java.util.Map;
 
+import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.util.CollectionUtils;
 
 /**
- * for {@link ObjectSupplier} ArgumentsResolverStrategy
- *
- * @author TODAY 2021/3/6 12:06
+ * @author TODAY 2020/10/11 21:54
+ * @since 3.0
  */
-public class ObjectSupplierArgumentsResolver
-        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy, Ordered {
+public class CollectionArgumentsResolver
+        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy {
 
-  public ObjectSupplierArgumentsResolver() {
-    setOrder(Integer.MAX_VALUE);
+  @Override
+  protected boolean supportsInternal(Parameter parameter, ArgumentsResolvingContext context) {
+    return Collection.class.isAssignableFrom(parameter.getType());
   }
 
   @Override
-  protected boolean supportsInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final Class<?> type = parameter.getType();
-    return type == ObjectSupplier.class || type == Supplier.class;
-  }
-
-  @Override
-  public ObjectSupplier<?> resolveInternal(
-          final Parameter parameter, @NonNull BeanFactory beanFactory) {
+  protected Object resolveInternal(
+          Parameter parameter, BeanFactory beanFactory, ArgumentsResolvingContext resolvingContext) {
     final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
     if (parameterType.hasGenerics()) {
-      final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
-      return beanFactory.getObjectSupplier(generic.toClass());
+      final ResolvableType type = parameterType.asCollection().getGeneric(0);
+      final Map<String, ?> beans = beanFactory.getBeansOfType(type.toClass());
+      final Collection<Object> objects = CollectionUtils.createCollection(parameter.getType(), beans.size());
+      objects.addAll(beans.values());
+      return objects;
     }
-    throw new UnsupportedOperationException(
-            "Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
+    throw new ConfigurationException("Not Support " + parameter);
   }
-
 }

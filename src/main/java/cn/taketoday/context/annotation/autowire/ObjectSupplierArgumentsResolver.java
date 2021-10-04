@@ -18,43 +18,42 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.autowire;
+package cn.taketoday.context.annotation.autowire;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Parameter;
-import java.util.Map;
+import java.util.function.Supplier;
 
+import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.NonNull;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.core.ResolvableType;
 
 /**
- * @author TODAY 2021/2/19 23:16
+ * for {@link ObjectSupplier} ArgumentsResolverStrategy
+ *
+ * @author TODAY 2021/3/6 12:06
  */
-public class ArrayArgumentsResolver
+public class ObjectSupplierArgumentsResolver
         extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy {
 
-  public ArrayArgumentsResolver() {
-    setOrder(Integer.MAX_VALUE);
-  }
-
   @Override
-  protected boolean supportsInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
+  protected boolean supportsInternal(Parameter parameter, @NonNull ArgumentsResolvingContext beanFactory) {
     final Class<?> type = parameter.getType();
-    return type.isArray() && !ClassUtils.isSimpleType(type.getComponentType());
+    return type == ObjectSupplier.class || type == Supplier.class;
   }
 
   @Override
-  protected Object resolveInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final Class<?> parameterType = parameter.getType().getComponentType();
-    final Map<String, ?> beans = beanFactory.getBeansOfType(parameterType);
-    if (CollectionUtils.isEmpty(beans)) {
-      return Array.newInstance(parameterType, 0);
+  protected Object resolveInternal(
+          Parameter parameter, BeanFactory beanFactory, ArgumentsResolvingContext resolvingContext) {
+    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
+    if (parameterType.hasGenerics()) {
+      final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
+      return beanFactory.getObjectSupplier(generic.toClass());
     }
-    return beans.values().toArray();
+    throw new UnsupportedOperationException(
+            "Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
   }
 
 }
-

@@ -17,33 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans;
 
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.core.Nullable;
-
 /**
- * Arguments Resolving Strategy for {@link java.lang.reflect.Executable}
- *
- * @author TODAY 2019-10-14 14:11
- * @see Parameter
- * @see java.lang.reflect.Executable
+ * @author TODAY 2021/10/3 23:10
+ * @since 4.0
  */
-@FunctionalInterface
-public interface ArgumentsResolvingStrategy {
+public abstract class AbstractArgumentsResolvingStrategy implements ArgumentsResolvingStrategy {
 
   /**
-   * Resolve method parameter object
+   * If this {@link ArgumentsResolvingStrategy} supports target {@link Parameter}
    *
    * @param parameter
    *         Target method {@link Parameter}
    * @param resolvingContext
-   *         resolving context never {@code null}
+   *         resolving context
    *
-   * @return parameter object
+   * @return If supports target {@link Parameter}
    */
-  @Nullable
-  Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext);
+  protected abstract boolean supportsArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext);
 
+  @Override
+  public final Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+    if (supportsArgument(parameter, resolvingContext)) {
+      return resolveInternal(parameter, resolvingContext);
+    }
+    return null;
+  }
+
+  protected abstract Object resolveInternal(
+          Parameter parameter, ArgumentsResolvingContext resolvingContext);
 }

@@ -22,14 +22,13 @@ package cn.taketoday.context.annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
-import cn.taketoday.beans.autowire.NonNullBeanFactoryStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Props;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Ordered;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Required;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logger.LoggerFactory;
@@ -40,35 +39,29 @@ import cn.taketoday.util.StringUtils;
  *
  * @author TODAY 2019-10-28 20:27
  */
-public class AutowiredArgumentsResolver
-        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy, Ordered {
+public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
 
-  public AutowiredArgumentsResolver() {
-    setOrder(LOWEST_PRECEDENCE);
-  }
-
+  @Nullable
   @Override
-  public boolean supportsInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
-    return true;
-  }
-
-  @Override
-  public final Object resolveInternal(
-          Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
-    Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
-    // @Props on a bean (pojo) which has already annotated @Autowired or not
-    if (parameter.isAnnotationPresent(Props.class)) {
-      bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
+  public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+    BeanFactory beanFactory = resolvingContext.getBeanFactory();
+    if (beanFactory != null) {
+      Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
+      Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
+      // @Props on a bean (pojo) which has already annotated @Autowired or not
+      if (parameter.isAnnotationPresent(Props.class)) {
+        bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
+      }
+      if (bean == null && isRequired(parameter, autowired)) { // if it is required
+        NoSuchBeanDefinitionException noSuchBean = new NoSuchBeanDefinitionException(parameter.getType());
+        LoggerFactory.getLogger(AutowiredArgumentsResolver.class)//
+                .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
+                       parameter, parameter.getDeclaringExecutable(), parameter.getType(), noSuchBean);
+        throw noSuchBean;
+      }
+      return bean;
     }
-    if (bean == null && isRequired(parameter, autowired)) { // if it is required
-      final NoSuchBeanDefinitionException noSuchBean = new NoSuchBeanDefinitionException(parameter.getType());
-      LoggerFactory.getLogger(AutowiredArgumentsResolver.class)//
-              .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
-                     parameter, parameter.getDeclaringExecutable(), parameter.getType(), noSuchBean);
-      throw noSuchBean;
-    }
-    return bean;
+    return null;
   }
 
   // @since 3.0 Required
@@ -77,7 +70,7 @@ public class AutowiredArgumentsResolver
             || AnnotationUtils.isPresent(element, Required.class);
   }
 
-  protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
+  protected Object resolveBean(String name, Class<?> type, BeanFactory beanFactory) {
     if (StringUtils.isNotEmpty(name)) {
       // use name and bean type to get bean
       return beanFactory.getBean(name, type);
@@ -85,7 +78,7 @@ public class AutowiredArgumentsResolver
     return beanFactory.getBean(type);
   }
 
-  protected Object resolvePropsInternal(final Parameter parameter, final Props props, final Object bean) {
+  protected Object resolvePropsInternal(Parameter parameter, Props props, Object bean) {
     if (bean != null) {
       return ContextUtils.resolveProps(props, bean, ContextUtils.loadProps(props, System.getProperties()));
     }

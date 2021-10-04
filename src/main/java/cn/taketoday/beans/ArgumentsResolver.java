@@ -24,27 +24,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import cn.taketoday.beans.autowire.ArrayArgumentsResolver;
-import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
-import cn.taketoday.beans.autowire.CollectionArgumentsResolver;
-import cn.taketoday.beans.autowire.MapArgumentsResolver;
-import cn.taketoday.beans.autowire.ObjectSupplierArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
-import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Value;
+import cn.taketoday.context.annotation.ArgumentsResolvingComposite;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.TodayStrategies;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -60,12 +49,9 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public class ArgumentsResolver {
-
   @Nullable
   private BeanFactory beanFactory;
-
-  private ArgumentsResolvingStrategy[] resolvingStrategies;
-  private ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
+  private final ArgumentsResolvingComposite argumentsResolvingComposite;
 
   public ArgumentsResolver() {
     this(TodayStrategies.getDetector());
@@ -79,28 +65,10 @@ public class ArgumentsResolver {
     this(TodayStrategies.getDetector(), beanFactory);
   }
 
-  public ArgumentsResolver(StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
-    Assert.notNull(strategiesDetector, "StrategiesDetector must not be null");
-    List<ArgumentsResolvingStrategy> strategies = getStrategies(strategiesDetector, beanFactory);
-    Collections.addAll(strategies,
-                       new MapArgumentsResolver(),
-                       new ArrayArgumentsResolver(),
-                       new CollectionArgumentsResolver(),
-                       new ObjectSupplierArgumentsResolver(),
-                       new EnvExecutableArgumentsResolver(),
-                       new ValueExecutableArgumentsResolver(),
-                       new AutowiredArgumentsResolver()
-    );
-    setResolvingStrategies(strategies);
-    this.beanFactory = beanFactory;
-  }
-
-  private static List<ArgumentsResolvingStrategy> getStrategies(
+  public ArgumentsResolver(
           StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
-    if (beanFactory == null) {
-      return strategiesDetector.getStrategies(ArgumentsResolvingStrategy.class);
-    }
-    return strategiesDetector.getStrategies(ArgumentsResolvingStrategy.class, beanFactory);
+    this.beanFactory = beanFactory;
+    this.argumentsResolvingComposite = new ArgumentsResolvingComposite(strategiesDetector);
   }
 
   /**
@@ -108,7 +76,7 @@ public class ArgumentsResolver {
    *
    * @since 4.0
    */
-  public Object[] resolve(final Executable executable) {
+  public Object[] resolve(Executable executable) {
     return resolve(executable, beanFactory);
   }
 
@@ -124,11 +92,11 @@ public class ArgumentsResolver {
    *
    * @since 2.1.2
    */
-  public Object[] resolve(final Executable executable, @Nullable final BeanFactory beanFactory) {
+  public Object[] resolve(Executable executable, @Nullable BeanFactory beanFactory) {
     return resolve(executable, beanFactory, null);
   }
 
-  public Object[] resolve(final Executable executable, @Nullable Object[] providedArgs) {
+  public Object[] resolve(Executable executable, @Nullable Object[] providedArgs) {
     return resolve(executable, beanFactory, providedArgs);
   }
 
@@ -147,110 +115,26 @@ public class ArgumentsResolver {
    * @since 3.0
    */
   public Object[] resolve(
-          final Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
+          Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
     Assert.notNull(executable, "Executable must not be null");
-    final int parameterLength = executable.getParameterCount();
+    int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
+      ArgumentsResolvingContext resolvingContext
+              = new ArgumentsResolvingContext(providedArgs, executable, beanFactory);
       // parameter list
-      final Object[] args = new Object[parameterLength];
+      Object[] args = new Object[parameterLength];
       int i = 0;
-      for (final Parameter parameter : executable.getParameters()) {
-        Object argument = findProvidedArgument(parameter, providedArgs);
-        if (argument == null) {
-          argument = getResolver(parameter, beanFactory).resolve(parameter, beanFactory);
-        }
-        args[i++] = argument;
+      for (Parameter parameter : executable.getParameters()) {
+        args[i++] = argumentsResolvingComposite.resolveArgument(parameter, resolvingContext);
       }
       return args;
     }
     return null;
   }
 
-  public static Object findProvidedArgument(Parameter parameter, @Nullable Object[] providedArgs) {
-    if (ObjectUtils.isNotEmpty(providedArgs)) {
-      final Class<?> parameterType = parameter.getType();
-      for (final Object providedArg : providedArgs) {
-        if (parameterType.isInstance(providedArg)) {
-          return providedArg;
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * @throws ArgumentsNotSupportedException
-   *         target parameter resolving not supports in this context
-   */
-  public ArgumentsResolvingStrategy getResolver(
-          final Parameter parameter, @Nullable BeanFactory beanFactory) {
-    for (final ArgumentsResolvingStrategy resolver : resolvingStrategies) {
-      if (resolver.supports(parameter, beanFactory)) {
-        return resolver;
-      }
-    }
-    throw new ArgumentsNotSupportedException(
-            "Target parameter:[" + parameter + "] not supports in this context.");
-  }
-
-  public void setEvaluator(ExpressionEvaluator expressionEvaluator) {
-    Assert.notNull(expressionEvaluator, "expressionEvaluator must not null");
-    this.expressionEvaluator = expressionEvaluator;
-  }
-
-  public ExpressionEvaluator getEvaluator() {
-    return expressionEvaluator;
-  }
-
-  public ArgumentsResolvingStrategy[] getResolvingStrategies() {
-    return resolvingStrategies;
-  }
-
-  public void setResolvingStrategies(ArgumentsResolvingStrategy... strategies) {
-    Assert.notNull(strategies, "ArgumentsResolvingStrategies must not null");
-    AnnotationAwareOrderComparator.sort(strategies);
-    resolvingStrategies = strategies;
-  }
-
-  /**
-   * @since 4.0
-   */
-  public void setResolvingStrategies(List<ArgumentsResolvingStrategy> resolvers) {
-    Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
-    ArgumentsResolvingStrategy[] array = resolvers.toArray(new ArgumentsResolvingStrategy[0]);
-    AnnotationAwareOrderComparator.sort(array);
-    resolvingStrategies = array;
-  }
-
-  public void addResolvingStrategies(ArgumentsResolvingStrategy... strategies) {
-    if (ObjectUtils.isNotEmpty(strategies)) {
-      if (resolvingStrategies != null) {
-        List<ArgumentsResolvingStrategy> strategyList = new ArrayList<>();
-        Collections.addAll(strategyList, resolvingStrategies);
-        Collections.addAll(strategyList, strategies);
-        setResolvingStrategies(strategyList);
-      }
-      else {
-        setResolvingStrategies(strategies);
-      }
-    }
-  }
-
-  /**
-   * @since 4.0
-   */
-  public void addResolvingStrategies(List<ArgumentsResolvingStrategy> strategies) {
-    if (CollectionUtils.isNotEmpty(strategies)) {
-      if (resolvingStrategies != null) {
-        List<ArgumentsResolvingStrategy> newStrategies = new ArrayList<>();
-        Collections.addAll(newStrategies, resolvingStrategies);
-        newStrategies.addAll(strategies);
-        setResolvingStrategies(newStrategies);
-      }
-      else {
-        setResolvingStrategies(strategies);
-      }
-    }
+  @NonNull
+  public ArgumentsResolvingComposite getResolvingStrategies() {
+    return argumentsResolvingComposite;
   }
 
   public void setBeanFactory(@Nullable BeanFactory beanFactory) {
@@ -262,31 +146,4 @@ public class ArgumentsResolver {
     return beanFactory;
   }
 
-  // ArgumentsResolvingStrategy
-
-  private final class EnvExecutableArgumentsResolver implements ArgumentsResolvingStrategy {
-
-    @Override
-    public boolean supports(Parameter parameter, BeanFactory beanFactory) {
-      return parameter.isAnnotationPresent(Env.class);
-    }
-
-    @Override
-    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-      return expressionEvaluator.evaluate(parameter.getAnnotation(Env.class), parameter.getType());
-    }
-  }
-
-  private final class ValueExecutableArgumentsResolver implements ArgumentsResolvingStrategy {
-
-    @Override
-    public boolean supports(Parameter parameter, BeanFactory beanFactory) {
-      return parameter.isAnnotationPresent(Value.class);
-    }
-
-    @Override
-    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-      return expressionEvaluator.evaluate(parameter.getAnnotation(Value.class), parameter.getType());
-    }
-  }
 }

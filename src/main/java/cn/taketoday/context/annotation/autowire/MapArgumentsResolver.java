@@ -17,21 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.autowire;
+package cn.taketoday.context.annotation.autowire;
 
 import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.Props;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Resolve {@link Map}
@@ -40,14 +39,10 @@ import cn.taketoday.core.ResolvableType;
  */
 @SuppressWarnings("rawtypes")
 public class MapArgumentsResolver
-        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy, Ordered {
-
-  public MapArgumentsResolver() {
-    setOrder(Integer.MAX_VALUE);
-  }
+        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy {
 
   @Override
-  protected boolean supportsInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
+  protected boolean supportsInternal(Parameter parameter, ArgumentsResolvingContext beanFactory) {
     return Map.class.isAssignableFrom(parameter.getType());
   }
 
@@ -59,30 +54,29 @@ public class MapArgumentsResolver
    *
    * @param parameter
    *         Target method {@link Parameter}
-   * @param beanFactory
-   *         {@link BeanFactory}
    */
   @Override
-  public Object resolveInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final Class<?> type = parameter.getType();
-    final Map beansOfType = getBeansOfType(parameter, beanFactory);
+  protected Object resolveInternal(
+          Parameter parameter, BeanFactory beanFactory, ArgumentsResolvingContext resolvingContext) {
+    Class<?> type = parameter.getType();
+    Map beansOfType = getBeansOfType(parameter, beanFactory);
     return convert(beansOfType, type);
   }
 
   protected Map getBeansOfType(Parameter parameter, BeanFactory beanFactory) {
-    final Props props = getProps(parameter);
+    Props props = getProps(parameter);
     if (props != null) { // 处理 Properties
-      return ContextUtils.loadProps(props, System.getProperties());
+      return PropsReader.loadProps(props);
     }
 
-    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
-    final ResolvableType generic = parameterType.asMap().getGeneric(1);
+    ResolvableType parameterType = ResolvableType.fromParameter(parameter);
+    ResolvableType generic = parameterType.asMap().getGeneric(1);
     Class<?> beanClass = generic.toClass();
     return beanFactory.getBeansOfType(beanClass);
   }
 
   @SuppressWarnings("unchecked")
-  protected Map convert(Map map, final Class<?> type) {
+  protected Map convert(Map map, Class<?> type) {
     if (type != Map.class) {
       Map newMap = CollectionUtils.createMap(type, map.size());
       newMap.putAll(map);
