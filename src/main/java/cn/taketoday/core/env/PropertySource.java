@@ -107,7 +107,7 @@ public abstract class PropertySource<T> {
    *         the property name to find
    */
   public boolean containsProperty(String name) {
-    return (getProperty(name) != null);
+    return getProperty(name) != null;
   }
 
   /**
