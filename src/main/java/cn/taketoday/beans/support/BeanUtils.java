@@ -40,7 +40,6 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0
  */
 public abstract class BeanUtils {
-  private static final ArgumentsResolver argumentsResolver = new ArgumentsResolver();
 
   /**
    * Get instance with bean class use default {@link Constructor}
@@ -57,7 +56,14 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(Class<T> beanClass) {
     // maybe there has already a bean-factory ContextUtils#getLastStartupContext
-    return newInstance(beanClass, ContextUtils.getLastStartupContext());
+    Constructor<T> constructor = obtainConstructor(beanClass);
+    if (constructor.getParameterCount() == 0) {
+      return newInstance(constructor, null);
+    }
+    BeanFactory lastStartupContext = ContextUtils.getLastStartupContext();
+    ArgumentsResolver argumentsResolver = ArgumentsResolver.getOrShared(lastStartupContext);
+    Object[] parameter = argumentsResolver.resolve(constructor, lastStartupContext, null);
+    return newInstance(constructor, parameter);
   }
 
   /**
@@ -73,9 +79,8 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    * @since 2.1.2
    */
-  @SuppressWarnings("unchecked")
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return (T) newInstance(ClassUtils.getClassLoader().loadClass(beanClassName));
+    return newInstance(ClassUtils.load(beanClassName));
   }
 
   /**
@@ -93,6 +98,7 @@ public abstract class BeanUtils {
    *         if any reflective operation exception occurred
    * @since 2.1.5
    */
+  @Deprecated
   public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory) {
     return def.newInstance(beanFactory);
   }
@@ -131,15 +137,13 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(
           Class<T> beanClass, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
-    ArgumentsResolver argumentsResolver = getArgumentsResolver(beanFactory);
-    return newInstance(beanClass, argumentsResolver, beanFactory, providedArgs);
-  }
-
-  private static ArgumentsResolver getArgumentsResolver(@Nullable BeanFactory beanFactory) {
-    if (beanFactory != null) {
-      return beanFactory.getArgumentsResolver();
+    Constructor<T> constructor = obtainConstructor(beanClass);
+    if (constructor.getParameterCount() == 0) {
+      return newInstance(constructor, null);
     }
-    return argumentsResolver;
+    ArgumentsResolver argumentsResolver = ArgumentsResolver.getOrShared(beanFactory);
+    Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
+    return newInstance(constructor, parameter);
   }
 
   /**
@@ -160,8 +164,8 @@ public abstract class BeanUtils {
   public static <T> T newInstance(
           Class<T> beanClass, ArgumentsResolver argumentsResolver,
           @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = obtainConstructor(beanClass);
     Assert.notNull(argumentsResolver, "ArgumentsResolver must not be null");
+    Constructor<T> constructor = obtainConstructor(beanClass);
     Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
     return newInstance(constructor, parameter);
   }

@@ -22,23 +22,21 @@ package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 
-import cn.taketoday.util.ReflectionUtils;
-
 /**
- * based on java reflect
- *
- * @author TODAY 2020/9/20 21:55
- * @see Constructor#newInstance(Object...)
+ * @author TODAY 2021/10/4 23:00
+ * @since 4.0
  */
-final class ReflectiveInstantiator extends ConstructorAccessor {
-  private final Constructor<?> constructor;
+public class ReflectiveInstantiatorFactory implements BeanInstantiatorFactory {
+  public static final ReflectiveInstantiatorFactory INSTANCE = new ReflectiveInstantiatorFactory();
 
-  ReflectiveInstantiator(Constructor<?> constructor) {
-    this.constructor = constructor;
+  @Override
+  public BeanInstantiator newInstantiator(Constructor<?> constructor) {
+    return BeanInstantiator.fromReflective(constructor);
   }
 
   @Override
-  public Object doInstantiate(final Object[] args) {
-    return BeanUtils.newInstance(constructor, args);
+  public BeanInstantiator newInstantiator(Class<?> cls) {
+    return BeanInstantiator.fromReflective(BeanUtils.obtainConstructor(cls));
   }
+
 }
