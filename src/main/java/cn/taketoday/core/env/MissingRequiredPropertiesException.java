@@ -16,41 +16,40 @@
 
 package cn.taketoday.core.env;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
  * Exception thrown when required properties are not found.
  *
  * @author Chris Beams
- * @since 3.1
  * @see ConfigurablePropertyResolver#setRequiredProperties(String...)
  * @see ConfigurablePropertyResolver#validateRequiredProperties()
+ * @since 4.0
  */
-@SuppressWarnings("serial")
 public class MissingRequiredPropertiesException extends IllegalStateException {
+  private static final long serialVersionUID = 1L;
 
-	private final Set<String> missingRequiredProperties = new LinkedHashSet<>();
+  private final Set<String> missingRequiredProperties;
 
+  public MissingRequiredPropertiesException(Set<String> missingRequiredProperties) {
+    this.missingRequiredProperties = missingRequiredProperties;
+  }
 
-	void addMissingRequiredProperty(String key) {
-		this.missingRequiredProperties.add(key);
-	}
+  @Override
+  public String getMessage() {
+    return "The following properties were declared as required but could not be resolved: " +
+            getMissingRequiredProperties();
+  }
 
-	@Override
-	public String getMessage() {
-		return "The following properties were declared as required but could not be resolved: " +
-				getMissingRequiredProperties();
-	}
-
-	/**
-	 * Return the set of properties marked as required but not present
-	 * upon validation.
-	 * @see ConfigurablePropertyResolver#setRequiredProperties(String...)
-	 * @see ConfigurablePropertyResolver#validateRequiredProperties()
-	 */
-	public Set<String> getMissingRequiredProperties() {
-		return this.missingRequiredProperties;
-	}
+  /**
+   * Return the set of properties marked as required but not present
+   * upon validation.
+   *
+   * @see ConfigurablePropertyResolver#setRequiredProperties(String...)
+   * @see ConfigurablePropertyResolver#validateRequiredProperties()
+   */
+  public Set<String> getMissingRequiredProperties() {
+    return this.missingRequiredProperties;
+  }
 
 }
