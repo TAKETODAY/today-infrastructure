@@ -55,7 +55,7 @@ package cn.taketoday.core.env;
  * @author Sam Brannen
  * @since 4.0
  */
-class SimpleCommandLineArgsParser {
+public final class SimpleCommandLineArgsParser {
 
   /**
    * Parse the given {@code String} array based on the rules described {@linkplain
@@ -65,7 +65,7 @@ class SimpleCommandLineArgsParser {
    * @param args
    *         command line arguments, typically from a {@code main()} method
    */
-  public CommandLineArgs parse(String... args) {
+  public static CommandLineArgs parse(String... args) {
     CommandLineArgs commandLineArgs = new CommandLineArgs();
     for (String arg : args) {
       if (arg.startsWith("--")) {
