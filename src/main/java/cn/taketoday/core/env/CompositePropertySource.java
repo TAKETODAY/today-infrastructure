@@ -19,7 +19,6 @@ package cn.taketoday.core.env;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
@@ -105,7 +104,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
    *         the PropertySource to add
    */
   public void addFirstPropertySource(PropertySource<?> propertySource) {
-    List<PropertySource<?>> existing = new ArrayList<>(this.propertySources);
+    ArrayList<PropertySource<?>> existing = new ArrayList<>(this.propertySources);
     this.propertySources.clear();
     this.propertySources.add(propertySource);
     this.propertySources.addAll(existing);
@@ -114,7 +113,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
   /**
    * Return all property sources that this composite source holds.
    */
-  public Collection<PropertySource<?>> getPropertySources() {
+  public LinkedHashSet<PropertySource<?>> getPropertySources() {
     return this.propertySources;
   }
 
