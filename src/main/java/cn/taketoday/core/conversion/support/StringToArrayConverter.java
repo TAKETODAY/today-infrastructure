@@ -22,9 +22,9 @@ package cn.taketoday.core.conversion.support;
 import java.lang.reflect.Array;
 import java.util.List;
 
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts a comma-delimited String to an Array.

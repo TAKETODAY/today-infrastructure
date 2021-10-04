@@ -21,8 +21,8 @@ package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Array;
 
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
 
 /**
  * Converts an array to an Object by returning the first array element

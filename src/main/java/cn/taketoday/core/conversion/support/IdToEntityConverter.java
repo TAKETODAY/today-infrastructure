@@ -23,11 +23,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts an entity identifier to a entity reference by calling a static finder method

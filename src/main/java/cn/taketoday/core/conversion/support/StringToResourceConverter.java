@@ -24,10 +24,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY 2021/3/22 17:43

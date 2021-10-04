@@ -21,8 +21,8 @@ package cn.taketoday.core.conversion.support;
 
 import java.util.HashSet;
 
-import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.TypeConverter;
 
 /**
  * Converts String to a Boolean.

@@ -23,10 +23,10 @@ package cn.taketoday.core.conversion.support;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.AbstractTypeCapable;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Support source is String, Number, Character, Enum, Collection, Array to

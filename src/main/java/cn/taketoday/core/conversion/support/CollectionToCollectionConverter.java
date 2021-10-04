@@ -21,9 +21,9 @@ package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
 
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts from a Collection to another Collection.

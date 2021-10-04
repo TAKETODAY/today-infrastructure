@@ -21,10 +21,10 @@ package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
 
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts an Object to a single-element Collection containing the Object.

@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.StringJoiner;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
 
 /**
  * Converts a Collection to a comma-delimited String.

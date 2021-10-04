@@ -21,9 +21,9 @@ package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
 
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
 
 /**
  * Converts a Collection to an Object by returning the first

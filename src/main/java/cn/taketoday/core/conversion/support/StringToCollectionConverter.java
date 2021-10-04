@@ -22,10 +22,10 @@ package cn.taketoday.core.conversion.support;
 import java.util.Collection;
 import java.util.List;
 
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts a split-able String to a Collection.
