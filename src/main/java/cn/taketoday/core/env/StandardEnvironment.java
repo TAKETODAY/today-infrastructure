@@ -61,17 +61,14 @@ public class StandardEnvironment extends AbstractEnvironment {
   /**
    * Create a new {@code StandardEnvironment} instance.
    */
-  public StandardEnvironment() {
-  }
+  public StandardEnvironment() { }
 
   /**
    * Create a new {@code StandardEnvironment} instance with a specific
-	 * {@link PropertySources} instance.
+   * {@link PropertySources} instance.
    *
    * @param propertySources
    *         property sources to use
-   *
-   * @since 5.3.4
    */
   protected StandardEnvironment(PropertySources propertySources) {
     super(propertySources);

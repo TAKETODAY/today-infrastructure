@@ -31,27 +31,27 @@ import cn.taketoday.util.StringUtils;
  *
  * <h3>Purpose and General Usage</h3>
  *
- * For use in standalone Spring-based applications, i.e. those that are bootstrapped via
+ * For use in standalone applications, i.e. those that are bootstrapped via
  * a traditional {@code main} method accepting a {@code String[]} of arguments from the
  * command line. In many cases, processing command-line arguments directly within the
  * {@code main} method may be sufficient, but in other cases, it may be desirable to
- * inject arguments as values into Spring beans. It is this latter set of cases in which
+ * inject arguments as values into beans. It is this latter set of cases in which
  * a {@code CommandLinePropertySource} becomes useful. A {@code CommandLinePropertySource}
- * will typically be added to the {@link Environment} of the Spring
+ * will typically be added to the {@link Environment} of the
  * {@code ApplicationContext}, at which point all command line arguments become available
  * through the {@link Environment#getProperty(String)} family of methods. For example:
  *
  * <pre class="code">
  * public static void main(String[] args) {
  *     CommandLinePropertySource clps = ...;
- *     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ *     StandardApplicationContext ctx = new StandardApplicationContext();
  *     ctx.getEnvironment().getPropertySources().addFirst(clps);
- *     ctx.register(AppConfig.class);
+ *     ctx.importBeans(AppConfig.class);
  *     ctx.refresh();
  * }</pre>
  *
  * With the bootstrap logic above, the {@code AppConfig} class may {@code @Inject} the
- * Spring {@code Environment} and query it directly for properties:
+ * {@code Environment} and query it directly for properties:
  *
  * <pre class="code">
  * &#064;Configuration
@@ -78,10 +78,9 @@ import cn.taketoday.util.StringUtils;
  * given that arguments specified on the command line are naturally more specific than
  * those specified as environment variables.
  *
- * <p>As an alternative to injecting the {@code Environment}, Spring's {@code @Value}
+ * <p>As an alternative to injecting the {@code Environment}, {@code @Value}
  * annotation may be used to inject these properties, given that a {@link
- * PropertySourcesPropertyResolver} bean has been registered, either directly or through
- * using the {@code <context:property-placeholder>} element. For example:
+ * PropertySourcesPropertyResolver} bean has been registered For example:
  *
  * <pre class="code">
  * &#064;Component
@@ -139,7 +138,7 @@ import cn.taketoday.util.StringUtils;
  * comma-delimited string containing all the arguments. This approach ensures a simple
  * and consistent return type (String) for all properties from a {@code
  * CommandLinePropertySource} and at the same time lends itself to conversion when used
- * in conjunction with the Spring {@link Environment} and its built-in {@code
+ * in conjunction with the {@link Environment} and its built-in {@code
  * ConversionService}. Consider the following example:
  *
  * <pre class="code">--o1=v1 --o2=v2 /path/to/file1 /path/to/file2</pre>
@@ -158,7 +157,7 @@ import cn.taketoday.util.StringUtils;
  * assert ps.getProperty("nonOptionArgs").equals("/path/to/file1,/path/to/file2");
  * </pre>
  *
- * <p>As mentioned above, when used in conjunction with the Spring {@code Environment}
+ * <p>As mentioned above, when used in conjunction with the {@code Environment}
  * abstraction, this comma-delimited string may easily be converted to a String array or
  * list:
  *
@@ -180,9 +179,9 @@ import cn.taketoday.util.StringUtils;
  *     CommandLinePropertySource clps = ...;
  *     clps.setNonOptionArgsPropertyName("file.locations");
  *
- *     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ *     StandardApplicationContext ctx = new StandardApplicationContext();
  *     ctx.getEnvironment().getPropertySources().addFirst(clps);
- *     ctx.register(AppConfig.class);
+ *     ctx.importBeans(AppConfig.class);
  *     ctx.refresh();
  * }</pre>
  *
@@ -269,7 +268,7 @@ public abstract class CommandLinePropertySource<T> extends EnumerablePropertySou
   @Nullable
   public final String getProperty(String name) {
     if (this.nonOptionArgsPropertyName.equals(name)) {
-      Collection<String> nonOptionArguments = this.getNonOptionArgs();
+      Collection<String> nonOptionArguments = getNonOptionArgs();
       if (nonOptionArguments.isEmpty()) {
         return null;
       }
@@ -277,7 +276,7 @@ public abstract class CommandLinePropertySource<T> extends EnumerablePropertySou
         return StringUtils.collectionToString(nonOptionArguments);
       }
     }
-    Collection<String> optionValues = this.getOptionValues(name);
+    Collection<String> optionValues = getOptionValues(name);
     if (optionValues == null) {
       return null;
     }

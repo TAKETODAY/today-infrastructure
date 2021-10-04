@@ -58,7 +58,8 @@ public class MapPropertySource extends EnumerablePropertySource<Map<String, Obje
     return this.source.containsKey(name);
   }
 
-  @NonNull @Override
+  @NonNull
+  @Override
   public Set<String> getPropertyNames() {
     return this.source.keySet();
   }

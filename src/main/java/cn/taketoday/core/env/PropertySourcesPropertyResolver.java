@@ -16,7 +16,14 @@
 
 package cn.taketoday.core.env;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+
 import cn.taketoday.core.Nullable;
+import cn.taketoday.util.CompositeIterator;
 
 /**
  * {@link PropertyResolver} implementation that resolves property values against
@@ -29,7 +36,7 @@ import cn.taketoday.core.Nullable;
  * @see AbstractEnvironment
  * @since 4.0
  */
-public class PropertySourcesPropertyResolver extends TypedPropertyResolver {
+public class PropertySourcesPropertyResolver extends TypedPropertyResolver implements Iterable<String> {
 
   @Nullable
   private final PropertySources propertySources;

@@ -51,7 +51,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class PropertySource<T> {
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(PropertySource.class);
 
   protected final String name;
 

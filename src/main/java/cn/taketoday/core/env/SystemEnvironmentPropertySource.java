@@ -20,6 +20,8 @@ import java.util.Map;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * Specialization of {@link MapPropertySource} designed for use with
@@ -44,11 +46,11 @@ import cn.taketoday.core.Nullable;
  * <p>This feature is particularly useful when specifying active or default profiles as
  * environment variables. The following is not allowable under Bash:
  *
- * <pre class="code">spring.profiles.active=p1 java -classpath ... MyApp</pre>
+ * <pre class="code">context.profiles.active=p1 java -classpath ... MyApp</pre>
  *
  * However, the following syntax is permitted and is also more conventional:
  *
- * <pre class="code">SPRING_PROFILES_ACTIVE=p1 java -classpath ... MyApp</pre>
+ * <pre class="code">CONTEXT_PROFILES_ACTIVE=p1 java -classpath ... MyApp</pre>
  *
  * <p>Enable debug- or trace-level logging for this class (or package) for messages
  * explaining when these 'property name resolutions' occur.
@@ -64,6 +66,7 @@ import cn.taketoday.core.Nullable;
  * @since 4.0
  */
 public class SystemEnvironmentPropertySource extends MapPropertySource {
+  private static final Logger log = LoggerFactory.getLogger(SystemEnvironmentPropertySource.class);
 
   /**
    * Create a new {@code SystemEnvironmentPropertySource} with the given name and

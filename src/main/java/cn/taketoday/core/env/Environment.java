@@ -72,12 +72,12 @@ public interface Environment extends PropertyResolver {
   String DEFAULT_PROPERTIES_FILE = "classpath:application.properties";
 
   /**
-   * System property that instructs Spring to ignore system environment variables,
+   * System property that instructs to ignore system environment variables,
    * i.e. to never attempt to retrieve such a variable via {@link System#getenv()}.
-   * <p>The default is "false", falling back to system environment variable checks if a
-   * Spring environment property (e.g. a placeholder in a configuration String) isn't
+   * <p>The default is "false", falling back to system environment variable checks if an
+   * environment property (e.g. a placeholder in a configuration String) isn't
    * resolvable otherwise. Consider switching this flag to "true" if you experience
-   * log warnings from {@code getenv} calls coming from Spring.
+   * log warnings from {@code getenv} calls coming from TODAY.
    *
    * @see AbstractEnvironment#suppressGetenvAccess()
    */
@@ -87,7 +87,7 @@ public interface Environment extends PropertyResolver {
    * Name of property to set to specify active profiles: {@value}. Value may be comma
    * delimited.
    * <p>Note that certain shell environments such as Bash disallow the use of the period
-   * character in variable names. Assuming that Spring's {@link SystemEnvironmentPropertySource}
+   * character in variable names. Assuming that {@link SystemEnvironmentPropertySource}
    * is in use, this property may be specified as an environment variable as
    * {@code SPRING_PROFILES_ACTIVE}.
    *
@@ -99,7 +99,7 @@ public interface Environment extends PropertyResolver {
    * Name of property to set to specify profiles active by default: {@value}. Value may
    * be comma delimited.
    * <p>Note that certain shell environments such as Bash disallow the use of the period
-   * character in variable names. Assuming that Spring's {@link SystemEnvironmentPropertySource}
+   * character in variable names. Assuming that {@link SystemEnvironmentPropertySource}
    * is in use, this property may be specified as an environment variable as
    * {@code SPRING_PROFILES_DEFAULT}.
    *

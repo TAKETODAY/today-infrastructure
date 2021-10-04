@@ -20,7 +20,12 @@
 
 package cn.taketoday.core.env;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 
 import cn.taketoday.core.Nullable;
 
@@ -30,7 +35,8 @@ import cn.taketoday.core.Nullable;
  * @author TODAY 2021/10/3 15:04
  * @since 4.0
  */
-public class MapPropertyResolver extends TypedPropertyResolver implements PropertyResolver {
+public class MapPropertyResolver
+        extends TypedPropertyResolver implements PropertyResolver, Iterable<String> {
 
   @Nullable
   private final Map<String, Object> keyValues;
@@ -95,4 +101,28 @@ public class MapPropertyResolver extends TypedPropertyResolver implements Proper
     }
   }
 
+  @Override
+  public Iterator<String> iterator() {
+    if (keyValues != null) {
+      return keyValues.keySet().iterator();
+    }
+    return Collections.emptyIterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super String> action) {
+    if (keyValues != null) {
+      for (final String key : keyValues.keySet()) {
+        action.accept(key);
+      }
+    }
+  }
+
+  @Override
+  public Spliterator<String> spliterator() {
+    if (keyValues != null) {
+      return keyValues.keySet().spliterator();
+    }
+    return Spliterators.emptySpliterator();
+  }
 }
