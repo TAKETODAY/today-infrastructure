@@ -103,8 +103,7 @@ public abstract class SystemPropertyUtils {
    * PlaceholderResolver implementation that resolves against system properties
    * and system environment variables.
    */
-  private static class SystemPropertyPlaceholderResolver
-          implements PropertyPlaceholderHandler.PlaceholderResolver {
+  private static class SystemPropertyPlaceholderResolver implements PlaceholderResolver {
 
     private final String text;
 

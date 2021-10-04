@@ -45,6 +45,16 @@ import cn.taketoday.logger.LoggerFactory;
  */
 public class PropertyPlaceholderHandler {
   private static final Logger log = LoggerFactory.getLogger(PropertyPlaceholderHandler.class);
+  public static final String PLACE_HOLDER_SUFFIX = "}";
+  public static final String PLACE_HOLDER_PREFIX = "#{";
+  /** Value separator for system property placeholders: ":". */
+  public static final String VALUE_SEPARATOR = ":";
+
+  public static final PropertyPlaceholderHandler strict = new PropertyPlaceholderHandler(
+          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, false);
+
+  public static final PropertyPlaceholderHandler defaults = new PropertyPlaceholderHandler(
+          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, true);
 
   private static final HashMap<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
@@ -143,7 +153,9 @@ public class PropertyPlaceholderHandler {
 
   protected String parseStringValue(
           String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
-
+//    if (value == null || value.length() <= 3) { // #{} > 3
+//      return value;
+//    }
     int startIndex = value.indexOf(this.placeholderPrefix);
     if (startIndex == -1) {
       return value;
@@ -230,22 +242,9 @@ public class PropertyPlaceholderHandler {
     return -1;
   }
 
-  /**
-   * Strategy interface used to resolve replacement values for placeholders contained in Strings.
-   */
-  @FunctionalInterface
-  public interface PlaceholderResolver {
+  //---------------------------------------------------------------------
+  // static
+  //---------------------------------------------------------------------
 
-    /**
-     * Resolve the supplied placeholder name to the replacement value.
-     *
-     * @param placeholderName
-     *         the name of the placeholder to resolve
-     *
-     * @return the replacement value, or {@code null} if no replacement is to be made
-     */
-    @Nullable
-    String resolvePlaceholder(String placeholderName);
-  }
 
 }
