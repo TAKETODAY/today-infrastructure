@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Environment;
 
@@ -33,9 +34,11 @@ public class ConditionEvaluationContext {
 
   private final Environment environment;
   private final ApplicationContext context;
+  private final BeanDefinitionRegistry registry;
 
-  public ConditionEvaluationContext(ApplicationContext context) {
+  public ConditionEvaluationContext(ApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
+    this.registry = registry;
     this.environment = context.getEnvironment();
   }
 
@@ -45,6 +48,10 @@ public class ConditionEvaluationContext {
 
   public Environment getEnvironment() {
     return environment;
+  }
+
+  public BeanDefinitionRegistry getRegistry() {
+    return registry;
   }
 
 }
