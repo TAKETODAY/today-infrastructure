@@ -158,7 +158,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     builder.append("\",\n\t\"referenceClass\":\"");
     builder.append(referenceClass);
     builder.append("\",\n\t\"field\":\"");
-    builder.append(field);
+    builder.append(getField());
     builder.append("\",\n\t\"prototype\":\"");
     builder.append(isPrototype());
     builder.append("\"\n}");
