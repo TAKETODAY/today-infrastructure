@@ -72,7 +72,7 @@ public class BeanDefinitionBuilder {
   private PropertyResolvingContext resolvingContext;
 
   @Nullable
-  private PropertyValueResolverComposite propertyValueResolver;
+  private PropertyValueResolverComposite resolvingStrategies;
 
   /** bean name. */
   private String name;
@@ -235,8 +235,8 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
-  public BeanDefinitionBuilder propertyValueResolver(PropertyValueResolverComposite propertyValueResolver) {
-    this.propertyValueResolver = propertyValueResolver;
+  public BeanDefinitionBuilder resolvingStrategies(PropertyValueResolverComposite resolvingStrategies) {
+    this.resolvingStrategies = resolvingStrategies;
     return this;
   }
 
@@ -270,8 +270,24 @@ public class BeanDefinitionBuilder {
 
   // getter
 
+  @Nullable
   public ApplicationContext getContext() {
     return context;
+  }
+
+  @Nullable
+  public PropsReader getPropsReader() {
+    return propsReader;
+  }
+
+  @Nullable
+  public PropertyResolvingContext getResolvingContext() {
+    return resolvingContext;
+  }
+
+  @Nullable
+  public PropertyValueResolverComposite getResolvingStrategies() {
+    return resolvingStrategies;
   }
 
   // build
@@ -306,7 +322,7 @@ public class BeanDefinitionBuilder {
     definition.setDestroyMethods(destroyMethods);
 
     // fix missing @Props injection
-    List<PropertySetter> resolvedProps = propsReader.read(definition);
+    List<PropertySetter> resolvedProps = propsReader().read(definition);
     LinkedHashSet<PropertySetter> propertySetters = resolvePropertyValue(beanClass);
     propertySetters.addAll(resolvedProps);
 
@@ -364,7 +380,7 @@ public class BeanDefinitionBuilder {
     LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
     ReflectionUtils.doWithFields(beanClass, field -> {
       // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-      PropertySetter created = createPropertyValue(field);
+      PropertySetter created = resolveProperty(field);
       // not required
       if (created != null) {
         propertySetters.add(created);
@@ -383,17 +399,22 @@ public class BeanDefinitionBuilder {
    * @return A new {@link PropertySetter}
    */
   @Nullable
-  public PropertySetter createPropertyValue(Field field) {
-    if (propertyValueResolver == null) {
-      propertyValueResolver = new PropertyValueResolverComposite();
+  public PropertySetter resolveProperty(Field field) {
+    if (resolvingStrategies == null) {
+      resolvingStrategies = new PropertyValueResolverComposite();
     }
     if (resolvingContext == null) {
-      if (propsReader == null) {
-        propsReader = new PropsReader(context.getEnvironment());
-      }
-      resolvingContext = new PropertyResolvingContext(context, propsReader);
+      resolvingContext = new PropertyResolvingContext(context, propsReader());
     }
-    return propertyValueResolver.resolveProperty(resolvingContext, field);
+    return resolvingStrategies.resolveProperty(resolvingContext, field);
+  }
+
+  public PropsReader propsReader() {
+    if (propsReader == null) {
+      Assert.state(context != null, "No Application Context");
+      propsReader = new PropsReader(context.getEnvironment());
+    }
+    return propsReader;
   }
 
   //---------------------------------------------------------------------
