@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
@@ -103,7 +102,7 @@ public class CustomScopeConfigurer
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
         else if (scope instanceof String) {
-          Class<Scope> scopeClass = ClassUtils.loadClass((String) scope, this.beanClassLoader);
+          Class<Scope> scopeClass = ClassUtils.load((String) scope, this.beanClassLoader);
           Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }

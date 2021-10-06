@@ -22,8 +22,6 @@ package cn.taketoday.beans.factory;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.Scope;
-
 /**
  * A simple thread-backed {@link Scope} implementation.
  *
