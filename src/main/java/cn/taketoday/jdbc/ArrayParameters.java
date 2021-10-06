@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -65,7 +64,7 @@ final class ArrayParameters {
         return true;
       if (!(o instanceof ArrayParameter))
         return false;
-      final ArrayParameter that = (ArrayParameter) o;
+      ArrayParameter that = (ArrayParameter) o;
       return parameterIndex == that.parameterIndex
               && parameterCount == that.parameterCount;
     }
@@ -88,14 +87,13 @@ final class ArrayParameters {
           HashMap<String, QueryParameter> queryParameters,
           boolean allowArrayParameters
   ) {
-    List<ArrayParameter> arrayParameters
+    ArrayList<ArrayParameter> arrayParameters
             = sortedArrayParameters(queryParameters, allowArrayParameters);
     if (arrayParameters.isEmpty()) {
       return parsedQuery;
     }
 
     updateMap(queryParameters, arrayParameters);
-
     return updateQueryWithArrayParameters(parsedQuery, arrayParameters);
   }
 
@@ -104,16 +102,16 @@ final class ArrayParameters {
    */
   static Map<String, QueryParameter> updateMap(
           HashMap<String, QueryParameter> queryParameters,
-          List<ArrayParameter> arrayParametersSortedAsc
+          ArrayList<ArrayParameter> arrayParametersSortedAsc
   ) {
 
-    for (final QueryParameter parameter : queryParameters.values()) {
-      final ArrayList<Integer> newParameterIndex = new ArrayList<>();
+    for (QueryParameter parameter : queryParameters.values()) {
+      ArrayList<Integer> newParameterIndex = new ArrayList<>();
 
-      parameter.getHolder().forEach(parameterIndex -> {
-        final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
+      for (int parameterIndex : parameter.getHolder()) {
+        int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
         newParameterIndex.add(newIdx);
-      });
+      }
 
       if (newParameterIndex.size() > 1) {
         parameter.setHolder(ParameterIndexHolder.valueOf(newParameterIndex));
@@ -130,7 +128,7 @@ final class ArrayParameters {
    * Compute the new index of a parameter given the index positions of the array
    * parameters.
    */
-  static int computeNewIndex(int index, List<ArrayParameter> arrayParametersSortedAsc) {
+  static int computeNewIndex(int index, ArrayList<ArrayParameter> arrayParametersSortedAsc) {
     int newIndex = index;
     for (ArrayParameter arrayParameter : arrayParametersSortedAsc) {
       if (index > arrayParameter.parameterIndex) {
@@ -151,22 +149,23 @@ final class ArrayParameters {
    * @throws ArrayParameterBindFailedException
    *         array parameter bind failed
    */
-  private static List<ArrayParameter> sortedArrayParameters(
+  private static ArrayList<ArrayParameter> sortedArrayParameters(
           HashMap<String, QueryParameter> queryParameters,
           boolean allowArrayParameters
   ) {
-    final ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
-    for (final QueryParameter parameter : queryParameters.values()) {
-      final ParameterBinder binder = parameter.getBinder();
+    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+    for (QueryParameter parameter : queryParameters.values()) {
+      ParameterBinder binder = parameter.getBinder();
       if (binder instanceof ArrayParameterBinder) {
-        final int parameterCount = ((ArrayParameterBinder) binder).getParameterCount();
+        int parameterCount = ((ArrayParameterBinder) binder).getParameterCount();
         if (parameterCount > 1) {
           if (!allowArrayParameters) {
             throw new ArrayParameterBindFailedException("Array parameters are not allowed in batch mode");
           }
 
-          ParameterIndexHolder indexHolder = parameter.getHolder();
-          indexHolder.forEach(index -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
+          for (int index : parameter.getHolder()) {
+            arrayParameters.add(new ArrayParameter(index, parameterCount));
+          }
         }
       }
     }
@@ -181,7 +180,7 @@ final class ArrayParameters {
    * with ?,?,?.. multiple arrayParametersSortedAsc.parameterCount
    */
   static String updateQueryWithArrayParameters(
-          String parsedQuery, List<ArrayParameter> arrayParametersSortedAsc
+          String parsedQuery, ArrayList<ArrayParameter> arrayParametersSortedAsc
   ) {
     if (arrayParametersSortedAsc.isEmpty()) {
       return parsedQuery;

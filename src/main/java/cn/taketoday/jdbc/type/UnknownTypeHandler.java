@@ -117,7 +117,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private Class<?> safeGetClassForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
     try {
-      return ClassUtils.loadClass(rsmd.getColumnClassName(columnIndex));
+      return ClassUtils.load(rsmd.getColumnClassName(columnIndex));
     }
     catch (Exception e) {
       return null;

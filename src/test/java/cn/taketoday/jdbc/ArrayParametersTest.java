@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.jdbc.parsing.ParameterIndexHolder;
@@ -19,8 +20,8 @@ public class ArrayParametersTest {
   @Test
   public void testUpdateParameterNamesToIndexes() {
     final ImmutableList<Integer> of = ImmutableList.of(3, 5);
-    ImmutableList<ArrayParameters.ArrayParameter> arrayParametersSortedAsc =
-            ImmutableList.of(new ArrayParameters.ArrayParameter(6, 3));
+    ArrayList<ArrayParameters.ArrayParameter> arrayParametersSortedAsc =
+            listOf(new ArrayParameters.ArrayParameter(6, 3));
 
     QueryParameter parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(of));
 
@@ -39,38 +40,45 @@ public class ArrayParametersTest {
             ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 9)))),
             ArrayParameters.updateMap(
                     Maps.newHashMap(paramName1),
-                    ImmutableList.of(
-                            new ArrayParameters.ArrayParameter(6, 3))));
+                    listOf(new ArrayParameters.ArrayParameter(6, 3))));
+  }
+
+  static ArrayList<ArrayParameters.ArrayParameter> listOf(
+          ArrayParameters.ArrayParameter... parameter) {
+    ArrayList<ArrayParameters.ArrayParameter> parameters = new ArrayList<>();
+    Collections.addAll(parameters, parameter);
+    return parameters;
   }
 
   @Test
   public void testComputeNewIndex() {
+
     assertEquals(
             2,
             ArrayParameters.computeNewIndex(
                     2,
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(3, 5))));
 
     assertEquals(
             3,
             ArrayParameters.computeNewIndex(
                     3,
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(3, 5))));
 
     assertEquals(
             8,
             ArrayParameters.computeNewIndex(
                     4,
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(3, 5))));
 
     assertEquals(
             9,
             ArrayParameters.computeNewIndex(
                     4,
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(1, 2),
                             new ArrayParameters.ArrayParameter(3, 5))));
 
@@ -78,7 +86,7 @@ public class ArrayParametersTest {
             9,
             ArrayParameters.computeNewIndex(
                     4,
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(1, 2),
                             new ArrayParameters.ArrayParameter(3, 5),
                             new ArrayParameters.ArrayParameter(4, 5))));
@@ -87,7 +95,7 @@ public class ArrayParametersTest {
             9,
             ArrayParameters.computeNewIndex(
                     4,
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(1, 2),
                             new ArrayParameters.ArrayParameter(3, 5),
                             new ArrayParameters.ArrayParameter(5, 5))));
@@ -99,7 +107,7 @@ public class ArrayParametersTest {
             "SELECT * FROM user WHERE id IN(?,?,?,?,?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    ImmutableList.of(new ArrayParameters.ArrayParameter(1, 5))));
+                    listOf(new ArrayParameters.ArrayParameter(1, 5))));
 
     assertEquals(
             "SELECT * FROM user WHERE id IN(?)",
@@ -111,31 +119,31 @@ public class ArrayParametersTest {
             "SELECT * FROM user WHERE id IN(?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    ImmutableList.of(new ArrayParameters.ArrayParameter(1, 0))));
+                    listOf(new ArrayParameters.ArrayParameter(1, 0))));
 
     assertEquals(
             "SELECT * FROM user WHERE id IN(?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    ImmutableList.of(new ArrayParameters.ArrayParameter(1, 1))));
+                    listOf(new ArrayParameters.ArrayParameter(1, 1))));
 
     assertEquals(
             "SELECT * FROM user WHERE login = ? AND id IN(?,?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE login = ? AND id IN(?)",
-                    ImmutableList.of(new ArrayParameters.ArrayParameter(2, 2))));
+                    listOf(new ArrayParameters.ArrayParameter(2, 2))));
 
     assertEquals(
             "SELECT * FROM user WHERE login = ? AND id IN(?,?) AND name = ?",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE login = ? AND id IN(?) AND name = ?",
-                    ImmutableList.of(new ArrayParameters.ArrayParameter(2, 2))));
+                    listOf(new ArrayParameters.ArrayParameter(2, 2))));
 
     assertEquals(
             "SELECT ... WHERE other_id IN (?,?,?) login = ? AND id IN(?,?,?) AND name = ?",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT ... WHERE other_id IN (?) login = ? AND id IN(?) AND name = ?",
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(1, 3),
                             new ArrayParameters.ArrayParameter(3, 3))));
 
@@ -143,7 +151,7 @@ public class ArrayParametersTest {
             "SELECT ... WHERE other_id IN (?,?,?,?,?) login = ? AND id IN(?,?,?) AND name = ?",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT ... WHERE other_id IN (?) login = ? AND id IN(?) AND name = ?",
-                    ImmutableList.of(
+                    listOf(
                             new ArrayParameters.ArrayParameter(1, 5),
                             new ArrayParameters.ArrayParameter(3, 3))));
   }

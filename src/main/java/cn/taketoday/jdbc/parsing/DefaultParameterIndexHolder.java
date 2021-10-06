@@ -22,13 +22,16 @@ package cn.taketoday.jdbc.parsing;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.IntConsumer;
 
+import cn.taketoday.core.NonNull;
 import cn.taketoday.jdbc.ParameterBinder;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/6/8 23:52
+ * @since 4.0
  */
 final class DefaultParameterIndexHolder extends ParameterIndexHolder {
   final int index;
@@ -42,14 +45,13 @@ final class DefaultParameterIndexHolder extends ParameterIndexHolder {
     binder.bind(statement, index);
   }
 
-  @Override
-  public void forEach(IntConsumer action) {
-    action.accept(index);
-  }
-
   public int getIndex() {
     return index;
   }
+
+  //---------------------------------------------------------------------
+  // Implementation of Object
+  //---------------------------------------------------------------------
 
   @Override
   public boolean equals(Object o) {
@@ -70,4 +72,15 @@ final class DefaultParameterIndexHolder extends ParameterIndexHolder {
   public String toString() {
     return "index=" + index;
   }
+
+  //---------------------------------------------------------------------
+  // Implementation of Iterable interface
+  //---------------------------------------------------------------------
+
+  @NonNull
+  @Override
+  public Iterator<Integer> iterator() {
+    return CollectionUtils.singletonIterator(index);
+  }
+
 }

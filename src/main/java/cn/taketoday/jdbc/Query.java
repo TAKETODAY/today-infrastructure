@@ -348,10 +348,7 @@ public final class Query implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public Query bind(final Object pojo) {
-    HashMap<String, QueryParameter> queryParameters = getQueryParameters();
-    final Map<String, BeanProperty> beanProperties = BeanMetadata.ofObject(pojo).getBeanProperties();
-    for (final Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
-      final BeanProperty property = entry.getValue();
+    for (BeanProperty property : BeanMetadata.ofObject(pojo)) {
       final String name = property.getName();
       try {
         if (queryParameters.containsKey(name)) {

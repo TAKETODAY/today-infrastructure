@@ -22,8 +22,8 @@ package cn.taketoday.jdbc.parsing;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
-import java.util.function.IntConsumer;
 
 import cn.taketoday.jdbc.ParameterBinder;
 
@@ -31,8 +31,9 @@ import cn.taketoday.jdbc.ParameterBinder;
  * parameter index holder
  *
  * @author TODAY 2021/6/8 23:51
+ * @since 4.0
  */
-public abstract class ParameterIndexHolder {
+public abstract class ParameterIndexHolder implements Iterable<Integer> {
 
   /**
    * use binder to bind parameter to this index where there is hold
@@ -48,13 +49,12 @@ public abstract class ParameterIndexHolder {
   public abstract void bind(ParameterBinder binder, PreparedStatement statement)
           throws SQLException;
 
-  /**
-   * iterate this index where there is hold
-   *
-   * @param action
-   *         index consumer
-   */
-  public abstract void forEach(IntConsumer action);
+  //---------------------------------------------------------------------
+  // Implementation of Iterable interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public abstract Iterator<Integer> iterator();
 
   // static
 

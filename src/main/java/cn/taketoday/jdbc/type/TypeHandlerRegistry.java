@@ -36,9 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.ResolvableType;
 
 /**
  * @author Clinton Begin
