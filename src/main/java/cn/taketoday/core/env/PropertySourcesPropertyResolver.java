@@ -18,8 +18,13 @@ package cn.taketoday.core.env;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 import cn.taketoday.core.Nullable;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * {@link PropertyResolver} implementation that resolves property values against
@@ -32,7 +37,9 @@ import cn.taketoday.core.Nullable;
  * @see AbstractEnvironment
  * @since 4.0
  */
-public class PropertySourcesPropertyResolver extends TypedPropertyResolver {
+public class PropertySourcesPropertyResolver
+        extends TypedPropertyResolver implements IterablePropertyResolver {
+  private static final Logger log = LoggerFactory.getLogger(PropertySourcesPropertyResolver.class);
 
   @Nullable
   private final PropertySources propertySources;
@@ -105,11 +112,7 @@ public class PropertySourcesPropertyResolver extends TypedPropertyResolver {
     }
   }
 
-  //---------------------------------------------------------------------
-  // Implementation of Iterable interface
-  //---------------------------------------------------------------------
-
-  public Iterable<String> getPropertyNames() {
+  public ArrayList<String> getPropertyNames() {
     ArrayList<String> ret = new ArrayList<>();
     if (propertySources != null) {
       for (PropertySource<?> propertySource : propertySources) {
@@ -120,6 +123,27 @@ public class PropertySourcesPropertyResolver extends TypedPropertyResolver {
       }
     }
     return ret;
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of IterablePropertyResolver interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public Iterator<String> iterator() {
+    return getPropertyNames().iterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super String> action) {
+    for (String key : getPropertyNames()) {
+      action.accept(key);
+    }
+  }
+
+  @Override
+  public Spliterator<String> spliterator() {
+    return getPropertyNames().spliterator();
   }
 
 }
