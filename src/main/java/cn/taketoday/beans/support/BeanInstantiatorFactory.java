@@ -19,11 +19,18 @@
  */
 package cn.taketoday.beans.support;
 
+import java.lang.reflect.Constructor;
+
 /**
  * @author TODAY 2020-08-13 20:23
+ * @since 4.0
  */
 @FunctionalInterface
 public interface BeanInstantiatorFactory {
+
+  default BeanInstantiator newInstantiator(Constructor<?> constructor) {
+    return newInstantiator(constructor.getDeclaringClass());
+  }
 
   BeanInstantiator newInstantiator(Class<?> cls);
 }
