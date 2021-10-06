@@ -30,7 +30,6 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.ResolvableType;
@@ -353,25 +352,15 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @since 4.0
    */
   default void validate() throws BeanDefinitionValidationException {
-    if (this instanceof FactoryMethodBeanDefinition) {
-      final FactoryMethodBeanDefinition standardDef = ((FactoryMethodBeanDefinition) this);
-
-      if (StringUtils.isEmpty(standardDef.getDeclaringName())) {
-        throw new BeanDefinitionValidationException("Declaring name can't be null in: " + standardDef);
-      }
-      ConfigurationException.nonNull(standardDef.getFactoryMethod(), "Factory Method can't be null");
-    }
     if (StringUtils.isEmpty(getName())) {
       throw new BeanDefinitionValidationException("Definition's bean name can't be null");
     }
     if (getBeanClass() == null) {
       throw new BeanDefinitionValidationException("Definition's bean class can't be null");
     }
-
     if (getDestroyMethods() == null) {
       setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
     }
-
     if (getInitMethods() == null) {
       setInitMethods(EMPTY_METHOD);
     }
