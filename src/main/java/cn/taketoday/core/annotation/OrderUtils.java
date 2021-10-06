@@ -46,7 +46,7 @@ public abstract class OrderUtils {
   private static final Object NOT_ANNOTATED = new Object();
 
   private static final Class<? extends Annotation>
-          JAVAX_PRIORITY_ANNOTATION = ClassUtils.loadClass("javax.annotation.Priority");
+          JAVAX_PRIORITY_ANNOTATION = ClassUtils.load("javax.annotation.Priority");
 
   /** Cache for @Order value (or NOT_ANNOTATED marker) per Class. */
   private static final ConcurrentReferenceHashMap<AnnotatedElement, Object>

@@ -476,8 +476,8 @@ public abstract class ClassUtils {
    *
    * @return class if not found will returns null
    */
-  public static <T> Class<T> loadClass(String name) {
-    return loadClass(name, classLoader);
+  public static <T> Class<T> load(String name) {
+    return load(name, classLoader);
   }
 
   /**
@@ -491,7 +491,7 @@ public abstract class ClassUtils {
    *         use this {@link ClassLoader} load the class
    */
   @SuppressWarnings("unchecked")
-  public static <T> Class<T> loadClass(String name, ClassLoader classLoader) {
+  public static <T> Class<T> load(String name, ClassLoader classLoader) {
     Assert.notNull(classLoader, "ClassLoader can't be null");
     try {
       return (Class<T>) classLoader.loadClass(name);
@@ -583,7 +583,7 @@ public abstract class ClassUtils {
    */
   public static <T> Class<T> getUserClass(String name) {
     final int i = Objects.requireNonNull(name).indexOf(CGLIB_CLASS_SEPARATOR);
-    return i > 0 ? loadClass(name.substring(0, i)) : loadClass(name);
+    return i > 0 ? load(name.substring(0, i)) : load(name);
   }
 
   // --------------------------------- Field

@@ -38,7 +38,7 @@ public final class ClassValueHolder extends AnnotationValueHolder {
 
   @Override
   public Class<?> getInternal() {
-    return ClassUtils.loadClass(descriptor.getClassName());
+    return ClassUtils.load(descriptor.getClassName());
   }
 
   @Override

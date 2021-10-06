@@ -367,7 +367,7 @@ public class AnnotationUtilsTests {
     assert AnnotationUtils.isPresent(ClassUtilsTest.AutowiredOnConstructor.class, Singleton.class);
     assert AnnotationUtils.isPresent(ClassUtilsTest.AutowiredOnConstructor.class, ClassUtilsTest.MySingleton.class);
 
-    assert ClassUtils.loadClass("") == null;
+    assert ClassUtils.load("") == null;
   }
 
 

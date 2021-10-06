@@ -241,7 +241,7 @@ public class WebApplicationLoader
    * @since 2.3.7
    */
   protected void configureTemplateLoader(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
+    final Class<Object> loaderClass = ClassUtils.load("freemarker.cache.TemplateLoader");
     if (loaderClass != null) {
       List<?> beans = context.getBeans(loaderClass);
       mvcConfiguration.configureTemplateLoader(beans);
@@ -416,7 +416,7 @@ public class WebApplicationLoader
       return registry;
     }
     if (registry == null) {
-      ConfigurableBeanFactory beanFactory = obtainApplicationContext().getBeanFactory(
+      ConfigurableBeanFactory beanFactory = obtainApplicationContext().unwrapFactory(
               ConfigurableBeanFactory.class);
       beanFactory.registerBean(ViewControllerHandlerRegistry.class);
       registry = beanFactory.getBean(ViewControllerHandlerRegistry.class);
@@ -448,7 +448,7 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        ConfigurableBeanFactory beanFactory = obtainApplicationContext().getBeanFactory(
+        ConfigurableBeanFactory beanFactory = obtainApplicationContext().unwrapFactory(
                 ConfigurableBeanFactory.class);
         beanFactory.registerBean(dispatcherHandler);
       }

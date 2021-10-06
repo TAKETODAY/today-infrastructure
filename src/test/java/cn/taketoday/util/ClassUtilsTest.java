@@ -188,11 +188,12 @@ class ClassUtilsTest {
 
   @Test
   void testAutowiredOnConstructor() {
+
     try (ApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
 
       AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
 
-      beanFactory.importBeans(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
+      context.importBeans(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
 
       assertThat(context.getBean(AutowiredOnConstructor.class))
               .isNotNull();

@@ -280,6 +280,7 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.7
    */
+  @Nullable
   public static <T extends Annotation> AnnotationAttributes getAttributes(
           final Class<T> annotationClass, final AnnotatedElement element
   ) {
