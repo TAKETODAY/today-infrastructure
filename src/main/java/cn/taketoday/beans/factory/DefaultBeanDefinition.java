@@ -41,6 +41,7 @@ import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -267,7 +268,21 @@ public class DefaultBeanDefinition
     return this;
   }
 
-  @Override
+  /**
+   * @param propertySetters
+   *         collection of PropertySetter
+   *
+   * @since 4.0
+   */
+  public void setPropertyValues(@Nullable Collection<PropertySetter> propertySetters) {
+    if (CollectionUtils.isNotEmpty(propertySetters)) {
+      this.propertySetters = propertySetters.toArray(EMPTY_PROPERTY_SETTER);
+    }
+    else {
+      this.propertySetters = EMPTY_PROPERTY_SETTER;
+    }
+  }
+
   public BeanDefinition setPropertyValues(PropertySetter... propertySetters) {
     this.propertySetters = propertySetters;
     return this;
