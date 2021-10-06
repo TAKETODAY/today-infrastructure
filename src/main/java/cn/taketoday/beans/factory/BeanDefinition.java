@@ -27,12 +27,13 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -227,6 +228,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *
    * @return The {@link BeanDefinition}
    */
+  @Deprecated
   BeanDefinition setInitMethods(Method... initMethods);
 
   /**
@@ -280,17 +282,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *
    * @since 2.1.7
    */
+  @Nullable
   BeanDefinition getChild();
-
-  /**
-   * Apply bean' initialize {@link Method}s
-   *
-   * @param initMethods
-   *         The array of the bean's initialize {@link Method} names
-   *
-   * @return The {@link BeanDefinition}
-   */
-  BeanDefinition setInitMethods(String... initMethods);
 
   /**
    * new bean instance
@@ -360,8 +353,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @since 4.0
    */
   default void validate() throws BeanDefinitionValidationException {
-    if (this instanceof StandardBeanDefinition) {
-      final StandardBeanDefinition standardDef = ((StandardBeanDefinition) this);
+    if (this instanceof FactoryMethodBeanDefinition) {
+      final FactoryMethodBeanDefinition standardDef = ((FactoryMethodBeanDefinition) this);
 
       if (StringUtils.isEmpty(standardDef.getDeclaringName())) {
         throw new BeanDefinitionValidationException("Declaring name can't be null in: " + standardDef);
@@ -438,5 +431,12 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @since 4.0
    */
   boolean isPrimary();
+
+  /**
+   * check type
+   *
+   * @since 4.0
+   */
+  boolean isAssignableTo(ResolvableType typeToMatch);
 
 }

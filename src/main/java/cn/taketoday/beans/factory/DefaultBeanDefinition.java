@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +36,7 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -48,7 +48,6 @@ import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -160,7 +159,7 @@ public class DefaultBeanDefinition
 
   @Override
   public boolean isSingleton() {
-    final String scope = getScope();
+    String scope = getScope();
     return StringUtils.isEmpty(scope) || Scope.SINGLETON.equals(scope);
   }
 
@@ -251,7 +250,7 @@ public class DefaultBeanDefinition
       AccessibleObject.setAccessible(initMethods, true);
       this.methodInvokers = new MethodInvoker[initMethods.length];
       int i = 0;
-      for (final Method initMethod : initMethods) {
+      for (Method initMethod : initMethods) {
         methodInvokers[i++] = MethodInvoker.fromMethod(initMethod);
       }
     }
@@ -260,11 +259,6 @@ public class DefaultBeanDefinition
       this.methodInvokers = null;
     }
     return this;
-  }
-
-  @Override
-  public BeanDefinition setInitMethods(String... initMethods) {
-    return setInitMethods(BeanDefinitionBuilder.resolveInitMethod(initMethods, obtainBeanClass()));
   }
 
   @Override
@@ -280,21 +274,18 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public void addPropertyValue(final String name, final Object value) {
+  public void addPropertyValue(String name, Object value) {
     Assert.notNull(name, "property name must not be null");
 
-    final Field field = ReflectionUtils.findField(obtainBeanClass(), name);
-    if (field == null) {
-      throw new IllegalArgumentException("property '" + name + "' not found");
-    }
-    final DefaultPropertySetter propertyValue = new DefaultPropertySetter(value, field);
+    BeanProperty beanProperty = BeanProperty.valueOf(obtainBeanClass(), name);
+    DefaultPropertySetter propertyValue = new DefaultPropertySetter(value, beanProperty);
     addPropertySetter(propertyValue);
   }
 
   @Override
   public void addPropertySetter(PropertySetter... setters) {
     if (ObjectUtils.isNotEmpty(setters)) {
-      final PropertySetter[] propertySetters = getPropertySetters();
+      PropertySetter[] propertySetters = getPropertySetters();
       if (ObjectUtils.isEmpty(propertySetters)) {
         setPropertyValues(setters);
       }
@@ -314,7 +305,7 @@ public class DefaultBeanDefinition
     if (CollectionUtils.isEmpty(newValues)) {
       return;
     }
-    final PropertySetter[] propertySetters = getPropertySetters();
+    PropertySetter[] propertySetters = getPropertySetters();
     if (ObjectUtils.isNotEmpty(propertySetters)) {
       Collections.addAll(newValues, propertySetters);
     }
@@ -396,13 +387,13 @@ public class DefaultBeanDefinition
 
   /** @since 3.0 */
   @Override
-  public Object newInstance(final BeanFactory factory) {
-    final Supplier<?> instanceSupplier = this.instanceSupplier;
+  public Object newInstance(BeanFactory factory) {
+    Supplier<?> instanceSupplier = this.instanceSupplier;
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
-    final BeanInstantiator target = getConstructor(factory);
-    final Object[] args = factory.getArgumentsResolver().resolve(getExecutable(), factory);
+    BeanInstantiator target = getConstructor(factory);
+    Object[] args = factory.getArgumentsResolver().resolve(getExecutable(), factory);
     return target.instantiate(args);
   }
 
@@ -416,7 +407,7 @@ public class DefaultBeanDefinition
    */
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
-    final BeanInstantiator target = getConstructor(factory);
+    BeanInstantiator target = getConstructor(factory);
     return target.instantiate(args);
   }
 
@@ -429,11 +420,11 @@ public class DefaultBeanDefinition
    *         target factory
    */
   public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
-    final MethodInvoker[] methodInvokers = this.methodInvokers;
+    MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
       ArgumentsResolver resolver = beanFactory.getArgumentsResolver();
-      for (final MethodInvoker methodInvoker : methodInvokers) {
-        final Object[] args = resolver.resolve(methodInvoker.getMethod(), beanFactory);
+      for (MethodInvoker methodInvoker : methodInvokers) {
+        Object[] args = resolver.resolve(methodInvoker.getMethod(), beanFactory);
         methodInvoker.invoke(bean, args);
       }
     }
@@ -515,7 +506,7 @@ public class DefaultBeanDefinition
   }
 
   protected Class<?> obtainBeanClass() {
-    final Class<?> beanClass = getBeanClass();
+    Class<?> beanClass = getBeanClass();
     Assert.state(beanClass != null, "Bean Class is Null");
     return beanClass;
   }
@@ -605,7 +596,7 @@ public class DefaultBeanDefinition
       return true;
     }
     if (obj instanceof DefaultBeanDefinition) {
-      final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
+      DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
       return Objects.equals(name, other.name)
               && role == other.role
               && lazyInit == other.lazyInit

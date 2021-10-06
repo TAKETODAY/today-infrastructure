@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -44,26 +45,22 @@ import cn.taketoday.util.ObjectUtils;
  * @author TODAY <br>
  * 2019-02-01 12:29
  */
-public class StandardBeanDefinition extends DefaultBeanDefinition implements BeanDefinition {
+public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implements BeanDefinition {
 
   /** Declaring name @since 2.1.2 */
   private String declaringName;
 
-  private Method factoryMethod;
+  private final Method factoryMethod;
 
-  public StandardBeanDefinition(String beanName, Class<?> beanClass) {
-    super(beanName, beanClass);
-  }
-
-  public StandardBeanDefinition(String beanName, BeanDefinition childDef) {
-    super(beanName, childDef);
+  public FactoryMethodBeanDefinition(Method factoryMethod) {
+    this.factoryMethod = factoryMethod;
   }
 
   public String getDeclaringName() {
     return declaringName;
   }
 
-  public StandardBeanDefinition setDeclaringName(String declaringName) {
+  public FactoryMethodBeanDefinition setDeclaringName(String declaringName) {
     this.declaringName = declaringName;
     return this;
   }
@@ -77,16 +74,11 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     if (LOWEST_PRECEDENCE == order) {
       return OrderUtils.getOrderOrLowest(getFactoryMethod());
     }
-    return order + OrderUtils.getOrderOrLowest(getFactoryMethod());
+    return order - OrderUtils.getOrderOrLowest(getFactoryMethod());
   }
 
   public Method getFactoryMethod() {
     return factoryMethod;
-  }
-
-  public StandardBeanDefinition setFactoryMethod(Method factoryMethod) {
-    this.factoryMethod = factoryMethod;
-    return this;
   }
 
   @Override
@@ -108,28 +100,40 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
   private Method obtainFactoryMethod() {
     final Method factoryMethod = getFactoryMethod();
-    Assert.notNull(factoryMethod, "StandardBeanDefinition is not ready");
+    Assert.state(factoryMethod != null, "StandardBeanDefinition is not ready");
     return factoryMethod;
+  }
+
+  @Override
+  public boolean isAssignableTo(ResolvableType typeToMatch) {
+    BeanDefinition child = getChild();
+    if (child != null) {
+      Class<?> implementationClass = child.getBeanClass();
+      return ResolvableType.forReturnType(factoryMethod, implementationClass)
+              .isAssignableFrom(typeToMatch);
+    }
+    return ResolvableType.forReturnType(factoryMethod)
+            .isAssignableFrom(typeToMatch);
   }
 
   // Object
 
   @Override
   public String toString() {
-    return new StringBuilder()//
-            .append("{\n\t\"name\":\"").append(getName())//
-            .append("\",\n\t\"declaringName\":\"").append(getDeclaringName())//
-            .append("\",\n\t\"beanClass\":\"").append(getBeanClass())//
-            .append("\",\n\t\"scope\":\"").append(getScope())//
-            .append("\",\n\t\"factoryMethod\":\"").append(getFactoryMethod())//
-            .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(getInitMethods()))//
-            .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(getDestroyMethods()))//
-            .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(getPropertySetters()))//
-            .append("\",\n\t\"initialized\":\"").append(isInitialized())//
-            .append("\",\n\t\"factoryBean\":\"").append(isFactoryBean())//
-            .append("\",\n\t\"abstract\":\"").append(isAbstract())//
-            .append("\"\n}")//
-            .toString();
+    StringBuilder sb = new StringBuilder("class [");
+    sb.append(getBeanClass().getName()).append(']');
+    sb.append("; scope=").append(getScope());
+    sb.append("; abstract=").append(isAbstract());
+    sb.append("; lazyInit=").append(isLazyInit());
+    sb.append("; primary=").append(isPrimary());
+    sb.append("; initialized=").append(isInitialized());
+    sb.append("; factoryBean=").append(isFactoryBean());
+    sb.append("; factoryMethod=").append(this.factoryMethod);
+    sb.append("; declaringName=").append(this.declaringName);
+    sb.append("; initMethods=").append(Arrays.toString(getInitMethods()));
+    sb.append("; destroyMethods=").append(Arrays.toString(getDestroyMethods()));
+    sb.append("; child=").append(getChild());
+    return sb.toString();
   }
 
   @Override
@@ -138,12 +142,12 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
       return true;
     }
 
-    if (obj instanceof StandardBeanDefinition) {
+    if (obj instanceof FactoryMethodBeanDefinition) {
       final boolean equals = super.equals(obj);
       if (!equals) {
         return false;
       }
-      final StandardBeanDefinition other = (StandardBeanDefinition) obj;
+      final FactoryMethodBeanDefinition other = (FactoryMethodBeanDefinition) obj;
       return Objects.equals(declaringName, other.declaringName)
               && Objects.equals(factoryMethod, other.factoryMethod);
     }

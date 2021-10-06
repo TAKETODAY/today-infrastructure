@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -28,9 +28,8 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.SingletonSupplier;
-
-import static cn.taketoday.context.ContextUtils.createBeanDefinition;
 
 /**
  * FactoryBean's BeanDefinition
@@ -45,14 +44,6 @@ public class FactoryBeanDefinition<T>
   private final BeanDefinition factoryDef;
   private Supplier<FactoryBean<T>> factorySupplier;
 
-  public FactoryBeanDefinition(String name, Class<?> factoryClass, FactoryBean<T> factoryBean) {
-    this(createBeanDefinition(name, factoryClass), SingletonSupplier.of(factoryBean));
-  }
-
-  public FactoryBeanDefinition(String name, Class<?> factoryClass, Supplier<FactoryBean<T>> factorySupplier) {
-    this(createBeanDefinition(name, factoryClass), factorySupplier);
-  }
-
   public FactoryBeanDefinition(BeanDefinition factoryDef, AbstractBeanFactory beanFactory) {
     this(factoryDef, new FactoryBeanSupplier<>(factoryDef, beanFactory));
   }
@@ -61,11 +52,6 @@ public class FactoryBeanDefinition<T>
     Assert.notNull(factoryDef, "factory BeanDefinition cannot be null");
     this.factoryDef = factoryDef;
     this.factorySupplier = factorySupplier;
-  }
-
-  public FactoryBeanDefinition(String name, Class<T> factoryClass, AbstractBeanFactory beanFactory) {
-    this.factoryDef = beanFactory.getBeanDefinitionLoader().createBeanDefinition(name, factoryClass);
-    this.factorySupplier = new FactoryBeanSupplier<>(factoryDef, beanFactory);
   }
 
   @Override
@@ -230,12 +216,6 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public FactoryBeanDefinition<T> setInitMethods(String... initMethods) {
-    factoryDef.setInitMethods(initMethods);
-    return this;
-  }
-
-  @Override
   public Object newInstance(final BeanFactory factory) {
     return factoryDef.newInstance(factory);
   }
@@ -288,6 +268,12 @@ public class FactoryBeanDefinition<T>
   @Override
   public boolean isPrimary() {
     return factoryDef.isPrimary();
+  }
+
+  @Override
+  public boolean isAssignableTo(ResolvableType typeToMatch) {
+    return ResolvableType.fromClass(getBeanClass())
+            .isAssignableFrom(typeToMatch);
   }
 
   @Override
