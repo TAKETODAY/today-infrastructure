@@ -38,6 +38,7 @@ import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard implementation of {@link BeanDefinition}
@@ -53,6 +54,7 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
   private final Method factoryMethod;
 
   public FactoryMethodBeanDefinition(Method factoryMethod) {
+    super(factoryMethod.getReturnType());
     this.factoryMethod = factoryMethod;
   }
 
@@ -114,6 +116,17 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
     }
     return ResolvableType.forReturnType(factoryMethod)
             .isAssignableFrom(typeToMatch);
+  }
+
+  @Override
+  public void validate() throws BeanDefinitionValidationException {
+    if (StringUtils.isEmpty(getDeclaringName())) {
+      throw new BeanDefinitionValidationException("Declaring name can't be null in: " + this);
+    }
+    if (getFactoryMethod() == null) {
+      throw new BeanDefinitionValidationException("Factory Method can't be null " + this);
+    }
+    super.validate();
   }
 
   // Object
