@@ -49,6 +49,8 @@ import cn.taketoday.core.TodayStrategies;
  * @since 4.0
  */
 public class ArgumentsResolver {
+  public static volatile ArgumentsResolver shared;
+
   @Nullable
   private BeanFactory beanFactory;
   private final ArgumentsResolvingComposite argumentsResolvingComposite;
@@ -120,7 +122,7 @@ public class ArgumentsResolver {
     int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
       ArgumentsResolvingContext resolvingContext
-              = new ArgumentsResolvingContext(providedArgs, executable, beanFactory);
+              = new ArgumentsResolvingContext(executable, beanFactory, providedArgs);
       // parameter list
       Object[] args = new Object[parameterLength];
       int i = 0;
@@ -144,6 +146,30 @@ public class ArgumentsResolver {
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  /**
+   * Get ArgumentsResolver
+   *
+   * @since 4.0
+   */
+  @NonNull
+  public static ArgumentsResolver getOrShared(@Nullable BeanFactory beanFactory) {
+    if (beanFactory != null) {
+      return beanFactory.getArgumentsResolver();
+    }
+    return getSharedInstance();
+  }
+
+  public static ArgumentsResolver getSharedInstance() {
+    if (shared == null) {
+      synchronized(ArgumentsResolver.class) {
+        if (shared == null) {
+          shared = new ArgumentsResolver();
+        }
+      }
+    }
+    return shared;
   }
 
 }

@@ -44,7 +44,7 @@ public class ArgumentsResolvingContext {
   private PropsReader propsReader;
 
   public ArgumentsResolvingContext(
-          @Nullable Object[] providedArgs, Executable executable, @Nullable BeanFactory beanFactory) {
+          Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
     this.providedArgs = providedArgs;
     this.executable = executable;
     this.beanFactory = beanFactory;
