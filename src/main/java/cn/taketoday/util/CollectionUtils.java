@@ -19,13 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +44,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY 2019-12-29 23:39
@@ -682,8 +682,8 @@ public abstract class CollectionUtils {
    *
    * @return the element at the specified position in this list
    *
-   * @since 4.0
    * @see List#get(int)
+   * @since 4.0
    */
   @Nullable
   public static <T> T getElement(@Nullable final List<T> list, final int index) {
@@ -702,8 +702,8 @@ public abstract class CollectionUtils {
    *
    * @return the element at the specified position in this list
    *
-   * @since 4.0
    * @see List#get(int)
+   * @since 4.0
    */
   @Nullable
   public static <T> T getElement(@Nullable final T[] array, final int index) {
@@ -862,8 +862,8 @@ public abstract class CollectionUtils {
    * remove the elements of this collection that match the given predicate.
    *
    * @param predicate
-   * 				a predicate to apply to each element to determine if it
-   * 				should be removed
+   *         a predicate to apply to each element to determine if it
+   *         should be removed
    *
    * @see Predicate#negate()
    * @see Collection#removeIf(Predicate)
@@ -1041,6 +1041,13 @@ public abstract class CollectionUtils {
    */
   public static <E> Iterator<E> toIterator(@Nullable Enumeration<E> enumeration) {
     return (enumeration != null ? new EnumerationIterator<>(enumeration) : Collections.emptyIterator());
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <E> Iterator<E> singletonIterator(final E e) {
+    return new SingletonIterator<>(e);
   }
 
   /**
@@ -1234,6 +1241,32 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * Check whether the given Iterable contains the given element.
+   *
+   * @param iterable
+   *         the Iterable to check
+   * @param element
+   *         the element to look for
+   *
+   * @return {@code true} if found, {@code false} otherwise
+   *
+   * @since 4.0
+   */
+  public static boolean contains(@Nullable Iterable<?> iterable, Object element) {
+    if (iterable != null) {
+      if (iterable instanceof Collection) {
+        return ((Collection<?>) iterable).contains(element);
+      }
+      for (final Object candidate : iterable) {
+        if (ObjectUtils.nullSafeEquals(candidate, element)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * Check whether the given Collection contains the given element instance.
    * <p>Enforces the given instance to be present, rather than returning
    * {@code true} for an equal element as well.
@@ -1331,29 +1364,6 @@ public abstract class CollectionUtils {
       }
     }
     return true;
-  }
-
-  /**
-   * Check whether the given array contains the given element.
-   *
-   * @param array
-   *         the array to check
-   * @param element
-   *         the element to look for
-   *
-   * @return {@code true} if found, {@code false} otherwise
-   *
-   * @since 4.0
-   */
-  public static boolean contains(@Nullable Object[] array, Object element) {
-    if (array != null) {
-      for (final Object candidate : array) {
-        if (ObjectUtils.nullSafeEquals(candidate, element)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
 }
