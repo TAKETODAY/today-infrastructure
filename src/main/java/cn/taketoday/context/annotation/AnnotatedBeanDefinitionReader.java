@@ -39,13 +39,10 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionOverrideException;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
-import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
@@ -214,10 +211,10 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     def.validate();
     String nameToUse = name;
     Class<?> beanClass = def.getBeanClass();
+    BeanDefinition existBeanDef = registry.getBeanDefinition(name);
 
-    if (registry.containsBeanDefinition(name) && !def.hasAttribute(MissingBeanMetadata)) {
+    if (existBeanDef != null && !def.hasAttribute(MissingBeanMetadata)) {
       // has same name
-      BeanDefinition existBeanDef = registry.getBeanDefinition(name);
       Class<?> existClass = existBeanDef.getBeanClass();
       if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
         return null; // ignore registering
@@ -428,22 +425,23 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
         AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, method);
         if (isMissedBean(attributes, method)) {
           // register directly @since 3.0
-          Class<?> beanClass = method.getReturnType();
-          String name = attributes.getString(VALUE);
-          if (StringUtils.isEmpty(name)) {
-            name = method.getName();
-          }
-          FactoryMethodBeanDefinition stdDef = // @Configuration use default bean name
-                  new FactoryMethodBeanDefinition(name, beanClass, factoryMethod)
-                          .setFactoryMethod(method)
-                          .setDeclaringName(createBeanName(method.getDeclaringClass()));
 
-          registerMissingBean(attributes, stdDef);
+          String defaultBeanName = method.getName();
+          String declaringBeanName = createBeanName(method.getDeclaringClass()); // @since v2.1.7
 
-          // @since 3.0.5
-          if (stdDef.isAnnotationPresent(Configuration.class)) {
-            loadConfigurationBeans(stdDef);
-          }
+          BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
+          builder.factoryMethod(method);
+          builder.declaringName(declaringBeanName);
+          builder.build(defaultBeanName, attributes, (attribute, definition) -> {
+            // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
+            definition.setAttribute(MissingBeanMetadata, attribute);
+            // register missed bean
+            register(definition);
+            // @since 3.0.5
+            if (definition.isAnnotationPresent(Configuration.class)) {
+              loadConfigurationBeans(definition);
+            }
+          });
         }
       } // is a Component
       else if (conditionEvaluator.passCondition(method)) { // pass the condition
@@ -463,45 +461,18 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
   protected void registerConfigurationBean(
           BeanDefinition declaringDef, Method method, AnnotationAttributes[] components
   ) {
-    Class<?> returnType = method.getReturnType();
-    ConfigurableEnvironment environment = context.getEnvironment();
-    //String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
     String defaultBeanName = method.getName(); // @since v2.1.7
     String declaringBeanName = declaringDef.getName(); // @since v2.1.7
-    BeanDefinitionBuilder beanDefinitionBuilder = new BeanDefinitionBuilder(context);
 
-    for (AnnotationAttributes component : components) {
-      String scope = component.getString(BeanDefinition.SCOPE);
-      String[] initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
-      String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
-
-      String[] determineName = BeanDefinitionBuilder.determineName(defaultBeanName, component.getStringArray(VALUE));
-      for (String name : determineName) {
-        // register
-        beanDefinitionBuilder.withName(name);
-        beanDefinitionBuilder.withAttributes(component);
-
-        FactoryMethodBeanDefinition stdDef = BeanDefinitionBuilder.factoryMethod(method);
-
-        stdDef.setScope(scope);
-        stdDef.setDestroyMethods(destroyMethods);
-        stdDef.setInitMethods(BeanDefinitionBuilder.resolveInitMethod(initMethods, returnType));
-        // fix Configuration bean shouldn't auto apply properties
-        // def.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
-        stdDef.setDeclaringName(declaringBeanName);
-        // resolve @Props on a bean
-
-        BeanDefinition def = beanDefinitionBuilder.buildWithFactoryMethod(method);
-
-        BeanDefinition build = beanDefinitionBuilder.build();
-
-        register(name, def);
-        // @since 3.0.5
-        if (stdDef.isAnnotationPresent(Configuration.class)) {
-          loadConfigurationBeans(stdDef);
-        }
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
+    builder.factoryMethod(method);
+    builder.declaringName(declaringBeanName);
+    builder.build(defaultBeanName, components, (component, definition) -> {
+      register(definition);
+      if (definition.isAnnotationPresent(Configuration.class)) {
+        loadConfigurationBeans(definition);
       }
-    }
+    });
   }
 
   /**
@@ -514,18 +485,21 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     log.debug("Loading lost beans");
     context.publishEvent(new LoadingMissingBeanEvent(context, candidates));
 
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
     for (Class<?> beanClass : candidates) {
       AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
       if (isMissedBean(attributes, beanClass)) {
-        String beanName = attributes.getString(VALUE);
-        if (StringUtils.isEmpty(beanName)) {
-          beanName = createBeanName(beanClass);
-        }
-
-        DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, beanClass);
-        registerMissingBean(attributes, def);
+        String beanName = createBeanName(beanClass);
+        builder.build(beanName, attributes, this::registerMissing);
       }
     }
+  }
+
+  protected void registerMissing(AnnotationAttributes missingBean, BeanDefinition def) {
+    // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
+    def.setAttribute(MissingBeanMetadata, missingBean);
+    // register missed bean
+    register(def);
   }
 
   /**
@@ -540,10 +514,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
    *
    * @since 3.0
    */
-  private boolean isMissedBean(
-          AnnotationAttributes missingBean,
-          AnnotatedElement annotated) {
-
+  private boolean isMissedBean(AnnotationAttributes missingBean, AnnotatedElement annotated) {
     if (missingBean != null && conditionEvaluator.passCondition(annotated)) {
       // find by bean name
       String beanName = missingBean.getString(VALUE);
@@ -556,7 +527,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
         return !registry.containsBeanDefinition(type, missingBean.getBoolean("equals"));
       }
       else {
-        return !registry.containsBeanDefinition(ContextUtils.getBeanClass(annotated));
+        return !registry.containsBeanDefinition(PropsReader.getBeanClass(annotated));
       }
     }
     return false;
@@ -570,26 +541,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
    * @param def
    *         Target {@link BeanDefinition}
    */
-  protected void registerMissingBean(AnnotationAttributes missingBean, BeanDefinition def) {
-    Class<?> beanClass = def.getBeanClass();
-
-    def.setScope(missingBean.getString(BeanDefinition.SCOPE));
-    def.setDestroyMethods(missingBean.getStringArray(BeanDefinition.DESTROY_METHODS));
-
-    Method[] initMethods = BeanDefinitionBuilder.resolveInitMethod(
-            missingBean.getStringArray(BeanDefinition.INIT_METHODS), beanClass);
-
-    def.setInitMethods(initMethods);
-    def.setPropertyValues(resolvePropertyValue(beanClass));
-
-    // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
-    def.setAttribute(MissingBeanMetadata, missingBean);
-
-    resolveProps(def, getApplicationContext().getEnvironment());
-
-    // register missed bean
-    register(def.getName(), def);
-  }
 
   /**
    * Resolve bean from META-INF/beans
@@ -606,17 +557,15 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     // @since 4.0 load from StrategiesLoader strategy file
     beans.addAll(TodayStrategies.getDetector().getTypes(MissingBean.class));
 
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
+
     for (Class<?> beanClass : beans) {
       AnnotationAttributes missingBean = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
       if (missingBean != null) {
         if (isMissedBean(missingBean, beanClass)) {
           // MissingBean in 'META-INF/beans' @since 3.0
-          BeanDefinition def = BeanDefinitionBuilder.defaults(beanClass);
-          String name = missingBean.getString(VALUE);
-          if (StringUtils.isNotEmpty(name)) {
-            def.setName(name); // refresh bean name
-          }
-          registerMissingBean(missingBean, def);
+          String name = createBeanName(beanClass);
+          builder.build(name, missingBean, this::registerMissing);
         }
         else {
           log.info("@MissingBean -> '{}' cannot pass the condition " +
