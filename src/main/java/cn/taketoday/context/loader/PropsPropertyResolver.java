@@ -25,37 +25,37 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
  * @author TODAY 2018-08-04 16:01
  */
-public class PropsPropertyResolver
-        extends AbstractPropertyValueResolver implements PropertyValueResolver {
-
-  @Override
-  protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
-    return AnnotationUtils.isPresent(field, Props.class);
-  }
+public class PropsPropertyResolver implements PropertyValueResolver {
 
   /**
    * Resolve {@link Props} annotation property.
    */
   @Override
-  protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
-    Props props = AnnotationUtils.getAnnotation(Props.class, field);
-    PropsReader propsReader = context.getPropsReader();
+  public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Props.class, field);
+    if (attributes != null) {
+      DefaultProps props = new DefaultProps(attributes);
 
-    Properties properties = propsReader.loadProps(props);
+      PropsReader propsReader = context.getPropsReader();
+      Properties properties = propsReader.readMap(props);
 
-    // feat: Enhance `Props`
-    final Class<?> propertyClass = field.getType();
-    if (!Map.class.isAssignableFrom(propertyClass)) {
-      return new DefaultPropertySetter(propsReader.read(props, propertyClass), field);
+      // feat: Enhance `Props`
+      final Class<?> propertyClass = field.getType();
+      if (!Map.class.isAssignableFrom(propertyClass)) {
+        return new DefaultPropertySetter(propsReader.read(props, propertyClass), field);
+      }
+      return new DefaultPropertySetter(properties, field);
     }
-    return new DefaultPropertySetter(properties, field);
+    return null; // next resolver
   }
 
 }

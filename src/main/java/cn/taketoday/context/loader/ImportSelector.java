@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,8 +19,8 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.Constant;
 
 /**

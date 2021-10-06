@@ -29,8 +29,6 @@ import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AbstractPropertySetter;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.ResolvableType;
 
 /**
@@ -40,25 +38,17 @@ import cn.taketoday.core.ResolvableType;
  * @since 3.0
  */
 public class ObjectSupplierPropertyResolver
-        extends OrderedSupport implements PropertyValueResolver {
-
-  public ObjectSupplierPropertyResolver() {
-    this(Ordered.HIGHEST_PRECEDENCE);
-  }
-
-  public ObjectSupplierPropertyResolver(int order) {
-    super(order);
-  }
+        extends AbstractPropertyValueResolver implements PropertyValueResolver {
 
   @Override
-  public boolean supportsProperty(Field field) {
+  protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
     return (field.getType() == Supplier.class
             || field.getType() == ObjectSupplier.class)
             && AutowiredPropertyResolver.isInjectable(field);
   }
 
   @Override
-  public PropertySetter resolveProperty(final Field field) {
+  protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
     final ResolvableType resolvableType = ResolvableType.fromField(field);
     if (resolvableType.hasGenerics()) {
       final ResolvableType generic = resolvableType.getGeneric(0);
