@@ -22,10 +22,12 @@ package cn.taketoday.context.annotation;
 
 import java.lang.reflect.AnnotatedElement;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -41,7 +43,11 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public class ConditionEvaluator {
-  private ConditionEvaluationContext evaluationContext;
+  private final ConditionEvaluationContext evaluationContext;
+
+  ConditionEvaluator(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
+    this.evaluationContext = new ConditionEvaluationContext(context, registry);
+  }
 
   /**
    * Decide whether to load the bean
