@@ -20,14 +20,15 @@
 
 package cn.taketoday.beans;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Configuration;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.ObjectFactory;
 
 /**
  * Indicates whether a bean is to be lazily initialized.

@@ -26,7 +26,7 @@ package cn.taketoday.aop.target;
  * {@link cn.taketoday.beans.factory.BeanFactory}.
  *
  * <p>Can obtain any kind of target bean: singleton, scoped, or prototype.
- * Typically used for scoped beans.
+ * Typically, used for scoped beans.
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/2/1 21:27

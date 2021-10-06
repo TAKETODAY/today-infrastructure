@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
@@ -40,6 +39,7 @@ import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;

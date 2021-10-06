@@ -23,8 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.context.Scope;
-import cn.taketoday.context.annotation.Component;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.Constant;
 
 /**

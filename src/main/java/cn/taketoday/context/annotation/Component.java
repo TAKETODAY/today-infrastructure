@@ -26,14 +26,13 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.Scope;
+import cn.taketoday.beans.factory.Scope;
 
 /**
  * This annotation indicates that an annotated element is a bean component in
  * your application
  *
- * @author TODAY <br>
- * 2018-07-2 22:46:39
+ * @author TODAY 2018-07-2 22:46:39
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

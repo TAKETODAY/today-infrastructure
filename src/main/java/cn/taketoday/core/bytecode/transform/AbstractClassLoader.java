@@ -15,6 +15,10 @@
  */
 package cn.taketoday.core.bytecode.transform;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.ProtectionDomain;
+
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassWriter;
@@ -22,10 +26,6 @@ import cn.taketoday.core.bytecode.core.ClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.core.DebuggingClassWriter;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.ProtectionDomain;
 
 /**
  * @author Today <br>
