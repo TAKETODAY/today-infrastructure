@@ -21,9 +21,9 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.reflect.Field;
-import java.util.Objects;
 
-import cn.taketoday.core.reflect.SetterMethod;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * <p>
@@ -37,13 +37,14 @@ import cn.taketoday.core.reflect.SetterMethod;
 public abstract class AbstractPropertySetter implements PropertySetter {
 
   /** field info */
-  protected final Field field;
-  /** @since 3.0 */
-  protected final SetterMethod accessor;
+  protected final BeanProperty property;
 
   public AbstractPropertySetter(Field field) {
-    this.field = field;
-    this.accessor = SetterMethod.fromField(field);
+    this(BeanProperty.valueOf(field));
+  }
+
+  public AbstractPropertySetter(BeanProperty property) {
+    this.property = property;
   }
 
   @Override
@@ -55,7 +56,7 @@ public abstract class AbstractPropertySetter implements PropertySetter {
   }
 
   public void doSetValue(Object bean, Object value) {
-    accessor.set(bean, value);
+    property.setValue(bean, value);
   }
 
   /**
@@ -70,12 +71,17 @@ public abstract class AbstractPropertySetter implements PropertySetter {
    */
   protected abstract Object resolveValue(AbstractBeanFactory beanFactory);
 
+  @Override
   public String getName() {
-    return field.getName();
+    return property.getName();
   }
 
   public Field getField() {
-    return field;
+    return property.getField();
+  }
+
+  public BeanProperty getProperty() {
+    return property;
   }
 
   @Override
@@ -84,20 +90,21 @@ public abstract class AbstractPropertySetter implements PropertySetter {
       return true;
     if (!(o instanceof AbstractPropertySetter))
       return false;
-    return Objects.equals(field, ((AbstractPropertySetter) o).field);
+    final AbstractPropertySetter that = (AbstractPropertySetter) o;
+    return ObjectUtils.nullSafeEquals(property, that.property);
   }
 
   @Override
   public int hashCode() {
-    return field.hashCode();
+    return property.hashCode();
   }
 
   @Override
   public String toString() {
     return new StringBuilder()
-            .append("{\"property\":\"").append(field.getName())
-            .append("\",\"propertyClass\":\"").append(field.getType())
-            .append("\",\"beanClass:\":\"").append(field.getDeclaringClass())
+            .append("{\"property\":\"").append(property.getName())
+            .append("\",\"propertyClass\":\"").append(property.getType())
+            .append("\",\"beanClass:\":\"").append(property.getDeclaringClass())
             .append("\"}")
             .toString();
   }

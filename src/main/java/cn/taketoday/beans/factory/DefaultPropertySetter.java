@@ -23,6 +23,8 @@ package cn.taketoday.beans.factory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
+import cn.taketoday.beans.support.BeanProperty;
+
 /**
  * Default implementation of {@link PropertySetter}
  *
@@ -34,13 +36,14 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
   /** property value */
   private final Object value;
 
-  public DefaultPropertySetter(Object value, Field field) {
-    super(field);
+  public DefaultPropertySetter(Object value, Field property) {
+    super(property);
     this.value = value;
   }
 
-  public void doSetValue(Object bean) {
-    accessor.set(bean, value);
+  public DefaultPropertySetter(Object value, BeanProperty property) {
+    super(property);
+    this.value = value;
   }
 
   public Object getValue() {
@@ -73,9 +76,9 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
   public String toString() {
     return new StringBuilder()
             .append("{\"value\":\"").append(value)
-            .append("\",\"property\":\"").append(field.getName())
-            .append("\",\"propertyClass\":\"").append(field.getType())
-            .append("\",\"beanClass:\":\"").append(field.getDeclaringClass())
+            .append("\",\"property\":\"").append(getName())
+            .append("\",\"propertyClass\":\"").append(getProperty().getType())
+            .append("\",\"beanClass:\":\"").append(getProperty().getDeclaringClass())
             .append("\"}")
             .toString();
   }
