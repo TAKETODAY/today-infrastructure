@@ -72,6 +72,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   /** if this property is array or */
   private BeanInstantiator componentConstructor;
 
+  @Nullable
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   private Annotation[] annotations;
@@ -317,10 +318,11 @@ public class BeanProperty extends AbstractAnnotatedElement {
     this.propertyAccessor = propertyAccessor;
   }
 
-  public void setConversionService(ConversionService conversionService) {
+  public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService;
   }
 
+  @Nullable
   public ConversionService getConversionService() {
     return conversionService;
   }
@@ -349,29 +351,37 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return field.getName();
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof BeanProperty))
-      return false;
-    if (!super.equals(o))
-      return false;
-    final BeanProperty that = (BeanProperty) o;
-    return Objects.equals(field, that.field);
+  /**
+   * @since 3.0.2
+   */
+  public boolean isReadOnly() {
+    return Modifier.isFinal(field.getModifiers());
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), field);
+  /**
+   * Mapping name
+   *
+   * @see cn.taketoday.beans.Property
+   * @since 4.0
+   */
+  public String getAlias() {
+    return alias;
   }
 
-  @Override
-  public String toString() {
-    return getType().getSimpleName() + " " + getName();
+  /**
+   * Returns the {@code Class} object representing the class or interface
+   * that declares the field represented by this {@code Field} object.
+   *
+   * @see #getField()
+   * @since 4.0
+   */
+  public Class<?> getDeclaringClass() {
+    return field.getDeclaringClass();
   }
 
-  // AnnotatedElement
+  //---------------------------------------------------------------------
+  // Implementation of AnnotatedElement interface
+  //---------------------------------------------------------------------
 
   @Override
   public Annotation[] getAnnotations() {
@@ -398,33 +408,30 @@ public class BeanProperty extends AbstractAnnotatedElement {
     });
   }
 
-  //
+  //---------------------------------------------------------------------
+  // Override method of Object
+  //---------------------------------------------------------------------
 
-  /**
-   * @since 3.0.2
-   */
-  public boolean isReadOnly() {
-    return Modifier.isFinal(field.getModifiers());
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof BeanProperty))
+      return false;
+    if (!super.equals(o))
+      return false;
+    final BeanProperty that = (BeanProperty) o;
+    return Objects.equals(field, that.field);
   }
 
-  /**
-   * Mapping name
-   *
-   * @since 4.0
-   */
-  public String getAlias() {
-    return alias;
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), field);
   }
 
-  /**
-   * Returns the {@code Class} object representing the class or interface
-   * that declares the field represented by this {@code Field} object.
-   *
-   * @see #getField()
-   * @since 4.0
-   */
-  public Class<?> getDeclaringClass() {
-    return field.getDeclaringClass();
+  @Override
+  public String toString() {
+    return getType().getSimpleName() + " " + getName();
   }
 
   // static
