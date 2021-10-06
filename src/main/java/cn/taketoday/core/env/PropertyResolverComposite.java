@@ -21,9 +21,11 @@
 package cn.taketoday.core.env;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import cn.taketoday.core.Nullable;
+import cn.taketoday.util.CompositeIterator;
 
 /**
  * Composite PropertyResolver implementation
@@ -31,7 +33,7 @@ import cn.taketoday.core.Nullable;
  * @author TODAY 2021/10/5 00:02
  * @since 4.0
  */
-public class PropertyResolverComposite implements PropertyResolver {
+public class PropertyResolverComposite implements PropertyResolver, IterablePropertyResolver {
   private final List<PropertyResolver> resolverList;
 
   public PropertyResolverComposite(PropertyResolver... resolvers) {
@@ -134,5 +136,20 @@ public class PropertyResolverComposite implements PropertyResolver {
       text = propertyResolver.resolveRequiredPlaceholders(text);
     }
     return text;
+  }
+
+  // IterablePropertyResolver
+
+  @Override
+  public Iterator<String> iterator() {
+    CompositeIterator<String> iterator = new CompositeIterator<>();
+
+    for (PropertyResolver propertyResolver : resolverList) {
+      if (propertyResolver instanceof IterablePropertyResolver) {
+        iterator.add(((IterablePropertyResolver) propertyResolver).iterator());
+      }
+    }
+
+    return iterator;
   }
 }
