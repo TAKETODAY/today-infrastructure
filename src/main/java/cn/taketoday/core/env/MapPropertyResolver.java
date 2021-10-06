@@ -28,6 +28,8 @@ import java.util.Spliterators;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.Nullable;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * Map PropertyResolver implementation
@@ -36,7 +38,9 @@ import cn.taketoday.core.Nullable;
  * @since 4.0
  */
 public class MapPropertyResolver
-        extends TypedPropertyResolver implements PropertyResolver, Iterable<String> {
+        extends TypedPropertyResolver implements IterablePropertyResolver {
+
+  private static final Logger log = LoggerFactory.getLogger(MapPropertyResolver.class);
 
   @Nullable
   private final Map<String, Object> keyValues;
