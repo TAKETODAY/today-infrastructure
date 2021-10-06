@@ -28,140 +28,324 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Environment;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.core.Constant.VALUE;
-import static cn.taketoday.util.ReflectionUtils.makeAccessible;
 
 /**
  * @author TODAY 2021/10/2 22:45
  * @since 4.0
  */
 public class BeanDefinitionBuilder {
-
   public static final Class<? extends Annotation>
           PostConstruct = ClassUtils.load("javax.annotation.PostConstruct");
 
-  private final Environment environment;
-  private final PropsReader propsReader;
-  private final ApplicationContext context;
-  private final PropertyResolvingContext resolvingContext;
-  private final PropertyValueResolverComposite propertyValueResolver;
+  @Nullable
+  private ApplicationContext context;
 
+  @Nullable
+  private PropsReader propsReader;
+
+  @Nullable
+  private PropertyResolvingContext resolvingContext;
+
+  @Nullable
+  private PropertyValueResolverComposite propertyValueResolver;
+
+  /** bean name. */
   private String name;
+  /** bean class. */
   private Class<?> beanClass;
+  /** bean scope. */
   private String scope;
-  private String[] initMethods;
-  private String[] destroyMethods;
-  private AnnotationAttributes component;
 
-  public BeanDefinitionBuilder(ApplicationContext context) {
+  /**
+   * Invoke before {@link cn.taketoday.beans.InitializingBean#afterPropertiesSet}
+   *
+   * @since 2.3.3
+   */
+  private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
+
+  /**
+   * @since 2.3.3
+   */
+  private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
+
+  /**
+   * Mark as a {@link cn.taketoday.beans.FactoryBean}.
+   *
+   * @since 2.0.0
+   */
+  private boolean factoryBean = false;
+
+  /** Child implementation */
+  private BeanDefinition childDef;
+
+  /** lazy init flag @since 3.0 */
+  private Boolean lazyInit;
+
+  /** @since 3.0 bean instance supplier */
+  private Supplier<?> instanceSupplier;
+
+  /** @since 4.0 */
+  private boolean synthetic = false;
+
+  /** @since 4.0 */
+  private int role = BeanDefinition.ROLE_APPLICATION;
+
+  /** @since 4.0 */
+  private boolean primary = false;
+
+  private Method factoryMethod;
+  /** Declaring name @since 2.1.2 */
+  private String declaringName;
+
+  public BeanDefinitionBuilder() { }
+
+  public BeanDefinitionBuilder(@Nullable ApplicationContext context) {
     this.context = context;
-    this.environment = context.getEnvironment();
-    this.propsReader = new PropsReader(environment);
-    this.resolvingContext = new PropertyResolvingContext(context, propsReader);
-    this.propertyValueResolver = new PropertyValueResolverComposite();
   }
 
-  public BeanDefinition buildDefault(
-          String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
-    return defaults(name, beanClass, attributes);
+  public BeanDefinitionBuilder instanceSupplier(Supplier<?> instanceSupplier) {
+    this.instanceSupplier = instanceSupplier;
+    return this;
   }
 
-  public BeanDefinition build(String beanName, Class<?> beanClass) {
-    BeanDefinition defaults = BeanDefinitionBuilder.defaults(beanName, beanClass, null);
-    defaults.setPropertyValues(resolvePropertyValue(beanClass));
-    // fix missing @Props injection
-    resolveProps(defaults);
-    return defaults;
+  public BeanDefinitionBuilder childDefinition(BeanDefinition childDef) {
+    this.childDef = childDef;
+    return this;
   }
 
-  public void resolveProps(BeanDefinition def) {
-    List<PropertySetter> resolvedProps = propsReader.read(def);
-    def.addPropertySetter(resolvedProps);
+  public BeanDefinitionBuilder childDefinition(boolean factoryBean) {
+    this.factoryBean = factoryBean;
+    return this;
   }
 
-  public BeanDefinitionBuilder withName(String name) {
+  public BeanDefinitionBuilder synthetic(Boolean lazyInit) {
+    this.lazyInit = lazyInit;
+    return this;
+  }
+
+  public BeanDefinitionBuilder synthetic(boolean synthetic) {
+    this.synthetic = synthetic;
+    return this;
+  }
+
+  public BeanDefinitionBuilder role(int role) {
+    this.role = role;
+    return this;
+  }
+
+  public BeanDefinitionBuilder primary(boolean primary) {
+    this.primary = primary;
+    return this;
+  }
+
+  public BeanDefinitionBuilder beanClass(Class<?> beanClass) {
+    this.beanClass = beanClass;
+    return this;
+  }
+
+  public BeanDefinitionBuilder declaringName(String declaringName) {
+    this.declaringName = declaringName;
+    return this;
+  }
+
+  public BeanDefinitionBuilder factoryMethod(Method factoryMethod) {
+    this.factoryMethod = factoryMethod;
+    return this;
+  }
+
+  public BeanDefinitionBuilder name(String name) {
     this.name = name;
     return this;
   }
 
-  public BeanDefinitionBuilder withScope(String scope) {
+  public BeanDefinitionBuilder scope(String scope) {
     if (StringUtils.isNotEmpty(scope)) {
       this.scope = scope;
     }
     return this;
   }
 
-  public BeanDefinitionBuilder withInitMethods(String... initMethods) {
-    if (ObjectUtils.isNotEmpty(initMethods)) {
-      this.initMethods = initMethods;
-    }
+  public BeanDefinitionBuilder initMethods(String... initMethods) {
+    this.initMethods = initMethods;
     return this;
   }
 
-  public BeanDefinitionBuilder withDestroyMethods(String... destroyMethods) {
-    if (ObjectUtils.isNotEmpty(destroyMethods)) {
-      this.destroyMethods = destroyMethods;
-    }
+  public BeanDefinitionBuilder destroyMethods(String... destroyMethods) {
+    this.destroyMethods = destroyMethods;
     return this;
   }
 
-  public void withAttributes (AnnotationAttributes component) {
-    if (component != null) {
-      this.component = component;
+  //
+
+  /**
+   * apply scope,initMethods,destroyMethods
+   *
+   * @param component
+   *         AnnotationAttributes
+   *
+   * @see #scope(String)
+   * @see #initMethods(String...)
+   * @see #destroyMethods(String...)
+   */
+  public void attributes(AnnotationAttributes component) {
+    if (CollectionUtils.isNotEmpty(component)) {
       this.scope = component.getString(BeanDefinition.SCOPE);
-
-      component.getStringArray(BeanDefinition.INIT_METHODS);
-      String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
-
-      if (ObjectUtils.isNotEmpty(destroyMethods)) {
-        this.destroyMethods = destroyMethods;
-      }
+      this.initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
+      this.destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
     }
+  }
+
+  public BeanDefinitionBuilder context(ApplicationContext context) {
+    this.context = context;
+    return this;
+  }
+
+  public BeanDefinitionBuilder propsReader(PropsReader propsReader) {
+    this.propsReader = propsReader;
+    return this;
+  }
+
+  public BeanDefinitionBuilder resolving(PropertyResolvingContext resolvingContext) {
+    this.resolvingContext = resolvingContext;
+    return this;
+  }
+
+  public BeanDefinitionBuilder propertyValueResolver(PropertyValueResolverComposite propertyValueResolver) {
+    this.propertyValueResolver = propertyValueResolver;
+    return this;
+  }
+
+  // reset
+
+  public void reset() {
+    this.role = BeanDefinition.ROLE_APPLICATION;
+    this.initMethods = Constant.EMPTY_STRING_ARRAY;
+    this.destroyMethods = Constant.EMPTY_STRING_ARRAY;
+
+    this.name = null;
+    this.scope = null;
+    this.beanClass = null;
+    this.childDef = null;
+    this.lazyInit = null;
+    this.declaringName = null;
+    this.factoryMethod = null;
+    this.instanceSupplier = null;
+
+    this.primary = false;
+    this.synthetic = false;
+    this.factoryBean = false;
+
+  }
+
+  public void resetAttributes() {
+    this.scope = null;
+    this.initMethods = Constant.EMPTY_STRING_ARRAY;
+    this.destroyMethods = Constant.EMPTY_STRING_ARRAY;
+  }
+
+  // getter
+
+  public ApplicationContext getContext() {
+    return context;
+  }
+
+  // build
+
+  @NonNull
+  private DefaultBeanDefinition create() {
+    if (factoryMethod != null) {
+      FactoryMethodBeanDefinition factoryMethodDef = new FactoryMethodBeanDefinition(factoryMethod);
+      factoryMethodDef.setName(name);
+      factoryMethodDef.setDeclaringName(declaringName);
+      if (beanClass != null) {
+        factoryMethodDef.setBeanClass(beanClass);
+      }
+      return factoryMethodDef;
+    }
+    return new DefaultBeanDefinition(name, beanClass);
   }
 
   public BeanDefinition build() {
-    BeanDefinition defaults = defaults(name, beanClass);
+    DefaultBeanDefinition definition = create();
+    Method[] initMethod = computeInitMethod(initMethods, definition.getBeanClass());
+    definition.setInitMethods(initMethod);
 
+    definition.setRole(role);
+    definition.setScope(scope);
+    definition.setChild(childDef);
+    definition.setPrimary(primary);
+    definition.setLazyInit(lazyInit);
+    definition.setSynthetic(synthetic);
+    definition.setFactoryBean(factoryBean);
+    definition.setSupplier(instanceSupplier);
+    definition.setDestroyMethods(destroyMethods);
+
+    // fix missing @Props injection
+    List<PropertySetter> resolvedProps = propsReader.read(definition);
+    LinkedHashSet<PropertySetter> propertySetters = resolvePropertyValue(beanClass);
+    propertySetters.addAll(resolvedProps);
+
+    definition.setPropertyValues(propertySetters);
+    return definition;
   }
 
-  public BeanDefinition buildWithFactoryMethod(Method factoryMethod) {
-    FactoryMethodBeanDefinition factoryMethodBeanDefinition = factoryMethod(factoryMethod);
+  public void build(
+          String defaultName,
+          AnnotationAttributes component,
+          BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
+    build(defaultName, new AnnotationAttributes[] { component }, consumer);
+  }
 
-    resolveProps(factoryMethodBeanDefinition);
+  public void build(
+          String defaultName,
+          BiConsumer<AnnotationAttributes, BeanDefinition> consumer,
+          AnnotationAttributes... components) {
+    build(defaultName, components, consumer);
+  }
 
-    if (component != null) {
-      final String scope = component.getString(BeanDefinition.SCOPE);
-      final String[] initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
-      final String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
-
+  public void build(
+          String defaultName, @Nullable AnnotationAttributes[] components,
+          BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
+    if (ObjectUtils.isEmpty(components)) {
+      name(defaultName);
+      BeanDefinition definition = build();
+      consumer.accept(null, definition);
     }
-
-    return factoryMethodBeanDefinition;
-  }
-
-  public Environment getEnvironment() {
-    return environment;
+    else {
+      for (AnnotationAttributes component : components) {
+        attributes(component);
+        for (String name : determineName(defaultName, component.getStringArray(VALUE))) {
+          name(name);
+          BeanDefinition definition = build();
+          consumer.accept(component, definition);
+        }
+      }
+    }
   }
 
   //---------------------------------------------------------------------
@@ -176,20 +360,18 @@ public class BeanDefinitionBuilder {
    *
    * @since 3.0
    */
-  public PropertySetter[] resolvePropertyValue(Class<?> beanClass) {
+  public LinkedHashSet<PropertySetter> resolvePropertyValue(Class<?> beanClass) {
     LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
     ReflectionUtils.doWithFields(beanClass, field -> {
       // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-      PropertySetter created = createPropertyValue(makeAccessible(field));
+      PropertySetter created = createPropertyValue(field);
       // not required
       if (created != null) {
         propertySetters.add(created);
       }
     });
 
-    return propertySetters.isEmpty()
-           ? BeanDefinition.EMPTY_PROPERTY_SETTER
-           : propertySetters.toArray(new PropertySetter[propertySetters.size()]);
+    return propertySetters;
   }
 
   /**
@@ -202,13 +384,16 @@ public class BeanDefinitionBuilder {
    */
   @Nullable
   public PropertySetter createPropertyValue(Field field) {
+    if (propertyValueResolver == null) {
+      propertyValueResolver = new PropertyValueResolverComposite();
+    }
+    if (resolvingContext == null) {
+      if (propsReader == null) {
+        propsReader = new PropsReader(context.getEnvironment());
+      }
+      resolvingContext = new PropertyResolvingContext(context, propsReader);
+    }
     return propertyValueResolver.resolveProperty(resolvingContext, field);
-  }
-
-  public void reset() {
-    this.scope = null;
-    this.initMethods = null;
-    this.destroyMethods = null;
   }
 
   //---------------------------------------------------------------------
@@ -240,8 +425,8 @@ public class BeanDefinitionBuilder {
    *
    * @since 2.1.2
    */
-  public static Method[] resolveInitMethod(Class<?> beanClass, String... initMethods) {
-    return resolveInitMethod(initMethods, beanClass);
+  public static Method[] computeInitMethod(Class<?> beanClass, String... initMethods) {
+    return computeInitMethod(initMethods, beanClass);
   }
 
   /**
@@ -256,7 +441,7 @@ public class BeanDefinitionBuilder {
    * @see AutowiredPropertyResolver#isInjectable(AnnotatedElement)
    * @since 2.1.7
    */
-  public static Method[] resolveInitMethod(@Nullable String[] initMethods, Class<?> beanClass) {
+  public static Method[] computeInitMethod(@Nullable String[] initMethods, Class<?> beanClass) {
     ArrayList<Method> methods = new ArrayList<>(2);
     boolean initMethodsNotEmpty = ObjectUtils.isNotEmpty(initMethods);
     // @since 4.0 use ReflectionUtils.doWithMethods
@@ -282,21 +467,21 @@ public class BeanDefinitionBuilder {
     return methods.toArray(new Method[methods.size()]);
   }
 
-  public static BeanDefinition empty() {
+  public static DefaultBeanDefinition empty() {
     return new DefaultBeanDefinition();
   }
 
-  public static BeanDefinition defaults(Class<?> candidate) {
+  public static DefaultBeanDefinition defaults(Class<?> candidate) {
     Assert.notNull(candidate, "bean-class must not be null");
     String defaultBeanName = ClassUtils.getShortName(candidate);
     return defaults(defaultBeanName, candidate, null);
   }
 
-  public static BeanDefinition defaults(String name, Class<?> beanClass) {
+  public static DefaultBeanDefinition defaults(String name, Class<?> beanClass) {
     return defaults(name, beanClass, null);
   }
 
-  public static BeanDefinition defaults(
+  public static DefaultBeanDefinition defaults(
           String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(beanClass, "bean-class must not be null");
@@ -304,20 +489,14 @@ public class BeanDefinitionBuilder {
     DefaultBeanDefinition def = new DefaultBeanDefinition(name, beanClass);
     if (attributes == null) {
       def.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
-      def.setInitMethods(resolveInitMethod(null, beanClass));
+      def.setInitMethods(computeInitMethod(null, beanClass));
     }
     else {
       def.setScope(attributes.getString(BeanDefinition.SCOPE));
       def.setDestroyMethods(attributes.getStringArray(BeanDefinition.DESTROY_METHODS));
-      def.setInitMethods(resolveInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
+      def.setInitMethods(computeInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
     }
     return def;
-  }
-
-  public static FactoryMethodBeanDefinition factoryMethod(Method factoryMethod) {
-    FactoryMethodBeanDefinition stdDef = new FactoryMethodBeanDefinition(factoryMethod);
-
-    return stdDef;
   }
 
   public static List<BeanDefinition> from(Class<?> candidate) {
@@ -331,7 +510,7 @@ public class BeanDefinitionBuilder {
       ArrayList<BeanDefinition> definitions = new ArrayList<>(2);
       for (AnnotationAttributes attributes : annotationAttributes) {
         String[] determineName = BeanDefinitionBuilder.determineName(
-                defaultBeanName, attributes.getStringArray(VALUE));
+                defaultBeanName, attributes.getStringArray(Constant.VALUE));
         for (String beanName : determineName) {
           BeanDefinition defaults = defaults(beanName, candidate, attributes);
           definitions.add(defaults);
