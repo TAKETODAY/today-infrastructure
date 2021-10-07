@@ -111,13 +111,13 @@ public abstract class AbstractBeanFactory
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
-  public Object getBean(final String name) {
-    final BeanDefinition def = getBeanDefinition(name);
+  public Object getBean(String name) {
+    BeanDefinition def = getBeanDefinition(name);
     if (def != null) {
       return getBean(def);
     }
     // if not exits a bean definition return a bean may exits in singletons cache
-    final Object singleton = getSingleton(name);
+    Object singleton = getSingleton(name);
     if (singleton != null) {
       return singleton;
     }
@@ -126,7 +126,7 @@ public abstract class AbstractBeanFactory
 
   protected Object handleBeanNotFound(String name) {
     // may exits in bean supplier @since 4.0
-    final Supplier<?> supplier = beanSupplier.get(name);
+    Supplier<?> supplier = beanSupplier.get(name);
     if (supplier != null) {
       return supplier.get();
     }
@@ -138,14 +138,14 @@ public abstract class AbstractBeanFactory
    *         bean definition scope not exist in this bean factory
    */
   @Override
-  public Object getBean(final BeanDefinition def) {
+  public Object getBean(BeanDefinition def) {
     if (def.isFactoryBean()) {
       return getFactoryBean(def).getBean();
     }
     if (def.isInitialized()) { // fix #7
       return getSingleton(def.getName());
     }
-    final BeanDefinition child = def.getChild();
+    BeanDefinition child = def.getChild();
 
     if (child == null) {
       if (def.isSingleton()) {
@@ -155,7 +155,7 @@ public abstract class AbstractBeanFactory
         return createPrototype(def);
       }
       else {
-        final Scope scope = scopes.get(def.getScope());
+        Scope scope = scopes.get(def.getScope());
         if (scope == null) {
           throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this " + this);
         }
@@ -167,7 +167,7 @@ public abstract class AbstractBeanFactory
         return createPrototype(child);
       }
       // initialize child bean
-      final Object bean = initializeSingleton(getSingleton(def.getName()), child);
+      Object bean = initializeSingleton(getSingleton(def.getName()), child);
       if (!def.isInitialized()) {
         // register as parent bean and set initialize flag
         registerSingleton(def.getName(), bean);
@@ -178,7 +178,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public abstract <T> T getBean(final Class<T> requiredType);
+  public abstract <T> T getBean(Class<T> requiredType);
 
   /**
    * Get bean for required type
@@ -188,17 +188,17 @@ public abstract class AbstractBeanFactory
    *
    * @since 2.1.2
    */
-  protected <T> Object doGetBeanForType(final Class<T> requiredType) {
-    for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+  protected <T> Object doGetBeanForType(Class<T> requiredType) {
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
-        final Object bean = getBean(entry.getValue());
+        Object bean = getBean(entry.getValue());
         if (bean != null) {
           return bean;
         }
       }
     }
     // fix
-    for (final Object entry : getSingletons().values()) {
+    for (Object entry : getSingletons().values()) {
       if (requiredType.isAssignableFrom(entry.getClass())) {
         return entry;
       }
@@ -209,7 +209,7 @@ public abstract class AbstractBeanFactory
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getBean(String name, Class<T> requiredType) {
-    final Object bean = getBean(name);
+    Object bean = getBean(name);
     return requiredType.isInstance(bean) ? (T) bean : null;
   }
 
@@ -263,11 +263,11 @@ public abstract class AbstractBeanFactory
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(
           Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    final HashMap<String, T> beans = new HashMap<>();
-    for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      final BeanDefinition def = entry.getValue();
+    HashMap<String, T> beans = new HashMap<>();
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
       if (isEligibleBean(def, requiredType, includeNonSingletons)) {
-        final Object bean = getBean(def);
+        Object bean = getBean(def);
         if (bean != null) {
           beans.put(entry.getKey(), (T) bean);
         }
@@ -275,8 +275,8 @@ public abstract class AbstractBeanFactory
     }
 
     if (includeNoneRegistered) {
-      for (final Entry<String, Object> entry : getSingletons().entrySet()) {
-        final Object bean = entry.getValue();
+      for (Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
         if (!beans.containsKey(entry.getKey())
                 && (requiredType == null || requiredType.isInstance(bean))) {
           beans.put(entry.getKey(), (T) bean);
@@ -294,17 +294,17 @@ public abstract class AbstractBeanFactory
   @Override
   public Set<String> getBeanNamesOfType(
           Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    final LinkedHashSet<String> beanNames = new LinkedHashSet<>();
+    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
 
-    for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      final BeanDefinition def = entry.getValue();
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
       if (isEligibleBean(def, requiredType, includeNonSingletons)) {
         beanNames.add(entry.getKey());
       }
     }
     if (includeNoneRegistered) {
-      for (final Entry<String, Object> entry : getSingletons().entrySet()) {
-        final Object bean = entry.getValue();
+      for (Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
         if (requiredType == null || requiredType.isInstance(bean)) {
           beanNames.add(entry.getKey());
         }
@@ -336,11 +336,11 @@ public abstract class AbstractBeanFactory
           Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType must not be null");
 
-    final HashMap<String, Object> beans = new HashMap<>();
-    for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      final BeanDefinition def = entry.getValue();
+    HashMap<String, Object> beans = new HashMap<>();
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
       if ((includeNonSingletons || def.isSingleton()) && def.isAnnotationPresent(annotationType)) {
-        final Object bean = getBean(def);
+        Object bean = getBean(def);
         if (bean != null) {
           beans.put(entry.getKey(), bean);
         }
@@ -423,9 +423,9 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object createBeanIfNecessary(final BeanDefinition def) {
+  protected Object createBeanIfNecessary(BeanDefinition def) {
     if (def.isSingleton()) {
-      final String name = def.getName();
+      String name = def.getName();
       Object bean = getSingleton(name);
       if (bean == null) {
         bean = createBeanInstance(def);
@@ -453,11 +453,11 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object createBeanInstance(final BeanDefinition def) {
+  protected Object createBeanInstance(BeanDefinition def) {
     if (hasInstantiationAwareBeanPostProcessors) {
-      for (final BeanPostProcessor processor : getPostProcessors()) {
+      for (BeanPostProcessor processor : getPostProcessors()) {
         if (processor instanceof InstantiationAwareBeanPostProcessor) {
-          final Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
+          Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
           if (bean != null) {
             return bean;
           }
@@ -482,8 +482,8 @@ public abstract class AbstractBeanFactory
    *         If BeanReference is required and there isn't a bean in
    *         this {@link BeanFactory}
    */
-  protected void applyPropertyValues(final Object bean, final BeanDefinition def) {
-    for (final PropertySetter propertySetter : def.getPropertySetters()) {
+  protected void applyPropertyValues(Object bean, BeanDefinition def) {
+    for (PropertySetter propertySetter : def.getPropertySetters()) {
       propertySetter.applyValue(bean, this);
     }
   }
@@ -502,16 +502,16 @@ public abstract class AbstractBeanFactory
    * @see InitializingBean
    * @see javax.annotation.PostConstruct
    */
-  protected void invokeInitMethods(final Object bean, final BeanDefinition def) {
+  protected void invokeInitMethods(Object bean, BeanDefinition def) {
     // invoke @PostConstruct or initMethods defined in @Component
     if (def instanceof DefaultBeanDefinition) {
       ((DefaultBeanDefinition) def).fastInvokeInitMethods(bean, this);
     }
     else {
       ArgumentsResolver resolver = getArgumentsResolver();
-      for (final Method method : def.getInitMethods()) { /*never be null*/
+      for (Method method : def.getInitMethods()) { /*never be null*/
         try {
-          final Object[] args = resolver.resolve(method, this);
+          Object[] args = resolver.resolve(method, this);
           method.invoke(bean, args);
         }
         catch (Exception e) {
@@ -544,7 +544,7 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         If any {@link Exception} occurred when create prototype
    */
-  protected Object createPrototype(final BeanDefinition def) {
+  protected Object createPrototype(BeanDefinition def) {
     return initializeBean(createBeanInstance(def), def); // initialize
   }
 
@@ -560,8 +560,8 @@ public abstract class AbstractBeanFactory
    *         If any {@link Exception} occurred when get FactoryBean
    */
   @SuppressWarnings("unchecked")
-  protected <T> FactoryBean<T> getFactoryBean(final BeanDefinition def) {
-    final FactoryBean<T> factoryBean = getFactoryBeanInstance(def);
+  protected <T> FactoryBean<T> getFactoryBean(BeanDefinition def) {
+    FactoryBean<T> factoryBean = getFactoryBeanInstance(def);
     if (def.isInitialized()) {
       return factoryBean;
     }
@@ -574,7 +574,7 @@ public abstract class AbstractBeanFactory
     if (log.isDebugEnabled()) {
       log.debug("Initialize FactoryBean: [{}]", def.getName());
     }
-    final Object initBean = initializeBean(factoryBean, def);
+    Object initBean = initializeBean(factoryBean, def);
     def.setInitialized(true);
     registerSingleton(getFactoryBeanName(def), initBean); // Refresh bean to the mapping
     return (FactoryBean<T>) initBean;
@@ -591,7 +591,7 @@ public abstract class AbstractBeanFactory
    * @return {@link FactoryBean} object
    */
   @SuppressWarnings("unchecked")
-  protected <T> FactoryBean<T> getFactoryBeanInstance(final BeanDefinition def) {
+  protected <T> FactoryBean<T> getFactoryBeanInstance(BeanDefinition def) {
     if (def instanceof FactoryBeanDefinition) {
       return ((FactoryBeanDefinition<T>) def).getFactory();
     }
@@ -615,12 +615,12 @@ public abstract class AbstractBeanFactory
    *
    * @return The name of target factory in this {@link BeanFactory}
    */
-  protected String getFactoryBeanName(final BeanDefinition def) {
+  protected String getFactoryBeanName(BeanDefinition def) {
     return FACTORY_BEAN_PREFIX.concat(def.getName());
   }
 
   @Override
-  public Object getScopeBean(final BeanDefinition def, Scope scope) {
+  public Object getScopeBean(BeanDefinition def, Scope scope) {
     return scope.get(def, this::createPrototype);
   }
 
@@ -638,14 +638,14 @@ public abstract class AbstractBeanFactory
    *         If any {@link Exception} occurred when initialize bean
    */
   @Override
-  public Object initializeBean(final Object bean, final BeanDefinition def) {
+  public Object initializeBean(Object bean, BeanDefinition def) {
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", def.getName());
     }
     aware(bean, def);
     Object ret = bean;
     // before properties
-    for (final BeanPostProcessor processor : postProcessors) {
+    for (BeanPostProcessor processor : postProcessors) {
       try {
         ret = processor.postProcessBeforeInitialization(ret, def);
       }
@@ -659,7 +659,7 @@ public abstract class AbstractBeanFactory
     // invoke initialize methods
     invokeInitMethods(ret, def);
     // after properties
-    for (final BeanPostProcessor processor : postProcessors) {
+    for (BeanPostProcessor processor : postProcessors) {
       try {
         ret = processor.postProcessAfterInitialization(ret, def);
       }
@@ -679,7 +679,7 @@ public abstract class AbstractBeanFactory
    * @param def
    *         Bean definition
    */
-  public final void aware(final Object bean, final BeanDefinition def) {
+  public void aware(Object bean, BeanDefinition def) {
     if (bean instanceof Aware) {
       awareInternal(bean, def);
     }
@@ -693,7 +693,7 @@ public abstract class AbstractBeanFactory
    * @param def
    *         Target {@link BeanDefinition}
    */
-  protected void awareInternal(final Object bean, final BeanDefinition def) {
+  protected void awareInternal(Object bean, BeanDefinition def) {
 
     if (bean instanceof BeanNameAware) {
       ((BeanNameAware) bean).setBeanName(def.getName());
@@ -728,7 +728,7 @@ public abstract class AbstractBeanFactory
    *         When instantiation of a bean failed
    * @see #createSingleton(BeanDefinition)
    */
-  protected Object initializeSingleton(final Object bean, final BeanDefinition def) {
+  protected Object initializeSingleton(Object bean, BeanDefinition def) {
     if (bean == null) {
       return createSingleton(def);
     }
@@ -736,7 +736,7 @@ public abstract class AbstractBeanFactory
     if (def.isInitialized()) { // fix #7
       return bean;
     }
-    final Object afterInit = initializeBean(bean, def);
+    Object afterInit = initializeBean(bean, def);
     if (afterInit != bean) {
       registerSingleton(def.getName(), afterInit);
     }
@@ -761,11 +761,11 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object createSingleton(final BeanDefinition def) {
+  protected Object createSingleton(BeanDefinition def) {
     Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
 
     if (def.isFactoryBean()) {
-      final Object bean = getFactoryBean(def).getBean();
+      Object bean = getFactoryBean(def).getBean();
       if (!containsSingleton(def.getName())) {
         registerSingleton(def.getName(), bean);
         def.setInitialized(true);
@@ -777,9 +777,9 @@ public abstract class AbstractBeanFactory
       return getSingleton(def.getName());
     }
 
-    final Object bean = createBeanIfNecessary(def);
+    Object bean = createBeanIfNecessary(def);
     // After initialization
-    final Object afterInit = initializeBean(bean, def);
+    Object afterInit = initializeBean(bean, def);
 
     if (afterInit != bean) {
       registerSingleton(def.getName(), afterInit);
@@ -806,9 +806,9 @@ public abstract class AbstractBeanFactory
    */
   public void handleDependency() {
     // @since 3.0.3 fix ConcurrentModificationException
-    final LinkedHashSet<BeanReferencePropertySetter> dependencies = new LinkedHashSet<>(getDependencies());
-    for (final BeanReferencePropertySetter reference : dependencies) {
-      final String beanName = reference.getReferenceName();
+    LinkedHashSet<BeanReferencePropertySetter> dependencies = new LinkedHashSet<>(getDependencies());
+    for (BeanReferencePropertySetter reference : dependencies) {
+      String beanName = reference.getReferenceName();
       // fix: #2 when handle dependency some bean definition has already exist
       if (containsBeanDefinition(beanName)) {
         reference.setReference(getBeanDefinition(beanName));
@@ -816,7 +816,7 @@ public abstract class AbstractBeanFactory
       }
       // handle dependency which is special bean like List<?> or Set<?>...
       // ----------------------------------------------------------------
-      final BeanDefinition handleDef = handleDependency(reference);
+      BeanDefinition handleDef = handleDependency(reference);
       if (handleDef != null) {
         registerBeanDefinition(beanName, handleDef);
         reference.setReference(handleDef);
@@ -824,11 +824,11 @@ public abstract class AbstractBeanFactory
       }
       // handle dependency which is interface and parent object
       // --------------------------------------------------------
-      final Class<?> propertyType = reference.getReferenceClass();
+      Class<?> propertyType = reference.getReferenceClass();
       // find child beans
-      final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
+      List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
       if (CollectionUtils.isNotEmpty(childDefs)) {
-        final BeanDefinition childDef = getPrimaryBeanDefinition(childDefs);
+        BeanDefinition childDef = getPrimaryBeanDefinition(childDefs);
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
         }
@@ -851,11 +851,11 @@ public abstract class AbstractBeanFactory
    *
    * @return A {@link Primary} {@link BeanDefinition}
    */
-  protected BeanDefinition getPrimaryBeanDefinition(final List<BeanDefinition> defs) {
+  protected BeanDefinition getPrimaryBeanDefinition(List<BeanDefinition> defs) {
     if (defs.size() > 1) {
       log.info("Finding primary bean which annotated @Primary in {}", defs);
       ArrayList<BeanDefinition> primaries = new ArrayList<>(defs.size());
-      for (final BeanDefinition def : defs) {
+      for (BeanDefinition def : defs) {
         if (def.isAnnotationPresent(Primary.class)) {
           primaries.add(def);
         }
@@ -881,12 +881,12 @@ public abstract class AbstractBeanFactory
    *
    * @return A list of {@link BeanDefinition}s, Never be null
    */
-  protected List<BeanDefinition> doGetChildDefinition(final String beanName, final Class<?> beanClass) {
-    final HashSet<BeanDefinition> ret = new HashSet<>();
+  protected List<BeanDefinition> doGetChildDefinition(String beanName, Class<?> beanClass) {
+    HashSet<BeanDefinition> ret = new HashSet<>();
 
-    for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      final BeanDefinition childDef = entry.getValue();
-      final Class<?> clazz = childDef.getBeanClass();
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition childDef = entry.getValue();
+      Class<?> clazz = childDef.getBeanClass();
 
       if (beanClass != clazz
               && beanClass.isAssignableFrom(clazz)
@@ -907,20 +907,20 @@ public abstract class AbstractBeanFactory
    *
    * @return Dependency {@link BeanDefinition}
    */
-  protected BeanDefinition handleDependency(final BeanReferencePropertySetter ref) {
+  protected BeanDefinition handleDependency(BeanReferencePropertySetter ref) {
     // from objectFactories
-    final Map<Class<?>, Object> objectFactories = getObjectFactories();
+    Map<Class<?>, Object> objectFactories = getObjectFactories();
     if (CollectionUtils.isNotEmpty(objectFactories)) {
-      final Object objectFactory = objectFactories.get(ref.getReferenceClass());
+      Object objectFactory = objectFactories.get(ref.getReferenceClass());
       if (objectFactory != null) {
-        final class DependencyBeanDefinition extends DefaultBeanDefinition {
+        class DependencyBeanDefinition extends DefaultBeanDefinition {
 
           public DependencyBeanDefinition(String name, Class<?> beanClass) {
             super(name, beanClass);
           }
 
           @Override
-          public Object newInstance(final BeanFactory factory) {
+          public Object newInstance(BeanFactory factory) {
             return createDependencyInstance(getBeanClass(), objectFactory);
           }
         }
@@ -942,7 +942,7 @@ public abstract class AbstractBeanFactory
    *
    * @return Dependency object
    */
-  protected Object createDependencyInstance(final Class<?> type, final Object objectFactory) {
+  protected Object createDependencyInstance(Class<?> type, Object objectFactory) {
     if (type.isInstance(objectFactory)) {
       return objectFactory;
     }
@@ -953,9 +953,9 @@ public abstract class AbstractBeanFactory
   }
 
   protected Object createObjectFactoryDependencyProxy(
-          final Class<?> type, final Supplier<?> objectFactory) {
+          Class<?> type, Supplier<?> objectFactory) {
     // fixed @since 3.0.1
-    final ProxyFactory proxyFactory = createProxyFactory();
+    ProxyFactory proxyFactory = createProxyFactory();
     proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
     proxyFactory.setOpaque(true);
     return proxyFactory.getProxy(type.getClassLoader());
@@ -1016,7 +1016,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isSingleton(String name) {
-    final BeanDefinition def = getBeanDefinition(name);
+    BeanDefinition def = getBeanDefinition(name);
     if (def == null) {
       if (getSingleton(name) == null) {
         throw new NoSuchBeanDefinitionException(name);
@@ -1031,7 +1031,7 @@ public abstract class AbstractBeanFactory
    *         bean-definition not found
    */
   public BeanDefinition obtainBeanDefinition(String name) {
-    final BeanDefinition def = getBeanDefinition(name);
+    BeanDefinition def = getBeanDefinition(name);
     if (def == null) {
       throw new NoSuchBeanDefinitionException(name);
     }
@@ -1059,7 +1059,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerBeanDefinition(final String beanName, final BeanDefinition def) {
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
     this.beanDefinitionMap.put(beanName, def);
 
     postProcessRegisterBeanDefinition(def);
@@ -1071,10 +1071,10 @@ public abstract class AbstractBeanFactory
    * @param targetDef
    *         Target {@link BeanDefinition}
    */
-  protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
-    final PropertySetter[] propertySetters = targetDef.getPropertySetters();
+  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
+    PropertySetter[] propertySetters = targetDef.getPropertySetters();
     if (ObjectUtils.isNotEmpty(propertySetters)) {
-      for (final PropertySetter propertySetter : propertySetters) {
+      for (PropertySetter propertySetter : propertySetters) {
         if (propertySetter instanceof BeanReferencePropertySetter && !dependencies.contains(propertySetter)) {
           dependencies.add((BeanReferencePropertySetter) propertySetter);
         }
@@ -1085,7 +1085,7 @@ public abstract class AbstractBeanFactory
   @Override
   public String getBeanName(Class<?> targetClass) {
 
-    for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       if (entry.getValue().getBeanClass() == targetClass) {
         return entry.getKey();
       }
@@ -1105,11 +1105,11 @@ public abstract class AbstractBeanFactory
 
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
-    final BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(beanClass));
+    BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(beanClass));
     if (def != null && beanClass.isAssignableFrom(def.getBeanClass())) {
       return def;
     }
-    for (final BeanDefinition definition : getBeanDefinitions().values()) {
+    for (BeanDefinition definition : getBeanDefinitions().values()) {
       if (beanClass.isAssignableFrom(definition.getBeanClass())) {
         return definition;
       }
@@ -1138,15 +1138,15 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public boolean containsBeanDefinition(final Class<?> type, final boolean equals) {
+  public boolean containsBeanDefinition(Class<?> type, boolean equals) {
 
-    final Predicate<BeanDefinition> predicate = getPredicate(type, equals);
-    final BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(type));
+    Predicate<BeanDefinition> predicate = getPredicate(type, equals);
+    BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(type));
     if (def != null && predicate.test(def)) {
       return true;
     }
 
-    for (final BeanDefinition beanDef : getBeanDefinitions().values()) {
+    for (BeanDefinition beanDef : getBeanDefinitions().values()) {
       if (predicate.test(beanDef)) {
         return true;
       }
@@ -1154,7 +1154,7 @@ public abstract class AbstractBeanFactory
     return false;
   }
 
-  private Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
+  private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
     return equals
            ? beanDef -> type == beanDef.getBeanClass()
            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
@@ -1258,8 +1258,8 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void removeBean(Class<?> beanClass) {
-    final Map<String, ?> beansOfType = getBeansOfType(beanClass, true, true);
-    for (final String name : beansOfType.keySet()) {
+    Map<String, ?> beansOfType = getBeansOfType(beanClass, true, true);
+    for (String name : beansOfType.keySet()) {
       removeBean(name);
     }
   }
@@ -1274,7 +1274,7 @@ public abstract class AbstractBeanFactory
     BeanDefinition def = getBeanDefinition(name);
     if (def == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
       // if it is a factory bean
-      final String factoryBeanName = name.substring(1);
+      String factoryBeanName = name.substring(1);
       def = getBeanDefinition(factoryBeanName);
       if (def != null) {
         destroyBean(getSingleton(factoryBeanName), def);
@@ -1304,7 +1304,7 @@ public abstract class AbstractBeanFactory
    *         Bean definition
    */
   @Override
-  public void destroyBean(final Object beanInstance, final BeanDefinition def) {
+  public void destroyBean(Object beanInstance, BeanDefinition def) {
     if (beanInstance == null || def == null) {
       return;
     }
@@ -1319,7 +1319,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void initialize(String name) {
-    final BeanDefinition def = obtainBeanDefinition(name);
+    BeanDefinition def = obtainBeanDefinition(name);
     if (!def.isInitialized()) {
       createSingleton(def);
     }
@@ -1336,12 +1336,12 @@ public abstract class AbstractBeanFactory
   @Override
   public void initializeSingletons() {
     log.debug("Initialization of singleton objects.");
-    for (final BeanDefinition def : getBeanDefinitions().values()) {
+    for (BeanDefinition def : getBeanDefinitions().values()) {
       // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
         if (def.isFactoryBean()) {
-          final FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
-          final boolean isEagerInit = factoryBean instanceof SmartFactoryBean
+          FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
+          boolean isEagerInit = factoryBean instanceof SmartFactoryBean
                   && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
           if (isEagerInit) {
             getBean(def);
@@ -1354,14 +1354,14 @@ public abstract class AbstractBeanFactory
     }
 
     // Trigger post-initialization callback for all applicable beans...
-    for (final Object singleton : getSingletons().values()) {
+    for (Object singleton : getSingletons().values()) {
       postSingletonInitialization(singleton);
     }
 
     log.debug("The singleton objects are initialized.");
   }
 
-  protected void postSingletonInitialization(final Object singleton) {
+  protected void postSingletonInitialization(Object singleton) {
     // SmartInitializingSingleton
     if (singleton instanceof SmartInitializingSingleton) {
       ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
@@ -1372,12 +1372,12 @@ public abstract class AbstractBeanFactory
    * Initialization singletons that has already in context
    */
   public void preInitialization() {
-    final boolean debugEnabled = log.isDebugEnabled();
+    boolean debugEnabled = log.isDebugEnabled();
 
-    for (final Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
+    for (Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
 
-      final String name = entry.getKey();
-      final BeanDefinition def = getBeanDefinition(name);
+      String name = entry.getKey();
+      BeanDefinition def = getBeanDefinition(name);
       if (def == null || def.isInitialized()) {
         continue;
       }
@@ -1406,7 +1406,7 @@ public abstract class AbstractBeanFactory
   public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
     getPostProcessors().remove(beanPostProcessor);
 
-    for (final BeanPostProcessor postProcessor : getPostProcessors()) {
+    for (BeanPostProcessor postProcessor : getPostProcessors()) {
       if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
         this.hasInstantiationAwareBeanPostProcessors = true;
         break;
@@ -1433,16 +1433,16 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyScopedBean(String beanName) {
-    final BeanDefinition def = obtainBeanDefinition(beanName);
+    BeanDefinition def = obtainBeanDefinition(beanName);
     if (def.isSingleton() || def.isPrototype()) {
       throw new IllegalArgumentException(
               "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");
     }
-    final Scope scope = scopes.get(def.getScope());
+    Scope scope = scopes.get(def.getScope());
     if (scope == null) {
       throw new IllegalStateException("No Scope SPI registered for scope name '" + def.getScope() + "'");
     }
-    final Object bean = scope.remove(beanName);
+    Object bean = scope.remove(beanName);
     if (bean != null) {
       destroyBean(bean, def);
     }
