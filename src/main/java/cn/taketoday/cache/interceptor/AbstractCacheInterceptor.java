@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -82,7 +82,7 @@ public abstract class AbstractCacheInterceptor
     return ordered.getOrder();
   }
 
-  public void setOrder(final int order) {
+  public void setOrder(int order) {
     ordered.setOrder(order);
   }
 
@@ -96,7 +96,7 @@ public abstract class AbstractCacheInterceptor
    *
    * @return A not empty cache name
    */
-  protected String prepareCacheName(final Method method, final String cacheName) {
+  protected String prepareCacheName(Method method, String cacheName) {
     // if cache name is empty use declaring class full name
     if (StringUtils.isEmpty(cacheName)) {
       return method.getDeclaringClass().getName();
@@ -104,7 +104,7 @@ public abstract class AbstractCacheInterceptor
     return cacheName;
   }
 
-  protected Cache getCache(final String name, final CacheConfig cacheConfig) {
+  protected Cache getCache(String name, CacheConfig cacheConfig) {
     return getCacheManager().getCache(name, cacheConfig);
   }
 
@@ -121,9 +121,9 @@ public abstract class AbstractCacheInterceptor
    * @throws NoSuchCacheException
    *         If there isn't a {@link Cache}
    */
-  protected final Cache obtainCache(final Method method, final CacheConfig cacheConfig) {
-    final String name = prepareCacheName(method, cacheConfig.cacheName());
-    final Cache cache = getCache(name, cacheConfig);
+  protected Cache obtainCache(Method method, CacheConfig cacheConfig) {
+    String name = prepareCacheName(method, cacheConfig.cacheName());
+    Cache cache = getCache(name, cacheConfig);
     if (cache == null) {
       throw new NoSuchCacheException(name);
     }
@@ -161,12 +161,12 @@ public abstract class AbstractCacheInterceptor
 
     static final Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 
-      final Method method = target.targetMethod;
-      final Class<? extends Annotation> annClass = target.annotationClass;
+      Method method = target.targetMethod;
+      Class<? extends Annotation> annClass = target.annotationClass;
 
       // Find target method [annClass] AnnotationAttributes
       AnnotationAttributes attributes = AnnotationUtils.getAttributes(annClass, method);
-      final Class<?> declaringClass = method.getDeclaringClass();
+      Class<?> declaringClass = method.getDeclaringClass();
       if (attributes == null) {
         attributes = AnnotationUtils.getAttributes(annClass, declaringClass);
         if (attributes == null) {
@@ -174,10 +174,10 @@ public abstract class AbstractCacheInterceptor
         }
       }
 
-      final CacheConfiguration configuration = //
+      CacheConfiguration configuration = //
               AnnotationUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
 
-      final CacheConfig cacheConfig = AnnotationUtils.getAnnotation(CacheConfig.class, declaringClass);
+      CacheConfig cacheConfig = AnnotationUtils.getAnnotation(CacheConfig.class, declaringClass);
       if (cacheConfig != null) {
         configuration.mergeCacheConfigAttributes(cacheConfig);
       }
@@ -185,13 +185,11 @@ public abstract class AbstractCacheInterceptor
     };
 
     static {
-      final ApplicationContext lastStartupContext = ContextUtils.getLastStartupContext();
+      ApplicationContext lastStartupContext = ContextUtils.getLastStartupContext();
       if (lastStartupContext != null) {
-        SHARED_EL_CONTEXT = lastStartupContext
-                .getEnvironment()
-                .getExpressionProcessor()
-                .getManager()
-                .getContext();
+        StandardExpressionContext context = lastStartupContext.getBean(StandardExpressionContext.class);
+        Assert.state(context != null, "No shared ExpressionContext");
+        SHARED_EL_CONTEXT = context;
       }
       else {
         SHARED_EL_CONTEXT = new StandardExpressionContext(EXPRESSION_FACTORY);
@@ -206,7 +204,7 @@ public abstract class AbstractCacheInterceptor
      *
      * @return {@link Annotation} instance
      */
-    public static CacheConfiguration prepareAnnotation(final MethodKey methodKey) {
+    public static CacheConfiguration prepareAnnotation(MethodKey methodKey) {
       return CACHE_OPERATION.get(methodKey, CACHE_OPERATION_FUNCTION);
     }
 
@@ -222,9 +220,9 @@ public abstract class AbstractCacheInterceptor
      *
      * @return Cache key
      */
-    static Object createKey(final String key,
-                            final CacheExpressionContext ctx,
-                            final MethodInvocation invocation) {
+    static Object createKey(String key,
+                            CacheExpressionContext ctx,
+                            MethodInvocation invocation) {
 
       return key.isEmpty()
              ? new DefaultCacheKey(invocation.getArguments())
@@ -241,7 +239,7 @@ public abstract class AbstractCacheInterceptor
      *
      * @return returns If pass the condition
      */
-    static boolean isConditionPassing(final String condition, final CacheExpressionContext context) {
+    static boolean isConditionPassing(String condition, CacheExpressionContext context) {
       return StringUtils.isEmpty(condition) || //if its empty returns true
               (Boolean) EXPRESSION_FACTORY.createValueExpression(context, condition, Boolean.class)
                       .getValue(context);
@@ -257,7 +255,7 @@ public abstract class AbstractCacheInterceptor
      * @param context
      *         Cache el context
      */
-    static boolean allowPutCache(final String unless, final Object result, final CacheExpressionContext context) {
+    static boolean allowPutCache(String unless, Object result, CacheExpressionContext context) {
 
       if (StringUtils.isNotEmpty(unless)) {
         context.putBean(Constant.KEY_RESULT, result);
@@ -274,19 +272,19 @@ public abstract class AbstractCacheInterceptor
      * @param arguments
      *         Target {@link Method} parameters
      */
-    static void prepareParameterNames(final MethodKey methodKey,
-                                      final Object[] arguments,
-                                      final Map<String, Object> beans) //
+    static void prepareParameterNames(MethodKey methodKey,
+                                      Object[] arguments,
+                                      Map<String, Object> beans) //
     {
-      final String[] names = ARGS_NAMES_CACHE.get(methodKey, ARGS_NAMES_FUNCTION);
+      String[] names = ARGS_NAMES_CACHE.get(methodKey, ARGS_NAMES_FUNCTION);
       for (int i = 0; i < names.length; i++) {
         beans.put(names[i], arguments[i]);
       }
     }
 
-    static CacheExpressionContext prepareELContext(final MethodKey methodKey,
-                                                   final MethodInvocation invocation) {
-      final HashMap<String, Object> beans = new HashMap<>();
+    static CacheExpressionContext prepareELContext(MethodKey methodKey,
+                                                   MethodInvocation invocation) {
+      HashMap<String, Object> beans = new HashMap<>();
       prepareParameterNames(methodKey, invocation.getArguments(), beans);
       beans.put(Constant.KEY_ROOT, invocation);// ${root.target} for target instance ${root.method}
       return new CacheExpressionContext(SHARED_EL_CONTEXT, beans);
@@ -316,7 +314,7 @@ public abstract class AbstractCacheInterceptor
         return true;
       if (!(o instanceof MethodKey))
         return false;
-      final MethodKey methodKey = (MethodKey) o;
+      MethodKey methodKey = (MethodKey) o;
       return hash == methodKey.hash
               && Objects.equals(targetMethod, methodKey.targetMethod)
               && Objects.equals(annotationClass, methodKey.annotationClass);
