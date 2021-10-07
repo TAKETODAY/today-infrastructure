@@ -72,8 +72,10 @@ public class BeanFactoryAwareBeanInstantiator {
   @SuppressWarnings("unchecked")
   public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
+    if (constructor.getParameterCount() == 0) {
+      return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
+    }
     Object[] args = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
-
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
     return (T) beanInstantiator.instantiate(args);
   }
