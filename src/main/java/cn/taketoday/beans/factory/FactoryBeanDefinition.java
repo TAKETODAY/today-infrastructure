@@ -40,18 +40,27 @@ import cn.taketoday.util.SingletonSupplier;
  */
 public class FactoryBeanDefinition<T>
         extends AttributeAccessorSupport implements BeanDefinition {
+  /**
+   * @since 4.0
+   */
+  private FactoryBean<T> factoryBean;
 
   private final BeanDefinition factoryDef;
   private Supplier<FactoryBean<T>> factorySupplier;
 
   public FactoryBeanDefinition(BeanDefinition factoryDef, AbstractBeanFactory beanFactory) {
-    this(factoryDef, new FactoryBeanSupplier<>(factoryDef, beanFactory));
+    this(factoryDef);
+    this.factorySupplier = new FactoryBeanSupplier<>(factoryDef, beanFactory);
   }
 
-  public FactoryBeanDefinition(BeanDefinition factoryDef, Supplier<FactoryBean<T>> factorySupplier) {
+  public FactoryBeanDefinition(BeanDefinition factoryDef, FactoryBean<T> factoryBean) {
+    this(factoryDef);
+    this.factoryBean = factoryBean;
+  }
+
+  public FactoryBeanDefinition(BeanDefinition factoryDef) {
     Assert.notNull(factoryDef, "factory BeanDefinition cannot be null");
     this.factoryDef = factoryDef;
-    this.factorySupplier = factorySupplier;
   }
 
   @Override
@@ -74,11 +83,15 @@ public class FactoryBeanDefinition<T>
   }
 
   public FactoryBean<T> getFactory() {
-    final Supplier<FactoryBean<T>> supplier = getFactorySupplier();
-    Assert.state(supplier != null, "factorySupplier must not be null");
-    final FactoryBean<T> obj = supplier.get();
-    Assert.state(obj != null, "The provided FactoryBean cannot be null");
-    return obj;
+    FactoryBean<T> factoryBean = getFactoryBean();
+    if (factoryBean == null) {
+      Supplier<FactoryBean<T>> supplier = getFactorySupplier();
+      Assert.state(supplier != null, "factorySupplier must not be null");
+      FactoryBean<T> obj = supplier.get();
+      Assert.state(obj != null, "The provided FactoryBean cannot be null");
+      return obj;
+    }
+    return factoryBean;
   }
 
   public void setFactory(FactoryBean<T> factory) {
@@ -88,6 +101,24 @@ public class FactoryBeanDefinition<T>
   public void setFactorySupplier(Supplier<FactoryBean<T>> supplier) {
     this.factorySupplier = supplier;
   }
+
+  /**
+   * @since 4.0
+   */
+  public void setFactoryBean(FactoryBean<T> factoryBean) {
+    this.factoryBean = factoryBean;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public FactoryBean<T> getFactoryBean() {
+    return factoryBean;
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of BeanDefinition interface
+  //---------------------------------------------------------------------
 
   @Override
   public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
@@ -216,7 +247,7 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public Object newInstance(final BeanFactory factory) {
+  public Object newInstance(BeanFactory factory) {
     return factoryDef.newInstance(factory);
   }
 
