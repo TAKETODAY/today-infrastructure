@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
@@ -23,9 +23,9 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.core.Assert;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 
@@ -43,26 +43,26 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
   public MapperFactoryBean() { }
 
   public MapperFactoryBean(Class<T> mapperInterface) {
-    this.setMapperInterface(mapperInterface);
+    setMapperInterface(mapperInterface);
   }
 
   @Override
   public T getBean() {
-    return getSqlSession().getMapper(getBeanClass());
+    return obtainSqlSession().getMapper(getBeanClass());
   }
 
   @Override
   public final Class<T> getBeanClass() {
-    if (mapperInterface == null) {
-      throw new ConfigurationException("Mapper interface must not be null");
-    }
+    Assert.state(mapperInterface != null, "Mapper interface must not be null");
     return mapperInterface;
   }
 
+  public SqlSession obtainSqlSession() {
+    Assert.state(sqlSession != null, "Sql Session must not be null");
+    return sqlSession;
+  }
+
   public SqlSession getSqlSession() {
-    if (sqlSession == null) {
-      throw new ConfigurationException("Sql Session must not be null");
-    }
     return sqlSession;
   }
 
@@ -72,6 +72,10 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
 
   public void setMapperInterface(Class<T> mapperInterface) {
     this.mapperInterface = mapperInterface;
+  }
+
+  public Class<T> getMapperInterface() {
+    return mapperInterface;
   }
 
   @Autowired
