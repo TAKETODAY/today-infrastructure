@@ -112,7 +112,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   static final class MethodApplicationListener
-          implements ApplicationListener<Object>, ApplicationEventCapable {
+          implements ApplicationListener<Object>, EventProvider {
     final Method targetMethod;
     final Class<?>[] eventTypes;
     final BeanFactory beanFactory;
@@ -149,7 +149,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     }
 
     @Override
-    public Class<?>[] getApplicationEvent() {
+    public Class<?>[] getSupportedEvent() {
       return eventTypes;
     }
   }

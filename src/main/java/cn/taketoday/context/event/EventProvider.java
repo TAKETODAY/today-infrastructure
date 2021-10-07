@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -26,9 +26,9 @@ package cn.taketoday.context.event;
  * @since 2.1.7
  */
 @FunctionalInterface
-public interface ApplicationEventCapable {
+public interface EventProvider {
 
-  Class<?>[] getApplicationEvent();
+  Class<?>[] getSupportedEvent();
 
   default Class<?>[] factory(Class<?>... array) {
     return array;
