@@ -43,7 +43,6 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DefaultBeanNameCreator;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.ObjectFactory;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
@@ -53,11 +52,11 @@ import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;
@@ -392,7 +391,13 @@ public abstract class AbstractBeanFactory
    */
   protected boolean isTypeMatch(String name, ResolvableType typeToMatch, boolean allowFactoryBeanInit)
           throws NoSuchBeanDefinitionException {
-
+    BeanDefinition beanDefinition = obtainBeanDefinition(name);
+    if (beanDefinition.isFactoryBean()) {
+      if (!allowFactoryBeanInit) {
+        // TODO not allowFactoryBeanInit
+      }
+    }
+    return beanDefinition.isAssignableTo(typeToMatch);
   }
 
   @Override
@@ -970,13 +975,14 @@ public abstract class AbstractBeanFactory
     if (type.isInstance(objectFactory)) {
       return objectFactory;
     }
-    if (objectFactory instanceof ObjectFactory) {
-      return createObjectFactoryDependencyProxy(type, (ObjectFactory<?>) objectFactory);
+    if (objectFactory instanceof Supplier) {
+      return createObjectFactoryDependencyProxy(type, (Supplier<?>) objectFactory);
     }
     return null;
   }
 
-  protected Object createObjectFactoryDependencyProxy(final Class<?> type, final ObjectFactory<?> objectFactory) {
+  protected Object createObjectFactoryDependencyProxy(
+          final Class<?> type, final Supplier<?> objectFactory) {
     // fixed @since 3.0.1
     final ProxyFactory proxyFactory = createProxyFactory();
     proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
@@ -990,9 +996,9 @@ public abstract class AbstractBeanFactory
 
   static final class ObjectFactoryTargetSource implements TargetSource {
     private final Class<?> targetType;
-    private final ObjectFactory<?> objectFactory;
+    private final Supplier<?> objectFactory;
 
-    ObjectFactoryTargetSource(ObjectFactory<?> objectFactory, Class<?> targetType) {
+    ObjectFactoryTargetSource(Supplier<?> objectFactory, Class<?> targetType) {
       this.targetType = targetType;
       this.objectFactory = objectFactory;
     }
@@ -1009,7 +1015,7 @@ public abstract class AbstractBeanFactory
 
     @Override
     public Object getTarget() throws Exception {
-      return objectFactory.getObject();
+      return objectFactory.get();
     }
   }
 
@@ -1200,9 +1206,6 @@ public abstract class AbstractBeanFactory
 
   // -----------------------------
 
-  @Deprecated
-  public abstract BeanDefinitionLoader getBeanDefinitionLoader();
-
   /**
    * Get a bean name creator
    *
@@ -1292,96 +1295,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerBean(Class<?> clazz) {
-    registerBean(getBeanNameCreator().create(clazz), clazz);
-  }
-
-  @Override
-  public void registerBean(Set<Class<?>> candidates) {
-    final BeanNameCreator nameCreator = getBeanNameCreator();
-    for (final Class<?> candidate : candidates) {
-      registerBean(nameCreator.create(candidate), candidate);
-    }
-  }
-
-  @Override
-  public void registerBean(String name, Class<?> clazz) {
-    getBeanDefinitionLoader().load(name, clazz);
-  }
-
-  @Override
-  public void registerBean(String name, BeanDefinition beanDefinition) {
-    getBeanDefinitionLoader().register(name, beanDefinition);
-  }
-
-  @Override
-  public void registerBean(Object obj) {
-    registerBean(getBeanNameCreator().create(obj.getClass()), obj);
-  }
-
-  @Override
-  public void registerBean(final String name, final Object obj) {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(obj, "bean-instance must not be null");
-
-    final List<BeanDefinition> loaded = getBeanDefinitionLoader().load(name, obj.getClass());
-    for (final BeanDefinition def : loaded) {
-      if (def.isSingleton()) {
-        registerSingleton(name, obj);
-      }
-    }
-  }
-
-  @Override
-  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
-          throws BeanDefinitionStoreException {
-    Assert.notNull(clazz, "bean-class must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    final String defaultName = getBeanNameCreator().create(clazz);
-    final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
-    final List<BeanDefinition> loaded = definitionLoader.load(defaultName, clazz, ignoreAnnotation);
-
-    if (CollectionUtils.isNotEmpty(loaded)) {
-      for (final BeanDefinition def : loaded) {
-        def.setSupplier(supplier);
-        if (prototype) {
-          def.setScope(Scope.PROTOTYPE);
-        }
-      }
-    }
-  }
-
-  @Override
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    beanSupplier.put(name, supplier);
-  }
-
-  /**
-   * Destroy a bean with bean instance and bean definition
-   *
-   * @param beanInstance
-   *         Bean instance
-   * @param def
-   *         Bean definition
-   */
-  @Override
-
-  public void destroyBean(final Object beanInstance, final BeanDefinition def) {
-    if (beanInstance == null || def == null) {
-      return;
-    }
-    try {
-      ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
-    }
-    catch (Throwable e) {
-      log.warn("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",
-               def.getName(), e.toString(), e);
-    }
-  }
-
-  @Override
   public void destroyBean(String name) {
     destroyBean(name, getSingleton(name));
   }
@@ -1402,6 +1315,36 @@ public abstract class AbstractBeanFactory
       def = getPrototypeBeanDefinition(ClassUtils.getUserClass(beanInstance));
     }
     destroyBean(beanInstance, def);
+  }
+
+  protected abstract BeanDefinition getPrototypeBeanDefinition(Class<Object> userClass);
+
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    beanSupplier.put(name, supplier);
+  }
+
+  /**
+   * Destroy a bean with bean instance and bean definition
+   *
+   * @param beanInstance
+   *         Bean instance
+   * @param def
+   *         Bean definition
+   */
+  @Override
+  public void destroyBean(final Object beanInstance, final BeanDefinition def) {
+    if (beanInstance == null || def == null) {
+      return;
+    }
+    try {
+      ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
+    }
+    catch (Throwable e) {
+      log.warn("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",
+               def.getName(), e.toString(), e);
+    }
   }
 
   @Override
