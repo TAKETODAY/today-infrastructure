@@ -434,8 +434,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
           throws BeansException;
 
   /**
-   * Get a set of beans with given type, this method must invoke after
-   * {@link cn.taketoday.context.ApplicationContext#load(String...)}
+   * Get a set of beans with given type
    *
    * @param requiredType
    *         Given bean type
@@ -455,8 +454,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
    * by other means than bean definitions.
    * <p>
-   * Get a map of beans with given type, this method must invoke after
-   * {@link cn.taketoday.context.ApplicationContext#load(String...)}
+   * Get a map of beans with given type
    * </p>
    *
    * @param requiredType
@@ -478,8 +476,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
    * by other means than bean definitions.
    * <p>
-   * Get a map of beans with given type, this method must invoke after
-   * {@link cn.taketoday.context.ApplicationContext#load(String...)}
+   * Get a map of beans with given type
    * </p>
    *
    * <p>
@@ -510,8 +507,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
    * by other means than bean definitions.
    * <p>
-   * Get a map of beans with given type, this method must invoke after
-   * {@link cn.taketoday.context.ApplicationContext#load(String...)}
+   * Get a map of beans with given type
    * </p>
    *
    * @param requiredType
@@ -545,8 +541,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
    * by other means than bean definitions.
    * <p>
-   * Get a map of beans with given type, this method must invoke after
-   * {@link cn.taketoday.context.ApplicationContext#load(String...)}
+   * Get a map of beans with given type
    * </p>
    *
    * @param requiredType
