@@ -126,7 +126,7 @@ public final class TodayStrategies extends StrategiesDetector {
   }
 
   /**
-   * Retrieve the property value for the given key, checking local Spring
+   * Retrieve the property value for the given key, checking local
    * properties first and falling back to JVM-level system properties.
    *
    * @param key

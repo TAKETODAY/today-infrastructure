@@ -66,6 +66,8 @@ public class StrategiesDetector {
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
 
+//  private final DefaultSingletonBeanRegistry singletonBeanRegistry = new DefaultSingletonBeanRegistry();
+
   public StrategiesDetector() {
     this(new DefaultStrategiesReader());
   }
@@ -107,7 +109,7 @@ public class StrategiesDetector {
   }
 
   public <T> T getFirst(Class<T> strategyClass, Supplier<T> defaultValue) {
-    final T first = getFirst(strategyClass);
+    T first = getFirst(strategyClass);
     if (first == null) {
       return defaultValue.get();
     }
@@ -125,7 +127,7 @@ public class StrategiesDetector {
   }
 
   public String getFirst(String strategyKey, Supplier<String> defaultValue) {
-    final String first = getFirst(strategyKey);
+    String first = getFirst(strategyKey);
     if (first == null) {
       return defaultValue.get();
     }
@@ -158,7 +160,7 @@ public class StrategiesDetector {
    * otherwise ,If there isn't a key returns defaultFlag
    */
   public boolean getBoolean(String strategyKey, boolean defaultFlag) {
-    final String property = getFirst(strategyKey);
+    String property = getFirst(strategyKey);
     return StringUtils.isEmpty(property) ? defaultFlag : Boolean.parseBoolean(property);
   }
 
@@ -198,10 +200,10 @@ public class StrategiesDetector {
   public <T> List<T> getStrategies(Class<T> strategyClass, BeanFactory beanFactory) {
     Assert.notNull(strategyClass, "strategy-class must not be null");
     // get class list by class full name
-    final ArrayList<T> strategiesObject = new ArrayList<>();
+    ArrayList<T> strategiesObject = new ArrayList<>();
     consumeTypes(strategyClass.getName(), strategy -> {
       if (strategyClass.isAssignableFrom(strategy)) {
-        final Object instance = createInstance(strategy, beanFactory);
+        Object instance = createInstance(strategy, beanFactory);
         strategiesObject.add((T) instance);
       }
     });
@@ -211,7 +213,7 @@ public class StrategiesDetector {
   }
 
   private static Object createInstance(Class<?> strategy, BeanFactory factory) {
-    final Object instance = BeanUtils.newInstance(strategy, factory);
+    Object instance = BeanUtils.newInstance(strategy, factory);
     if (factory instanceof AutowireCapableBeanFactory) {
       // autowire, dont apply bean post processor
       ((AutowireCapableBeanFactory) factory).autowireBean(strategy);
@@ -226,7 +228,7 @@ public class StrategiesDetector {
 
   public void consumeTypes(String strategyKey, Consumer<Class<?>> consumer) {
     consumeStrategies(strategyKey, strategy -> {
-      final Class<?> aClass = loadClass(classLoader, strategy);
+      Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
         consumer.accept(aClass);
       }
@@ -242,9 +244,9 @@ public class StrategiesDetector {
    *         string consumer
    */
   public void consumeStrategies(String strategyKey, Consumer<String> consumer) {
-    final Collection<String> strategies = getStrategies(strategyKey);
+    Collection<String> strategies = getStrategies(strategyKey);
     if (CollectionUtils.isNotEmpty(strategies)) {
-      for (final String strategy : strategies) {
+      for (String strategy : strategies) {
         consumer.accept(strategy);
       }
     }
@@ -306,7 +308,7 @@ public class StrategiesDetector {
    */
   public List getObjects(String strategyKey, @Nullable BeanFactory beanFactory) {
     return getStrategies(strategyKey, strategy -> {
-      final Class<?> aClass = loadClass(classLoader, strategy);
+      Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
         return createInstance(aClass, beanFactory);
       }
@@ -328,16 +330,18 @@ public class StrategiesDetector {
    */
   public <T> List<T> getStrategies(String strategyKey, Converter<String, T> converter) {
     Assert.notNull(converter, "converter must not be null");
-    final Collection<String> strategies = getStrategies(strategyKey);
-    final ArrayList<T> ret = new ArrayList<>(strategies.size());
-    for (final String strategy : strategies) {
-      final T convert = converter.convert(strategy);
+//    return singletonBeanRegistry.getSingleton(strategyKey, () -> {
+    Collection<String> strategies = getStrategies(strategyKey);
+    ArrayList<T> ret = new ArrayList<>(strategies.size());
+    for (String strategy : strategies) {
+      T convert = converter.convert(strategy);
       if (convert != null) {
         ret.add(convert);
       }
     }
     AnnotationAwareOrderComparator.sort(ret);
     return ret;
+//    });
   }
 
   /**
@@ -362,7 +366,7 @@ public class StrategiesDetector {
   public Collection<String> getStrategies(String strategyKey, boolean filterRepeat) {
     Assert.notNull(strategyKey, "strategy-key must not be null");
     loadStrategies();
-    final List<String> strategies = this.strategies.get(strategyKey);
+    List<String> strategies = this.strategies.get(strategyKey);
     if (strategies == null) {
       return Collections.emptyList();
     }

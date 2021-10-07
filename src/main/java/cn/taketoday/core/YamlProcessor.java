@@ -178,8 +178,8 @@ public class YamlProcessor {
    * Create the {@link Yaml} instance to use.
    * <p>The default implementation sets the "allowDuplicateKeys" flag to {@code false},
    * enabling built-in duplicate key handling in SnakeYAML 1.18+.
-   * <p>As of Spring Framework 5.1.16, if custom {@linkplain #setSupportedTypes
-   * supported types} have been configured, the default implementation creates
+   * <p>If custom {@linkplain #setSupportedTypes supported types}
+   * have been configured, the default implementation creates
    * a {@code Yaml} instance that filters out unsupported types encountered in
    * YAML documents. If an unsupported type is encountered, an
    * {@link IllegalStateException} will be thrown when the node is processed.
