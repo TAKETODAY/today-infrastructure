@@ -643,38 +643,9 @@ public abstract class AbstractBeanFactory
       log.debug("Initializing bean named: [{}].", def.getName());
     }
     aware(bean, def);
-    final List<BeanPostProcessor> postProcessors = getPostProcessors();
-    if (postProcessors.isEmpty()) {
-      // apply properties
-      applyPropertyValues(bean, def);
-      // invoke initialize methods
-      invokeInitMethods(bean, def);
-      return bean;
-    }
-    return initWithPostProcessors(bean, def, postProcessors);
-  }
-
-  /**
-   * Initialize with {@link BeanPostProcessor}s
-   *
-   * @param bean
-   *         Bean instance
-   * @param def
-   *         Current {@link BeanDefinition}
-   * @param processors
-   *         {@link BeanPostProcessor}s
-   *
-   * @return Initialized bean
-   *
-   * @throws BeanInitializingException
-   *         If any {@link Exception} occurred when initialize with processors
-   */
-  protected Object initWithPostProcessors(
-          final Object bean, final BeanDefinition def, final List<BeanPostProcessor> processors
-  ) {
     Object ret = bean;
     // before properties
-    for (final BeanPostProcessor processor : processors) {
+    for (final BeanPostProcessor processor : postProcessors) {
       try {
         ret = processor.postProcessBeforeInitialization(ret, def);
       }
@@ -688,7 +659,7 @@ public abstract class AbstractBeanFactory
     // invoke initialize methods
     invokeInitMethods(ret, def);
     // after properties
-    for (final BeanPostProcessor processor : processors) {
+    for (final BeanPostProcessor processor : postProcessors) {
       try {
         ret = processor.postProcessAfterInitialization(ret, def);
       }
@@ -1103,7 +1074,6 @@ public abstract class AbstractBeanFactory
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
     final PropertySetter[] propertySetters = targetDef.getPropertySetters();
     if (ObjectUtils.isNotEmpty(propertySetters)) {
-      final HashSet<BeanReferencePropertySetter> dependencies = this.dependencies;
       for (final PropertySetter propertySetter : propertySetters) {
         if (propertySetter instanceof BeanReferencePropertySetter && !dependencies.contains(propertySetter)) {
           dependencies.add((BeanReferencePropertySetter) propertySetter);
