@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -41,14 +42,13 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Conditional;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
-import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.AnnotationAttributes;
@@ -76,7 +76,9 @@ import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
  * @author TODAY 2021/10/1 16:46
  * @since 4.0
  */
-public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
+public class AnnotatedBeanDefinitionReader {
+  static final String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
+
   private static final Logger log = LoggerFactory.getLogger(AnnotatedBeanDefinitionReader.class);
 
   private final ConfigurableApplicationContext context;
@@ -97,12 +99,27 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
   // Implementation of BeanDefinitionLoader interface
   //---------------------------------------------------------------------
 
-  @Override
   public BeanDefinitionRegistry getRegistry() {
     return registry;
   }
 
-  @Override
+  /**
+   * Load bean definition with given bean class.
+   * <p>
+   * The candidate bean class can't be abstract and must pass the condition which
+   * {@link Conditional} is annotated.
+   *
+   * @param candidate
+   *         Candidate bean class the class will be load
+   *
+   * @return returns a new BeanDefinition if {@link #transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @see #register(Class)
+   */
+  @Nullable
   public List<BeanDefinition> load(Class<?> candidate) {
     // don't load abstract class
     if (canRegister(candidate)) {
@@ -111,7 +128,15 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     return null;
   }
 
-  @Override
+  /**
+   * Load bean definitions with given bean collection.
+   *
+   * @param candidates
+   *         candidates beans collection
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   */
   public void load(Collection<Class<?>> candidates) {
     for (Class<?> candidate : candidates) {
       // don't load abstract class
@@ -126,17 +151,78 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
             && conditionEvaluator.passCondition(candidate);
   }
 
-  @Override
+  /**
+   * Load {@link BeanDefinition}s from input package locations
+   *
+   * <p>
+   * {@link CandidateComponentScanner} will scan the classes from given package
+   * locations. And register the {@link BeanDefinition}s using
+   * loadBeanDefinition(Class)
+   *
+   * @param locations
+   *         package locations
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @see #load(Class)
+   * @since 4.0
+   */
   public void load(String... locations) throws BeanDefinitionStoreException {
     load(new CandidateComponentScanner().scan(locations));
   }
 
-  @Override
+  /**
+   * Load bean definition with given bean class and bean name.
+   * <p>
+   * If the provided bean class annotated {@link Component} annotation will
+   * register beans with given {@link Component} metadata.
+   * <p>
+   * Otherwise register a bean will given default metadata: use the default bean
+   * name creator create the default bean name, use default bean scope
+   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
+   * empty destroy method.
+   *
+   * @param name
+   *         Bean name
+   * @param beanClass
+   *         Bean class
+   *
+   * @return returns a new BeanDefinition if {@link #transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @since 4.0
+   */
   public List<BeanDefinition> load(String name, Class<?> beanClass) {
     return Collections.singletonList(getRegistered(name, beanClass, null));
   }
 
-  @Override
+  /**
+   * Load bean definition with given bean class and bean name.
+   * <p>
+   * If the provided bean class annotated {@link Component} annotation will
+   * register beans with given {@link Component} metadata.
+   * <p>
+   * Otherwise register a bean will given default metadata: use the default bean
+   * name creator create the default bean name, use default bean scope
+   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
+   * empty destroy method.
+   *
+   * @param name
+   *         default bean name
+   * @param beanClass
+   *         Bean class
+   * @param ignoreAnnotation
+   *         ignore {@link Component} scanning
+   *
+   * @return returns a new BeanDefinition if {@link #transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @since 4.0
+   */
   public List<BeanDefinition> load(String name, Class<?> beanClass, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException {
     if (ignoreAnnotation) {
@@ -160,7 +246,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     return register(name, newDef);
   }
 
-  @Override
   public List<BeanDefinition> register(Class<?> candidate) {
     ArrayList<BeanDefinition> defs = new ArrayList<>();
     doRegister(candidate, defs::add);
@@ -189,6 +274,10 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     }
   }
 
+  public BeanDefinition register(BeanDefinition def) {
+    return register(def.getName(), def);
+  }
+
   /**
    * Register bean definition with given name
    *
@@ -200,7 +289,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
    * @throws BeanDefinitionStoreException
    *         If can't store bean
    */
-  @Override
   @Nullable
   public BeanDefinition register(String name, BeanDefinition def) {
     def = transformBeanDefinition(name, def);
@@ -259,11 +347,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     }
   }
 
-  @Override
-  public ApplicationContext getApplicationContext() {
-    return null;
-  }
-
   /**
    * @since 3.0
    */
@@ -300,7 +383,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     }
     // load application listener @since 2.1.7
     if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
-      context.addApplicationListener(targetDef.getBeanClass());
+      context.addApplicationListener(targetDef.getName());
     }
     // apply lazy init @since 3.0
     applyLazyInit(targetDef);
@@ -370,7 +453,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     log.debug("Importing: [{}]", importClass);
 
     BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);
-    importDef.setAttribute(ImportAnnotatedMetadata, annotated); // @since 3.0
+    importDef.setAttribute(ImportAware.ImportAnnotatedMetadata, annotated); // @since 3.0
     register(importDef);
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
@@ -390,8 +473,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
               .registerBeanDefinitions(annotated, registry);
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
-      getApplicationContext()
-              .addApplicationListener(createImporter(importDef, ApplicationListener.class));
+      context.addApplicationListener(createImporter(importDef, ApplicationListener.class));
     }
   }
 
@@ -628,6 +710,11 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     return ClassUtils.getShortName(type);
   }
 
+  /**
+   * register a bean with the given bean class
+   *
+   * @since 3.0
+   */
   public void registerBean(Class<?> clazz) {
     registerBean(createBeanName(clazz), clazz);
   }
@@ -646,10 +733,31 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     return register(name, beanDefinition);
   }
 
+  /**
+   * Register a bean with the bean instance
+   * <p>
+   *
+   * @param obj
+   *         bean instance
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   */
   public void registerBean(Object obj) {
     registerBean(createBeanName(obj.getClass()), obj);
   }
 
+  /**
+   * Register a bean with the given name and bean instance
+   *
+   * @param name
+   *         bean name (must not be null)
+   * @param obj
+   *         bean instance (must not be null)
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   */
   public void registerBean(String name, Object obj) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(obj, "bean-instance must not be null");
@@ -662,6 +770,69 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
     }
   }
 
+  /**
+   * Register a bean with the given type and instance supplier
+   * <p>
+   * This method will use {@link BeanNameCreator} create a bean name and register
+   * it
+   * <p>
+   * default register as singleton
+   * </p>
+   *
+   * @param clazz
+   *         bean class
+   * @param supplier
+   *         bean instance supplier
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 4.0
+   */
+  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    registerBean(clazz, supplier, false);
+  }
+
+  /**
+   * Register a bean with the given type and instance supplier
+   * <p>
+   * This method will use {@link BeanNameCreator} create a bean name and register
+   * it
+   *
+   * @param clazz
+   *         bean class
+   * @param supplier
+   *         bean instance supplier
+   * @param prototype
+   *         register as prototype?
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 4.0
+   */
+  public <T> void registerBean(
+          Class<T> clazz, Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
+    registerBean(clazz, supplier, prototype, true);
+  }
+
+  /**
+   * Register a bean with the given type and instance supplier
+   * <p>
+   * This method will use {@link BeanNameCreator} create a bean name and register
+   * it
+   *
+   * @param clazz
+   *         bean class
+   * @param supplier
+   *         bean instance supplier
+   * @param prototype
+   *         register as prototype?
+   * @param ignoreAnnotation
+   *         ignore {@link Component} scanning
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 4.0
+   */
   public <T> void registerBean(
           Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException //
@@ -680,5 +851,27 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionReader {
       }
     }
   }
+
+  /**
+   * Register a bean with the given bean name and instance supplier
+   *
+   * <p>
+   * register as singleton or prototype defined in your supplier
+   * </p>
+   *
+   * @param name
+   *         bean name
+   * @param supplier
+   *         bean instance supplier
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 4.0
+   */
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+
+  }
+
+  //
 
 }
