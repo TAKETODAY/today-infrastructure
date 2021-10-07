@@ -17,6 +17,7 @@
 package cn.taketoday.core.env;
 
 import cn.taketoday.core.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Interface for resolving properties against any underlying source.
@@ -74,8 +75,7 @@ public interface PropertyResolver {
    *
    * @see #getRequiredProperty(String, Class)
    */
-  @Nullable
-  <T> T getProperty(String key, Class<T> targetType);
+  @Nullable <T> T getProperty(String key, Class<T> targetType);
 
   /**
    * Return the property value associated with the given key,
@@ -109,6 +109,36 @@ public interface PropertyResolver {
    *         if the given key cannot be resolved
    */
   <T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException;
+
+  /**
+   * Retrieve the flag for the given property key.
+   *
+   * @param key
+   *         the property key
+   *
+   * @return {@code true} if the property is set to "true", {@code} false
+   * otherwise
+   */
+  default boolean getFlag(String key) {
+    return Boolean.parseBoolean(getProperty(key));
+  }
+
+  /**
+   * Retrieve the flag for the given property key.
+   * <p>
+   * If there isn't a key returns defaultFlag
+   * </p>
+   *
+   * @param key
+   *         the property key
+   *
+   * @return {@code true} if the property is set to "true", {@code} false
+   * otherwise ,If there isn't a key returns defaultFlag
+   */
+  default boolean getFlag(String key, boolean defaultFlag) {
+    final String property = getProperty(key);
+    return StringUtils.isEmpty(property) ? defaultFlag : Boolean.parseBoolean(property);
+  }
 
   /**
    * Resolve ${...} placeholders in the given text, replacing them with corresponding
