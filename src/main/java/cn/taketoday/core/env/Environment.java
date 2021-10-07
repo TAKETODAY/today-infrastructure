@@ -16,7 +16,6 @@
 
 package cn.taketoday.core.env;
 
-import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 
 /**
@@ -161,7 +160,6 @@ public interface Environment extends PropertyResolver {
    * @see #acceptsProfiles(Profiles)
    */
   default boolean acceptsProfiles(String... profiles) {
-    Assert.notEmpty(profiles, "Must specify at least one profile");
     return acceptsProfiles(Profiles.of(profiles));
   }
 
