@@ -47,12 +47,9 @@ public interface ApplicationEventPublisher {
   void addApplicationListener(ApplicationListener<?> listener);
 
   /**
-   * @param listener
-   *         listener class
-   *
    * @since 4.0
    */
-  void addApplicationListener(Class<?> listener);
+  void addApplicationListener(String listenerBeanName);
 
   /**
    * Remove all listeners registered with this multicaster.
@@ -60,5 +57,9 @@ public interface ApplicationEventPublisher {
    * on event notification until new listeners are registered.
    */
   void removeAllListeners();
+
+  void removeApplicationListener(String listenerBeanName);
+
+  void removeApplicationListener(ApplicationListener<?> listener);
 
 }
