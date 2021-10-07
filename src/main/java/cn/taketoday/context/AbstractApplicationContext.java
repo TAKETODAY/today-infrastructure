@@ -74,6 +74,7 @@ import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -93,7 +94,7 @@ import cn.taketoday.util.StringUtils;
  * {@link BeanPostProcessor BeanPostProcessors}, and
  * {@link ApplicationListener ApplicationListeners} which are defined as beans in the context.
  *
- * <p>Implements resource loading by extending {@link PathMatchingResourcePatternResolver}.
+ * <p>Implements resource loading by extending {@link PathMatchingPatternResourceLoader}.
  * Consequently, treats non-URL resource paths as class path resources
  * (supporting full class path resource names that include the package path,
  * e.g. "mypackage/myresource.dat")
@@ -142,6 +143,38 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     this.environment = env;
     ContextUtils.setLastStartupContext(this); // @since 2.1.6
     checkEnvironment(env);
+  }
+
+  /**
+   * Create a new AbstractApplicationContext with the given parent context.
+   *
+   * @param parent
+   *         the parent context
+   */
+  public AbstractApplicationContext(@Nullable ApplicationContext parent) {
+    this();
+    setParent(parent);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of PatternResourceLoader interface
+  //---------------------------------------------------------------------
+
+  @NonNull
+  @Override
+  public Resource getResource(String location) {
+    return patternResourceLoader.getResource(location);
+  }
+
+  @Override
+  public Resource[] getResources(String locationPattern) throws IOException {
+    return patternResourceLoader.getResources(locationPattern);
+  }
+
+  @Nullable
+  @Override
+  public ClassLoader getClassLoader() {
+    return patternResourceLoader.getClassLoader();
   }
 
   //---------------------------------------------------------------------

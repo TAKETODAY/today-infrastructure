@@ -30,13 +30,16 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.PatternResourceLoader;
 
 /**
  * @author TODAY <br>
  * 2018-06-23 16:39:36
  */
 public interface ApplicationContext
-        extends Closeable, HierarchicalBeanFactory, ApplicationEventPublisher, CandidateComponentScannerCapable {
+        extends Closeable, HierarchicalBeanFactory,
+                ApplicationEventPublisher, CandidateComponentScannerCapable, PatternResourceLoader {
 
   /**
    * Get {@link Environment}
@@ -62,8 +65,7 @@ public interface ApplicationContext
    * @see #getBeanFactory()
    * @since 4.0
    */
-  @NonNull
-  <T> T unwrapFactory(Class<T> requiredType);
+  @NonNull <T> T unwrapFactory(Class<T> requiredType);
 
   /**
    * unwrap this ApplicationContext to {@code requiredType}
@@ -72,8 +74,7 @@ public interface ApplicationContext
    *         not a requiredType
    * @since 4.0
    */
-  @NonNull
-  <T> T unwrap(Class<T> requiredType);
+  @NonNull <T> T unwrap(Class<T> requiredType);
 
   /**
    * Refresh factory, initialize singleton
@@ -107,7 +108,7 @@ public interface ApplicationContext
    *
    * @since 3.0
    */
-  void load(String... locations);
+  void scan(String... locations);
 
   /**
    * load context from given classes
@@ -117,7 +118,7 @@ public interface ApplicationContext
    *
    * @since 3.0
    */
-  void load(Collection<Class<?>> candidates);
+  void scan(Collection<Class<?>> candidates);
 
   /**
    * Close context and destroy all singletons
@@ -191,13 +192,13 @@ public interface ApplicationContext
    * Expose AutowireCapableBeanFactory functionality for this context.
    * <p>This is not typically used by application code, except for the purpose of
    * initializing bean instances that live outside of the application context,
-   * applying the Spring bean lifecycle (fully or partly) to them.
+   * applying the bean lifecycle (fully or partly) to them.
    * <p>Alternatively, the internal BeanFactory exposed by the
    * {@link ConfigurableApplicationContext} interface offers access to the
    * {@link AutowireCapableBeanFactory} interface too. The present method mainly
    * serves as a convenient, specific facility on the ApplicationContext interface.
    * <p><b>NOTE: this method will consistently throw IllegalStateException
-   * after the application context has been closed.</b> In current Spring Framework
+   * after the application context has been closed.</b> In current Framework
    * versions, only refreshable application contexts behave that way; as of 4.2,
    * all application context implementations will be required to comply.
    *
