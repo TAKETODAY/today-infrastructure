@@ -31,6 +31,7 @@ import cn.taketoday.context.ApplicationContext;
  * 2018-09-10 10:46
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class BeanDefinitionLoadingEvent extends ApplicationContextEvent {
 
   private final Collection<Class<?>> candidates;

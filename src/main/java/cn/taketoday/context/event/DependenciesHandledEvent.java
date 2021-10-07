@@ -32,6 +32,7 @@ import cn.taketoday.context.ApplicationContext;
  * 2018-11-10 13:23
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class DependenciesHandledEvent extends ApplicationContextEvent {
 
   private final Set<BeanReferencePropertySetter> dependencies;

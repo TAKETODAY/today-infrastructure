@@ -21,9 +21,9 @@ package cn.taketoday.context.event;
 
 import java.util.Collection;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.MissingBean;
 
 /**
  * Register the {@link MissingBean}, can use for other framework to load

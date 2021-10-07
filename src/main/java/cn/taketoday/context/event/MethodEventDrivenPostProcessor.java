@@ -54,32 +54,32 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessAfterInitialization(final Object bean, final BeanDefinition def) {
-    final Class<?> beanClass = def.getBeanClass();
-    final ConfigurableBeanFactory beanFactory = context.getBeanFactory();
-    final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(beanClass);
-    for (final Method declaredMethod : declaredMethods) {
-      if (AnnotationUtils.isPresent(declaredMethod, EventListener.class)) {
-        final AnnotationAttributes[] attributes
-                = AnnotationUtils.getAttributesArray(declaredMethod, EventListener.class);
-        for (final AnnotationAttributes attribute : attributes) {
-          final Class<?>[] eventTypes = getEventTypes(attribute, declaredMethod);
+  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
+    Class<?> beanClass = def.getBeanClass();
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+
+    ReflectionUtils.doWithMethods(beanClass, method -> {
+      if (AnnotationUtils.isPresent(method, EventListener.class)) {
+        AnnotationAttributes[] attributes
+                = AnnotationUtils.getAttributesArray(method, EventListener.class);
+        for (AnnotationAttributes attribute : attributes) {
+          Class<?>[] eventTypes = getEventTypes(attribute, method);
           // use ContextUtils#resolveParameter to resolve method arguments
-          addListener(def, beanFactory, declaredMethod, eventTypes);
+          addListener(def, beanFactory, method, eventTypes);
         }
       }
-    }
+    });
 
     return bean;
   }
 
   protected Class<?>[] getEventTypes(AnnotationAttributes attribute, Method declaredMethod) {
-    final Class<?>[] eventTypes = attribute.getClassArray(Constant.VALUE);
+    Class<?>[] eventTypes = attribute.getClassArray(Constant.VALUE);
 
     if (ObjectUtils.isNotEmpty(eventTypes)) {
       return eventTypes;
     }
-    final Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+    Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
     if (parameterTypes.length == 0) {
       throw new ConfigurationException("cannot determine event type on method: " + declaredMethod);
     }
@@ -88,7 +88,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     }
     else {
       Class<?> eventType = null;
-      for (final Class<?> parameterType : parameterTypes) {
+      for (Class<?> parameterType : parameterTypes) {
         // lookup EventObject
         if (EventObject.class.isAssignableFrom(parameterType)) {
           eventType = parameterType;
@@ -134,8 +134,8 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     }
 
     @Override
-    public void onApplicationEvent(final Object event) { // any event type
-      final Object[] parameter = resolveArguments(argumentsResolver, event);
+    public void onApplicationEvent(Object event) { // any event type
+      Object[] parameter = resolveArguments(argumentsResolver, event);
       // native invoke public,protected,default method
       methodInvoker.invoke(beanSupplier.get(), parameter);
     }

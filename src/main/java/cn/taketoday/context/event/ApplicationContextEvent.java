@@ -58,7 +58,7 @@ public abstract class ApplicationContextEvent extends ApplicationEvent {
    * @since 4.0
    */
   public final <T> T getBeanFactory(Class<T> requiredType) {
-    return getSource().getBeanFactory(requiredType);
+    return getSource().unwrapFactory(requiredType);
   }
 
 }
