@@ -54,4 +54,11 @@ public interface ApplicationEventPublisher {
    */
   void addApplicationListener(Class<?> listener);
 
+  /**
+   * Remove all listeners registered with this multicaster.
+   * <p>After a remove call, the multicaster will perform no action
+   * on event notification until new listeners are registered.
+   */
+  void removeAllListeners();
+
 }

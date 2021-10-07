@@ -130,6 +130,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /** Display name. */
   private String displayName = ObjectUtils.identityToString(this);
 
+  /** @since 4.0 */
+  private ApplicationEventPublisher eventPublisher = new DefaultApplicationEventPublisher();
+
+  /** @since 4.0 */
+  private BeanFactoryAwareBeanInstantiator beanInstantiator;
+  /** @since 4.0 */
+  private final PathMatchingPatternResourceLoader patternResourceLoader = new PathMatchingPatternResourceLoader();
+
+  public AbstractApplicationContext() {
+    ContextUtils.setLastStartupContext(this); // @since 2.1.6
+  }
+
   /**
    * Construct with a {@link ConfigurableEnvironment}
    *
@@ -139,10 +151,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @since 2.1.7
    */
   public AbstractApplicationContext(ConfigurableEnvironment env) {
-    applyState(State.NONE);
+    this();
     this.environment = env;
-    ContextUtils.setLastStartupContext(this); // @since 2.1.6
-    checkEnvironment(env);
   }
 
   /**
@@ -1015,6 +1025,120 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
     return processors;
   }
+
+  //---------------------------------------------------------------------
+  // Implementation of ApplicationEventPublisher interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public void publishEvent(Object event) {
+    getEventPublisher().publishEvent(event);
+  }
+
+  /**
+   * Load all the application listeners in context and register it.
+   */
+  protected void registerListener(Collection<Class<?>> candidates) {
+    log.info("Loading Application Listeners.");
+
+    for (Class<?> candidateListener : candidates) {
+      if (AnnotationUtils.isPresent(candidateListener, EventListener.class)) {
+        registerListener(candidateListener);
+      }
+    }
+
+    postProcessRegisterListener();
+  }
+
+  /**
+   * Register {@link ApplicationListener} to {@link ApplicationEventPublisher}
+   * <p>
+   * If there isn't a bean create it and register bean to singleton cache
+   *
+   * @param listenerClass
+   *         Must be {@link ApplicationListener} class
+   *
+   * @throws IllegalArgumentException
+   *         If listenerClass isn't a {@link ApplicationListener}
+   * @see #getEnvironment()
+   */
+  protected void registerListener(Class<?> listenerClass) {
+    Assert.isAssignable(
+            ApplicationListener.class,
+            listenerClass, "@EventListener must be a 'ApplicationListener'");
+    try {
+      // if exist bean
+      Object applicationListener = getBeanFactory().getSingleton(listenerClass);
+      if (applicationListener == null) {
+        // create bean instance
+        applicationListener = beanInstantiator.instantiate(listenerClass);
+        getBeanFactory().registerSingleton(applicationListener);
+      }
+      addApplicationListener((ApplicationListener<?>) applicationListener);
+    }
+    catch (NoSuchBeanDefinitionException e) {
+      throw new ConfigurationException("It is best not to use constructor-injection when instantiating the listener", e);
+    }
+  }
+
+  @Override
+  public void addApplicationListener(ApplicationListener<?> listener) {
+    getEventPublisher().addApplicationListener(listener);
+  }
+
+  @Override
+  public void addApplicationListener(Class<?> listener) {
+    registerListener(listener);
+  }
+
+  @Override
+  public void removeAllListeners() {
+    getEventPublisher().removeAllListeners();
+  }
+
+  /**
+   * Process after {@link #registerListener(Collection, MultiValueMap)}
+   */
+  protected void postProcessRegisterListener() {
+    addApplicationListener(new ContextCloseListener());
+
+    Set<Class<?>> listeners = loadMetaInfoListeners();
+    // load from strategy files
+    log.info("Loading listeners from strategies files");
+    TodayStrategies todayStrategies = TodayStrategies.getDetector();
+    listeners.addAll(todayStrategies.getTypes(ApplicationListener.class));
+
+    for (Class<?> listener : listeners) {
+      registerListener(listener);
+    }
+  }
+
+  /**
+   * Load the META-INF/listeners
+   *
+   * @see Constant#META_INFO_listeners
+   * @since 2.1.6
+   */
+  public Set<Class<?>> loadMetaInfoListeners() {
+    // fixed #9 Some listener in a jar can't be load
+    log.info("Loading META-INF/listeners");
+    // Load the META-INF/listeners
+    // ---------------------------------------------------
+    return ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
+  }
+
+  /** @since 4.0 */
+  public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
+    Assert.notNull(eventPublisher, "event-publisher must not be nul");
+    this.eventPublisher = eventPublisher;
+  }
+
+  /** @since 4.0 */
+  public ApplicationEventPublisher getEventPublisher() {
+    return eventPublisher;
+  }
+
+  // Object
 
   @Override
   public String toString() {
