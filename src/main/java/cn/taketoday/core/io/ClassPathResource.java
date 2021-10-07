@@ -31,6 +31,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+`import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -235,6 +236,16 @@ public class ClassPathResource implements Resource, WritableResource {
 
   public URI getURI() throws IOException {
     return getResource().getURI();
+  }
+
+  /**
+   * Return the ClassLoader that this resource will be obtained from.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public final ClassLoader getClassLoader() {
+    return resourceClass != null ? resourceClass.getClassLoader() : classLoader;
   }
 
   @Override

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -43,7 +43,6 @@ import cn.taketoday.core.Nullable;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -51,7 +50,7 @@ import cn.taketoday.util.StringUtils;
 import static cn.taketoday.core.Constant.BLANK;
 
 /**
- * A {@link ResourceResolver} implementation that is able to resolve a specified
+ * A {@link ResourceLoader} implementation that is able to resolve a specified
  * resource location path into one or more matching Resources. The source path
  * may be a simple path which has a one-to-one mapping to a target
  * {@link Resource}, or alternatively may contain the special
@@ -180,35 +179,57 @@ import static cn.taketoday.core.Constant.BLANK;
  * @author Marius Bogoevici
  * @author Costin Leau
  * @author Phillip Webb
- * @author TODAY <br>
- * 2019-12-05 12:51
+ * @author TODAY 2019-12-05 12:51
  * @see AntPathMatcher
  * @see ClassLoader#getResources(String)
  * @since 2.1.7
  */
-public class PathMatchingResourcePatternResolver implements ResourceResolver {
-
-  private static final Logger log = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
-
-  private ClassLoader classLoader;
+public class PathMatchingPatternResourceLoader implements PatternResourceLoader {
+  private static final Logger log = LoggerFactory.getLogger(PathMatchingPatternResourceLoader.class);
 
   private PathMatcher pathMatcher = new AntPathMatcher();
+  private final ResourceLoader resourceLoader;
 
-  public PathMatchingResourcePatternResolver() {
-    this(ClassUtils.getClassLoader());
+  /**
+   * Create a new PathMatchingResourcePatternResolver with a DefaultResourceLoader.
+   * <p>ClassLoader access will happen via the thread context class loader.
+   *
+   * @see DefaultResourceLoader
+   */
+  public PathMatchingPatternResourceLoader() {
+    this.resourceLoader = new DefaultResourceLoader();
   }
 
-  public PathMatchingResourcePatternResolver(@Nullable ClassLoader classLoader) {
-    this.classLoader = classLoader == null ? ClassUtils.getClassLoader() : classLoader;
+  /**
+   * Create a new PathMatchingResourcePatternResolver.
+   * <p>ClassLoader access will happen via the thread context class loader.
+   *
+   * @param resourceLoader
+   *         the ResourceLoader to load root directories and
+   *         actual resources with
+   */
+  public PathMatchingPatternResourceLoader(ResourceLoader resourceLoader) {
+    Assert.notNull(resourceLoader, "ResourceLoader must not be null");
+    this.resourceLoader = resourceLoader;
+  }
+
+  /**
+   * Create a new PathMatchingResourcePatternResolver with a DefaultResourceLoader.
+   *
+   * @param classLoader
+   *         the ClassLoader to load classpath resources with,
+   *         or {@code null} for using the thread context class loader
+   *         at the time of actual resource access
+   *
+   * @see DefaultResourceLoader
+   */
+  public PathMatchingPatternResourceLoader(@Nullable ClassLoader classLoader) {
+    this.resourceLoader = new DefaultResourceLoader(classLoader);
   }
 
   @Override
   public ClassLoader getClassLoader() {
-    return this.classLoader != null ? this.classLoader : ClassUtils.getDefaultClassLoader();
-  }
-
-  public void setClassLoader(ClassLoader classLoader) {
-    this.classLoader = classLoader;
+    return resourceLoader.getClassLoader();
   }
 
   /**
@@ -232,7 +253,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
   @NonNull
   @Override
   public Resource getResource(String location) {
-    return ResourceUtils.getResource(location);
+    return resourceLoader.getResource(location);
   }
 
   @Override

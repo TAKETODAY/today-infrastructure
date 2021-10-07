@@ -19,8 +19,6 @@
  */
 package cn.taketoday.core.io;
 
-import java.io.IOException;
-
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 
@@ -45,18 +43,10 @@ import cn.taketoday.core.Nullable;
  * 2019-12-05 12:52
  * @since 2.1.7
  */
-public interface ResourceResolver {
+public interface ResourceLoader {
 
   /** Pseudo URL prefix for loading from the class path: "classpath:". */
   String CLASSPATH_URL_PREFIX = "classpath:";
-
-  /**
-   * Pseudo URL prefix for all matching resources from the class path:
-   * "classpath*:" This differs from ResourceLoader's classpath URL prefix in that
-   * it retrieves all matching resources for a given name (e.g. "/beans.xml"), for
-   * example in the root of all deployed JAR files.
-   */
-  String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 
   /**
    * Return a Resource handle for the specified resource location.
@@ -101,21 +91,5 @@ public interface ResourceResolver {
    */
   @Nullable
   ClassLoader getClassLoader();
-
-  /**
-   * Resolve the given location pattern into Resource objects.
-   * <p>
-   * Overlapping resource entries that point to the same physical resource should
-   * be avoided, as far as possible. The result should have set semantics.
-   *
-   * @param locationPattern
-   *         the location pattern to resolve
-   *
-   * @return the corresponding Resource objects
-   *
-   * @throws IOException
-   *         in case of I/O errors
-   */
-  Resource[] getResources(String locationPattern) throws IOException;
 
 }
