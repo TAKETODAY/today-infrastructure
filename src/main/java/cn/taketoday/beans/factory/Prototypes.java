@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -34,6 +34,17 @@ public final class Prototypes {
    * if a property is prototype bean this bean-factory
    * will inject a proxy instance to get prototype
    * instance from every single method call.
+   *
+   * @since 4.0
+   */
+  public static Object newProxyInstance(BeanDefinition def, ConfigurableBeanFactory factory) {
+    return newProxyInstance(def.getBeanClass(), def, factory, false);
+  }
+
+  /**
+   * if a property is prototype bean this bean-factory
+   * will inject a proxy instance to get prototype
+   * instance from every single method call.
    */
   public static Object newProxyInstance(Class<?> refType, BeanDefinition def, ConfigurableBeanFactory factory) {
     return newProxyInstance(refType, def, factory, false);
@@ -55,15 +66,12 @@ public final class Prototypes {
    *
    * @return Target prototype object
    */
-  public static Object newProxyInstance(Class<?> refType,
-                                        BeanDefinition def,
-                                        ConfigurableBeanFactory factory,
-                                        boolean proxyTargetClass) //
-  {
-    final ProxyFactory proxyFactory = new ProxyFactory();
+  public static Object newProxyInstance(
+          Class<?> refType, BeanDefinition def, ConfigurableBeanFactory factory, boolean proxyTargetClass) {
+    ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.setProxyTargetClass(proxyTargetClass);
 
-    final PrototypeTargetSource prototypeTargetSource = new PrototypeTargetSource();
+    PrototypeTargetSource prototypeTargetSource = new PrototypeTargetSource();
     prototypeTargetSource.setTargetBeanDefinition(def);
     prototypeTargetSource.setBeanFactory(factory);
     proxyFactory.setTargetSource(prototypeTargetSource);
