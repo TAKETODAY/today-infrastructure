@@ -256,13 +256,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /**
    * Load all the class in class path
    */
-  public void load() {
-    load(Constant.BLANK);
+  public void scan() {
+    scan(Constant.BLANK);
   }
 
   @Override
-  public void load(Collection<Class<?>> candidates) {
-    final Set<Class<?>> candidateSet;
+  public void scan(Collection<Class<?>> candidates) {
+    Set<Class<?>> candidateSet;
     if (candidates instanceof Set) {
       candidateSet = (Set<Class<?>>) candidates;
     }
@@ -272,11 +272,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     getCandidateComponentScanner().setCandidates(candidateSet);
 
-    load((String[]) null);
+    scan((String[]) null);
   }
 
   @Override
-  public void load(String... locations) {
+  public void scan(String... locations) {
     this.locations = locations;
 
     try {
