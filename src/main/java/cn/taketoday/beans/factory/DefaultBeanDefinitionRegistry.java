@@ -128,16 +128,6 @@ public class DefaultBeanDefinitionRegistry
     return isAlias(beanName) || containsBeanDefinition(beanName);
   }
 
-  @Override
-  public void registerBean(Class<?> beanClass) throws BeanDefinitionStoreException {
-    // TODO
-  }
-
-  @Override
-  public void registerBean(String name, Class<?> beanClass) throws BeanDefinitionStoreException {
-    // TODO
-  }
-
   /**
    * Set whether it should be allowed to override bean definitions by registering
    * a different definition with the same name, automatically replacing the former.

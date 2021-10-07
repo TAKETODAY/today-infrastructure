@@ -155,25 +155,6 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   int getBeanDefinitionCount();
 
   /**
-   * register a bean with the given bean class
-   *
-   * @since 3.0
-   */
-  @Deprecated
-  void registerBean(Class<?> beanClass) throws BeanDefinitionStoreException;
-
-  /**
-   * register a bean with the given name and bean class
-   *
-   * @param beanClass
-   *         bean class
-   *
-   * @since 3.0
-   */
-  @Deprecated
-  void registerBean(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
-
-  /**
    * Determine whether the given bean name is already in use within this registry,
    * i.e. whether there is a local bean or alias registered under this name.
    *
