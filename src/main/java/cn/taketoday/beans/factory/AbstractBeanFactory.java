@@ -366,37 +366,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
-    return isTypeMatch(name, typeToMatch, true);
-  }
-
-  /**
-   * Internal extended variant of {@link #isTypeMatch(String, ResolvableType)}
-   * to check whether the bean with the given name matches the specified type. Allow
-   * additional constraints to be applied to ensure that beans are not created early.
-   *
-   * @param name
-   *         the name of the bean to query
-   * @param typeToMatch
-   *         the type to match against (as a
-   *         {@code ResolvableType})
-   *
-   * @return {@code true} if the bean type matches, {@code false} if it
-   * doesn't match or cannot be determined yet
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if there is no bean with the given name
-   * @see #getBean
-   * @see #getType
-   * @since 4.0
-   */
-  protected boolean isTypeMatch(String name, ResolvableType typeToMatch, boolean allowFactoryBeanInit)
-          throws NoSuchBeanDefinitionException {
     BeanDefinition beanDefinition = obtainBeanDefinition(name);
-    if (beanDefinition.isFactoryBean()) {
-      if (!allowFactoryBeanInit) {
-        // TODO not allowFactoryBeanInit
-      }
-    }
     return beanDefinition.isAssignableTo(typeToMatch);
   }
 
