@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -42,8 +41,8 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.ValueExpressionContext;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.event.ApplicationEventCapable;
+import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
@@ -52,14 +51,13 @@ import cn.taketoday.context.event.ContextCloseListener;
 import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
+import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
@@ -67,8 +65,11 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -106,13 +107,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
   private long startupDate;
-  private final ConfigurableEnvironment environment;
+
+  private ConfigurableEnvironment environment;
 
   // @since 2.1.5
-  private State state;
-  /** application listeners **/
-  private final DefaultMultiValueMap<Class<?>, ApplicationListener>
-          applicationListeners = new DefaultMultiValueMap<>(32);
+  private State state = State.NONE;
 
   private String[] locations;
   /** @since 2.1.7 Scan candidates */
@@ -368,7 +367,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * Prepare to load context
    */
   protected void prepareRefresh() {
-
     this.startupDate = System.currentTimeMillis();
     log.info("Starting Application Context at [{}].", formatStartupDate());
 
@@ -377,24 +375,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // Initialize any placeholder property sources in the context environment.
     initPropertySources();
 
-    // prepare properties
-    final ConfigurableEnvironment env = getEnvironment();
-    try {
-      env.loadProperties();
-    }
-    catch (IOException ex) {
-      throw new ApplicationContextException("An Exception Occurred When Loading Properties", ex);
-    }
-    postProcessLoadProperties(env);
+    postProcessLoadProperties();
 
-    {// @since 2.1.6
-      if (env.getFlag(ENABLE_FULL_PROTOTYPE)) {
-        getBeanFactory().setFullPrototype(true);
-      }
-      if (env.getFlag(ENABLE_FULL_LIFECYCLE)) {
-        getBeanFactory().setFullLifecycle(true);
-      }
-    }
   }
 
   /**
@@ -404,16 +386,30 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    */
   protected void initPropertySources() {
     // For subclasses: do nothing by default.
+
+    // prepare properties
+    ConfigurableEnvironment env = getEnvironment();
+    try {
+
+      env.loadProperties();
+    }
+    catch (IOException ex) {
+      throw new ApplicationContextException("An Exception Occurred When Loading Properties", ex);
+    }
   }
 
   /**
-   * Post process after load properties
-   *
-   * @param environment
-   *         {@link ConfigurableEnvironment}
+   * post-process after load properties
    */
-  protected void postProcessLoadProperties(ConfigurableEnvironment environment) {
-    // no-op
+  protected void postProcessLoadProperties() {
+    ConfigurableEnvironment environment = getEnvironment();
+    // @since 2.1.6
+    if (environment.getFlag(ENABLE_FULL_PROTOTYPE)) {
+      getBeanFactory().setFullPrototype(true);
+    }
+    if (environment.getFlag(ENABLE_FULL_LIFECYCLE)) {
+      getBeanFactory().setFullLifecycle(true);
+    }
   }
 
   /**
@@ -425,16 +421,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         candidates bean classes
    */
   protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
-    // load from given class set
-    beanFactory.getBeanDefinitionLoader().load(candidates);
   }
 
   /**
    * Context start success
    */
   protected void finishRefresh() {
-    // clear cache
-    // ClassUtils.clearCache();
+    getBeanFactory().initializeSingletons();
+
     // start success publish started event
     publishEvent(new ContextStartedEvent(this));
     applyState(State.STARTED);
@@ -452,10 +446,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   public void prepareBeanFactory() {
-
-    final AbstractBeanFactory beanFactory = getBeanFactory();
+    AbstractBeanFactory beanFactory = getBeanFactory();
     // must not be null
-    final ConfigurableEnvironment env = getEnvironment();
+    ConfigurableEnvironment env = getEnvironment();
 
     checkEnvironment(env);
     // register framework beans
@@ -463,14 +456,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     registerFrameworkComponents(env, beanFactory);
     // Loading candidates components
     log.info("Loading candidates components");
-    final Set<Class<?>> candidates = getComponentCandidates();
+    Set<Class<?>> candidates = getComponentCandidates();
     log.info("There are [{}] candidates components in [{}]", candidates.size(), this);
-    // register listener
-    registerListener(candidates, applicationListeners);
 
     // start loading bean definitions ; publish loading bean definition event
     publishEvent(new BeanDefinitionLoadingEvent(this, candidates)); // first event
     loadBeanDefinitions(beanFactory, candidates);
+
+    // register listener @since 4.0 after loadBeanDefinitions
+    registerListener(candidates, applicationListeners);
+
     // bean definitions loaded
     publishEvent(new BeanDefinitionLoadedEvent(this, beanFactory.getBeanDefinitions()));
     // handle dependency : register bean dependencies definition
@@ -478,32 +473,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
 
     postProcessBeanFactory(beanFactory);
-
   }
 
   /**
    * check {@link ConfigurableEnvironment}
    */
   protected void checkEnvironment(ConfigurableEnvironment env) {
-    // check registry
-    if (env.getBeanDefinitionRegistry() == null) {
-      env.setBeanDefinitionRegistry(getBeanFactory());
-    }
-    // check bean definition loader
-    if (env.getBeanDefinitionLoader() == null) {
-      env.setBeanDefinitionLoader(getBeanFactory().getBeanDefinitionLoader());
-    }
     // Expression
-    if (env.getExpressionProcessor() == null) {
-      final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-      final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
-      elContext.defineBean(ExpressionEvaluator.ENV, env.getProperties()); // @since 2.1.6
-      env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
-    }
   }
 
   protected Set<Class<?>> getComponentCandidates() {
-    final CandidateComponentScanner scanner = getCandidateComponentScanner();
+    CandidateComponentScanner scanner = getCandidateComponentScanner();
     if (ObjectUtils.isEmpty(locations)) {
       // Candidates have not been set or scanned
       if (scanner.getCandidates() == null) {
@@ -527,23 +507,39 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    */
   protected void registerFrameworkComponents(
           ConfigurableEnvironment env, AbstractBeanFactory beanFactory) {
-    final ExpressionProcessor elProcessor = env.getExpressionProcessor();
-    BeanNameCreator nameCreator = getBeanFactory().getBeanNameCreator();
 
-    // register ELManager @since 2.1.5
-    // fix @since 2.1.6 elManager my be null
-    beanFactory.registerSingleton(nameCreator.create(ExpressionManager.class), elProcessor.getManager());
+    ExpressionProcessor elProcessor = beanFactory.getBean(ExpressionProcessor.class);
+    if (elProcessor == null) {
+      // create shared elProcessor to singletons
+      ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+      ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
+      elContext.defineBean(ExpressionEvaluator.ENV, env); // @since 2.1.6
 
-    beanFactory.registerSingleton(nameCreator.create(ExpressionProcessor.class), elProcessor);
+      ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
+      elProcessor = new ExpressionProcessor(elManager);
+
+      // register ELManager @since 2.1.5
+      // fix @since 2.1.6 elManager my be null
+      beanFactory.registerSingleton(elManager);
+
+      beanFactory.registerSingleton(elContext);
+      beanFactory.registerSingleton(exprFactory);
+      beanFactory.registerSingleton(elProcessor);
+    }
+
     // register Environment
-    beanFactory.registerSingleton(nameCreator.create(Environment.class), env);
+    beanFactory.registerSingleton(createBeanName(Environment.class), env);
     // register ApplicationContext
-    beanFactory.registerSingleton(nameCreator.create(ApplicationContext.class), this);
+    beanFactory.registerSingleton(createBeanName(ApplicationContext.class), this);
     // register BeanFactory @since 2.1.7
-    beanFactory.registerSingleton(nameCreator.create(BeanFactory.class), beanFactory);
+    beanFactory.registerSingleton(createBeanName(BeanFactory.class), beanFactory);
     // @since 4.0 ArgumentsResolver
-    beanFactory.registerSingleton(nameCreator.create(ArgumentsResolver.class), getArgumentsResolver());
+    beanFactory.registerSingleton(getArgumentsResolver());
 
+  }
+
+  public String createBeanName(Class<?> clazz) {
+    return ClassUtils.getShortName(clazz);
   }
 
   /**
@@ -556,7 +552,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     registerBeanFactoryPostProcessor();
 
     if (CollectionUtils.isNotEmpty(factoryPostProcessors)) {
-      for (final BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
+      for (BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
         postProcessor.postProcessBeanFactory(beanFactory);
       }
     }
@@ -566,7 +562,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     if (beanFactory.isFullPrototype()) {
       for (BeanReferencePropertySetter reference : beanFactory.getDependencies()) {
-        final BeanDefinition def = beanFactory.getBeanDefinition(reference.getReferenceName());
+        BeanDefinition def = beanFactory.getBeanDefinition(reference.getReferenceName());
         if (def != null && def.isPrototype()) {
           reference.applyPrototype();
         }
@@ -581,161 +577,55 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public void registerBeanFactoryPostProcessor() {
     log.info("Loading BeanFactoryPostProcessor.");
 
-    final List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
+    List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
     if (!postProcessors.isEmpty()) {
       getFactoryPostProcessors().addAll(postProcessors);
       AnnotationAwareOrderComparator.sort(factoryPostProcessors);
     }
   }
 
-  /**
-   * Load all the application listeners in context and register it.
-   *
-   * @param applicationListeners
-   *         {@link ApplicationListener} cache
-   */
-  void registerListener(final Collection<Class<?>> candidates,
-                        final MultiValueMap<Class<?>, ApplicationListener> applicationListeners) //
-  {
-    log.info("Loading Application Listeners.");
-
-    for (final Class<?> candidateListener : candidates) {
-      if (AnnotationUtils.isPresent(candidateListener, EventListener.class)) {
-        registerListener(candidateListener);
-      }
-    }
-
-    postProcessRegisterListener(applicationListeners);
-  }
-
-  /**
-   * Register {@link ApplicationListener} to {@link #applicationListeners}
-   * <p>
-   * If there isn't a bean create it and register bean to singleton cache
-   *
-   * @param listenerClass
-   *         Must be {@link ApplicationListener} class
-   *
-   * @throws ConfigurationException
-   *         If listenerClass isn't a {@link ApplicationListener}
-   * @see #getEnvironment()
-   */
-  protected void registerListener(final Class<?> listenerClass) {
-    if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
-      throw new ConfigurationException("@EventListener must be a 'ApplicationListener'");
-    }
-
-    try {
-      // if exist bean
-      Object applicationListener = getBeanFactory().getSingleton(listenerClass);
-      if (applicationListener == null) {
-        // create bean instance
-        applicationListener = BeanUtils.newInstance(listenerClass, this);
-        getBeanFactory().registerSingleton(applicationListener);
-      }
-      addApplicationListener((ApplicationListener<?>) applicationListener);
-    }
-    catch (NoSuchBeanDefinitionException e) {
-      throw new ConfigurationException("It is best not to use constructor-injection when instantiating the listener", e);
-    }
-    catch (Throwable ex) {
-      ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ApplicationContextException("An Exception Occurred When Register Application Listener", ex);
-    }
-  }
-
-  @Override
-  public void addApplicationListener(final ApplicationListener<?> listener) {
-    Assert.notNull(listener, "listener can't be null");
-
-    final MultiValueMap<Class<?>, ApplicationListener> listeners = this.applicationListeners;
-    if (listener instanceof ApplicationEventCapable) { // @since 2.1.7
-      for (final Class<?> type : ((ApplicationEventCapable) listener).getApplicationEvent()) {
-        addApplicationListener(listener, type, listeners);
-      }
-    }
-    else {
-      final Class<?> eventType = GenericTypeResolver.resolveTypeArgument(listener.getClass(), ApplicationListener.class);
-      addApplicationListener(listener, eventType, listeners);
-    }
-  }
-
-  @Override
-  public void addApplicationListener(Class<?> listener) {
-    registerListener(listener);
-  }
-
-  /**
-   * Register to registry
-   *
-   * @param applicationListeners
-   *         Registry
-   * @param applicationListener
-   *         The instance of application listener
-   * @param eventType
-   *         The event type
-   */
-  void addApplicationListener(
-          ApplicationListener applicationListener, Class<?> eventType,
-          MultiValueMap<Class<?>, ApplicationListener> applicationListeners
-  ) {
-    List<ApplicationListener> listeners = applicationListeners.get(eventType);
-    if (listeners == null) {
-      applicationListeners.add(eventType, applicationListener);
-    }
-    else if (!listeners.contains(applicationListener)) {
-      listeners.add(applicationListener);
-      AnnotationAwareOrderComparator.sort(listeners);
-    }
-  }
-
-  /**
-   * Process after {@link #registerListener(Collection, MultiValueMap)}
-   *
-   * @param applicationListeners
-   *         {@link ApplicationListener} cache
-   */
-  protected void postProcessRegisterListener(
-          MultiValueMap<Class<?>, ApplicationListener> applicationListeners) {
-    addApplicationListener(new ContextCloseListener());
-
-    final Set<Class<?>> listeners = loadMetaInfoListeners();
-    // load from strategy files
-    log.info("Loading listeners from strategies files");
-    TodayStrategies todayStrategies = TodayStrategies.getDetector();
-    listeners.addAll(todayStrategies.getTypes(ApplicationListener.class));
-
-    for (final Class<?> listener : listeners) {
-      registerListener(listener);
-    }
-  }
-
-  /**
-   * Load the META-INF/listeners
-   *
-   * @see Constant#META_INFO_listeners
-   * @since 2.1.6
-   */
-  public Set<Class<?>> loadMetaInfoListeners() { // fixed #9 Some listener in a jar can't be load
-    log.info("Loading META-INF/listeners");
-    // Load the META-INF/listeners
-    // ---------------------------------------------------
-    return ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
-  }
+  //---------------------------------------------------------------------
+  // Implementation of ApplicationContext interface
+  //---------------------------------------------------------------------
 
   @Override
   public void refresh() {
+    publishEvent(new ContextRefreshEvent(this));
+
     try {
-      // refresh object instance
-      publishEvent(new ContextRefreshEvent(this));
-      getBeanFactory().initializeSingletons();
+      // Prepare refresh
+      prepareRefresh();
+      // Prepare BeanFactory
+      prepareBeanFactory();
+      // Initialization singletons that has already in context
+      // Initialize other special beans in specific context subclasses.
+      // for example a Web Server
+      preRefresh();
+
+      // Refresh factory, Initialize all singletons.
+      onRefresh();
+
+      // Finish refresh
+      finishRefresh();
     }
     catch (Throwable ex) {
+      close();
+      applyState(State.FAILED);
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ApplicationContextException(
-              "An Exception Occurred When Refresh Context: [" + this + "]", ex);
+      throw new ApplicationContextException("An Exception Occurred When Loading Context", ex);
     }
+    finally {
+      resetCommonCaches();
+    }
+
   }
+
+  protected void onRefresh() {
+
+  }
+
+  @Override
+  public abstract AbstractBeanFactory getBeanFactory();
 
   @Override
   public void close() {
@@ -743,25 +633,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     publishEvent(new ContextCloseEvent(this));
     applyState(State.CLOSED);
   }
-
-  // --------ApplicationEventPublisher
-
-  @Override
-  public void publishEvent(final Object event) {
-    if (log.isDebugEnabled()) {
-      log.debug("Publish event: [{}]", event);
-    }
-
-    final List<ApplicationListener> listeners = applicationListeners.get(event.getClass());
-    if (CollectionUtils.isNotEmpty(listeners)) {
-      for (final ApplicationListener applicationListener : listeners) {
-        applicationListener.onApplicationEvent(event);
-      }
-    }
-  }
-
-  @Override
-  public abstract AbstractBeanFactory getBeanFactory();
 
   @NonNull
   @Override
@@ -781,11 +652,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       return (T) this;
     }
     throw new IllegalArgumentException("bean factory must be a " + requiredType);
-  }
-
-  @Override
-  public ConfigurableEnvironment getEnvironment() {
-    return environment;
   }
 
   @Override
@@ -831,6 +697,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
   }
 
+  @Override
+  public ConfigurableEnvironment getEnvironment() {
+    if (environment == null) {
+      environment = createEnvironment();
+    }
+    return environment;
+  }
+
   /**
    * Create and return a new {@link StandardEnvironment}.
    * <p>Subclasses may override this method in order to supply
@@ -842,7 +716,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   @Override
   public void setEnvironment(ConfigurableEnvironment environment) {
-    // TODO
+    this.environment = environment;
   }
 
   @Override
@@ -993,7 +867,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   public void setPropertiesLocation(String propertiesLocation) {
     if (StringUtils.isNotEmpty(propertiesLocation)) {
-      getEnvironment().setPropertiesLocation(propertiesLocation);
+//      getEnvironment().setPropertiesLocation(propertiesLocation);
     }
   }
 
@@ -1002,7 +876,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   @Override
   public CandidateComponentScanner getCandidateComponentScanner() {
-    final CandidateComponentScanner ret = this.candidateComponentScanner;
+    CandidateComponentScanner ret = this.candidateComponentScanner;
     if (ret == null) {
       return this.candidateComponentScanner = createCandidateComponentScanner();
     }
@@ -1018,8 +892,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     this.candidateComponentScanner = candidateComponentScanner;
   }
 
-  public final List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
-    final ArrayList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
+  public List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
+    ArrayList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
     if (processors == null) {
       return this.factoryPostProcessors = new ArrayList<>();
     }
