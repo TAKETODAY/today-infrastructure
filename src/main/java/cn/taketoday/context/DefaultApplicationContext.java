@@ -38,6 +38,8 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.util.CollectionUtils;
 
 /**
+ * ApplicationContext default implementation
+ *
  * @author TODAY 2021/10/1 16:25
  * @since 4.0
  */
@@ -54,6 +56,7 @@ public class DefaultApplicationContext
   }
 
   public DefaultApplicationContext(StandardBeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "beanFactory must not be null");
     this.beanFactory = beanFactory;
   }
 
