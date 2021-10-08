@@ -57,7 +57,7 @@ public class ContextCloseListener
     log.info("Closing: [{}] at [{}]", context,
              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
-    ConfigurableBeanFactory beanFactory = event.getBeanFactory(ConfigurableBeanFactory.class);
+    ConfigurableBeanFactory beanFactory = event.unwrapFactory(ConfigurableBeanFactory.class);
 
     for (final String name : beanFactory.getBeanDefinitions().keySet()) {
       try {
