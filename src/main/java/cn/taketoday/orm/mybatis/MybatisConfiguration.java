@@ -32,10 +32,9 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.Autowired;
@@ -74,8 +73,7 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
     Logger log = LoggerFactory.getLogger(getClass());
     log.info("Loading Mybatis Mapper Bean Definitions");
 
-    ApplicationContext context = event.getSource();
-    ConfigurableBeanFactory beanFactory = event.getBeanFactory(ConfigurableBeanFactory.class);
+    BeanDefinitionRegistry registry = event.unwrapFactory(BeanDefinitionRegistry.class);
 
     for (Class<?> beanClass : event.getCandidates()) {
       if (beanClass.isInterface()) {
@@ -89,7 +87,7 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
         String[] names = repository.value();
         String name = ObjectUtils.isNotEmpty(names) ? names[0] : createBeanName(beanClass);
 
-        beanFactory.registerBeanDefinition(
+        registry.registerBeanDefinition(
                 name, createBeanDefinition(beanClass, name));
       }
     }
