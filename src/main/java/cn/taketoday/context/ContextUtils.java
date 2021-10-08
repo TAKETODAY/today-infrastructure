@@ -23,35 +23,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -66,9 +55,6 @@ import cn.taketoday.util.StringUtils;
  * 2019-01-16 20:04
  */
 public abstract class ContextUtils {
-
-  public static final Class<? extends Annotation>
-          PreDestroy = ClassUtils.load("javax.annotation.PreDestroy");
 
   private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
 
@@ -176,76 +162,6 @@ public abstract class ContextUtils {
 
   // ----------------- loader
 
-  /**
-   * Destroy bean instance
-   *
-   * @param obj
-   *         Bean instance
-   *
-   * @throws Exception
-   *         When destroy a bean
-   */
-  public static void destroyBean(final Object obj) throws Exception {
-    destroyBean(obj, null);
-  }
-
-  /**
-   * Destroy bean instance
-   *
-   * @param obj
-   *         Bean instance
-   *
-   * @throws Exception
-   *         When destroy a bean
-   */
-  public static void destroyBean(final Object obj, final BeanDefinition def) throws Exception {
-    destroyBean(obj, def, null);
-  }
-
-  /**
-   * Destroy bean instance
-   *
-   * @param obj
-   *         Bean instance
-   *
-   * @throws Exception
-   *         When destroy a bean
-   */
-  public static void destroyBean(final Object obj,
-                                 final BeanDefinition def,
-                                 final List<BeanPostProcessor> postProcessors) throws Exception {
-
-    Assert.notNull(obj, "bean instance must not be null");
-
-    if (CollectionUtils.isNotEmpty(postProcessors)) {
-      for (final BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof DestructionBeanPostProcessor) {
-          final DestructionBeanPostProcessor destruction = (DestructionBeanPostProcessor) postProcessor;
-          if (destruction.requiresDestruction(obj)) {
-            destruction.postProcessBeforeDestruction(obj, def);
-          }
-        }
-      }
-    }
-
-    // use real class
-    final Class<?> beanClass = ClassUtils.getUserClass(obj);
-    final List<String> destroyMethods = def != null ? Arrays.asList(def.getDestroyMethods()) : null;
-
-    for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-      if (((destroyMethods != null && destroyMethods.contains(method.getName()))
-              || AnnotationUtils.isPresent(method, PreDestroy)) // PreDestroy
-              && method.getParameterCount() == 0) { // 0参数
-        // fix: can not access a member @since 2.1.6
-        ReflectionUtils.makeAccessible(method).invoke(obj);
-      }
-    }
-
-    if (obj instanceof DisposableBean) {
-      ((DisposableBean) obj).destroy();
-    }
-  }
-
   // META-INF
   // ----------------------
 
@@ -266,7 +182,7 @@ public abstract class ContextUtils {
     if (resource.startsWith("META-INF")) {
 
       final Set<Class<?>> ret = new HashSet<>();
-      final ClassLoader classLoader = ClassUtils.getClassLoader();
+      final ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
       final Charset charset = Constant.DEFAULT_CHARSET;
       try {
         final Enumeration<URL> resources = classLoader.getResources(resource);
