@@ -61,6 +61,7 @@ import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.expression.ExpressionFactory;
@@ -313,24 +314,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   /**
-   * <p>Replace any stub property sources with actual instances.
-   *
-   * @see PropertySource.StubPropertySource
-   */
-  protected void initPropertySources() {
-    // For subclasses: do nothing by default.
-
-    // prepare properties
-    ConfigurableEnvironment env = getEnvironment();
-    try {
-      env.loadProperties();
-    }
-    catch (IOException ex) {
-      throw new ApplicationContextException("An Exception Occurred When Loading Properties", ex);
-    }
-  }
-
-  /**
    * Context start success
    */
   protected void postRefresh() {
@@ -495,6 +478,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   }
 
+  /**
+   * <p>Replace any stub property sources with actual instances.
+   *
+   * @see PropertySource.StubPropertySource
+   */
+  protected void initPropertySources() {
+    // for sub-class loading properties or prepare property-source
+  }
+  
   @Override
   public abstract AbstractBeanFactory getBeanFactory();
 
