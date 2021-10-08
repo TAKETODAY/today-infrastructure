@@ -19,6 +19,21 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -37,27 +52,12 @@ import cn.taketoday.core.Nullable;
 import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -72,8 +72,6 @@ public abstract class AbstractBeanFactory
   /** Bean Post Processors */
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   private final HashMap<String, Scope> scopes = new HashMap<>();
-  /** Map of bean definition objects, keyed by bean name */
-  private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
   // @since 2.1.6
   private boolean fullPrototype = false;
@@ -164,9 +162,6 @@ public abstract class AbstractBeanFactory
     }
   }
 
-  @Override
-  public abstract <T> T getBean(Class<T> requiredType);
-
   /**
    * Get bean for required type
    *
@@ -177,7 +172,7 @@ public abstract class AbstractBeanFactory
    */
   protected <T> Object doGetBeanForType(Class<T> requiredType) {
     for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
+      if (entry.getValue().isAssignableTo(requiredType)) {
         Object bean = getBean(entry.getValue());
         if (bean != null) {
           return bean;
@@ -201,154 +196,8 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T> ObjectSupplier<T> getObjectSupplier(final BeanDefinition def) {
-    Assert.notNull(def, "BeanDefinition must not be null");
-
-    if (def.isSingleton()) {
-      final class SingletonObjectSupplier implements ObjectSupplier<T> {
-        volatile T targetSingleton;
-
-        @Override
-        public T getIfAvailable() throws BeansException {
-          T ret = targetSingleton;
-          if (ret == null) {
-            ret = targetSingleton = (T) getBean(def);
-          }
-          return ret;
-        }
-
-        @Override //@off
-        public T get() { return getIfAvailable(); }
-        public Stream<T> orderedStream() { return stream(); }
-        public Stream<T> stream() { return Stream.of(targetSingleton); } //@on
-      }
-      return new SingletonObjectSupplier();
-    }
-
-    return new DefaultObjectSupplier<T>(def.getBeanClass(), this) {
-
-      @Override
-      public T getIfAvailable() throws BeansException {
-        return (T) getBean(def);
-      }
-    };
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    Assert.notNull(requiredType, "requiredType must not be null");
-    return new DefaultObjectSupplier<>(requiredType, this);
-  }
-
-  @Override
-  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
-    return getBeansOfType(requiredType, true, includeNonSingletons);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> Map<String, T> getBeansOfType(
-          Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    HashMap<String, T> beans = new HashMap<>();
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
-        Object bean = getBean(def);
-        if (bean != null) {
-          beans.put(entry.getKey(), (T) bean);
-        }
-      }
-    }
-
-    if (includeNoneRegistered) {
-      for (Entry<String, Object> entry : getSingletons().entrySet()) {
-        Object bean = entry.getValue();
-        if (!beans.containsKey(entry.getKey())
-                && (requiredType == null || requiredType.isInstance(bean))) {
-          beans.put(entry.getKey(), (T) bean);
-        }
-      }
-    }
-    return beans;
-  }
-
-  @Override
-  public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
-    return getBeanNamesOfType(requiredType, true, includeNonSingletons);
-  }
-
-  @Override
-  public Set<String> getBeanNamesOfType(
-          Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
-
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
-        beanNames.add(entry.getKey());
-      }
-    }
-    if (includeNoneRegistered) {
-      for (Entry<String, Object> entry : getSingletons().entrySet()) {
-        Object bean = entry.getValue();
-        if (requiredType == null || requiredType.isInstance(bean)) {
-          beanNames.add(entry.getKey());
-        }
-      }
-    }
-    return beanNames;
-  }
-
-  /**
-   * Return bean matching the given type (including subclasses), judging from bean definitions
-   *
-   * @param def
-   *         the BeanDefinition to check
-   * @param requiredType
-   *         the class or interface to match, or {@code null} for all bean names
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   *
-   * @return the bean matching the given object type (including subclasses)
-   */
-  static boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
-    return (includeNonSingletons || def.isSingleton())
-            && (requiredType == null || requiredType.isAssignableFrom(def.getBeanClass()));
-  }
-
-  @Override
-  public Map<String, Object> getBeansOfAnnotation(
-          Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
-    Assert.notNull(annotationType, "annotationType must not be null");
-
-    HashMap<String, Object> beans = new HashMap<>();
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if ((includeNonSingletons || def.isSingleton()) && def.isAnnotationPresent(annotationType)) {
-        Object bean = getBean(def);
-        if (bean != null) {
-          beans.put(entry.getKey(), bean);
-        }
-      }
-    }
-    return beans;
-  }
-
-  @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
-    return null;
-  }
-
-  @Override
   public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
     return obtainBeanDefinition(beanName).getAnnotation(annotationType);
-  }
-
-  @Override
-  public Map<String, BeanDefinition> getBeanDefinitions() {
-    return beanDefinitionMap;
   }
 
   @Override
@@ -769,6 +618,31 @@ public abstract class AbstractBeanFactory
     }
   }
 
+  @Override
+  public abstract Map<String, BeanDefinition> getBeanDefinitions();
+
+  /**
+   * register bean-def for
+   */
+  protected abstract void registerBeanDefinition(String beanName, BeanDefinition def);
+
+  /**
+   * Process after register {@link BeanDefinition}
+   *
+   * @param targetDef
+   *         Target {@link BeanDefinition}
+   */
+  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
+    PropertySetter[] propertySetters = targetDef.getPropertySetters();
+    if (ObjectUtils.isNotEmpty(propertySetters)) {
+      for (PropertySetter propertySetter : propertySetters) {
+        if (propertySetter instanceof BeanReferencePropertySetter && !dependencies.contains(propertySetter)) {
+          dependencies.add((BeanReferencePropertySetter) propertySetter);
+        }
+      }
+    }
+  }
+
   /**
    * Get {@link Primary} {@link BeanDefinition}
    *
@@ -985,30 +859,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    this.beanDefinitionMap.put(beanName, def);
-
-    postProcessRegisterBeanDefinition(def);
-  }
-
-  /**
-   * Process after register {@link BeanDefinition}
-   *
-   * @param targetDef
-   *         Target {@link BeanDefinition}
-   */
-  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-    PropertySetter[] propertySetters = targetDef.getPropertySetters();
-    if (ObjectUtils.isNotEmpty(propertySetters)) {
-      for (PropertySetter propertySetter : propertySetters) {
-        if (propertySetter instanceof BeanReferencePropertySetter && !dependencies.contains(propertySetter)) {
-          dependencies.add((BeanReferencePropertySetter) propertySetter);
-        }
-      }
-    }
-  }
-
-  @Override
   public String getBeanName(Class<?> targetClass) {
 
     for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
@@ -1020,30 +870,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void removeBeanDefinition(String beanName) {
-    beanDefinitionMap.remove(beanName);
-  }
-
-  @Override
-  public BeanDefinition getBeanDefinition(String beanName) {
-    return beanDefinitionMap.get(beanName);
-  }
-
-  @Override
-  public BeanDefinition getBeanDefinition(Class<?> beanClass) {
-    BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(beanClass));
-    if (def != null && beanClass.isAssignableFrom(def.getBeanClass())) {
-      return def;
-    }
-    for (BeanDefinition definition : getBeanDefinitions().values()) {
-      if (beanClass.isAssignableFrom(definition.getBeanClass())) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  @Override
   public boolean containsBean(String beanName) {
     if (containsLocalBean(beanName)) {
       return true;
@@ -1051,49 +877,6 @@ public abstract class AbstractBeanFactory
     // Not found -> check parent.
     BeanFactory parentBeanFactory = getParentBeanFactory();
     return parentBeanFactory != null && parentBeanFactory.containsBean(beanName);
-  }
-
-  @Override
-  public boolean containsBeanDefinition(String beanName) {
-    return getBeanDefinitions().containsKey(beanName);
-  }
-
-  @Override
-  public boolean containsBeanDefinition(Class<?> type) {
-    return containsBeanDefinition(type, false);
-  }
-
-  @Override
-  public boolean containsBeanDefinition(Class<?> type, boolean equals) {
-
-    Predicate<BeanDefinition> predicate = getPredicate(type, equals);
-    BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(type));
-    if (def != null && predicate.test(def)) {
-      return true;
-    }
-
-    for (BeanDefinition beanDef : getBeanDefinitions().values()) {
-      if (predicate.test(beanDef)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
-    return equals
-           ? beanDef -> type == beanDef.getBeanClass()
-           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
-  }
-
-  @Override
-  public Set<String> getBeanDefinitionNames() {
-    return getBeanDefinitions().keySet();
-  }
-
-  @Override
-  public int getBeanDefinitionCount() {
-    return getBeanDefinitions().size();
   }
 
   public Set<BeanReferencePropertySetter> getDependencies() {
@@ -1121,7 +904,9 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public abstract <T> T getBean(Class<T> requiredType);
+  public <T> T getBean(Class<T> requiredType) {
+    return (T) doGetBeanForType(requiredType);
+  }
 
   @Override
   @SuppressWarnings("unchecked")
@@ -1246,8 +1031,44 @@ public abstract class AbstractBeanFactory
           Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType must not be null");
 
-  // AutowireCapableBeanFactory
-  // ---------------------------------
+    HashMap<String, Object> beans = new HashMap<>();
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if ((includeNonSingletons || def.isSingleton()) && def.isAnnotationPresent(annotationType)) {
+        Object bean = getBean(def);
+        if (bean != null) {
+          beans.put(entry.getKey(), bean);
+        }
+      }
+    }
+    return beans;
+  }
+
+  @Override
+  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+    Assert.notNull(annotationType, "annotationType must not be null");
+
+    LinkedHashSet<String> names = new LinkedHashSet<>();
+
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (def.isAnnotationPresent(annotationType)) {
+        names.add(entry.getKey());
+      }
+    }
+
+    HashMap<String, Object> singletons = new HashMap<>(getSingletons());
+    for (Entry<String, Object> entry : singletons.entrySet()) {
+      String key = entry.getKey();
+      if (!names.contains(key)) {
+        Object value = entry.getValue();
+        if (value != null && AnnotationUtils.isPresent(value.getClass(), annotationType)) {
+          names.add(key);
+        }
+      }
+    }
+    return names;
+  }
 
   //---------------------------------------------------------------------
   // Implementation of ArgumentsResolverProvider interface
@@ -1281,14 +1102,13 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void removeBean(String name) {
-    removeBeanDefinition(name);
     removeSingleton(name);
   }
 
   @Override
   public void removeBean(Class<?> beanClass) {
-    Map<String, ?> beansOfType = getBeansOfType(beanClass, true, true);
-    for (String name : beansOfType.keySet()) {
+    Set<String> beanNamesOfType = getBeanNamesOfType(beanClass, true, true);
+    for (String name : beanNamesOfType) {
       removeBean(name);
     }
   }
@@ -1492,7 +1312,7 @@ public abstract class AbstractBeanFactory
   public String toString() {
     return new StringBuilder(ObjectUtils.toHexString(this))
             .append(": defining beans [")
-            .append(StringUtils.collectionToString(this.beanDefinitionMap.keySet()))
+            .append(StringUtils.collectionToString(getBeanDefinitionNames()))
             .append("]").toString();
   }
 }
