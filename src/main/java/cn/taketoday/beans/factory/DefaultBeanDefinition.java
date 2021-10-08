@@ -603,6 +603,16 @@ public class DefaultBeanDefinition
             .isAssignableFrom(typeToMatch);
   }
 
+  @Override
+  public boolean isAssignableTo(Class<?> typeToMatch) {
+    BeanDefinition child = getChild();
+    if (child != null) {
+      Class<?> implementationClass = child.getBeanClass();
+      return typeToMatch.isAssignableFrom(implementationClass);
+    }
+    return typeToMatch.isAssignableFrom(getBeanClass());
+  }
+
   // Object
 
   @Override

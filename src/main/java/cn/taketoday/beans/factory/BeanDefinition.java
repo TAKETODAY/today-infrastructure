@@ -428,4 +428,11 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    */
   boolean isAssignableTo(ResolvableType typeToMatch);
 
+  /**
+   * check type
+   *
+   * @since 4.0
+   */
+  boolean isAssignableTo(Class<?> typeToMatch);
+
 }
