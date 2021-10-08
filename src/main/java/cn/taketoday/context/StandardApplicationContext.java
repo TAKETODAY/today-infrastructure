@@ -98,11 +98,6 @@ public class StandardApplicationContext
   }
 
   @Override
-  public StandardBeanFactory getBeanFactory() {
-    return beanFactory;
-  }
-
-  @Override
   public void prepareBeanFactory() {
     super.prepareBeanFactory();
 
@@ -110,6 +105,7 @@ public class StandardApplicationContext
     List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
             BeanDefinitionLoader.class, this);
 
+    StandardBeanFactory beanFactory = getBeanFactory();
     for (BeanDefinitionLoader loader : strategies) {
       loader.loadBeanDefinitions(this, beanFactory);
     }

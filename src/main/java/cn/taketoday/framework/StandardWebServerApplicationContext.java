@@ -22,6 +22,7 @@ package cn.taketoday.framework;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.WebApplicationUtils;
@@ -39,15 +40,24 @@ public class StandardWebServerApplicationContext
   private static final Logger log = LoggerFactory.getLogger(StandardWebServerApplicationContext.class);
 
   private WebServer webServer;
+
+  @Nullable
   private final Class<?> startupClass;
+
   private String contextPath = Constant.BLANK;
 
   public StandardWebServerApplicationContext() {
     super(new StandardWebBeanFactory());
+    this.startupClass = null;
   }
 
-  public StandardWebServerApplicationContext(Class<?> startupClass, String... args) {
-    this(new StandardWebEnvironment(args), startupClass);
+  public StandardWebServerApplicationContext(@Nullable Class<?> startupClass) {
+    this.startupClass = startupClass;
+  }
+
+  public StandardWebServerApplicationContext(@Nullable Class<?> startupClass, String... args) {
+    setEnvironment(new StandardWebEnvironment(args));
+    this.startupClass = startupClass;
   }
 
   /**
@@ -57,12 +67,8 @@ public class StandardWebServerApplicationContext
    *         {@link ConfigurableEnvironment} instance
    */
   public StandardWebServerApplicationContext(ConfigurableEnvironment env) {
-    this(env, null);
-  }
-
-  public StandardWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
-    super(env, beanFactory);
-    this.startupClass = startupClass;
+    setEnvironment(env);
+    this.startupClass = null;
   }
 
   @Override

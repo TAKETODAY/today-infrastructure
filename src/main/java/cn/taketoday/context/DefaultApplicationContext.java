@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -61,7 +60,7 @@ public class DefaultApplicationContext
   }
 
   @Override
-  public AbstractBeanFactory getBeanFactory() {
+  public StandardBeanFactory getBeanFactory() {
     return beanFactory;
   }
 
