@@ -24,6 +24,7 @@ package cn.taketoday.beans;
  * 2018-12-22 17:36
  * @since 2.1.1
  */
+@Deprecated
 @FunctionalInterface
 public interface BeanNameCreator {
   String KEY_USE_SIMPLE_NAME = "context.name.simple";

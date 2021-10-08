@@ -19,8 +19,8 @@
  */
 package cn.taketoday.beans;
 
-import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.env.Environment;
 
 /**
  * Default implementation of {@link BeanNameCreator}
@@ -28,6 +28,7 @@ import cn.taketoday.core.Assert;
  * @author TODAY <br>
  * 2019-01-13 13:39
  */
+@Deprecated
 public class DefaultBeanNameCreator implements BeanNameCreator {
 
   private final boolean useSimpleName;
