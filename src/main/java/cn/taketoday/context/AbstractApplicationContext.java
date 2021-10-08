@@ -627,13 +627,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    return getBeanFactory().getObjectSupplier(requiredType);
+  public Object getScopeBean(BeanDefinition def, Scope scope) {
+    return getBeanFactory().getScopeBean(def, scope);
   }
 
   @Override
-  public Object getScopeBean(BeanDefinition def, Scope scope) {
-    return getBeanFactory().getScopeBean(def, scope);
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+    return getBeanFactory().getObjectSupplier(requiredType);
   }
 
   @Override
@@ -773,7 +773,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     getEventPublisher().publishEvent(event);
   }
 
-  BeanFactoryAwareBeanInstantiator beanInstantiator(){
+  public final BeanFactoryAwareBeanInstantiator getBeanInstantiator() {
+    if (beanInstantiator == null) {
+      beanInstantiator = new BeanFactoryAwareBeanInstantiator(getBeanFactory());
+    }
     return beanInstantiator;
   }
 
@@ -782,16 +785,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     addApplicationListener(new ContextCloseListener());
     AbstractBeanFactory beanFactory = getBeanFactory();
 
-    Map<String, BeanDefinition> beanDefinitions = beanFactory.getBeanDefinitions();
-
-    for (String beanDefinitionName : beanFactory.getBeanDefinitionNames()) {
-
-
-    }
-
-    Set<String> namesForAnnotation = beanFactory.getBeanNamesForAnnotation(EventListener.class);
-
-    for (BeanDefinition definition : ) {
+    for (BeanDefinition definition : beanFactory.getBeanDefinitions().values()) {
       if (AnnotationUtils.isPresent(definition, EventListener.class)) {
         Object listener;
         if (definition.isSingleton()) {
@@ -812,9 +806,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // Load the META-INF/listeners
     // ---------------------------------------------------
     Set<Class<?>> listeners = ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
-    BeanFactoryAwareBeanInstantiator beanFactoryAwareBeanInstantiator = beanInstantiator();
+    BeanFactoryAwareBeanInstantiator instantiator = getBeanInstantiator();
     for (Class<?> listener : listeners) {
-      ApplicationListener applicationListener = (ApplicationListener) beanFactoryAwareBeanInstantiator.instantiate(listener);
+      ApplicationListener applicationListener = (ApplicationListener) instantiator.instantiate(listener);
       addApplicationListener(applicationListener);
     }
 
