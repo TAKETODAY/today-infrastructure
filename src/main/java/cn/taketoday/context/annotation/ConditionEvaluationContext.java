@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Environment;
+import cn.taketoday.core.env.Environment;
 
 /**
  * for ConditionEvaluator Evaluation
