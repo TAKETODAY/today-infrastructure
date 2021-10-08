@@ -773,18 +773,32 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     getEventPublisher().publishEvent(event);
   }
 
+  BeanFactoryAwareBeanInstantiator beanInstantiator(){
+    return beanInstantiator;
+  }
+
   protected void registerApplicationListeners() {
     log.info("Loading Application Listeners.");
     addApplicationListener(new ContextCloseListener());
+    AbstractBeanFactory beanFactory = getBeanFactory();
 
-    for (BeanDefinition definition : getBeanFactory()) {
+    Map<String, BeanDefinition> beanDefinitions = beanFactory.getBeanDefinitions();
+
+    for (String beanDefinitionName : beanFactory.getBeanDefinitionNames()) {
+
+
+    }
+
+    Set<String> namesForAnnotation = beanFactory.getBeanNamesForAnnotation(EventListener.class);
+
+    for (BeanDefinition definition : ) {
       if (AnnotationUtils.isPresent(definition, EventListener.class)) {
         Object listener;
         if (definition.isSingleton()) {
           listener = getBean(definition);
         }
         else {
-          listener = Prototypes.newProxyInstance(definition, getBeanFactory());
+          listener = Prototypes.newProxyInstance(definition, beanFactory);
         }
 
         Assert.isInstanceOf(
@@ -798,8 +812,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // Load the META-INF/listeners
     // ---------------------------------------------------
     Set<Class<?>> listeners = ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
+    BeanFactoryAwareBeanInstantiator beanFactoryAwareBeanInstantiator = beanInstantiator();
     for (Class<?> listener : listeners) {
-      ApplicationListener applicationListener = (ApplicationListener) beanInstantiator.instantiate(listener);
+      ApplicationListener applicationListener = (ApplicationListener) beanFactoryAwareBeanInstantiator.instantiate(listener);
       addApplicationListener(applicationListener);
     }
 

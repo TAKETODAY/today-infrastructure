@@ -19,15 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.beans.DefaultBeanNameCreator;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -38,8 +29,15 @@ import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DataSize;
 import lombok.ToString;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,16 +87,19 @@ public class BeanFactoryTest {
     assert implements3 != null;
   }
 
+  public String createBeanName(Class<?> c){
+    return ClassUtils.getShortName(c);
+  }
+
   @Test
   public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    BeanNameCreator beanNameCreator = new DefaultBeanNameCreator();
-    Object bean = beanFactory.getBean(beanNameCreator.create(Interface.class));
+    Object bean = beanFactory.getBean(createBeanName(Interface.class));
 
-    Object implements1 = beanFactory.getBean(beanNameCreator.create(Implements1.class));
-    Object implements2 = beanFactory.getBean(beanNameCreator.create(Implements2.class));
-    Object implements3 = beanFactory.getBean(beanNameCreator.create(Implements3.class));
+    Object implements1 = beanFactory.getBean(createBeanName(Implements1.class));
+    Object implements2 = beanFactory.getBean(createBeanName(Implements2.class));
+    Object implements3 = beanFactory.getBean(createBeanName(Implements3.class));
 
     assert bean == null; // there isn't a bean named Interface
 

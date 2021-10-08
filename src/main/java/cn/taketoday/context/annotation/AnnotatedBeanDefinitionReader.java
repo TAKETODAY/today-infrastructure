@@ -20,20 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -66,6 +52,19 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static cn.taketoday.core.Constant.VALUE;
 import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
@@ -773,9 +772,6 @@ public class AnnotatedBeanDefinitionReader {
   /**
    * Register a bean with the given type and instance supplier
    * <p>
-   * This method will use {@link BeanNameCreator} create a bean name and register
-   * it
-   * <p>
    * default register as singleton
    * </p>
    *
@@ -794,9 +790,6 @@ public class AnnotatedBeanDefinitionReader {
 
   /**
    * Register a bean with the given type and instance supplier
-   * <p>
-   * This method will use {@link BeanNameCreator} create a bean name and register
-   * it
    *
    * @param clazz
    *         bean class
@@ -816,9 +809,6 @@ public class AnnotatedBeanDefinitionReader {
 
   /**
    * Register a bean with the given type and instance supplier
-   * <p>
-   * This method will use {@link BeanNameCreator} create a bean name and register
-   * it
    *
    * @param clazz
    *         bean class

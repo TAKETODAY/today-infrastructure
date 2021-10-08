@@ -81,7 +81,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public Object initializeBean(Object existingBean) throws BeanInitializingException {
-    return initializeBean(existingBean, getBeanNameCreator().create(existingBean.getClass()));
+    return initializeBean(existingBean, createBeanName(existingBean.getClass()));
   }
 
   @Override

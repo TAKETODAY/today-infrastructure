@@ -19,28 +19,10 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.DefaultBeanNameCreator;
 import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -61,14 +43,28 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * @author TODAY 2018-06-23 11:20:58
  */
 public abstract class AbstractBeanFactory
         extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
 
-  /** bean name creator */
-  private BeanNameCreator beanNameCreator;
   /** object factories */
   private Map<Class<?>, Object> objectFactories;
   /** dependencies */
@@ -97,11 +93,6 @@ public abstract class AbstractBeanFactory
   private BeanFactory parentBeanFactory;
 
   //
-
-  @Override
-  protected String createBeanName(Class<?> type) {
-    return getBeanNameCreator().create(type);
-  }
 
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
@@ -343,6 +334,11 @@ public abstract class AbstractBeanFactory
       }
     }
     return beans;
+  }
+
+  @Override
+  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+    return null;
   }
 
   @Override
@@ -1106,29 +1102,6 @@ public abstract class AbstractBeanFactory
 
   // -----------------------------
 
-  /**
-   * Get a bean name creator
-   *
-   * @return {@link BeanNameCreator}
-   */
-  public BeanNameCreator getBeanNameCreator() {
-    BeanNameCreator ret = this.beanNameCreator;
-    if (ret == null) {
-      ret = createBeanNameCreator();
-      this.beanNameCreator = ret;
-    }
-    return ret;
-  }
-
-  /**
-   * create {@link BeanNameCreator}
-   *
-   * @return a default {@link BeanNameCreator}
-   */
-  protected BeanNameCreator createBeanNameCreator() {
-    return new DefaultBeanNameCreator(true);
-  }
-
   public final List<BeanPostProcessor> getPostProcessors() {
     return postProcessors;
   }
@@ -1143,9 +1116,6 @@ public abstract class AbstractBeanFactory
     return fullLifecycle;
   }
 
-  public void setBeanNameCreator(BeanNameCreator beanNameCreator) {
-    this.beanNameCreator = beanNameCreator;
-  }
 
   // AutowireCapableBeanFactory
   // ---------------------------------
