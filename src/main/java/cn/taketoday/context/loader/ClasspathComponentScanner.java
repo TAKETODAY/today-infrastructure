@@ -20,8 +20,11 @@
 
 package cn.taketoday.context.loader;
 
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -34,6 +37,22 @@ public class ClasspathComponentScanner {
 
   protected CandidateComponentScanner createCandidateComponentScanner() {
     return CandidateComponentScanner.getSharedInstance();
+  }
+
+  protected Set<Class<?>> getComponentCandidates() {
+    CandidateComponentScanner scanner = getCandidateComponentScanner();
+    if (ObjectUtils.isEmpty(locations)) {
+      // Candidates have not been set or scanned
+      if (scanner.getCandidates() == null) {
+        return scanner.scan();// scan all class path
+      }
+      return scanner.getScanningCandidates();
+    }
+    return scanner.scan(locations);
+  }
+
+  private CandidateComponentScanner getCandidateComponentScanner() {
+
   }
 
   /**
@@ -52,6 +71,10 @@ public class ClasspathComponentScanner {
    * @since 4.0
    */
   public void scan(String... locations) throws BeanDefinitionStoreException {
+    // Loading candidates components
+    log.info("Loading candidates components");
+    Set<Class<?>> candidates = getComponentCandidates();
+    log.info("There are [{}] candidates components in [{}]", candidates.size(), this);
 
   }
 
