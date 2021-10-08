@@ -19,63 +19,56 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.util.Map;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.ServletContextAware;
+import cn.taketoday.web.StandardWebBeanFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import cn.taketoday.beans.ObjectFactory;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.ServletContextAware;
-import cn.taketoday.web.StandardWebBeanFactory;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * @author TODAY 2019-03-23 14:59
  */
 public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
-  public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
-    super(context);
-  }
+	public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
+		super(context);
+	}
 
-  @Override
-  protected void awareInternal(final Object bean, final BeanDefinition def) {
-    super.awareInternal(bean, def);
-    if (bean instanceof ServletContextAware) {
-      ((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
-    }
-    if (bean instanceof WebServletApplicationContextAware) {
-      ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(getApplicationContext());
-    }
-  }
+	protected void awareInternal(final Object bean, final BeanDefinition def) {
+		if (bean instanceof ServletContextAware) {
+			((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
+		}
+		if (bean instanceof WebServletApplicationContextAware) {
+			((WebServletApplicationContextAware) bean).setWebServletApplicationContext(getApplicationContext());
+		}
+	}
 
-  @Override
-  protected Map<Class<?>, Object> createObjectFactories() {
-    final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
-    // @since 3.0
-    final class HttpSessionFactory implements ObjectFactory<HttpSession> {
-      @Override
-      public HttpSession getObject() {
-        return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
-      }
-    }
+	@Override
+	protected Map<Class<?>, Object> createObjectFactories() {
+		final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
+		// @since 3.0
+		final class HttpSessionFactory implements Supplier<HttpSession> {
+			@Override
+			public HttpSession get() {
+				return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
+			}
+		}
 
-    servletEnv.put(HttpSession.class, new HttpSessionFactory());
-    servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
-    servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
+		servletEnv.put(HttpSession.class, new HttpSessionFactory());
+		servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
+		servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
 
-    final WebServletApplicationContext context = getApplicationContext();
-    servletEnv.put(ServletContext.class, factory(context::getServletContext));
+		final WebServletApplicationContext context = getApplicationContext();
+		servletEnv.put(ServletContext.class, factory(context::getServletContext));
 
-    return servletEnv;
-  }
+		return servletEnv;
+	}
 
-  @Override
-  public ConfigurableWebServletApplicationContext getApplicationContext() {
-    return (ConfigurableWebServletApplicationContext) super.getApplicationContext();
-  }
 
 }
