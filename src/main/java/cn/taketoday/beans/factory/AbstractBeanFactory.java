@@ -1027,6 +1027,22 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
+  public <T> Map<String, T> getBeansOfType(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+
+    return null;
+  }
+
+
+  @Override
+  public Set<String> getBeanNamesOfType(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+
+
+    return null;
+  }
+
+  @Override
   public Map<String, Object> getBeansOfAnnotation(
           Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType must not be null");

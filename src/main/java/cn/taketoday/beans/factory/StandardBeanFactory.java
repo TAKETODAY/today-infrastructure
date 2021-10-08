@@ -22,6 +22,9 @@ package cn.taketoday.beans.factory;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -127,33 +130,54 @@ public class StandardBeanFactory
 
   //
 
-  /**
-   * Set whether it should be allowed to override bean definitions by registering
-   * a different definition with the same name, automatically replacing the former.
-   * If not, an exception will be thrown. This also applies to overriding aliases.
-   * <p>Default is "true".
-   *
-   * @see #registerBeanDefinition
-   * @since 4.0
-   */
-  public void setAllowBeanDefinitionOverriding(boolean allowBeanDefinitionOverriding) {
-    this.allowBeanDefinitionOverriding = allowBeanDefinitionOverriding;
-  }
+  //---------------------------------------------------------------------
+  // Implementation of BeanDefinitionRegistry interface @since 4.0
+  //---------------------------------------------------------------------
 
-  /**
-   * Return whether it should be allowed to override bean definitions by registering
-   * a different definition with the same name, automatically replacing the former.
-   *
-   * @since 4.0
-   */
   @Override
-  public boolean isAllowBeanDefinitionOverriding() {
-    return this.allowBeanDefinitionOverriding;
+  public Map<String, BeanDefinition> getBeanDefinitions() {
+    return beanDefinitionMap;
   }
 
-  //---------------------------------------------------------------------
-  // Implementation of BeanDefinitionRegistry interface
-  //---------------------------------------------------------------------
+  @Override
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
+      registerFactoryBean(beanName, def);
+    }
+    else {
+      this.beanDefinitionMap.put(beanName, def);
+      postProcessRegisterBeanDefinition(def);
+    }
+  }
+
+  @Override
+  public void registerBeanDefinition(BeanDefinition def) {
+    beanDefinitionMap.put(def.getName(), def);
+  }
+
+  @Override
+  public void removeBeanDefinition(String beanName) {
+    beanDefinitionMap.remove(beanName);
+  }
+
+  @Override
+  public BeanDefinition getBeanDefinition(String beanName) {
+    return beanDefinitionMap.get(beanName);
+  }
+
+  @Override
+  public BeanDefinition getBeanDefinition(Class<?> beanClass) {
+    BeanDefinition def = getBeanDefinition(createBeanName(beanClass));
+    if (def != null && def.isAssignableTo(beanClass)) {
+      return def;
+    }
+    for (BeanDefinition definition : getBeanDefinitions().values()) {
+      if (definition.isAssignableTo(beanClass)) {
+        return definition;
+      }
+    }
+    return null;
+  }
 
   @Override
   public boolean containsBeanDefinition(Class<?> type) {
@@ -183,53 +207,66 @@ public class StandardBeanFactory
   }
 
   @Override
-  public void registerBeanDefinition(BeanDefinition def) {
-    beanDefinitionMap.put(def.getName(), def);
-  }
-
-  @Override
-  public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
-      registerFactoryBean(beanName, def);
-    }
-    else {
-      this.beanDefinitionMap.put(beanName, def);
-
-      postProcessRegisterBeanDefinition(def);
-    }
-  }
-
-  @Override
   public boolean containsBeanDefinition(String beanName, Class<?> type) {
     return containsBeanDefinition(beanName) && containsBeanDefinition(type);
   }
 
   @Override
-  public void removeBeanDefinition(String beanName) {
-    beanDefinitionMap.remove(beanName);
+  public boolean containsBeanDefinition(String beanName) {
+    return beanDefinitionMap.containsKey(beanName);
   }
 
   @Override
-  public BeanDefinition getBeanDefinition(String beanName) {
-    return beanDefinitionMap.get(beanName);
+  public Set<String> getBeanDefinitionNames() {
+    return beanDefinitionMap.keySet();
   }
 
   @Override
-  public BeanDefinition getBeanDefinition(Class<?> beanClass) {
-    BeanDefinition def = getBeanDefinition(createBeanName(beanClass));
-    if (def != null && def.isAssignableTo(beanClass)) {
-      return def;
-    }
-    for (BeanDefinition definition : getBeanDefinitions().values()) {
-      if (definition.isAssignableTo(beanClass)) {
-        return definition;
-      }
-    }
-    return null;
+  public Iterator<String> getBeanNamesIterator() {
+    return beanDefinitionMap.keySet().iterator();
+  }
+
+  @Override
+  public int getBeanDefinitionCount() {
+    return beanDefinitionMap.size();
+  }
+
+  @Override
+  public boolean isBeanNameInUse(String beanName) {
+    return beanDefinitionMap.containsKey(beanName);
+  }
+
+  @Override
+  public Iterator<BeanDefinition> iterator() {
+    return beanDefinitionMap.values().iterator();
+  }
+
+  /**
+   * Set whether it should be allowed to override bean definitions by registering
+   * a different definition with the same name, automatically replacing the former.
+   * If not, an exception will be thrown. This also applies to overriding aliases.
+   * <p>Default is "true".
+   *
+   * @see #registerBeanDefinition
+   * @since 4.0
+   */
+  public void setAllowBeanDefinitionOverriding(boolean allowBeanDefinitionOverriding) {
+    this.allowBeanDefinitionOverriding = allowBeanDefinitionOverriding;
+  }
+
+  /**
+   * Return whether it should be allowed to override bean definitions by registering
+   * a different definition with the same name, automatically replacing the former.
+   *
+   * @since 4.0
+   */
+  @Override
+  public boolean isAllowBeanDefinitionOverriding() {
+    return this.allowBeanDefinitionOverriding;
   }
 
   //---------------------------------------------------------------------
-  // Implementation of ConfigurableBeanFactory interface
+  // Implementation of ConfigurableBeanFactory interface @since 4.0
   //---------------------------------------------------------------------
 
   @Override
@@ -237,7 +274,5 @@ public class StandardBeanFactory
     removeBeanDefinition(name);
     super.removeBean(name);
   }
-
-
 
 }

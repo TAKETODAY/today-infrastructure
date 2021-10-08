@@ -52,6 +52,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     return (T) createPrototype(defToUse);
   }
 
+  protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
+
   protected abstract void registerBeanDefinition(BeanDefinition def);
 
   @Override
