@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.ValueExpressionContext;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.PropertiesPropertySource;
@@ -54,7 +55,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/4/8 19:42
  * @since 3.0
  */
-public class ExpressionEvaluator {
+public class ExpressionEvaluator implements PlaceholderResolver {
   public static final String ENV = "env";
   public static final String EL_PREFIX = "${";
   public static final String PLACE_HOLDER_PREFIX = "#{";
@@ -73,6 +74,10 @@ public class ExpressionEvaluator {
 
   public ExpressionEvaluator() {
     this.variablesResolver = new StandardEnvironment();
+  }
+
+  public ExpressionEvaluator(PropertyResolver variablesResolver) {
+    this.variablesResolver = variablesResolver;
   }
 
   public ExpressionEvaluator(Properties variables) {
@@ -99,26 +104,25 @@ public class ExpressionEvaluator {
   public ExpressionEvaluator(ApplicationContext context, ExpressionProcessor expressionProcessor) {
     Assert.notNull(context, "ApplicationContext must not be null");
     this.context = context;
-    final Environment environment = context.getEnvironment();
-    this.variablesResolver = environment;
-    this.expressionProcessor = expressionProcessor != null ? expressionProcessor : environment.getExpressionProcessor();
+    this.expressionProcessor = expressionProcessor;
+    this.variablesResolver = context.getEnvironment();
   }
 
   public Object evaluate(String expression) {
-    return expressionProcessor.eval(expression);
+    return obtainProcessor().eval(expression);
   }
 
-  public <T> T evaluate(final String expression, final Class<T> expectedType) {
-    return evaluate(expression, expectedType, variablesResolver::getProperty);
+  public <T> T evaluate(String expression, Class<T> expectedType) {
+    return evaluate(expression, expectedType, this);
   }
 
-  public <T> T evaluate(final String expression, Class<T> expectedType, Map<String, String> variables) {
+  public <T> T evaluate(String expression, Class<T> expectedType, Map<String, String> variables) {
     return evaluate(expression, expectedType, variables::get);
   }
 
   public <T> T evaluate(String expression, Class<T> expectedType, PlaceholderResolver resolver) {
     if (expression.contains(PLACE_HOLDER_PREFIX)) {
-      String replaced = resolvePlaceholder(expression, resolver, throwIfPropertyNotFound);
+      String replaced = resolvePlaceholders(expression, resolver, throwIfPropertyNotFound);
       return conversionService.convert(replaced, expectedType);
     }
     if (expression.contains(EL_PREFIX)) {
@@ -135,7 +139,7 @@ public class ExpressionEvaluator {
   public <T> T evaluate(
           String expression, ExpressionContext context, Class<T> expectedType) {
     if (expression.contains(PLACE_HOLDER_PREFIX)) {
-      String replaced = resolvePlaceholder(expression, variablesResolver::getProperty, throwIfPropertyNotFound);
+      String replaced = resolvePlaceholders(expression, this, throwIfPropertyNotFound);
       return conversionService.convert(replaced, expectedType);
     }
     if (expression.contains(EL_PREFIX)) {
@@ -164,7 +168,7 @@ public class ExpressionEvaluator {
    * @since 2.1.6
    */
   public <T> T evaluate(Env value, Class<T> expectedType) {
-    final T resolveValue = evaluate(
+    T resolveValue = evaluate(
             PLACE_HOLDER_PREFIX + value.value() + PLACE_HOLDER_SUFFIX, expectedType
     );
     if (resolveValue != null) {
@@ -210,25 +214,40 @@ public class ExpressionEvaluator {
     return evaluate(defaultValue, expectedType);
   }
 
-  public String resolvePlaceholder(Map<String, String> properties, String input) {
-    return resolvePlaceholder(properties, input, throwIfPropertyNotFound);
+  //---------------------------------------------------------------------
+  // resolvePlaceholders
+  //---------------------------------------------------------------------
+
+  public String resolvePlaceholders(String input, Map<String, String> properties) {
+    return resolvePlaceholders(input, properties, throwIfPropertyNotFound);
   }
 
-  public String resolvePlaceholder(
-          Map<String, String> properties, String input, boolean throwIfPropertyNotFound) {
-    return resolvePlaceholder(input, properties::get, throwIfPropertyNotFound);
+  public String resolvePlaceholders(
+          String input, Map<String, String> properties, boolean throwIfPropertyNotFound) {
+    return resolvePlaceholders(input, properties::get, throwIfPropertyNotFound);
   }
 
   /**
    * @since 4.0
    */
-  public String resolvePlaceholder(String input, PlaceholderResolver resolver, boolean throwIfPropertyNotFound) {
+  public String resolvePlaceholders(
+          String input, PlaceholderResolver resolver, boolean throwIfPropertyNotFound) {
     PropertyPlaceholderHandler placeholderHandler =
             throwIfPropertyNotFound ? PropertyPlaceholderHandler.strict : PropertyPlaceholderHandler.defaults;
     return placeholderHandler.replacePlaceholders(input, resolver);
   }
 
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  @Override
+  public String resolvePlaceholder(String placeholderName) {
+    return variablesResolver.getProperty(placeholderName);
+  }
+
   public void setConversionService(ConversionService conversionService) {
+    Assert.notNull(conversionService, "ConversionService must not be null");
     this.conversionService = conversionService;
   }
 
