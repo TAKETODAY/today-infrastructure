@@ -289,7 +289,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /**
    * Prepare to load context
    */
-  protected void prepareRefresh() {
+  protected void prepareRefresh() throws IOException {
     this.startupDate = System.currentTimeMillis();
     log.info("Starting Application Context at [{}].", formatStartupDate());
 
@@ -483,10 +483,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *
    * @see PropertySource.StubPropertySource
    */
-  protected void initPropertySources() {
+  protected void initPropertySources() throws IOException {
     // for sub-class loading properties or prepare property-source
   }
-  
+
   @Override
   public abstract AbstractBeanFactory getBeanFactory();
 

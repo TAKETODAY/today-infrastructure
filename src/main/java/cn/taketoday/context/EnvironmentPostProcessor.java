@@ -20,6 +20,8 @@
 
 package cn.taketoday.context;
 
+import java.io.IOException;
+
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 
@@ -50,6 +52,6 @@ public interface EnvironmentPostProcessor {
    *         the application-context to which the environment belongs
    */
   void postProcessEnvironment(
-          ConfigurableEnvironment environment, ConfigurableApplicationContext context);
+          ConfigurableEnvironment environment, ConfigurableApplicationContext context) throws IOException;
 
 }

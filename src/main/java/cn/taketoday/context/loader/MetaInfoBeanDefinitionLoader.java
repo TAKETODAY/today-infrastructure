@@ -31,7 +31,7 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
 
   @Override
   public void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-
+      
   }
 
 }

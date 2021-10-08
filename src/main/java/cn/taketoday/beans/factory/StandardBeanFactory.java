@@ -128,8 +128,6 @@ public class StandardBeanFactory
     registerBeanDefinition(oldBeanName, def);
   }
 
-  //
-
   //---------------------------------------------------------------------
   // Implementation of BeanDefinitionRegistry interface @since 4.0
   //---------------------------------------------------------------------

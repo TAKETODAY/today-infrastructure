@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -112,9 +113,12 @@ public class StandardApplicationContext
   }
 
   @Override
-  protected void initPropertySources() {
+  protected void initPropertySources() throws IOException {
     super.initPropertySources();
     ConfigurableEnvironment environment = getEnvironment();
+
+    new ApplicationPropertySourcesProcessor(environment, this)
+            .postProcessEnvironment();
 
     // prepare properties
     TodayStrategies detector = TodayStrategies.getDetector();
