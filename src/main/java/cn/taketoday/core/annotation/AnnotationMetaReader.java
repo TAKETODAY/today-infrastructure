@@ -113,8 +113,8 @@ public abstract class AnnotationMetaReader {
         int i = 0;
         Assert.notNull(implClass, "Implementation class can't be null");
         ret = Array.newInstance(annotationClass, annAttributes.length);
-        for (final AnnotationAttributes attributes : annAttributes) {
-          Array.set(ret, i++, injectAttributes(attributes, annotationClass, BeanUtils.newInstance(implClass)));
+        for (AnnotationAttributes attributes : annAttributes) {
+          Array.set(ret, i++, injectAttributes(attributes, BeanUtils.newInstance(implClass)));
         }
       }
       ANNOTATIONS.put(key, ret);
@@ -213,6 +213,17 @@ public abstract class AnnotationMetaReader {
                 "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
       }
       beanProperty.setValue(instance, source.get(name));
+    }
+    return instance;
+  }
+
+  public <A> A injectAttributes(final AnnotationAttributes source, final A instance) {
+    final Class<?> implClass = instance.getClass();
+    final BeanMetadata metadata = BeanMetadata.ofClass(implClass);
+    for (BeanProperty property : metadata) {
+      // method name must == field name
+      String name = property.getAlias();
+      property.setValue(instance, source.getAttribute(name, property.getType()));
     }
     return instance;
   }
