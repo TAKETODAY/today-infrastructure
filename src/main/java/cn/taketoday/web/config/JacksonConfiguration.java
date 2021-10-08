@@ -25,10 +25,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.List;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.ObjectNotationProcessor;

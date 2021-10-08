@@ -117,7 +117,7 @@ public class CacheableInterceptorTests {
 
       final CandidateComponentScanner scanner = context.getCandidateComponentScanner();
       final Set<Class<?>> candidates = scanner.getCandidates();
-      context.load(new HashSet<>());
+      context.scan(new HashSet<>());
       scanner.setCandidates(candidates);
 
       final User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());

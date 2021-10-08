@@ -32,7 +32,6 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
@@ -50,9 +49,9 @@ import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -64,7 +63,11 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
   public static final Method[] initMethods =
-          BeanDefinitionBuilder.resolveInitMethod(null, MapperFactoryBean.class);
+          BeanDefinitionBuilder.computeInitMethod(null, MapperFactoryBean.class);
+
+  protected String createBeanName(Class<?> beanClass) {
+    return ClassUtils.getShortName(beanClass);
+  }
 
   @Override
   public void onApplicationEvent(LoadingMissingBeanEvent event) {
@@ -73,7 +76,6 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
 
     ApplicationContext context = event.getSource();
     ConfigurableBeanFactory beanFactory = event.getBeanFactory(ConfigurableBeanFactory.class);
-    BeanNameCreator beanNameCreator = context.getEnvironment().getBeanNameCreator();
 
     for (Class<?> beanClass : event.getCandidates()) {
       if (beanClass.isInterface()) {
@@ -84,8 +86,8 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
 
         log.debug("Found Mapper: [{}]", beanClass.getName());
 
-        final String[] names = repository.value();
-        final String name = ObjectUtils.isNotEmpty(names) ? names[0] : beanNameCreator.create(beanClass);
+        String[] names = repository.value();
+        String name = ObjectUtils.isNotEmpty(names) ? names[0] : createBeanName(beanClass);
 
         beanFactory.registerBeanDefinition(
                 name, createBeanDefinition(beanClass, name));
@@ -93,13 +95,13 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
     }
   }
 
-  protected FactoryBeanDefinition<?> createBeanDefinition(final Class<?> beanClass, final String name) {
-    final DefaultBeanDefinition ret = new DefaultBeanDefinition(name, beanClass);
+  protected FactoryBeanDefinition<?> createBeanDefinition(Class<?> beanClass, String name) {
+    DefaultBeanDefinition ret = new DefaultBeanDefinition(name, beanClass);
     ret.setSynthetic(true);
     ret.setInitMethods(initMethods);
     ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
     ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
-    return new FactoryBeanDefinition<>(ret, SingletonSupplier.of(new MapperFactoryBean<>(beanClass)));
+    return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(beanClass));
   }
 
   @MissingBean
@@ -119,7 +121,7 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
       configLocation = DEFAULT_CONFIG_LOCATION;
     }
 
-    final Configuration configuration = new XMLConfigBuilder(
+    Configuration configuration = new XMLConfigBuilder(
             ResourceUtils.getResourceAsStream(configLocation), envId, properties).parse();
 
     if (transactionFactory == null) {

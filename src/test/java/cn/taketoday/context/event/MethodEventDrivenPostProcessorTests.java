@@ -66,7 +66,7 @@ public class MethodEventDrivenPostProcessorTests {
     try (final StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(Config.class);
 
-      context.load(Collections.emptyList());
+      context.scan(Collections.emptyList());
 
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));

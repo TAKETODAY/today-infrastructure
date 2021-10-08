@@ -29,6 +29,7 @@ import java.util.List;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.YamlStrategiesReader;
@@ -85,16 +86,18 @@ public class StrategiesDetectorTests {
 
   public static class MyPropertyValueResolver implements PropertyValueResolver {
 
+    @Nullable
     @Override
-    public PropertySetter resolveProperty(Field field) throws PropertyValueException {
+    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyValueException {
       return null;
     }
   }
 
   public static class MyPropertyValueResolver1 implements PropertyValueResolver {
 
+    @Nullable
     @Override
-    public PropertySetter resolveProperty(Field field) throws PropertyValueException {
+    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyValueException {
       return null;
     }
   }

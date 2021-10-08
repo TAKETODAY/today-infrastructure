@@ -22,7 +22,6 @@ package cn.taketoday.framework;
 import javax.servlet.Servlet;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.Logger;

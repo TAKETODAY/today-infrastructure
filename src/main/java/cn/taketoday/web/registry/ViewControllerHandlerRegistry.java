@@ -274,7 +274,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
         return bean;
       }
       else {
-        final Class<?> beanClass = ClassUtils.loadClass(className);
+        final Class<?> beanClass = ClassUtils.load(className);
         if ((controllerBean = context.getBean(name, beanClass)) == null) {
           context.registerBean(name, beanClass);
           controllerBean = context.getBean(name, beanClass);
@@ -282,7 +282,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       }
     }
     else if (StringUtils.isNotEmpty(className)) {
-      final Class<?> beanClass = ClassUtils.loadClass(className);
+      final Class<?> beanClass = ClassUtils.load(className);
       if ((controllerBean = context.getBean(beanClass)) == null) {
         context.registerBean(beanClass);
         controllerBean = context.getBean(beanClass);

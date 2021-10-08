@@ -19,25 +19,27 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
-import cn.taketoday.core.io.JarEntryResource;
-import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
-
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.JarEntryResource;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.io.UrlBasedResource;
+
 import static cn.taketoday.core.Constant.BLANK;
 import static cn.taketoday.core.Constant.PATH_SEPARATOR;
-import static cn.taketoday.core.io.ResourceResolver.CLASSPATH_URL_PREFIX;
+import static cn.taketoday.core.io.ResourceLoader.CLASSPATH_URL_PREFIX;
 
 /**
  * @author TODAY 2019-05-15 13:37
@@ -112,7 +114,7 @@ public abstract class ResourceUtils {
    *         in case of I/O errors
    */
   public static Resource[] getResources(String pathPattern, @Nullable ClassLoader classLoader) throws IOException {
-    return new PathMatchingResourcePatternResolver(classLoader).getResources(pathPattern);
+    return new PathMatchingPatternResourceLoader(classLoader).getResources(pathPattern);
   }
 
   /**
@@ -187,6 +189,7 @@ public abstract class ResourceUtils {
    * "C:/dir1/", relative paths will be built underneath that root: e.g. relative
    * path "dir2" -> "C:/dir1/dir2". In the case of "C:/dir1", relative paths will
    * apply at the same directory level: relative path "dir2" -> "C:/dir2".
+   *
    * @return the full file path that results from applying the relative path
    */
   public static String getRelativePath(final String path, final String relativePath) {
@@ -343,7 +346,7 @@ public abstract class ResourceUtils {
    *
    * @return whether the location qualifies as a URL
    *
-   * @see cn.taketoday.core.io.ResourceResolver#CLASSPATH_URL_PREFIX
+   * @see ResourceLoader#CLASSPATH_URL_PREFIX
    * @see java.net.URL
    */
   public static boolean isUrl(String resourceLocation) {
@@ -396,5 +399,28 @@ public abstract class ResourceUtils {
 
     // Regular "jar:file:...myjar.jar!/myentry.txt"
     return extractJarFileURL(jarUrl);
+  }
+
+  /**
+   * Get a {@link InputStream} from given resource string
+   *
+   * @param resourceLocation
+   *         Target resource string
+   *
+   * @return A {@link InputStream}
+   *
+   * @throws IOException
+   *         If any IO {@link Exception} occurred
+   * @since 4.0
+   */
+  public static InputStream getResourceAsStream(final String resourceLocation) throws IOException {
+    Resource resource = getResource(resourceLocation);
+    if (resource.exists()) {
+      InputStream in = resource.getInputStream();
+      if (in != null) {
+        return in;
+      }
+    }
+    throw new IOException("Could not find resource " + resourceLocation);
   }
 }

@@ -1,7 +1,7 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,55 +19,56 @@
  */
 package cn.taketoday.context.loader;
 
-import java.util.Properties;
-
 import org.junit.Test;
 
+import java.util.Properties;
+
+import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Props;
-import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.context.StandardApplicationContext;
 
 /**
  * @author Today <br>
- * 
- *         2018-08-04 16:01
+ *
+ * 2018-08-04 16:01
  */
 public class PropsPropertyResolverTest {
 
-    @Props(value = "info", prefix = "site")
-    private Properties properties;
+  @Props(value = "info", prefix = "site")
+  private Properties properties;
 
-    @Props(value = "info", prefix = "site")
-    private String name;
+  @Props(value = "info", prefix = "site")
+  private String name;
 
-    @Test
-    public void test_() throws Throwable {
+  @Test
+  public void test_() throws Throwable {
 
-        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
-            PropsPropertyResolver propertyResolver = new PropsPropertyResolver(applicationContext);
+    try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+      PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
+      PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
-            DefaultPropertySetter resolveProperty = //
-                    propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("properties"));
+      DefaultPropertySetter resolveProperty = //
+              (DefaultPropertySetter) propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTest.class.getDeclaredField("properties"));
 
-            assert resolveProperty.getValue() != null;
+      assert resolveProperty.getValue() != null;
 
-            System.out.println("====================");
-            System.out.println(resolveProperty.getValue());
+      System.out.println("====================");
+      System.out.println(resolveProperty.getValue());
+    }
+  }
 
-        }
+  @Test
+  public void test_Error() throws Throwable {
+
+    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+      PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
+      PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
+
+      propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTest.class.getDeclaredField("name"));
     }
 
-    @Test
-    public void test_Error() throws Throwable {
-
-        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-            PropsPropertyResolver propertyResolver = new PropsPropertyResolver(applicationContext);
-
-            propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("name"));
-        }
-
-    }
+  }
 
 }

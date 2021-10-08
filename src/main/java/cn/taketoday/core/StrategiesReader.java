@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceResolver;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.StringUtils;
@@ -39,7 +39,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class StrategiesReader {
   public static final Logger log = LoggerFactory.getLogger(StrategiesReader.class);
-  private ResourceResolver resourceResolver = new PathMatchingResourcePatternResolver();
+  private ResourceLoader resourceResolver = new PathMatchingPatternResourceLoader();
 
   /**
    * read a key multi-value map
@@ -113,12 +113,12 @@ public abstract class StrategiesReader {
    * @param resourceResolver
    *         new ResourceResolver cannot be {@code null}
    */
-  public void setResourceResolver(ResourceResolver resourceResolver) {
+  public void setResourceResolver(ResourceLoader resourceResolver) {
     Assert.notNull(resourceResolver, "resourceResolver must not be null");
     this.resourceResolver = resourceResolver;
   }
 
-  public ResourceResolver getResourceResolver() {
+  public ResourceLoader getResourceResolver() {
     return resourceResolver;
   }
 

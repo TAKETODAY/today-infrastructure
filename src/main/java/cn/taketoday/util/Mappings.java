@@ -23,8 +23,7 @@ package cn.taketoday.util;
 import java.util.HashMap;
 
 /**
- * @author TODAY
- * 2021/1/27 23:02
+ * @author TODAY 2021/1/27 23:02
  * @since 3.0
  */
 public class Mappings<V, T> {

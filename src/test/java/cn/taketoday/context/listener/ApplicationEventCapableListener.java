@@ -21,16 +21,14 @@ package cn.taketoday.context.listener;
 
 import java.util.EventObject;
 
-import cn.taketoday.context.event.ApplicationEventCapable;
+import cn.taketoday.context.event.EventProvider;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
-import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 
 /**
  * @author TODAY <br>
  *         2019-11-05 23:12
  */
-public class ApplicationEventCapableListener implements ApplicationListener<EventObject>, ApplicationEventCapable {
+public class ApplicationEventCapableListener implements ApplicationListener<EventObject>, EventProvider {
 
     @Override
     public void onApplicationEvent(EventObject event) {
@@ -39,7 +37,7 @@ public class ApplicationEventCapableListener implements ApplicationListener<Even
     }
 
     @Override
-    public Class<?>[] getApplicationEvent() {
+    public Class<?>[] getSupportedEvent() {
         return factory(BeanDefinitionLoadingEvent.class, BeanDefinitionLoadedEvent.class);
     }
 

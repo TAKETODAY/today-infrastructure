@@ -29,13 +29,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Environment;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
@@ -100,7 +98,7 @@ public class HandlerMethodRegistry
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    setBeanFactory(context.getBeanFactory(ConfigurableBeanFactory.class));
+    setBeanFactory(context.unwrapFactory(ConfigurableBeanFactory.class));
     setHandlerBuilder(new HandlerMethodBuilder<>(context));
     super.initApplicationContext(context);
   }
@@ -419,10 +417,10 @@ public class HandlerMethodRegistry
     int i = 0;
     final HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
     for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
-
       if (!beanFactory.containsBeanDefinition(interceptor, true)) {
         try {
-          beanFactory.registerBean(beanDefinitionLoader.createBeanDefinition(interceptor));
+          BeanDefinition definition = BeanDefinitionBuilder.defaults(interceptor);
+          beanFactory.registerBean(definition);
         }
         catch (BeanDefinitionStoreException e) {
           throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);

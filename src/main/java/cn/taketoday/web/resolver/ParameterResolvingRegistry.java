@@ -20,7 +20,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
@@ -417,16 +417,18 @@ public class ParameterResolvingRegistry
   static final class PropsParameterResolver extends AnnotationParameterResolver<Props> {
     final PropsReader propsReader;
     final WebApplicationContext context;
+    final BeanFactoryAwareBeanInstantiator beanInstantiator;
 
     PropsParameterResolver(WebApplicationContext context) {
       super(Props.class);
       this.context = context;
       this.propsReader = new PropsReader(context.getEnvironment());
+      this.beanInstantiator = new BeanFactoryAwareBeanInstantiator(context);
     }
 
     @Override
     protected Object resolveInternal(Props target, RequestContext ctx, MethodParameter parameter) {
-      final Object bean = BeanUtils.newInstance(parameter.getParameterClass(), context, new Object[] { ctx });
+      final Object bean = beanInstantiator.instantiate(parameter.getParameterClass(), new Object[] { ctx });
       return propsReader.read(target, bean);
     }
   }

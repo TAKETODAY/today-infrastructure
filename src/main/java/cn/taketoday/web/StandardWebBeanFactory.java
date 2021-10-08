@@ -20,9 +20,8 @@
 package cn.taketoday.web;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
-import cn.taketoday.beans.ObjectFactory;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.core.Assert;
 import cn.taketoday.web.session.WebSession;
@@ -34,24 +33,11 @@ import cn.taketoday.web.session.WebSessionManager;
  */
 public class StandardWebBeanFactory extends StandardBeanFactory {
 
-  public StandardWebBeanFactory(ConfigurableWebApplicationContext context) {
-    super(context);
-  }
-
-  @Override
-  protected void awareInternal(final Object bean, final BeanDefinition def) {
-    super.awareInternal(bean, def);
-
-    if (bean instanceof WebApplicationContextAware) {
-      ((WebApplicationContextAware) bean).setWebApplicationContext(getApplicationContext());
-    }
-  }
-
   @Override
   protected Map<Class<?>, Object> createObjectFactories() {
     final Map<Class<?>, Object> env = super.createObjectFactories();
     // @since 3.0
-    final class WebSessionFactory implements ObjectFactory<WebSession> {
+    final class WebSessionFactory implements Supplier<WebSession> {
       WebSessionManager sessionManager;
 
       private WebSessionManager obtainWebSessionManager() {
@@ -65,7 +51,7 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
       }
 
       @Override
-      public WebSession getObject() {
+      public WebSession get() {
         final RequestContext context = RequestContextHolder.currentContext();
         return obtainWebSessionManager().getSession(context);
       }
@@ -75,13 +61,8 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
     return env;
   }
 
-  protected <T> ObjectFactory<T> factory(ObjectFactory<T> objectFactory) {
+  protected <T> Supplier<T> factory(Supplier<T> objectFactory) {
     return objectFactory;
-  }
-
-  @Override
-  public ConfigurableWebApplicationContext getApplicationContext() {
-    return (ConfigurableWebApplicationContext) super.getApplicationContext();
   }
 
 }

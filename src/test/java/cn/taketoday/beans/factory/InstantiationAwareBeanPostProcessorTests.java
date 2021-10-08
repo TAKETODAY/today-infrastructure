@@ -42,7 +42,7 @@ public class InstantiationAwareBeanPostProcessorTests {
     @Override
     // your Instantiation Strategy
     public Object postProcessBeforeInstantiation(BeanDefinition def) {
-      if (def instanceof StandardBeanDefinition) {
+      if (def instanceof FactoryMethodBeanDefinition) {
         return null; // default
       }
       if (def instanceof DefaultBeanDefinition) {
@@ -80,7 +80,7 @@ public class InstantiationAwareBeanPostProcessorTests {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.registerFrameworkComponents();
       AutowireCapableBeanFactory capableBeanFactory = context.getAutowireCapableBeanFactory();
-      ConfigurableBeanFactory beanFactory = context.getBeanFactory(ConfigurableBeanFactory.class);
+      ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
       capableBeanFactory.importBeans(InstantiationAwareBeanPostProcessorBean.class);
       capableBeanFactory.importBeans(InstantiationAwareBeanPostProcessorConfig.class);
 

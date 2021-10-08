@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -26,47 +26,48 @@ import java.util.HashSet;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.context.annotation.PropsReader;
 
 /**
  * @author Today <br>
  *
- *         2018-08-04 15:56
+ * 2018-08-04 15:56
  */
 public class AutowiredPropertyResolverTest {
 
-    @Autowired
-    private String name;
+  @Autowired
+  private String name;
 
-    @Named
-    private String name1;
+  @Named
+  private String name1;
 
-    @SuppressWarnings("unused")
-    @Inject
-    private String name2;
+  @SuppressWarnings("unused")
+  @Inject
+  private String name2;
 
-    @Test
-    public void test_() throws Throwable {
+  @Test
+  public void test_() throws Throwable {
 
-        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>())) {
-            PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver(applicationContext);
-
-            applicationContext.getEnvironment().getBeanDefinitionLoader();
-
-            PropertySetter resolveProperty = autowiredPropertyResolver.resolveProperty(
+    try (ConfigurableApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+      PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
+      PropsReader propsReader = new PropsReader(context.getEnvironment());
+      PropertyResolvingContext resolvingContext = new PropertyResolvingContext(context, propsReader);
+      PropertySetter resolveProperty = autowiredPropertyResolver.resolveProperty(
+              resolvingContext,
               AutowiredPropertyResolverTest.class.getDeclaredField("name")//
-            );
+      );
 
-            System.err.println(resolveProperty);
-            assert resolveProperty != null;
+      System.err.println(resolveProperty);
+      assert resolveProperty != null;
 
-            assert autowiredPropertyResolver.resolveProperty(AutowiredPropertyResolverTest.class.getDeclaredField("name1")) != null;
-            assert autowiredPropertyResolver.resolveProperty(AutowiredPropertyResolverTest.class.getDeclaredField("name2")) != null;
+      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTest.class.getDeclaredField("name1")) != null;
+      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTest.class.getDeclaredField("name2")) != null;
 
-        }
     }
+  }
 
 }

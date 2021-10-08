@@ -27,9 +27,9 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.ConfigurationException;
 
 /**

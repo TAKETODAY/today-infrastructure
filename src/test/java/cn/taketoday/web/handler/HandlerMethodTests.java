@@ -161,7 +161,7 @@ public class HandlerMethodTests {
 
   private StandardApplicationContext getApplicationContext() {
     final StandardApplicationContext applicationContext = new StandardWebServletApplicationContext();
-    applicationContext.load("cn.taketoday.web.handler");
+    applicationContext.scan("cn.taketoday.web.handler");
     return applicationContext;
   }
 

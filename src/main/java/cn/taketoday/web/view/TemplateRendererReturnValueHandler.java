@@ -79,7 +79,7 @@ public class TemplateRendererReturnValueHandler
         Object returnValue = ReflectionUtils.invokeMethod(method, handler);
         if (returnValue instanceof SerializedLambda) {
           SerializedLambda lambda = (SerializedLambda) returnValue;
-          Class<?> implClass = ClassUtils.loadClass(lambda.getImplClass().replace('/', '.'));
+          Class<?> implClass = ClassUtils.load(lambda.getImplClass().replace('/', '.'));
           if (implClass != null) {
             Method declaredMethod = ReflectionUtils.findMethod(implClass, lambda.getImplMethodName(), RequestContext.class);
             if (declaredMethod != null) {

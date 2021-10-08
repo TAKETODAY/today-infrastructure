@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;

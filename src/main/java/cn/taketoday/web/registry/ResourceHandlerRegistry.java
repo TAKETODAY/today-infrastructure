@@ -22,8 +22,8 @@ package cn.taketoday.web.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.cache.ConcurrentMapCache;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;

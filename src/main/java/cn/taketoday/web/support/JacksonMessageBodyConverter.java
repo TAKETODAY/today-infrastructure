@@ -32,8 +32,8 @@ import java.util.List;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;

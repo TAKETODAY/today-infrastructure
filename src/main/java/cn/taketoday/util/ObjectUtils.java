@@ -331,17 +331,15 @@ public abstract class ObjectUtils {
    * @since 3.0
    */
   public static boolean containsElement(@Nullable Object[] array, Object element) {
-    if (array == null) {
-      return false;
-    }
-    for (Object arrayEle : array) {
-      if (nullSafeEquals(arrayEle, element)) {
-        return true;
+    if (array != null) {
+      for (final Object candidate : array) {
+        if (ObjectUtils.nullSafeEquals(candidate, element)) {
+          return true;
+        }
       }
     }
     return false;
   }
-
   /**
    * Check whether the given array of enum constants contains a constant with the given name,
    * ignoring case when determining a match.

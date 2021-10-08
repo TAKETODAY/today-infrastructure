@@ -25,9 +25,9 @@ import javax.servlet.ServletContext;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.StandardEnvironment;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.web.WebUtils;
 
 /**
@@ -54,7 +54,7 @@ public class StandardWebServletApplicationContext
    *         {@link ConfigurableEnvironment} instance
    */
   public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
-    super(env);
+    super(env, beanFactory);
     WebUtils.setLastStartupWebContext(this);
   }
 
@@ -78,7 +78,7 @@ public class StandardWebServletApplicationContext
    */
   public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
     this(servletContext);
-    load(classes);
+    scan(classes);
   }
 
   /**
@@ -94,7 +94,7 @@ public class StandardWebServletApplicationContext
   public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
     this(servletContext);
     setPropertiesLocation(propertiesLocation);
-    load(locations);
+    scan(locations);
   }
 
   @Override
@@ -103,11 +103,9 @@ public class StandardWebServletApplicationContext
   }
 
   @Override
-  protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
-    // register WebApplicationContext
-    registerSingleton(this);
-
-    super.postProcessBeanFactory(beanFactory);
+  protected void registerFrameworkComponents(AbstractBeanFactory beanFactory) {
+    super.registerFrameworkComponents(beanFactory);
+    beanFactory.registerSingleton(this);
   }
 
   @Override

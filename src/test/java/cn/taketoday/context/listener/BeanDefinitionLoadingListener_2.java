@@ -21,7 +21,6 @@ package cn.taketoday.context.listener;
 
 import cn.taketoday.core.Order;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 

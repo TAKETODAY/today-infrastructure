@@ -20,10 +20,9 @@
 package cn.taketoday.framework;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
-import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.Logger;
@@ -44,7 +43,7 @@ public class StandardWebServerApplicationContext
   private String contextPath = Constant.BLANK;
 
   public StandardWebServerApplicationContext() {
-    this(new StandardWebEnvironment());
+    super(new StandardWebBeanFactory());
   }
 
   public StandardWebServerApplicationContext(Class<?> startupClass, String... args) {
@@ -62,18 +61,13 @@ public class StandardWebServerApplicationContext
   }
 
   public StandardWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
-    super(env);
+    super(env, beanFactory);
     this.startupClass = startupClass;
   }
 
-  @Override
-  protected StandardBeanFactory createBeanFactory() {
-    return new StandardWebBeanFactory(this);
-  }
 
   @Override
-  protected void registerFrameworkComponents(
-          ConfigurableEnvironment env, AbstractBeanFactory beanFactory) {
+  protected void registerFrameworkComponents(AbstractBeanFactory beanFactory) {
     beanFactory.registerSingleton(this);
   }
 

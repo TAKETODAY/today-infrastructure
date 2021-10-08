@@ -31,11 +31,10 @@ import cn.taketoday.aop.Logger;
 import cn.taketoday.aop.support.annotation.Around;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.JoinPoint;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Order;
 
@@ -52,8 +51,8 @@ public class CycleDependencyTest {
 
     CandidateComponentScanner.getSharedInstance().clear();
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.load("cn.taketoday.beans.cycle");
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+      applicationContext.scan("cn.taketoday.beans.cycle");
       assertEquals(8, applicationContext.getBeanDefinitionCount());
 
       final BeanA beanA = applicationContext.getBean(BeanA.class);
@@ -145,10 +144,10 @@ public class CycleDependencyTest {
   public void testProxyCycleDependency() {
     CandidateComponentScanner.getSharedInstance().clear();
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
       applicationContext.importBeans(LoggingAspect.class);
-      applicationContext.load("cn.taketoday.beans.cycle");
+      applicationContext.scan("cn.taketoday.beans.cycle");
 
       final LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
       final LoggingBeanB beanB = applicationContext.getBean(LoggingBeanB.class);

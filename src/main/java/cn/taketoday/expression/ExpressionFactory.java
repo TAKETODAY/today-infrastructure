@@ -123,7 +123,7 @@ import cn.taketoday.util.ConcurrentCache;
 public class ExpressionFactory implements NodeVisitor {
 
   private final Properties properties;
-  private final Map<String, Method> functionMap = new HashMap<>();
+  private final HashMap<String, Method> functionMap = new HashMap<>();
 
   private static final String CACHE_SIZE_PROP = "expression.cache.size";
   private static final ExpressionFactory sharedExpressionFactory;

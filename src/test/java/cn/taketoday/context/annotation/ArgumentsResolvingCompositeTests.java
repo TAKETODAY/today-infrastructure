@@ -17,24 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+
+package cn.taketoday.context.annotation;
+
+import org.junit.jupiter.api.Test;
 
 /**
- * Defines a factory which can return an Object instance (possibly shared or
- * independent) when invoked.
- *
- * @author TODAY <br>
- * 2018-09-11 11:01
+ * @author TODAY 2021/10/3 23:18
  */
-@FunctionalInterface
-public interface ObjectFactory<T> {
+class ArgumentsResolvingCompositeTests {
 
-  /**
-   * Return an instance (possibly shared or independent) of the object managed by
-   * this factory.
-   *
-   * @return the resulting instance
-   */
-  T getObject();
+  @Test
+  void strategiesDetector() {
+    ArgumentsResolvingComposite argumentsResolvingComposite = new ArgumentsResolvingComposite();
+  }
 
 }

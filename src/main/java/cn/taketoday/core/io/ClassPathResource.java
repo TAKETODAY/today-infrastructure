@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -31,7 +31,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
-`import cn.taketoday.core.Nullable;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -59,10 +59,10 @@ public class ClassPathResource implements Resource, WritableResource {
    *         the absolute path within the class path
    *
    * @see java.lang.ClassLoader#getResourceAsStream(String)
-   * @see ClassUtils#getClassLoader() ()
+   * @see ClassUtils#getDefaultClassLoader() ()
    */
   public ClassPathResource(String location) {
-    this(location, ClassUtils.getClassLoader());
+    this(location, ClassUtils.getDefaultClassLoader());
   }
 
   /**
@@ -85,7 +85,7 @@ public class ClassPathResource implements Resource, WritableResource {
       pathToUse = pathToUse.substring(1);
     }
     this.location = pathToUse;
-    this.classLoader = (classLoader != null ? classLoader : ClassUtils.getClassLoader());
+    this.classLoader = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
   }
 
   /**

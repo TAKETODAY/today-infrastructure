@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,51 +23,50 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.core.ConfigurationException;
 
 /**
- * 
+ *
  * @author Today <br>
- * 
+ *
  *         2018-07-17 21:35:52
  */
 public class AwareTest {
 
-    private long start;
+  private long start;
 
-    @Before
-    public void start() {
-        start = System.currentTimeMillis();
-    }
+  @Before
+  public void start() {
+    start = System.currentTimeMillis();
+  }
 
-    @After
-    public void end() {
-        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-    }
+  @After
+  public void end() {
+    System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+  }
 
-    @Test
-    public void test_AwareBean()
-            throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
+  @Test
+  public void test_AwareBean()
+          throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-            applicationContext.registerBean(AwareBean.class);
-            applicationContext.refresh();
+      applicationContext.importBeans(AwareBean.class);
+      applicationContext.refresh();
 
-            AwareBean bean = applicationContext.getBean(AwareBean.class);
-            assert bean.getApplicationContext() != null : "applicationContext == null";
-            assert bean.getBeanFactory() != null : "bean factory == null";
-            assert bean.getBeanName() != null : "bean name == null";
-            assert bean.getEnvironment() != null : "env == null";
+      AwareBean bean = applicationContext.getBean(AwareBean.class);
+      assert bean.getApplicationContext() != null : "applicationContext == null";
+      assert bean.getBeanFactory() != null : "bean factory == null";
+      assert bean.getBeanName() != null : "bean name == null";
+      assert bean.getEnvironment() != null : "env == null";
 
-            System.out.println(bean);
-
-        }
+      System.out.println(bean);
 
     }
+
+  }
 
 }

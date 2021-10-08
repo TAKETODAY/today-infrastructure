@@ -142,7 +142,7 @@ class CustomEnvironmentTests {
   @Test
   void withCustomPropertyResolver() {
     class CustomPropertySourcesPropertyResolver extends PropertySourcesPropertyResolver {
-      public CustomPropertySourcesPropertyResolver(PropertySources0 propertySources) {
+      public CustomPropertySourcesPropertyResolver(PropertySources propertySources) {
         super(propertySources);
       }
 

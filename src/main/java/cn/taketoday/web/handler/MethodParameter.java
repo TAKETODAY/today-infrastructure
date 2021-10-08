@@ -31,13 +31,13 @@ import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Required;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 

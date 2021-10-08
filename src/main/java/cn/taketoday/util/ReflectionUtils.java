@@ -1282,6 +1282,7 @@ public abstract class ReflectionUtils {
    *
    * @since 2.1.5
    */
+  @Deprecated
   public static Collection<Field> getFields(Object target) {
     return getFields(target.getClass());
   }
@@ -1296,6 +1297,7 @@ public abstract class ReflectionUtils {
    *
    * @since 2.1.2
    */
+  @Deprecated
   public static Collection<Field> getFields(Class<?> targetClass) {
     final ArrayList<Field> list = new ArrayList<>(64);
     do {
@@ -1316,6 +1318,7 @@ public abstract class ReflectionUtils {
    *
    * @since 2.1.2
    */
+  @Deprecated
   public static Field[] getFieldArray(Class<?> targetClass) {
     final Collection<Field> fields = getFields(targetClass);
     return toFieldArray(fields);

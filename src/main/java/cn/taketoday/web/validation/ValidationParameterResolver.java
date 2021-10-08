@@ -40,7 +40,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
   /** list of validators @since 3.0 */
   private final WebValidator validator;
   private final HashMap<MethodParameter, ParameterResolvingStrategy> resolverMap = new HashMap<>();
-  private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
+  private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.load("javax.validation.Valid");
 
   private ParameterResolvingRegistry resolvingRegistry;
 

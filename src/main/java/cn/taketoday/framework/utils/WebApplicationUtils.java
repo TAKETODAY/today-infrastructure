@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.server.AbstractWebServer;

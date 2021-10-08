@@ -24,12 +24,12 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;

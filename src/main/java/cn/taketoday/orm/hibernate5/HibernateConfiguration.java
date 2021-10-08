@@ -35,13 +35,12 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.event.ApplicationContextEvent;
-import cn.taketoday.context.event.ApplicationEventCapable;
+import cn.taketoday.context.event.EventProvider;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;
@@ -52,7 +51,7 @@ import cn.taketoday.util.ClassUtils;
  * @author TODAY 2019-11-05 22:11
  */
 public class HibernateConfiguration extends Configuration
-        implements ApplicationListener<ApplicationContextEvent>, ApplicationEventCapable {
+        implements ApplicationListener<ApplicationContextEvent>, EventProvider {
   // @since 4.0
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -62,13 +61,7 @@ public class HibernateConfiguration extends Configuration
   public static final String SESSION_FACTORY_BEAN_NAME = "org.hibernate.SessionFactory";
 
   public SessionFactory buildSessionFactory(DataSource dataSource, Properties hibernateProperties) {
-
-    hibernateProperties.put(AvailableSettings.DATASOURCE, dataSource);
-    hibernateProperties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, HibernateSessionContext.class.getName());
-    hibernateProperties.put(AvailableSettings.CLASSLOADERS, Collections.singleton(ClassUtils.getDefaultClassLoader()));
-
     setProperties(hibernateProperties);
-
     return super.buildSessionFactory();
   }
 
@@ -84,20 +77,32 @@ public class HibernateConfiguration extends Configuration
     }
   }
 
-  protected void refreshSessionFactory(final ApplicationContext applicationContext) {
+  protected void refreshSessionFactory(ApplicationContext applicationContext) {
     SingletonBeanRegistry beanRegistry = applicationContext.unwrapFactory(SingletonBeanRegistry.class);
     if (beanRegistry.getSingleton(SESSION_FACTORY_BEAN_NAME) == null) {
-      final DataSource dataSource = applicationContext.getBean(DataSource.class);
+      DataSource dataSource = applicationContext.getBean(DataSource.class);
       if (dataSource == null) {
         throw new ConfigurationException("You must provide a javax.sql.DataSource bean");
       }
-      final Properties properties = ContextUtils.loadProps(
-              new DefaultProps().setPrefix("hibernate."),
-              applicationContext.getEnvironment().getProperties());
+      PropsReader propsReader = new PropsReader(applicationContext);
 
+      Properties properties = getHibernateProperties(dataSource, applicationContext, propsReader);
       beanRegistry.registerSingleton(SESSION_FACTORY_BEAN_NAME, buildSessionFactory(dataSource, properties));
       log.info("Refresh 'SessionFactory' bean");
     }
+  }
+
+  protected Properties getHibernateProperties(
+          DataSource dataSource, ApplicationContext applicationContext, PropsReader propsReader) {
+    Properties hibernateProperties = new Properties();
+    hibernateProperties.put(AvailableSettings.DATASOURCE, dataSource);
+    hibernateProperties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, HibernateSessionContext.class.getName());
+    hibernateProperties.put(AvailableSettings.CLASSLOADERS, Collections.singleton(ClassUtils.getDefaultClassLoader()));
+
+    Properties properties = propsReader.readMap(
+            new DefaultProps().setPrefix("hibernate."));
+
+    return hibernateProperties;
   }
 
   protected void registerSessionFactoryBean(
@@ -117,13 +122,15 @@ public class HibernateConfiguration extends Configuration
 
     BeanDefinition registered = beanDefinitionReader.registerBean(
             SESSION_FACTORY_BEAN_NAME, SessionFactory.class);
-
+    registered.setSynthetic(true);
     registered.setDestroyMethods("close");
+    registered.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+
     log.info("Register 'SessionFactory' bean definition {}", registered);
   }
 
   @Override
-  public Class<?>[] getApplicationEvent() {
+  public Class<?>[] getSupportedEvent() {
     return new Class<?>[] { LoadingMissingBeanEvent.class, ContextRefreshEvent.class };
   }
 

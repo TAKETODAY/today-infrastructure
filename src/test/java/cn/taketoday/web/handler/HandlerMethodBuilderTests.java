@@ -57,7 +57,7 @@ public class HandlerMethodBuilderTests {
   public void testBuild() throws NoSuchMethodException {
 
     try (StandardApplicationContext context = new StandardWebServletApplicationContext()) {
-      context.load("cn.taketoday.web.handler");
+      context.scan("cn.taketoday.web.handler");
       context.importBeans(AppConfig.class);
 
       final HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);

@@ -33,83 +33,83 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class SimpleCommandLineArgsParserTests {
 
-	private final SimpleCommandLineArgsParser parser = new SimpleCommandLineArgsParser();
+  @Test
+  void withNoOptions() {
+    assertThat(SimpleCommandLineArgsParser.parse().getOptionValues("foo")).isNull();
+  }
 
+  @Test
+  void withSingleOptionAndNoValue() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse("--o1");
+    assertThat(args.containsOption("o1")).isTrue();
+    assertThat(args.getOptionValues("o1")).isEqualTo(Collections.EMPTY_LIST);
+  }
 
-	@Test
-	void withNoOptions() {
-		assertThat(parser.parse().getOptionValues("foo")).isNull();
-	}
+  @Test
+  void withSingleOptionAndValue() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse("--o1=v1");
+    assertThat(args.containsOption("o1")).isTrue();
+    assertThat(args.getOptionValues("o1")).containsExactly("v1");
+  }
 
-	@Test
-	void withSingleOptionAndNoValue() {
-		CommandLineArgs args = parser.parse("--o1");
-		assertThat(args.containsOption("o1")).isTrue();
-		assertThat(args.getOptionValues("o1")).isEqualTo(Collections.EMPTY_LIST);
-	}
+  @Test
+  void withMixOfOptionsHavingValueAndOptionsHavingNoValue() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse("--o1=v1", "--o2");
+    assertThat(args.containsOption("o1")).isTrue();
+    assertThat(args.containsOption("o2")).isTrue();
+    assertThat(args.containsOption("o3")).isFalse();
+    assertThat(args.getOptionValues("o1")).containsExactly("v1");
+    assertThat(args.getOptionValues("o2")).isEqualTo(Collections.EMPTY_LIST);
+    assertThat(args.getOptionValues("o3")).isNull();
+  }
 
-	@Test
-	void withSingleOptionAndValue() {
-		CommandLineArgs args = parser.parse("--o1=v1");
-		assertThat(args.containsOption("o1")).isTrue();
-		assertThat(args.getOptionValues("o1")).containsExactly("v1");
-	}
+  @Test
+  void withEmptyOptionText() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> SimpleCommandLineArgsParser.parse("--"));
+  }
 
-	@Test
-	void withMixOfOptionsHavingValueAndOptionsHavingNoValue() {
-		CommandLineArgs args = parser.parse("--o1=v1", "--o2");
-		assertThat(args.containsOption("o1")).isTrue();
-		assertThat(args.containsOption("o2")).isTrue();
-		assertThat(args.containsOption("o3")).isFalse();
-		assertThat(args.getOptionValues("o1")).containsExactly("v1");
-		assertThat(args.getOptionValues("o2")).isEqualTo(Collections.EMPTY_LIST);
-		assertThat(args.getOptionValues("o3")).isNull();
-	}
+  @Test
+  void withEmptyOptionName() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> SimpleCommandLineArgsParser.parse("--=v1"));
+  }
 
-	@Test
-	void withEmptyOptionText() {
-		assertThatIllegalArgumentException().isThrownBy(() -> parser.parse("--"));
-	}
+  @Test
+  void withEmptyOptionValue() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse("--o1=");
+    assertThat(args.containsOption("o1")).isTrue();
+    assertThat(args.getOptionValues("o1")).containsExactly("");
+  }
 
-	@Test
-	void withEmptyOptionName() {
-		assertThatIllegalArgumentException().isThrownBy(() -> parser.parse("--=v1"));
-	}
+  @Test
+  void withEmptyOptionNameAndEmptyOptionValue() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> SimpleCommandLineArgsParser.parse("--="));
+  }
 
-	@Test
-	void withEmptyOptionValue() {
-		CommandLineArgs args = parser.parse("--o1=");
-		assertThat(args.containsOption("o1")).isTrue();
-		assertThat(args.getOptionValues("o1")).containsExactly("");
-	}
+  @Test
+  void withNonOptionArguments() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse("--o1=v1", "noa1", "--o2=v2", "noa2");
+    assertThat(args.getOptionValues("o1")).containsExactly("v1");
+    assertThat(args.getOptionValues("o2")).containsExactly("v2");
 
-	@Test
-	void withEmptyOptionNameAndEmptyOptionValue() {
-		assertThatIllegalArgumentException().isThrownBy(() -> parser.parse("--="));
-	}
+    List<String> nonOptions = args.getNonOptionArgs();
+    assertThat(nonOptions).containsExactly("noa1", "noa2");
+  }
 
-	@Test
-	void withNonOptionArguments() {
-		CommandLineArgs args = parser.parse("--o1=v1", "noa1", "--o2=v2", "noa2");
-		assertThat(args.getOptionValues("o1")).containsExactly("v1");
-		assertThat(args.getOptionValues("o2")).containsExactly("v2");
+  @Test
+  void assertOptionNamesIsUnmodifiable() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> args.getOptionNames().add("bogus"));
+  }
 
-		List<String> nonOptions = args.getNonOptionArgs();
-		assertThat(nonOptions).containsExactly("noa1", "noa2");
-	}
-
-	@Test
-	void assertOptionNamesIsUnmodifiable() {
-		CommandLineArgs args = new SimpleCommandLineArgsParser().parse();
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-				args.getOptionNames().add("bogus"));
-	}
-
-	@Test
-	void assertNonOptionArgsIsUnmodifiable() {
-		CommandLineArgs args = new SimpleCommandLineArgsParser().parse();
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-				args.getNonOptionArgs().add("foo"));
-	}
+  @Test
+  void assertNonOptionArgsIsUnmodifiable() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> args.getNonOptionArgs().add("foo"));
+  }
 
 }

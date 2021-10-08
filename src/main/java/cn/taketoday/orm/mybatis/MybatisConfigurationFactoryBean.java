@@ -27,10 +27,10 @@ import java.util.Properties;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * @author TODAY <br>
@@ -49,7 +49,7 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
   @Override
   public void afterPropertiesSet() throws Exception {
     if (configuration == null) {
-      final InputStream resourceAsStream = ContextUtils.getResourceAsStream(getConfigLocation());
+      final InputStream resourceAsStream = ResourceUtils.getResourceAsStream(getConfigLocation());
       final Configuration configuration
               = new XMLConfigBuilder(resourceAsStream, "TODAY-MYBATIS", getProperties()).parse();
       setConfiguration(configuration);

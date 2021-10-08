@@ -26,10 +26,10 @@ import java.net.URI;
 import java.net.URL;
 
 import cn.taketoday.core.PathMatcher;
-import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.core.io.ResourceResolver;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.MediaType;
@@ -47,7 +47,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
-  private ResourceResolver resourceResolver = new PathMatchingResourcePatternResolver();
+  private ResourceLoader resourceResolver = new PathMatchingPatternResourceLoader();
 
   @Override
   public WebResource resolveResource(final ResourceMatchResult matchResult) {
@@ -73,7 +73,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
     else {
       extractPathWithinPattern = requestPath;
     }
-    final ResourceResolver resourceResolver = getResourceResolver();
+    final ResourceLoader resourceResolver = getResourceResolver();
 
     // log.debug("resource: [{}]", extractPathWithinPattern);
     for (final String location : matchResult.getMapping().getLocations()) {
@@ -118,11 +118,11 @@ public class DefaultResourceResolver implements WebResourceResolver {
     return false;
   }
 
-  public ResourceResolver getResourceResolver() {
+  public ResourceLoader getResourceResolver() {
     return resourceResolver;
   }
 
-  public void setResourceResolver(ResourceResolver resourceResolver) {
+  public void setResourceResolver(ResourceLoader resourceResolver) {
     this.resourceResolver = resourceResolver;
   }
 

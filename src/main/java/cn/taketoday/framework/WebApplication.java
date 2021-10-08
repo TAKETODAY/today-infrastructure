@@ -99,10 +99,10 @@ public class WebApplication {
       context.importBeans(startupClass); // @since 1.0.2 import startup class
       if (startupClass == null) {
         log.info("There isn't a Startup Class");
-        context.load(); // load from all classpath
+        context.scan(); // load from all classpath
       }
       else {
-        context.load(startupClass.getPackage().getName());
+        context.scan(startupClass.getPackage().getName());
       }
 
       final WebServer webServer = context.getWebServer();

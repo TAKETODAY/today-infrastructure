@@ -28,10 +28,10 @@ import java.util.Map;
 
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;

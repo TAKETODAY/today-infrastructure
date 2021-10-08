@@ -1,7 +1,7 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,27 +15,28 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.listener;
+package cn.taketoday.core;
 
-import cn.taketoday.core.Order;
-import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import java.util.function.Supplier;
 
 /**
- * @author Today <br>
- * 
- *         2018-11-08 20:38
+ * Defines a factory which can return an Object instance (possibly shared or
+ * independent) when invoked.
+ *
+ * @author TODAY 2018-09-11 11:01
  */
-@Order(1)
-public class BeanDefinitionLoadingListener_1 implements ApplicationListener<BeanDefinitionLoadingEvent> {
-    private static final Logger log = LoggerFactory.getLogger(BeanDefinitionLoadingListener_1.class);
+@FunctionalInterface
+public interface ObjectFactory<T> extends Supplier<T> {
 
-    @Override
-    public void onApplicationEvent(BeanDefinitionLoadingEvent event) {
-        log.debug("BeanDefinitionLoadingListener_1");
-    }
+  /**
+   * Return an instance (possibly shared or independent) of the object managed by
+   * this factory.
+   *
+   * @return the resulting instance
+   */
+  @Override
+  T get();
 
 }

@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.io.Reader;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceResolver;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ConcurrentCache;
@@ -43,7 +43,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   private String prefix;
   private String suffix;
-  private ResourceResolver pathMatchingResolver = new PathMatchingResourcePatternResolver();
+  private ResourceLoader pathMatchingResolver = new PathMatchingPatternResourceLoader();
 
   public final ConcurrentCache<String, TemplateSource> cache;
 
@@ -119,11 +119,11 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   @Override
   public void closeTemplateSource(final Object source) throws IOException { }
 
-  public void setPathMatchingResolver(ResourceResolver pathMatchingResolver) {
+  public void setPathMatchingResolver(ResourceLoader pathMatchingResolver) {
     this.pathMatchingResolver = pathMatchingResolver;
   }
 
-  public ResourceResolver getPathMatchingResolver() {
+  public ResourceLoader getPathMatchingResolver() {
     return pathMatchingResolver;
   }
 

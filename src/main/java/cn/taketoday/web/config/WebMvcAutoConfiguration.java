@@ -20,10 +20,10 @@
 
 package cn.taketoday.web.config;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DefaultExceptionHandler;

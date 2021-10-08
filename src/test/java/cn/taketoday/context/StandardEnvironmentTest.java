@@ -26,18 +26,19 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.util.ClassUtils;
-
-import static org.junit.Assert.assertEquals;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.PropertiesPropertySource;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.io.PropertiesLoaderUtils;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * @author Today <br>
  *
- *         2018-11-15 16:56
+ * 2018-11-15 16:56
  */
 public class StandardEnvironmentTest {
 
@@ -59,19 +60,22 @@ public class StandardEnvironmentTest {
 
     try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
       Environment environment = applicationContext.getEnvironment();
-      Properties properties = environment.getProperties();
-      assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
+      assert "https://taketoday.cn".equals(environment.getProperty("site.host"));
     }
   }
 
   @Test
   public void test_loadProperties() throws IOException {
-    System.err.println(ClassUtils.getClassLoader());
     ConfigurableEnvironment environment = new StandardEnvironment();
-    environment.loadProperties(); // provide a path
-    Properties properties = environment.getProperties();
 
-    assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
+    PropertySources propertySources = environment.getPropertySources();
+
+    Properties properties = PropertiesLoaderUtils.loadProperties(
+            ResourceUtils.getResource("classpath:info.properties"));
+
+    propertySources.addLast(new PropertiesPropertySource("info", properties));
+
+    assert "https://taketoday.cn".equals(environment.getProperty("site.host"));
   }
 
   @Test
@@ -111,20 +115,6 @@ public class StandardEnvironmentTest {
       ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
       assert environment.acceptsProfiles("test");
-    }
-  }
-
-  @Test
-  public void testBeanNameCreator() throws IOException {
-
-    try (StandardApplicationContext applicationContext
-            = new StandardApplicationContext("", "cn.taketoday.context.env")) {
-      ConfigurableEnvironment environment = applicationContext.getEnvironment();
-      final BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
-
-      final BeanNameCreator beanNameCreator2 = applicationContext.getBeanFactory().getBeanNameCreator();
-
-      assertEquals(beanNameCreator, beanNameCreator2);
     }
   }
 

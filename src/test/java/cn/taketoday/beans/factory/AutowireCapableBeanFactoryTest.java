@@ -29,12 +29,12 @@ import javax.annotation.PostConstruct;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
+import cn.taketoday.context.Conditional;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.Value;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.Conditional;
-import cn.taketoday.context.Value;
 import cn.taketoday.context.aware.BeanNameAware;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,246 +45,246 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AutowireCapableBeanFactoryTest {
 
-    static class CreateTestBean {
-        int property;
+  static class CreateTestBean {
+    int property;
+  }
+
+  @Test
+  public void testCreateBean() {
+    try (ApplicationContext context = new StandardApplicationContext()) {
+      CreateTestBean bean = context.createBean(CreateTestBean.class);
+      CreateTestBean bean2 = context.createBean(CreateTestBean.class);
+      assertThat(bean.property).isZero();
+      assertThat(bean2).isNotEqualTo(bean);
+
+      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef2 = context.createBean(CreateTestBean.class, true);
+
+      assertThat(cachedBeanDef.property).isZero();
+      assertThat(cachedBeanDef2).isNotEqualTo(cachedBeanDef);
+
+      BeanDefinition beanDefinition = context.getBeanDefinition(CreateTestBean.class);
+
+      assertThat(beanDefinition.getBeanClass()).isEqualTo(CreateTestBean.class);
+      assertThat(beanDefinition.getScope()).isEqualTo(Scope.PROTOTYPE);
+      assertThat(beanDefinition.getPropertySetters()).isEmpty();
+    }
+  }
+
+  static class AutowireTestBeanCondition implements Condition {
+
+    @Override
+    public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
+      final ApplicationContext.State state = context.getState();
+      return state == ApplicationContext.State.NONE;
+    }
+  }
+
+  @Conditional(AutowireTestBeanCondition.class)
+  @Component(initMethods = "init", destroyMethods = "destroy")
+  static class AutowireTestBean implements BeanNameAware, InitializingBean {
+    @Value("${1+1}")
+    int property;
+
+    @Autowired
+    CreateTestBean bean;
+
+    boolean initMethod;
+    boolean destroyMethods;
+    boolean postConstruct;
+    boolean afterPropertiesSet;
+    String name;
+
+    boolean afterPostProcessor;
+    boolean beforePostProcessor;
+    boolean postProcessBeforeDestruction;
+
+    void init() {
+      initMethod = true;
     }
 
-    @Test
-    public void testCreateBean() {
-        try (ApplicationContext context = new StandardApplicationContext()) {
-            CreateTestBean bean = context.createBean(CreateTestBean.class);
-            CreateTestBean bean2 = context.createBean(CreateTestBean.class);
-            assertThat(bean.property).isZero();
-            assertThat(bean2).isNotEqualTo(bean);
-
-            CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
-            CreateTestBean cachedBeanDef2 = context.createBean(CreateTestBean.class, true);
-
-            assertThat(cachedBeanDef.property).isZero();
-            assertThat(cachedBeanDef2).isNotEqualTo(cachedBeanDef);
-
-            BeanDefinition beanDefinition = context.getBeanDefinition(CreateTestBean.class);
-
-            assertThat(beanDefinition.getBeanClass()).isEqualTo(CreateTestBean.class);
-            assertThat(beanDefinition.getScope()).isEqualTo(Scope.PROTOTYPE);
-            assertThat(beanDefinition.getPropertySetters()).isEmpty();
-        }
+    void destroy() {
+      destroyMethods = true;
     }
 
-    static class AutowireTestBeanCondition implements Condition {
-
-        @Override
-        public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-            final ApplicationContext.State state = context.getState();
-            return state == ApplicationContext.State.NONE;
-        }
+    @PostConstruct
+    void postConstruct() {
+      postConstruct = true;
     }
 
-    @Conditional(AutowireTestBeanCondition.class)
-    @Component(initMethods = "init", destroyMethods = "destroy")
-    static class AutowireTestBean implements BeanNameAware, InitializingBean {
-        @Value("${1+1}")
-        int property;
-
-        @Autowired
-        CreateTestBean bean;
-
-        boolean initMethod;
-        boolean destroyMethods;
-        boolean postConstruct;
-        boolean afterPropertiesSet;
-        String name;
-
-        boolean afterPostProcessor;
-        boolean beforePostProcessor;
-        boolean postProcessBeforeDestruction;
-
-        void init() {
-            initMethod = true;
-        }
-
-        void destroy() {
-            destroyMethods = true;
-        }
-
-        @PostConstruct
-        void postConstruct() {
-            postConstruct = true;
-        }
-
-        @Override
-        public void setBeanName(final String name) {
-            this.name = name;
-        }
-
-        @Override
-        public void afterPropertiesSet() {
-            afterPropertiesSet = true;
-        }
+    @Override
+    public void setBeanName(final String name) {
+      this.name = name;
     }
 
-    @Test
-    public void testAutowireBean() {
-        try (ApplicationContext context = new StandardApplicationContext()) {
-            CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
-            context.addBeanPostProcessor(new PostProcessor());
+    @Override
+    public void afterPropertiesSet() {
+      afterPropertiesSet = true;
+    }
+  }
 
-            AutowireTestBean autowireTestBean = new AutowireTestBean();
-            context.autowireBean(autowireTestBean);
+  @Test
+  public void testAutowireBean() {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
+      context.addBeanPostProcessor(new PostProcessor());
 
-            assertThat(autowireTestBean.name).isEqualTo("autowireTestBean");
-            assertThat(autowireTestBean.property).isEqualTo(2);
-            assertThat(autowireTestBean.initMethod).isTrue();
-            assertThat(autowireTestBean.postConstruct).isTrue();
-            assertThat(autowireTestBean.afterPropertiesSet).isTrue();
-            assertThat(autowireTestBean.afterPostProcessor).isFalse();
-            assertThat(autowireTestBean.beforePostProcessor).isFalse();
-            assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
-        }
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
+      context.autowireBean(autowireTestBean);
+
+      assertThat(autowireTestBean.name).isEqualTo("autowireTestBean");
+      assertThat(autowireTestBean.property).isEqualTo(2);
+      assertThat(autowireTestBean.initMethod).isTrue();
+      assertThat(autowireTestBean.postConstruct).isTrue();
+      assertThat(autowireTestBean.afterPropertiesSet).isTrue();
+      assertThat(autowireTestBean.afterPostProcessor).isFalse();
+      assertThat(autowireTestBean.beforePostProcessor).isFalse();
+      assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
+    }
+  }
+
+  @Test
+  public void testAutowireBeanProperties() {
+    try (ApplicationContext context = new StandardApplicationContext()) {
+      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
+      context.addBeanPostProcessor(new PostProcessor());
+
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
+      context.autowireBeanProperties(autowireTestBean);
+      assertThat(autowireTestBean.name).isNull();
+      assertThat(autowireTestBean.property).isEqualTo(2);
+      assertThat(autowireTestBean.initMethod).isFalse();
+      assertThat(autowireTestBean.postConstruct).isFalse();
+      assertThat(autowireTestBean.afterPropertiesSet).isFalse();
+      assertThat(autowireTestBean.afterPostProcessor).isFalse();
+      assertThat(autowireTestBean.beforePostProcessor).isFalse();
+      assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
+    }
+  }
+
+  static class PostProcessor implements BeanPostProcessor, DestructionBeanPostProcessor {
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) {
+      if (bean instanceof AutowireTestBean) {
+        ((AutowireTestBean) bean).beforePostProcessor = true;
+      }
+      return bean;
     }
 
-    @Test
-    public void testAutowireBeanProperties() {
-        try (ApplicationContext context = new StandardApplicationContext()) {
-            CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
-            context.addBeanPostProcessor(new PostProcessor());
-
-            AutowireTestBean autowireTestBean = new AutowireTestBean();
-            context.autowireBeanProperties(autowireTestBean);
-            assertThat(autowireTestBean.name).isNull();
-            assertThat(autowireTestBean.property).isEqualTo(2);
-            assertThat(autowireTestBean.initMethod).isFalse();
-            assertThat(autowireTestBean.postConstruct).isFalse();
-            assertThat(autowireTestBean.afterPropertiesSet).isFalse();
-            assertThat(autowireTestBean.afterPostProcessor).isFalse();
-            assertThat(autowireTestBean.beforePostProcessor).isFalse();
-            assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
-        }
+    @Override
+    public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
+      if (bean instanceof AutowireTestBean) {
+        ((AutowireTestBean) bean).afterPostProcessor = true;
+      }
+      return bean;
     }
 
-    static class PostProcessor implements BeanPostProcessor, DestructionBeanPostProcessor {
-
-        @Override
-        public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) {
-            if (bean instanceof AutowireTestBean) {
-                ((AutowireTestBean) bean).beforePostProcessor = true;
-            }
-            return bean;
-        }
-
-        @Override
-        public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
-            if (bean instanceof AutowireTestBean) {
-                ((AutowireTestBean) bean).afterPostProcessor = true;
-            }
-            return bean;
-        }
-
-        @Override
-        public void postProcessBeforeDestruction(Object bean, BeanDefinition def) {
-            if (bean instanceof AutowireTestBean) {
-                ((AutowireTestBean) bean).postProcessBeforeDestruction = true;
-            }
-        }
-
+    @Override
+    public void postProcessBeforeDestruction(Object bean, BeanDefinition def) {
+      if (bean instanceof AutowireTestBean) {
+        ((AutowireTestBean) bean).postProcessBeforeDestruction = true;
+      }
     }
 
-    @Test
-    public void testInitializeBean() {
-        String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
+  }
 
-        try (ApplicationContext context = new StandardApplicationContext()) {
-            CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
+  @Test
+  public void testInitializeBean() {
+    String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
-            context.addBeanPostProcessor(new PostProcessor());
+    try (ApplicationContext context = new StandardApplicationContext()) {
+      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
 
-            AutowireTestBean autowireTestBean = new AutowireTestBean();
-            context.initializeBean(autowireTestBean, beanName);
+      context.addBeanPostProcessor(new PostProcessor());
 
-            assertThat(autowireTestBean.name).isEqualTo(beanName);
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
+      context.initializeBean(autowireTestBean, beanName);
 
-            assertThat(autowireTestBean.property).isEqualTo(2);
-            assertThat(autowireTestBean.initMethod).isTrue();
-            assertThat(autowireTestBean.postConstruct).isTrue();
-            assertThat(autowireTestBean.afterPropertiesSet).isTrue();
-            assertThat(autowireTestBean.afterPostProcessor).isTrue();
-            assertThat(autowireTestBean.beforePostProcessor).isTrue();
-            assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
-        }
+      assertThat(autowireTestBean.name).isEqualTo(beanName);
+
+      assertThat(autowireTestBean.property).isEqualTo(2);
+      assertThat(autowireTestBean.initMethod).isTrue();
+      assertThat(autowireTestBean.postConstruct).isTrue();
+      assertThat(autowireTestBean.afterPropertiesSet).isTrue();
+      assertThat(autowireTestBean.afterPostProcessor).isTrue();
+      assertThat(autowireTestBean.beforePostProcessor).isTrue();
+      assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
     }
+  }
 
-    @Test
-    public void testApplyBeanPostProcessorsBeforeInitialization() {
-        String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
+  @Test
+  public void testApplyBeanPostProcessorsBeforeInitialization() {
+    String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
-        try (ApplicationContext context = new StandardApplicationContext()) {
+    try (ApplicationContext context = new StandardApplicationContext()) {
 
-            context.addBeanPostProcessor(new PostProcessor());
+      context.addBeanPostProcessor(new PostProcessor());
 
-            AutowireTestBean autowireTestBean = new AutowireTestBean();
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
 
-            Object before = context.applyBeanPostProcessorsBeforeInitialization(autowireTestBean, beanName);
-            assertThat(autowireTestBean).isEqualTo(before);
+      Object before = context.applyBeanPostProcessorsBeforeInitialization(autowireTestBean, beanName);
+      assertThat(autowireTestBean).isEqualTo(before);
 
-            assertThat(autowireTestBean.bean).isNull();
-            assertThat(autowireTestBean.name).isNull();
-            assertThat(autowireTestBean.property).isZero();
-            assertThat(autowireTestBean.initMethod).isFalse();
-            assertThat(autowireTestBean.postConstruct).isFalse();
-            assertThat(autowireTestBean.afterPropertiesSet).isFalse();
+      assertThat(autowireTestBean.bean).isNull();
+      assertThat(autowireTestBean.name).isNull();
+      assertThat(autowireTestBean.property).isZero();
+      assertThat(autowireTestBean.initMethod).isFalse();
+      assertThat(autowireTestBean.postConstruct).isFalse();
+      assertThat(autowireTestBean.afterPropertiesSet).isFalse();
 
-            assertThat(autowireTestBean.afterPostProcessor).isFalse();
-            assertThat(autowireTestBean.beforePostProcessor).isTrue();
-        }
+      assertThat(autowireTestBean.afterPostProcessor).isFalse();
+      assertThat(autowireTestBean.beforePostProcessor).isTrue();
     }
+  }
 
-    @Test
-    public void testApplyBeanPostProcessorsAfterInitialization() {
-        String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
+  @Test
+  public void testApplyBeanPostProcessorsAfterInitialization() {
+    String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
-        try (ApplicationContext context = new StandardApplicationContext()) {
+    try (ApplicationContext context = new StandardApplicationContext()) {
 
-            context.addBeanPostProcessor(new PostProcessor());
+      context.addBeanPostProcessor(new PostProcessor());
 
-            AutowireTestBean autowireTestBean = new AutowireTestBean();
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
 
-            Object after = context.applyBeanPostProcessorsAfterInitialization(autowireTestBean, beanName);
-            assertThat(autowireTestBean).isEqualTo(after);
+      Object after = context.applyBeanPostProcessorsAfterInitialization(autowireTestBean, beanName);
+      assertThat(autowireTestBean).isEqualTo(after);
 
-            assertThat(autowireTestBean.bean).isNull();
-            assertThat(autowireTestBean.name).isNull();
-            assertThat(autowireTestBean.property).isZero();
-            assertThat(autowireTestBean.initMethod).isFalse();
-            assertThat(autowireTestBean.postConstruct).isFalse();
-            assertThat(autowireTestBean.afterPropertiesSet).isFalse();
+      assertThat(autowireTestBean.bean).isNull();
+      assertThat(autowireTestBean.name).isNull();
+      assertThat(autowireTestBean.property).isZero();
+      assertThat(autowireTestBean.initMethod).isFalse();
+      assertThat(autowireTestBean.postConstruct).isFalse();
+      assertThat(autowireTestBean.afterPropertiesSet).isFalse();
 
-            assertThat(autowireTestBean.afterPostProcessor).isTrue();
-            assertThat(autowireTestBean.beforePostProcessor).isFalse();
+      assertThat(autowireTestBean.afterPostProcessor).isTrue();
+      assertThat(autowireTestBean.beforePostProcessor).isFalse();
 
-        }
     }
+  }
 
-    @Test
-    public void testDestroyBean() {
+  @Test
+  public void testDestroyBean() {
 
-        try (ApplicationContext context = new StandardApplicationContext()) {
-            context.addBeanPostProcessor(new PostProcessor());
+    try (ApplicationContext context = new StandardApplicationContext()) {
+      context.addBeanPostProcessor(new PostProcessor());
 
-            AutowireTestBean autowireTestBean = new AutowireTestBean();
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
 
-            assertThat(autowireTestBean.bean).isNull();
-            assertThat(autowireTestBean.name).isNull();
-            assertThat(autowireTestBean.property).isZero();
-            assertThat(autowireTestBean.initMethod).isFalse();
-            assertThat(autowireTestBean.postConstruct).isFalse();
-            assertThat(autowireTestBean.afterPropertiesSet).isFalse();
+      assertThat(autowireTestBean.bean).isNull();
+      assertThat(autowireTestBean.name).isNull();
+      assertThat(autowireTestBean.property).isZero();
+      assertThat(autowireTestBean.initMethod).isFalse();
+      assertThat(autowireTestBean.postConstruct).isFalse();
+      assertThat(autowireTestBean.afterPropertiesSet).isFalse();
 
-            assertThat(autowireTestBean.afterPostProcessor).isFalse();
-            assertThat(autowireTestBean.beforePostProcessor).isFalse();
+      assertThat(autowireTestBean.afterPostProcessor).isFalse();
+      assertThat(autowireTestBean.beforePostProcessor).isFalse();
 
-            context.destroyBean(autowireTestBean);
-            assertThat(autowireTestBean.postProcessBeforeDestruction).isTrue();
+      context.destroyBean(autowireTestBean);
+      assertThat(autowireTestBean.postProcessBeforeDestruction).isTrue();
 
-        }
     }
+  }
 }

@@ -165,7 +165,7 @@ public class WebServletApplicationLoader
       ret = context;
       context.setServletContext(servletContext);
       setApplicationContext(context);
-      context.load();
+      context.scan();
     }
     else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
       ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);

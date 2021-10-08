@@ -27,14 +27,15 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.context.annotation.Component;
+import cn.taketoday.beans.DefaultBeanNameCreator;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.DataSize;
@@ -92,7 +93,7 @@ public class BeanFactoryTest {
   public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    BeanNameCreator beanNameCreator = getContext().getEnvironment().getBeanNameCreator();
+    BeanNameCreator beanNameCreator = new DefaultBeanNameCreator();
     Object bean = beanFactory.getBean(beanNameCreator.create(Interface.class));
 
     Object implements1 = beanFactory.getBean(beanNameCreator.create(Implements1.class));
@@ -135,8 +136,7 @@ public class BeanFactoryTest {
   @Test
   public void test_GetType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
-    BeanNameCreator beanNameCreator = getContext().getEnvironment().getBeanNameCreator();
-    Class<?> type = beanFactory.getType(beanNameCreator.create(Implements1.class));
+    Class<?> type = beanFactory.getType("implements1");
     log.debug("type: {}", type);
     assert Implements1.class == type;
   }
@@ -154,8 +154,6 @@ public class BeanFactoryTest {
   public void test_GetBeanName() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    BeanNameCreator beanNameCreator = getContext().getEnvironment().getBeanNameCreator();
-
     String name = beanFactory.getBeanName(Implements1.class);
     try {
       beanFactory.getBeanName(Interface.class);
@@ -165,7 +163,7 @@ public class BeanFactoryTest {
       assert true;
     }
 
-    assert beanNameCreator.create(Implements1.class).equals(name);
+    assert "implements1".equals(name);
   }
 
   @Test
@@ -184,14 +182,7 @@ public class BeanFactoryTest {
   @Test
   public void test_IsSingleton() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
-
-    BeanNameCreator beanNameCreator = //
-            getContext()//
-                    .getEnvironment()//
-                    .getBeanNameCreator();
-
-    assert beanFactory.isSingleton(beanNameCreator.create(Implements1.class));
-
+    assert beanFactory.isSingleton("implements1");
   }
 
   // ------------------------------------2.1.6

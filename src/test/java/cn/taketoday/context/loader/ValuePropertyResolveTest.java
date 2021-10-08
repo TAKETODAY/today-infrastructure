@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -23,11 +23,13 @@ import org.junit.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.Env;
-import cn.taketoday.context.Value;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.context.Env;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.Value;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.PropertiesPropertySource;
+import cn.taketoday.core.env.PropertySources;
 
 /**
  * @author Today <br>
@@ -48,12 +50,14 @@ public class ValuePropertyResolveTest {
   @Test
   public void testResolveProperty() throws Exception {
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-      ValuePropertyResolver propertyResolver = new ValuePropertyResolver(applicationContext);
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+      ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
+      PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
       // host
       // ----------------------------
-      DefaultPropertySetter host = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
+      DefaultPropertySetter host = (DefaultPropertySetter) propertyResolver.resolveProperty(
+              resolvingContext, ValuePropertyResolveTest.class.getDeclaredField("host"));
 
       assert host.getValue() != null;
 
@@ -61,7 +65,8 @@ public class ValuePropertyResolveTest {
 
       // name
       // ----------------------------
-      DefaultPropertySetter name = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("name"));
+      DefaultPropertySetter name = (DefaultPropertySetter) propertyResolver.resolveProperty(
+              resolvingContext, ValuePropertyResolveTest.class.getDeclaredField("name"));
 
       assert name.getValue() != null;
 
@@ -69,11 +74,17 @@ public class ValuePropertyResolveTest {
 
       // test
       // ----------------------------
-      final Properties properties = applicationContext.getEnvironment().getProperties();
+      ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+      PropertySources propertySources = environment.getPropertySources();
+
+      Properties properties = new Properties();
+      propertySources.addLast(new PropertiesPropertySource("Test", properties));
+
       properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
 
-      DefaultPropertySetter test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
-
+      DefaultPropertySetter test = (DefaultPropertySetter) propertyResolver.resolveProperty(
+              resolvingContext, ValuePropertyResolveTest.class.getDeclaredField("test"));
       assert "TEST".equals(test.getValue());
 
     }
