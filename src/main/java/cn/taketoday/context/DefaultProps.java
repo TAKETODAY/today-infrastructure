@@ -23,11 +23,11 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 
 /**
- * @author TODAY <br>
- * 2019-03-15 23:18
+ * @author TODAY 2019-03-15 23:18
  */
 @SuppressWarnings("all")
 public class DefaultProps implements Props, Annotation {
@@ -44,6 +44,13 @@ public class DefaultProps implements Props, Annotation {
     this.nested = props.nested();
     this.prefix = props.prefix();
     this.replace = props.replace();
+  }
+
+  public DefaultProps(AnnotationAttributes props) {
+    this.replace = props.getBoolean("replace");
+    this.nested = props.getClassArray("nested");
+    this.prefix = props.getStringArray("prefix");
+    this.value = props.getStringArray(Constant.VALUE);
   }
 
   @Override
