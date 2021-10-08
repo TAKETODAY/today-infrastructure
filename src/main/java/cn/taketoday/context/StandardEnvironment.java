@@ -25,27 +25,18 @@ import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.beans.DefaultBeanNameCreator;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -58,97 +49,18 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY <br>
  * 2018-11-14 21:23
  */
-public class StandardEnvironment implements ConfigurableEnvironment {
+public class StandardEnvironment extends cn.taketoday.core.env.StandardEnvironment implements ConfigurableEnvironment {
   private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
   static boolean snakeyamlIsPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
-  private final HashSet<String> activeProfiles = new HashSet<>(4);
   private final ConcurrentProperties properties = new ConcurrentProperties();
-  private BeanNameCreator beanNameCreator;
-
-  /** resolve beanDefinition which It is marked annotation */
-  private BeanDefinitionLoader beanDefinitionLoader;
-  /** storage BeanDefinition */
-  private BeanDefinitionRegistry beanDefinitionRegistry;
 
   private String propertiesLocation = Constant.BLANK; // default ""
 
-  private ExpressionProcessor expressionProcessor;
-
-  public StandardEnvironment() {
-    if (System.getSecurityManager() != null) {
-      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-        properties.putAll(System.getProperties());
-        System.setProperties(properties);
-        return null;
-      });
-    }
-    else {
-      properties.putAll(System.getProperties());
-      System.setProperties(properties);
-    }
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
-  }
-
-  @Override
-  public boolean containsProperty(String key) {
-    return properties.containsKey(key);
-  }
-
-  @Override
-  public String getProperty(String key) {
-    return properties.getProperty(key);
-  }
-
-  @Override
-  public String getProperty(String key, String defaultValue) {
-    return properties.getProperty(key, defaultValue);
-  }
-
-  @Override
-  public BeanDefinitionRegistry getBeanDefinitionRegistry() {
-    return beanDefinitionRegistry;
-  }
-
-  @Override
-  public BeanDefinitionLoader getBeanDefinitionLoader() {
-    return beanDefinitionLoader;
-  }
-
-  @Override
-  public String[] getActiveProfiles() {
-    return StringUtils.toStringArray(activeProfiles);
-  }
-
   // ---ConfigurableEnvironment
 
-  @Override
   public void setProperty(String key, String value) {
     properties.setProperty(key, value);
-  }
-
-  @Override
-  public void setActiveProfiles(String... profiles) {
-    activeProfiles.clear();
-    Collections.addAll(activeProfiles, profiles);
-    log.info("Set new active profiles: {}", activeProfiles);
-  }
-
-  @Override
-  @Deprecated
-  public void addActiveProfile(String profile) {
-    log.info("Add active profile: {}", profile);
-    activeProfiles.add(profile);
-  }
-
-  @Override
-  public void addActiveProfile(String... profiles) {
-    log.info("Add active profile: {}", Arrays.toString(profiles));
-    Collections.addAll(activeProfiles, profiles);
   }
 
   /**
@@ -208,7 +120,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     SnakeyamlDelegate.doMapping(properties, yamlResource);
   }
 
-  @Override
   public void loadProperties(String propertiesLocation) throws IOException {
     Assert.notNull(propertiesLocation, "Properties dir can't be null");
     Resource resource = ResourceUtils.getResource(propertiesLocation);
@@ -218,7 +129,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
   /**
    * Load properties file with given path
    */
-  @Override
   public void loadProperties() throws IOException {
     // load default properties source : application.yaml or application.properties
     LinkedHashSet<String> locations = new LinkedHashSet<>(8); // loaded locations
@@ -263,7 +173,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     final String[] defaultLocations = new String[] {
             DEFAULT_YML_FILE,
             DEFAULT_YAML_FILE,
-            DEFAULT_PROPERTIES_FILE
+            PROPERTIES_SUFFIX
     };
 
     for (final String location : defaultLocations) {
@@ -310,7 +220,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     final String profiles = getProperty(KEY_ACTIVE_PROFILES);
 
     if (StringUtils.isNotEmpty(profiles)) {
-      activeProfiles.addAll(StringUtils.splitAsList(profiles));
+      addActiveProfile(StringUtils.splitAsList(profiles));
       log.info("Refresh active profiles: {}", activeProfiles);
     }
   }
@@ -357,81 +267,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     try (final InputStream inputStream = resource.getInputStream()) {
       properties.load(inputStream);
     }
-  }
-
-  @Override
-  public ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {
-    this.beanDefinitionRegistry = beanDefinitionRegistry;
-    return this;
-  }
-
-  @Override
-  public ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
-    this.beanDefinitionLoader = beanDefinitionLoader;
-    return this;
-  }
-
-  @Override
-  public boolean acceptsProfiles(String... profiles) {
-
-    final Set<String> activeProfiles = this.activeProfiles;
-    for (final String profile : Objects.requireNonNull(profiles)) {
-      if (StringUtils.isNotEmpty(profile) && profile.charAt(0) == '!') {
-        if (!activeProfiles.contains(profile.substring(1))) {
-          return true;
-        }
-      }
-      else if (activeProfiles.contains(profile)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator) {
-    this.beanNameCreator = beanNameCreator;
-    return this;
-  }
-
-  /**
-   * Get a bean name creator
-   *
-   * @return {@link BeanNameCreator}
-   */
-  @Override
-  public BeanNameCreator getBeanNameCreator() {
-    final BeanNameCreator ret = this.beanNameCreator;
-    if (ret == null) {
-      return this.beanNameCreator = createBeanNameCreator();
-    }
-    return ret;
-  }
-
-  /**
-   * create {@link BeanNameCreator}
-   *
-   * @return a default {@link BeanNameCreator}
-   */
-  protected BeanNameCreator createBeanNameCreator() {
-    return new DefaultBeanNameCreator(this);
-  }
-
-  @Override
-  public ExpressionProcessor getExpressionProcessor() {
-    return expressionProcessor;
-  }
-
-  @Override
-  public ConfigurableEnvironment setExpressionProcessor(ExpressionProcessor expressionProcessor) {
-    this.expressionProcessor = expressionProcessor;
-    return this;
-  }
-
-  @Override
-  public ConfigurableEnvironment setPropertiesLocation(String propertiesLocation) {
-    this.propertiesLocation = propertiesLocation;
-    return this;
   }
 
   public String getPropertiesLocation() {
