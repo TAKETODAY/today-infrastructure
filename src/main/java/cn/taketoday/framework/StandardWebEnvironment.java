@@ -19,17 +19,10 @@
  */
 package cn.taketoday.framework;
 
-import java.io.IOException;
-import java.util.Set;
-
-import cn.taketoday.context.StandardEnvironment;
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.framework.config.PropertiesSource;
-import cn.taketoday.framework.utils.WebApplicationUtils;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.SimpleCommandLinePropertySource;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2019-06-17 22:34
@@ -37,39 +30,29 @@ import cn.taketoday.util.StringUtils;
 public class StandardWebEnvironment extends StandardEnvironment {
 
   private final String[] arguments;
-  private final Class<?> applicationClass;
 
   public StandardWebEnvironment() {
-    this(null);
+    this.arguments = null;
   }
 
-  public StandardWebEnvironment(Class<?> applicationClass, String... arguments) {
+  public StandardWebEnvironment(String... arguments) {
     this.arguments = arguments;
-    this.applicationClass = applicationClass;
   }
 
+  /**
+   * Add command-line arguments
+   *
+   * @param propertySources
+   *         propertySources add to
+   *
+   * @since 4.0
+   */
   @Override
-  protected void postLoadingProperties(Set<String> locations) throws IOException {
-    super.postLoadingProperties(locations);
-
-    // load properties from starter class annotated @PropertiesSource
-    if (applicationClass != null) {
-      AnnotationAttributes[] attributes =
-              AnnotationUtils.getAttributesArray(applicationClass, PropertiesSource.class);
-      if (ObjectUtils.isNotEmpty(attributes)) {
-        for (AnnotationAttributes attribute : attributes) {
-          for (String propertiesLocation : StringUtils.split(attribute.getString(Constant.VALUE))) {
-            if (!locations.contains(propertiesLocation)) {
-              loadProperties(propertiesLocation);
-              locations.add(propertiesLocation);
-            }
-          }
-        }
-      }
+  protected void customizePropertySources(PropertySources propertySources) {
+    super.customizePropertySources(propertySources);
+    if (ObjectUtils.isNotEmpty(arguments)) {
+      propertySources.addFirst(new SimpleCommandLinePropertySource(arguments));
     }
-
-    // arguments
-    getProperties().putAll(WebApplicationUtils.parseCommandLineArguments(arguments));
   }
 
 }

@@ -47,7 +47,7 @@ public class StandardWebServerApplicationContext
   }
 
   public StandardWebServerApplicationContext(Class<?> startupClass, String... args) {
-    this(new StandardWebEnvironment(startupClass, args), startupClass);
+    this(new StandardWebEnvironment(args), startupClass);
   }
 
   /**
@@ -64,7 +64,6 @@ public class StandardWebServerApplicationContext
     super(env, beanFactory);
     this.startupClass = startupClass;
   }
-
 
   @Override
   protected void registerFrameworkComponents(AbstractBeanFactory beanFactory) {

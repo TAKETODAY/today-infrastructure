@@ -49,7 +49,7 @@ public class ServletWebServerApplicationContext
   }
 
   public ServletWebServerApplicationContext(Class<?> startupClass, String... args) {
-    this(new StandardWebEnvironment(startupClass, args), startupClass);
+    this(new StandardWebEnvironment(args), startupClass);
   }
 
   /**
