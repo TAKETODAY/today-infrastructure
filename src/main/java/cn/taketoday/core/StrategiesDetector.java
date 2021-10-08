@@ -197,7 +197,7 @@ public class StrategiesDetector {
    * @return returns none repeatable strategies by given class
    */
   @SuppressWarnings("unchecked")
-  public <T> List<T> getStrategies(Class<T> strategyClass, BeanFactory beanFactory) {
+  public <T> List<T> getStrategies(Class<T> strategyClass, @Nullable BeanFactory beanFactory) {
     Assert.notNull(strategyClass, "strategy-class must not be null");
     // get class list by class full name
     ArrayList<T> strategiesObject = new ArrayList<>();
@@ -212,10 +212,23 @@ public class StrategiesDetector {
     return strategiesObject;
   }
 
+  @SuppressWarnings("unchecked")
+  public <T> void consumeStrategies(
+          Class<T> strategyClass, @Nullable BeanFactory beanFactory, Consumer<T> consumer) {
+    Assert.notNull(strategyClass, "strategy-class must not be null");
+    // get class list by class full name
+    consumeTypes(strategyClass.getName(), strategy -> {
+      if (strategyClass.isAssignableFrom(strategy)) {
+        Object instance = createInstance(strategy, beanFactory);
+        consumer.accept((T) instance);
+      }
+    });
+  }
+
   private static Object createInstance(Class<?> strategy, BeanFactory factory) {
     Object instance = BeanUtils.newInstance(strategy, factory);
     if (factory instanceof AutowireCapableBeanFactory) {
-      // autowire, dont apply bean post processor
+      // autowire, don't apply bean post processor
       ((AutowireCapableBeanFactory) factory).autowireBean(strategy);
     }
     return instance;
