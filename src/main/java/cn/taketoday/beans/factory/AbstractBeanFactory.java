@@ -1116,6 +1116,135 @@ public abstract class AbstractBeanFactory
     return fullLifecycle;
   }
 
+  //---------------------------------------------------------------------
+  // Listing Get operations for type-lookup
+  //---------------------------------------------------------------------
+
+  @Override
+  public abstract <T> T getBean(Class<T> requiredType);
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> ObjectSupplier<T> getObjectSupplier(final BeanDefinition def) {
+    Assert.notNull(def, "BeanDefinition must not be null");
+
+    if (def.isSingleton()) {
+      final class SingletonObjectSupplier implements ObjectSupplier<T> {
+        volatile T targetSingleton;
+
+        @Override
+        public T getIfAvailable() throws BeansException {
+          T ret = targetSingleton;
+          if (ret == null) {
+            ret = targetSingleton = (T) getBean(def);
+          }
+          return ret;
+        }
+
+        @Override //@off
+        public T get() { return getIfAvailable(); }
+        public Stream<T> orderedStream() { return stream(); }
+        public Stream<T> stream() { return Stream.of(targetSingleton); } //@on
+      }
+      return new SingletonObjectSupplier();
+    }
+
+    return new DefaultObjectSupplier<T>(def.getBeanClass(), this) {
+
+      @Override
+      public T getIfAvailable() throws BeansException {
+        return (T) getBean(def);
+      }
+    };
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+    Assert.notNull(requiredType, "requiredType must not be null");
+    return new DefaultObjectSupplier<>(requiredType, this);
+  }
+
+  @Override
+  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
+    return getBeansOfType(requiredType, true, includeNonSingletons);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Map<String, T> getBeansOfType(
+          Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    HashMap<String, T> beans = new HashMap<>();
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
+        Object bean = getBean(def);
+        if (bean != null) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      for (Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
+        if (!beans.containsKey(entry.getKey())
+                && (requiredType == null || requiredType.isInstance(bean))) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
+    return beans;
+  }
+
+  @Override
+  public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
+    return getBeanNamesOfType(requiredType, true, includeNonSingletons);
+  }
+
+  @Override
+  public Set<String> getBeanNamesOfType(
+          Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
+
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
+        beanNames.add(entry.getKey());
+      }
+    }
+    if (includeNoneRegistered) {
+      for (Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
+        if (requiredType == null || requiredType.isInstance(bean)) {
+          beanNames.add(entry.getKey());
+        }
+      }
+    }
+    return beanNames;
+  }
+
+  /**
+   * Return bean matching the given type (including subclasses), judging from bean definitions
+   *
+   * @param def
+   *         the BeanDefinition to check
+   * @param requiredType
+   *         the class or interface to match, or {@code null} for all bean names
+   * @param includeNonSingletons
+   *         whether to include prototype or scoped beans too
+   *         or just singletons (also applies to FactoryBeans)
+   *
+   * @return the bean matching the given object type (including subclasses)
+   */
+  static boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
+    return (includeNonSingletons || def.isSingleton())
+            && (requiredType == null || def.isAssignableTo(requiredType));
+  }
+
+  @Override
+  public Map<String, Object> getBeansOfAnnotation(
+          Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+    Assert.notNull(annotationType, "annotationType must not be null");
 
   // AutowireCapableBeanFactory
   // ---------------------------------
