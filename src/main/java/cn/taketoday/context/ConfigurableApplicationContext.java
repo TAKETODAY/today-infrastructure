@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -21,13 +21,11 @@ package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**
- * @author TODAY <br>
- * 2018-11-14 21:16
+ * @author TODAY 2018-11-14 21:16
  */
 public interface ConfigurableApplicationContext extends ApplicationContext {
 
@@ -48,30 +46,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    */
   @Override
   ConfigurableBeanFactory getBeanFactory();
-
-  /**
-   * Add an {@link ApplicationListener} that will be notified on context events
-   * such as context refresh and context shutdown.
-   * <p>
-   *
-   * @param listener
-   *         the {@link ApplicationListener}
-   *
-   * @throws IllegalArgumentException
-   *         if listener is null
-   * @since 2.1.6
-   */
-  void addApplicationListener(ApplicationListener<?> listener);
-
-  /**
-   * Apply {@link CandidateComponentScanner} to scan classes
-   *
-   * @param scanner
-   *         CandidateComponentScanner
-   *
-   * @since 2.1.7
-   */
-  void setCandidateComponentScanner(CandidateComponentScanner scanner);
 
   /**
    * Add a new BeanFactoryPostProcessor that will get applied to the internal bean
