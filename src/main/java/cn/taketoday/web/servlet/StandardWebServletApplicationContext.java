@@ -26,7 +26,6 @@ import javax.servlet.ServletContext;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.StandardEnvironment;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.web.WebUtils;
 

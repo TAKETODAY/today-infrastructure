@@ -46,9 +46,10 @@ public interface EnvironmentPostProcessor {
    *
    * @param environment
    *         the environment to post-process
-   * @param application
-   *         the application to which the environment belongs
+   * @param context
+   *         the application-context to which the environment belongs
    */
-  void postProcessEnvironment(ConfigurableEnvironment environment, Application application);
+  void postProcessEnvironment(
+          ConfigurableEnvironment environment, ConfigurableApplicationContext context);
 
 }

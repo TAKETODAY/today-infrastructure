@@ -29,6 +29,7 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -115,6 +116,20 @@ public class StandardApplicationContext
 
     for (BeanDefinitionLoader loader : strategies) {
       loader.loadBeanDefinitions(this, beanFactory);
+    }
+  }
+
+  @Override
+  protected void initPropertySources() {
+    super.initPropertySources();
+    ConfigurableEnvironment environment = getEnvironment();
+
+    // prepare properties
+    TodayStrategies detector = TodayStrategies.getDetector();
+    List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(
+            EnvironmentPostProcessor.class, getBeanFactory());
+    for (EnvironmentPostProcessor postProcessor : postProcessors) {
+      postProcessor.postProcessEnvironment(environment, this);
     }
   }
 
