@@ -20,14 +20,11 @@
 package cn.taketoday.context;
 
 import java.io.Closeable;
-import java.util.Collection;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
-import cn.taketoday.context.loader.CandidateComponentScannerCapable;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.env.Environment;
@@ -38,8 +35,7 @@ import cn.taketoday.core.io.PatternResourceLoader;
  * 2018-06-23 16:39:36
  */
 public interface ApplicationContext
-        extends Closeable, HierarchicalBeanFactory,
-                ApplicationEventPublisher, CandidateComponentScannerCapable, PatternResourceLoader {
+        extends Closeable, HierarchicalBeanFactory, ApplicationEventPublisher, PatternResourceLoader {
 
   /**
    * Get {@link Environment}
@@ -65,7 +61,8 @@ public interface ApplicationContext
    * @see #getBeanFactory()
    * @since 4.0
    */
-  @NonNull <T> T unwrapFactory(Class<T> requiredType);
+  @NonNull
+  <T> T unwrapFactory(Class<T> requiredType);
 
   /**
    * unwrap this ApplicationContext to {@code requiredType}
@@ -74,7 +71,8 @@ public interface ApplicationContext
    *         not a requiredType
    * @since 4.0
    */
-  @NonNull <T> T unwrap(Class<T> requiredType);
+  @NonNull
+  <T> T unwrap(Class<T> requiredType);
 
   /**
    * Refresh factory, initialize singleton
@@ -83,42 +81,6 @@ public interface ApplicationContext
    */
   void refresh() throws ApplicationContextException;
 
-  /**
-   * Load Application Context.
-   *
-   * <p>
-   * First of all, it will load all the properties files in the given path. If you
-   * use <b>""</b> instead of a exact path like <b>/config</b> ,it will load all
-   * the properties files in the application.
-   * </p>
-   * <p>
-   * And then locations parameter decided where to load the beans.
-   * </p>
-   * <p>
-   * when all the bean definition stores in the {@link BeanDefinitionRegistry}.
-   * then resolve dependency
-   * </p>
-   * <p>
-   * Then It will find all the bean post processor,and initialize it. Last refresh
-   * context.
-   * </p>
-   *
-   * @param locations
-   *         packages to scan
-   *
-   * @since 3.0
-   */
-  void scan(String... locations);
-
-  /**
-   * load context from given classes
-   *
-   * @param candidates
-   *         class set
-   *
-   * @since 3.0
-   */
-  void scan(Collection<Class<?>> candidates);
 
   /**
    * Close context and destroy all singletons
