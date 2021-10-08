@@ -22,6 +22,7 @@ package cn.taketoday.context.event;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
+import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -32,7 +33,6 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 
-import static cn.taketoday.context.ContextUtils.destroyBean;
 import static cn.taketoday.util.ExceptionUtils.unwrapThrowable;
 
 /**
@@ -72,7 +72,7 @@ public class ContextCloseListener
     final Map<String, Object> singletons = beanFactory.getSingletons();
     for (final Map.Entry<String, Object> entry : singletons.entrySet()) {
       try {
-        destroyBean(entry.getValue());
+        DisposableBeanAdapter.destroyBean(entry.getValue());
       }
       catch (Throwable e) {
         e = unwrapThrowable(e);
