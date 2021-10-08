@@ -54,80 +54,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   char FACTORY_BEAN_PREFIX_CHAR = '$';
 
   //---------------------------------------------------------------------
-  // bean-factory options
-  //---------------------------------------------------------------------
-
-  /**
-   * if this feature is enabled and if a property is prototype bean
-   * this bean-factory will inject a proxy instance to get prototype
-   * instance from every single method call.
-   *
-   * <p>
-   * default is false
-   * </p>
-   *
-   * @see Prototypes#newProxyInstance(Class, BeanDefinition, ConfigurableBeanFactory)
-   * @since 3.0
-   */
-  boolean isFullPrototype();
-
-  /**
-   * invoke prototype's destroyBean after every call
-   * <p>
-   * default is false
-   * </p>
-   *
-   * @see ConfigurableBeanFactory#destroyBean(Object, BeanDefinition)
-   * @see #isFullPrototype()
-   * @since 3.0
-   */
-  boolean isFullLifecycle();
-
-  //---------------------------------------------------------------------
-  // bean-factory stat
-  //---------------------------------------------------------------------
-
-  /**
-   * Return the number of beans defined in the factory.
-   * <p>Does not consider any hierarchy this factory may participate in,
-   * and ignores any singleton beans that have been registered by
-   * other means than bean definitions.
-   *
-   * @return the number of beans defined in the factory
-   *
-   * @since 4.0
-   */
-  int getBeanDefinitionCount();
-
-  /**
-   * Return the names of all beans defined in this factory.
-   * <p>Does not consider any hierarchy this factory may participate in,
-   * and ignores any singleton beans that have been registered by
-   * other means than bean definitions.
-   *
-   * @return the names of all beans defined in this factory,
-   * or an empty array if none defined
-   *
-   * @since 4.0
-   */
-  Set<String> getBeanDefinitionNames();
-
-  /**
-   * Return a unified view over all bean names managed by this factory.
-   * <p>Includes bean definition names as well as names of manually registered
-   * singleton instances, with bean definition names consistently coming first,
-   * analogous to how type/annotation specific retrieval of bean names works.
-   *
-   * @return the composite iterator for the bean names view
-   *
-   * @see #containsBeanDefinition
-   * @see #getBeanNamesOfType(Class)
-   * @see #getBeanNamesForAnnotation
-   * @since 4.0
-   */
-  Iterator<String> getBeanNamesIterator();
-
-  //---------------------------------------------------------------------
   // Get operations for name-lookup
   //---------------------------------------------------------------------
 
@@ -723,15 +649,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   //---------------------------------------------------------------------
 
   /**
-   * Get all {@link BeanDefinition}s
-   *
-   * @return All {@link BeanDefinition}s
-   *
-   * @since 2.1.6
-   */
-  Map<String, BeanDefinition> getBeanDefinitions();
-
-  /**
    * Get the bean with the given {@link BeanDefinition}
    *
    * @param def
@@ -768,5 +685,89 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 3.0
    */
   <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def);
+
+  //---------------------------------------------------------------------
+  // bean-factory options
+  //---------------------------------------------------------------------
+
+  /**
+   * if this feature is enabled and if a property is prototype bean
+   * this bean-factory will inject a proxy instance to get prototype
+   * instance from every single method call.
+   *
+   * <p>
+   * default is false
+   * </p>
+   *
+   * @see Prototypes#newProxyInstance(Class, BeanDefinition, ConfigurableBeanFactory)
+   * @since 3.0
+   */
+  boolean isFullPrototype();
+
+  /**
+   * invoke prototype's destroyBean after every call
+   * <p>
+   * default is false
+   * </p>
+   *
+   * @see ConfigurableBeanFactory#destroyBean(Object, BeanDefinition)
+   * @see #isFullPrototype()
+   * @since 3.0
+   */
+  boolean isFullLifecycle();
+
+  //---------------------------------------------------------------------
+  // bean-factory stat
+  //---------------------------------------------------------------------
+
+  /**
+   * Return the number of beans defined in the factory.
+   * <p>Does not consider any hierarchy this factory may participate in,
+   * and ignores any singleton beans that have been registered by
+   * other means than bean definitions.
+   *
+   * @return the number of beans defined in the factory
+   *
+   * @since 4.0
+   */
+  int getBeanDefinitionCount();
+
+  /**
+   * Return the names of all beans defined in this factory.
+   * <p>Does not consider any hierarchy this factory may participate in,
+   * and ignores any singleton beans that have been registered by
+   * other means than bean definitions.
+   *
+   * @return the names of all beans defined in this factory,
+   * or an empty array if none defined
+   *
+   * @since 4.0
+   */
+  Set<String> getBeanDefinitionNames();
+
+  /**
+   * Return a unified view over all bean names managed by this factory.
+   * <p>Includes bean definition names as well as names of manually registered
+   * singleton instances, with bean definition names consistently coming first,
+   * analogous to how type/annotation specific retrieval of bean names works.
+   *
+   * @return the composite iterator for the bean names view
+   *
+   * @see #containsBeanDefinition
+   * @see #getBeanNamesOfType(Class)
+   * @see #getBeanNamesForAnnotation
+   * @since 4.0
+   */
+  Iterator<String> getBeanNamesIterator();
+
+  /**
+   * Get all {@link BeanDefinition}s
+   *
+   * @return All {@link BeanDefinition}s
+   *
+   * @since 2.1.6
+   */
+  Map<String, BeanDefinition> getBeanDefinitions();
+
 
 }
