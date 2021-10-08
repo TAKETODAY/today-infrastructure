@@ -105,6 +105,10 @@ public class MapPropertyResolver
     }
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of IterablePropertyResolver interface
+  //---------------------------------------------------------------------
+
   @Override
   public Iterator<String> iterator() {
     if (keyValues != null) {
@@ -116,7 +120,7 @@ public class MapPropertyResolver
   @Override
   public void forEach(Consumer<? super String> action) {
     if (keyValues != null) {
-      for (final String key : keyValues.keySet()) {
+      for (String key : keyValues.keySet()) {
         action.accept(key);
       }
     }

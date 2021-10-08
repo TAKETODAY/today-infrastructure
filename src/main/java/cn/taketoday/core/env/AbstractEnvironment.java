@@ -18,6 +18,7 @@ package cn.taketoday.core.env;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @see StandardEnvironment
  * @since 4.0
  */
-public abstract class AbstractEnvironment implements ConfigurableEnvironment {
+public abstract class AbstractEnvironment implements ConfigurableEnvironment, IterablePropertyResolver {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -522,6 +523,18 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
   @Override
   public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
     return this.propertyResolver.resolveRequiredPlaceholders(text);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of IterablePropertyResolver interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public Iterator<String> iterator() {
+    if (propertyResolver instanceof IterablePropertyResolver) {
+      return ((IterablePropertyResolver) propertyResolver).iterator();
+    }
+    return Collections.emptyIterator();
   }
 
   @Override

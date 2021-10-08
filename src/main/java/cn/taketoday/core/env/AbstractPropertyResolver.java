@@ -24,8 +24,6 @@ import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConfigurableConversionService;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PlaceholderResolver;
@@ -40,7 +38,6 @@ import cn.taketoday.util.SystemPropertyUtils;
  * @since 4.0
  */
 public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver, PlaceholderResolver {
-  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private volatile ConfigurableConversionService conversionService;
@@ -73,7 +70,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
         cs = this.conversionService;
         if (cs == null) {
           cs = new DefaultConversionService();
-          DefaultConversionService.addCollectionConverters(cs);
+          DefaultConversionService.addDefaultConverters(cs);
           this.conversionService = cs;
         }
       }
