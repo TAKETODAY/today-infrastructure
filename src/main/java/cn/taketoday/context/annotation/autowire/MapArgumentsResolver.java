@@ -29,7 +29,9 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -64,9 +66,12 @@ public class MapArgumentsResolver
   }
 
   protected Map getBeansOfType(Parameter parameter, BeanFactory beanFactory) {
-    Props props = getProps(parameter);
+    DefaultProps props = getProps(parameter);
+
     if (props != null) { // 处理 Properties
-      return PropsReader.loadProps(props);
+      PropsReader propsReader = new PropsReader();
+      propsReader.setBeanFactory(beanFactory);
+      return propsReader.readMap(props);
     }
 
     ResolvableType parameterType = ResolvableType.fromParameter(parameter);
@@ -85,12 +90,17 @@ public class MapArgumentsResolver
     return map;
   }
 
-  private Props getProps(Parameter parameter) {
-    Props props = parameter.getAnnotation(Props.class);
-    if (props == null && Properties.class.isAssignableFrom(parameter.getType())) {
-      return new DefaultProps();
+  private DefaultProps getProps(Parameter parameter) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Props.class, parameter);
+    if (attributes == null) {
+      if (Properties.class.isAssignableFrom(parameter.getType())) {
+        return new DefaultProps();
+      }
+      return null;
     }
-    return props;
+    else {
+      return new DefaultProps(attributes);
+    }
   }
 
 }
