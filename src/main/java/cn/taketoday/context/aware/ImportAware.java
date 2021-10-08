@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -30,11 +30,11 @@ import cn.taketoday.context.annotation.Import;
  * use @{@link Import} as a meta-annotation.
  *
  * @author Chris Beams
- * @author TODAY <br>
- * 2020-02-06 21:36
+ * @author TODAY 2020-02-06 21:36
  * @since 2.1.7
  */
 public interface ImportAware {
+  String ImportAnnotatedMetadata = Import.class.getName() + "-Metadata"; // @since 3.0
 
   /**
    * Set the annotation metadata of the importing @{@code Configuration} class.

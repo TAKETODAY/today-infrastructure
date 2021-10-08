@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,13 +19,13 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.context.Environment;
+import cn.taketoday.core.env.Environment;
 
 /**
- * {@link Environment} Injection
+ * Interface to be implemented by any bean that wishes to be notified
+ * of the {@link Environment} that it runs in.
  *
- * @author TODAY <br>
- * 2018-11-14 21:06
+ * @author TODAY 2018-11-14 21:06
  */
 public interface EnvironmentAware extends Aware {
 
