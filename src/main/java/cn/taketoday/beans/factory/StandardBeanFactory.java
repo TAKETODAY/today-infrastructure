@@ -23,6 +23,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.annotation.Prototype;
@@ -56,6 +57,9 @@ public class StandardBeanFactory
 
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;
+
+  /** Map of bean definition objects, keyed by bean name */
+  private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
   /**
    * Specify an id for serialization purposes, allowing this BeanFactory to be
@@ -101,16 +105,6 @@ public class StandardBeanFactory
     final Object initializingBean = super.initializeBean(bean, def);
     currentInitializingBeanName.remove(name);
     return initializingBean;
-  }
-
-  @Override
-  public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
-      registerFactoryBean(beanName, def);
-    }
-    else {
-      super.registerBeanDefinition(beanName, def);
-    }
   }
 
   /**
@@ -162,13 +156,88 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
 
   @Override
+  public boolean containsBeanDefinition(Class<?> type) {
+    return containsBeanDefinition(type, false);
+  }
+
+  @Override
+  public boolean containsBeanDefinition(Class<?> type, boolean equals) {
+    Predicate<BeanDefinition> predicate = getPredicate(type, equals);
+    BeanDefinition def = getBeanDefinition(createBeanName(type));
+    if (def != null && predicate.test(def)) {
+      return true;
+    }
+
+    for (BeanDefinition beanDef : getBeanDefinitions().values()) {
+      if (predicate.test(beanDef)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
+    return equals
+           ? beanDef -> type == beanDef.getBeanClass()
+           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+  }
+
+  @Override
   public void registerBeanDefinition(BeanDefinition def) {
-    BeanDefinitionRegistry.super.registerBeanDefinition(def);
+    beanDefinitionMap.put(def.getName(), def);
+  }
+
+  @Override
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
+      registerFactoryBean(beanName, def);
+    }
+    else {
+      this.beanDefinitionMap.put(beanName, def);
+
+      postProcessRegisterBeanDefinition(def);
+    }
   }
 
   @Override
   public boolean containsBeanDefinition(String beanName, Class<?> type) {
-    return BeanDefinitionRegistry.super.containsBeanDefinition(beanName, type);
+    return containsBeanDefinition(beanName) && containsBeanDefinition(type);
   }
+
+  @Override
+  public void removeBeanDefinition(String beanName) {
+    beanDefinitionMap.remove(beanName);
+  }
+
+  @Override
+  public BeanDefinition getBeanDefinition(String beanName) {
+    return beanDefinitionMap.get(beanName);
+  }
+
+  @Override
+  public BeanDefinition getBeanDefinition(Class<?> beanClass) {
+    BeanDefinition def = getBeanDefinition(createBeanName(beanClass));
+    if (def != null && def.isAssignableTo(beanClass)) {
+      return def;
+    }
+    for (BeanDefinition definition : getBeanDefinitions().values()) {
+      if (definition.isAssignableTo(beanClass)) {
+        return definition;
+      }
+    }
+    return null;
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of ConfigurableBeanFactory interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public void removeBean(String name) {
+    removeBeanDefinition(name);
+    super.removeBean(name);
+  }
+
+
 
 }
