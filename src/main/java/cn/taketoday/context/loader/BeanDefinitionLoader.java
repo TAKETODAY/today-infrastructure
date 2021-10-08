@@ -17,22 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.event;
+package cn.taketoday.context.loader;
 
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
- * Context singletons initialize event
+ * Create bean definition
  *
- * @author TODAY <br>
- *
- * 2018-10-09 20:24
+ * @author TODAY 2018-06-23 11:18:22
  */
-@SuppressWarnings("serial")
-public class ContextRefreshEvent extends ApplicationContextEvent {
+public interface BeanDefinitionLoader {
 
-  public ContextRefreshEvent(ApplicationContext source) {
-    super(source);
-  }
-
+  void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry);
 }
