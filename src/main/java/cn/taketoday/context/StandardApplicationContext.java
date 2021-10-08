@@ -38,18 +38,14 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2018-09-06 13:47
  */
 public class StandardApplicationContext
-        extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
-
-  private final StandardBeanFactory beanFactory;
+        extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
   private AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader;
 
   /**
    * Default Constructor
    */
-  public StandardApplicationContext() {
-    this.beanFactory = new StandardBeanFactory();
-  }
+  public StandardApplicationContext() { }
 
   /**
    * Set given properties location
@@ -79,7 +75,7 @@ public class StandardApplicationContext
    *         {@link StandardBeanFactory} instance
    */
   public StandardApplicationContext(StandardBeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
+    super(beanFactory);
   }
 
   /**

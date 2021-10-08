@@ -28,15 +28,14 @@ import cn.taketoday.framework.StandardWebEnvironment;
 
 /**
  * @author TODAY <br>
- *         2019-06-18 09:16
+ * 2019-06-18 09:16
  */
 public class StandardWebServletEnvironmentTest {
 
   @Test
   public void testLoadProperties() throws IOException {
 
-    StandardWebEnvironment environment = //
-            new StandardWebEnvironment(StandardWebServletEnvironmentTest.class);
+    StandardWebEnvironment environment = new StandardWebEnvironment();
 
     environment.loadProperties();
 

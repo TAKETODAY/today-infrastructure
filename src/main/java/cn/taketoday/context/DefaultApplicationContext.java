@@ -41,7 +41,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/10/1 16:25
  * @since 4.0
  */
-public class GenericApplicationContext
+public class DefaultApplicationContext
         extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
   private final StandardBeanFactory beanFactory;
@@ -49,11 +49,11 @@ public class GenericApplicationContext
   /**
    * Default Constructor
    */
-  public GenericApplicationContext() {
+  public DefaultApplicationContext() {
     this.beanFactory = new StandardBeanFactory();
   }
 
-  public GenericApplicationContext(StandardBeanFactory beanFactory) {
+  public DefaultApplicationContext(StandardBeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
