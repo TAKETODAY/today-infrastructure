@@ -20,44 +20,41 @@
 package cn.taketoday.context;
 
 import java.util.Collection;
+import java.util.List;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link ApplicationContext}
  *
- * @author TODAY <br>
- * 2018-09-06 13:47
+ * @author TODAY 2018-09-06 13:47
  */
 public class StandardApplicationContext
-        extends AbstractApplicationContext implements ConfigurableApplicationContext {
+        extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
-  private StandardBeanFactory beanFactory;
+  private final StandardBeanFactory beanFactory;
+
+  private AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader;
 
   /**
-   * Default Constructor use default {@link StandardEnvironment}
+   * Default Constructor
    */
   public StandardApplicationContext() {
-    this(new StandardEnvironment());
-  }
-
-  /**
-   * Construct with given {@link ConfigurableEnvironment}
-   *
-   * @param env
-   *         {@link ConfigurableEnvironment} instance
-   */
-  public StandardApplicationContext(ConfigurableEnvironment env) {
-    super(env);
+    this.beanFactory = new StandardBeanFactory();
   }
 
   /**
    * Set given properties location
    *
    * @param propertiesLocation
-   *         a file or a directory to scan
+   *         a file or a di rectory to scan
    */
   public StandardApplicationContext(String propertiesLocation) {
     this();
@@ -72,7 +69,6 @@ public class StandardApplicationContext
    */
   public StandardApplicationContext(Collection<Class<?>> classes) {
     this(Constant.BLANK);
-    load(classes);
   }
 
   /**
@@ -82,7 +78,6 @@ public class StandardApplicationContext
    *         {@link StandardBeanFactory} instance
    */
   public StandardApplicationContext(StandardBeanFactory beanFactory) {
-    this();
     this.beanFactory = beanFactory;
   }
 
@@ -96,31 +91,45 @@ public class StandardApplicationContext
    */
   public StandardApplicationContext(String propertiesLocation, String... locations) {
     this(propertiesLocation);
-    load(locations);
+    scan(locations);
+  }
+
+  public void setPropertiesLocation(String propertiesLocation) {
+    if (StringUtils.isNotEmpty(propertiesLocation)) {
+
+    }
   }
 
   @Override
   public StandardBeanFactory getBeanFactory() {
-    final StandardBeanFactory beanFactory = this.beanFactory;
-    if (beanFactory == null) {
-      return this.beanFactory = createBeanFactory();
-    }
     return beanFactory;
   }
 
-  protected StandardBeanFactory createBeanFactory() {
-    return new StandardBeanFactory(this);
+  @Override
+  public void prepareBeanFactory() {
+    super.prepareBeanFactory();
+
+    annotatedBeanDefinitionReader.loadMetaInfoBeans();
+    List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
+            BeanDefinitionLoader.class, this);
+
+    for (BeanDefinitionLoader loader : strategies) {
+      loader.loadBeanDefinitions(this, beanFactory);
+    }
   }
 
   @Override
+  public void importBeans(Class<?>... components) {
+    annotatedBeanDefinitionReader.importBeans(components);
+  }
+
+  @Override
+  public void scan(String... basePackages) {
+
+  }
+
   protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
-    // load beans form scanned classes
-    super.loadBeanDefinitions(beanFactory, candidates);
-    // @since 2.1.6
-    candidates.addAll(this.beanFactory.loadMetaInfoBeans());
-    // load beans form beans that annotated Configuration
-    this.beanFactory.loadConfigurationBeans();
-    this.beanFactory.loadMissingBean(candidates);
+
   }
 
 }
