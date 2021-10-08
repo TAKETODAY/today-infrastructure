@@ -36,8 +36,7 @@ import cn.taketoday.context.annotation.Prototype;
  * @author TODAY 2018-11-14 19:40
  * @see BeanFactory
  */
-public interface ConfigurableBeanFactory
-        extends HierarchicalBeanFactory, SingletonBeanRegistry, BeanDefinitionRegistry {
+public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, SingletonBeanRegistry {
 
   /**
    * Remove bean with the given name

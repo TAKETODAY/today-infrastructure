@@ -41,17 +41,13 @@ import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DefaultBeanNameCreator;
+import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.aware.Aware;
-import cn.taketoday.context.aware.BeanClassLoaderAware;
-import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
@@ -612,7 +608,6 @@ public abstract class AbstractBeanFactory
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", def.getName());
     }
-    aware(bean, def);
     Object ret = bean;
     // before properties
     for (BeanPostProcessor processor : postProcessors) {
@@ -639,41 +634,6 @@ public abstract class AbstractBeanFactory
       }
     }
     return ret;
-  }
-
-  /**
-   * Inject FrameWork {@link Component}s to target bean
-   *
-   * @param bean
-   *         Bean instance
-   * @param def
-   *         Bean definition
-   */
-  public void aware(Object bean, BeanDefinition def) {
-    if (bean instanceof Aware) {
-      awareInternal(bean, def);
-    }
-  }
-
-  /**
-   * Do Inject FrameWork {@link Component}s to target bean
-   *
-   * @param bean
-   *         Target bean
-   * @param def
-   *         Target {@link BeanDefinition}
-   */
-  protected void awareInternal(Object bean, BeanDefinition def) {
-
-    if (bean instanceof BeanNameAware) {
-      ((BeanNameAware) bean).setBeanName(def.getName());
-    }
-    if (bean instanceof BeanFactoryAware) {
-      ((BeanFactoryAware) bean).setBeanFactory(this);
-    }
-    if (bean instanceof BeanClassLoaderAware) {
-      ((BeanClassLoaderAware) bean).setBeanClassLoader(bean.getClass().getClassLoader());
-    }
   }
 
   /**
@@ -1257,7 +1217,7 @@ public abstract class AbstractBeanFactory
     destroyBean(beanInstance, def);
   }
 
-  protected abstract BeanDefinition getPrototypeBeanDefinition(Class<Object> userClass);
+  protected abstract BeanDefinition getPrototypeBeanDefinition(Class<?> userClass);
 
   public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
     Assert.notNull(name, "bean-name must not be null");
@@ -1279,7 +1239,7 @@ public abstract class AbstractBeanFactory
       return;
     }
     try {
-      ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
+      DisposableBeanAdapter.destroyBean(beanInstance, def, getPostProcessors());
     }
     catch (Throwable e) {
       log.warn("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",

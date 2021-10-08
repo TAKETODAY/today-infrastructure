@@ -26,9 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -39,7 +36,7 @@ import cn.taketoday.logger.LoggerFactory;
  * @author TODAY 2019-03-23 15:00
  */
 public class StandardBeanFactory
-        extends AbstractBeanFactory implements ConfigurableBeanFactory {
+        extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
@@ -85,25 +82,6 @@ public class StandardBeanFactory
   @Nullable
   public String getSerializationId() {
     return this.serializationId;
-  }
-
-  @Override
-  protected void awareInternal(final Object bean, final BeanDefinition def) {
-    super.awareInternal(bean, def);
-
-    if (bean instanceof ApplicationContextAware) {
-      ((ApplicationContextAware) bean).setApplicationContext(getApplicationContext());
-    }
-
-    if (bean instanceof EnvironmentAware) {
-      ((EnvironmentAware) bean).setEnvironment(getApplicationContext().getEnvironment());
-    }
-    if (bean instanceof ImportAware) { // @since 3.0
-      final Object attribute = def.getAttribute(ImportAnnotatedMetadata);
-      if (attribute instanceof BeanDefinition) {
-        ((ImportAware) bean).setImportBeanDefinition((BeanDefinition) attribute);
-      }
-    }
   }
 
   /**
@@ -182,5 +160,15 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
   // Implementation of BeanDefinitionRegistry interface
   //---------------------------------------------------------------------
+
+  @Override
+  public void registerBeanDefinition(BeanDefinition def) {
+    BeanDefinitionRegistry.super.registerBeanDefinition(def);
+  }
+
+  @Override
+  public boolean containsBeanDefinition(String beanName, Class<?> type) {
+    return BeanDefinitionRegistry.super.containsBeanDefinition(beanName, type);
+  }
 
 }

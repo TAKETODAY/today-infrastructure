@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -32,10 +33,6 @@ public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
   //---------------------------------------------------------------------
-  // Implementation of AbstractBeanFactory class
-  //---------------------------------------------------------------------
-
-  //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
   //---------------------------------------------------------------------
 
@@ -46,7 +43,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (cacheBeanDef) {
       if ((defToUse = getBeanDefinition(beanClass)) == null) {
         defToUse = getPrototypeBeanDefinition(beanClass);
-        registerBean(defToUse);
+        registerBeanDefinition(defToUse);
       }
     }
     else {
@@ -55,6 +52,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     return (T) createPrototype(defToUse);
   }
 
+  protected abstract void registerBeanDefinition(BeanDefinition def);
+
   @Override
   public void autowireBean(final Object existingBean) {
     final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
@@ -62,7 +61,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (log.isDebugEnabled()) {
       log.debug("Autowiring bean named: [{}].", prototypeDef.getName());
     }
-    aware(existingBean, prototypeDef);
+
     // apply properties
     applyPropertyValues(existingBean, prototypeDef);
     // invoke initialize methods
@@ -134,14 +133,18 @@ public abstract class AbstractAutowireCapableBeanFactory
     destroyBean(existingBean, getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)));
   }
 
-  private BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
-    return getBeanDefinitionLoader()
-            .createBeanDefinition(beanClass)
-            .setScope(Scope.PROTOTYPE);
-  }
-
   private BeanDefinition getPrototypeBeanDefinition(final Object existingBean, final String beanName) {
     return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of AbstractBeanFactory class
+  //---------------------------------------------------------------------
+
+  @Override
+  protected BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
+    return BeanDefinitionBuilder.defaults(beanClass)
+            .setScope(Scope.PROTOTYPE);
   }
 
 }

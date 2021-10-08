@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ObjectFactory;
@@ -42,6 +43,9 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   /** Map of bean instance, keyed by bean name */
   private final HashMap<String, Object> singletons = new HashMap<>(128);
+
+  /** object factories */
+  private Map<String, Supplier<?>> objectFactories;
 
   @Override
   public void registerSingleton(final String name, final Object singleton) {
@@ -107,7 +111,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
           log.debug("Creating shared instance of singleton bean '{}'", beanName);
           beforeSingletonCreation(beanName);
           try {
-            singletonObject = singletonFactory.getObject();
+            singletonObject = singletonFactory.get();
           }
           finally {
             afterSingletonCreation(beanName);
@@ -156,6 +160,13 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
       }
     }
     return (T) singleton;
+  }
+
+  private Map<String, Supplier<?>> getObjectFactories() {
+    if (objectFactories == null) {
+      objectFactories = new HashMap<>();
+    }
+    return objectFactories;
   }
 
   /**

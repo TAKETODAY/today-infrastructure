@@ -113,11 +113,6 @@ public class DefaultBeanDefinitionRegistry
     return this.beanDefinitionMap.keySet();
   }
 
-//  @Override
-//  public String[] getBeanDefinitionNames() {
-//    return StringUtils.toStringArray(this.beanDefinitionMap.keySet());
-//  }
-
   @Override
   public int getBeanDefinitionCount() {
     return this.beanDefinitionMap.size();

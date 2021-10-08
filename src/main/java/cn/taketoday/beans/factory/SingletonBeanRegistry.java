@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.ObjectFactory;
@@ -99,6 +100,10 @@ public interface SingletonBeanRegistry {
    */
   @Nullable
   Object getSingleton(String name);
+
+  default <T> T getSingleton(String beanName, Supplier<T> supplier) {
+    return getSingleton(beanName, supplier::get);
+  }
 
   /**
    * Return the (raw) singleton object registered under the given name,
