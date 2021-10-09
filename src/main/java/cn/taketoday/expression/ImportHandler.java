@@ -57,9 +57,9 @@ import cn.taketoday.util.ClassUtils;
 public class ImportHandler {
 
   private static final ImportHandler INSTANCE = new ImportHandler();
-  private final Map<String, Class<?>> classMap = new HashMap<>();
-  private final Map<String, String> classNameMap = new HashMap<>();
-  private final Map<String, String> staticNameMap = new HashMap<>();
+  private final HashMap<String, Class<?>> classMap = new HashMap<>();
+  private final HashMap<String, String> classNameMap = new HashMap<>();
+  private final HashMap<String, String> staticNameMap = new HashMap<>();
 
   private final HashSet<String> notAClass = new HashSet<>();
   private final ArrayList<String> packages = new ArrayList<>();
