@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.core.Assert;
@@ -83,7 +84,7 @@ public class WebSocketHandlerRegistry
    *
    * @return Returns a handler bean of target beanClass
    */
-  protected Object createHandler(final BeanDefinition def, final ConfigurableBeanFactory beanFactory) {
+  protected Object createHandler(final BeanDefinition def, final BeanFactory beanFactory) {
     return def.isSingleton()
            ? beanFactory.getBean(def)
            : Prototypes.newProxyInstance(def.getBeanClass(), def, beanFactory);

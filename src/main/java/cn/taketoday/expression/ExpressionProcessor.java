@@ -136,7 +136,7 @@ public class ExpressionProcessor {
    *
    * @return The result of the expression evaluation.
    */
-  public Object eval(final String expression) {
+  public Object eval(String expression) {
     return getValue(expression, Object.class);
   }
 
@@ -151,13 +151,13 @@ public class ExpressionProcessor {
    *
    * @return The result of the expression evaluation.
    */
-  public <T> T getValue(final String expression, final Class<T> expectedType) {
-    final StandardExpressionContext elContext = elManager.getContext();
+  public <T> T getValue(String expression, Class<T> expectedType) {
+    StandardExpressionContext elContext = elManager.getContext();
     return getValue(expression, elContext, expectedType);
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T getValue(final String expression, final ExpressionContext context, final Class<T> expectedType) {
+  public <T> T getValue(String expression, ExpressionContext context, Class<T> expectedType) {
     return (T) factory.createValueExpression(context, bracket(expression), expectedType)//
             .getValue(context);
   }
@@ -183,8 +183,8 @@ public class ExpressionProcessor {
    *         or variable. The thrown exception must be included as the cause
    *         property of this exception, if available.
    */
-  public void setValue(final String expression, final Object value) {
-    final StandardExpressionContext elContext = elManager.getContext();
+  public void setValue(String expression, Object value) {
+    StandardExpressionContext elContext = elManager.getContext();
     factory.createValueExpression(elContext, bracket(expression), Object.class)//
             .setValue(elContext, value);
   }
@@ -201,7 +201,7 @@ public class ExpressionProcessor {
    * @param expression
    *         The EL expression to be assigned to the variable.
    */
-  public void setVariable(final String var, final String expression) {
+  public void setVariable(String var, String expression) {
     elManager.setVariable(var, factory.createValueExpression(elManager.getContext(), bracket(expression), Object.class));
   }
 
@@ -232,7 +232,7 @@ public class ExpressionProcessor {
    *         method of the class, or if the method signature is not valid, or
    *         if the method is not a static method.
    */
-  public void defineFunction(final String prefix, String function, final String className, String method) //
+  public void defineFunction(String prefix, String function, String className, String method) //
           throws ClassNotFoundException, NoSuchMethodException //
   {
     if (prefix == null || function == null || className == null || method == null) {
@@ -244,11 +244,11 @@ public class ExpressionProcessor {
     if (loader == null) {
       loader = getClass().getClassLoader();
     }
-    final Class<?> klass = Class.forName(className, false, loader);
-    final int j = method.indexOf('(');
+    int j = method.indexOf('(');
 
     if (j < 0) {
       // Just a name is given
+      Class<?> klass = Class.forName(className, false, loader);
       for (Method m : klass.getDeclaredMethods()) {
         if (m.getName().equals(method)) {
           meth = m;
@@ -276,6 +276,7 @@ public class ExpressionProcessor {
       for (int i = 0; i < params.length; i++) {
         paramTypes[i] = toClass(params[i], loader);
       }
+      Class<?> klass = Class.forName(className, false, loader);
       meth = klass.getDeclaredMethod(methodName, paramTypes);
     }
     if (!Modifier.isStatic(meth.getModifiers())) {
@@ -304,7 +305,7 @@ public class ExpressionProcessor {
    * @throws NoSuchMethodException
    *         if the method is not a static method
    */
-  public void defineFunction(final String prefix, String function, final Method method)
+  public void defineFunction(String prefix, String function, Method method)
           throws NoSuchMethodException //
   {
     if (prefix == null || function == null || method == null) {
@@ -329,7 +330,7 @@ public class ExpressionProcessor {
    *         The bean instance to be defined. If <code>null</code>, the name
    *         will be removed from the local bean repository.
    */
-  public void defineBean(final String name, final Object bean) {
+  public void defineBean(String name, Object bean) {
     elManager.defineBean(name, bean);
   }
 
@@ -379,11 +380,11 @@ public class ExpressionProcessor {
     return Array.newInstance(c, new int[dims]).getClass();
   }
 
-  private final String bracket(String expression) {
+  private String bracket(String expression) {
     if (expression == null) {
       return "${null}";
     }
-    final char firstChar = expression.charAt(0);
+    char firstChar = expression.charAt(0);
     if (firstChar == '#' || firstChar == '$') {
       return expression;
     }

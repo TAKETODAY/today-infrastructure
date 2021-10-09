@@ -94,10 +94,10 @@ public class PropsReader {
   public PropsReader(ApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");
     this.resourceLoader = context;
+    this.beanFactory = context.getBeanFactory();
     this.propertyResolver = context.getEnvironment();
     this.expressionEvaluator = new ExpressionEvaluator(context);
     this.beanInstantiator = new BeanFactoryAwareBeanInstantiator(context);
-    this.beanFactory = context.getBeanFactory();
   }
 
   public PropsReader(PropertyResolver propertyResolver) {
