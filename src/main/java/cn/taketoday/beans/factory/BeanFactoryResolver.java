@@ -27,9 +27,9 @@ import cn.taketoday.expression.BeanNameResolver;
  * 2019-02-23 10:36
  */
 public class BeanFactoryResolver extends BeanNameResolver {
-  private final ConfigurableBeanFactory beanFactory;
+  private final BeanFactory beanFactory;
 
-  public BeanFactoryResolver(ConfigurableBeanFactory beanFactory) {
+  public BeanFactoryResolver(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 

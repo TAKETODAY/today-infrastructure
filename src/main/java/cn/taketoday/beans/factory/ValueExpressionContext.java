@@ -29,7 +29,7 @@ import cn.taketoday.expression.StandardExpressionContext;
  */
 public class ValueExpressionContext extends StandardExpressionContext {
 
-  public ValueExpressionContext(ExpressionFactory exprFactory, ConfigurableBeanFactory beanFactory) {
+  public ValueExpressionContext(ExpressionFactory exprFactory, BeanFactory beanFactory) {
     super(exprFactory);
     addResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
   }
