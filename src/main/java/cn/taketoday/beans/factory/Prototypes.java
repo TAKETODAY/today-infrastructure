@@ -37,7 +37,7 @@ public final class Prototypes {
    *
    * @since 4.0
    */
-  public static Object newProxyInstance(BeanDefinition def, ConfigurableBeanFactory factory) {
+  public static Object newProxyInstance(BeanDefinition def, BeanFactory factory) {
     return newProxyInstance(def.getBeanClass(), def, factory, false);
   }
 
@@ -46,7 +46,7 @@ public final class Prototypes {
    * will inject a proxy instance to get prototype
    * instance from every single method call.
    */
-  public static Object newProxyInstance(Class<?> refType, BeanDefinition def, ConfigurableBeanFactory factory) {
+  public static Object newProxyInstance(Class<?> refType, BeanDefinition def, BeanFactory factory) {
     return newProxyInstance(refType, def, factory, false);
   }
 
@@ -67,7 +67,7 @@ public final class Prototypes {
    * @return Target prototype object
    */
   public static Object newProxyInstance(
-          Class<?> refType, BeanDefinition def, ConfigurableBeanFactory factory, boolean proxyTargetClass) {
+          Class<?> refType, BeanDefinition def, BeanFactory factory, boolean proxyTargetClass) {
     ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.setProxyTargetClass(proxyTargetClass);
 
