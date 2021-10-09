@@ -19,10 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
@@ -31,7 +27,10 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Standard {@link ApplicationContext}
@@ -42,6 +41,7 @@ public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
   private AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader;
+  private String propertiesLocation;
 
   /**
    * Default Constructor
@@ -93,9 +93,11 @@ public class StandardApplicationContext
   }
 
   public void setPropertiesLocation(String propertiesLocation) {
-    if (StringUtils.isNotEmpty(propertiesLocation)) {
+    this.propertiesLocation = propertiesLocation;
+  }
 
-    }
+  public String getPropertiesLocation() {
+    return propertiesLocation;
   }
 
   @Override
@@ -117,8 +119,9 @@ public class StandardApplicationContext
     super.initPropertySources();
     ConfigurableEnvironment environment = getEnvironment();
 
-    new ApplicationPropertySourcesProcessor(environment, this)
-            .postProcessEnvironment();
+    ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(environment, this);
+    processor.setPropertiesLocation(propertiesLocation);
+    processor.postProcessEnvironment();
 
     // prepare properties
     TodayStrategies detector = TodayStrategies.getDetector();
