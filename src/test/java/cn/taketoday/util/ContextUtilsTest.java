@@ -19,6 +19,8 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.io.Resource;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -59,15 +61,14 @@ public class ContextUtilsTest {
 
   @Test
   public void test_GetResourceAsProperties() throws IOException {
-    Properties resourceAsProperties = ContextUtils.getResourceAsProperties("info.properties");
+    Properties resourceAsProperties = PropertiesUtils.loadProperties("info.properties");
     assert "TODAY BLOG".equals(resourceAsProperties.getProperty("site.name"));
   }
 
   @Test
   public void test_GetUrlAsStream() throws IOException {
     URL resource = ClassUtils.getDefaultClassLoader().getResource("info.properties");
-
-    InputStream urlAsStream = ContextUtils.getUrlAsStream(resource.getProtocol() + ":" + resource.getPath());
+    InputStream urlAsStream = ResourceUtils.getResourceAsStream(resource.getProtocol() + ":" + resource.getPath());
 
     assert resource.getProtocol().equals("file");
     assert urlAsStream != null;
@@ -76,7 +77,7 @@ public class ContextUtilsTest {
   @Test
   public void test_GetUrlAsProperties() throws IOException {
     URL resource = ClassUtils.getClassLoader().getResource("info.properties");
-    Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
+    Properties properties = PropertiesUtils.loadProperties(resource.getProtocol() + ":" + resource.getPath());
 
     assert resource.getProtocol().equals("file");
     assert "TODAY BLOG".equals(properties.getProperty("site.name"));

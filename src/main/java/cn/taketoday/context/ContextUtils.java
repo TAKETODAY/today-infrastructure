@@ -19,9 +19,19 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Parameter;
 import java.net.URL;
@@ -30,19 +40,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.ConcurrentProperties;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
-import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * ApplicationContext Utils
@@ -114,54 +111,6 @@ public abstract class ContextUtils {
     return ctx.getBean(ExpressionProcessor.class);
   }
 
-  // PropertyValueResolver
-  // -----------------------------------------
-
-  public static Properties getResourceAsProperties(final String resource) throws IOException {
-    ConcurrentProperties props = new ConcurrentProperties();
-    try (InputStream in = ResourceUtils.getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
-      props.load(in);
-    }
-
-    return props;
-  }
-
-  /**
-   * Get {@link InputStream} from a url stirng
-   *
-   * @param urlString
-   *         Target url string
-   *
-   * @return {@link InputStream}
-   *
-   * @throws IOException
-   *         If can't get the stream
-   */
-  public static InputStream getUrlAsStream(final String urlString) throws IOException {
-    return new URL(urlString).openConnection().getInputStream();
-  }
-
-  /**
-   * Load {@link Properties} from a url string
-   *
-   * @param urlString
-   *         Target url string
-   *
-   * @return {@link Properties}
-   *
-   * @throws IOException
-   *         If any IO {@link Exception} occurred
-   */
-  public static Properties getUrlAsProperties(final String urlString) throws IOException {
-    ConcurrentProperties props = new ConcurrentProperties();
-    try (InputStream in = getUrlAsStream(StringUtils.checkPropertiesName(urlString))) {
-      props.load(in);
-    }
-    return props;
-  }
-
-  // ----------------- loader
-
   // META-INF
   // ----------------------
 
@@ -190,7 +139,7 @@ public abstract class ContextUtils {
           final URL url = resources.nextElement();
           String className = null;
           try (final BufferedReader reader = //
-                  new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
+                       new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
             while ((className = reader.readLine()) != null) {
               if (StringUtils.isNotEmpty(className)) { // @since 3.0 FIX empty lines

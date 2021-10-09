@@ -32,7 +32,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.core.io.PropertiesLoaderUtils;
+import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.util.ResourceUtils;
 
 /**
@@ -70,7 +70,7 @@ public class StandardEnvironmentTest {
 
     PropertySources propertySources = environment.getPropertySources();
 
-    Properties properties = PropertiesLoaderUtils.loadProperties(
+    Properties properties = PropertiesUtils.loadProperties(
             ResourceUtils.getResource("classpath:info.properties"));
 
     propertySources.addLast(new PropertiesPropertySource("info", properties));

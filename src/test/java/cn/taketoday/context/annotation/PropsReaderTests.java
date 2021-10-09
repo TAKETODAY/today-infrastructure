@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.core.io.PropertiesUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -109,7 +110,7 @@ class PropsReaderTests {
     Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
 
     URL resource = Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("info.properties");
-    Properties properties = ContextUtils.getUrlAsProperties(
+    Properties properties = PropertiesUtils.loadProperties(
             resource.getProtocol() + ":" + resource.getPath());
 //    properties.list(System.err);
 

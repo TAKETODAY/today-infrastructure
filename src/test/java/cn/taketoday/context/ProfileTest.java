@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 
