@@ -32,6 +32,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySources;
@@ -81,10 +82,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   }
 
   public ExpressionEvaluator(Properties variables) {
-    PropertiesPropertySource propertySource = new PropertiesPropertySource("variables", variables);
-    PropertySources propertySources = new PropertySources();
-    propertySources.addFirst(propertySource);
-    this.variablesResolver = new PropertySourcesPropertyResolver(propertySources);
+    this.variablesResolver = new PropertiesPropertyResolver(variables);
   }
 
   public ExpressionEvaluator(ExpressionProcessor expressionProcessor) {
