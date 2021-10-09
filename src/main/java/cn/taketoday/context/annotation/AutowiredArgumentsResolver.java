@@ -26,7 +26,6 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Required;
@@ -79,10 +78,11 @@ public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
   }
 
   protected Object resolvePropsInternal(Parameter parameter, Props props, Object bean) {
+    PropsReader propsReader = new PropsReader();
     if (bean != null) {
-      return ContextUtils.resolveProps(props, bean, ContextUtils.loadProps(props, System.getProperties()));
+      return propsReader.read(props, bean);
     }
-    return ContextUtils.resolveProps(props, parameter.getType(), ContextUtils.loadProps(props, System.getProperties()));
+    return propsReader.read(props, parameter.getType());
   }
 
 }
