@@ -20,10 +20,6 @@
 
 package cn.taketoday.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -31,6 +27,10 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * Strategies file reader
@@ -40,7 +40,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class StrategiesReader {
   public static final Logger log = LoggerFactory.getLogger(StrategiesReader.class);
-  private ResourceLoader resourceResolver = new PathMatchingPatternResourceLoader();
+  private ResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
 
   /**
    * read a key multi-value map
@@ -69,7 +69,7 @@ public abstract class StrategiesReader {
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
     Assert.notNull(strategiesLocation, "file-location must not be null");
     try {
-      PatternResourceLoader resourceLoader = PatternResourceLoader.getPatternResourceLoader(resourceResolver);
+      PatternResourceLoader resourceLoader = PatternResourceLoader.getPatternResourceLoader(this.resourceLoader);
       final List<String> strategiesLocations = StringUtils.splitAsList(strategiesLocation);
       for (final String location : strategiesLocations) {
         log.info("Detecting strategies location '{}'", location);
@@ -110,18 +110,19 @@ public abstract class StrategiesReader {
           InputStream inputStream, MultiValueMap<String, String> strategies) throws IOException;
 
   /**
-   * set resourceResolver to load strategies files
+   * set ResourceLoader to load strategies files
    *
-   * @param resourceResolver
-   *         new ResourceResolver cannot be {@code null}
+   * @param resourceLoader
+   *         new ResourceLoader cannot be {@code null}
    */
-  public void setResourceResolver(ResourceLoader resourceResolver) {
-    Assert.notNull(resourceResolver, "resourceResolver must not be null");
-    this.resourceResolver = resourceResolver;
+  public void setResourceLoader(ResourceLoader resourceLoader) {
+    Assert.notNull(resourceLoader, "resourceLoader must not be null");
+    this.resourceLoader = resourceLoader;
   }
 
-  public ResourceLoader getResourceResolver() {
-    return resourceResolver;
+  public ResourceLoader getResourceLoader() {
+    return resourceLoader;
   }
+
 
 }
