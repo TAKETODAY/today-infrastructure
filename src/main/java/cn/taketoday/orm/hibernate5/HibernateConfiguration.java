@@ -19,17 +19,6 @@
  */
 package cn.taketoday.orm.hibernate5;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Configuration;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
-
-import javax.persistence.Entity;
-import javax.sql.DataSource;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
@@ -39,13 +28,22 @@ import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.event.ApplicationContextEvent;
-import cn.taketoday.context.event.EventProvider;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.event.EventProvider;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.Configuration;
+
+import javax.persistence.Entity;
+import javax.sql.DataSource;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Properties;
 
 /**
  * @author TODAY 2019-11-05 22:11
@@ -59,11 +57,6 @@ public class HibernateConfiguration extends Configuration
   private AnnotatedBeanDefinitionReader beanDefinitionReader;
 
   public static final String SESSION_FACTORY_BEAN_NAME = "org.hibernate.SessionFactory";
-
-  public SessionFactory buildSessionFactory(DataSource dataSource, Properties hibernateProperties) {
-    setProperties(hibernateProperties);
-    return super.buildSessionFactory();
-  }
 
   @Override
   public void onApplicationEvent(ApplicationContextEvent event) {
@@ -86,8 +79,10 @@ public class HibernateConfiguration extends Configuration
       }
       PropsReader propsReader = new PropsReader(applicationContext);
 
-      Properties properties = getHibernateProperties(dataSource, applicationContext, propsReader);
-      beanRegistry.registerSingleton(SESSION_FACTORY_BEAN_NAME, buildSessionFactory(dataSource, properties));
+      Properties hibernateProperties = getHibernateProperties(dataSource, applicationContext, propsReader);
+      setProperties(hibernateProperties);
+
+      beanRegistry.registerSingleton(SESSION_FACTORY_BEAN_NAME, buildSessionFactory());
       log.info("Refresh 'SessionFactory' bean");
     }
   }

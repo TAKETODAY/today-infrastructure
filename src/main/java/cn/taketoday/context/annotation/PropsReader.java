@@ -20,18 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
@@ -46,7 +34,6 @@ import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
@@ -58,12 +45,26 @@ import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertyResolverComposite;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author TODAY 2021/10/3 13:41
@@ -84,12 +85,15 @@ public class PropsReader {
   @Nullable
   private BeanFactory beanFactory;
 
+  private ResourceLoader resourceLoader;
+
   public PropsReader() {
     this.propertyResolver = new StandardEnvironment();
   }
 
   public PropsReader(ApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");
+    this.resourceLoader = context;
     this.propertyResolver = context.getEnvironment();
     this.expressionEvaluator = new ExpressionEvaluator(context);
     this.beanInstantiator = new BeanFactoryAwareBeanInstantiator(context);
@@ -210,13 +214,19 @@ public class PropsReader {
     String[] fileNames = props.value();
     if (ObjectUtils.isNotEmpty(fileNames)) {
       Properties propertiesToUse = new Properties();
+
+      if (resourceLoader == null) {
+        resourceLoader = new DefaultResourceLoader();
+      }
+
       for (String fileName : fileNames) {
-        String resourceLocation = StringUtils.checkPropertiesName(fileName);
-        try (InputStream inputStream = ResourceUtils.getResourceAsStream(resourceLocation)) {
-          propertiesToUse.load(inputStream);
+        String resourceLocation = PropertiesUtils.checkPropertiesName(fileName);
+        Resource resource = resourceLoader.getResource(resourceLocation);
+        try {
+          PropertiesUtils.fillProperties(propertiesToUse, resource);
         }
         catch (IOException e) {
-          throw new ApplicationContextException("IO exception occurred", e);
+          throw new ApplicationContextException("IO exception occurred : properties file '" + resource + "' load failed", e);
         }
       }
       PropertiesPropertyResolver resolver = new PropertiesPropertyResolver(propertiesToUse);
@@ -282,7 +292,7 @@ public class PropsReader {
    * @since 2.1.5
    */
   public Properties readMap(Props props) {
-    Properties ret = new ConcurrentProperties();
+    Properties ret = new Properties();
     // process -----------------
 
     String[] prefixs = props.prefix();
@@ -292,13 +302,11 @@ public class PropsReader {
 
     if (propertyResolver instanceof IterablePropertyResolver) {
       for (String key : ((IterablePropertyResolver) propertyResolver)) {
-
-        String blank = Constant.BLANK;
         for (String prefix : prefixs) {
-          if (blank.equals(prefix) || key.startsWith(prefix)) { // start with prefix
+          if (Constant.BLANK.equals(prefix) || key.startsWith(prefix)) { // start with prefix
             if (replace) {
               // replace the prefix
-              key = key.replaceFirst(prefix, blank);
+              key = key.replaceFirst(prefix, Constant.BLANK);
             }
             String value = propertyResolver.getProperty(key);
             if (value != null) { // fix only support String
