@@ -130,11 +130,13 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
   public void setResolvingStrategies(ArgumentsResolvingStrategy... strategies) {
     resolvingStrategies.clear();
     addResolvingStrategies(strategies);
+    resolvingStrategies.trimToSize();
   }
 
   public void setResolvingStrategies(List<ArgumentsResolvingStrategy> strategies) {
     resolvingStrategies.clear();
     addResolvingStrategies(strategies);
+    resolvingStrategies.trimToSize();
   }
 
   public void addResolvingStrategies(ArgumentsResolvingStrategy... strategies) {
