@@ -1371,7 +1371,7 @@ public final class Type {
       return new Type[] { extra };
     }
 
-    if (!justAdd && CollectionUtils.contains(types, extra)) {
+    if (!justAdd && ObjectUtils.containsElement(types, extra)) {
       return types;
     }
     final Type[] copy = new Type[types.length + 1];
