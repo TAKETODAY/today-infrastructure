@@ -44,6 +44,7 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import jdk.nashorn.internal.runtime.regexp.joni.Config;
 
 /**
  * Base class for YAML factories.
@@ -209,7 +210,7 @@ public class YamlProcessor {
           }
         }
         if (log.isDebugEnabled()) {
-          log.debug("Loaded " + count + " document" + (count > 1 ? "s" : "") +
+          log.debug("Loaded " + count + " document" + (count > 1 ? "s" : Constant.BLANK) +
                             " from YAML resource: " + resource);
         }
       }
@@ -329,7 +330,7 @@ public class YamlProcessor {
         @SuppressWarnings("unchecked")
         Collection<Object> collection = (Collection<Object>) value;
         if (collection.isEmpty()) {
-          result.put(key, "");
+          result.put(key, Constant.BLANK);
         }
         else {
           int count = 0;
@@ -340,7 +341,7 @@ public class YamlProcessor {
         }
       }
       else {
-        result.put(key, (value != null ? value : ""));
+        result.put(key, (value != null ? value : Constant.BLANK));
       }
     });
   }
