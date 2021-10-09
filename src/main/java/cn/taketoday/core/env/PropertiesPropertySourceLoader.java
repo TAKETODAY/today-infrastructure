@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.core.io.PropertiesLoaderUtils;
+import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.core.io.Resource;
 
 /**
@@ -68,10 +68,10 @@ public class PropertiesPropertySourceLoader implements PropertySourceLoader {
     String filename = resource.getName();
     List<Map<String, ?>> result = new ArrayList<>();
     if (filename != null && filename.endsWith(XML_FILE_EXTENSION)) {
-      result.add((Map) PropertiesLoaderUtils.loadProperties(resource));
+      result.add((Map) PropertiesUtils.loadProperties(resource));
     }
     else {
-      Properties properties = PropertiesLoaderUtils.loadProperties(resource);
+      Properties properties = PropertiesUtils.loadProperties(resource);
 
       List<Document> documents = new OriginTrackedPropertiesLoader(resource).load();
       documents.forEach((document) -> result.add(document.asMap()));

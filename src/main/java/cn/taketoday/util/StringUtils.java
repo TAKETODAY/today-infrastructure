@@ -722,18 +722,6 @@ public abstract class StringUtils {
   }
 
   /**
-   * Check properties file name
-   *
-   * @param fileName
-   *         Input file name
-   *
-   * @return checked properties file name
-   */
-  public static String checkPropertiesName(final String fileName) {
-    return fileName.endsWith(Environment.PROPERTIES_SUFFIX) ? fileName : fileName + Environment.PROPERTIES_SUFFIX;
-  }
-
-  /**
    * Use {@link UUID} to get random uuid string
    *
    * @return Random uuid string

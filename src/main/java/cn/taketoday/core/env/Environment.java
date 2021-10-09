@@ -65,7 +65,7 @@ import cn.taketoday.core.Constant;
  */
 public interface Environment extends PropertyResolver {
 
-  String PROPERTIES_SUFFIX = ".properties";
+  String PROPERTIES_SUFFIX = Constant.PROPERTIES_SUFFIX;
   String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
   String DEFAULT_YAML_FILE = "classpath:application.yaml";
   String DEFAULT_PROPERTIES_FILE = "classpath:application.properties";

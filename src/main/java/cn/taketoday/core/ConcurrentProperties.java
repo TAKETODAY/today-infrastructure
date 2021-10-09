@@ -39,6 +39,7 @@ import java.util.function.Function;
  * @author TODAY <br>
  * 2019-03-15 23:24
  */
+@Deprecated
 public class ConcurrentProperties
         extends Properties implements ConcurrentMap<Object, Object> {
   private static final long serialVersionUID = 1L;
