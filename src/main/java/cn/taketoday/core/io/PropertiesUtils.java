@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
@@ -46,7 +47,7 @@ import cn.taketoday.util.ResourceUtils;
  * @author TODAY 2021/10/6 00:00
  * @since 4.0
  */
-public abstract class PropertiesLoaderUtils {
+public abstract class PropertiesUtils {
 
   private static final String XML_FILE_EXTENSION = ".xml";
 
@@ -60,6 +61,18 @@ public abstract class PropertiesLoaderUtils {
     Properties props = new Properties();
     fillProperties(props, resource);
     return props;
+  }
+
+  /**
+   * Check properties file name
+   *
+   * @param fileName
+   *         Input file name
+   *
+   * @return checked properties file name
+   */
+  public static String checkPropertiesName(String fileName) {
+    return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
   }
 
   /**
