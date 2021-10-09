@@ -20,6 +20,12 @@
 
 package cn.taketoday.core.io;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ResourceUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -27,12 +33,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.Properties;
-
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
 
 /**
  * Convenient utility methods for loading of {@code java.util.Properties},
@@ -118,6 +118,23 @@ public abstract class PropertiesUtils {
   }
 
   /**
+   * Load properties from the given resource location
+   *
+   * @param resource
+   *         the resource to load from
+   *
+   * @return the populated Properties instance
+   *
+   * @throws IOException
+   *         if loading failed
+   * @see #fillProperties(java.util.Properties, Resource)
+   */
+  public static Properties loadProperties(String resource) throws IOException {
+    String location = checkPropertiesName(resource);
+    return loadProperties(ResourceUtils.getResource(location));
+  }
+
+  /**
    * Load properties from the given resource (in ISO-8859-1 encoding).
    *
    * @param resource
@@ -200,7 +217,7 @@ public abstract class PropertiesUtils {
       classLoaderToUse = ClassUtils.getDefaultClassLoader();
     }
     Enumeration<URL> urls = (classLoaderToUse != null ? classLoaderToUse.getResources(resourceName) :
-                             ClassLoader.getSystemResources(resourceName));
+            ClassLoader.getSystemResources(resourceName));
     Properties props = new Properties();
     while (urls.hasMoreElements()) {
       URL url = urls.nextElement();

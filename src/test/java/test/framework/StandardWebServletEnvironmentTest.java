@@ -36,7 +36,6 @@ public class StandardWebServletEnvironmentTest {
   public void testLoadProperties() throws IOException {
 
     StandardWebEnvironment environment = new StandardWebEnvironment();
-
     environment.loadProperties();
 
     final Properties properties = environment.getProperties();

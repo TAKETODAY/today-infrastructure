@@ -83,12 +83,6 @@ class StringUtilsTest {
     assert StringUtils.arrayToString(new String[] { "today" }).equals("today");
   }
 
-  @Test
-  void testCheckPropertiesName() {
-    assert StringUtils.checkPropertiesName("info").equals("info.properties");
-    assert StringUtils.checkPropertiesName("info.properties").equals("info.properties");
-    StringUtils.getUUIDString();
-  }
 
   @Test
   void testCleanPath() {
