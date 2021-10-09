@@ -24,7 +24,6 @@ import java.lang.reflect.Executable;
 import java.util.Arrays;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.Nullable;
 
 /**
@@ -40,8 +39,6 @@ public class ArgumentsResolvingContext {
 
   @Nullable
   private final BeanFactory beanFactory;
-
-  private PropsReader propsReader;
 
   public ArgumentsResolvingContext(
           Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
