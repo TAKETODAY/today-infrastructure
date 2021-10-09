@@ -20,6 +20,19 @@
 
 package cn.taketoday.context;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 
@@ -32,18 +45,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.env.MapPropertySource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
-
 /**
  * @author TODAY 2021/10/8 22:47
  * @since 4.0
@@ -52,8 +53,8 @@ public class ApplicationPropertySourcesProcessor {
   private static final Logger log = LoggerFactory.getLogger(ApplicationPropertySourcesProcessor.class);
   static boolean snakeyamlIsPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
-  private final HashMap<String, Object> source = new HashMap<>();
-  private final MapPropertySource propertySource = new MapPropertySource("application", source);
+  private final HashMap<String, Object> properties = new HashMap<>();
+  private final MapPropertySource propertySource = new MapPropertySource("application", properties);
 
   private String propertiesLocation;
   private final ConfigurableEnvironment environment;
@@ -83,7 +84,7 @@ public class ApplicationPropertySourcesProcessor {
     if (isYamlProperties(propertiesResource.getName())) {
       if (snakeyamlIsPresent) {
         // load yaml files
-        loadFromYmal(getProperties(), propertiesResource);
+        loadFromYmal(propertiesResource);
       }
       else {
         log.warn("'org.yaml.snakeyaml.Yaml' does not exist in your classpath, yaml config file will be ignored");
@@ -102,7 +103,7 @@ public class ApplicationPropertySourcesProcessor {
             return true;
           }
           String name = file.getName();
-          return name.endsWith(PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+          return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
         };
         doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
       }
@@ -122,7 +123,7 @@ public class ApplicationPropertySourcesProcessor {
     return propertiesLocation.endsWith(".yaml") || propertiesLocation.endsWith(".yml");
   }
 
-  private void loadFromYmal(Properties properties, Resource yamlResource) throws IOException {
+  private void loadFromYmal(Resource yamlResource) throws IOException {
     log.info("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
     SnakeyamlDelegate.doMapping(properties, yamlResource);
   }
@@ -216,7 +217,8 @@ public class ApplicationPropertySourcesProcessor {
         try {
           loadProperties(builder.toString());
         }
-        catch (FileNotFoundException ignored) { }
+        catch (FileNotFoundException ignored) {
+        }
       }
     }
   }
@@ -244,9 +246,10 @@ public class ApplicationPropertySourcesProcessor {
    * @throws IOException
    *         if the resource is not available
    */
-  public static void doLoadFromDirectory(Resource directory,
-                                         Properties properties,
-                                         ResourceFilter propertiesFileFilter) throws IOException //
+  public static void doLoadFromDirectory(
+          Resource directory,
+          Map<String, Object> properties,
+          ResourceFilter propertiesFileFilter) throws IOException //
   {
     Resource[] listResources = directory.list(propertiesFileFilter);
     for (Resource resource : listResources) {
@@ -267,14 +270,11 @@ public class ApplicationPropertySourcesProcessor {
    * @throws IOException
    *         if the resource is not available
    */
-  public static void doLoad(Properties properties, Resource resource) throws IOException {
+  public static void doLoad(Map<String, Object> properties, Resource resource) throws IOException {
     if (log.isInfoEnabled()) {
       log.info("Found Properties Resource: [{}]", resource.getLocation());
     }
-
-    try (InputStream inputStream = resource.getInputStream()) {
-      properties.load(inputStream);
-    }
+    PropertiesUtils.fillProperties(properties, resource);
   }
 
   public void setPropertiesLocation(String propertiesLocation) {
@@ -299,18 +299,18 @@ public class ApplicationPropertySourcesProcessor {
   }
 
   public HashMap<String, Object> getSource() {
-    return source;
+    return properties;
   }
 
   static class SnakeyamlDelegate {
 
-    protected static void doMapping(Properties properties, Resource yamlResource) throws IOException {
+    protected static void doMapping(Map<String, Object> properties, Resource yamlResource) throws IOException {
       Map<String, Object> base = new Yaml(new CompactConstructor()).load(yamlResource.getInputStream());
       SnakeyamlDelegate.doMapping(properties, base, null);
     }
 
     @SuppressWarnings("unchecked")
-    protected static void doMapping(Properties properties, Map<String, Object> base, String prefix) {
+    protected static void doMapping(Map<String, Object> properties, Map<String, Object> base, String prefix) {
       for (Map.Entry<String, Object> entry : base.entrySet()) {
         String key = entry.getKey();
         Object value = entry.getValue();
