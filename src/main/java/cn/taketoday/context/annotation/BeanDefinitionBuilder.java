@@ -136,6 +136,11 @@ public class BeanDefinitionBuilder {
     this.context = context;
   }
 
+  public BeanDefinitionBuilder name(String name) {
+    this.name = name;
+    return this;
+  }
+
   public BeanDefinitionBuilder instanceSupplier(Supplier<?> instanceSupplier) {
     this.instanceSupplier = instanceSupplier;
     return this;
@@ -146,12 +151,12 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
-  public BeanDefinitionBuilder childDefinition(boolean factoryBean) {
+  public BeanDefinitionBuilder factoryBean(boolean factoryBean) {
     this.factoryBean = factoryBean;
     return this;
   }
 
-  public BeanDefinitionBuilder synthetic(Boolean lazyInit) {
+  public BeanDefinitionBuilder lazyInit(Boolean lazyInit) {
     this.lazyInit = lazyInit;
     return this;
   }
@@ -183,11 +188,6 @@ public class BeanDefinitionBuilder {
 
   public BeanDefinitionBuilder factoryMethod(Method factoryMethod) {
     this.factoryMethod = factoryMethod;
-    return this;
-  }
-
-  public BeanDefinitionBuilder name(String name) {
-    this.name = name;
     return this;
   }
 

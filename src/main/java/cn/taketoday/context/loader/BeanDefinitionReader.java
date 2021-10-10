@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.Lazy;
+import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -64,9 +66,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import static cn.taketoday.core.Constant.VALUE;
-import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
 
 /**
  * read bean-definition
@@ -126,8 +125,8 @@ public class BeanDefinitionReader {
   }
 
   public void importAnnotated(BeanDefinition annotated) {
-    for (AnnotationAttributes attr : getAttributesArray(annotated, Import.class)) {
-      for (Class<?> importClass : attr.getAttribute(VALUE, Class[].class)) {
+    for (AnnotationAttributes attr : AnnotationUtils.getAttributesArray(annotated, Import.class)) {
+      for (Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
         if (!registry.containsBeanDefinition(importClass, true)) {
           doImport(annotated, importClass);
         }
@@ -195,7 +194,7 @@ public class BeanDefinitionReader {
    */
   protected void loadConfigurationBeans(BeanDefinition declaringDef) {
     for (Method method : ReflectionUtils.getDeclaredMethods(declaringDef.getBeanClass())) {
-      AnnotationAttributes[] components = getAttributesArray(method, Component.class);
+      AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(method, Component.class);
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
         AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, method);
@@ -292,7 +291,7 @@ public class BeanDefinitionReader {
   private boolean isMissedBean(AnnotationAttributes missingBean, AnnotatedElement annotated) {
     if (missingBean != null && conditionEvaluator.passCondition(annotated)) {
       // find by bean name
-      String beanName = missingBean.getString(VALUE);
+      String beanName = missingBean.getString(Constant.VALUE);
       if (StringUtils.isNotEmpty(beanName) && registry.containsBeanDefinition(beanName)) {
         return false;
       }
@@ -538,13 +537,21 @@ public class BeanDefinitionReader {
     if (prototype) {
       builder.prototype();
     }
+    if (AnnotationUtils.isPresent(clazz, Primary.class)) {
+      builder.primary(true);
+    }
+
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Lazy.class, clazz);
+    if (attributes != null) {
+      builder.lazyInit(attributes.getBoolean(Constant.VALUE));
+    }
 
     if (ignoreAnnotation) {
-      BeanDefinition build = builder.build();
-      register(build);
+      BeanDefinition definition = builder.build();
+      register(definition);
     }
     else {
-      AnnotationAttributes[] components = getAttributesArray(clazz, Component.class);
+      AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(clazz, Component.class);
       builder.build(defaultName, components, this::register0);
     }
   }
@@ -628,7 +635,7 @@ public class BeanDefinitionReader {
   }
 
   private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
-    AnnotationAttributes[] annotationAttributes = getAttributesArray(candidate, Component.class);
+    AnnotationAttributes[] annotationAttributes = AnnotationUtils.getAttributesArray(candidate, Component.class);
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       String defaultBeanName = createBeanName(candidate);
       for (AnnotationAttributes attributes : annotationAttributes) {
@@ -641,7 +648,7 @@ public class BeanDefinitionReader {
           Class<?> candidate, String defaultBeanName,
           AnnotationAttributes attributes, Consumer<BeanDefinition> registeredConsumer) {
     for (String name : BeanDefinitionBuilder.determineName(
-            defaultBeanName, attributes.getStringArray(VALUE))) {
+            defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
       BeanDefinition registered = getRegistered(name, candidate, attributes);
       if (registered != null && registeredConsumer != null) { // none null BeanDefinition
         registeredConsumer.accept(registered);

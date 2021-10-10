@@ -31,7 +31,6 @@ import java.util.function.Predicate;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
-import cn.taketoday.beans.Lazy;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
@@ -378,21 +377,13 @@ public class StandardBeanFactory
     if (targetDef.isAnnotationPresent(ComponentScan.class)) {
       componentScan(targetDef);
     }
+
     // load application listener @since 2.1.7
     if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
       context.addApplicationListener(targetDef.getName());
     }
-    // apply lazy init @since 3.0
-    applyLazyInit(targetDef);
 
     super.postProcessRegisterBeanDefinition(targetDef);
-  }
-
-  protected void applyLazyInit(BeanDefinition def) {
-    Lazy lazy = def.getAnnotation(Lazy.class);
-    if (lazy != null) {
-      def.setLazyInit(lazy.value());
-    }
   }
 
   /**
