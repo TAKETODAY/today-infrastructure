@@ -60,6 +60,7 @@ import static cn.taketoday.core.Constant.PATH_SEPARATOR;
  *
  * @author TODAY 2019-11-26 20:02
  */
+@Deprecated
 public class CandidateComponentScanner {
   // @since 4.0
   public static final String KEY_STRATEGIES_IGNORE_JAR_PREFIX = "ignore-jar-prefix";

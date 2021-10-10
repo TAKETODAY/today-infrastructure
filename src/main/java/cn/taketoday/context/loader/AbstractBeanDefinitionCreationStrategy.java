@@ -20,28 +20,28 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.Constant;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import java.util.Set;
+
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.bytecode.tree.ClassNode;
 
 /**
- * @author TODAY 2021/10/7 22:31
+ * @author TODAY 2021/10/10 22:27
  * @since 4.0
  */
-public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
-  private static final Logger log = LoggerFactory.getLogger(MetaInfoBeanDefinitionLoader.class);
+public abstract class AbstractBeanDefinitionCreationStrategy implements BeanDefinitionCreationStrategy {
 
-  /**
-   * Resolve bean from META-INF/beans
-   *
-   * @see Constant#META_INFO_beans
-   * @since 2.1.6
-   */
   @Override
-  public void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-
+  public Set<BeanDefinition> create(ClassNode classNode, BeanDefinitionCreationContext creationContext) {
+    if (supports(classNode, creationContext)) {
+      return createInternal(classNode, creationContext);
+    }
+    return null;
   }
 
+  protected abstract boolean supports(
+          ClassNode classNode, BeanDefinitionCreationContext creationContext);
+
+  protected abstract Set<BeanDefinition> createInternal(
+          ClassNode classNode, BeanDefinitionCreationContext creationContext);
 }

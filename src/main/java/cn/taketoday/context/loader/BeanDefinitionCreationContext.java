@@ -21,27 +21,35 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.Constant;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.util.ClassUtils;
 
 /**
- * @author TODAY 2021/10/7 22:31
+ * @author TODAY 2021/10/10 22:10
  * @since 4.0
  */
-public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
-  private static final Logger log = LoggerFactory.getLogger(MetaInfoBeanDefinitionLoader.class);
+public class BeanDefinitionCreationContext {
+  final BeanDefinitionRegistry registry;
+  private final BeanDefinitionBuilder definitionBuilder = new BeanDefinitionBuilder();
 
-  /**
-   * Resolve bean from META-INF/beans
-   *
-   * @see Constant#META_INFO_beans
-   * @since 2.1.6
-   */
-  @Override
-  public void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
+  public BeanDefinitionCreationContext(BeanDefinitionRegistry registry) {
+    this.registry = registry;
+  }
 
+  public BeanDefinitionRegistry getRegistry() {
+    return registry;
+  }
+
+  public BeanDefinitionBuilder getDefinitionBuilder() {
+    return definitionBuilder;
+  }
+
+  public String createBeanName(Class<?> c) {
+    return ClassUtils.getShortName(c);
+  }
+
+  public String createBeanName(String className) {
+    return ClassUtils.getShortName(className);
   }
 
 }

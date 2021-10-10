@@ -776,7 +776,7 @@ public class BeanDefinitionReader {
    * @param annotated
    *         should AnnotatedElement skip register to registry?
    */
-  private boolean shouldSkip(AnnotatedElement annotated) {
+  protected boolean shouldSkip(AnnotatedElement annotated) {
     return enableConditionEvaluation && !conditionEvaluator().passCondition(annotated);
   }
 
@@ -789,19 +789,19 @@ public class BeanDefinitionReader {
   }
 
   @NonNull
-  private BeanDefinitionRegistry obtainRegistry() {
+  protected BeanDefinitionRegistry obtainRegistry() {
     Assert.state(registry != null, "No registry");
     return registry;
   }
 
   @NonNull
-  private ConfigurableApplicationContext obtainContext() {
+  protected ConfigurableApplicationContext obtainContext() {
     Assert.state(context != null, "No ApplicationContext");
     return context;
   }
 
   @NonNull
-  private ConditionEvaluator conditionEvaluator() {
+  protected ConditionEvaluator conditionEvaluator() {
     if (conditionEvaluator == null) {
       conditionEvaluator = new ConditionEvaluator(obtainContext(), obtainRegistry());
     }
