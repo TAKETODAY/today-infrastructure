@@ -28,24 +28,30 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Repository;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.BeanDefinitionCreationContext;
+import cn.taketoday.context.loader.BeanDefinitionCreationStrategy;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.ClassMetaReader;
+import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -56,43 +62,44 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2018-10-05 19:03
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class MybatisConfiguration implements BeanDefinitionLoader {
+public class MybatisConfiguration implements BeanDefinitionCreationStrategy {
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
   public static final Method[] initMethods =
           BeanDefinitionBuilder.computeInitMethod(null, MapperFactoryBean.class);
 
   @Override
-  public void loadBeanDefinitions(
-          ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-    Logger log = LoggerFactory.getLogger(getClass());
+  public Set<BeanDefinition> loadBeanDefinitions(
+          ClassNode classNode, BeanDefinitionCreationContext creationContext) {
     log.info("Loading Mybatis Mapper Bean Definitions");
 
-    for (Class<?> beanClass : event.getCandidates()) {
-      if (beanClass.isInterface()) {
-        Repository repository = beanClass.getAnnotation(Repository.class);
-        if (repository == null) {
-          continue;
-        }
-
-        log.debug("Found Mapper: [{}]", beanClass.getName());
-
-        String[] names = repository.value();
-        String name = ObjectUtils.isNotEmpty(names) ? names[0] : createBeanName(beanClass);
-
-        registry.registerBeanDefinition(
-                name, createBeanDefinition(beanClass, name));
-      }
+    if (!Modifier.isInterface(classNode.access)) {
+      return null;
     }
+
+    // must be an interface
+
+    AnnotationAttributes attributes = ClassMetaReader.selectAttributes(classNode, Repository.class);
+    if (attributes != null) {
+      String className = classNode.name;
+      log.debug("Found Mapper: [{}]", className);
+      String[] names = attributes.getStringArray(Constant.VALUE);
+      String name = ObjectUtils.isNotEmpty(names)
+                    ? names[0] : creationContext.createBeanName(className);
+
+      return Collections.singleton(createBeanDefinition(className, name));
+    }
+    return null;
   }
 
-  protected FactoryBeanDefinition<?> createBeanDefinition(Class<?> beanClass, String name) {
-    DefaultBeanDefinition ret = new DefaultBeanDefinition(name, beanClass);
+  protected FactoryBeanDefinition<?> createBeanDefinition(String className, String name) {
+    DefaultBeanDefinition ret = new DefaultBeanDefinition(name, className);
     ret.setSynthetic(true);
     ret.setInitMethods(initMethods);
     ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
     ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
-    return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(beanClass));
+    return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(className));
   }
 
   @MissingBean
