@@ -38,6 +38,7 @@ import cn.taketoday.core.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface MissingBean {
+  String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   /**
    * Missing bean name

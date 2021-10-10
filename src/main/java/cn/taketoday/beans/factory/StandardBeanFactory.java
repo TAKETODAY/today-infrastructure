@@ -55,7 +55,6 @@ public class StandardBeanFactory
         extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
-  static final String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   /** Map from serialized id to factory instance. */
   private static final ConcurrentHashMap<String, Reference<StandardBeanFactory>>
@@ -299,7 +298,7 @@ public class StandardBeanFactory
     Class<?> beanClass = def.getBeanClass();
     BeanDefinition existBeanDef = getBeanDefinition(name);
 
-    if (existBeanDef != null && !def.hasAttribute(MissingBeanMetadata)) {
+    if (existBeanDef != null && !def.hasAttribute(MissingBean.MissingBeanMetadata)) {
       // has same name
       Class<?> existClass = existBeanDef.getBeanClass();
       if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
@@ -359,7 +358,7 @@ public class StandardBeanFactory
     }
 
     if (missedDef != null
-            && missedDef.hasAttribute(MissingBeanMetadata)) { // Have a corresponding missed bean
+            && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) { // Have a corresponding missed bean
       // copy all state
       def.copy(missedDef);
       def.setName(name); // fix bean name update error

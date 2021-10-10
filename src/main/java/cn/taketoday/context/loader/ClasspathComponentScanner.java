@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +56,7 @@ public class ClasspathComponentScanner {
   /** @since 2.1.7 Scan candidates */
   private CandidateComponentScanner componentScanner = CandidateComponentScanner.getSharedInstance();
   private final BeanDefinitionRegistry registry;
+  private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   public ClasspathComponentScanner(BeanDefinitionRegistry registry) {
     this.registry = registry;
@@ -169,113 +171,6 @@ public class ClasspathComponentScanner {
    */
   public void load(String... locations) throws BeanDefinitionStoreException {
     load(new CandidateComponentScanner().scan(locations));
-  }
-
-  /**
-   * Load bean definition with given bean class and bean name.
-   * <p>
-   * If the provided bean class annotated {@link Component} annotation will
-   * register beans with given {@link Component} metadata.
-   * <p>
-   * Otherwise register a bean will given default metadata: use the default bean
-   * name creator create the default bean name, use default bean scope
-   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
-   * empty destroy method.
-   *
-   * @param name
-   *         Bean name
-   * @param beanClass
-   *         Bean class
-   *
-   * @return returns a new BeanDefinition if {@link #transformBeanDefinition} transformed,
-   * If returns {@code null} or empty list indicates that none register to the registry
-   *
-   * @throws BeanDefinitionStoreException
-   *         If BeanDefinition could not be store
-   * @since 4.0
-   */
-  public List<BeanDefinition> load(String name, Class<?> beanClass) {
-    return Collections.singletonList(getRegistered(name, beanClass, null));
-  }
-
-  /**
-   * Load bean definition with given bean class and bean name.
-   * <p>
-   * If the provided bean class annotated {@link Component} annotation will
-   * register beans with given {@link Component} metadata.
-   * <p>
-   * Otherwise register a bean will given default metadata: use the default bean
-   * name creator create the default bean name, use default bean scope
-   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
-   * empty destroy method.
-   *
-   * @param name
-   *         default bean name
-   * @param beanClass
-   *         Bean class
-   * @param ignoreAnnotation
-   *         ignore {@link Component} scanning
-   *
-   * @return returns a new BeanDefinition if {@link #transformBeanDefinition} transformed,
-   * If returns {@code null} or empty list indicates that none register to the registry
-   *
-   * @throws BeanDefinitionStoreException
-   *         If BeanDefinition could not be store
-   * @since 4.0
-   */
-  public List<BeanDefinition> load(String name, Class<?> beanClass, boolean ignoreAnnotation)
-          throws BeanDefinitionStoreException {
-    if (ignoreAnnotation) {
-      return Collections.singletonList(getRegistered(name, beanClass, null));
-    }
-    AnnotationAttributes[] annotationAttributes = getAttributesArray(beanClass, Component.class);
-    if (ObjectUtils.isEmpty(annotationAttributes)) {
-      return Collections.singletonList(getRegistered(name, beanClass, null));
-    }
-    ArrayList<BeanDefinition> definitions = new ArrayList<>();
-    for (AnnotationAttributes attributes : annotationAttributes) {
-      doRegister(beanClass, name, attributes, definitions::add);
-    }
-    return definitions;
-  }
-
-  @Nullable
-  private BeanDefinition getRegistered(
-          String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
-    BeanDefinition newDef = BeanDefinitionBuilder.defaults(name, beanClass, attributes);
-    return register(name, newDef);
-  }
-
-  private BeanDefinition register(String name, BeanDefinition newDef) {
-    return null;
-  }
-
-  public List<BeanDefinition> register(Class<?> candidate) {
-    ArrayList<BeanDefinition> defs = new ArrayList<>();
-    doRegister(candidate, defs::add);
-    return defs;
-  }
-
-  private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
-    AnnotationAttributes[] annotationAttributes = getAttributesArray(candidate, Component.class);
-    if (ObjectUtils.isNotEmpty(annotationAttributes)) {
-      String defaultBeanName = createBeanName(candidate);
-      for (AnnotationAttributes attributes : annotationAttributes) {
-        doRegister(candidate, defaultBeanName, attributes, registeredConsumer);
-      }
-    }
-  }
-
-  private void doRegister(
-          Class<?> candidate, String defaultBeanName,
-          AnnotationAttributes attributes, Consumer<BeanDefinition> registeredConsumer) {
-    for (String name : BeanDefinitionBuilder.determineName(
-            defaultBeanName, attributes.getStringArray(VALUE))) {
-      BeanDefinition registered = getRegistered(name, candidate, attributes);
-      if (registered != null && registeredConsumer != null) { // none null BeanDefinition
-        registeredConsumer.accept(registered);
-      }
-    }
   }
 
   /**
