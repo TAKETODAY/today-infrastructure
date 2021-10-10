@@ -20,8 +20,10 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 
 /**
  * Import classes according to user's Configuration
@@ -40,8 +42,14 @@ public interface ImportSelector {
    *
    * @param annotatedMetadata
    *         Target {@link BeanDefinition}
+   * @param registry
+   *         BeanDefinitionRegistry
    *
    * @return import classes Never be null
+   *
+   * @see BeanDefinitionRegistry#isBeanNameInUse(String)
    */
-  String[] selectImports(BeanDefinition annotatedMetadata);
+  @Nullable
+  String[] selectImports(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
+
 }

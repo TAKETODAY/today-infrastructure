@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
+import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.session.EnableWebSession;
@@ -65,7 +65,7 @@ public @interface EnableNettyHandling {
 
 }
 
-final class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNettyHandling> {
+final class NettyConfig implements AnnotationImportSelector<EnableNettyHandling> {
 
   @MissingBean(type = ReactiveChannelHandler.class)
   ReactiveChannelHandler reactiveChannelHandler(
@@ -122,21 +122,21 @@ final class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNetty
    * register a {@link NettyDispatcher} bean
    */
   @Override
-  public void registerBeanDefinitions(
+  public String[] selectImports(
           EnableNettyHandling target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
-    if (!registry.containsBeanDefinition(NettyDispatcher.class)) {
-      final boolean async = target.async();
-      if (async) {
-        registry.registerBean(AsyncNettyDispatcherHandler.class);
-      }
-      else {
-        registry.registerBean(NettyDispatcher.class);
-      }
-    }
-
     // replace context holder
     if (target.fastThreadLocal()) {
       RequestContextHolder.replaceContextHolder(new FastRequestThreadLocal());
     }
+
+    if (!registry.containsBeanDefinition(NettyDispatcher.class)) {
+      if (target.async()) {
+        return new String[] { AsyncNettyDispatcherHandler.class.getName() };
+      }
+      else {
+        return new String[] { NettyDispatcher.class.getName() };
+      }
+    }
+    return null;
   }
 }

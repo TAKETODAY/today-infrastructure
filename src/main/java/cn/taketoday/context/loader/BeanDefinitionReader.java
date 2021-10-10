@@ -158,7 +158,7 @@ public class BeanDefinitionReader {
     register(importDef);
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
-      String[] imports = createImporter(importDef, ImportSelector.class).selectImports(annotated);
+      String[] imports = createImporter(importDef, ImportSelector.class).selectImports(annotated, obtainRegistry());
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
           Class<Object> beanClass = ClassUtils.load(select);

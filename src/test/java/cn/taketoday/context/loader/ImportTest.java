@@ -97,7 +97,7 @@ public class ImportTest {
   public static class TESTSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(BeanDefinition annotatedMetadata) {
+    public String[] selectImports(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
       return NO_IMPORTS;
     }
   }
@@ -117,7 +117,7 @@ public class ImportTest {
     private BeanDefinition annotatedMetadata;
 
     @Override
-    public String[] selectImports(EnableAop enableAop, BeanDefinition annotatedMetadata) {
+    public String[] selectImports(EnableAop enableAop, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
       this.enableAop = enableAop;
       this.annotatedMetadata = annotatedMetadata;
       return NO_IMPORTS;
