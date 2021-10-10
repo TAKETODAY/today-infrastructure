@@ -26,23 +26,12 @@ import cn.taketoday.context.annotation.ConditionEvaluationContext;
 /**
  * @author TODAY 2018-11-10 13:44
  */
+@FunctionalInterface
 public interface Condition {
 
   /**
    * Determine if the condition matches.
    *
-   * @param annotated
-   *         Annotated element being checked
-   *
-   * @return Return {@code false} to indicate that the bean should not be
-   * registered
-   */
-  @Deprecated
-  default boolean matches(ApplicationContext context, AnnotatedElement annotated) {
-    return false;
-  }
-
-  /**
    * @param context
    *         ConditionEvaluationContext
    * @param annotated
@@ -53,8 +42,6 @@ public interface Condition {
    *
    * @since 4.0
    */
-  default boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
-    return matches(context.getContext(), annotated);
-  }
+  boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated);
 
 }
