@@ -74,31 +74,34 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class BeanDefinitionReader {
-
   private static final Logger log = LoggerFactory.getLogger(BeanDefinitionReader.class);
 
-  private final ConfigurableApplicationContext context;
+  private BeanDefinitionRegistry registry;
 
-  private final BeanDefinitionRegistry registry;
-  private final ConditionEvaluator conditionEvaluator;
+  @Nullable
+  private ConditionEvaluator conditionEvaluator;
+
+  private ConfigurableApplicationContext context;
 
   @Nullable
   private List<BeanDefinitionCustomizer> customizers;
+
+  /**
+   * enable
+   */
+  private boolean enableConditionEvaluation = true;
+
+  public BeanDefinitionReader() { }
 
   public BeanDefinitionReader(
           ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
     this.registry = registry;
-    this.conditionEvaluator = new ConditionEvaluator(context, registry);
   }
 
   //---------------------------------------------------------------------
   // Implementation of BeanDefinitionLoader interface
   //---------------------------------------------------------------------
-
-  public BeanDefinitionRegistry getRegistry() {
-    return registry;
-  }
 
   public void register(BeanDefinition def) {
     registry.registerBeanDefinition(def);
@@ -219,7 +222,7 @@ public class BeanDefinitionReader {
           });
         }
       } // is a Component
-      else if (conditionEvaluator.passCondition(method)) { // pass the condition
+      else if (conditionEvaluator().passCondition(method)) { // pass the condition
         registerConfigurationBean(declaringDef, method, components);
       }
     }
@@ -289,7 +292,7 @@ public class BeanDefinitionReader {
    * @since 3.0
    */
   private boolean isMissedBean(AnnotationAttributes missingBean, AnnotatedElement annotated) {
-    if (missingBean != null && conditionEvaluator.passCondition(annotated)) {
+    if (missingBean != null && conditionEvaluator().passCondition(annotated)) {
       // find by bean name
       String beanName = missingBean.getString(Constant.VALUE);
       if (StringUtils.isNotEmpty(beanName) && registry.containsBeanDefinition(beanName)) {
@@ -338,7 +341,7 @@ public class BeanDefinitionReader {
         }
       }
       else {
-        if (conditionEvaluator.passCondition(beanClass)) {
+        if (conditionEvaluator().passCondition(beanClass)) {
           // can't be a missed bean. MissingBean load after normal loading beans
           List<BeanDefinition> defs = BeanDefinitionBuilder.from(beanClass);
           for (BeanDefinition def : defs) {
@@ -404,18 +407,27 @@ public class BeanDefinitionReader {
   /**
    * register a bean with the given bean class
    *
+   * @see #enableConditionEvaluation
    * @since 3.0
    */
   public void registerBean(Class<?> clazz) {
-    registerBean(createBeanName(clazz), clazz);
+    if (!shouldSkip(clazz)) {
+      registerBean(createBeanName(clazz), clazz);
+    }
   }
 
+  /**
+   * @see #enableConditionEvaluation
+   */
   public void registerBean(Class<?>... candidates) {
     for (Class<?> candidate : candidates) {
       registerBean(candidate);
     }
   }
 
+  /**
+   * @see #enableConditionEvaluation
+   */
   public BeanDefinition registerBean(String name, Class<?> clazz) {
     return getRegistered(name, clazz, null);
   }
@@ -478,6 +490,7 @@ public class BeanDefinitionReader {
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
+   * @see #enableConditionEvaluation
    * @since 4.0
    */
   public <T> void registerBean(Class<T> clazz, Supplier<T> supplier) throws BeanDefinitionStoreException {
@@ -496,6 +509,7 @@ public class BeanDefinitionReader {
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
+   * @see #enableConditionEvaluation
    * @since 4.0
    */
   public <T> void registerBean(
@@ -521,6 +535,7 @@ public class BeanDefinitionReader {
    *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
+   * @see #enableConditionEvaluation
    * @since 4.0
    */
   public <T> void registerBean(
@@ -529,8 +544,12 @@ public class BeanDefinitionReader {
   {
     Assert.notNull(clazz, "bean-class must not be null");
     Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    String defaultName = createBeanName(clazz);
 
+    if (shouldSkip(clazz)) {
+      return;
+    }
+
+    String defaultName = createBeanName(clazz);
     BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
     builder.instanceSupplier(supplier);
 
@@ -541,9 +560,9 @@ public class BeanDefinitionReader {
       builder.primary(true);
     }
 
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Lazy.class, clazz);
-    if (attributes != null) {
-      builder.lazyInit(attributes.getBoolean(Constant.VALUE));
+    AnnotationAttributes lazy = AnnotationUtils.getAttributes(Lazy.class, clazz);
+    if (lazy != null) {
+      builder.lazyInit(lazy.getBoolean(Constant.VALUE));
     }
 
     if (ignoreAnnotation) {
@@ -551,12 +570,16 @@ public class BeanDefinitionReader {
       register(definition);
     }
     else {
-      AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(clazz, Component.class);
-      builder.build(defaultName, components, this::register0);
+      builder.build(defaultName, clazz, this::doRegister);
     }
   }
 
-  private void register0(BeanDefinition definition) {
+  private void doRegister(@Nullable AnnotationAttributes attributes, BeanDefinition definition) {
+    if (CollectionUtils.isNotEmpty(customizers)) {
+      for (BeanDefinitionCustomizer customizer : customizers) {
+        customizer.customize(attributes, definition);
+      }
+    }
     register(definition);
   }
 
@@ -585,10 +608,6 @@ public class BeanDefinitionReader {
     definition.setSupplier(supplier);
     definition.setSynthetic(true);
     register(definition);
-  }
-
-  private void doRegister() {
-
   }
 
   /**
@@ -663,14 +682,6 @@ public class BeanDefinitionReader {
     return customizers;
   }
 
-  @NonNull
-  private List<BeanDefinitionCustomizer> customizers() {
-    if (customizers == null) {
-      customizers = new ArrayList<>();
-    }
-    return customizers;
-  }
-
   public void addCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
     if (ObjectUtils.isNotEmpty(customizers)) {
       CollectionUtils.addAll(customizers(), customizers);
@@ -697,6 +708,77 @@ public class BeanDefinitionReader {
 
   public void setCustomizers(@Nullable List<BeanDefinitionCustomizer> customizers) {
     this.customizers = customizers;
+  }
+
+  public boolean isEnableConditionEvaluation() {
+    return enableConditionEvaluation;
+  }
+
+  public void setEnableConditionEvaluation(boolean enableConditionEvaluation) {
+    this.enableConditionEvaluation = enableConditionEvaluation;
+  }
+
+  public BeanDefinitionRegistry getRegistry() {
+    return registry;
+  }
+
+  public ConfigurableApplicationContext getContext() {
+    return context;
+  }
+
+  public void setContext(ConfigurableApplicationContext context) {
+    this.context = context;
+  }
+
+  public void setRegistry(BeanDefinitionRegistry registry) {
+    this.registry = registry;
+  }
+
+  public void setConditionEvaluator(@Nullable ConditionEvaluator conditionEvaluator) {
+    this.conditionEvaluator = conditionEvaluator;
+  }
+
+  @Nullable
+  public ConditionEvaluator getConditionEvaluator() {
+    return conditionEvaluator;
+  }
+
+  // private
+
+  /**
+   * @param annotated
+   *         should AnnotatedElement skip register to registry?
+   */
+  private boolean shouldSkip(AnnotatedElement annotated) {
+    return enableConditionEvaluation && !conditionEvaluator().passCondition(annotated);
+  }
+
+  @NonNull
+  private List<BeanDefinitionCustomizer> customizers() {
+    if (customizers == null) {
+      customizers = new ArrayList<>();
+    }
+    return customizers;
+  }
+
+  @NonNull
+  private BeanDefinitionRegistry obtainRegistry() {
+    Assert.state(registry != null, "No registry");
+    return registry;
+  }
+
+  @NonNull
+  private ConfigurableApplicationContext obtainContext() {
+    Assert.state(context != null, "No ApplicationContext");
+    return context;
+  }
+
+  @NonNull
+  private ConditionEvaluator conditionEvaluator() {
+    if (conditionEvaluator == null) {
+      conditionEvaluator = new ConditionEvaluator(obtainContext(), obtainRegistry());
+    }
+    return conditionEvaluator;
   }
 
 }

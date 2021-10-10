@@ -44,7 +44,7 @@ import cn.taketoday.util.ObjectUtils;
 public class ConditionEvaluator {
   private final ConditionEvaluationContext evaluationContext;
 
-  ConditionEvaluator(ApplicationContext context, BeanDefinitionRegistry registry) {
+  public ConditionEvaluator(ApplicationContext context, BeanDefinitionRegistry registry) {
     this.evaluationContext = new ConditionEvaluationContext(context, registry);
   }
 
