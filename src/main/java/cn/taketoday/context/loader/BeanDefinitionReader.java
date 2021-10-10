@@ -699,6 +699,12 @@ public class BeanDefinitionReader {
     }
   }
 
+  /**
+   * clear exist customizers and set
+   *
+   * @param customizers
+   *         new customizers
+   */
   public void setCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
     if (ObjectUtils.isNotEmpty(customizers)) {
       CollectionUtils.addAll(customizers(), customizers);
@@ -711,6 +717,12 @@ public class BeanDefinitionReader {
     }
   }
 
+  /**
+   * set customizers
+   *
+   * @param customizers
+   *         new customizers
+   */
   public void setCustomizers(@Nullable List<BeanDefinitionCustomizer> customizers) {
     this.customizers = customizers;
   }

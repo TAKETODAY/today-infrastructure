@@ -59,7 +59,7 @@ import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
-import cn.taketoday.orm.hibernate5.EnableDefaultHibernate;
+import cn.taketoday.orm.hibernate5.EnableHibernate;
 
 /**
  * @author aldenquimby@gmail.com
@@ -462,7 +462,7 @@ public class PojoPerformanceTest {
     }
   }
 
-  @EnableDefaultHibernate
+  @EnableHibernate
   @Configuration
   static class DataSourceConfig {
 
