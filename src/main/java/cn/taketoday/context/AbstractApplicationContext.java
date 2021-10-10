@@ -777,6 +777,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     addApplicationListener(new ContextCloseListener());
     AbstractBeanFactory beanFactory = getBeanFactory();
 
+    Set<String> beanNamesOfType = beanFactory.getBeanNamesOfType(
+            ApplicationListener.class, true, true);
+
+    for (String beanName : beanNamesOfType) {
+      addApplicationListener(beanName);
+    }
+
     for (BeanDefinition definition : beanFactory.getBeanDefinitions().values()) {
       if (AnnotationUtils.isPresent(definition, EventListener.class)) {
         Object listener;

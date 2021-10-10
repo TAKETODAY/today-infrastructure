@@ -221,7 +221,7 @@ public class CandidateComponentScanner {
       return scanOne(packages[0]); // packages.length == 1
     }
 
-    Set<String> packagesToScan = new HashSet<>(8);
+    HashSet<String> packagesToScan = new HashSet<>(8);
     for (String location : packages) {
       if (StringUtils.isEmpty(location)) { // contains "" scan all class
         return scan();

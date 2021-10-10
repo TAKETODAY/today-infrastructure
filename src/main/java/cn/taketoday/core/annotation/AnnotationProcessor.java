@@ -15,26 +15,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.util.ClassUtils;
+package cn.taketoday.core.annotation;
+
+import java.util.Set;
+
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.element.TypeElement;
 
 /**
- * load bean definitions
- *
- * @author TODAY 2018-06-23 11:18:22
+ * @author TODAY 2021/10/10 10:59
  * @since 4.0
  */
-public interface BeanDefinitionLoader {
+@SupportedAnnotationTypes({
+        "cn.taketoday.web.annotation.GET"
+})
+public class AnnotationProcessor extends AbstractProcessor {
 
-  void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry);
-
-  default String createBeanName(Class<?> beanClass) {
-    return ClassUtils.getShortName(beanClass);
+  @Override
+  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    return false;
   }
 
 }

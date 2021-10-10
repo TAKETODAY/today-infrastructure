@@ -35,45 +35,38 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Repository;
-import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.LoadingMissingBeanEvent;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2018-10-05 19:03
+ * @author TODAY 2018-10-05 19:03
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class MybatisConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
+public class MybatisConfiguration implements BeanDefinitionLoader {
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
   public static final Method[] initMethods =
           BeanDefinitionBuilder.computeInitMethod(null, MapperFactoryBean.class);
 
-  protected String createBeanName(Class<?> beanClass) {
-    return ClassUtils.getShortName(beanClass);
-  }
-
   @Override
-  public void onApplicationEvent(LoadingMissingBeanEvent event) {
+  public void loadBeanDefinitions(
+          ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
     Logger log = LoggerFactory.getLogger(getClass());
     log.info("Loading Mybatis Mapper Bean Definitions");
-
-    BeanDefinitionRegistry registry = event.unwrapFactory(BeanDefinitionRegistry.class);
 
     for (Class<?> beanClass : event.getCandidates()) {
       if (beanClass.isInterface()) {

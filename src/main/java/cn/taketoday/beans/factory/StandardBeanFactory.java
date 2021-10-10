@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.AnnotatedElement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,10 +30,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.IgnoreDuplicates;
+import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ExceptionUtils;
+
+import static cn.taketoday.core.Constant.VALUE;
+import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -43,6 +55,7 @@ public class StandardBeanFactory
         extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
+  static final String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   /** Map from serialized id to factory instance. */
   private static final ConcurrentHashMap<String, Reference<StandardBeanFactory>>
@@ -135,17 +148,6 @@ public class StandardBeanFactory
   @Override
   public Map<String, BeanDefinition> getBeanDefinitions() {
     return beanDefinitionMap;
-  }
-
-  @Override
-  public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
-      registerFactoryBean(beanName, def);
-    }
-    else {
-      this.beanDefinitionMap.put(beanName, def);
-      postProcessRegisterBeanDefinition(def);
-    }
   }
 
   @Override
@@ -261,6 +263,152 @@ public class StandardBeanFactory
   @Override
   public boolean isAllowBeanDefinitionOverriding() {
     return this.allowBeanDefinitionOverriding;
+  }
+
+  @Override
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
+      registerFactoryBean(beanName, def);
+    }
+    else {
+      register(beanName, def);
+      postProcessRegisterBeanDefinition(def);
+    }
+  }
+
+  /**
+   * Register bean definition with given name
+   *
+   * @param name
+   *         Bean name
+   * @param def
+   *         Bean definition
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store bean
+   */
+  @Nullable
+  public BeanDefinition register(String name, BeanDefinition def) {
+    def = transformBeanDefinition(name, def);
+    if (def == null) {
+      return null;
+    }
+
+    def.validate();
+    String nameToUse = name;
+    Class<?> beanClass = def.getBeanClass();
+    BeanDefinition existBeanDef = getBeanDefinition(name);
+
+    if (existBeanDef != null && !def.hasAttribute(MissingBeanMetadata)) {
+      // has same name
+      Class<?> existClass = existBeanDef.getBeanClass();
+      if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
+        return null; // ignore registering
+      }
+
+      if (!isAllowBeanDefinitionOverriding()) {
+        throw new BeanDefinitionOverrideException(name, def, existBeanDef);
+      }
+      else if (existBeanDef.getRole() < def.getRole()) {
+        // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+        if (log.isInfoEnabled()) {
+          log.info("Overriding user-defined bean definition for bean '" + name +
+                           "' with a framework-generated bean definition: replacing [" +
+                           existBeanDef + "] with [" + def + "]");
+        }
+      }
+
+      log.info("=====================|repeat bean definition START|=====================");
+      log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
+      if (beanClass == existClass) {
+        log.warn("They have same bean class: [{}]. We will override it.", beanClass);
+      }
+      else {
+        nameToUse = beanClass.getName();
+        def.setName(nameToUse);
+        log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.", beanClass);
+        log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
+      }
+      log.info("======================|END|======================");
+    }
+
+    try {
+      this.beanDefinitionMap.put(nameToUse, def);
+      postProcessRegisterBeanDefinition(def);
+      return def;
+    }
+    catch (Throwable ex) {
+      ex = ExceptionUtils.unwrapThrowable(ex);
+      throw new BeanDefinitionStoreException(
+              "An Exception Occurred When Register Bean Definition: [" + def + "]", ex);
+    }
+  }
+
+  /**
+   * @since 3.0
+   */
+  protected BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
+    Class<?> beanClass = def.getBeanClass();
+
+    BeanDefinition missedDef = null;
+    if (containsBeanDefinition(name)) {
+      missedDef = getBeanDefinition(name);
+    }
+    else if (containsBeanDefinition(beanClass)) {
+      missedDef = getBeanDefinition(beanClass);
+    }
+
+    if (missedDef != null
+            && missedDef.hasAttribute(MissingBeanMetadata)) { // Have a corresponding missed bean
+      // copy all state
+      def.copy(missedDef);
+      def.setName(name); // fix bean name update error
+    }
+    // nothing
+    return def;
+  }
+
+  @Override
+  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
+    // import beans
+    if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
+      importAnnotated(targetDef);
+    }
+
+    // scan components
+    if (targetDef.isAnnotationPresent(ComponentScan.class)) {
+      componentScan(targetDef);
+    }
+    // load application listener @since 2.1.7
+    if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
+      context.addApplicationListener(targetDef.getName());
+    }
+    // apply lazy init @since 3.0
+    applyLazyInit(targetDef);
+
+    super.postProcessRegisterBeanDefinition(targetDef);
+  }
+
+  protected void applyLazyInit(BeanDefinition def) {
+    Lazy lazy = def.getAnnotation(Lazy.class);
+    if (lazy != null) {
+      def.setLazyInit(lazy.value());
+    }
+  }
+
+  /**
+   * Import beans from given package locations
+   *
+   * @param source
+   *         {@link BeanDefinition} that annotated {@link ComponentScan}
+   */
+  protected void componentScan(AnnotatedElement source) {
+    if (!componentScanned.contains(source)) {
+      componentScanned.add(source);
+      for (AnnotationAttributes attribute : getAttributesArray(source, ComponentScan.class)) {
+        load(attribute.getStringArray(VALUE));
+      }
+    }
   }
 
   //---------------------------------------------------------------------

@@ -30,7 +30,6 @@ import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.EventProvider;
-import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
