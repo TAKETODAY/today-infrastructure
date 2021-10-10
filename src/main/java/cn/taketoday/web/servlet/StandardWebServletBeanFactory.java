@@ -19,56 +19,46 @@
  */
 package cn.taketoday.web.servlet;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.ServletContextAware;
-import cn.taketoday.web.StandardWebBeanFactory;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Map;
-import java.util.function.Supplier;
+
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.StandardWebBeanFactory;
 
 /**
  * @author TODAY 2019-03-23 14:59
  */
 public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
-	public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
-		super(context);
-	}
+  private ConfigurableWebServletApplicationContext context;
 
-	protected void awareInternal(final Object bean, final BeanDefinition def) {
-		if (bean instanceof ServletContextAware) {
-			((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
-		}
-		if (bean instanceof WebServletApplicationContextAware) {
-			((WebServletApplicationContextAware) bean).setWebServletApplicationContext(getApplicationContext());
-		}
-	}
+  public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
+    this.context = context;
+  }
 
-	@Override
-	protected Map<Class<?>, Object> createObjectFactories() {
-		final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
-		// @since 3.0
-		final class HttpSessionFactory implements Supplier<HttpSession> {
-			@Override
-			public HttpSession get() {
-				return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
-			}
-		}
+  @Override
+  protected Map<Class<?>, Object> createObjectFactories() {
+    final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
+    // @since 3.0
+    final class HttpSessionFactory implements Supplier<HttpSession> {
+      @Override
+      public HttpSession get() {
+        return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
+      }
+    }
 
-		servletEnv.put(HttpSession.class, new HttpSessionFactory());
-		servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
-		servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
+    servletEnv.put(HttpSession.class, new HttpSessionFactory());
+    servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
+    servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
 
-		final WebServletApplicationContext context = getApplicationContext();
-		servletEnv.put(ServletContext.class, factory(context::getServletContext));
+    servletEnv.put(ServletContext.class, factory(context::getServletContext));
 
-		return servletEnv;
-	}
-
+    return servletEnv;
+  }
 
 }
