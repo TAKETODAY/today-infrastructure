@@ -93,12 +93,12 @@ public class CandidateComponentScanner {
 
     // Load the META-INF/ignore/jar-prefix to ignore some jars
     // --------------------------------------------------------------
-    final HashSet<String> ignoreScanJars = new HashSet<>(64);
+    HashSet<String> ignoreScanJars = new HashSet<>(64);
 
     readFromMetaInfoIgnore(ignoreScanJars);
     // @since 4.0 read from strategies file
-    final StrategiesDetector strategiesDetector = TodayStrategies.getDetector();
-    final Collection<String> strategies = strategiesDetector.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
+    StrategiesDetector strategiesDetector = TodayStrategies.getDetector();
+    Collection<String> strategies = strategiesDetector.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
     ignoreScanJars.addAll(strategies);
 
     return defaultIgnoreScanJarPrefixs = StringUtils.toStringArray(ignoreScanJars);
@@ -107,11 +107,11 @@ public class CandidateComponentScanner {
   @Deprecated
   private static void readFromMetaInfoIgnore(HashSet<String> ignoreScanJars) {
     try { // @since 2.1.6
-      final Enumeration<URL> resources = ClassUtils.getClassLoader().getResources("META-INF/ignore/jar-prefix");
-      final Charset charset = Constant.DEFAULT_CHARSET;
+      Enumeration<URL> resources = ClassUtils.getClassLoader().getResources("META-INF/ignore/jar-prefix");
+      Charset charset = Constant.DEFAULT_CHARSET;
 
       while (resources.hasMoreElements()) {
-        try (final BufferedReader reader = //
+        try (BufferedReader reader = //
                 new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
 
           String str;
@@ -179,7 +179,7 @@ public class CandidateComponentScanner {
     );
   }
 
-  public final Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
+  public Set<Class<?>> filter(Predicate<Class<?>> predicate) {
     return getScanningCandidates()
             .parallelStream()
             .filter(predicate)
@@ -194,10 +194,10 @@ public class CandidateComponentScanner {
    *
    * @return a {@link Collection} of class under the packages
    */
-  public Set<Class<?>> getClasses(final String... packages) {
+  public Set<Class<?>> getClasses(String... packages) {
     return filter(clazz -> {
-      final String name = clazz.getName();
-      for (final String prefix : packages) {
+      String name = clazz.getName();
+      for (String prefix : packages) {
         if (StringUtils.isEmpty(prefix) || name.startsWith(prefix)) {
           return true;
         }
@@ -214,15 +214,15 @@ public class CandidateComponentScanner {
    *
    * @return Class set
    */
-  public Set<Class<?>> scan(final String... packages) {
+  public Set<Class<?>> scan(String... packages) {
     Assert.notNull(packages, "scan packages can't be null");
 
     if (packages.length == 1) {
       return scanOne(packages[0]); // packages.length == 1
     }
 
-    final Set<String> packagesToScan = new HashSet<>(8);
-    for (final String location : packages) {
+    Set<String> packagesToScan = new HashSet<>(8);
+    for (String location : packages) {
       if (StringUtils.isEmpty(location)) { // contains "" scan all class
         return scan();
       }
@@ -230,13 +230,13 @@ public class CandidateComponentScanner {
         packagesToScan.add(location);
       }
     }
-    for (final String location : packagesToScan) {
+    for (String location : packagesToScan) {
       scan(location);
     }
     return getScanningCandidates();
   }
 
-  protected Set<Class<?>> scanOne(final String location) {
+  protected Set<Class<?>> scanOne(String location) {
     if (StringUtils.isEmpty(location)) {
       return scan();
     }
@@ -251,13 +251,13 @@ public class CandidateComponentScanner {
    *
    * @return candidates class
    */
-  public Set<Class<?>> scan(final String packageName) {
-    final String resourceToUse = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
+  public Set<Class<?>> scan(String packageName) {
+    String resourceToUse = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
     if (log.isDebugEnabled()) {
       log.debug("Scanning component candidates from package: [{}]", packageName);
     }
     try {
-      final Enumeration<URL> uri = getClassLoader().getResources(resourceToUse);
+      Enumeration<URL> uri = getClassLoader().getResources(resourceToUse);
       while (uri.hasMoreElements()) {
         scan(ResourceUtils.getResource(uri.nextElement()), packageName);
       }
@@ -281,7 +281,7 @@ public class CandidateComponentScanner {
    *         if the resource is not available
    * @since 2.1.6
    */
-  protected void scan(final Resource resource, final String packageName) throws IOException {
+  protected void scan(Resource resource, String packageName) throws IOException {
     if (log.isTraceEnabled()) {
       log.trace("Scanning candidate components in [{}]", resource.getLocation());
     }
@@ -299,16 +299,16 @@ public class CandidateComponentScanner {
     }
   }
 
-  protected void scanInJarFile(final Resource resource,
-                               final String packageName,
-                               final ThrowableSupplier<JarFile, IOException> jarFileSupplier) throws IOException //
+  protected void scanInJarFile(Resource resource,
+                               String packageName,
+                               ThrowableSupplier<JarFile, IOException> jarFileSupplier) throws IOException //
   {
     if (getJarResourceFilter().test(resource)) {
       if (log.isTraceEnabled()) {
         log.trace("Scan in jar file: [{}]", resource.getLocation());
       }
-      try (final JarFile jarFile = jarFileSupplier.get()) {
-        final Enumeration<JarEntry> jarEntries = jarFile.entries();
+      try (JarFile jarFile = jarFileSupplier.get()) {
+        Enumeration<JarEntry> jarEntries = jarFile.entries();
         while (jarEntries.hasMoreElements()) {
           loadClassFromJarEntry(jarEntries.nextElement(), packageName);
         }
@@ -323,18 +323,18 @@ public class CandidateComponentScanner {
    */
   public Set<Class<?>> scan() {
 
-    final ClassLoader classLoader = getClassLoader();
+    ClassLoader classLoader = getClassLoader();
     log.debug("Use ClassLoader [{}] to scan", classLoader);
     try {
-      final String blank = Constant.BLANK;
+      String blank = Constant.BLANK;
       if (classLoader instanceof URLClassLoader) {
         // fix: protocol is file not a jar protocol
-        for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
+        for (URL url : ((URLClassLoader) classLoader).getURLs()) {
           scan(ResourceUtils.getResource(url), blank);
         }
       }
       else {
-        final URL resource = classLoader.getResource(blank);
+        URL resource = classLoader.getResource(blank);
         Assert.notNull(resource, "Could't found class root path");
         scan(ResourceUtils.getResource(resource), blank);
       }
@@ -352,20 +352,20 @@ public class CandidateComponentScanner {
    * @param jarEntry
    *         The entry of jar
    */
-  public void loadClassFromJarEntry(final JarEntry jarEntry, final String packageName) {
+  public void loadClassFromJarEntry(JarEntry jarEntry, String packageName) {
 
     if (jarEntry.isDirectory()) {
       return;
     }
-    final String jarEntryName = jarEntry.getName(); // cn/taketoday/xxx/yyy.class
+    String jarEntryName = jarEntry.getName(); // cn/taketoday/xxx/yyy.class
     if (jarEntryName.endsWith(ClassUtils.CLASS_FILE_SUFFIX)) {
 
       // fix #10 classes loading from a jar can't be load
-      final String nameToUse = jarEntryName.replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);
+      String nameToUse = jarEntryName.replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);
 
       if (StringUtils.isEmpty(packageName) || nameToUse.startsWith(packageName)) {
         try {
-          final String className = nameToUse.substring(0, nameToUse.lastIndexOf(PACKAGE_SEPARATOR));
+          String className = nameToUse.substring(0, nameToUse.lastIndexOf(PACKAGE_SEPARATOR));
           getScanningCandidates().add(getClassLoader().loadClass(className));
         }
         catch (ClassNotFoundException | Error ignored) {
@@ -383,7 +383,7 @@ public class CandidateComponentScanner {
    * @throws IOException
    *         if the resource is not available
    */
-  protected void findInDirectory(final Resource directory) throws IOException {
+  protected void findInDirectory(Resource directory) throws IOException {
 
     if (!directory.exists()) {
       log.error("The location: [{}] you provided that does not exist", directory.getLocation());
@@ -394,10 +394,10 @@ public class CandidateComponentScanner {
       log.trace("Enter: [{}]", directory.getLocation());
     }
 
-    final ClassLoader classLoader = getClassLoader();
-    final Set<Class<?>> candidates = getScanningCandidates();
+    ClassLoader classLoader = getClassLoader();
+    Set<Class<?>> candidates = getScanningCandidates();
 
-    for (final Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
+    for (Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
       if (resource.isDirectory()) { // recursive
         findInDirectory(resource);
       }
@@ -424,7 +424,7 @@ public class CandidateComponentScanner {
    * @return The class path resources loader
    */
   public ClassLoader getClassLoader() {
-    final ClassLoader classLoader = this.classLoader;
+    ClassLoader classLoader = this.classLoader;
     if (classLoader == null) {
       return this.classLoader = ClassUtils.getClassLoader();
     }
@@ -454,8 +454,8 @@ public class CandidateComponentScanner {
    *
    * @return Get Scanning Candidates never be null
    */
-  public final Set<Class<?>> getScanningCandidates() {
-    final Set<Class<?>> candidates = getCandidates();
+  public Set<Class<?>> getScanningCandidates() {
+    Set<Class<?>> candidates = getCandidates();
     if (candidates == null) {
       return this.candidates = new HashSet<>(initialCandidatesCapacity);
     }
@@ -481,7 +481,7 @@ public class CandidateComponentScanner {
   }
 
   public Predicate<Resource> getJarResourceFilter() {
-    final Predicate<Resource> jarResourceFilter = this.jarResourceFilter;
+    Predicate<Resource> jarResourceFilter = this.jarResourceFilter;
     if (jarResourceFilter == null) {
       return this.jarResourceFilter = new DefaultJarResourcePredicate(this);
     }
@@ -515,7 +515,7 @@ public class CandidateComponentScanner {
     return this;
   }
 
-  public final int getScanningTimes() {
+  public int getScanningTimes() {
     return scanningTimes;
   }
 
@@ -531,19 +531,19 @@ public class CandidateComponentScanner {
 
       if (scanner.isUseDefaultIgnoreScanJarPrefix()) {
 
-        final String fileName = resource.getName();
-        for (final String ignoreJarName : getDefaultIgnoreJarPrefix()) {
+        String fileName = resource.getName();
+        for (String ignoreJarName : getDefaultIgnoreJarPrefix()) {
           if (fileName.startsWith(ignoreJarName)) {
             return false;
           }
         }
       }
 
-      final String[] ignoreScanJarPrefixs = scanner.getIgnoreScanJarPrefixs();
+      String[] ignoreScanJarPrefixs = scanner.getIgnoreScanJarPrefixs();
       if (ignoreScanJarPrefixs != null) {
-        final String fileName = resource.getName();
+        String fileName = resource.getName();
 
-        for (final String ignoreJarName : ignoreScanJarPrefixs) {
+        for (String ignoreJarName : ignoreScanJarPrefixs) {
           if (fileName.startsWith(ignoreJarName)) {
             return false;
           }
