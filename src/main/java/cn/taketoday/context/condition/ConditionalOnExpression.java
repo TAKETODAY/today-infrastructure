@@ -28,7 +28,7 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
 import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.loader.ConditionEvaluationContext;
 
 /**
  * annotation for a conditional element that depends on the value of a Java

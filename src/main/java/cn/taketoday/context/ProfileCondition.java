@@ -21,7 +21,7 @@ package cn.taketoday.context;
 
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;

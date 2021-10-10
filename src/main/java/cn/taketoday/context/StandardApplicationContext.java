@@ -22,7 +22,7 @@ package cn.taketoday.context;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.TodayStrategies;
@@ -40,7 +40,7 @@ import java.util.List;
 public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
-  private AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader;
+  private BeanDefinitionReader annotatedBeanDefinitionReader;
   private String propertiesLocation;
 
   /**

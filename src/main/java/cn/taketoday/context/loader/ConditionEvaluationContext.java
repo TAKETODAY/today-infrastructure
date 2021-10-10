@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;

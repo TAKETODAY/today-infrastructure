@@ -25,7 +25,7 @@ import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.DefaultProps;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationListener;
@@ -53,7 +53,7 @@ public class HibernateConfiguration extends Configuration
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   // @since 4.0
-  private AnnotatedBeanDefinitionReader beanDefinitionReader;
+  private BeanDefinitionReader beanDefinitionReader;
 
   public static final String SESSION_FACTORY_BEAN_NAME = "org.hibernate.SessionFactory";
 
@@ -110,7 +110,7 @@ public class HibernateConfiguration extends Configuration
     // @since 4.0
     if (beanDefinitionReader == null) {
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
-      beanDefinitionReader = new AnnotatedBeanDefinitionReader(
+      beanDefinitionReader = new BeanDefinitionReader(
               context.unwrap(ConfigurableApplicationContext.class), registry);
     }
 

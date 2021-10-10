@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -37,10 +37,14 @@ import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.ContextUtils;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.loader.BeanDefinitionImporter;
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
@@ -59,14 +63,14 @@ import static cn.taketoday.core.Constant.VALUE;
 import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
 
 /**
- * read annotated bean-definition
+ * read bean-definition
  *
  * @author TODAY 2021/10/1 16:46
  * @since 4.0
  */
-public class AnnotatedBeanDefinitionReader {
+public class BeanDefinitionReader {
 
-  private static final Logger log = LoggerFactory.getLogger(AnnotatedBeanDefinitionReader.class);
+  private static final Logger log = LoggerFactory.getLogger(BeanDefinitionReader.class);
 
   private final ConfigurableApplicationContext context;
 
@@ -75,7 +79,7 @@ public class AnnotatedBeanDefinitionReader {
 
   private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
-  public AnnotatedBeanDefinitionReader(
+  public BeanDefinitionReader(
           ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
     this.registry = registry;
@@ -93,22 +97,6 @@ public class AnnotatedBeanDefinitionReader {
   public void register(BeanDefinition def) {
     registry.registerBeanDefinition(def);
   }
-
-  /**
-   * Import beans from given package locations
-   *
-   * @param source
-   *         {@link BeanDefinition} that annotated {@link ComponentScan}
-   */
-  protected void componentScan(AnnotatedElement source) {
-    if (!componentScanned.contains(source)) {
-      componentScanned.add(source);
-      for (AnnotationAttributes attribute : getAttributesArray(source, ComponentScan.class)) {
-        load(attribute.getStringArray(VALUE));
-      }
-    }
-  }
-
   // import
 
   public void importBeans(Class<?>... beans) {

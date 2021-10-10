@@ -34,7 +34,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.aware.BeanNameAware;
 
 import static org.assertj.core.api.Assertions.assertThat;

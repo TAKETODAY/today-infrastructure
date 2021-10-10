@@ -22,7 +22,7 @@ package cn.taketoday.context.condition;
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.loader.ConditionEvaluationContext;
 
 /**
  * @author TODAY <br>
