@@ -22,8 +22,8 @@ package cn.taketoday.web.config;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -65,6 +65,8 @@ public class WebApplicationLoader
   public static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private DispatcherHandler dispatcher;
+  // @since 4.0
+  private BeanDefinitionReader definitionReader;
 
   public void onStartup() throws Throwable {
     onStartup(obtainApplicationContext());
@@ -407,7 +409,8 @@ public class WebApplicationLoader
    * @throws Throwable
    *         if any Throwable occurred
    */
-  protected ViewControllerHandlerRegistry configViewControllerHandlerRegistry(ViewControllerHandlerRegistry registry) throws Throwable {
+  protected ViewControllerHandlerRegistry configViewControllerHandlerRegistry(
+          ViewControllerHandlerRegistry registry) throws Throwable {
     // find the configure file
     log.info("TODAY WEB Framework Is Looking For ViewController Configuration File.");
     final String webMvcConfigLocation = getWebMvcConfigLocation();
@@ -416,10 +419,8 @@ public class WebApplicationLoader
       return registry;
     }
     if (registry == null) {
-      ConfigurableBeanFactory beanFactory = obtainApplicationContext().unwrapFactory(
-              ConfigurableBeanFactory.class);
-      beanFactory.registerBean(ViewControllerHandlerRegistry.class);
-      registry = beanFactory.getBean(ViewControllerHandlerRegistry.class);
+      definitionReader().registerBean(ViewControllerHandlerRegistry.class);
+      registry = obtainApplicationContext().getBean(ViewControllerHandlerRegistry.class);
     }
     registry.configure(webMvcConfigLocation);
     return registry;
@@ -448,13 +449,19 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        ConfigurableBeanFactory beanFactory = obtainApplicationContext().unwrapFactory(
-                ConfigurableBeanFactory.class);
-        beanFactory.registerBean(dispatcherHandler);
+        definitionReader().registerBean(dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;
     }
     return dispatcher;
+  }
+
+  protected final BeanDefinitionReader definitionReader() {
+    if (definitionReader == null) {
+      definitionReader = new BeanDefinitionReader(obtainApplicationContext());
+      definitionReader.setEnableConditionEvaluation(false);
+    }
+    return definitionReader;
   }
 
   protected DispatcherHandler createDispatcher(WebApplicationContext context) {
