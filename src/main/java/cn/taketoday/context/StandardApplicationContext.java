@@ -19,18 +19,17 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.beans.factory.AbstractBeanFactory;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.loader.BeanDefinitionReader;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.TodayStrategies;
-import cn.taketoday.core.env.ConfigurableEnvironment;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**
  * Standard {@link ApplicationContext}
@@ -40,8 +39,8 @@ import java.util.List;
 public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
-  private BeanDefinitionReader annotatedBeanDefinitionReader;
   private String propertiesLocation;
+  private final ScanningBeanDefinitionReader reader = new ScanningBeanDefinitionReader(this);
 
   /**
    * Default Constructor
@@ -103,8 +102,6 @@ public class StandardApplicationContext
   @Override
   public void prepareBeanFactory() {
     super.prepareBeanFactory();
-
-    annotatedBeanDefinitionReader.loadMetaInfoBeans();
     List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
             BeanDefinitionLoader.class, this);
 
@@ -134,16 +131,12 @@ public class StandardApplicationContext
 
   @Override
   public void importBeans(Class<?>... components) {
-    annotatedBeanDefinitionReader.importBeans(components);
+    reader.importBeans(components);
   }
 
   @Override
   public void scan(String... basePackages) {
-
-  }
-
-  protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
-
+    reader.scan(basePackages);
   }
 
 }
