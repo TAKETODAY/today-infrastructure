@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
@@ -79,12 +80,23 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   public static final String ELEMENT_CONTROLLER = "controller";
   public static final String ROOT_ELEMENT = "Web-Configuration";
 
+  // @since 4.0
+  private BeanDefinitionReader definitionReader;
+
+  protected final BeanDefinitionReader definitionReader() {
+    if (definitionReader == null) {
+      definitionReader = new BeanDefinitionReader(obtainApplicationContext());
+      definitionReader.setEnableConditionEvaluation(false);
+    }
+    return definitionReader;
+  }
+
   public final ViewController getViewController(String key) {
     return getViewController(key, RequestContextHolder.currentContext());
   }
 
   public final ViewController getViewController(String key, RequestContext context) {
-    final Object obj = lookupHandler(key, context);
+    Object obj = lookupHandler(key, context);
     if (obj instanceof ViewController) {
       return (ViewController) obj;
     }
@@ -96,7 +108,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   }
 
   public void register(ViewController viewController, String... requestURI) {
-    for (final String path : nonNull(requestURI, "request URIs must not be null")) {
+    for (String path : nonNull(requestURI, "request URIs must not be null")) {
       register(path, viewController);
     }
   }
@@ -116,7 +128,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    * @return {@link ViewController}
    */
   public ViewController addViewController(String pathPattern) {
-    final ViewController viewController = new ViewController();
+    ViewController viewController = new ViewController();
     register(pathPattern, viewController);
     return viewController;
   }
@@ -172,10 +184,10 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    * @see StringUtils#split(String)
    * @see StringUtils#isSplitable(char)
    */
-  public void configure(final String webMvcConfigLocation) throws Exception {
-    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+  public void configure(String webMvcConfigLocation) throws Exception {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setIgnoringComments(true);
-    final DocumentBuilder builder = factory.newDocumentBuilder();
+    DocumentBuilder builder = factory.newDocumentBuilder();
     builder.setEntityResolver((publicId, systemId) -> {
       if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
         return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
@@ -183,13 +195,13 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       return null;
     });
 
-    for (final String file : StringUtils.split(webMvcConfigLocation)) {
-      final Resource resource = ResourceUtils.getResource(file);
+    for (String file : StringUtils.split(webMvcConfigLocation)) {
+      Resource resource = ResourceUtils.getResource(file);
       if (!resource.exists()) {
         throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
       }
-      try (final InputStream inputStream = resource.getInputStream()) {
-        final Element root = builder.parse(inputStream).getDocumentElement();
+      try (InputStream inputStream = resource.getInputStream()) {
+        Element root = builder.parse(inputStream).getDocumentElement();
         if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
 
           log.info("Found Configuration File: [{}].", resource);
@@ -202,15 +214,15 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   /**
    * configure with xml file
    */
-  protected void registerFromXml(final Element root) {
+  protected void registerFromXml(Element root) {
 
-    final NodeList nl = root.getChildNodes();
-    final int length = nl.getLength();
+    NodeList nl = root.getChildNodes();
+    int length = nl.getLength();
     for (int i = 0; i < length; i++) {
-      final Node node = nl.item(i);
+      Node node = nl.item(i);
       if (node instanceof Element) {
-        final Element ele = (Element) node;
-        final String nodeName = ele.getNodeName();
+        Element ele = (Element) node;
+        String nodeName = ele.getNodeName();
 
         log.debug("Found Element: [{}]", nodeName);
 
@@ -232,22 +244,22 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    *
    * @since 2.3.7
    */
-  protected void configController(final Element controller) {
+  protected void configController(Element controller) {
     Assert.notNull(controller, "'controller' element can't be null");
 
     // <controller/> element
-    final String name = controller.getAttribute(ATTR_NAME); // controller name
-    final String prefix = controller.getAttribute(ATTR_PREFIX); // prefix
-    final String suffix = controller.getAttribute(ATTR_SUFFIX); // suffix
-    final String className = controller.getAttribute(ATTR_CLASS); // class
+    String name = controller.getAttribute(ATTR_NAME); // controller name
+    String prefix = controller.getAttribute(ATTR_PREFIX); // prefix
+    String suffix = controller.getAttribute(ATTR_SUFFIX); // suffix
+    String className = controller.getAttribute(ATTR_CLASS); // class
 
     // @since 2.3.3
-    final Object controllerBean = getControllerBean(name, className);
+    Object controllerBean = getControllerBean(name, className);
 
-    final NodeList nl = controller.getChildNodes();
-    final int length = nl.getLength();
+    NodeList nl = controller.getChildNodes();
+    int length = nl.getLength();
     for (int i = 0; i < length; i++) {
-      final Node node = nl.item(i);
+      Node node = nl.item(i);
       if (node instanceof Element) {
         String nodeName = node.getNodeName();
         // @since 2.3.3
@@ -261,12 +273,12 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     }
   }
 
-  protected Object getControllerBean(final String name, final String className) {
+  protected Object getControllerBean(String name, String className) {
     Object controllerBean = null;
-    final WebApplicationContext context = obtainApplicationContext();
+    WebApplicationContext context = obtainApplicationContext();
     if (StringUtils.isNotEmpty(name)) {
       if (StringUtils.isEmpty(className)) {
-        final Object bean = context.getBean(name);
+        Object bean = context.getBean(name);
         if (bean == null) {
           throw new IllegalStateException(
                   "You must provide a bean named: [" + name + "] or a 'class' attribute");
@@ -274,27 +286,27 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
         return bean;
       }
       else {
-        final Class<?> beanClass = ClassUtils.load(className);
+        Class<?> beanClass = ClassUtils.load(className);
         if ((controllerBean = context.getBean(name, beanClass)) == null) {
-          context.registerBean(name, beanClass);
+          definitionReader().registerBean(name, beanClass);
           controllerBean = context.getBean(name, beanClass);
         }
       }
     }
     else if (StringUtils.isNotEmpty(className)) {
-      final Class<?> beanClass = ClassUtils.load(className);
+      Class<?> beanClass = ClassUtils.load(className);
       if ((controllerBean = context.getBean(beanClass)) == null) {
-        context.registerBean(beanClass);
+        definitionReader().registerBean(beanClass);
         controllerBean = context.getBean(beanClass);
       }
     }
     return controllerBean;
   }
 
-  protected void processAction(final String prefix,
-                               final String suffix,
-                               final Element action,
-                               final Object controller) //
+  protected void processAction(String prefix,
+                               String suffix,
+                               Element action,
+                               Object controller) //
   {
 
     String name = action.getAttribute(ATTR_NAME); // action name
@@ -302,7 +314,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     String method = action.getAttribute(ATTR_METHOD); // handler method
     String resource = action.getAttribute(ATTR_RESOURCE); // resource
     String contentType = action.getAttribute(ATTR_CONTENT_TYPE); // content type
-    final String status = action.getAttribute(ATTR_STATUS); // status
+    String status = action.getAttribute(ATTR_STATUS); // status
 
     if (StringUtils.isEmpty(name)) {
       throw new ConfigurationException(
@@ -316,7 +328,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
         throw new ConfigurationException(
                 "You must specify a 'class' attribute like this: [<controller class=\"xxx.XMLController\" name=\"xmlController\" />]");
       }
-      for (final Method targetMethod : ReflectionUtils.getDeclaredMethods(controller.getClass())) {
+      for (Method targetMethod : ReflectionUtils.getDeclaredMethods(controller.getClass())) {
         if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
           handlerMethod = targetMethod;
           break;
@@ -328,7 +340,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       }
     }
 
-    final ViewController mapping = new ViewController(controller, handlerMethod);
+    ViewController mapping = new ViewController(controller, handlerMethod);
 
     if (StringUtils.isNotEmpty(status)) {
       mapping.setStatus(Integer.valueOf(status));
