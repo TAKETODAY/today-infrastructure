@@ -308,6 +308,11 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
+  public boolean isAssignableTo(Class<?> typeToMatch) {
+    return typeToMatch.isAssignableFrom(getBeanClass());
+  }
+
+  @Override
   public void setPrimary(boolean primary) {
     factoryDef.setPrimary(primary);
   }
