@@ -25,11 +25,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.MediaType;
@@ -47,7 +48,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
-  private ResourceLoader resourceResolver = new PathMatchingPatternResourceLoader();
+  private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
 
   @Override
   public WebResource resolveResource(final ResourceMatchResult matchResult) {
@@ -73,13 +74,11 @@ public class DefaultResourceResolver implements WebResourceResolver {
     else {
       extractPathWithinPattern = requestPath;
     }
-    final ResourceLoader resourceResolver = getResourceResolver();
-
     // log.debug("resource: [{}]", extractPathWithinPattern);
     for (final String location : matchResult.getMapping().getLocations()) {
       try {
         // log.debug("look in: [{}]", location);
-        final Resource[] resources = resourceResolver.getResources(location);
+        final Resource[] resources = resourceLoader.getResources(location);
         if (ObjectUtils.isNotEmpty(resources)) {
           for (final Resource resource : resources) {
             final Resource createRelative = resource.createRelative(extractPathWithinPattern);
@@ -118,12 +117,13 @@ public class DefaultResourceResolver implements WebResourceResolver {
     return false;
   }
 
-  public ResourceLoader getResourceResolver() {
-    return resourceResolver;
+  public PatternResourceLoader getResourceLoader() {
+    return resourceLoader;
   }
 
-  public void setResourceResolver(ResourceLoader resourceResolver) {
-    this.resourceResolver = resourceResolver;
+  public void setResourceLoader(PatternResourceLoader resourceLoader) {
+    Assert.notNull(resourceLoader, "resourceLoader must not be null");
+    this.resourceLoader = resourceLoader;
   }
 
   public static class DefaultDelegateWebResource implements WebResource {
