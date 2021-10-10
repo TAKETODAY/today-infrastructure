@@ -29,12 +29,14 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
@@ -51,7 +53,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.core.Constant.VALUE;
 
@@ -191,9 +192,31 @@ public class BeanDefinitionBuilder {
   }
 
   public BeanDefinitionBuilder scope(String scope) {
-    if (StringUtils.isNotEmpty(scope)) {
-      this.scope = scope;
-    }
+    this.scope = scope;
+    return this;
+  }
+
+  /**
+   * set scope 'singleton'
+   *
+   * @return this
+   *
+   * @see Scope#SINGLETON
+   */
+  public BeanDefinitionBuilder singleton() {
+    this.scope = Scope.SINGLETON;
+    return this;
+  }
+
+  /**
+   * set scope 'prototype'
+   *
+   * @return this
+   *
+   * @see Scope#PROTOTYPE
+   */
+  public BeanDefinitionBuilder prototype() {
+    this.scope = Scope.PROTOTYPE;
     return this;
   }
 
@@ -346,7 +369,9 @@ public class BeanDefinitionBuilder {
     return resolvingStrategies;
   }
 
+  //---------------------------------------------------------------------
   // build
+  //---------------------------------------------------------------------
 
   @NonNull
   private DefaultBeanDefinition create() {
@@ -402,6 +427,8 @@ public class BeanDefinitionBuilder {
     return definition;
   }
 
+  // BiConsumer
+
   public void build(
           String defaultName,
           AnnotationAttributes component,
@@ -434,6 +461,29 @@ public class BeanDefinitionBuilder {
         }
       }
     }
+  }
+
+  // Consumer
+
+  public void build(
+          String defaultName,
+          AnnotationAttributes component,
+          Consumer<BeanDefinition> consumer) {
+    build(defaultName, new AnnotationAttributes[] { component }, consumer);
+  }
+
+  public void build(
+          String defaultName,
+          Consumer<BeanDefinition> consumer,
+          AnnotationAttributes... components) {
+    build(defaultName, components, consumer);
+  }
+
+  public void build(
+          String defaultName,
+          @Nullable AnnotationAttributes[] components,
+          Consumer<BeanDefinition> consumer) {
+    build(defaultName, components, (attributes, definition) -> consumer.accept(definition));
   }
 
   //---------------------------------------------------------------------
