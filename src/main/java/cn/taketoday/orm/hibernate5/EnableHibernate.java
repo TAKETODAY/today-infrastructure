@@ -39,6 +39,22 @@ public @interface EnableHibernate {
 
   String[] propertiesPrefix() default {};
 
+  /**
+   * dataSource bean name
+   */
   String dataSource() default Constant.BLANK;
+
+  /**
+   * SessionFactory bean name
+   * <p>
+   * use this user define bean name to register to registry
+   * </p>
+   */
+  String sessionFactory() default Constant.BLANK;
+
+  /**
+   * Entity scan packages
+   */
+  String[] entityPackages() default {};
 
 }

@@ -26,20 +26,18 @@ import org.hibernate.cfg.Configuration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.function.Supplier;
 
 import javax.persistence.Entity;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.context.aware.AnnotationImportAware;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
@@ -53,37 +51,30 @@ import cn.taketoday.util.StringUtils;
 /**
  * @author TODAY 2019-11-05 22:11
  */
-public class HibernateConfiguration
-        extends Configuration implements BeanDefinitionLoader, AnnotationImportAware<EnableHibernate> {
+public class HibernateConfiguration extends Configuration
+        implements AnnotationBeanDefinitionRegistrar<EnableHibernate>, ApplicationContextAware {
 
   // @since 4.0
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final String SESSION_FACTORY_BEAN_NAME = "org.hibernate.SessionFactory";
 
-  // @since 4.0
-  @Nullable
-  private BeanDefinitionReader beanDefinitionReader;
-
   private String[] hibernatePropertiesPrefix = new String[] { "hibernate." };
 
   @Nullable
   private String dataSourceBeanName;
 
-  @Override
-  public void setImportBeanDefinition(EnableHibernate target, BeanDefinition importDef) {
-    String[] propertiesPrefix = target.propertiesPrefix();
-    if (ObjectUtils.isNotEmpty(propertiesPrefix)) {
-      this.hibernatePropertiesPrefix = target.propertiesPrefix();
-    }
-  }
+  private String sessionFactoryBeanName = SESSION_FACTORY_BEAN_NAME;
 
-  protected SessionFactory refreshSessionFactory(ApplicationContext context) {
-    DataSource dataSource = getDataSource(context);
-    Properties hibernateProperties = getHibernateProperties(dataSource, context);
+  private String[] entityPackages; // TODO entityPackages scan
+
+  private ApplicationContext context;
+
+  protected SessionFactory refreshSessionFactory() {
+    Properties hibernateProperties = getHibernateProperties();
     setProperties(hibernateProperties);
 
-    log.info("Refresh {} bean", b);
+    log.info("Refresh '{}' org.hibernate.SessionFactory bean", sessionFactoryBeanName);
     return buildSessionFactory();
   }
 
@@ -94,7 +85,7 @@ public class HibernateConfiguration
       dataSource = context.getBean(dataSourceBeanName, DataSource.class);
     }
     else {
-      dataSource = context.getBean("dataSourceBeanName", DataSource.class);
+      dataSource = context.getBean(DataSource.class);
     }
     if (dataSource == null) {
       throw new ConfigurationException("You must provide a javax.sql.DataSource bean");
@@ -102,7 +93,9 @@ public class HibernateConfiguration
     return dataSource;
   }
 
-  protected Properties getHibernateProperties(DataSource dataSource, ApplicationContext context) {
+  protected Properties getHibernateProperties() {
+    Assert.state(context != null, "No ApplicationContext");
+    DataSource dataSource = getDataSource(context);
     PropsReader propsReader = new PropsReader(context);
     Properties properties = propsReader.readMap(
             new DefaultProps().setPrefix(hibernatePropertiesPrefix));
@@ -124,31 +117,44 @@ public class HibernateConfiguration
   }
 
   @Override
-  public void loadBeanDefinitions(
-          ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-    // @since 4.0
-    if (beanDefinitionReader == null) {
-      beanDefinitionReader = new BeanDefinitionReader(registry);
-      beanDefinitionReader.setEnableConditionEvaluation(false);
+  public void registerBeanDefinitions(
+          EnableHibernate target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
 
-      beanDefinitionReader.setCustomizers((attributes, definition) -> {
-        definition.setSynthetic(true);
-        definition.setDestroyMethods("close");
-        definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        log.info("Register 'SessionFactory' bean definition {}", definition);
+    applySettings(target);
 
-        definition.setSupplier(new Supplier<Object>() {
-          @Override
-          public Object get() {
-            return refreshSessionFactory(context);
-          }
-        });
-      });
+    DefaultBeanDefinition definition = new DefaultBeanDefinition(
+            sessionFactoryBeanName, SessionFactory.class);
 
+    definition.setSynthetic(true);
+    definition.setDestroyMethods("close");
+    definition.setSupplier(this::refreshSessionFactory);
+    definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+
+    log.info("Register 'SessionFactory' bean definition {}", definition);
+
+    registry.registerBeanDefinition(definition);
+  }
+
+  private void applySettings(EnableHibernate target) {
+    String[] propertiesPrefix = target.propertiesPrefix();
+    if (ObjectUtils.isNotEmpty(propertiesPrefix)) {
+      setHibernatePropertiesPrefix(propertiesPrefix);
     }
 
-    beanDefinitionReader.registerBean(
-            SESSION_FACTORY_BEAN_NAME, SessionFactory.class);
+    String dataSourceName = target.dataSource();
+    if (StringUtils.isNotEmpty(dataSourceName)) {
+      setDataSourceBeanName(dataSourceName);
+    }
+
+    String sessionFactoryName = target.sessionFactory();
+    if (StringUtils.isNotEmpty(sessionFactoryName)) {
+      setSessionFactoryBeanName(sessionFactoryName);
+    }
+
+    String[] entityPackages = target.entityPackages();
+    if (ObjectUtils.isNotEmpty(entityPackages)) {
+      setEntityPackages(entityPackages);
+    }
 
   }
 
@@ -161,15 +167,6 @@ public class HibernateConfiguration
     return hibernatePropertiesPrefix;
   }
 
-  public void setBeanDefinitionReader(@Nullable BeanDefinitionReader beanDefinitionReader) {
-    this.beanDefinitionReader = beanDefinitionReader;
-  }
-
-  @Nullable
-  public BeanDefinitionReader getBeanDefinitionReader() {
-    return beanDefinitionReader;
-  }
-
   public void setDataSourceBeanName(@Nullable String dataSourceBeanName) {
     this.dataSourceBeanName = dataSourceBeanName;
   }
@@ -178,5 +175,27 @@ public class HibernateConfiguration
   public String getDataSourceBeanName() {
     return dataSourceBeanName;
   }
+
+  public void setSessionFactoryBeanName(String sessionFactoryBeanName) {
+    this.sessionFactoryBeanName = sessionFactoryBeanName;
+  }
+
+  public String getSessionFactoryBeanName() {
+    return sessionFactoryBeanName;
+  }
+
+  public void setEntityPackages(String... entityPackages) {
+    this.entityPackages = entityPackages;
+  }
+
+  public String[] getEntityPackages() {
+    return entityPackages;
+  }
+
+  @Override
+  public void setApplicationContext(ApplicationContext context) {
+    this.context = context;
+  }
+
 }
 
