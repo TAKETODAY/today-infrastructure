@@ -1,7 +1,7 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,18 +21,18 @@ package cn.taketoday.context.condition;
 
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 
 /**
  * @author TODAY <br>
- *         2018-11-15 20:28
+ * 2018-11-15 20:28
  */
 public class WindowsCondition implements Condition {
 
-    @Override
-    public boolean matches(final ApplicationContext context, AnnotatedElement annotatedElement) {
-        String system = context.getEnvironment().getProperty("os.name");
-        return system != null && system.contains("Windows");
-    }
+  @Override
+  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    String system = context.getEnvironment().getProperty("os.name");
+    return system != null && system.contains("Windows");
+  }
 }
