@@ -21,7 +21,6 @@ package cn.taketoday.beans.factory;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.AnnotatedElement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,19 +30,12 @@ import java.util.function.Predicate;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
-import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
-
-import static cn.taketoday.core.Constant.VALUE;
-import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -357,7 +349,8 @@ public class StandardBeanFactory
     }
 
     if (missedDef != null
-            && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) { // Have a corresponding missed bean
+            && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) {
+      // Have a corresponding missed bean
       // copy all state
       def.copy(missedDef);
       def.setName(name); // fix bean name update error
@@ -368,37 +361,7 @@ public class StandardBeanFactory
 
   @Override
   protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-    // import beans
-    if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
-      importAnnotated(targetDef);
-    }
-
-    // scan components
-    if (targetDef.isAnnotationPresent(ComponentScan.class)) {
-      componentScan(targetDef);
-    }
-
-    // load application listener @since 2.1.7
-    if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
-      context.addApplicationListener(targetDef.getName());
-    }
-
     super.postProcessRegisterBeanDefinition(targetDef);
-  }
-
-  /**
-   * Import beans from given package locations
-   *
-   * @param source
-   *         {@link BeanDefinition} that annotated {@link ComponentScan}
-   */
-  protected void componentScan(AnnotatedElement source) {
-    if (!componentScanned.contains(source)) {
-      componentScanned.add(source);
-      for (AnnotationAttributes attribute : getAttributesArray(source, ComponentScan.class)) {
-        load(attribute.getStringArray(VALUE));
-      }
-    }
   }
 
   //---------------------------------------------------------------------
