@@ -66,7 +66,7 @@ class ServletContainerInitializerConfig
   @SuppressWarnings("unchecked")
   public void onStartup(final ServletContext servletContext) throws Throwable {
     final ApplicationContext context = getApplicationContext();
-    CandidateComponentScanner componentScannerToUse = context.getCandidateComponentScanner();
+    CandidateComponentScanner componentScannerToUse = CandidateComponentScanner.getSharedInstance();
     if (target != null) {
       final String[] scanPackages = target.scanPackages();
       if (ObjectUtils.isNotEmpty(scanPackages)) {
