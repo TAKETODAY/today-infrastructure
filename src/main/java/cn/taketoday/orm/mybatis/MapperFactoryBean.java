@@ -26,8 +26,11 @@ import org.apache.ibatis.session.SqlSession;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author TODAY <br>
@@ -40,7 +43,14 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
 
   private Class<T> mapperInterface;
 
+  @Nullable
+  private String className;
+
   public MapperFactoryBean() { }
+
+  public MapperFactoryBean(@Nullable String className) {
+    this.className = className;
+  }
 
   public MapperFactoryBean(Class<T> mapperInterface) {
     setMapperInterface(mapperInterface);
@@ -52,9 +62,18 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public final Class<T> getBeanClass() {
-    Assert.state(mapperInterface != null, "Mapper interface must not be null");
-    return mapperInterface;
+    if (className == null) {
+      Assert.state(mapperInterface != null, "Mapper interface must not be null");
+      return mapperInterface;
+    }
+    try {
+      return (Class<T>) ClassUtils.forName(className);
+    }
+    catch (ClassNotFoundException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
   public SqlSession obtainSqlSession() {
@@ -75,7 +94,7 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
   }
 
   public Class<T> getMapperInterface() {
-    return mapperInterface;
+    return getBeanClass();
   }
 
   @Autowired
