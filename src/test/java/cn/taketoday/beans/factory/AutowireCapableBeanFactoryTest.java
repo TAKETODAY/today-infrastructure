@@ -30,11 +30,11 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.aware.BeanNameAware;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,8 +74,8 @@ public class AutowireCapableBeanFactoryTest {
   static class AutowireTestBeanCondition implements Condition {
 
     @Override
-    public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-      final ApplicationContext.State state = context.getState();
+    public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+      final ApplicationContext.State state = context.getContext().getState();
       return state == ApplicationContext.State.NONE;
     }
   }
