@@ -93,6 +93,10 @@ public class BeanDefinitionReader {
 
   public BeanDefinitionReader() { }
 
+  public BeanDefinitionReader(BeanDefinitionRegistry registry) {
+    this.registry = registry;
+  }
+
   public BeanDefinitionReader(
           ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
@@ -104,7 +108,7 @@ public class BeanDefinitionReader {
   //---------------------------------------------------------------------
 
   public void register(BeanDefinition def) {
-    registry.registerBeanDefinition(def);
+    obtainRegistry().registerBeanDefinition(def);
   }
 
   // import
@@ -128,6 +132,7 @@ public class BeanDefinitionReader {
   }
 
   public void importAnnotated(BeanDefinition annotated) {
+    BeanDefinitionRegistry registry = obtainRegistry();
     for (AnnotationAttributes attr : AnnotationUtils.getAttributesArray(annotated, Import.class)) {
       for (Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
         if (!registry.containsBeanDefinition(importClass, true)) {
@@ -166,7 +171,7 @@ public class BeanDefinitionReader {
     }
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
       createImporter(importDef, BeanDefinitionImporter.class)
-              .registerBeanDefinitions(annotated, registry);
+              .registerBeanDefinitions(annotated, obtainRegistry());
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
       context.addApplicationListener(createImporter(importDef, ApplicationListener.class));
@@ -179,7 +184,7 @@ public class BeanDefinitionReader {
   public void loadConfigurationBeans() {
     log.debug("Loading Configuration Beans");
 
-    for (Map.Entry<String, BeanDefinition> entry : registry.getBeanDefinitions().entrySet()) {
+    for (Map.Entry<String, BeanDefinition> entry : obtainRegistry().getBeanDefinitions().entrySet()) {
       if (entry.getValue().isAnnotationPresent(Configuration.class)) {
         // @Configuration bean
         loadConfigurationBeans(entry.getValue());
@@ -295,16 +300,16 @@ public class BeanDefinitionReader {
     if (missingBean != null && conditionEvaluator().passCondition(annotated)) {
       // find by bean name
       String beanName = missingBean.getString(Constant.VALUE);
-      if (StringUtils.isNotEmpty(beanName) && registry.containsBeanDefinition(beanName)) {
+      if (StringUtils.isNotEmpty(beanName) && obtainRegistry().containsBeanDefinition(beanName)) {
         return false;
       }
       // find by type
       Class<?> type = missingBean.getClass("type");
       if (type != void.class) {
-        return !registry.containsBeanDefinition(type, missingBean.getBoolean("equals"));
+        return !obtainRegistry().containsBeanDefinition(type, missingBean.getBoolean("equals"));
       }
       else {
-        return !registry.containsBeanDefinition(PropsReader.getBeanClass(annotated));
+        return !obtainRegistry().containsBeanDefinition(PropsReader.getBeanClass(annotated));
       }
     }
     return false;
@@ -643,7 +648,7 @@ public class BeanDefinitionReader {
   }
 
   private BeanDefinition register(String name, BeanDefinition newDef) {
-    registry.registerBeanDefinition(name, newDef);
+    obtainRegistry().registerBeanDefinition(name, newDef);
     return newDef;
   }
 
@@ -714,6 +719,16 @@ public class BeanDefinitionReader {
     return enableConditionEvaluation;
   }
 
+  /**
+   * set the flag to enable condition-evaluation
+   *
+   * @param enableConditionEvaluation
+   *         enableConditionEvaluation flag
+   *
+   * @see ConditionEvaluator
+   * @see cn.taketoday.context.Condition
+   * @see cn.taketoday.context.Conditional
+   */
   public void setEnableConditionEvaluation(boolean enableConditionEvaluation) {
     this.enableConditionEvaluation = enableConditionEvaluation;
   }
