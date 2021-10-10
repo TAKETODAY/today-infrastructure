@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -25,10 +25,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
 import cn.taketoday.context.ExpressionEvaluator;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 
 /**
  * annotation for a conditional element that depends on the value of a Java
@@ -52,11 +52,11 @@ public @interface ConditionalOnExpression {
   String value() default "true";
 }
 
-class OnExpressionCondition implements Condition {
+final class OnExpressionCondition implements Condition {
 
   @Override
-  public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-    ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context);
+  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context.getContext());
     final String expression = annotated.getAnnotation(ConditionalOnExpression.class).value();
     return expressionEvaluator.evaluate(expression, boolean.class);
   }
