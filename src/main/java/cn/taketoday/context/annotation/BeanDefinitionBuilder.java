@@ -36,6 +36,7 @@ import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Props;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
@@ -122,6 +123,12 @@ public class BeanDefinitionBuilder {
   /** Declaring name @since 2.1.2 */
   private String declaringName;
 
+  private boolean resolveProps = true;
+
+  private boolean resolveInitMethods = true;
+
+  private boolean autowire = true;
+
   public BeanDefinitionBuilder() { }
 
   public BeanDefinitionBuilder(@Nullable ApplicationContext context) {
@@ -200,6 +207,51 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
+  /**
+   * Enable resolving {@link Props}?
+   *
+   * @param resolveProps
+   *         resolve {@link Props}
+   *
+   * @return this
+   *
+   * @see cn.taketoday.context.Props
+   * @see PropsReader
+   */
+  public BeanDefinitionBuilder resolveProps(boolean resolveProps) {
+    this.resolveProps = resolveProps;
+    return this;
+  }
+
+  /**
+   * Enable resolving init-method
+   *
+   * @param computeInitMethod
+   *         compute InitMethod
+   *
+   * @return this
+   *
+   * @see BeanDefinition#getInitMethods()
+   * @see #computeInitMethod(Class, String...)
+   */
+  public BeanDefinitionBuilder resolveInitMethods(boolean computeInitMethod) {
+    this.resolveInitMethods = computeInitMethod;
+    return this;
+  }
+
+  /**
+   * Enable resolving autowire property-values
+   *
+   * @param autowire
+   *         resolve {@link PropertySetter} ?
+   *
+   * @return this
+   */
+  public BeanDefinitionBuilder resolvePropertyValues(boolean autowire) {
+    this.autowire = autowire;
+    return this;
+  }
+
   //
 
   /**
@@ -260,6 +312,10 @@ public class BeanDefinitionBuilder {
     this.synthetic = false;
     this.factoryBean = false;
 
+    this.resolveProps = false;
+    this.resolveInitMethods = true;
+    this.autowire = true;
+
   }
 
   public void resetAttributes() {
@@ -308,8 +364,11 @@ public class BeanDefinitionBuilder {
 
   public BeanDefinition build() {
     DefaultBeanDefinition definition = create();
-    Method[] initMethod = computeInitMethod(initMethods, definition.getBeanClass());
-    definition.setInitMethods(initMethod);
+
+    if (resolveInitMethods) {
+      Method[] initMethod = computeInitMethod(initMethods, definition.getBeanClass());
+      definition.setInitMethods(initMethod);
+    }
 
     definition.setRole(role);
     definition.setScope(scope);
@@ -321,12 +380,25 @@ public class BeanDefinitionBuilder {
     definition.setSupplier(instanceSupplier);
     definition.setDestroyMethods(destroyMethods);
 
-    // fix missing @Props injection
-    List<PropertySetter> resolvedProps = propsReader().read(definition);
-    LinkedHashSet<PropertySetter> propertySetters = resolvePropertyValue(beanClass);
-    propertySetters.addAll(resolvedProps);
+    LinkedHashSet<PropertySetter> propertySetters = null;
 
-    definition.setPropertyValues(propertySetters);
+    if (autowire) {
+      propertySetters = resolvePropertyValue(beanClass);
+    }
+
+    if (resolveProps) {
+      if (propertySetters == null) {
+        propertySetters = new LinkedHashSet<>();
+      }
+      // fix missing @Props injection
+      List<PropertySetter> resolvedProps = propsReader().read(definition);
+      propertySetters.addAll(resolvedProps);
+    }
+
+    if (propertySetters != null) {
+      definition.setPropertyValues(propertySetters);
+    }
+
     return definition;
   }
 
