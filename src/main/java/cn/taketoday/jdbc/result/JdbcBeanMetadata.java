@@ -28,7 +28,7 @@ import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Stores metadata for a POJO.2
+ * Stores metadata for a POJO
  *
  * @author TODAY
  */
@@ -39,6 +39,14 @@ public class JdbcBeanMetadata extends BeanMetadata {
   private final boolean caseSensitive;
   private final boolean throwOnMappingFailure;
   private final boolean autoDeriveColumnNames;
+
+  public JdbcBeanMetadata(Class<?> clazz) {
+    super(clazz);
+    this.caseSensitive = false;
+    this.columnMappings = null;
+    this.throwOnMappingFailure = false;
+    this.autoDeriveColumnNames = false;
+  }
 
   public JdbcBeanMetadata(
           Class<?> clazz,
@@ -70,7 +78,6 @@ public class JdbcBeanMetadata extends BeanMetadata {
   public BeanProperty getBeanProperty(final String propertyName) {
     String name = this.caseSensitive ? propertyName : propertyName.toLowerCase();
 
-    final Map<String, String> columnMappings = this.columnMappings;
     if (columnMappings != null && columnMappings.containsKey(name)) {
       name = columnMappings.get(name);
     }
