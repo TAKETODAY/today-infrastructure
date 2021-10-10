@@ -98,4 +98,27 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
     return context;
   }
 
+  /**
+   * unwrap bean-factory to {@code requiredType}
+   *
+   * @throws IllegalArgumentException
+   *         not a requiredType
+   * @see ApplicationContext#getBeanFactory()
+   * @since 4.0
+   */
+  public <T> T unwrapFactory(Class<T> requiredType) {
+    return obtainApplicationContext().unwrapFactory(requiredType);
+  }
+
+  /**
+   * unwrap this ApplicationContext to {@code requiredType}
+   *
+   * @throws IllegalArgumentException
+   *         not a requiredType
+   * @since 4.0
+   */
+  public <T> T unwrap(Class<T> requiredType) {
+    return obtainApplicationContext().unwrap(requiredType);
+  }
+
 }
