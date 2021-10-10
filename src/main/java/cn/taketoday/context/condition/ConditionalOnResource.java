@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -28,7 +28,7 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
-import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 
 /**
  * {@link Conditional} that only matches when the specified resources are exits
@@ -50,13 +50,13 @@ public @interface ConditionalOnResource {
 
 }
 
-class OnResourceCondition implements Condition {
+final class OnResourceCondition implements Condition {
 
   @Override
-  public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
-
-    for (final String resource : annotatedElement.getAnnotation(ConditionalOnResource.class).value()) {
-      if (!ResourceUtils.getResource(resource).exists()) {
+  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    ApplicationContext resourceLoader = context.getContext();
+    for (final String resource : annotated.getAnnotation(ConditionalOnResource.class).value()) {
+      if (!resourceLoader.getResource(resource).exists()) {
         return false;
       }
     }
