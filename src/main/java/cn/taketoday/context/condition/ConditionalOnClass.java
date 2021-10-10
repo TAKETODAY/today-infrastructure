@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -25,9 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -51,12 +51,11 @@ public @interface ConditionalOnClass {
 
 }
 
-class OnClassCondition implements Condition {
+final class OnClassCondition implements Condition {
 
   @Override
-  public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
-
-    final ConditionalOnClass conditionalOnClass = annotatedElement.getAnnotation(ConditionalOnClass.class);
+  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    ConditionalOnClass conditionalOnClass = annotated.getAnnotation(ConditionalOnClass.class);
     if (conditionalOnClass != null) {
       for (String name : conditionalOnClass.value()) {
         if (!ClassUtils.isPresent(name)) {
@@ -64,7 +63,8 @@ class OnClassCondition implements Condition {
         }
       }
     }
-    final ConditionalOnMissingClass onMissingClass = annotatedElement.getAnnotation(ConditionalOnMissingClass.class);
+
+    ConditionalOnMissingClass onMissingClass = annotated.getAnnotation(ConditionalOnMissingClass.class);
     if (onMissingClass != null) {
       for (String name : onMissingClass.value()) {
         if (ClassUtils.isPresent(name)) {
