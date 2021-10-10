@@ -47,7 +47,9 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -123,10 +125,18 @@ public class DefaultBeanDefinition
   /** @since 4.0 */
   private boolean primary = false;
 
+  /** @since 4.0  class name lazy load */
+  private String className;
+
   public DefaultBeanDefinition() { }
 
   public DefaultBeanDefinition(Class<?> beanClass) {
     setBeanClass(beanClass);
+  }
+
+  public DefaultBeanDefinition(String name, String className) {
+    this.name = name;
+    this.className = className;
   }
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
@@ -171,6 +181,16 @@ public class DefaultBeanDefinition
 
   @Override
   public Class<?> getBeanClass() {
+    if (beanClass == null) {
+      if (className != null) {
+        try {
+          beanClass = ClassUtils.forName(className);
+        }
+        catch (ClassNotFoundException e) {
+          throw ExceptionUtils.sneakyThrow(e);
+        }
+      }
+    }
     return beanClass;
   }
 
