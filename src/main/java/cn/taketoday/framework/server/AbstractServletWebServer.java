@@ -35,8 +35,10 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.annotation.ServletSecurity;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
@@ -77,7 +79,7 @@ public abstract class AbstractServletWebServer
    * Add jsp to context
    */
   protected void addJspServlet() {
-    final JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
+    JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
     if (jspServletConfiguration != null) {
       // config jsp servlet
       getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
@@ -107,7 +109,7 @@ public abstract class AbstractServletWebServer
    * Add default servlet
    */
   protected void addDefaultServlet() {
-    final DefaultServletConfiguration servletConfiguration = this.defaultServletConfiguration;
+    DefaultServletConfiguration servletConfiguration = this.defaultServletConfiguration;
     if (servletConfiguration != null) {
 
       // config default servlet
@@ -139,7 +141,7 @@ public abstract class AbstractServletWebServer
 
   @Override
   protected List<WebApplicationInitializer> getMergedInitializers() {
-    final List<WebApplicationInitializer> contextInitializers = getContextInitializers();
+    List<WebApplicationInitializer> contextInitializers = getContextInitializers();
     contextInitializers.add(new OrderedServletContextInitializer() {
       @Override
       public void onStartup(ServletContext servletContext) {
@@ -147,18 +149,18 @@ public abstract class AbstractServletWebServer
       }
     });
 
-    final SessionConfiguration sessionConfig = getSessionConfig();
+    SessionConfiguration sessionConfig = getSessionConfig();
     if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
       contextInitializers.add(new OrderedServletContextInitializer() {
 
         @Override
         public void onStartup(ServletContext servletContext) {
-          final SessionConfiguration sessionConfig = getSessionConfig();
+          SessionConfiguration sessionConfig = getSessionConfig();
           getWebApplicationConfiguration().configureSession(sessionConfig);
-          final SessionCookieConfiguration cookie = sessionConfig.getCookieConfig();
+          SessionCookieConfiguration cookie = sessionConfig.getCookieConfig();
 
           if (cookie != null) {
-            final SessionCookieConfig config = servletContext.getSessionCookieConfig();
+            SessionCookieConfig config = servletContext.getSessionCookieConfig();
             config.setName(cookie.getName());
             config.setPath(cookie.getPath());
             config.setSecure(cookie.isSecure());
@@ -168,7 +170,7 @@ public abstract class AbstractServletWebServer
             config.setMaxAge((int) cookie.getMaxAge().getSeconds());
           }
           if (sessionConfig.getTrackingModes() != null) {
-            final Set<SessionTrackingMode> collect = Arrays.stream(sessionConfig.getTrackingModes())
+            Set<SessionTrackingMode> collect = Arrays.stream(sessionConfig.getTrackingModes())
                     .map(Enum::name)
                     .map(SessionTrackingMode::valueOf)
                     .collect(Collectors.toSet());
@@ -189,17 +191,20 @@ public abstract class AbstractServletWebServer
   @Override
   protected void prepareInitialize() {
     super.prepareInitialize();
-    final WebServerApplicationContext context = obtainApplicationContext();
+    WebServerApplicationContext context = obtainApplicationContext();
 
-    final Class<?> startupClass = context.getStartupClass();
+    Class<?> startupClass = context.getStartupClass();
     if (startupClass != null) {
       ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
       if (servletSecurity != null) {
-        if (context.containsBeanDefinition(ServletSecurityElement.class)) {
-          log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
+        BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
+        if (registry.containsBeanDefinition(ServletSecurityElement.class)) {
+          log.info("Multiple: [{}] Overriding its bean definition",
+                   ServletSecurityElement.class.getName());
         }
-        context.registerSingleton(new ServletSecurityElement(servletSecurity));
-        context.registerBean("servletSecurityElement", ServletSecurityElement.class);
+
+        BeanDefinitionReader reader = new BeanDefinitionReader(context);
+        reader.registerBean(new ServletSecurityElement(servletSecurity));
       }
     }
 

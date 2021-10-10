@@ -36,6 +36,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
