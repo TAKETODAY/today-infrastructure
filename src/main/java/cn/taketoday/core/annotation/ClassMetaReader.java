@@ -313,7 +313,7 @@ public class ClassMetaReader {
           AnnotatedElement element, Class<T> targetClass) {
     return selectAttributes(readAnnotations(element), targetClass);
   }
-  
+
   @Nullable
   public static <T extends Annotation> AnnotationAttributes selectAttributes(
           AnnotationAttributes[] attributes, Class<T> targetClass) {
@@ -325,6 +325,12 @@ public class ClassMetaReader {
     return null;
   }
 
+  @Nullable
+  public static <T extends Annotation> AnnotationAttributes selectAttributes(
+          ClassNode classNode, Class<T> targetClass) {
+    AnnotationAttributes[] annotations = ClassMetaReader.readAnnotations(classNode);
+    return selectAttributes(annotations, targetClass);
+  }
   // proxy
 
   public static <T extends Annotation> T getAnnotation(Class<T> type, AnnotatedElement annotated) {
