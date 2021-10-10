@@ -21,24 +21,25 @@ package cn.taketoday.context;
 
 import java.lang.reflect.AnnotatedElement;
 
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.env.Environment;
 
 /**
  * Resolve {@link Profile} {@link Condition}
  *
- * @author TODAY <br>
- * 2018-11-14 18:52
+ * @author TODAY 2018-11-14 18:52
  */
 public class ProfileCondition implements Condition {
 
   @Override
-  public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-    final Environment environment = context.getEnvironment();
-
-    for (final AnnotationAttributes attributes : AnnotationUtils.getAttributesArray(annotated, Profile.class)) {
+  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    Environment environment = context.getEnvironment();
+    AnnotationAttributes[] attributesArray = AnnotationUtils.getAttributesArray(annotated, Profile.class);
+    for (AnnotationAttributes attributes : attributesArray) {
       if (environment.acceptsProfiles(attributes.getStringArray(Constant.VALUE))) {
         return true;
       }

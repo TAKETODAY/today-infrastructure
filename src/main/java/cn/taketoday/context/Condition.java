@@ -24,10 +24,8 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 
 /**
- * @author TODAY <br>
- * 2018-11-10 13:44
+ * @author TODAY 2018-11-10 13:44
  */
-@FunctionalInterface
 public interface Condition {
 
   /**
@@ -40,7 +38,9 @@ public interface Condition {
    * registered
    */
   @Deprecated
-  boolean matches(ApplicationContext context, AnnotatedElement annotated);
+  default boolean matches(ApplicationContext context, AnnotatedElement annotated) {
+    return false;
+  }
 
   /**
    * @param context
