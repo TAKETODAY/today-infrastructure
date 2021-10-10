@@ -20,6 +20,9 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Nullable;
+
 /**
  * Callback for customizing a given bean definition.
  * Designed for use with a lambda expression or method reference.
@@ -33,7 +36,12 @@ public interface BeanDefinitionCustomizer {
 
   /**
    * Customize the given bean definition.
+   *
+   * @param attributes
+   *         AnnotationAttributes
+   * @param definition
+   *         BeanDefinition to customize
    */
-  void customize(BeanDefinition bd);
+  void customize(@Nullable AnnotationAttributes attributes, BeanDefinition definition);
 
 }

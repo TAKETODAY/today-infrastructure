@@ -463,6 +463,15 @@ public class BeanDefinitionBuilder {
     }
   }
 
+  //
+
+  public void build(
+          String defaultName, AnnotatedElement annotated,
+          BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
+    AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(annotated, Component.class);
+    build(defaultName, components, consumer);
+  }
+
   // Consumer
 
   public void build(
@@ -484,6 +493,12 @@ public class BeanDefinitionBuilder {
           @Nullable AnnotationAttributes[] components,
           Consumer<BeanDefinition> consumer) {
     build(defaultName, components, (attributes, definition) -> consumer.accept(definition));
+  }
+
+  public void build(
+          String defaultName, AnnotatedElement annotated, Consumer<BeanDefinition> consumer) {
+    AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(annotated, Component.class);
+    build(defaultName, components, consumer);
   }
 
   //---------------------------------------------------------------------
