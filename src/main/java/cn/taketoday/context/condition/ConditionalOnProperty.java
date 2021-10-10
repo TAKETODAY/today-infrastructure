@@ -25,9 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.util.StringUtils;
@@ -62,25 +62,24 @@ public @interface ConditionalOnProperty {
 
 }
 
-class OnPropertyCondition implements Condition {
+final class OnPropertyCondition implements Condition {
 
   @Override
-  public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
+  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    ConditionalOnProperty conditionalOnProperty = annotated.getAnnotation(ConditionalOnProperty.class);
+    String prefix = conditionalOnProperty.prefix();
 
-    final ConditionalOnProperty conditionalOnProperty = annotated.getAnnotation(ConditionalOnProperty.class);
-    final String prefix = conditionalOnProperty.prefix();
-
-    final Environment environment = context.getEnvironment();
+    Environment environment = context.getEnvironment();
     if (StringUtils.isEmpty(prefix)) {
-      for (final String key : conditionalOnProperty.value()) {
-        if (environment.getProperty(key) == null) {
+      for (String key : conditionalOnProperty.value()) {
+        if (!environment.containsProperty(key)) {
           return false;
         }
       }
     }
     else {
-      for (final String key : conditionalOnProperty.value()) {
-        if (environment.getProperty(prefix + key) == null) {
+      for (String key : conditionalOnProperty.value()) {
+        if (!environment.containsProperty(prefix + key)) {
           return false;
         }
       }
