@@ -21,20 +21,16 @@
 package cn.taketoday.context;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
-import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.Assert;
-import cn.taketoday.util.CollectionUtils;
 
 /**
  * ApplicationContext default implementation
@@ -46,6 +42,7 @@ public class DefaultApplicationContext
         extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
   private final StandardBeanFactory beanFactory;
+  public final BeanDefinitionReader reader = new BeanDefinitionReader(this, this);
 
   /**
    * Default Constructor
@@ -140,19 +137,18 @@ public class DefaultApplicationContext
    * @since 3.0
    */
   public void registerBean(Class<?> clazz) {
-    registerBean(createBeanName(clazz), clazz);
+    reader.registerBean(clazz);
   }
 
+  /**
+   * @since 4.0
+   */
   public void registerBean(Set<Class<?>> candidates) {
-    for (Class<?> candidate : candidates) {
-      registerBean(createBeanName(candidate), candidate);
-    }
+    reader.registerBean(candidates);
   }
 
-  public BeanDefinition registerBean(String name, Class<?> clazz) {
-    DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(name, clazz);
-    registerBeanDefinition(name, defaults);
-    return defaults;
+  public void registerBean(String name, Class<?> clazz) {
+    reader.registerBean(name, clazz);
   }
 
   /**
@@ -241,27 +237,7 @@ public class DefaultApplicationContext
           Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException //
   {
-    Assert.notNull(clazz, "bean-class must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    if (ignoreAnnotation) {
-      DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(clazz);
-      if (prototype) {
-        defaults.setScope(Scope.PROTOTYPE);
-      }
-      registerBeanDefinition(defaults);
-    }
-    else {
-      List<BeanDefinition> loaded = BeanDefinitionBuilder.from(clazz);
-      if (CollectionUtils.isNotEmpty(loaded)) {
-        for (BeanDefinition def : loaded) {
-          def.setSupplier(supplier);
-          if (prototype) {
-            def.setScope(Scope.PROTOTYPE);
-          }
-          registerBeanDefinition(def);
-        }
-      }
-    }
+    reader.registerBean(clazz, supplier, prototype, ignoreAnnotation);
   }
 
 }

@@ -32,7 +32,7 @@ import cn.taketoday.core.bytecode.tree.ClassNode;
 public abstract class AbstractBeanDefinitionCreationStrategy implements BeanDefinitionCreationStrategy {
 
   @Override
-  public Set<BeanDefinition> create(ClassNode classNode, BeanDefinitionCreationContext creationContext) {
+  public Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, BeanDefinitionCreationContext creationContext) {
     if (supports(classNode, creationContext)) {
       return createInternal(classNode, creationContext);
     }

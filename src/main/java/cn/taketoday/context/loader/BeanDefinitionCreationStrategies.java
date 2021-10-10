@@ -46,11 +46,11 @@ public class BeanDefinitionCreationStrategies implements BeanDefinitionCreationS
   }
 
   @Override
-  public Set<BeanDefinition> create(
+  public Set<BeanDefinition> loadBeanDefinitions(
           ClassNode classNode, BeanDefinitionCreationContext creationContext) {
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
     for (BeanDefinitionCreationStrategy strategy : creationStrategies) {
-      Set<BeanDefinition> beanDefinitions = strategy.create(classNode, creationContext);
+      Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(classNode, creationContext);
       if (CollectionUtils.isNotEmpty(beanDefinitions)) {
         definitions.addAll(beanDefinitions);
       }

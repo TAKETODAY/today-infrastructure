@@ -31,8 +31,9 @@ import cn.taketoday.core.bytecode.tree.ClassNode;
  * @author TODAY 2021/10/10 22:04
  * @since 4.0
  */
+@FunctionalInterface
 public interface BeanDefinitionCreationStrategy {
 
-  Set<BeanDefinition> create(ClassNode classNode, BeanDefinitionCreationContext creationContext);
+  Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, BeanDefinitionCreationContext creationContext);
 
 }

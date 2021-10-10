@@ -41,7 +41,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Component;
@@ -81,7 +81,7 @@ public class BeanDefinitionReader {
   @Nullable
   private ConditionEvaluator conditionEvaluator;
 
-  private ConfigurableApplicationContext context;
+  private ApplicationContext context;
 
   @Nullable
   private List<BeanDefinitionCustomizer> customizers;
@@ -93,12 +93,16 @@ public class BeanDefinitionReader {
 
   public BeanDefinitionReader() { }
 
+  public BeanDefinitionReader(ApplicationContext context) {
+    this.context = context;
+  }
+
   public BeanDefinitionReader(BeanDefinitionRegistry registry) {
     this.registry = registry;
   }
 
   public BeanDefinitionReader(
-          ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
+          ApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
     this.registry = registry;
   }
@@ -455,6 +459,12 @@ public class BeanDefinitionReader {
     registerBean(createBeanName(obj.getClass()), obj);
   }
 
+  public void registerBean(Set<Class<?>> candidates) {
+    for (Class<?> candidate : candidates) {
+      registerBean(candidate);
+    }
+  }
+
   /**
    * Register a bean with the given name and bean instance
    *
@@ -749,11 +759,11 @@ public class BeanDefinitionReader {
     return registry;
   }
 
-  public ConfigurableApplicationContext getContext() {
+  public ApplicationContext getContext() {
     return context;
   }
 
-  public void setContext(ConfigurableApplicationContext context) {
+  public void setContext(ApplicationContext context) {
     this.context = context;
   }
 
@@ -795,7 +805,7 @@ public class BeanDefinitionReader {
   }
 
   @NonNull
-  protected ConfigurableApplicationContext obtainContext() {
+  protected ApplicationContext obtainContext() {
     Assert.state(context != null, "No ApplicationContext");
     return context;
   }

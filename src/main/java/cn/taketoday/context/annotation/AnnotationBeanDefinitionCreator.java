@@ -46,7 +46,7 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionCreationSt
   }
 
   @Override
-  public Set<BeanDefinition> create(
+  public Set<BeanDefinition> loadBeanDefinitions(
           ClassNode classNode, BeanDefinitionCreationContext creationContext) {
     if (Modifier.isAbstract(classNode.access) || Modifier.isInterface(classNode.access)) {
       return null;

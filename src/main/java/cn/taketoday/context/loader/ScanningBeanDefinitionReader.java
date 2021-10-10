@@ -212,10 +212,9 @@ public class ScanningBeanDefinitionReader extends BeanDefinitionReader {
   }
 
   protected void process(ClassNode classNode) {
-    BeanDefinitionRegistry registry = obtainRegistry();
-
-    Set<BeanDefinition> beanDefinitions = creationStrategies.create(classNode, creationContext);
+    Set<BeanDefinition> beanDefinitions = creationStrategies.loadBeanDefinitions(classNode, creationContext);
     if (CollectionUtils.isNotEmpty(beanDefinitions)) {
+      BeanDefinitionRegistry registry = obtainRegistry();
       for (BeanDefinition beanDefinition : beanDefinitions) {
         registry.registerBeanDefinition(beanDefinition);
       }
