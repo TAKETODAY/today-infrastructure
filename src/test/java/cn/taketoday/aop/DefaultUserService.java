@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,33 +29,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultUserService implements UserService {
 
-    final private UserDao userDao;
+  final private UserDao userDao;
 
-    @Autowired
-    public DefaultUserService(UserDao userDao) {
-        this.userDao = userDao;
-    }
+  @Autowired
+  public DefaultUserService(UserDao userDao) {
+    this.userDao = userDao;
+  }
 
-    @TimeAware
-    @Logger("登录")
-    @Override
-    public User login(User user) {
-        log.debug("login");
-        //		int i = 1 / 0;
-        return userDao.login(user);
-    }
+  @TimeAware
+  @Logger("登录")
+  @Override
+  public User login(User user) {
+    log.debug("login");
+    //		int i = 1 / 0;
+    return userDao.login(user);
+  }
 
-    @Logger("注册")
-    @Override
-    public boolean register(User user) {
-        return userDao.save(user);
-    }
+  @Logger("注册")
+  @Override
+  public boolean register(User user) {
+    return userDao.save(user);
+  }
 
-    @Override
-    public boolean remove(User user) {
+  @Override
+  public boolean remove(User user) {
 
-        log.debug("remove");
+    log.debug("remove");
 
-        return true;
-    }
+    return true;
+  }
 }

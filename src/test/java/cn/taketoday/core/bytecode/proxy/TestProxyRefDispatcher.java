@@ -25,84 +25,84 @@ import cn.taketoday.core.bytecode.CodeGenTestCase;
 /**
  * @author Chris Nokleberg, Bob Lee
  * @version $Id: TestProxyRefDispatcher.java,v 1.1 2004/12/10 08:48:43
- *          herbyderby Exp $
+ * herbyderby Exp $
  */
 public class TestProxyRefDispatcher extends CodeGenTestCase {
-    interface Foo {
-        String foo();
+  interface Foo {
+    String foo();
+  }
+
+  interface Bar {
+    String bar();
+  }
+
+  public void testSimple() throws Exception {
+    final Object[] impls = new Object[] { new Foo() {
+      public String foo() {
+        return "foo1";
+      }
+    }, new Bar() {
+      public String bar() {
+        return "bar1";
+      }
     }
+    };
 
-    interface Bar {
-        String bar();
+    final Object[] proxyReference = new Object[1];
+    Callback[] callbacks = new Callback[] { new ProxyRefDispatcher() {
+      public Object loadObject(Object proxy) {
+        proxyReference[0] = proxy;
+        return impls[0];
+      }
+    }, new ProxyRefDispatcher() {
+      public Object loadObject(Object proxy) {
+        proxyReference[0] = proxy;
+        return impls[1];
+      }
     }
+    };
 
-    public void testSimple() throws Exception {
-        final Object[] impls = new Object[] { new Foo() {
-            public String foo() {
-                return "foo1";
-            }
-        }, new Bar() {
-            public String bar() {
-                return "bar1";
-            }
-        }
-        };
+    Enhancer e = new Enhancer();
+    e.setInterfaces(Foo.class, Bar.class);
+    e.setCallbacks(callbacks);
+    e.setCallbackFilter(new CallbackFilter() {
+      public int accept(Method method) {
+        return (method.getDeclaringClass().equals(Foo.class)) ? 0 : 1;
+      }
+    });
+    Object obj = e.create();
 
-        final Object[] proxyReference = new Object[1];
-        Callback[] callbacks = new Callback[] { new ProxyRefDispatcher() {
-            public Object loadObject(Object proxy) {
-                proxyReference[0] = proxy;
-                return impls[0];
-            }
-        }, new ProxyRefDispatcher() {
-            public Object loadObject(Object proxy) {
-                proxyReference[0] = proxy;
-                return impls[1];
-            }
-        }
-        };
+    assertNull(proxyReference[0]);
+    assertEquals("foo1", ((Foo) obj).foo());
+    assertSame(obj, proxyReference[0]);
+    proxyReference[0] = null;
+    assertEquals("bar1", ((Bar) obj).bar());
+    assertSame(obj, proxyReference[0]);
+    proxyReference[0] = null;
 
-        Enhancer e = new Enhancer();
-        e.setInterfaces(Foo.class, Bar.class);
-        e.setCallbacks(callbacks);
-        e.setCallbackFilter(new CallbackFilter() {
-            public int accept(Method method) {
-                return (method.getDeclaringClass().equals(Foo.class)) ? 0 : 1;
-            }
-        });
-        Object obj = e.create();
+    impls[0] = new Foo() {
+      public String foo() {
+        return "foo2";
+      }
+    };
+    assertEquals("foo2", ((Foo) obj).foo());
+    assertSame(obj, proxyReference[0]);
+  }
 
-        assertNull(proxyReference[0]);
-        assertEquals("foo1", ((Foo) obj).foo());
-        assertSame(obj, proxyReference[0]);
-        proxyReference[0] = null;
-        assertEquals("bar1", ((Bar) obj).bar());
-        assertSame(obj, proxyReference[0]);
-        proxyReference[0] = null;
+  public TestProxyRefDispatcher(String testName) {
+    super(testName);
+  }
 
-        impls[0] = new Foo() {
-            public String foo() {
-                return "foo2";
-            }
-        };
-        assertEquals("foo2", ((Foo) obj).foo());
-        assertSame(obj, proxyReference[0]);
-    }
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public TestProxyRefDispatcher(String testName) {
-        super(testName);
-    }
+  public static Test suite() {
+    return new TestSuite(TestProxyRefDispatcher.class);
+  }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+  public void perform(ClassLoader loader) throws Throwable { }
 
-    public static Test suite() {
-        return new TestSuite(TestProxyRefDispatcher.class);
-    }
-
-    public void perform(ClassLoader loader) throws Throwable {}
-
-    public void testFailOnMemoryLeak() throws Throwable {}
+  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

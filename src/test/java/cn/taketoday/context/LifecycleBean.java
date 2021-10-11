@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.core.env.Environment;
 import org.junit.Test;
 
 import java.util.Map;
@@ -37,6 +36,7 @@ import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.core.io.Resource;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -48,6 +46,7 @@ import cn.taketoday.context.Value;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.io.PropertiesUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

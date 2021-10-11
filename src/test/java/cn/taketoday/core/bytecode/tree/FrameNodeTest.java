@@ -32,8 +32,8 @@ import org.junit.jupiter.api.function.Executable;
 
 import java.util.Arrays;
 
-import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.AsmTest;
+import cn.taketoday.core.bytecode.Opcodes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

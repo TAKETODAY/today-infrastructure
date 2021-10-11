@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,24 +25,24 @@ import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-08 18:20
  */
 @Order(1)
 //@Singleton
 public class BeanPostProcessorBean implements BeanPostProcessor {
-    private static final Logger log = LoggerFactory.getLogger(BeanPostProcessorBean.class);
+  private static final Logger log = LoggerFactory.getLogger(BeanPostProcessorBean.class);
 
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
-        log.debug("BeanPostProcessorBean Before named :[{}]", beanDefinition.getName());
-        return bean;
-    }
+  @Override
+  public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
+    log.debug("BeanPostProcessorBean Before named :[{}]", beanDefinition.getName());
+    return bean;
+  }
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
-        log.debug("BeanPostProcessorBean After named :[{}]", def.getName());
-        return bean;
-    }
+  @Override
+  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
+    log.debug("BeanPostProcessorBean After named :[{}]", def.getName());
+    return bean;
+  }
 
 }

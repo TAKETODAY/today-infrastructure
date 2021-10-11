@@ -2,22 +2,22 @@ package cn.taketoday.core.bytecode.proxy;
 
 @SuppressWarnings("rawtypes")
 public class EC1 extends EB implements Comparable {
-    private String address;
-    private ED ed;
+  private String address;
+  private ED ed;
 
-    public String getAddress() {
-        return address;
-    }
+  public String getAddress() {
+    return address;
+  }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+  public void setAddress(String address) {
+    this.address = address;
+  }
 
-    public ED getED() {
-        return ed;
-    }
+  public ED getED() {
+    return ed;
+  }
 
-    public void setED(ED ed) {
-        this.ed = ed;
-    }
+  public void setED(ED ed) {
+    this.ed = ed;
+  }
 }

@@ -29,12 +29,12 @@ package cn.taketoday.core.bytecode.commons;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.ClassWriter;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

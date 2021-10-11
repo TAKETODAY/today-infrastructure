@@ -1,6 +1,5 @@
 package cn.taketoday.core.style;
 
-import cn.taketoday.util.ObjectUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.util.ObjectUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -19,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ToStringBuilderTests {
 
   private SomeObject s1, s2, s3;
-
 
   @BeforeEach
   void setUp() throws Exception {
@@ -109,11 +109,10 @@ class ToStringBuilderTests {
   @Test
   void appendMethod() throws Exception {
     String str = new ToStringBuilder(this)
-						.append("myMethod", this.getClass().getDeclaredMethod("appendMethod")).toString();
+            .append("myMethod", this.getClass().getDeclaredMethod("appendMethod")).toString();
     assertThat(str).isEqualTo(("[ToStringBuilderTests@" + ObjectUtils.getIdentityHexString(this) +
             " myMethod = appendMethod@ToStringBuilderTests]"));
   }
-
 
   public static class SomeObject {
   }

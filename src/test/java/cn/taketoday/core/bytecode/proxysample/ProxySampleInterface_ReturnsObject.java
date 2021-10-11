@@ -17,6 +17,6 @@ package cn.taketoday.core.bytecode.proxysample;
 
 public interface ProxySampleInterface_ReturnsObject {
 
-    String getKala(String kalamees) throws Exception;
+  String getKala(String kalamees) throws Exception;
 
 }

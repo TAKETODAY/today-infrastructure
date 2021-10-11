@@ -467,7 +467,7 @@ public abstract class AbstractAopProxyTests {
     ITestBean tb = (ITestBean) aop.getProxy();
 
     assertThatExceptionOfType(UndeclaredThrowableException.class).isThrownBy(
-            tb::getAge)
+                    tb::getAge)
             .satisfies(ex -> assertThat(ex.getUndeclaredThrowable()).isEqualTo(unexpectedException));
   }
 
@@ -491,7 +491,7 @@ public abstract class AbstractAopProxyTests {
     ITestBean tb = (ITestBean) aop.getProxy();
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(
-            tb::getAge)
+                    tb::getAge)
             .matches(unexpectedException::equals);
   }
 
@@ -1659,7 +1659,8 @@ public abstract class AbstractAopProxyTests {
         public boolean matches(MethodInvocation invocation) {
           final Object[] arguments = invocation.getArguments();
           boolean run = invocation.getMethod().getName().contains(pattern);
-          if (run) ++count;
+          if (run)
+            ++count;
           return run;
         }
       });
@@ -1679,7 +1680,8 @@ public abstract class AbstractAopProxyTests {
         public boolean matches(MethodInvocation invocation) {
           final Object[] arguments = invocation.getArguments();
           boolean run = invocation.getMethod().getName().contains(pattern);
-          if (run) ++count;
+          if (run)
+            ++count;
           return run;
         }
 

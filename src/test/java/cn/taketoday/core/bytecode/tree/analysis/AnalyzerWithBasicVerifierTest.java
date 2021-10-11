@@ -32,9 +32,9 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.core.bytecode.tree.MethodNode;
 

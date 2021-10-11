@@ -50,10 +50,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.ResolvableTypeProvider;
-import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.ResolvableType.VariableResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;

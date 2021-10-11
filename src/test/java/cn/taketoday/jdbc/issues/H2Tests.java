@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.result.Table;
 

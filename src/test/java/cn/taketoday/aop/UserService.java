@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,16 +20,16 @@
 package cn.taketoday.aop;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-11-11 09:25
  */
 public interface UserService {
 
-    boolean register(User user);
+  boolean register(User user);
 
-    User login(User user);
+  User login(User user);
 
-    boolean remove(User user);
+  boolean remove(User user);
 
 }

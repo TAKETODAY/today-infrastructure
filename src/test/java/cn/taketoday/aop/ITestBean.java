@@ -39,9 +39,9 @@ public interface ITestBean extends IOther {
    */
   void exceptional(Throwable t) throws Throwable;
 
-
   /**
    * Increment the age by one.
+   *
    * @return the previous age
    */
   int haveBirthday();

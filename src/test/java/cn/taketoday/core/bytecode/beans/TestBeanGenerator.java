@@ -28,36 +28,36 @@ import cn.taketoday.core.bytecode.core.CglibReflectUtils;
  */
 public class TestBeanGenerator extends TestCase {
 
-    public void testSimple() throws Exception {
-        BeanGenerator bg = new BeanGenerator();
-        bg.addProperty("sin", Double.TYPE);
-        Object bean = bg.create();
+  public void testSimple() throws Exception {
+    BeanGenerator bg = new BeanGenerator();
+    bg.addProperty("sin", Double.TYPE);
+    Object bean = bg.create();
 
-        PropertyDescriptor[] pds = CglibReflectUtils.getBeanProperties(bean.getClass());
-        assertTrue(pds.length == 1);
-        assertTrue(pds[0].getName().equals("sin"));
-        assertTrue(pds[0].getPropertyType().equals(Double.TYPE));
-    }
+    PropertyDescriptor[] pds = CglibReflectUtils.getBeanProperties(bean.getClass());
+    assertTrue(pds.length == 1);
+    assertTrue(pds[0].getName().equals("sin"));
+    assertTrue(pds[0].getPropertyType().equals(Double.TYPE));
+  }
 
-    public void testSuperclass() throws Exception {
-        BeanGenerator bg = new BeanGenerator();
-        bg.setSuperclass(MA.class);
-        bg.addProperty("sin", Double.TYPE);
-        Object bean = bg.create();
+  public void testSuperclass() throws Exception {
+    BeanGenerator bg = new BeanGenerator();
+    bg.setSuperclass(MA.class);
+    bg.addProperty("sin", Double.TYPE);
+    Object bean = bg.create();
 
-        assertTrue(bean instanceof MA);
-        assertTrue(BeanMap.create(bean).keySet().contains("sin"));
-    }
+    assertTrue(bean instanceof MA);
+    assertTrue(BeanMap.create(bean).keySet().contains("sin"));
+  }
 
-    public TestBeanGenerator(String testName) {
-        super(testName);
-    }
+  public TestBeanGenerator(String testName) {
+    super(testName);
+  }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public static Test suite() {
-        return new TestSuite(TestBeanGenerator.class);
-    }
+  public static Test suite() {
+    return new TestSuite(TestBeanGenerator.class);
+  }
 }

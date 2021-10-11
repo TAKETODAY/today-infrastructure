@@ -16,7 +16,6 @@
 
 package cn.taketoday.aop.mixin;
 
-
 /**
  * Simple implementation of Lockable interface for use in mixins.
  *
@@ -24,21 +23,21 @@ package cn.taketoday.aop.mixin;
  */
 public class DefaultLockable implements Lockable {
 
-	private boolean locked;
+  private boolean locked;
 
-	@Override
-	public void lock() {
-		this.locked = true;
-	}
+  @Override
+  public void lock() {
+    this.locked = true;
+  }
 
-	@Override
-	public void unlock() {
-		this.locked = false;
-	}
+  @Override
+  public void unlock() {
+    this.locked = false;
+  }
 
-	@Override
-	public boolean locked() {
-		return this.locked;
-	}
+  @Override
+  public boolean locked() {
+    return this.locked;
+  }
 
 }

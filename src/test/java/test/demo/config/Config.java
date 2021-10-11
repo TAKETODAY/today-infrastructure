@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,11 +24,11 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.Props;
+import cn.taketoday.context.Value;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.Value;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,92 +39,92 @@ import lombok.Setter;
 @Prototype("prototype_config")
 public final class Config implements Serializable {
 
-    private Integer id;
+  private Integer id;
 
-    @Value("#{site.cdn}")
-    private String cdn;
+  @Value("#{site.cdn}")
+  private String cdn;
 
-    @Value("#{site.icp}")
-    private String icp;
+  @Value("#{site.icp}")
+  private String icp;
 
-    @Value("#{site.host}")
-    private String host;
+  @Value("#{site.host}")
+  private String host;
 
-    @Value("#{site.index}")
-    private File index;
+  @Value("#{site.index}")
+  private File index;
 
-    @Value("#{site.upload}")
-    private File upload;
+  @Value("#{site.upload}")
+  private File upload;
 
-    @Value("#{site.keywords}")
-    private String keywords;
+  @Value("#{site.keywords}")
+  private String keywords;
 
-    @Value("#{site.name}")
-    private String siteName;
+  @Value("#{site.name}")
+  private String siteName;
 
-    @Value("#{site.copyright}")
-    private String copyright;
+  @Value("#{site.copyright}")
+  private String copyright;
 
-    @Value("#{site.server.path}")
-    private File serverPath;
+  @Value("#{site.server.path}")
+  private File serverPath;
 
-    @Value("#{site.description}")
-    private String description;
+  @Value("#{site.description}")
+  private String description;
 
-    @Value("#{site.otherFooterInfo}")
-    private String otherFooterInfo;
+  @Value("#{site.otherFooterInfo}")
+  private String otherFooterInfo;
 
-    @Autowired(required = false)
-    User user;
+  @Autowired(required = false)
+  User user;
 
-    @Props(prefix = "site.admin.")
-    User admin;
+  @Props(prefix = "site.admin.")
+  User admin;
 
-//	@Value(value = "#{user}", required = false)
+  //	@Value(value = "#{user}", required = false)
 //	User user_;
 //
-    @PostConstruct
-    public void init() {
-        System.err.println("admin: " + admin);
-    }
+  @PostConstruct
+  public void init() {
+    System.err.println("admin: " + admin);
+  }
 
-    public Config() {
+  public Config() {
 
-    }
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\n\t\"id\":\"");
-        builder.append(id);
-        builder.append("\", \n\t\"cdn\":\"");
-        builder.append(cdn);
-        builder.append("\", \n\t\"icp\":\"");
-        builder.append(icp);
-        builder.append("\", \n\t\"host\":\"");
-        builder.append(host);
-        builder.append("\", \n\t\"index\":\"");
-        builder.append(index);
-        builder.append("\", \n\t\"upload\":\"");
-        builder.append(upload);
-        builder.append("\", \n\t\"keywords\":\"");
-        builder.append(keywords);
-        builder.append("\", \n\t\"siteName\":\"");
-        builder.append(siteName);
-        builder.append("\", \n\t\"copyright\":\"");
-        builder.append(copyright);
-        builder.append("\", \n\t\"serverPath\":\"");
-        builder.append(serverPath);
-        builder.append("\", \n\t\"description\":\"");
-        builder.append(description);
-        builder.append("\", \n\t\"otherFooterInfo\":\"");
-        builder.append(otherFooterInfo);
-        builder.append("\", \n\t\"user\":\"");
-        builder.append(user);
-        builder.append("\", \n\t\"admin\":\"");
-        builder.append(admin);
-        builder.append("\"\n}");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{\n\t\"id\":\"");
+    builder.append(id);
+    builder.append("\", \n\t\"cdn\":\"");
+    builder.append(cdn);
+    builder.append("\", \n\t\"icp\":\"");
+    builder.append(icp);
+    builder.append("\", \n\t\"host\":\"");
+    builder.append(host);
+    builder.append("\", \n\t\"index\":\"");
+    builder.append(index);
+    builder.append("\", \n\t\"upload\":\"");
+    builder.append(upload);
+    builder.append("\", \n\t\"keywords\":\"");
+    builder.append(keywords);
+    builder.append("\", \n\t\"siteName\":\"");
+    builder.append(siteName);
+    builder.append("\", \n\t\"copyright\":\"");
+    builder.append(copyright);
+    builder.append("\", \n\t\"serverPath\":\"");
+    builder.append(serverPath);
+    builder.append("\", \n\t\"description\":\"");
+    builder.append(description);
+    builder.append("\", \n\t\"otherFooterInfo\":\"");
+    builder.append(otherFooterInfo);
+    builder.append("\", \n\t\"user\":\"");
+    builder.append(user);
+    builder.append("\", \n\t\"admin\":\"");
+    builder.append(admin);
+    builder.append("\"\n}");
+    return builder.toString();
+  }
 
 }

@@ -1,9 +1,6 @@
 package cn.taketoday.core.io;
 
-import cn.taketoday.util.StringUtils;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author yanghaijian 2021/10/9 10:12

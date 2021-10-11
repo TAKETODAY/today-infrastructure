@@ -62,7 +62,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m,  Class<?> targetClass) {
+    public boolean matches(Method m, Class<?> targetClass) {
       return true;
     }
   };
@@ -80,7 +80,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m,  Class<?> targetClass) {
+    public boolean matches(Method m, Class<?> targetClass) {
       return m.getName().startsWith("set");
     }
   };
@@ -93,7 +93,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m,  Class<?> targetClass) {
+    public boolean matches(Method m, Class<?> targetClass) {
       return m.getName().startsWith("get");
     }
   };
@@ -109,7 +109,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m,  Class<?> targetClass) {
+    public boolean matches(Method m, Class<?> targetClass) {
       return m.getName().startsWith("get");
     }
   };
@@ -119,7 +119,6 @@ public class PointcutsTests {
   public static Pointcut allClassGetAgePointcut = new NameMatchMethodPointcut().addMethodName("getAge");
 
   public static Pointcut allClassGetNamePointcut = new NameMatchMethodPointcut().addMethodName("getName");
-
 
   @Test
   public void testTrue() {
@@ -235,7 +234,6 @@ public class PointcutsTests {
     assertThat(Pointcuts.matches(union, TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
     assertThat(Pointcuts.matches(union, TEST_BEAN_ABSQUATULATE, MyTestBean.class)).isFalse();
   }
-
 
   /**
    * The intersection of these two pointcuts leaves nothing.

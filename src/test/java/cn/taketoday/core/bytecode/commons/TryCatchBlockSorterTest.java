@@ -31,13 +31,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import cn.taketoday.core.bytecode.AsmTest;
+import cn.taketoday.core.bytecode.ClassFile;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.AsmTest;
-import cn.taketoday.core.bytecode.ClassFile;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;

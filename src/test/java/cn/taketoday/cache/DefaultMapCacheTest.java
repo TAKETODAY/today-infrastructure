@@ -21,8 +21,8 @@ package cn.taketoday.cache;
 
 public class DefaultMapCacheTest extends AbstractCacheTest {
 
-    public DefaultMapCacheTest() {
-        super(new DefaultMapCache());
-    }
+  public DefaultMapCacheTest() {
+    super(new DefaultMapCache());
+  }
 
 }

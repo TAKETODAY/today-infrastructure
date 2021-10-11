@@ -66,7 +66,6 @@ class CompositeFilterTests {
     assertThat(targetFilter.filterConfig).isNull();
   }
 
-
   public static class MockFilter implements Filter {
 
     public FilterConfig filterConfig;

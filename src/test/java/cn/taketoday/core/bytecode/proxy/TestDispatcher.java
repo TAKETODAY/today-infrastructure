@@ -27,72 +27,72 @@ import cn.taketoday.core.bytecode.CodeGenTestCase;
  * @version $Id: TestDispatcher.java,v 1.6 2004/06/24 21:15:17 herbyderby Exp $
  */
 public class TestDispatcher extends CodeGenTestCase {
-    interface Foo {
-        String foo();
+  interface Foo {
+    String foo();
+  }
+
+  interface Bar {
+    String bar();
+  }
+
+  public void testSimple() throws Exception {
+    final Object[] impls = new Object[] { new Foo() {
+      public String foo() {
+        return "foo1";
+      }
+    }, new Bar() {
+      public String bar() {
+        return "bar1";
+      }
     }
+    };
 
-    interface Bar {
-        String bar();
+    Callback[] callbacks = new Callback[] { new Dispatcher() {
+      public Object loadObject() {
+        return impls[0];
+      }
+    }, new Dispatcher() {
+      public Object loadObject() {
+        return impls[1];
+      }
     }
+    };
 
-    public void testSimple() throws Exception {
-        final Object[] impls = new Object[] { new Foo() {
-            public String foo() {
-                return "foo1";
-            }
-        }, new Bar() {
-            public String bar() {
-                return "bar1";
-            }
-        }
-        };
+    Enhancer e = new Enhancer();
+    e.setInterfaces(new Class[] { Foo.class, Bar.class });
+    e.setCallbacks(callbacks);
+    e.setCallbackFilter(new CallbackFilter() {
+      public int accept(Method method) {
+        return (method.getDeclaringClass().equals(Foo.class)) ? 0 : 1;
+      }
+    });
+    Object obj = e.create();
 
-        Callback[] callbacks = new Callback[] { new Dispatcher() {
-            public Object loadObject() {
-                return impls[0];
-            }
-        }, new Dispatcher() {
-            public Object loadObject() {
-                return impls[1];
-            }
-        }
-        };
+    assertTrue(((Foo) obj).foo().equals("foo1"));
+    assertTrue(((Bar) obj).bar().equals("bar1"));
 
-        Enhancer e = new Enhancer();
-        e.setInterfaces(new Class[] { Foo.class, Bar.class });
-        e.setCallbacks(callbacks);
-        e.setCallbackFilter(new CallbackFilter() {
-            public int accept(Method method) {
-                return (method.getDeclaringClass().equals(Foo.class)) ? 0 : 1;
-            }
-        });
-        Object obj = e.create();
+    impls[0] = new Foo() {
+      public String foo() {
+        return "foo2";
+      }
+    };
+    assertTrue(((Foo) obj).foo().equals("foo2"));
+  }
 
-        assertTrue(((Foo) obj).foo().equals("foo1"));
-        assertTrue(((Bar) obj).bar().equals("bar1"));
+  public TestDispatcher(String testName) {
+    super(testName);
+  }
 
-        impls[0] = new Foo() {
-            public String foo() {
-                return "foo2";
-            }
-        };
-        assertTrue(((Foo) obj).foo().equals("foo2"));
-    }
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public TestDispatcher(String testName) {
-        super(testName);
-    }
+  public static Test suite() {
+    return new TestSuite(TestDispatcher.class);
+  }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+  public void perform(ClassLoader loader) throws Throwable { }
 
-    public static Test suite() {
-        return new TestSuite(TestDispatcher.class);
-    }
-
-    public void perform(ClassLoader loader) throws Throwable {}
-
-    public void testFailOnMemoryLeak() throws Throwable {}
+  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
-import cn.taketoday.beans.NoSuchPropertyException;
 import lombok.Getter;
 import lombok.Setter;
 

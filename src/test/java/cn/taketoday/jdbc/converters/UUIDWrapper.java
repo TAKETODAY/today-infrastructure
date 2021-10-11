@@ -10,7 +10,7 @@ import java.util.UUID;
 public class UUIDWrapper {
   private UUID text;
 
-  public UUIDWrapper() {}
+  public UUIDWrapper() { }
 
   public UUIDWrapper(UUID text) {
     this.text = text;
@@ -26,7 +26,8 @@ public class UUIDWrapper {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o)
+      return true;
     if (o == null || getClass() != o.getClass()) {
       return false;
     }

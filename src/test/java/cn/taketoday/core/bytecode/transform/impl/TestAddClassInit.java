@@ -25,65 +25,64 @@ import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.core.bytecode.transform.ClassTransformerFactory;
 
 /**
- *
  * @author baliuka
  */
 public class TestAddClassInit extends AbstractTransformTest {
 
-    static Class<?> registred;
+  static Class<?> registred;
 
-    static int i = 0;
+  static int i = 0;
 
-    static {
+  static {
 
-        i = 11;
+    i = 11;
 
-    }
+  }
 
-    public static void register(Class<?> cls) {
+  public static void register(Class<?> cls) {
 
-        registred = cls;
+    registred = cls;
 
-    }
+  }
 
-    public TestAddClassInit() {}
+  public TestAddClassInit() { }
 
-    public void testInitTransform() {
-        assertEquals(i, 11);
-    }
+  public void testInitTransform() {
+    assertEquals(i, 11);
+  }
 
-    public void testRegistred() {
+  public void testRegistred() {
 
-        assertNotNull(registred);
+    assertNotNull(registred);
 
-    }
+  }
 
-    public TestAddClassInit(String s) {
-        super(s);
-    }
+  public TestAddClassInit(String s) {
+    super(s);
+  }
 
-    protected ClassTransformerFactory getTransformer() throws Exception {
+  protected ClassTransformerFactory getTransformer() throws Exception {
 
-        return new ClassTransformerFactory() {
+    return new ClassTransformerFactory() {
 
-            public ClassTransformer newTransformer() {
-                try {
-                    return new AddStaticInitTransformer(TestAddClassInit.class.getMethod("register", Class.class));
-                }
-                catch (Exception e) {
-                    throw new CodeGenerationException(e);
-                }
-            }
-        };
+      public ClassTransformer newTransformer() {
+        try {
+          return new AddStaticInitTransformer(TestAddClassInit.class.getMethod("register", Class.class));
+        }
+        catch (Exception e) {
+          throw new CodeGenerationException(e);
+        }
+      }
+    };
 
-    }
+  }
 
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
+  public static void main(String[] args) throws Exception {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public static Test suite() throws Exception {
-        return new TestSuite(new TestAddClassInit().transform());
-    }
+  public static Test suite() throws Exception {
+    return new TestSuite(new TestAddClassInit().transform());
+  }
 
 }

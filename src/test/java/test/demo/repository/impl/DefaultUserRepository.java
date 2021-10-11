@@ -34,9 +34,8 @@ import test.demo.config.User;
 import test.demo.repository.UserRepository;
 
 /**
- *
  * @author Today <br>
- *         2018-07-06 17:40:34
+ * 2018-07-06 17:40:34
  */
 @Prototype
 //@Repository

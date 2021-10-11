@@ -29,11 +29,11 @@ package cn.taketoday.core.bytecode.commons;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.core.bytecode.ClassFile;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.ClassFile;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

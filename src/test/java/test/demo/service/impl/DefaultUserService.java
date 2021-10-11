@@ -21,8 +21,8 @@ package test.demo.service.impl;
 
 import javax.annotation.Resource;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Service;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -32,54 +32,53 @@ import test.demo.repository.UserRepository;
 import test.demo.service.UserService;
 
 /**
- *
  * @author Today <br>
- *         2018-11-15 16:52
+ * 2018-11-15 16:52
  */
 @Service
 public class DefaultUserService implements UserService {
-    private static final Logger log = LoggerFactory.getLogger(DefaultUserService.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultUserService.class);
 
-    @Resource
+  @Resource
 //	@Autowired
 //	@Inject
-    private UserRepository userRepository;
+  private UserRepository userRepository;
 
-    private UserRepository userRepository1;
+  private UserRepository userRepository1;
 
 //	@Autowired
 //	public DefaultUserService(@Autowired(required = true) UserRepository userDao, @Props(prefix = "site.") Config config) {
 //		this.userRepository = userDao;
 //	}
 
-    @Autowired
-    public DefaultUserService(@Props(prefix = "site.") Config config) {
-        log.info("Creating 'userService'");
-    }
+  @Autowired
+  public DefaultUserService(@Props(prefix = "site.") Config config) {
+    log.info("Creating 'userService'");
+  }
 
-    @Override
-    public User login(User user) {
-        return userRepository.login(user);
-    }
+  @Override
+  public User login(User user) {
+    return userRepository.login(user);
+  }
 
-    @Override
-    public boolean register(User user) {
-        return userRepository.save(user);
-    }
+  @Override
+  public boolean register(User user) {
+    return userRepository.save(user);
+  }
 
-    public UserRepository getUserRepository() {
-        return userRepository1;
-    }
+  public UserRepository getUserRepository() {
+    return userRepository1;
+  }
 
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+  public void setUserRepository(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
-    @Autowired
+  @Autowired
 //  @Autowired
 //  @Inject
-    public void setUserRepository1(UserRepository userRepository1) {
-        this.userRepository1 = userRepository1;
-    }
+  public void setUserRepository1(UserRepository userRepository1) {
+    this.userRepository1 = userRepository1;
+  }
 
 }

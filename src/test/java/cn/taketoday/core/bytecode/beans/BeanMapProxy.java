@@ -22,31 +22,31 @@ import java.util.Map;
 
 /**
  * @author Chris Nokleberg
- *         <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
+ * <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
  * @version $Id: BeanMapProxy.java,v 1.2 2004/06/24 21:15:17 herbyderby Exp $
  */
 public class BeanMapProxy implements InvocationHandler {
-    private Map map;
+  private Map map;
 
-    public static Object newInstance(Map map, Class[] interfaces) {
-        return Proxy.newProxyInstance(map.getClass().getClassLoader(),
-                                      interfaces,
-                                      new BeanMapProxy(map));
-    }
+  public static Object newInstance(Map map, Class[] interfaces) {
+    return Proxy.newProxyInstance(map.getClass().getClassLoader(),
+                                  interfaces,
+                                  new BeanMapProxy(map));
+  }
 
-    public BeanMapProxy(Map map) {
-        this.map = map;
-    }
+  public BeanMapProxy(Map map) {
+    this.map = map;
+  }
 
-    public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-        String name = m.getName();
-        if (name.startsWith("get")) {
-            return map.get(name.substring(3));
-        }
-        else if (name.startsWith("set")) {
-            map.put(name.substring(3), args[0]);
-            return null;
-        }
-        return null;
+  public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
+    String name = m.getName();
+    if (name.startsWith("get")) {
+      return map.get(name.substring(3));
     }
+    else if (name.startsWith("set")) {
+      map.put(name.substring(3), args[0]);
+      return null;
+    }
+    return null;
+  }
 }

@@ -20,8 +20,8 @@ import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.CodeGenTestCase;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.transform.ClassFilter;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.core.bytecode.transform.ClassTransformerChain;
@@ -66,7 +66,8 @@ public class TestTransformingLoader extends CodeGenTestCase {
   }
 
   public void testAddStatic() throws Exception {
-    Method m = ReflectionUtils.findMethod(TestTransformingLoader.class, "initStatic", Class.class); ;
+    Method m = ReflectionUtils.findMethod(TestTransformingLoader.class, "initStatic", Class.class);
+    ;
 //        CglibReflectUtils.findMethod("cn.taketoday.core.bytecode.transform.impl.TestTransformingLoader.initStatic(Class)");
     ClassTransformer t = new AddStaticInitTransformer(m);
     // t = new ClassTransformerChain(new ClassTransformer[]{ t, new

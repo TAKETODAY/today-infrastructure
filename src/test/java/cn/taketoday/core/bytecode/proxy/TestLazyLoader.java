@@ -24,54 +24,54 @@ import cn.taketoday.core.bytecode.CodeGenTestCase;
 
 public class TestLazyLoader extends CodeGenTestCase {
 
-    private static class LazyBean {
-        private String name;
+  private static class LazyBean {
+    private String name;
 
-        public LazyBean() {}
+    public LazyBean() { }
 
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
+    public String getName() {
+      return name;
     }
 
-    public void testLazyLoader() {
-        LazyLoader loader = new LazyLoader() {
-
-            @Override
-            public LazyBean loadObject() {
-                System.err.println("loading object");
-                final LazyBean lazyBean = new LazyBean();
-                lazyBean.setName("TEST");
-                return lazyBean;
-            }
-        };
-        LazyBean obj = (LazyBean) Enhancer.create(LazyBean.class, loader);
-
-        System.err.println(obj.toString());
-        System.err.println(obj.getClass());
-        System.err.println(obj.getName());
-
-        Assert.assertEquals("TEST", obj.getName());
+    public void setName(String name) {
+      this.name = name;
     }
+  }
 
-    public TestLazyLoader(String testName) {
-        super(testName);
-    }
+  public void testLazyLoader() {
+    LazyLoader loader = new LazyLoader() {
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+      @Override
+      public LazyBean loadObject() {
+        System.err.println("loading object");
+        final LazyBean lazyBean = new LazyBean();
+        lazyBean.setName("TEST");
+        return lazyBean;
+      }
+    };
+    LazyBean obj = (LazyBean) Enhancer.create(LazyBean.class, loader);
 
-    public static Test suite() {
-        return new TestSuite(TestLazyLoader.class);
-    }
+    System.err.println(obj.toString());
+    System.err.println(obj.getClass());
+    System.err.println(obj.getName());
 
-    public void perform(ClassLoader loader) throws Throwable {}
+    Assert.assertEquals("TEST", obj.getName());
+  }
 
-    public void testFailOnMemoryLeak() throws Throwable {}
+  public TestLazyLoader(String testName) {
+    super(testName);
+  }
+
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
+
+  public static Test suite() {
+    return new TestSuite(TestLazyLoader.class);
+  }
+
+  public void perform(ClassLoader loader) throws Throwable { }
+
+  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

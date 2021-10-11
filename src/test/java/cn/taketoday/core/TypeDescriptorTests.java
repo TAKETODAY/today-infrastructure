@@ -45,10 +45,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -798,7 +794,6 @@ public class TypeDescriptorTests {
     assertThat(TypeDescriptor.valueOf(Integer.class).getSource()).isEqualTo(Integer.class);
   }
 
-
   // Methods designed for test introspection
 
   public void testParameterPrimitive(int primitive) {
@@ -879,7 +874,6 @@ public class TypeDescriptorTests {
   public void testAnnotatedMethodDifferentAnnotationValue(@ParameterAnnotation(567) String parameter) {
   }
 
-
   // Fields designed for test introspection
 
   public Integer fieldScalar;
@@ -928,13 +922,11 @@ public class TypeDescriptorTests {
 
   public PassDownGeneric<Integer> passDownGeneric = new PassDownGeneric<>();
 
-
   // Classes designed for test introspection
 
   @SuppressWarnings("serial")
   public static class PassDownGeneric<T> extends ArrayList<List<Set<T>>> {
   }
-
 
   public static class GenericClass<T> {
 
@@ -954,10 +946,8 @@ public class TypeDescriptorTests {
     }
   }
 
-
   public static class IntegerClass extends GenericClass<Integer> {
   }
-
 
   public interface GenericType<T> {
 
@@ -969,7 +959,6 @@ public class TypeDescriptorTests {
 
     public void setListProperty(List<T> t);
   }
-
 
   public class IntegerType implements GenericType<Integer> {
 
@@ -992,7 +981,6 @@ public class TypeDescriptorTests {
     }
   }
 
-
   public class NumberType implements GenericType<Number> {
 
     @Override
@@ -1014,47 +1002,40 @@ public class TypeDescriptorTests {
     }
   }
 
-
   // Annotations used on tested elements
 
-  @Target({ElementType.PARAMETER})
+  @Target({ ElementType.PARAMETER })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface ParameterAnnotation {
 
     int value();
   }
 
-
-  @Target({ ElementType.FIELD})
+  @Target({ ElementType.FIELD })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface FieldAnnotation {
   }
 
-
-  @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+  @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface MethodAnnotation1 {
   }
 
-
-  @Target({ElementType.METHOD})
+  @Target({ ElementType.METHOD })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface MethodAnnotation2 {
   }
 
-
-  @Target({ElementType.FIELD})
+  @Target({ ElementType.FIELD })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface MethodAnnotation3 {
   }
 
-
   @MethodAnnotation1
-  @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+  @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface ComposedMethodAnnotation1 {
   }
-
 
   @ComposedMethodAnnotation1
   @Target(ElementType.METHOD)

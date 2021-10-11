@@ -37,9 +37,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.bytecode.ClassWriter;
+import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.NamingPolicy;
 import cn.taketoday.core.reflect.MethodAccess;

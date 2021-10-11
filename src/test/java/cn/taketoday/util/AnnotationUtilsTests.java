@@ -36,17 +36,17 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.DefaultComponent;
-import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.context.annotation.Service;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.ClassMetaReader;
+import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.core.annotation.ClassMetaReader;
 import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -369,7 +369,6 @@ public class AnnotationUtilsTests {
 
     assert ClassUtils.load("") == null;
   }
-
 
   // old code
 

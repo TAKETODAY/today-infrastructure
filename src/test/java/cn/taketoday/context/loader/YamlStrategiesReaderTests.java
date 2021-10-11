@@ -50,8 +50,4 @@ public class YamlStrategiesReaderTests {
             .contains("cn.taketoday.context.loader.StrategiesDetectorTests$MyPropertyValueResolver");
   }
 
-
-
-
-
 }

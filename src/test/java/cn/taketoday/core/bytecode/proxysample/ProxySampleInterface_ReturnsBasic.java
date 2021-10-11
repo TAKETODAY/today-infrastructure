@@ -17,6 +17,6 @@ package cn.taketoday.core.bytecode.proxysample;
 
 public interface ProxySampleInterface_ReturnsBasic {
 
-    int getKala(float kalamees);
+  int getKala(float kalamees);
 
 }

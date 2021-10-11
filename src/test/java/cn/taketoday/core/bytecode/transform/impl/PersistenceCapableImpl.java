@@ -1,33 +1,31 @@
-
 package cn.taketoday.core.bytecode.transform.impl;
 
 /**
- *
  * @author baliuka
  */
 public class PersistenceCapableImpl implements PersistenceCapable {
 
-    Object persistenceManager;
-    Object pc;// transformed class instance
+  Object persistenceManager;
+  Object pc;// transformed class instance
 
-    /**
-     * Creates a new instance of PersistenceCapableImpl, transformed class uses this
-     * constructor
-     */
+  /**
+   * Creates a new instance of PersistenceCapableImpl, transformed class uses this
+   * constructor
+   */
 
-    public PersistenceCapableImpl(Object _this) {
-        this.pc = _this;
+  public PersistenceCapableImpl(Object _this) {
+    this.pc = _this;
 
-    }
+  }
 
-    public void setPersistenceManager(Object manager) {
+  public void setPersistenceManager(Object manager) {
 
-        persistenceManager = manager;
-        System.out.println("setPersistenceManager:" + manager);
-    }
+    persistenceManager = manager;
+    System.out.println("setPersistenceManager:" + manager);
+  }
 
-    public Object getPersistenceManager() {
-        return persistenceManager;
-    }
+  public Object getPersistenceManager() {
+    return persistenceManager;
+  }
 
 }

@@ -69,7 +69,6 @@ class AnnotationAttributesTests {
     attributes.add("gender", "nv");
     attributes.put("dsds", "dsds");
 
-
     System.out.println(attributes);
 
     Object value = attributes.get("name");

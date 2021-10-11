@@ -56,8 +56,10 @@ public class DataBinderApplication {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof UserForm)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof UserForm))
+        return false;
       final UserForm userForm = (UserForm) o;
       return age == userForm.age && Objects.equals(name, userForm.name);
     }

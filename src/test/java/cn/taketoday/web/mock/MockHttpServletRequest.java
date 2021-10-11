@@ -34,7 +34,6 @@
  */
 package cn.taketoday.web.mock;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -44,54 +44,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Customer {
-    int customerID;
-    String name;
-    String address;
-    String city;
-    String country;
-    String phone;
-    List<Order> orders;
+  int customerID;
+  String name;
+  String address;
+  String city;
+  String country;
+  String phone;
+  List<Order> orders;
 
-    public Customer(int customerID, String name, String address, String city,
-            String country, String phone) {
-        this.customerID = customerID;
-        this.name = name;
-        this.address = address;
-        this.city = city;
-        this.country = country;
-        this.phone = phone;
-        this.orders = new ArrayList<Order>();
-    }
+  public Customer(int customerID, String name, String address, String city,
+                  String country, String phone) {
+    this.customerID = customerID;
+    this.name = name;
+    this.address = address;
+    this.city = city;
+    this.country = country;
+    this.phone = phone;
+    this.orders = new ArrayList<Order>();
+  }
 
-    public String toString() {
-        return "Customer: " + customerID + ", " + name + ", " + city + ", " + country;
-    }
+  public String toString() {
+    return "Customer: " + customerID + ", " + name + ", " + city + ", " + country;
+  }
 
-    public int getCustomerID() {
-        return customerID;
-    }
+  public int getCustomerID() {
+    return customerID;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getAddress() {
-        return address;
-    }
+  public String getAddress() {
+    return address;
+  }
 
-    public String getCity() {
-        return city;
-    }
+  public String getCity() {
+    return city;
+  }
 
-    public String getCountry() {
-        return country;
-    }
+  public String getCountry() {
+    return country;
+  }
 
-    public String getPhone() {
-        return phone;
-    }
+  public String getPhone() {
+    return phone;
+  }
 
-    public List<Order> getOrders() {
-        return orders;
-    }
+  public List<Order> getOrders() {
+    return orders;
+  }
 }

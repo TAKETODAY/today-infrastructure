@@ -2,9 +2,9 @@ package cn.taketoday.core.bytecode.beans;
 
 public class SampleGetter {
 
-    int foo;
+  int foo;
 
-    public int getFoo() {
-        return foo;
-    }
+  public int getFoo() {
+    return foo;
+  }
 }

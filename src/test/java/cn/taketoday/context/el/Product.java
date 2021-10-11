@@ -42,24 +42,24 @@ package cn.taketoday.context.el;
 
 public class Product {
 
-    public int productID;
-    public String name;
-    public String category;
-    public double unitPrice;
-    public int unitsInStock;
+  public int productID;
+  public String name;
+  public String category;
+  public double unitPrice;
+  public int unitsInStock;
 
-    Product(int productID, String name, String category,
-            double unitPrice, int unitsInStock) {
+  Product(int productID, String name, String category,
+          double unitPrice, int unitsInStock) {
 
-        this.productID = productID;
-        this.name = name;
-        this.category = category;
-        this.unitPrice = unitPrice;
-        this.unitsInStock = unitsInStock;
-    }
+    this.productID = productID;
+    this.name = name;
+    this.category = category;
+    this.unitPrice = unitPrice;
+    this.unitsInStock = unitsInStock;
+  }
 
-    public String toString() {
-        return "Product: " + productID + ", " + name + ", " + category + ", " + unitPrice + ", " + unitsInStock;
-    }
+  public String toString() {
+    return "Product: " + productID + ", " + name + ", " + category + ", " + unitPrice + ", " + unitsInStock;
+  }
 
 }

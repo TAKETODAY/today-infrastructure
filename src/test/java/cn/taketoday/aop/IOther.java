@@ -22,6 +22,6 @@ package cn.taketoday.aop;
 
 public interface IOther {
 
-	void absquatulate();
+  void absquatulate();
 
 }

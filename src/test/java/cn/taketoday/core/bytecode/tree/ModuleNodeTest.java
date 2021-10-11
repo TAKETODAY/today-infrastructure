@@ -29,12 +29,11 @@ package cn.taketoday.core.bytecode.tree;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.ModuleVisitor;
-import cn.taketoday.core.bytecode.AsmTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link ModuleNode}.

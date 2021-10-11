@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,27 +29,26 @@ import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-09-06 15:30
  */
 @Configuration
 public class ConfigurationBean {
-    private static final Logger log = LoggerFactory.getLogger(ConfigurationBean.class);
+  private static final Logger log = LoggerFactory.getLogger(ConfigurationBean.class);
 
-    @PostConstruct
-    public void init() {
-        log.info("ConfigurationBean.init()");
-    }
+  @PostConstruct
+  public void init() {
+    log.info("ConfigurationBean.init()");
+  }
 
-    @Prototype("prototype_user")
-    public User user() {
-        return new User().setId(12);
-    }
+  @Prototype("prototype_user")
+  public User user() {
+    return new User().setId(12);
+  }
 
-    @Singleton("user__")
-    public User user__() {
-        return new User().setId(12);
-    }
-
+  @Singleton("user__")
+  public User user__() {
+    return new User().setId(12);
+  }
 
 }

@@ -83,7 +83,6 @@ class StringUtilsTest {
     assert StringUtils.arrayToString(new String[] { "today" }).equals("today");
   }
 
-
   @Test
   void testCleanPath() {
 

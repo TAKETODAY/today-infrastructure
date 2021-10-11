@@ -29,9 +29,9 @@ package cn.taketoday.core.bytecode.tree;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.AsmTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

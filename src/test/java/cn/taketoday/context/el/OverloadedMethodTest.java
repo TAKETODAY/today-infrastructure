@@ -82,7 +82,7 @@ public class OverloadedMethodTest {
   }
 
   @After
-  public void tearDown() {}
+  public void tearDown() { }
 
   @Test
   public void testMethodWithNoArg() {
@@ -95,7 +95,7 @@ public class OverloadedMethodTest {
       elp.eval("foo.methodNotExisted()");
       fail("testNoExistedMethod Failed");
     }
-    catch (MethodNotFoundException e) {}
+    catch (MethodNotFoundException e) { }
   }
 
   @Test
@@ -122,7 +122,7 @@ public class OverloadedMethodTest {
       elp.eval("foo.methodWithAmbiguousArgs(i12, i12)");
       fail("testMethodWithAmbiguousArgs Failed");
     }
-    catch (MethodNotFoundException e) {}
+    catch (MethodNotFoundException e) { }
   }
 
   @Test

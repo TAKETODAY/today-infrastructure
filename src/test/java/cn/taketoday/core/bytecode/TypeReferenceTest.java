@@ -21,8 +21,6 @@ package cn.taketoday.core.bytecode;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.bytecode.TypeReference;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**

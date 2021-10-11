@@ -2,9 +2,10 @@ package cn.taketoday.jdbc;
 
 import junit.framework.TestCase;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+
+import javax.sql.DataSource;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;

@@ -26,7 +26,6 @@ import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.util.Printer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

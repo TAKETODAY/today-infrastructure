@@ -22,10 +22,9 @@ package cn.taketoday.core.bytecode.util;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
-import cn.taketoday.core.bytecode.AsmTest;
-import cn.taketoday.core.bytecode.util.CheckAnnotationAdapter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

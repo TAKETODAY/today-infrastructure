@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,62 +19,62 @@
  */
 package cn.taketoday.context.aware;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.env.Environment;
 import lombok.Getter;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-08 16:32
  */
 @Singleton
 @Getter
 public class AwareBean implements ApplicationContextAware, BeanFactoryAware, BeanNameAware, EnvironmentAware {
 
-    private String beanName;
+  private String beanName;
 
-    private BeanFactory beanFactory;
+  private BeanFactory beanFactory;
 
-    private ApplicationContext applicationContext;
+  private ApplicationContext applicationContext;
 
-    private Environment environment;
+  private Environment environment;
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+  }
 
-    @Override
-    public void setBeanName(String name) {
-        this.beanName = name;
-    }
+  @Override
+  public void setBeanName(String name) {
+    this.beanName = name;
+  }
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
+  @Override
+  public void setEnvironment(Environment environment) {
+    this.environment = environment;
+  }
 
-    @Override
-    public String toString() {
-        return new StringBuilder()//
-                .append("{\n\t\"beanName\":\"")//
-                .append(beanName)//
-                .append("\",\n\t\"beanFactory\":\"")//
-                .append(beanFactory)//
-                .append("\",\n\t\"applicationContext\":\"")//
-                .append(applicationContext)//
-                .append("\",\n\t\"environment\":\"")//
-                .append(environment)//
-                .append("\"\n}")//
-                .toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()//
+            .append("{\n\t\"beanName\":\"")//
+            .append(beanName)//
+            .append("\",\n\t\"beanFactory\":\"")//
+            .append(beanFactory)//
+            .append("\",\n\t\"applicationContext\":\"")//
+            .append(applicationContext)//
+            .append("\",\n\t\"environment\":\"")//
+            .append(environment)//
+            .append("\"\n}")//
+            .toString();
+  }
 
 }

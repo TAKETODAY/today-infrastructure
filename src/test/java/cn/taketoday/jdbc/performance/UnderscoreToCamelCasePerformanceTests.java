@@ -37,10 +37,10 @@ public class UnderscoreToCamelCasePerformanceTests {
 
   class Sql2oUnderscoreToCamelCase extends PerformanceTestBase {
     @Override
-    public void init() {}
+    public void init() { }
 
     @Override
-    public void close() {}
+    public void close() { }
 
     @Override
     public void run(int input) {
@@ -52,10 +52,10 @@ public class UnderscoreToCamelCasePerformanceTests {
 
   class GuavaUnderscoreToCamelCase extends PerformanceTestBase {
     @Override
-    public void init() {}
+    public void init() { }
 
     @Override
-    public void close() {}
+    public void close() { }
 
     @Override
     public void run(int input) {

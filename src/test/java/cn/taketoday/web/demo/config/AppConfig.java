@@ -36,7 +36,7 @@ public class AppConfig implements WebMvcConfiguration {
 
   @Override
   public void configureConversionService(List<TypeConverter> typeConverters) {
-    
+
   }
 
   public void configureInterceptors(InterceptorRegistry registry) {

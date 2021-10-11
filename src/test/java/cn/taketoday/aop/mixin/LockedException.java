@@ -16,10 +16,9 @@
 
 package cn.taketoday.aop.mixin;
 
-
 @SuppressWarnings("serial")
 public class LockedException extends RuntimeException {
 
-	public LockedException() {
-	}
+  public LockedException() {
+  }
 }

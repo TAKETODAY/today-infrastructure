@@ -56,7 +56,6 @@ class ConcurrentReferenceHashMapTests {
 
   private TestWeakConcurrentCache<Integer, String> map = new TestWeakConcurrentCache<>();
 
-
   @Test
   void shouldCreateWithDefaults() {
     ConcurrentReferenceHashMap<Integer, String> map = new ConcurrentReferenceHashMap<>();
@@ -511,6 +510,7 @@ class ConcurrentReferenceHashMapTests {
 
   /**
    * Time a multi-threaded access to a cache.
+   *
    * @return the timing stopwatch
    */
   private <V> StopWatch timeMultiThreaded(String id, final Map<Integer, V> map,
@@ -547,12 +547,10 @@ class ConcurrentReferenceHashMapTests {
     return stopWatch;
   }
 
-
   private interface ValueFactory<V> {
 
     V newValue(int k);
   }
-
 
   private static class TestWeakConcurrentCache<K, V> extends ConcurrentReferenceHashMap<K, V> {
 
@@ -602,6 +600,7 @@ class ConcurrentReferenceHashMapTests {
           }
           return new MockReference<>(entry, hash, next, TestWeakConcurrentCache.this.queue);
         }
+
         @Override
         public Reference<K, V> pollForPurge() {
           if (TestWeakConcurrentCache.this.disableTestHooks) {
@@ -616,7 +615,6 @@ class ConcurrentReferenceHashMapTests {
       return (MockReference<K, V>) super.getReference(key, restructure);
     }
   }
-
 
   private static class MockReference<K, V> implements Reference<K, V> {
 

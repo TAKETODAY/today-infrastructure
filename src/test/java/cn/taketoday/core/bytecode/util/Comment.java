@@ -19,13 +19,13 @@
  */
 package cn.taketoday.core.bytecode.util;
 
+import java.util.Map;
+
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ByteVector;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.Label;
-
-import java.util.Map;
 
 /**
  * A non standard attribute used for testing purposes.

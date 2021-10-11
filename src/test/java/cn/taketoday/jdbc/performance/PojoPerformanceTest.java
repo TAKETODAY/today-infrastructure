@@ -50,11 +50,11 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.beans.Primary;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
@@ -75,7 +75,7 @@ public class PojoPerformanceTest {
   private final static String DB_PASSWORD = "";
   private final static String HIBERNATE_DIALECT = "org.hibernate.dialect.H2Dialect";
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
-//  private final int ITERATIONS = 50000;
+  //  private final int ITERATIONS = 50000;
   private final int ITERATIONS = 1000;
 
   private JdbcOperations operations;
@@ -117,7 +117,7 @@ public class PojoPerformanceTest {
     Random r = new Random();
 
     Query insQuery = operations.createQuery( // language=MySQL
-            "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
+                                             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
               .addParameter("creation_date", new DateTime(System.currentTimeMillis() + r.nextInt()).toDate())
@@ -261,7 +261,7 @@ public class PojoPerformanceTest {
 //      final Post post = new Post();
 //      post.id = input;
 //      List<Post> list1 = suid.select(post);
-    // language=MySQL
+      // language=MySQL
       beeSql.select(SELECT_TYPICAL + " WHERE id = " + input);
 
     }

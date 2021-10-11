@@ -23,49 +23,49 @@ import org.junit.Test;
 
 /**
  * @author TODAY <br>
- *         2019-03-15 21:21
+ * 2019-03-15 21:21
  */
 public class DataSizeTest {
 
-    @Test
-    public void testDataSize() {
+  @Test
+  public void testDataSize() {
 
-        DataSize parse = DataSize.parse("10MB");
-        DataSize gb = DataSize.parse("1GB");
+    DataSize parse = DataSize.parse("10MB");
+    DataSize gb = DataSize.parse("1GB");
 
-        DataSize.parse("1024"); // 1024b
-        try {
-            DataSize.parse("error"); // 1024b
-            assert false;
-        }
-        catch (Exception e) {
-            assert true;
-        }
-        try {
-            DataUnit.fromSuffix("");
-            assert false;
-        }
-        catch (Exception e) {
-            assert true;
-        }
-
-        gb.hashCode();
-        System.err.println(gb);
-        assert !parse.equals(gb);
-        assert gb.equals(gb);
-        assert !gb.equals(null);
-
-        assert !gb.isNegative();
-
-        assert gb.toBytes() == DataSize.ofGigabytes(1).toBytes();
-        assert gb.toGigabytes() == DataSize.ofGigabytes(1).toGigabytes();
-        assert gb.toKilobytes() == DataSize.ofGigabytes(1).toKilobytes();
-        assert gb.toMegabytes() == DataSize.ofGigabytes(1).toMegabytes();
-        assert gb.toTerabytes() == DataSize.ofGigabytes(1).toTerabytes();
-
-        assert gb.compareTo(DataSize.ofGigabytes(1)) == 0;
-        assert gb.equals(DataSize.ofGigabytes(1));
-        assert parse.equals(DataSize.ofMegabytes(10));
+    DataSize.parse("1024"); // 1024b
+    try {
+      DataSize.parse("error"); // 1024b
+      assert false;
     }
+    catch (Exception e) {
+      assert true;
+    }
+    try {
+      DataUnit.fromSuffix("");
+      assert false;
+    }
+    catch (Exception e) {
+      assert true;
+    }
+
+    gb.hashCode();
+    System.err.println(gb);
+    assert !parse.equals(gb);
+    assert gb.equals(gb);
+    assert !gb.equals(null);
+
+    assert !gb.isNegative();
+
+    assert gb.toBytes() == DataSize.ofGigabytes(1).toBytes();
+    assert gb.toGigabytes() == DataSize.ofGigabytes(1).toGigabytes();
+    assert gb.toKilobytes() == DataSize.ofGigabytes(1).toKilobytes();
+    assert gb.toMegabytes() == DataSize.ofGigabytes(1).toMegabytes();
+    assert gb.toTerabytes() == DataSize.ofGigabytes(1).toTerabytes();
+
+    assert gb.compareTo(DataSize.ofGigabytes(1)) == 0;
+    assert gb.equals(DataSize.ofGigabytes(1));
+    assert parse.equals(DataSize.ofMegabytes(10));
+  }
 
 }

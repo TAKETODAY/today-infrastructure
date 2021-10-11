@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright ©  TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,16 +19,16 @@
  */
 package cn.taketoday.context;
 
-import java.util.Arrays;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import lombok.Getter;
@@ -43,66 +43,66 @@ import test.demo.config.User;
 @Getter
 @Configuration
 public class MissingBeanTest {
-    private static final Logger log = LoggerFactory.getLogger(MissingBeanTest.class);
+  private static final Logger log = LoggerFactory.getLogger(MissingBeanTest.class);
 
-    private long start;
+  private long start;
 
-    private static ConfigurableApplicationContext applicationContext = ///
-            new StandardApplicationContext(Arrays.asList(MissingBeanTest.class));
+  private static ConfigurableApplicationContext applicationContext = ///
+          new StandardApplicationContext(Arrays.asList(MissingBeanTest.class));
 
-    private String process;
+  private String process;
 
-    @Setter
-    @Getter
-    private static ConfigurableBeanFactory beanFactory;
+  @Setter
+  @Getter
+  private static ConfigurableBeanFactory beanFactory;
 
-    static {
-        setBeanFactory(getApplicationContext().getBeanFactory());
+  static {
+    setBeanFactory(getApplicationContext().getBeanFactory());
+  }
+
+  public static ConfigurableApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
+
+  @Before
+  public void start() {
+    setStart(System.currentTimeMillis());
+  }
+
+  @After
+  public void end() {
+    log.debug("process: [{}] takes {} ms.", getProcess(), (System.currentTimeMillis() - getStart()));
+  }
+
+  @AfterClass
+  public static void endClass() {
+    ConfigurableApplicationContext applicationContext = getApplicationContext();
+    if (applicationContext != null) {
+      applicationContext.close();
     }
+  }
 
-    public static ConfigurableApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
+  @Test
+  public void test_MissingBeanName() {
 
-    @Before
-    public void start() {
-        setStart(System.currentTimeMillis());
-    }
+    setProcess("test missing user bean");
 
-    @After
-    public void end() {
-        log.debug("process: [{}] takes {} ms.", getProcess(), (System.currentTimeMillis() - getStart()));
-    }
+    ConfigurableApplicationContext applicationContext = getApplicationContext();
 
-    @AfterClass
-    public static void endClass() {
-        ConfigurableApplicationContext applicationContext = getApplicationContext();
-        if (applicationContext != null) {
-            applicationContext.close();
-        }
-    }
+    User bean = applicationContext.getBean("user", User.class);
 
-    @Test
-    public void test_MissingBeanName() {
+    System.err.println(applicationContext.getBeanDefinitions());
 
-        setProcess("test missing user bean");
+    assert applicationContext.getBeanDefinitions().size() == 2;
+    assert bean.getUserName().equals("default user");
 
-        ConfigurableApplicationContext applicationContext = getApplicationContext();
+    System.err.println(bean);
+    System.err.println(bean.getUserName());
+  }
 
-        User bean = applicationContext.getBean("user", User.class);
-
-        System.err.println(applicationContext.getBeanDefinitions());
-
-        assert applicationContext.getBeanDefinitions().size() == 2;
-        assert bean.getUserName().equals("default user");
-
-        System.err.println(bean);
-        System.err.println(bean.getUserName());
-    }
-
-    @MissingBean("user")
-    public User user() {
-        return new User().setAge(21).setId(1).setPasswd("666").setUserName("default user");
-    }
+  @MissingBean("user")
+  public User user() {
+    return new User().setAge(21).setId(1).setPasswd("666").setUserName("default user");
+  }
 
 }

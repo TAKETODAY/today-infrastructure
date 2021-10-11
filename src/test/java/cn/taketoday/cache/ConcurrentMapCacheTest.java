@@ -20,13 +20,12 @@
 package cn.taketoday.cache;
 
 /**
- * 
  * @author TODAY <br>
- *         2020-08-14 22:24
+ * 2020-08-14 22:24
  */
 public class ConcurrentMapCacheTest extends AbstractCacheTest {
 
-    public ConcurrentMapCacheTest() {
-        super(new ConcurrentMapCache());
-    }
+  public ConcurrentMapCacheTest() {
+    super(new ConcurrentMapCache());
+  }
 }

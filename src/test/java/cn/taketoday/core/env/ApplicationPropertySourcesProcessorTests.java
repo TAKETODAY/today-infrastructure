@@ -44,8 +44,6 @@ class ApplicationPropertySourcesProcessorTests {
 
       HashMap<String, Object> source = processor.getSource();
 
-
-
     }
   }
 }

@@ -27,7 +27,7 @@ import cn.taketoday.context.el.ELFieldTest.User;
 
 /**
  * @author TODAY <br>
- *         2019-06-12 20:39
+ * 2019-06-12 20:39
  */
 public class BeanFactoryResolverTest {
 

@@ -31,14 +31,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.util.List;
+
+import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
-import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.tree.AbstractInsnNode;
 import cn.taketoday.core.bytecode.tree.MethodNode;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;

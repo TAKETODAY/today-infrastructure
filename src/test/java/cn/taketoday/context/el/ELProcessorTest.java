@@ -76,7 +76,7 @@ public class ELProcessorTest {
   }
 
   @Before
-  public void setUp() {}
+  public void setUp() { }
 
   @Test
   public void testMethExpr() {

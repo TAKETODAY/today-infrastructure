@@ -97,7 +97,6 @@ public class AopUtilsTests {
             .isSameAs(ExposeInvocationInterceptor.INSTANCE);
   }
 
-
   /**
    * Trivial interceptor that can be introduced in a chain to display it.
    *
@@ -121,7 +120,6 @@ public class AopUtilsTests {
       return this.count;
     }
 
-
     @Override
     public boolean equals(Object other) {
       if (!(other instanceof NopInterceptor)) {
@@ -139,7 +137,6 @@ public class AopUtilsTests {
     }
 
   }
-
 
 }
 

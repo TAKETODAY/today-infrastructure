@@ -33,9 +33,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.WebNestedRuntimeException;
@@ -69,8 +69,10 @@ public class DataBinderParameterResolverTests extends TestCase {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof UserForm)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof UserForm))
+        return false;
       final UserForm userForm = (UserForm) o;
       return age == userForm.age && Objects.equals(name, userForm.name);
     }
@@ -245,8 +247,10 @@ public class DataBinderParameterResolverTests extends TestCase {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof UserForm)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof UserForm))
+        return false;
       final UserForm userForm = (UserForm) o;
       return age == userForm.age && Objects.equals(name, userForm.name);
     }

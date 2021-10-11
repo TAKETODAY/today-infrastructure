@@ -21,33 +21,33 @@ import junit.framework.TestSuite;
 import cn.taketoday.core.bytecode.CodeGenTestCase;
 
 public class TestNoOp extends CodeGenTestCase {
-    private static class Foo {
-        public Foo() {}
+  private static class Foo {
+    public Foo() { }
 
-        public String toString() {
-            return "foo";
-        }
+    public String toString() {
+      return "foo";
     }
+  }
 
-    public void testNoOp() {
-        Object obj = Enhancer.create(Foo.class, NoOp.INSTANCE);
-        assertTrue("foo".equals(obj.toString()));
-    }
+  public void testNoOp() {
+    Object obj = Enhancer.create(Foo.class, NoOp.INSTANCE);
+    assertTrue("foo".equals(obj.toString()));
+  }
 
-    public TestNoOp(String testName) {
-        super(testName);
-    }
+  public TestNoOp(String testName) {
+    super(testName);
+  }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public static Test suite() {
-        return new TestSuite(TestNoOp.class);
-    }
+  public static Test suite() {
+    return new TestSuite(TestNoOp.class);
+  }
 
-    public void perform(ClassLoader loader) throws Throwable {}
+  public void perform(ClassLoader loader) throws Throwable { }
 
-    public void testFailOnMemoryLeak() throws Throwable {}
+  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

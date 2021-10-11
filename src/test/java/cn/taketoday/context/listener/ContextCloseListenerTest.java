@@ -30,7 +30,7 @@ import cn.taketoday.context.event.ContextCloseListener;
 
 /**
  * @author TODAY <br>
- *         2020-02-24 22:44
+ * 2020-02-24 22:44
  */
 public class ContextCloseListenerTest {
 

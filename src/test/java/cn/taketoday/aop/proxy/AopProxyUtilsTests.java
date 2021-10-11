@@ -134,7 +134,4 @@ public class AopProxyUtilsTests {
     assertThatIllegalArgumentException().isThrownBy(() -> AopProxyUtils.proxiedUserInterfaces(proxy));
   }
 
-
-
-
 }

@@ -21,32 +21,31 @@ import cn.taketoday.core.bytecode.proxy.InvocationHandler;
 
 /**
  * @author neeme
- *
  */
 public class InvocationHandlerSample implements InvocationHandler {
 
-    private Object o;
+  private Object o;
 
-    /**
-     * Constructor for InvocationHandlerSample.
-     */
-    public InvocationHandlerSample(Object o) {
-        this.o = o;
-    }
+  /**
+   * Constructor for InvocationHandlerSample.
+   */
+  public InvocationHandlerSample(Object o) {
+    this.o = o;
+  }
 
-    public Object invoke(Object proxy, Method method, Object[] args)
-            throws Throwable {
-        System.out.println("invoke() start");
-        System.out.println("    method: " + method.getName());
-        if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                System.out.println("    arg: " + args[i]);
-            }
-        }
-        Object r = method.invoke(o, args);
-        System.out.println("    return: " + r);
-        System.out.println("invoke() end");
-        return r;
+  public Object invoke(Object proxy, Method method, Object[] args)
+          throws Throwable {
+    System.out.println("invoke() start");
+    System.out.println("    method: " + method.getName());
+    if (args != null) {
+      for (int i = 0; i < args.length; i++) {
+        System.out.println("    arg: " + args[i]);
+      }
     }
+    Object r = method.invoke(o, args);
+    System.out.println("    return: " + r);
+    System.out.println("invoke() end");
+    return r;
+  }
 
 }

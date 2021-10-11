@@ -31,13 +31,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.AsmTest;
+import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.core.bytecode.tree.MethodNode;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link Analyzer}, when used with a {@link SourceInterpreter}.

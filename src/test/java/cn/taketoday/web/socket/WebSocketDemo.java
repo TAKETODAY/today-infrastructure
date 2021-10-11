@@ -60,7 +60,7 @@ public class WebSocketDemo {
 
   }
 
-//  @ServerEndpoint("/endpoint")
+  //  @ServerEndpoint("/endpoint")
   public static class MyEndpoint {
 
     @OnOpen

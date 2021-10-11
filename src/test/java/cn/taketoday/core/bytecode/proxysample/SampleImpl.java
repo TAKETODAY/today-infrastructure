@@ -17,16 +17,15 @@ package cn.taketoday.core.bytecode.proxysample;
 
 /**
  * @author neeme
- *
  */
 public class SampleImpl implements ProxySampleInterface_ReturnsObject, ProxySampleInterface_ReturnsBasic {
 
-    public String getKala(String kalamees) throws Exception {
-        return "kala " + kalamees;
-    }
+  public String getKala(String kalamees) throws Exception {
+    return "kala " + kalamees;
+  }
 
-    public int getKala(float kalamees) {
-        return (int) (100 + kalamees);
-    }
+  public int getKala(float kalamees) {
+    return (int) (100 + kalamees);
+  }
 
 }

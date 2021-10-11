@@ -20,16 +20,16 @@
 
 package cn.taketoday.core.bytecode.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+import cn.taketoday.core.bytecode.AsmTest;
+import cn.taketoday.core.bytecode.AsmTest.PrecompiledClass;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.FieldVisitor;
 import cn.taketoday.core.bytecode.MethodVisitor;
-import cn.taketoday.core.bytecode.AsmTest;
-import cn.taketoday.core.bytecode.AsmTest.PrecompiledClass;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

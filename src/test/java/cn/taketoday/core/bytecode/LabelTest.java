@@ -22,11 +22,6 @@ package cn.taketoday.core.bytecode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import cn.taketoday.core.bytecode.ClassWriter;
-import cn.taketoday.core.bytecode.Label;
-import cn.taketoday.core.bytecode.MethodVisitor;
-import cn.taketoday.core.bytecode.Opcodes;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

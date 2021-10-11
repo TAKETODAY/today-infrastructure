@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-11-10 19:06
  */
 @Documented
@@ -35,10 +35,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Logger {
 
-    /**
-     * operation
-     * 
-     * @return
-     */
-    String value() default "";
+  /**
+   * operation
+   *
+   * @return
+   */
+  String value() default "";
 }

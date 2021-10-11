@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,12 +23,12 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.Order;
-import cn.taketoday.context.Props;
-import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import lombok.Getter;
@@ -41,41 +41,41 @@ import lombok.Getter;
 @Prototype("FactoryBean-Config")
 public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigFactoryBean.class);
+  private static final Logger log = LoggerFactory.getLogger(ConfigFactoryBean.class);
 
-    @PostConstruct
-    @Order(Ordered.LOWEST_PRECEDENCE)
-    public void init1() {
-        log.info("ConfigFactoryBean.init1()");
-    }
+  @PostConstruct
+  @Order(Ordered.LOWEST_PRECEDENCE)
+  public void init1() {
+    log.info("ConfigFactoryBean.init1()");
+  }
 
-    @PostConstruct
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public void init2() {
-        log.info("ConfigFactoryBean.init2()");
-    }
+  @PostConstruct
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  public void init2() {
+    log.info("ConfigFactoryBean.init2()");
+  }
 
-    @Props(value = "info", prefix = "site.")
-    private Properties pro;
+  @Props(value = "info", prefix = "site.")
+  private Properties pro;
 
-    @Override
-    public Config getBean() {
-        Config bean = new Config();
+  @Override
+  public Config getBean() {
+    Config bean = new Config();
 
-        bean.setCdn(pro.getProperty("site.cdn"));
-        bean.setHost(pro.getProperty("site.host"));
-        bean.setCopyright(pro.getProperty("site.copyright"));
-        return bean;
-    }
+    bean.setCdn(pro.getProperty("site.cdn"));
+    bean.setHost(pro.getProperty("site.host"));
+    bean.setCopyright(pro.getProperty("site.copyright"));
+    return bean;
+  }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        
-    }
+  @Override
+  public void afterPropertiesSet() throws Exception {
 
-    @Override
-    public Class<Config> getBeanClass() {
-        return Config.class;
-    }
+  }
+
+  @Override
+  public Class<Config> getBeanClass() {
+    return Config.class;
+  }
 
 }

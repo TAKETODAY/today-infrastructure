@@ -1,6 +1,5 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.support.StatementRunnable;
 import junit.framework.TestCase;
 
 import org.h2.jdbcx.JdbcConnectionPool;
@@ -8,6 +7,8 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.support.StatementRunnable;
 
 /**
  * Created with IntelliJ IDEA. User: lars Date: 10/5/12 Time: 10:54 PM To change

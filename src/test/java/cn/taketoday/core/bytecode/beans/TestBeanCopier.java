@@ -22,54 +22,53 @@ import junit.framework.TestSuite;
 import cn.taketoday.core.bytecode.core.Converter;
 
 /**
- *
  * @author baliuka
  */
 public class TestBeanCopier extends TestCase {
 
-    public void testSimple() {
-        BeanCopier copier = BeanCopier.create(MA.class, MA.class, false);
-        MA bean1 = new MA();
-        bean1.setIntP(42);
-        MA bean2 = new MA();
-        copier.copy(bean1, bean2, null);
-        assertTrue(bean2.getIntP() == 42);
-    }
+  public void testSimple() {
+    BeanCopier copier = BeanCopier.create(MA.class, MA.class, false);
+    MA bean1 = new MA();
+    bean1.setIntP(42);
+    MA bean2 = new MA();
+    copier.copy(bean1, bean2, null);
+    assertTrue(bean2.getIntP() == 42);
+  }
 
-    public void testOneWay() {
-        BeanCopier copier = BeanCopier.create(SampleGetter.class, SampleSetter.class, false);
-        SampleGetter sampleGetter = new SampleGetter();
-        sampleGetter.foo = 42;
-        SampleSetter sampleSetter = new SampleSetter();
-        copier.copy(sampleGetter, sampleSetter, null);
-        assertTrue(sampleSetter.foo == 42);
-    }
+  public void testOneWay() {
+    BeanCopier copier = BeanCopier.create(SampleGetter.class, SampleSetter.class, false);
+    SampleGetter sampleGetter = new SampleGetter();
+    sampleGetter.foo = 42;
+    SampleSetter sampleSetter = new SampleSetter();
+    copier.copy(sampleGetter, sampleSetter, null);
+    assertTrue(sampleSetter.foo == 42);
+  }
 
-    public void testConvert() {
-        BeanCopier copier = BeanCopier.create(MA.class, MA.class, true);
-        MA bean1 = new MA();
-        bean1.setIntP(42);
-        MA bean2 = new MA();
-        copier.copy(bean1, bean2, new Converter() {
-            public Object convert(Object value, Class target, Object context) {
-                if (target.equals(Integer.TYPE)) {
-                    return new Integer(((Number) value).intValue() + 1);
-                }
-                return value;
-            }
-        });
-        assertTrue(bean2.getIntP() == 43);
-    }
+  public void testConvert() {
+    BeanCopier copier = BeanCopier.create(MA.class, MA.class, true);
+    MA bean1 = new MA();
+    bean1.setIntP(42);
+    MA bean2 = new MA();
+    copier.copy(bean1, bean2, new Converter() {
+      public Object convert(Object value, Class target, Object context) {
+        if (target.equals(Integer.TYPE)) {
+          return new Integer(((Number) value).intValue() + 1);
+        }
+        return value;
+      }
+    });
+    assertTrue(bean2.getIntP() == 43);
+  }
 
-    public TestBeanCopier(java.lang.String testName) {
-        super(testName);
-    }
+  public TestBeanCopier(java.lang.String testName) {
+    super(testName);
+  }
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+  public static void main(java.lang.String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public static Test suite() {
-        return new TestSuite(TestBeanCopier.class);
-    }
+  public static Test suite() {
+    return new TestSuite(TestBeanCopier.class);
+  }
 }

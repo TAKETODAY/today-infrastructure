@@ -27,8 +27,6 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import cn.taketoday.util.StreamUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.jdbc.pojos.BigDecimalPojo;
 import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
@@ -44,6 +42,7 @@ import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
+import cn.taketoday.util.StreamUtils;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -263,8 +262,8 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             "insert into testCI(id2, value2, sometext, valwithgetter) values(:id, :value, :someText, :valwithgetter)");
     for (int i = 0; i < 20; i++) {
       query.addParameter("id", i).addParameter("value", "some text " + i).addParameter("someText", "whatever " + i).addParameter(
-              "valwithgetter",
-              "spaz" + i)
+                      "valwithgetter",
+                      "spaz" + i)
               .addToBatch();
     }
     query.executeBatch();
@@ -311,7 +310,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testExecuteAndFetchResultSet() {
     List<Integer> list = jdbcOperations.createQuery(
-            "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
+                    "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
             .fetchScalars(Integer.class);
 
     assertEquals((int) list.get(0), 1);
@@ -695,7 +694,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testComplexTypes() {
     ComplexEntity pojo = jdbcOperations.createQuery("select 1 id, 1 \"entity.id\", 'something' \"entity.value\" from (values(0))").setName(
-            "testComplexTypes")
+                    "testComplexTypes")
             .fetchFirst(ComplexEntity.class);
 
     assertEquals(1, pojo.id);

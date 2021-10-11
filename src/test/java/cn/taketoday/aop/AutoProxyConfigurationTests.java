@@ -24,10 +24,10 @@ import org.junit.Test;
 
 import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +50,6 @@ public class AutoProxyConfigurationTests {
 
       final PropertySetter exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
       final PropertySetter proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
-
 
       assertThat(exposeProxy).isInstanceOf(DefaultPropertySetter.class);
       assertThat(proxyTargetClass).isInstanceOf(DefaultPropertySetter.class);

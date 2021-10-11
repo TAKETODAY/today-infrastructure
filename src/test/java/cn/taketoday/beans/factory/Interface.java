@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,11 +21,11 @@ package cn.taketoday.beans.factory;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2019-01-22 19:34
  */
 public interface Interface {
 
-    void test();
+  void test();
 
 }

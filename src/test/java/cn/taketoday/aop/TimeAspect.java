@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,8 +28,8 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Throwing;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,31 +41,31 @@ import lombok.extern.slf4j.Slf4j;
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class TimeAspect {
 
-    private final ThreadLocal<Long> time = new ThreadLocal<>();
+  private final ThreadLocal<Long> time = new ThreadLocal<>();
 
-    @AfterReturning(TimeAware.class)
-    public void afterReturning(@JoinPoint Joinpoint joinpoint) {
-        log.debug("TimeAspect @AfterReturning Use [{}] ms", System.currentTimeMillis() - time.get());
-    }
+  @AfterReturning(TimeAware.class)
+  public void afterReturning(@JoinPoint Joinpoint joinpoint) {
+    log.debug("TimeAspect @AfterReturning Use [{}] ms", System.currentTimeMillis() - time.get());
+  }
 
-    @AfterThrowing(TimeAware.class)
-    public void afterThrowing(@Throwing Throwable throwable) {
-        log.error("TimeAspect @AfterThrowing With Msg: [{}]", throwable.getMessage(), throwable);
-    }
+  @AfterThrowing(TimeAware.class)
+  public void afterThrowing(@Throwing Throwable throwable) {
+    log.error("TimeAspect @AfterThrowing With Msg: [{}]", throwable.getMessage(), throwable);
+  }
 
-    @Before(TimeAware.class)
-    public void before() {
-        time.set(System.currentTimeMillis());
-        log.debug("TimeAspect @Before method");
-    }
+  @Before(TimeAware.class)
+  public void before() {
+    time.set(System.currentTimeMillis());
+    log.debug("TimeAspect @Before method");
+  }
 
-    @Around(TimeAware.class)
-    public Object around(@JoinPoint Joinpoint joinpoint) throws Throwable {
-        log.debug("TimeAspect @Around Before method");
-        //		int i = 1 / 0;
-        Object proceed = joinpoint.proceed();
-        log.debug("TimeAspect @Around After method");
-        return proceed;
-    }
+  @Around(TimeAware.class)
+  public Object around(@JoinPoint Joinpoint joinpoint) throws Throwable {
+    log.debug("TimeAspect @Around Before method");
+    //		int i = 1 / 0;
+    Object proceed = joinpoint.proceed();
+    log.debug("TimeAspect @Around After method");
+    return proceed;
+  }
 
 }

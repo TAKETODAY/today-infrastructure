@@ -24,11 +24,10 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import cn.taketoday.core.bytecode.AsmTest;
 import cn.taketoday.core.bytecode.signature.SignatureReader;
 import cn.taketoday.core.bytecode.signature.SignatureVisitor;
 import cn.taketoday.core.bytecode.signature.SignatureWriter;
-import cn.taketoday.core.bytecode.AsmTest;
-import cn.taketoday.core.bytecode.util.CheckSignatureAdapter;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;

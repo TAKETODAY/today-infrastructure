@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,16 +25,16 @@ import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2019-01-22 19:41
  */
 @Singleton
 public class Implements3 implements Interface {
-    private static final Logger log = LoggerFactory.getLogger(Implements3.class);
+  private static final Logger log = LoggerFactory.getLogger(Implements3.class);
 
-    @Override
-    public void test() {
-        log.debug("Implements3");
-    }
+  @Override
+  public void test() {
+    log.debug("Implements3");
+  }
 
 }

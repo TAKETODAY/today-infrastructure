@@ -23,8 +23,6 @@ import junit.framework.TestCase;
 
 import org.junit.Before;
 
-import cn.taketoday.core.EmptyObject;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractCacheTest extends TestCase {

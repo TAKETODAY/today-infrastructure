@@ -42,35 +42,35 @@ package cn.taketoday.context.el;
 
 public class Order {
 
-    int orderID;
-    int customerID;
-    Date orderDate;
-    double total;
+  int orderID;
+  int customerID;
+  Date orderDate;
+  double total;
 
-    public Order(int orderID, int customerID, Date orderDate, double total) {
-        this.orderID = orderID;
-        this.customerID = customerID;
-        this.orderDate = orderDate;
-        this.total = total;
-    }
+  public Order(int orderID, int customerID, Date orderDate, double total) {
+    this.orderID = orderID;
+    this.customerID = customerID;
+    this.orderDate = orderDate;
+    this.total = total;
+  }
 
-    public String toString() {
-        return "Order: " + orderID + ", " + customerID + ", " + orderDate.toString() + ", " + total;
-    }
+  public String toString() {
+    return "Order: " + orderID + ", " + customerID + ", " + orderDate.toString() + ", " + total;
+  }
 
-    public int getOrderID() {
-        return orderID;
-    }
+  public int getOrderID() {
+    return orderID;
+  }
 
-    public int getCustomerID() {
-        return customerID;
-    }
+  public int getCustomerID() {
+    return customerID;
+  }
 
-    public Date getOrderDate() {
-        return orderDate;
-    }
+  public Date getOrderDate() {
+    return orderDate;
+  }
 
-    public double getTotal() {
-        return total;
-    }
+  public double getTotal() {
+    return total;
+  }
 }

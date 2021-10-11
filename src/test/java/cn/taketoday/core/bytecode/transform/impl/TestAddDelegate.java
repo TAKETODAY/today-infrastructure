@@ -23,74 +23,73 @@ import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.core.bytecode.transform.ClassTransformerFactory;
 
 /**
- *
  * @author baliuka
  */
 public class TestAddDelegate extends AbstractTransformTest {
 
-    /** Creates a new instance of TestAddDelegate */
-    public TestAddDelegate(String name) {
-        super(name);
+  /** Creates a new instance of TestAddDelegate */
+  public TestAddDelegate(String name) {
+    super(name);
+  }
+
+  public interface Interface {
+
+    Object getDelegte();
+
+    Object getTarget();
+
+  }
+
+  public void test() {
+
+    Interface i = (Interface) this;
+    assertEquals(i.getTarget(), this);
+
+  }
+
+  public static class ImplExclude implements Interface {
+
+    private Object target;
+
+    public ImplExclude(Object target) {
+      this.target = target;
     }
 
-    public interface Interface {
-
-        Object getDelegte();
-
-        Object getTarget();
-
+    public Object getDelegte() {
+      return this;
     }
 
-    public void test() {
-
-        Interface i = (Interface) this;
-        assertEquals(i.getTarget(), this);
-
+    public Object getTarget() {
+      return target;
     }
+  }
 
-    public static class ImplExclude implements Interface {
+  public TestAddDelegate() {
+    super(null);
+  }
 
-        private Object target;
+  protected ClassTransformerFactory getTransformer() throws Exception {
 
-        public ImplExclude(Object target) {
-            this.target = target;
-        }
+    return new ClassTransformerFactory() {
 
-        public Object getDelegte() {
-            return this;
-        }
+      public ClassTransformer newTransformer() {
 
-        public Object getTarget() {
-            return target;
-        }
-    }
+        return new AddDelegateTransformer(new Class[] { Interface.class }, ImplExclude.class);
 
-    public TestAddDelegate() {
-        super(null);
-    }
+      }
 
-    protected ClassTransformerFactory getTransformer() throws Exception {
+    };
 
-        return new ClassTransformerFactory() {
+  }
 
-            public ClassTransformer newTransformer() {
+  public static void main(String[] args) throws Exception {
+    junit.textui.TestRunner.run(suite());
+  }
 
-                return new AddDelegateTransformer(new Class[] { Interface.class }, ImplExclude.class);
+  public static Test suite() throws Exception {
 
-            }
+    return new TestSuite(new TestAddDelegate().transform());
 
-        };
-
-    }
-
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public static Test suite() throws Exception {
-
-        return new TestSuite(new TestAddDelegate().transform());
-
-    }
+  }
 
 }

@@ -29,10 +29,9 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 
 /**
- *
  * @author Today <br>
  *
- *         2018-07-17 21:35:52
+ * 2018-07-17 21:35:52
  */
 public class AwareTest {
 

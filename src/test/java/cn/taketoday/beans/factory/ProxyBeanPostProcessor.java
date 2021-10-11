@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,31 +19,31 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-09-09 20:14
  */
 //@Singleton
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ProxyBeanPostProcessor implements BeanPostProcessor {
-    private static final Logger log = LoggerFactory.getLogger(ProxyBeanPostProcessor.class);
+  private static final Logger log = LoggerFactory.getLogger(ProxyBeanPostProcessor.class);
 
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
-        log.debug("ProxyBeanPostProcessor Before named :[{}]", beanDefinition.getName());
-        return bean;
-    }
+  @Override
+  public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
+    log.debug("ProxyBeanPostProcessor Before named :[{}]", beanDefinition.getName());
+    return bean;
+  }
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
-        log.debug("ProxyBeanPostProcessor After :[{}]", def.getName());
-        return bean;
-    }
+  @Override
+  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
+    log.debug("ProxyBeanPostProcessor After :[{}]", def.getName());
+    return bean;
+  }
 
 }

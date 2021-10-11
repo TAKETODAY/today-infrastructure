@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.core.io.PropertiesUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -31,11 +30,11 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Properties;
 
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
+import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.util.ClassUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,14 +22,14 @@ package test.demo.service;
 import test.demo.config.User;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-11-15 16:50
  */
 public interface UserService {
 
-    public boolean register(User user);
+  public boolean register(User user);
 
-    public User login(User user);
+  public User login(User user);
 
 }

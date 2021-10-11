@@ -23,25 +23,25 @@ import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.util.ReflectionUtils;
 
 abstract public class TestGenerator extends AbstractClassGenerator {
-    private static int counter;
+  private static int counter;
 
-    public TestGenerator(String source) {
-        super(source);
-    }
+  public TestGenerator(String source) {
+    super(source);
+  }
 
-    protected ClassLoader getDefaultClassLoader() {
-        return null;
-    }
+  protected ClassLoader getDefaultClassLoader() {
+    return null;
+  }
 
-    protected Object firstInstance(Class type) throws Exception {
-        return ReflectionUtils.newInstance(type);
-    }
+  protected Object firstInstance(Class type) throws Exception {
+    return ReflectionUtils.newInstance(type);
+  }
 
-    protected Object nextInstance(Object instance) throws Exception {
-        return instance;
-    }
+  protected Object nextInstance(Object instance) throws Exception {
+    return instance;
+  }
 
-    public Object create() {
-        return create(counter++);
-    }
+  public Object create() {
+    return create(counter++);
+  }
 }

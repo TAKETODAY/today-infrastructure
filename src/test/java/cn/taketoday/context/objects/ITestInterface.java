@@ -26,6 +26,6 @@ package cn.taketoday.context.objects;
  */
 public interface ITestInterface {
 
-    void absquatulate();
+  void absquatulate();
 
 }

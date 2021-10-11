@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author TODAY <br>
- *         2020-04-28 10:46
+ * 2020-04-28 10:46
  */
 public class StandardWebServletApplicationContextTest extends Base {
 
