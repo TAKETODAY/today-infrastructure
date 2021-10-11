@@ -20,19 +20,18 @@
 
 package cn.taketoday.context.loader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
-import java.util.HashSet;
 import java.util.function.Supplier;
 
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.annotation.autowire.ObjectSupplierArgumentsResolver;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.autowire.ObjectSupplierArgumentsResolver;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author TODAY 2021/3/6 13:24
  */
-public class ObjectSupplierTests {
+class ObjectSupplierTests {
 
   @ToString
   static class Bean {
@@ -61,11 +60,11 @@ public class ObjectSupplierTests {
 
   @Test
   public void testProperty() throws Throwable {
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(Bean.class, TEST.class);
 
-      final TEST test = context.getBean(TEST.class);
-      final Bean bean = context.getBean(Bean.class);
+      TEST test = context.getBean(TEST.class);
+      Bean bean = context.getBean(Bean.class);
 
       assertThat(test.beanObjectSupplier.get())
               .isEqualTo(bean);
@@ -75,18 +74,22 @@ public class ObjectSupplierTests {
 
   @Test
   public void testParameter() {
-    final Constructor<TEST> constructor = BeanUtils.getConstructor(TEST.class);
-    final Parameter[] parameters = constructor.getParameters();
+
+    Constructor<TEST> constructor = BeanUtils.getConstructor(TEST.class);
+    Parameter[] parameters = constructor.getParameters();
 
     ObjectSupplierArgumentsResolver parameterResolver = new ObjectSupplierArgumentsResolver();
 
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ArgumentsResolvingContext resolvingContext =
+              new ArgumentsResolvingContext(constructor, context, null);
+
       context.importBeans(Bean.class);
 
-      final ObjectSupplier<?> supplier = (ObjectSupplier<?>) parameterResolver.resolve(parameters[0], context);
+      ObjectSupplier<?> supplier = (ObjectSupplier<?>) parameterResolver.resolveArgument(parameters[0], resolvingContext);
 
-      final ObjectSupplier<?> supplier1 = (ObjectSupplier<?>) parameterResolver.resolve(parameters[1], context);
-      final Bean bean = context.getBean(Bean.class);
+      ObjectSupplier<?> supplier1 = (ObjectSupplier<?>) parameterResolver.resolveArgument(parameters[1], resolvingContext);
+      Bean bean = context.getBean(Bean.class);
 
       assertThat(bean)
               .isEqualTo(supplier.get())
