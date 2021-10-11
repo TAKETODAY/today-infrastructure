@@ -24,9 +24,9 @@ import javax.annotation.PostConstruct;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Props;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY <br>

@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.MethodMatcher;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Runtime MethodInterceptor

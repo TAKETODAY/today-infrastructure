@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;

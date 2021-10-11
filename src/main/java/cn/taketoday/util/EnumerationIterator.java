@@ -23,7 +23,7 @@ package cn.taketoday.util;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * @author TODAY 2021/4/13 12:17

@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 
 /**
  * Represents a MIME Type, as originally defined in RFC 2046 and subsequently

@@ -27,8 +27,8 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**

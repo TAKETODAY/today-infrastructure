@@ -29,8 +29,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the

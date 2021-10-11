@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.web.RequestContext;
 

@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Resolve field property

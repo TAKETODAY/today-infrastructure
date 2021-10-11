@@ -20,7 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.FieldVisitor;
 import cn.taketoday.core.bytecode.MethodVisitor;

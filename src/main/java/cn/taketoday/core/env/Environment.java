@@ -16,7 +16,7 @@
 
 package cn.taketoday.core.env;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * Interface representing the environment in which the current application is running.

@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * This is the server side {@link javax.websocket.RemoteEndpoint} implementation

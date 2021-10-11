@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Support class for throttling concurrent access to a specific resource.

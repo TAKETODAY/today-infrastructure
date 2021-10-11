@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * Annotation indicating that the result of invoking a method (or all methods in

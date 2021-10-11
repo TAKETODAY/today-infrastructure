@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Miscellaneous {@link MimeType} utility methods.

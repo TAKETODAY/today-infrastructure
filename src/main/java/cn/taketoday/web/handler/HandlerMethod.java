@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;

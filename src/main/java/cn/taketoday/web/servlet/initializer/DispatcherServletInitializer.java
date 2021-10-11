@@ -25,8 +25,8 @@ import javax.servlet.ServletSecurityElement;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionReader;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebServletApplicationContext;

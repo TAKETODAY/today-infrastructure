@@ -26,11 +26,11 @@ import javax.annotation.PostConstruct;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Props;
-import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.lang.Prototype;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import lombok.Getter;
 
 /**

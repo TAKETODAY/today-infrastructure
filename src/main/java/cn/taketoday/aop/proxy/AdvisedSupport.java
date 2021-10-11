@@ -42,7 +42,7 @@ import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;

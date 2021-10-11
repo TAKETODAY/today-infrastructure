@@ -26,9 +26,9 @@ import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.lang.Singleton;
 import lombok.Getter;
 import lombok.Setter;
 

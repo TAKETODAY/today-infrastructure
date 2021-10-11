@@ -22,7 +22,7 @@ package cn.taketoday.web.registry;
 
 import java.util.Objects;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 

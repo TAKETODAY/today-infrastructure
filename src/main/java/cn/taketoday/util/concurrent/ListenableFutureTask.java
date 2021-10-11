@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Extension of {@link FutureTask} that implements {@link ListenableFuture}.

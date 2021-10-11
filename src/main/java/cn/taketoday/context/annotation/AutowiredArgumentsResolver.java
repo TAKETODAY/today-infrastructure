@@ -27,10 +27,11 @@ import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.Props;
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.Required;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Required;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**

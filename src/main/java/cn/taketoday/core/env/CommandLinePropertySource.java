@@ -19,7 +19,7 @@ package cn.taketoday.core.env;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**

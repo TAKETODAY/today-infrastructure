@@ -21,8 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract class that adapts a {@link Future} parameterized over S into a {@code Future}

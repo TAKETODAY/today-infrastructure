@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 import static cn.taketoday.util.StringUtils.collectionToString;
 import static java.util.Arrays.asList;

@@ -30,6 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+
 /**
  * Helper class for resolving generic types against type variables.
  *

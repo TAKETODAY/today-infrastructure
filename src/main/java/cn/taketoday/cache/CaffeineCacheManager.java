@@ -27,7 +27,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.util.Collection;
 
 import cn.taketoday.cache.annotation.CacheConfig;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * {@link CacheManager} implementation that lazily builds {@link CaffeineCache}

@@ -66,9 +66,9 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.config.CompressionConfiguration;

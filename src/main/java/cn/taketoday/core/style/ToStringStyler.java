@@ -16,7 +16,7 @@
 
 package cn.taketoday.core.style;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A strategy interface for pretty-printing {@code toString()} methods.

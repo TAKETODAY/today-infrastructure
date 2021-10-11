@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.env;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/10/3 15:33

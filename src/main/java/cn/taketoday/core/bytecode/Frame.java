@@ -19,7 +19,7 @@
  */
 package cn.taketoday.core.bytecode;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * The input and output stack map frames of a basic block.

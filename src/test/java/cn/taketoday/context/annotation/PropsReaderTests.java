@@ -35,6 +35,7 @@ import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

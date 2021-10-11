@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * Context will create a bean definition when current context were missing

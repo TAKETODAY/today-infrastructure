@@ -20,7 +20,7 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Helper class for resolving placeholders in texts. Usually applied to file paths.

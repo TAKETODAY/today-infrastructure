@@ -24,7 +24,7 @@ import java.util.Objects;
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;

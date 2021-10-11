@@ -33,10 +33,10 @@ import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Props;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 

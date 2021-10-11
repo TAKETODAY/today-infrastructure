@@ -26,8 +26,6 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.Properties;
 
-import cn.taketoday.core.ConcurrentProperties;
-
 /**
  * use DriverManager to establish a connection
  *
@@ -43,7 +41,7 @@ final class GenericConnectionSource implements ConnectionSource {
   }
 
   GenericConnectionSource(String url, String user, String password) {
-    this(url, new ConcurrentProperties());
+    this(url, new Properties());
     if (user != null) {
       properties.put("user", user);
     }

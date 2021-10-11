@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Composite {@link PropertySource} implementation that iterates over a set of

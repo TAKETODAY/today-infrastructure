@@ -21,8 +21,8 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.logger.Logger;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
 
 /**
  * Simple AOP Alliance {@code MethodInterceptor} that can be introduced

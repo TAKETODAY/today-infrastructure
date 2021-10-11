@@ -28,8 +28,8 @@ import java.util.Map;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Mock implementation of the {@link javax.servlet.FilterConfig} interface.

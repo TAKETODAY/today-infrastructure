@@ -22,10 +22,10 @@ package test.demo.service.impl;
 import javax.annotation.Resource;
 
 import cn.taketoday.context.Props;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Service;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Service;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import test.demo.config.Config;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;

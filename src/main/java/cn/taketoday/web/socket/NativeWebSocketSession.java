@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * @author TODAY 2021/5/7 23:03

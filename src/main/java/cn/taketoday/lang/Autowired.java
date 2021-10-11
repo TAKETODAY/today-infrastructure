@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,31 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.logger;
+package cn.taketoday.lang;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY <br>
- * 2019-11-03 20:29
+ * 2018-?-? ?:?
  */
-public enum Level {
-  /** for tracing messages that are very verbose */
-  TRACE(1),
-  /** messages suitable for debugging purposes */
-  DEBUG(2),
-  /** information messages */
-  INFO(3),
-  /** warning messages */
-  WARN(4),
-  /** error messages */
-  ERROR(5);
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
+public @interface Autowired {
 
-  private final int level;
+  /** @return Bean name */
+  String value() default Constant.BLANK;
 
-  private Level(int level) {
-    this.level = level;
-  }
+  /** @return property is required ? */
+  boolean required() default true;
 
-  public boolean isEnabled(Level otherLevel) {
-    return level <= otherLevel.level;
-  }
 }

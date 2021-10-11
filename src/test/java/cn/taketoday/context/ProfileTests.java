@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.condition.WindowsCondition;
 import test.demo.config.User;
 

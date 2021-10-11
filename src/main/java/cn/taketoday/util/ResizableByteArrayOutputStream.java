@@ -22,7 +22,7 @@ package cn.taketoday.util;
 
 import java.io.ByteArrayOutputStream;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * An extension of {@link java.io.ByteArrayOutputStream} that:

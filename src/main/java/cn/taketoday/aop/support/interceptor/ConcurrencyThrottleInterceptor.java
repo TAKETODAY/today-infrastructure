@@ -25,7 +25,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.io.Serializable;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrencyThrottleSupport;
 
 /**

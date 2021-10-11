@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.lang.Constant;
+
 /**
  * @author TODAY 2021/2/23 20:20
  * @since 3.0

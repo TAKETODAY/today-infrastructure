@@ -21,9 +21,9 @@ package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Configuration;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Import classes according to user's Configuration

@@ -26,7 +26,7 @@ import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY <br>

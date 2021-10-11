@@ -19,7 +19,7 @@
  */
 package cn.taketoday.framework.reactive;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;

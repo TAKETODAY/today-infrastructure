@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 
 /**
  * @author TODAY <br>

@@ -22,7 +22,7 @@ package cn.taketoday.cache;
 
 import java.io.Serializable;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple serializable class that serves as a {@code null} replacement

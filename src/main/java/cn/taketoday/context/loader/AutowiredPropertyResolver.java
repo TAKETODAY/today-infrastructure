@@ -29,12 +29,12 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 

@@ -33,7 +33,7 @@ import java.util.Map;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;

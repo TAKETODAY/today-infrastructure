@@ -27,11 +27,11 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.StringUtils;
 

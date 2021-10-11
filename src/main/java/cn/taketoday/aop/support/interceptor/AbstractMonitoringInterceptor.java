@@ -23,7 +23,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * Base class for monitoring interceptors, such as performance monitors.

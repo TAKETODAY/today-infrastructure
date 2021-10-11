@@ -21,7 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Callback for customizing a given bean definition.

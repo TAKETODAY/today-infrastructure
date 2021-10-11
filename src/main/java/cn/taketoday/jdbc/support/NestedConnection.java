@@ -3,8 +3,8 @@ package cn.taketoday.jdbc.support;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY

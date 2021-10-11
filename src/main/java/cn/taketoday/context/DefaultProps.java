@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY 2019-03-15 23:18

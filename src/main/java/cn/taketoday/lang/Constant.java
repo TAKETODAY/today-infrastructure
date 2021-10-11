@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core;
+package cn.taketoday.lang;
 
 import java.io.File;
 import java.io.Serializable;
@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.util.ClassUtils;
 

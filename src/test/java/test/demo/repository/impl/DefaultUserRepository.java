@@ -26,10 +26,10 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.lang.Prototype;
 import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 

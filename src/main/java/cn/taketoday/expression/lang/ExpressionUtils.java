@@ -49,7 +49,7 @@ import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.core.Constant.BLANK;
+import static cn.taketoday.lang.Constant.BLANK;
 
 /**
  * A helper class that implements the EL Specification

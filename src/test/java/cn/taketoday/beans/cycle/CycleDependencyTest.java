@@ -33,10 +33,10 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Order;
+import cn.taketoday.lang.Singleton;
 
 import static org.junit.Assert.assertEquals;
 

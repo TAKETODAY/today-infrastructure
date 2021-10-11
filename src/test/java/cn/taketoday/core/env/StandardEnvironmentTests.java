@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Map;
 
-import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.lang.TodayStrategies;
 
 import static cn.taketoday.core.env.AbstractEnvironment.DEFAULT_PROFILE;
 import static cn.taketoday.core.env.AbstractEnvironment.KEY_ACTIVE_PROFILES;

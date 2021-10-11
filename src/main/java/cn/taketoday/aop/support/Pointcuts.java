@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.proxy.DefaultMethodInvocation;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Pointcut constants for matching getters and setters,

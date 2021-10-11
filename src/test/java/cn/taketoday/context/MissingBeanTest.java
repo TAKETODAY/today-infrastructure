@@ -27,10 +27,10 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 import test.demo.config.User;

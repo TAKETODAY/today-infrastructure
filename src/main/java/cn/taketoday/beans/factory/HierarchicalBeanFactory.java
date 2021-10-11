@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Sub-interface implemented by bean factories that can be part

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.logger;
+package cn.taketoday.logging;
 
 import java.io.IOException;
 import java.util.logging.LogManager;
@@ -30,7 +30,7 @@ import cn.taketoday.core.io.ClassPathResource;
  * @author TODAY <br>
  * 2019-11-03 14:45
  */
-final class JavaLoggingLogger extends cn.taketoday.logger.Logger {
+final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
   private final Logger logger;
 

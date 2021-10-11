@@ -31,7 +31,7 @@ import javax.servlet.Registration;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.StringUtils;
 

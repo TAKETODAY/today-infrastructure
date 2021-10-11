@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.reflect.Accessor;
 
 /**

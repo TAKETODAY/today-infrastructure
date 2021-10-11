@@ -25,8 +25,8 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY <br>

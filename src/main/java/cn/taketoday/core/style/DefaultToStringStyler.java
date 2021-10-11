@@ -16,8 +16,8 @@
 
 package cn.taketoday.core.style;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 

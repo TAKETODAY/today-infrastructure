@@ -44,8 +44,8 @@ import java.util.Map;
 
 import javax.transaction.Synchronization;
 
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY <br>

@@ -49,7 +49,7 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;

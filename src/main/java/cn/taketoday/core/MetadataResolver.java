@@ -20,6 +20,8 @@
 
 package cn.taketoday.core;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Simple strategy interface for resolving a value
  *

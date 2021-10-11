@@ -28,7 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
@@ -37,8 +37,8 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.io.UrlBasedResource;
 
-import static cn.taketoday.core.Constant.BLANK;
-import static cn.taketoday.core.Constant.PATH_SEPARATOR;
+import static cn.taketoday.lang.Constant.BLANK;
+import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
 import static cn.taketoday.core.io.ResourceLoader.CLASSPATH_URL_PREFIX;
 
 /**

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 

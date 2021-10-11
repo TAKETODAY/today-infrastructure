@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans;
 
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 
 /**
  * @author TODAY 2021/9/7 23:08

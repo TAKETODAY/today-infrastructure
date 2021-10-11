@@ -44,7 +44,7 @@ package cn.taketoday.expression.parser;
 import java.io.IOException;
 import java.util.Stack;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY <br>

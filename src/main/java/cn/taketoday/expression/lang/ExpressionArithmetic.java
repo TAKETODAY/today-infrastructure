@@ -46,7 +46,7 @@ import java.math.RoundingMode;
 
 import cn.taketoday.util.NumberUtils;
 
-import static cn.taketoday.core.Constant.BLANK;
+import static cn.taketoday.lang.Constant.BLANK;
 
 /**
  * A helper class of Arithmetic defined by the EL Specification

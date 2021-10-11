@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.http.HttpHeaders;

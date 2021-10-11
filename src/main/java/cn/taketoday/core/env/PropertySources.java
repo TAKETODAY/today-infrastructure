@@ -21,7 +21,7 @@ import java.util.Spliterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Holder containing one or more {@link PropertySource} objects.

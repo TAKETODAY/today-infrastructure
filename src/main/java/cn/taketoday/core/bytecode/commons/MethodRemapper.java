@@ -28,7 +28,7 @@
 
 package cn.taketoday.core.bytecode.commons;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Label;

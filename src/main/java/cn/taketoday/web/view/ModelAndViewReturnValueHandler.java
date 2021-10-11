@@ -22,7 +22,7 @@ package cn.taketoday.web.view;
 import java.io.IOException;
 import java.util.List;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 

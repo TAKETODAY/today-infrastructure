@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.interceptor;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY <br>

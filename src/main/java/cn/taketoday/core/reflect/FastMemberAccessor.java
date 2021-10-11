@@ -21,7 +21,7 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Member;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class FastMemberAccessor implements Accessor {

@@ -26,7 +26,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Holder that combines a {@link Resource} descriptor with a specific encoding

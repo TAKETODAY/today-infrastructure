@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 

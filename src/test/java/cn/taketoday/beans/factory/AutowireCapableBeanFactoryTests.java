@@ -32,8 +32,8 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Component;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 

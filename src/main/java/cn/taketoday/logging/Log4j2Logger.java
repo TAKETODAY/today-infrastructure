@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.logger;
+package cn.taketoday.logging;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,7 @@ import org.apache.logging.log4j.util.StackLocatorUtil;
  * @author TODAY <br>
  * 2019-11-03 16:09
  */
-final class Log4j2Logger extends cn.taketoday.logger.Logger {
+final class Log4j2Logger extends cn.taketoday.logging.Logger {
   private final Logger logger;
 
   public Log4j2Logger(String name) {
@@ -131,7 +131,7 @@ final class Log4j2Logger extends cn.taketoday.logger.Logger {
 final class Log4j2LoggerFactory extends LoggerFactory {
 
   @Override
-  protected cn.taketoday.logger.Logger createLogger(String name) {
+  protected cn.taketoday.logging.Logger createLogger(String name) {
     return new Log4j2Logger(name);
   }
 }

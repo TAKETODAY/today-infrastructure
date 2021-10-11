@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.lang;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,13 +29,13 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.Scope;
 
 /**
- * @author TODAY<br>
- * 2018-07-02 20:45:00
+ * @author TODAY <br>
+ * 2018-07-2 20:44:15
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.SINGLETON)
+@Component(scope = Scope.PROTOTYPE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Repository {
+public @interface Prototype {
 
   /**
    * The value may indicate a suggestion for a logical component name, to be
@@ -71,4 +71,5 @@ public @interface Repository {
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
   String[] destroyMethods() default {};
+
 }

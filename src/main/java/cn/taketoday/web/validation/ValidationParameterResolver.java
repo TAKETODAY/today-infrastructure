@@ -22,8 +22,8 @@ package cn.taketoday.web.validation;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;

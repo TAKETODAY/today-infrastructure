@@ -34,7 +34,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
 

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**

@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * @author TODAY 2021/3/6 15:55

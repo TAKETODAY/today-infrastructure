@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.io;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A resolution strategy for protocol-specific resource handles.

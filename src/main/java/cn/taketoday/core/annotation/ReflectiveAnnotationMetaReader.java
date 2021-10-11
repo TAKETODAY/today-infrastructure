@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 

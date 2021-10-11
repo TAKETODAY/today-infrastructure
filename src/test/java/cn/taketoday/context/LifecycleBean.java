@@ -31,14 +31,14 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY <br>

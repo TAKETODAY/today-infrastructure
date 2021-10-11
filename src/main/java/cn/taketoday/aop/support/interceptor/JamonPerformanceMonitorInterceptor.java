@@ -27,7 +27,7 @@ import com.jamonapi.utils.Misc;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.logger.Logger;
+import cn.taketoday.logging.Logger;
 
 /**
  * Performance monitor interceptor that uses <b>JAMon</b> library to perform the

@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter;
 
 import javax.servlet.http.Cookie;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Extension of {@code Cookie} with extra attributes, as defined in

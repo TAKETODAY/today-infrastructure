@@ -43,10 +43,12 @@ import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
@@ -54,7 +56,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.core.Constant.VALUE;
+import static cn.taketoday.lang.Constant.VALUE;
 
 /**
  * @author TODAY 2021/10/2 22:45
@@ -589,7 +591,7 @@ public class BeanDefinitionBuilder {
 
   /**
    * Add a method which annotated with {@link javax.annotation.PostConstruct}
-   * or {@link  cn.taketoday.context.annotation.Autowired}
+   * or {@link  Autowired}
    *
    * @param beanClass
    *         Bean class

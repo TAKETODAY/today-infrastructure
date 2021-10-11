@@ -20,8 +20,8 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.core.Order;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author Today <br>

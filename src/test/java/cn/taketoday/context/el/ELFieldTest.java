@@ -27,7 +27,7 @@ import java.util.Date;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.expression.ExpressionProcessor;
 import lombok.Getter;
 import lombok.Setter;

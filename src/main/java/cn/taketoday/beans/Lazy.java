@@ -25,9 +25,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.core.ObjectFactory;
 
 /**

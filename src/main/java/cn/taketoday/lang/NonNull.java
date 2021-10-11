@@ -17,22 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
 
+package cn.taketoday.lang;
+
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.Scope;
+import javax.annotation.Nonnull;
+import javax.annotation.meta.TypeQualifierNickname;
 
 /**
- * @author TODAY <br>
- * 2018-09-06 14:05
+ * A common annotation to declare that annotated elements cannot be {@code null}.
+ *
+ * <p>Leverages JSR-305 meta-annotations to indicate nullability in Java to common
+ * tools with JSR-305 support.
+ *
+ * <p>Should be used at parameter, return value, and field level. Method overrides should
+ * repeat parent {@code @NonNull} annotations unless they behave differently.
+ *
+ * @author TODAY 2021/8/15 17:17
+ * @see Nullable
+ * @since 4.0
  */
-@Target(ElementType.TYPE)
+@Nonnull
+@Documented
+@TypeQualifierNickname
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+public @interface NonNull {
 
 }
+

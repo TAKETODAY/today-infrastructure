@@ -19,9 +19,9 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.lang.Singleton;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author Today <br>

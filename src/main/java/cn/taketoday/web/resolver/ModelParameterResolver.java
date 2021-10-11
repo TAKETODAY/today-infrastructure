@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpHeaders;

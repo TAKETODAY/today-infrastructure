@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.session;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 
 /**

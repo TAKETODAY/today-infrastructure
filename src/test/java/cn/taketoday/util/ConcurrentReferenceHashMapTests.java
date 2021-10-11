@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap.Entry;
 import cn.taketoday.util.ConcurrentReferenceHashMap.Reference;
 import cn.taketoday.util.ConcurrentReferenceHashMap.Restructure;

@@ -21,8 +21,8 @@
 package cn.taketoday.aop.target;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * {@link TargetSource} implementation that will

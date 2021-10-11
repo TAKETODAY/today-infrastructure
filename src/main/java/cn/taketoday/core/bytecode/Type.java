@@ -25,9 +25,9 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.util.ObjectUtils;
 

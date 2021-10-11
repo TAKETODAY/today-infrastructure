@@ -23,7 +23,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;

@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.util.ObjectUtils;
 

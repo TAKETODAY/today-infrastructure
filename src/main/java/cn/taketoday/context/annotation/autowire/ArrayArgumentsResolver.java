@@ -27,7 +27,7 @@ import java.util.Map;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 

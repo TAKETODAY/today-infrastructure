@@ -37,12 +37,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY <br>

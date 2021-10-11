@@ -18,7 +18,7 @@ package cn.taketoday.core.env;
 
 import java.util.Collection;
 
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 
 /**
  * A {@link PropertySource} implementation capable of interrogating its

@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion;
 import java.time.Duration;
 import java.util.List;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 
 /**

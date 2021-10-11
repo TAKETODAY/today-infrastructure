@@ -27,8 +27,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;

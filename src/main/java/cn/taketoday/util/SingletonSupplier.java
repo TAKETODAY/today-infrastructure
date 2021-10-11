@@ -22,7 +22,7 @@ package cn.taketoday.util;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * A {@link java.util.function.Supplier} decorator that caches a singleton result and

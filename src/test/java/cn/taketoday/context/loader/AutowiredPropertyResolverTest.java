@@ -29,7 +29,7 @@ import javax.inject.Named;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.annotation.PropsReader;
 
 /**

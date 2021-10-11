@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;

@@ -33,7 +33,7 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;

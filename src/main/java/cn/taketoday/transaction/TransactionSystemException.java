@@ -19,7 +19,7 @@
  */
 package cn.taketoday.transaction;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Exception thrown when a general transaction system error is encountered, like

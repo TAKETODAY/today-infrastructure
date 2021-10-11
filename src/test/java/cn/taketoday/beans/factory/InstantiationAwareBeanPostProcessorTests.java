@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

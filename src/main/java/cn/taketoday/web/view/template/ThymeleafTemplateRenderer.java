@@ -30,7 +30,7 @@ import javax.servlet.ServletContext;
 
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Value;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 

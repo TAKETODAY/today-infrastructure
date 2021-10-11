@@ -28,8 +28,8 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.ProxyFactory;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

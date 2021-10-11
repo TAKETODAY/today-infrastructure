@@ -17,14 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.lang;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY <br>

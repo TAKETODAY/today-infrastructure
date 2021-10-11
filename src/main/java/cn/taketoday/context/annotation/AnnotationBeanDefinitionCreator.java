@@ -32,6 +32,7 @@ import cn.taketoday.context.loader.BeanDefinitionCreationStrategy;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.lang.Component;
 
 /**
  * @author TODAY 2021/10/10 22:20

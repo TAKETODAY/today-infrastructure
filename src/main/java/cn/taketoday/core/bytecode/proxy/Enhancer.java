@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
@@ -67,7 +67,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
+import static cn.taketoday.lang.Constant.SUID_FIELD_NAME;
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_FRAMES;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PRIVATE;

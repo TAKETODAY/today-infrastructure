@@ -20,7 +20,7 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy interface used to resolve replacement values for placeholders contained in Strings.

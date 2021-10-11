@@ -22,7 +22,7 @@ package cn.taketoday.web.session;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.HttpHeaders;
 

@@ -22,7 +22,7 @@ package cn.taketoday.core.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Objects;
 
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.jdbc.ParameterBinder;
 import cn.taketoday.util.CollectionUtils;
 

@@ -44,8 +44,8 @@ import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Servlet 3.1 HTTP upgrade handler for WebSocket connections.

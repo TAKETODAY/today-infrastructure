@@ -33,9 +33,9 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.core.ConfigurationException;
 
 import static org.assertj.core.api.Assertions.assertThat;

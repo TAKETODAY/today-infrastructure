@@ -22,7 +22,7 @@ package cn.taketoday.aop.proxy;
 
 import java.io.Serializable;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Convenience superclass for configuration used in creating proxies,

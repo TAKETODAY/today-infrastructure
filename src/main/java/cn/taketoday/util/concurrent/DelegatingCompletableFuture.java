@@ -23,7 +23,7 @@ package cn.taketoday.util.concurrent;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Extension of {@link CompletableFuture} which allows for cancelling

@@ -27,9 +27,9 @@ import java.security.MessageDigest;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A speedy alternative to {@link java.io.ByteArrayOutputStream}. Note that

@@ -20,7 +20,7 @@
 
 package cn.taketoday.context;
 
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Configuration;
 
 /**
  * Common interface for annotation config application contexts,

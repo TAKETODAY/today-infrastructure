@@ -31,7 +31,7 @@ import java.net.URL;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.HttpHeaders;
 
-import static cn.taketoday.core.Constant.DEFAULT_CHARSET;
+import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
 /**
  * @author TODAY <br>

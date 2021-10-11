@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 
 /**
  * {@link PropertySource} implementation that extracts properties from a

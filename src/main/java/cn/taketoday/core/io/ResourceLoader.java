@@ -19,8 +19,8 @@
  */
 package cn.taketoday.core.io;
 
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy interface for resolving a location pattern (for example, an

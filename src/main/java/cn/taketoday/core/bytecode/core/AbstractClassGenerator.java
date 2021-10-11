@@ -22,7 +22,7 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.bytecode.core.internal.LoadingCache;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;

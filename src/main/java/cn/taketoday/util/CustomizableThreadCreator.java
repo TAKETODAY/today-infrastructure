@@ -23,7 +23,7 @@ package cn.taketoday.util;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple customizable helper class for creating new {@link Thread} instances.

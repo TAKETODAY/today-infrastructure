@@ -32,9 +32,9 @@ import javax.annotation.PreDestroy;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarResource;

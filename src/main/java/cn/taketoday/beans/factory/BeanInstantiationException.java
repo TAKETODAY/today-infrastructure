@@ -23,7 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Exception thrown when instantiation of a bean failed. Carries the offending

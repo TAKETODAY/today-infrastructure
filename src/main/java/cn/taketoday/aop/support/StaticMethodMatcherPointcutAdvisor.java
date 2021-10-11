@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.PointcutAdvisor;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.Ordered;
 
 /**

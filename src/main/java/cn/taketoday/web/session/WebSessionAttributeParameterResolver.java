@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.session;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;

@@ -20,6 +20,8 @@
 
 package cn.taketoday.core;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Strategy interface to provide an order source for a given object.
  *

@@ -16,8 +16,8 @@
 
 package cn.taketoday.core.style;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Utility class that builds pretty-printing {@code toString()} methods

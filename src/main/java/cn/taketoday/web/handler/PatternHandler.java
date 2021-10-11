@@ -22,7 +22,7 @@ package cn.taketoday.web.handler;
 import java.io.Serializable;
 import java.util.Objects;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.OrderUtils;
 

@@ -28,7 +28,7 @@ import java.util.Map;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 
 /**

@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.lang.reflect.Field;
 
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/10/3 22:01

@@ -59,7 +59,7 @@ import java.util.function.Supplier;
 import javax.servlet.Servlet;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;

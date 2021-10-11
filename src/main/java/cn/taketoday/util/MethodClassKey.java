@@ -22,7 +22,7 @@ package cn.taketoday.util;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A common key class for a method against a specific target class,

@@ -24,7 +24,7 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/3/8 16:19

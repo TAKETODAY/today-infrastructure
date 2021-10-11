@@ -22,7 +22,7 @@ package cn.taketoday.core.io;
 
 import java.io.IOException;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy interface for resolving a location pattern (for example,

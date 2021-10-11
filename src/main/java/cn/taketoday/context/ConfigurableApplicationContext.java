@@ -21,7 +21,7 @@ package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**

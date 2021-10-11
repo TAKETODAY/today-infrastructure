@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 

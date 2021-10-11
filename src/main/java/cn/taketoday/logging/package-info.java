@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -16,22 +16,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ *
+ * Logging System Adapter
+ *
+ * Logging System Adapter
  */
-
-package cn.taketoday.core;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * @author TODAY 2021/4/28 14:08
- * @since 3.0
+ * Logging System Adapter
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD,
-        ElementType.TYPE, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
-public @interface Required {
-
-}
+package cn.taketoday.logging;

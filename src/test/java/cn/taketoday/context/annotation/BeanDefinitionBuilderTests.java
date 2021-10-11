@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.fail;
 

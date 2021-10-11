@@ -22,7 +22,7 @@ package cn.taketoday.cache;
 import java.util.Arrays;
 
 import cn.taketoday.cache.annotation.CacheConfig;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * @author TODAY <br>

@@ -25,8 +25,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.WebApplicationUtils;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 /**

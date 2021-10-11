@@ -19,7 +19,7 @@ package cn.taketoday.util.comparator;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link Comparator} for {@link Boolean} objects that can sort either

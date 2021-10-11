@@ -24,8 +24,8 @@ import java.util.Map;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.InvalidPropertyValueException;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**

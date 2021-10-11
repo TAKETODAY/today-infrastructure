@@ -28,9 +28,9 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.annotation.Component;
+import cn.taketoday.lang.Component;
 import cn.taketoday.context.loader.BeanDefinitionReader;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * ApplicationContext default implementation

@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link BeanPostProcessor} implementation that supplies the {@code ApplicationContext},

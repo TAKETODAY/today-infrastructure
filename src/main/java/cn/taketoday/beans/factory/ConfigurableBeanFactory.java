@@ -21,7 +21,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.lang.Prototype;
 
 /**
  * Configuration interface to be implemented by most bean factories. Provides

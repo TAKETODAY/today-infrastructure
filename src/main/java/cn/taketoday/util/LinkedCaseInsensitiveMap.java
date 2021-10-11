@@ -33,7 +33,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.NonNull;
 
 /**
  * {@link LinkedHashMap} variant that stores String keys in a case-insensitive

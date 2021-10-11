@@ -18,8 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core;
+package cn.taketoday.lang;
 
+import cn.taketoday.core.DefaultStrategiesReader;
+import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.core.StrategiesReader;
+import cn.taketoday.core.YamlStrategiesReader;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

@@ -22,7 +22,7 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.ExecutionException;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract class that adapts a {@link ListenableFuture} parameterized over S into a

@@ -33,7 +33,7 @@ import cn.taketoday.aop.proxy.std.GeneratorContext;
 import cn.taketoday.aop.proxy.std.NoneProxyMethodGenerator;
 import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -45,8 +45,8 @@ import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

@@ -28,10 +28,10 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConstructorNotFoundException;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 

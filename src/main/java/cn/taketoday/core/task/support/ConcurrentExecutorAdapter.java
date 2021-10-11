@@ -18,8 +18,8 @@ package cn.taketoday.core.task.support;
 
 import java.util.concurrent.Executor;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.NonNull;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.core.task.TaskExecutor;
 
 /**

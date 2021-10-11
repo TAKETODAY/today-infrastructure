@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core;
+package cn.taketoday.lang;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

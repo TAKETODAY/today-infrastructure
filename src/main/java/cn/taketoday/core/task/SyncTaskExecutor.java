@@ -21,7 +21,7 @@ package cn.taketoday.core.task;
 
 import java.io.Serializable;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * {@link TaskExecutor} implementation that executes each task <i>synchronously</i>

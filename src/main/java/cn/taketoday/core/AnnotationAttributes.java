@@ -35,6 +35,7 @@ import java.util.function.BiConsumer;
 
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.bytecode.AnnotationValueHolder;
+import cn.taketoday.lang.Assert;
 
 /**
  * single or multi - value map

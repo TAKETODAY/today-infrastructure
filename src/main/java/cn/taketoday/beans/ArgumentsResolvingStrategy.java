@@ -21,7 +21,7 @@ package cn.taketoday.beans;
 
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Arguments Resolving Strategy for {@link java.lang.reflect.Executable}

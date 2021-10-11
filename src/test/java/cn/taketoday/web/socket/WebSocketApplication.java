@@ -24,9 +24,9 @@ import java.io.IOException;
 import javax.websocket.Session;
 
 import cn.taketoday.beans.IgnoreDuplicates;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.config.EnableTomcatHandling;

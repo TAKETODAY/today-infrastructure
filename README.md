@@ -911,18 +911,15 @@ public class RedisConfiguration {
 ```java
 package test.context;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;

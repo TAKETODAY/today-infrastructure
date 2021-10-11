@@ -20,8 +20,8 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 
 /**

@@ -1,3 +1,4 @@
+
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
@@ -17,27 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.core.Constant;
 
 /**
- * @author TODAY <br>
- * 2018-?-? ?:?
+ * Framework global classes
+ *
+ * @author TODAY 2021/10/11 23:24
+ * @since 4.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
-public @interface Autowired {
-
-  /** @return Bean name */
-  String value() default Constant.BLANK;
-
-  /** @return property is required ? */
-  boolean required() default true;
-
-}
+package cn.taketoday.lang;

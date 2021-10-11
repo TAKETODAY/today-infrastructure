@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 

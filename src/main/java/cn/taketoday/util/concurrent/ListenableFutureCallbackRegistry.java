@@ -22,8 +22,8 @@ package cn.taketoday.util.concurrent;
 
 import java.util.ArrayDeque;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Helper class for {@link ListenableFuture} implementations that maintains a

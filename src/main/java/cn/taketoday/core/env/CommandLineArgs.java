@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A simple representation of command line arguments, broken into "option arguments" and

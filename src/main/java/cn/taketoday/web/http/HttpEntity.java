@@ -22,7 +22,7 @@ package cn.taketoday.web.http;
 import java.util.Objects;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.

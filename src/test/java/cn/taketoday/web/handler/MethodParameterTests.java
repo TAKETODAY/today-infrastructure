@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.Required;
+import cn.taketoday.lang.Required;
 import cn.taketoday.web.annotation.RequestParam;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -32,7 +32,7 @@ import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Returning;
 import cn.taketoday.aop.support.annotation.Throwing;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import lombok.extern.slf4j.Slf4j;

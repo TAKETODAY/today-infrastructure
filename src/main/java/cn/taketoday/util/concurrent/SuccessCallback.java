@@ -20,7 +20,7 @@
 
 package cn.taketoday.util.concurrent;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Success callback for a {@link ListenableFuture}.

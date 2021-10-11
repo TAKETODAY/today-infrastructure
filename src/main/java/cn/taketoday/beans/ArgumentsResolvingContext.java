@@ -24,7 +24,7 @@ import java.lang.reflect.Executable;
 import java.util.Arrays;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/10/3 22:37

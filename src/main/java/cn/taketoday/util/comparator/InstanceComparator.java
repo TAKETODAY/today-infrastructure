@@ -22,8 +22,8 @@ package cn.taketoday.util.comparator;
 
 import java.util.Comparator;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Compares objects based on an arbitrary class order. Allows objects to be sorted based

@@ -30,7 +30,7 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.annotation.autowire.ObjectSupplierArgumentsResolver;
 import lombok.ToString;
 

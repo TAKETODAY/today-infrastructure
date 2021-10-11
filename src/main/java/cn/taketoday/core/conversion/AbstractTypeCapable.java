@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * target type capable

@@ -26,7 +26,7 @@ import java.util.List;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;

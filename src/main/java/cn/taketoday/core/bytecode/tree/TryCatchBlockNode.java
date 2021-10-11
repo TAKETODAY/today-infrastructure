@@ -21,7 +21,7 @@ package cn.taketoday.core.bytecode.tree;
 
 import java.util.List;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.bytecode.MethodVisitor;
 
 /**

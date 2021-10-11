@@ -48,8 +48,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
 
@@ -80,7 +81,7 @@ import static java.util.Locale.US;
  * @since 3.0
  */
 public abstract class HttpHeaders
-        implements  /*Iterable<String>,*/ MultiValueMap<String, String>, cn.taketoday.core.Constant {
+        implements  /*Iterable<String>,*/ MultiValueMap<String, String>, Constant {
 
   /**
    * The HTTP {@code Accept} header field name.

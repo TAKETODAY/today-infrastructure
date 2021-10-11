@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Use BeanReference to resolve value

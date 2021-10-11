@@ -21,7 +21,7 @@ package cn.taketoday.web.registry;
 
 import java.util.List;
 
-import cn.taketoday.core.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.web.RequestContext;
 

@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Store bean definitions.

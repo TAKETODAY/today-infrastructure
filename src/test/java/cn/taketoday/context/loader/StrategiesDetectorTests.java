@@ -29,9 +29,9 @@ import java.util.List;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.StrategiesDetector;
-import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.YamlStrategiesReader;
 
 import static org.assertj.core.api.Assertions.assertThat;

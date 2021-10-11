@@ -21,8 +21,8 @@ package cn.taketoday.aop.support.interceptor;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * A default {@link AsyncUncaughtExceptionHandler} that simply logs the exception.

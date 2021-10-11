@@ -32,9 +32,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple utility methods for file and stream copying. All copy methods use a block size
