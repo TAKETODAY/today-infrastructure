@@ -21,7 +21,6 @@
 package cn.taketoday.web.view;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

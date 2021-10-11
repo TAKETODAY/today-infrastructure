@@ -16,7 +16,6 @@
 
 package cn.taketoday.core.style;
 
-
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 
@@ -48,7 +47,6 @@ public class ToStringBuilder {
   private final Object object;
 
   private boolean styledFirstField;
-
 
   /**
    * Create a ToStringCreator for the given object.

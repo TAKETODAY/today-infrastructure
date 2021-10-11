@@ -33,16 +33,16 @@ package cn.taketoday.core.env;
  * a ConfigurableApplicationContext, at which point it too may be configured.
  *
  * @author Chris Beams
- * @since 3.1
  * @see Environment
  * @see ConfigurableEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment()
+ * @since 3.1
  */
 public interface EnvironmentCapable {
 
-	/**
-	 * Return the {@link Environment} associated with this component.
-	 */
-	Environment getEnvironment();
+  /**
+   * Return the {@link Environment} associated with this component.
+   */
+  Environment getEnvironment();
 
 }

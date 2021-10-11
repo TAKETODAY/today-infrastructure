@@ -20,6 +20,10 @@
 
 package cn.taketoday.context;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.Properties;
+
 import cn.taketoday.beans.factory.ValueExpressionContext;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
@@ -41,10 +45,6 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Expression Evaluator

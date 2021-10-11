@@ -340,6 +340,7 @@ public abstract class ObjectUtils {
     }
     return false;
   }
+
   /**
    * Check whether the given array of enum constants contains a constant with the given name,
    * ignoring case when determining a match.

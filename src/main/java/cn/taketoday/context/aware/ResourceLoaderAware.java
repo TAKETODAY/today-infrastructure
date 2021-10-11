@@ -22,8 +22,8 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
-import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
+import cn.taketoday.core.io.ResourceLoader;
 
 /**
  * Interface to be implemented by any object that wishes to be notified of the

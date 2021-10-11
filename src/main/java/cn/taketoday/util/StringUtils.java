@@ -19,11 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
-
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -42,6 +37,11 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09
@@ -1606,9 +1606,14 @@ else */
 
   /**
    * Test if the given {@code String} matches the given index to single character.
-   * @param str given string
-   * @param idx str's index to match
-   * @param charToMatch char To Match
+   *
+   * @param str
+   *         given string
+   * @param idx
+   *         str's index to match
+   * @param charToMatch
+   *         char To Match
+   *
    * @since 4.0
    */
   public static boolean matchesCharacter(@Nullable String str, int idx, char charToMatch) {
@@ -1620,8 +1625,12 @@ else */
 
   /**
    * Test if the first given {@code String} matches the given single character.
-   * @param str given string
-   * @param charToMatch char To Match
+   *
+   * @param str
+   *         given string
+   * @param charToMatch
+   *         char To Match
+   *
    * @since 4.0
    */
   public static boolean matchesFirst(@Nullable String str, char charToMatch) {
@@ -1701,12 +1710,12 @@ else */
       int endIndexOfCountryCode = localeString.indexOf(country, language.length()) + country.length();
       // Strip off any leading '_' and whitespace, what's left is the variant.
       variant = trimLeadingWhitespace(localeString.substring(endIndexOfCountryCode));
-      if (matchesFirst(variant,  '_')) {
+      if (matchesFirst(variant, '_')) {
         variant = trimLeadingCharacter(variant, '_');
       }
     }
 
-    if (variant.isEmpty() && matchesFirst(country,'#')) {
+    if (variant.isEmpty() && matchesFirst(country, '#')) {
       variant = country;
       country = Constant.BLANK;
     }

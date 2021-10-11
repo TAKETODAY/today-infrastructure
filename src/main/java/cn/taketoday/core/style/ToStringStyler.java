@@ -16,7 +16,6 @@
 
 package cn.taketoday.core.style;
 
-
 import cn.taketoday.core.Nullable;
 
 /**

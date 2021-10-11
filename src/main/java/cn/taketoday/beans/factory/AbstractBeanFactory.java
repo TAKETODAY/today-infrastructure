@@ -1033,11 +1033,9 @@ public abstract class AbstractBeanFactory
     return null;
   }
 
-
   @Override
   public Set<String> getBeanNamesOfType(
           ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-
 
     return null;
   }

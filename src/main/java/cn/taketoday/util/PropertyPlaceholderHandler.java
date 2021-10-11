@@ -246,5 +246,4 @@ public class PropertyPlaceholderHandler {
   // static
   //---------------------------------------------------------------------
 
-
 }

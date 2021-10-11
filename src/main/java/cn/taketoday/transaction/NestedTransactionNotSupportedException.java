@@ -25,7 +25,7 @@ package cn.taketoday.transaction;
  *
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2019-11-09 19:36
+ * 2019-11-09 19:36
  */
 public class NestedTransactionNotSupportedException extends CannotCreateTransactionException {
 

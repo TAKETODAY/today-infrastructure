@@ -81,7 +81,6 @@ public interface ApplicationContext
    */
   void refresh() throws ApplicationContextException;
 
-
   /**
    * Close context and destroy all singletons
    */

@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
+import java.io.Reader;
+
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -28,9 +31,6 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ConcurrentCache;
 import cn.taketoday.util.ObjectUtils;
 import freemarker.cache.TemplateLoader;
-
-import java.io.IOException;
-import java.io.Reader;
 
 /**
  * Default {@link TemplateLoader} implementation

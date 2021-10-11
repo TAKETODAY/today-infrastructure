@@ -20,6 +20,10 @@
 
 package cn.taketoday.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -27,10 +31,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.StringUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * Strategies file reader
@@ -123,6 +123,5 @@ public abstract class StrategiesReader {
   public ResourceLoader getResourceLoader() {
     return resourceLoader;
   }
-
 
 }

@@ -32,7 +32,6 @@ import java.util.Map;
 
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.TodayStrategies;
-import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;

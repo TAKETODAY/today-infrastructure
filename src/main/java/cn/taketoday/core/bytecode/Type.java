@@ -29,7 +29,6 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**

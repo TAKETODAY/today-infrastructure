@@ -19,12 +19,18 @@
  */
 package cn.taketoday.web.handler;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.imageio.ImageIO;
+
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
@@ -32,13 +38,6 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.TemplateRendererReturnValueHandler;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
 
 /**
  * Simple {@link HandlerExceptionHandler}

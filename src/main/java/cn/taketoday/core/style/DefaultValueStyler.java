@@ -16,17 +16,16 @@
 
 package cn.taketoday.core.style;
 
-
-import cn.taketoday.core.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
-
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Converts objects to String form, generally for debugging purposes,
@@ -49,7 +48,6 @@ public class DefaultValueStyler implements ValueStyler {
   private static final String MAP = "map";
   private static final String EMPTY_MAP = MAP + EMPTY;
   private static final String ARRAY = "array";
-
 
   @Override
   public String style(@Nullable Object value) {

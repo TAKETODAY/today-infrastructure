@@ -19,17 +19,6 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
-import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -40,6 +29,17 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * ApplicationContext Utils
@@ -139,7 +139,7 @@ public abstract class ContextUtils {
           final URL url = resources.nextElement();
           String className = null;
           try (final BufferedReader reader = //
-                       new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
+                  new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
             while ((className = reader.readLine()) != null) {
               if (StringUtils.isNotEmpty(className)) { // @since 3.0 FIX empty lines

@@ -49,7 +49,7 @@ public abstract class AbstractClassLoader extends ClassLoader {
     Class loaded = findLoadedClass(name);
 
     if (loaded != null && loaded.getClassLoader() == this) {
-        return loaded;
+      return loaded;
     } // else reload with this class loader
 
     if (!filter.accept(name)) {

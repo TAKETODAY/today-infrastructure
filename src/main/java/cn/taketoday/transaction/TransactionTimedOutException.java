@@ -44,7 +44,7 @@ package cn.taketoday.transaction;
  *
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2019-11-09 17:07
+ * 2019-11-09 17:07
  * @see java.sql.Statement#setQueryTimeout
  * @see java.sql.SQLException
  */

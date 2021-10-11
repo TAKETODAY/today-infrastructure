@@ -98,8 +98,8 @@ class FactoryBeanTests {
 
       Assertions.assertEquals(bean, testFactoryBean);
 
-      Assertions.assertTrue(testFactoryBean == bean);
-      Assertions.assertFalse(applicationContext.getBean("$testFactoryBean") == null);
+      Assertions.assertSame(testFactoryBean, bean);
+      Assertions.assertNotNull(applicationContext.getBean("$testFactoryBean"));
     }
   }
 

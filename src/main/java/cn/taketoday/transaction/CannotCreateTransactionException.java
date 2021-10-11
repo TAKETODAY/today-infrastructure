@@ -24,7 +24,7 @@ package cn.taketoday.transaction;
  * transaction API such as JTA.
  *
  * @author TODAY <br>
- *         2019-11-09 15:48
+ * 2019-11-09 15:48
  */
 public class CannotCreateTransactionException extends TransactionException {
 
@@ -34,7 +34,7 @@ public class CannotCreateTransactionException extends TransactionException {
    * Constructor for CannotCreateTransactionException.
    *
    * @param msg
-   *            the detail message
+   *         the detail message
    */
   public CannotCreateTransactionException(String msg) {
     super(msg);
@@ -44,9 +44,9 @@ public class CannotCreateTransactionException extends TransactionException {
    * Constructor for CannotCreateTransactionException.
    *
    * @param msg
-   *            the detail message
+   *         the detail message
    * @param cause
-   *            the root cause from the transaction API in use
+   *         the root cause from the transaction API in use
    */
   public CannotCreateTransactionException(String msg, Throwable cause) {
     super(msg, cause);

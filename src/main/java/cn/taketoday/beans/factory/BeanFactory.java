@@ -699,7 +699,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * default is false
    * </p>
    *
-   * @see Prototypes#newProxyInstance(Class, BeanDefinition, ConfigurableBeanFactory)
+   * @see Prototypes#newProxyInstance(Class, BeanDefinition, BeanFactory)
    * @since 3.0
    */
   boolean isFullPrototype();
@@ -768,6 +768,5 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 2.1.6
    */
   Map<String, BeanDefinition> getBeanDefinitions();
-
 
 }
