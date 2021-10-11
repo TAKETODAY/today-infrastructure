@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -129,7 +129,7 @@ public abstract class AbstractWebServer
   protected void prepareInitialize() {
     log.info("Prepare initialize web server");
 
-    final WebServerApplicationContext context = obtainApplicationContext();
+    WebServerApplicationContext context = obtainApplicationContext();
     if (context.getEnvironment() instanceof ConfigurableEnvironment) {
       Starter starter;
       ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
@@ -163,7 +163,7 @@ public abstract class AbstractWebServer
   public WebApplicationConfiguration getWebApplicationConfiguration() {
     WebApplicationConfiguration webApplicationConfiguration = this.webApplicationConfiguration;
     if (webApplicationConfiguration == null) {
-      final List<WebApplicationConfiguration> configurations =
+      List<WebApplicationConfiguration> configurations =
               obtainApplicationContext().getBeans(WebApplicationConfiguration.class);
 
       AnnotationAwareOrderComparator.sort(configurations);
@@ -201,7 +201,7 @@ public abstract class AbstractWebServer
    */
   public File getStoreDirectory(Class<?> startupClass) throws IOException {
     Assert.state(sessionConfig != null, "Please enable web session");
-    final Resource storeDirectory = sessionConfig.getStoreDirectory();
+    Resource storeDirectory = sessionConfig.getStoreDirectory();
     if (storeDirectory == null || !storeDirectory.exists()) {
       return WebApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
     }
