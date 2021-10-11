@@ -19,7 +19,7 @@
  */
 package test.context.props;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -29,11 +29,12 @@ import cn.taketoday.context.StandardApplicationContext;
  *
  * 2018-10-09 15:06
  */
-public class PropsTest {
+class PropsTests {
 
   @Test
-  public void test_Props() {
-    try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.props")) {
+  public void props() {
+    try (ApplicationContext applicationContext
+            = new StandardApplicationContext("", "test.context.props")) {
 
       Config_ bean = applicationContext.getBean(Config_.class);
       assert "https://taketoday.cn".equals(bean.getHost());
@@ -41,7 +42,7 @@ public class PropsTest {
   }
 
   @Test
-  public void test_PropsOnConstructor() {
+  public void propsOnConstructor() {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
