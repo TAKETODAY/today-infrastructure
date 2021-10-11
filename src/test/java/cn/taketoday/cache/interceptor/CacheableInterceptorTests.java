@@ -20,12 +20,10 @@
 
 package cn.taketoday.cache.interceptor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
@@ -38,7 +36,6 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.interceptor.AbstractCacheInterceptor.MethodKey;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.loader.CandidateComponentScanner;
 import test.demo.config.User;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
@@ -49,7 +46,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author TODAY 2021/4/10 17:11
  * @since 3.0
  */
-public class CacheableInterceptorTests {
+class CacheableInterceptorTests {
   CaffeineCacheManager cacheManager = new CaffeineCacheManager();
   CacheableInterceptor interceptor = new CacheableInterceptor(cacheManager);
 
@@ -58,12 +55,12 @@ public class CacheableInterceptorTests {
   }
 
   @Test
-  public void cacheableAttributes() throws Exception {
+  void cacheableAttributes() throws Exception {
     // cacheName
-    final Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
-    final MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
-    final CacheConfiguration cacheable = prepareAnnotation(methodKey);
-    final Cache users = interceptor.getCache("users", cacheable);
+    Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
+    MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
+    CacheConfiguration cacheable = prepareAnnotation(methodKey);
+    Cache users = interceptor.getCache("users", cacheable);
     assertThat(users)
             .isInstanceOf(CaffeineCache.class);
 
@@ -71,14 +68,14 @@ public class CacheableInterceptorTests {
             .isEqualTo("users");
 
     // key
-    final Cache cache = interceptor.obtainCache(getUser, cacheable);
+    Cache cache = interceptor.obtainCache(getUser, cacheable);
     assertThat(cache).isEqualTo(users);
 
     CacheConfiguration cacheableClone = new CacheConfiguration();
     cacheableClone.mergeCacheConfigAttributes(cacheable);
     cacheableClone.setCacheName("users1");
 
-    final Cache users1 = interceptor.obtainCache(getUser, cacheableClone);
+    Cache users1 = interceptor.obtainCache(getUser, cacheableClone);
     assertThat(users1).isNotEqualTo(cache).isNotEqualTo(users);
 
     cacheManager.setDynamicCreation(false);
@@ -86,14 +83,14 @@ public class CacheableInterceptorTests {
     cacheableClone.setCacheName("users2");
 
     try {
-      final Cache users2 = interceptor.obtainCache(getUser, cacheableClone);
+      Cache users2 = interceptor.obtainCache(getUser, cacheableClone);
       fail("obtainCache error");
     }
     catch (NoSuchCacheException ignored) { }
   }
 
   @Test
-  public void testContext() throws Exception {
+  void testContext() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(CacheUserService.class);
@@ -103,25 +100,22 @@ public class CacheableInterceptorTests {
       context.importBeans(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
 
-      final CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
+      CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
 
-      final Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
-      final MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
-      final CacheConfiguration cacheable = prepareAnnotation(methodKey);
-      final Cache users = interceptor.getCache("users", cacheable);
+      Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
+      MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
+      CacheConfiguration cacheable = prepareAnnotation(methodKey);
+      Cache users = interceptor.getCache("users", cacheable);
 
-      final AnnotationMatchingPointcut matchingPointcut
+      AnnotationMatchingPointcut matchingPointcut
               = AnnotationMatchingPointcut.forMethodAnnotation(Cacheable.class);
-      final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
+      DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
       context.registerBean(pointcutAdvisor);
 
-      final CandidateComponentScanner scanner = context.getCandidateComponentScanner();
-      final Set<Class<?>> candidates = scanner.getCandidates();
-      context.scan(new HashSet<>());
-      scanner.setCandidates(candidates);
+      context.refresh();
 
-      final User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
-      final CacheUserService userService = context.getBean(CacheUserService.class);
+      User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
+      CacheUserService userService = context.getBean(CacheUserService.class);
       userService.save(today);
 
       User user = userService.getUser("666");
@@ -141,7 +135,7 @@ public class CacheableInterceptorTests {
       assertThat(userService.getAccessTime()).isEqualTo(2);
 
       //
-      final Object by_id_666 = users.get("by_id_666");
+      Object by_id_666 = users.get("by_id_666");
       assertThat(today).isEqualTo(user).isEqualTo(by_id_666);
       assertThat(userService.getAccessTime()).isEqualTo(2);
 
