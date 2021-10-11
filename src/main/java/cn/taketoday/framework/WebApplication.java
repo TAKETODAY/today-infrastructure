@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,6 +19,8 @@
  */
 package cn.taketoday.framework;
 
+import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
@@ -94,16 +96,22 @@ public class WebApplication {
 
     final ConfigurableWebServerApplicationContext context = getApplicationContext();
     try {
-      context.registerSingleton(this);
+      SingletonBeanRegistry registry = context.unwrapFactory(SingletonBeanRegistry.class);
+      registry.registerSingleton(this);
+
+      AnnotationConfigRegistry configRegistry = context.unwrap(AnnotationConfigRegistry.class);
+
       final Class<?> startupClass = context.getStartupClass();
-      context.importBeans(startupClass); // @since 1.0.2 import startup class
+      configRegistry.importBeans(startupClass); // @since 1.0.2 import startup class
       if (startupClass == null) {
         log.info("There isn't a Startup Class");
-        context.scan(); // load from all classpath
+        configRegistry.scan(); // load from all classpath
       }
       else {
-        context.scan(startupClass.getPackage().getName());
+        configRegistry.scan(startupClass.getPackage().getName());
       }
+
+      context.refresh();
 
       final WebServer webServer = context.getWebServer();
       Assert.state(webServer != null, "No Web server.");
