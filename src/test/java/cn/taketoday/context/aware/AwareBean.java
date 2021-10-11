@@ -22,6 +22,7 @@ package cn.taketoday.context.aware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.env.Environment;
 import lombok.Getter;
 
 /**

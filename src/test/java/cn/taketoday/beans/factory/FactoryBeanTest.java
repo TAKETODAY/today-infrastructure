@@ -32,7 +32,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
