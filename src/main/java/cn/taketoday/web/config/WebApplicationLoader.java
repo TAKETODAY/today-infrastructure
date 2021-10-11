@@ -26,10 +26,10 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
@@ -103,7 +103,7 @@ public class WebApplicationLoader
   }
 
   protected void logStartup(WebApplicationContext context) {
-    if (context.getEnvironment().getFlag(ENABLE_WEB_STARTED_LOG, true)) {
+    if (TodayStrategies.getFlag(ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
       );
@@ -186,8 +186,7 @@ public class WebApplicationLoader
   protected void configureViewControllerHandler(
           WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
-    final Environment environment = context.getEnvironment();
-    if (environment.getFlag(ENABLE_WEB_MVC_XML, true)) {
+    if (TodayStrategies.getFlag(ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
     }
     if (registry != null) {

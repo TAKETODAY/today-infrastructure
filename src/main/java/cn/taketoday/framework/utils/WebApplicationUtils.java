@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -31,6 +31,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;
@@ -53,9 +55,8 @@ public abstract class WebApplicationUtils {
    * @return WebServer
    */
   public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) {
-    ConfigurableEnvironment environment = beanFactory.getEnvironment();
     // disable web mvc xml
-    environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, "false");
+    TodayStrategies.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, "false");
     // Get WebServer instance
     WebServer webServer = beanFactory.getBean(WebServer.class);
     if (webServer == null) {

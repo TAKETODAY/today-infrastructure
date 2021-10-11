@@ -19,31 +19,20 @@
  */
 package cn.taketoday.framework.server;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
-import cn.taketoday.framework.config.Starter;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.WebApplicationUtils;
@@ -54,6 +43,16 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.session.SessionConfiguration;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author TODAY 2019-01-26 11:08
@@ -130,22 +129,12 @@ public abstract class AbstractWebServer
     log.info("Prepare initialize web server");
 
     WebServerApplicationContext context = obtainApplicationContext();
-    if (context.getEnvironment() instanceof ConfigurableEnvironment) {
-      Starter starter;
-      ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
-      environment.setProperty(WebApplicationLoader.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
-      String webMvcConfigLocation = environment.getProperty(WebApplicationLoader.WEB_MVC_CONFIG_LOCATION);
-      if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-        environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
-      }
-      else if ((starter = AnnotationUtils.getAnnotation(Starter.class, context.getStartupClass())) != null) {
-        // find webMvcConfigLocation
-        webMvcConfigLocation = starter.webMvcConfigLocation();
-        if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-          environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
-          environment.setProperty(WebApplicationLoader.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
-        }
-      }
+    Environment environment = context.getEnvironment();
+    TodayStrategies.setProperty(WebApplicationLoader.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
+
+    String webMvcConfigLocation = environment.getProperty(WebApplicationLoader.WEB_MVC_CONFIG_LOCATION);
+    if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
+      TodayStrategies.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
     }
   }
 
