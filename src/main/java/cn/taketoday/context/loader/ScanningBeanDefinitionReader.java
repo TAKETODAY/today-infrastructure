@@ -20,15 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -48,6 +39,15 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 import static cn.taketoday.core.Constant.PACKAGE_SEPARATOR;
 import static cn.taketoday.core.Constant.PATH_SEPARATOR;
 
@@ -55,22 +55,28 @@ import static cn.taketoday.core.Constant.PATH_SEPARATOR;
  * @author TODAY 2021/10/2 23:38
  * @since 4.0
  */
-public class ScanningBeanDefinitionReader extends BeanDefinitionReader {
+public class ScanningBeanDefinitionReader {
   private static final Logger log = LoggerFactory.getLogger(ScanningBeanDefinitionReader.class);
 
+  private final BeanDefinitionRegistry registry;
   /** @since 2.1.7 Scan candidates */
   private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
-
   private final BeanDefinitionCreationStrategies creationStrategies = new BeanDefinitionCreationStrategies();
-
-  BeanDefinitionCreationContext creationContext = new BeanDefinitionCreationContext(getRegistry());
-
-  public ScanningBeanDefinitionReader() { }
+  private final BeanDefinitionCreationContext creationContext;
 
   public ScanningBeanDefinitionReader(BeanDefinitionRegistry registry) {
-    super(registry);
+    this.registry = registry;
+    this.creationContext = new BeanDefinitionCreationContext(registry);
+  }
+
+  public void setResourceLoader(PatternResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
+
+  public PatternResourceLoader getResourceLoader() {
+    return resourceLoader;
   }
 
   /**
@@ -214,7 +220,6 @@ public class ScanningBeanDefinitionReader extends BeanDefinitionReader {
   protected void process(ClassNode classNode) {
     Set<BeanDefinition> beanDefinitions = creationStrategies.loadBeanDefinitions(classNode, creationContext);
     if (CollectionUtils.isNotEmpty(beanDefinitions)) {
-      BeanDefinitionRegistry registry = obtainRegistry();
       for (BeanDefinition beanDefinition : beanDefinitions) {
         registry.registerBeanDefinition(beanDefinition);
       }
