@@ -59,7 +59,6 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   public Object getAttribute(final String name) {
-    final HashMap<String, Object> attributes = this.attributes;
     if (attributes == null) {
       return null;
     }
@@ -136,7 +135,6 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   public Map<String, Object> getAttributes() {
-    final HashMap<String, Object> attributes = this.attributes;
     if (attributes == null) {
       return this.attributes = createAttributes();
     }

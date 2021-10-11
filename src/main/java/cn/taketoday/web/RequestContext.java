@@ -917,11 +917,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   @Override
-  public <T> T getAttribute(String name, Class<T> targetClass) {
-    return obtainModel().getAttribute(name, targetClass);
-  }
-
-  @Override
   public void setAttribute(String name, Object value) {
     obtainModel().setAttribute(name, value);
   }

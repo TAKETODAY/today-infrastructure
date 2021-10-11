@@ -96,11 +96,6 @@ public class ModelAndView implements Model {
   }
 
   @Override
-  public <T> T getAttribute(String name, Class<T> targetClass) {
-    return dataModel.getAttribute(name, targetClass);
-  }
-
-  @Override
   public void setAttribute(String name, Object value) {
     dataModel.setAttribute(name, value);
   }

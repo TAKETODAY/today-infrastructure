@@ -47,7 +47,7 @@ public interface AttributeAccessor {
    * @param value
    *         the attribute value to be attached
    */
-  void setAttribute(String name, Object value);
+  void setAttribute(String name, @Nullable Object value);
 
   /**
    * Get the value of the attribute identified by {@code name}. Return
@@ -58,6 +58,7 @@ public interface AttributeAccessor {
    *
    * @return the current value of the attribute, if any
    */
+  @Nullable
   Object getAttribute(String name);
 
   /**
@@ -69,6 +70,7 @@ public interface AttributeAccessor {
    *
    * @return the last value of the attribute, if any
    */
+  @Nullable
   Object removeAttribute(String name);
 
   /**

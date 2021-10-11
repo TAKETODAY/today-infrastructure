@@ -21,8 +21,6 @@ package cn.taketoday.web.view;
 
 import java.util.Map;
 
-import cn.taketoday.core.conversion.ConversionUtils;
-
 /**
  * Model that defines a holder for model attributes.
  * Primarily designed for adding attributes to the model.
@@ -66,22 +64,6 @@ public interface Model {
    * <code>null</code> if the attribute does not exist
    */
   Object getAttribute(String name);
-
-  /**
-   * Returns the value of the named attribute as an <code>Object</code>, or
-   * <code>null</code> if no attribute of the given name exists.
-   *
-   * @param name
-   *         a <code>String</code> specifying the name of the attribute
-   * @param targetClass
-   *         attribute will be use {@link ConversionUtils} convert to target class
-   *
-   * @return an converted <code>Object</code> containing the value of the
-   * attribute, or <code>null</code> if the attribute does not exist
-   */
-  default <T> T getAttribute(String name, Class<T> targetClass) {
-    return ConversionUtils.convert(targetClass, getAttribute(name));
-  }
 
   /**
    * Stores an attribute in this request. Attributes are reset between requests..

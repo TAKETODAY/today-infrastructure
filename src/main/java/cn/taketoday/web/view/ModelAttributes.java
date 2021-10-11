@@ -45,7 +45,7 @@ public class ModelAttributes extends AttributeAccessorSupport implements Model, 
   }
 
   @Override
-  protected HashMap<String, Object> createAttributes() {
+  protected LinkedHashMap<String, Object> createAttributes() {
     return new LinkedHashMap<>();
   }
 }
