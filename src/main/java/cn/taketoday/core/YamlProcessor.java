@@ -235,7 +235,9 @@ public class YamlProcessor {
     }
 
     Map<Object, Object> map = (Map<Object, Object>) object;
-    map.forEach((key, value) -> {
+    for (Map.Entry<Object, Object> entry : map.entrySet()) {
+      Object key = entry.getKey();
+      Object value = entry.getValue();
       if (value instanceof Map) {
         value = asMap(value);
       }
@@ -246,7 +248,7 @@ public class YamlProcessor {
         // It has to be a map key in this case
         result.put("[" + key.toString() + "]", value);
       }
-    });
+    }
     return result;
   }
 
@@ -300,9 +302,12 @@ public class YamlProcessor {
 
   private void buildFlattenedMap(
           Map<String, Object> result, Map<String, Object> source, @Nullable String path) {
-    source.forEach((key, value) -> {
+
+    for (Map.Entry<String, Object> entry : source.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
       if (StringUtils.hasText(path)) {
-        if (key.startsWith("[")) {
+        if (StringUtils.matchesFirst(key, '[')) {
           key = path + key;
         }
         else {
@@ -328,15 +333,14 @@ public class YamlProcessor {
         else {
           int count = 0;
           for (Object object : collection) {
-            buildFlattenedMap(result, Collections.singletonMap(
-                    "[" + (count++) + "]", object), key);
+            buildFlattenedMap(result, Collections.singletonMap("[" + (count++) + "]", object), key);
           }
         }
       }
       else {
         result.put(key, (value != null ? value : Constant.BLANK));
       }
-    });
+    }
   }
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
