@@ -1611,7 +1611,7 @@ else */
    * @param charToMatch char To Match
    * @since 4.0
    */
-  public static boolean matchesCharacter(String str, int idx, char charToMatch) {
+  public static boolean matchesCharacter(@Nullable String str, int idx, char charToMatch) {
     if (str == null || (idx < 0) || (idx >= str.length())) {
       return false;
     }
@@ -1624,7 +1624,7 @@ else */
    * @param charToMatch char To Match
    * @since 4.0
    */
-  public static boolean matchesFirst(String str, char charToMatch) {
+  public static boolean matchesFirst(@Nullable String str, char charToMatch) {
     return isNotEmpty(str) && str.charAt(0) == charToMatch;
   }
 
