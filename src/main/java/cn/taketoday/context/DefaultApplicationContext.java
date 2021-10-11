@@ -42,7 +42,7 @@ public class DefaultApplicationContext
         extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
   private final StandardBeanFactory beanFactory;
-  public final BeanDefinitionReader reader = new BeanDefinitionReader(this, this);
+  protected final BeanDefinitionReader beanDefinitionReader = new BeanDefinitionReader(this, this);
 
   /**
    * Default Constructor
@@ -137,18 +137,18 @@ public class DefaultApplicationContext
    * @since 3.0
    */
   public void registerBean(Class<?> clazz) {
-    reader.registerBean(clazz);
+    beanDefinitionReader.registerBean(clazz);
   }
 
   /**
    * @since 4.0
    */
   public void registerBean(Set<Class<?>> candidates) {
-    reader.registerBean(candidates);
+    beanDefinitionReader.registerBean(candidates);
   }
 
   public void registerBean(String name, Class<?> clazz) {
-    reader.registerBean(name, clazz);
+    beanDefinitionReader.registerBean(name, clazz);
   }
 
   /**
@@ -237,7 +237,7 @@ public class DefaultApplicationContext
           Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException //
   {
-    reader.registerBean(clazz, supplier, prototype, ignoreAnnotation);
+    beanDefinitionReader.registerBean(clazz, supplier, prototype, ignoreAnnotation);
   }
 
 }
