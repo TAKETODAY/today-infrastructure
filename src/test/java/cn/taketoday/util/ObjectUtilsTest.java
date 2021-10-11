@@ -146,7 +146,7 @@ class ObjectUtilsTest {
 		}, clazz);
 
 		assert classArrayObject.getClass().equals(clazz);
-		assert ((Class[]) classArrayObject)[1] == ClassUtilsTest.class;
+		assert ((Class[]) classArrayObject)[1] == ClassUtilsTests.class;
 
 	}
 

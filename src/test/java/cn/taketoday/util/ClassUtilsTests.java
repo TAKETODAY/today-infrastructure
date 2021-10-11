@@ -58,7 +58,7 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Today <br>
@@ -66,8 +66,8 @@ import static org.junit.Assert.assertEquals;
  */
 @Singleton("singleton")
 @Prototype("prototype")
-class ClassUtilsTest {
-  private static final Logger log = LoggerFactory.getLogger(ClassUtilsTest.class);
+class ClassUtilsTests {
+  private static final Logger log = LoggerFactory.getLogger(ClassUtilsTests.class);
   final ClassLoader classLoader = getClass().getClassLoader();
 
   @Test
@@ -189,7 +189,7 @@ class ClassUtilsTest {
   @Test
   void testAutowiredOnConstructor() {
 
-    try (ApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+    try (StandardApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
 
       AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
 
@@ -198,7 +198,7 @@ class ClassUtilsTest {
       assertThat(context.getBean(AutowiredOnConstructor.class))
               .isNotNull();
 
-      beanFactory.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
+      context.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
       try {
         context.getBean(AutowiredOnConstructorThrow.class);
         assert false;
@@ -214,7 +214,7 @@ class ClassUtilsTest {
     final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
     ReflectionUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
 
-    assert BeanUtils.newInstance(ClassUtilsTest.class.getName()) != null;
+    assert BeanUtils.newInstance(ClassUtilsTests.class.getName()) != null;
 
     try {
       BeanUtils.newInstance("not found");
@@ -275,9 +275,9 @@ class ClassUtilsTest {
 
   @Test
   void testGetUserClass() {
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass().getName()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(ClassUtilsTest.class.getName()));
+    assertEquals(ClassUtilsTests.class, ClassUtils.getUserClass(getClass()));
+    assertEquals(ClassUtilsTests.class, ClassUtils.getUserClass(getClass().getName()));
+    assertEquals(ClassUtilsTests.class, ClassUtils.getUserClass(ClassUtilsTests.class.getName()));
 
     Enhancer enhancer = new Enhancer();
 
@@ -288,13 +288,13 @@ class ClassUtilsTest {
       }
     });
 
-    enhancer.setSuperclass(ClassUtilsTest.class);
+    enhancer.setSuperclass(ClassUtilsTests.class);
 
     final Object create = enhancer.create();
 
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass().getName()));
+    assertEquals(ClassUtilsTests.class, ClassUtils.getUserClass(create));
+    assertEquals(ClassUtilsTests.class, ClassUtils.getUserClass(create.getClass()));
+    assertEquals(ClassUtilsTests.class, ClassUtils.getUserClass(create.getClass().getName()));
   }
 
   // ------

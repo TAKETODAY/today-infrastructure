@@ -19,9 +19,7 @@
  */
 package cn.taketoday.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,34 +31,23 @@ import java.nio.file.Files;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.io.Resource;
 
 import static cn.taketoday.core.conversion.ConversionUtils.convert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Today <br>
  * 2018-07-12 20:43:53
  */
-public class ConvertUtilsTest {
-
-  private long start;
-
-  @Before
-  public void start() {
-    start = System.currentTimeMillis();
-  }
-
-  @After
-  public void end() {
-    System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-  }
+class ConvertUtilsTests {
 
   @Test
   public void addConverter() {
@@ -108,9 +95,9 @@ public class ConvertUtilsTest {
     assert convert("123", float.class).equals(123f);
 
     try {
-      convert(".Float", ConvertUtilsTest.class);
+      convert(".Float", ConvertUtilsTests.class);
     }
-    catch (ConversionException e) {}
+    catch (ConversionException e) { }
     // -- Class
     assert convert("java.lang.Float", Class.class).equals(Float.class);
     try {
@@ -167,7 +154,7 @@ public class ConvertUtilsTest {
     try {
       convert("123", TEST_NONE.class);
     }
-    catch (ConversionException e) {}
+    catch (ConversionException e) { }
 
     try {
       convert("123", TEST_THROW.class);
