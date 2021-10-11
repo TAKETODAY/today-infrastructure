@@ -32,12 +32,10 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -52,8 +50,6 @@ import cn.taketoday.util.StringUtils;
  * 2019-01-16 20:04
  */
 public abstract class ContextUtils {
-
-  private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
 
   // @since 2.1.6 shared applicationContext
   private static ApplicationContext lastStartupContext;
@@ -130,15 +126,15 @@ public abstract class ContextUtils {
 
     if (resource.startsWith("META-INF")) {
 
-      final Set<Class<?>> ret = new HashSet<>();
-      final ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-      final Charset charset = Constant.DEFAULT_CHARSET;
+      Set<Class<?>> ret = new HashSet<>();
+      ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+      Charset charset = Constant.DEFAULT_CHARSET;
       try {
-        final Enumeration<URL> resources = classLoader.getResources(resource);
+        Enumeration<URL> resources = classLoader.getResources(resource);
         while (resources.hasMoreElements()) {
-          final URL url = resources.nextElement();
+          URL url = resources.nextElement();
           String className = null;
-          try (final BufferedReader reader = //
+          try (BufferedReader reader = //
                   new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
             while ((className = reader.readLine()) != null) {
@@ -178,10 +174,10 @@ public abstract class ContextUtils {
 
   @SuppressWarnings("unchecked")
   public static <T> Set<T> loadBeansFromMetaInfo(String resource, BeanFactory beanFactory) {
-    final Set<Class<?>> classes = loadFromMetaInfo(resource);
+    Set<Class<?>> classes = loadFromMetaInfo(resource);
     Set<T> ret = new HashSet<>();
-    for (final Class<?> aClass : classes) {
-      final Object obj = BeanUtils.newInstance(aClass, beanFactory);
+    for (Class<?> aClass : classes) {
+      Object obj = BeanUtils.newInstance(aClass, beanFactory);
       ret.add((T) obj);
     }
     return ret;
