@@ -35,11 +35,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.DefaultComponent;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Service;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.core.annotation.AliasFor;
