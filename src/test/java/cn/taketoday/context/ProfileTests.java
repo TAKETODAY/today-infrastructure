@@ -19,9 +19,8 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.core.env.ConfigurableEnvironment;
-import org.junit.Assert;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -38,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * 2018-11-15 19:59
  */
-public class ProfileTest {
+class ProfileTests {
 
   static class ProfileTestConfig {
 
@@ -68,10 +67,9 @@ public class ProfileTest {
   }
 
   @Test
-  public void testProfile() throws IOException {
+  void testProfile() throws IOException {
     try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
-      ConfigurableEnvironment environment = context.getEnvironment();
-      environment.loadProperties();// 刷新 profiles
+
       context.importBeans(ProfileTestConfig.class);
 
       User user = context.getBean("user", User.class);
@@ -81,11 +79,12 @@ public class ProfileTest {
   }
 
   @Test
-  public void testConditional() {
+  void testConditional() {
 
-    try (ApplicationContext context = new StandardApplicationContext("info.properties", "test.demo.config")) {
+    try (StandardApplicationContext context
+            = new StandardApplicationContext("info.properties", "test.demo.config")) {
       User yhj = context.getBean("yhj", User.class);
-      Assert.assertNull(yhj);
+      Assertions.assertThat(yhj).isNull();
       context.importBeans(ProfileTestConfig.class);
 
       String system = context.getEnvironment().getProperty("os.name");
