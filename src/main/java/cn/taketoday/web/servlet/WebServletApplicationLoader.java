@@ -42,6 +42,7 @@ import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
@@ -165,7 +166,7 @@ public class WebServletApplicationLoader
       ret = context;
       context.setServletContext(servletContext);
       setApplicationContext(context);
-      context.scan();
+      context.refresh();
     }
     else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
       ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
@@ -215,9 +216,10 @@ public class WebServletApplicationLoader
 
   @Override
   protected void checkFrameworkComponents(WebApplicationContext context) {
-    if (!context.containsBeanDefinition(TemplateRenderer.class)) {
+    BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
+    if (!registry.containsBeanDefinition(TemplateRenderer.class)) {
       // use default view resolver
-      context.registerBean(DefaultTemplateRenderer.class);
+      definitionReader().registerBean(DefaultTemplateRenderer.class);
       log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateRenderer.class));
     }
     super.checkFrameworkComponents(context);
@@ -250,9 +252,9 @@ public class WebServletApplicationLoader
     configureFilterInitializers(ctx, initializers);
     configureServletInitializers(ctx, initializers);
     configureListenerInitializers(ctx, initializers);
-
+    BeanDefinitionRegistry registry = ctx.unwrapFactory(BeanDefinitionRegistry.class);
     // DispatcherServlet Initializer
-    if (!ctx.containsBeanDefinition(DispatcherServletInitializer.class)) {
+    if (!registry.containsBeanDefinition(DispatcherServletInitializer.class)) {
       initializers.add(new DispatcherServletInitializer(ctx, obtainDispatcher()));
     }
 
