@@ -95,7 +95,8 @@ public class WebMvcAutoConfiguration {
   @MissingBean
   ReturnValueHandlers resultHandlers(WebApplicationContext context) {
     ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
-    resultHandlers.initHandlers(context);
+    resultHandlers.setApplicationContext(context);
+    resultHandlers.initHandlers();
     resultHandlers.registerDefaultHandlers();
     return resultHandlers;
   }

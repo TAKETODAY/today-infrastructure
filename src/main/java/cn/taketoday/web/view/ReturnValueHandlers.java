@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,11 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -134,11 +137,11 @@ public class ReturnValueHandlers
   }
 
   //
-
   /**
    * init handlers
    */
-  public void initHandlers(WebApplicationContext context) {
+  public void initHandlers() {
+    WebApplicationContext context = obtainApplicationContext();
     Environment environment = context.getEnvironment();
     Integer bufferSize = environment.getProperty(DOWNLOAD_BUFF_SIZE, Integer.class);
     if (bufferSize != null) {
@@ -161,7 +164,9 @@ public class ReturnValueHandlers
   protected TemplateRenderer getTemplateRenderer(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     TemplateRenderer templateResolver = context.getBean(TemplateRenderer.class);
     if (templateResolver == null) {
-      context.registerBean(DefaultTemplateRenderer.class);
+      BeanDefinitionReader beanDefinitionReader = new BeanDefinitionReader(context, context.unwrapFactory(BeanDefinitionRegistry.class));
+      beanDefinitionReader.setEnableConditionEvaluation(false);
+      beanDefinitionReader.registerBean(DefaultTemplateRenderer.class);
       templateResolver = context.getBean(TemplateRenderer.class);
     }
 
