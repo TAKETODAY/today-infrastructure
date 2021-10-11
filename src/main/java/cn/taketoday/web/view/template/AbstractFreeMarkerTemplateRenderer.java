@@ -25,8 +25,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.logger.Logger;
@@ -75,17 +77,17 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   }
 
   protected void configConfiguration(WebApplicationContext context) {
-    Configuration config = configuration;
-    if (config == null) {
-      config = configuration = new Configuration(freemakerVersion());
-      context.registerSingleton(config.getClass().getName(), config);
+    if (configuration == null) {
+      configuration = new Configuration(freemakerVersion());
+      context.unwrapFactory(SingletonBeanRegistry.class)
+              .registerSingleton(configuration);
     }
     log.info("Configure FreeMarker TemplateModel");
     context.getBeansOfType(TemplateModel.class)
-            .forEach(config::setSharedVariable);
+            .forEach(configuration::setSharedVariable);
 
-    config.setLocale(locale);
-    config.setDefaultEncoding(encoding);
+    configuration.setLocale(locale);
+    configuration.setDefaultEncoding(encoding);
   }
 
   protected Version freemakerVersion() {
