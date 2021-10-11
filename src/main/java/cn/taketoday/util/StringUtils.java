@@ -19,6 +19,11 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
+
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -37,11 +42,6 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
-
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09
@@ -768,7 +768,7 @@ public abstract class StringUtils {
         pathToUse = pathToUse.substring(prefixIndex + 1);
       }
     }
-    if (pathToUse.startsWith(FOLDER_SEPARATOR)) {
+    if (matchesFirst(pathToUse, Constant.PATH_SEPARATOR)) {
       prefix = prefix + FOLDER_SEPARATOR;
       pathToUse = pathToUse.substring(1);
     }
@@ -1578,10 +1578,11 @@ else */
    *         the substring to match at the given index
    */
   public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
-    if (index + substring.length() > str.length()) {
+    int substringLength = substring.length();
+    if (index + substringLength > str.length()) {
       return false;
     }
-    for (int i = 0; i < substring.length(); i++) {
+    for (int i = 0; i < substringLength; i++) {
       if (str.charAt(index + i) != substring.charAt(i)) {
         return false;
       }
@@ -1601,6 +1602,30 @@ else */
    */
   public static boolean matchesCharacter(String str, char singleCharacter) {
     return (str != null && str.length() == 1 && str.charAt(0) == singleCharacter);
+  }
+
+  /**
+   * Test if the given {@code String} matches the given index to single character.
+   * @param str given string
+   * @param idx str's index to match
+   * @param charToMatch char To Match
+   * @since 4.0
+   */
+  public static boolean matchesCharacter(String str, int idx, char charToMatch) {
+    if (str == null || (idx < 0) || (idx >= str.length())) {
+      return false;
+    }
+    return str.charAt(idx) == charToMatch;
+  }
+
+  /**
+   * Test if the first given {@code String} matches the given single character.
+   * @param str given string
+   * @param charToMatch char To Match
+   * @since 4.0
+   */
+  public static boolean matchesFirst(String str, char charToMatch) {
+    return isNotEmpty(str) && str.charAt(0) == charToMatch;
   }
 
   //
@@ -1676,12 +1701,12 @@ else */
       int endIndexOfCountryCode = localeString.indexOf(country, language.length()) + country.length();
       // Strip off any leading '_' and whitespace, what's left is the variant.
       variant = trimLeadingWhitespace(localeString.substring(endIndexOfCountryCode));
-      if (variant.startsWith("_")) {
+      if (matchesFirst(variant,  '_')) {
         variant = trimLeadingCharacter(variant, '_');
       }
     }
 
-    if (variant.isEmpty() && country.startsWith("#")) {
+    if (variant.isEmpty() && matchesFirst(country,'#')) {
       variant = country;
       country = Constant.BLANK;
     }
