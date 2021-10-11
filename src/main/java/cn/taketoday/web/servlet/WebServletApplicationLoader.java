@@ -96,12 +96,12 @@ public class WebServletApplicationLoader
       webMvcConfigLocation = getServletContext().getInitParameter(WEB_MVC_CONFIG_LOCATION);
     }
     if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
-      final String rootPath = getServletContext().getRealPath("/");
-      final HashSet<String> paths = new HashSet<>();
-      final File dir = new File(rootPath);
+      String rootPath = getServletContext().getRealPath("/");
+      HashSet<String> paths = new HashSet<>();
+      File dir = new File(rootPath);
       if (dir.exists()) {
         log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
-        final class XmlFileFilter implements FileFilter {
+        class XmlFileFilter implements FileFilter {
           @Override
           public boolean accept(File path) {
             return path.isDirectory() || path.getName().endsWith(".xml");
@@ -129,16 +129,16 @@ public class WebServletApplicationLoader
    * @param dir
    *         directory
    */
-  protected void scanConfigLocation(final File dir, final Set<String> files, FileFilter filter) {
+  protected void scanConfigLocation(File dir, Set<String> files, FileFilter filter) {
     if (log.isTraceEnabled()) {
       log.trace("Enter [{}]", dir.getAbsolutePath());
     }
-    final File[] listFiles = dir.listFiles(filter);
+    File[] listFiles = dir.listFiles(filter);
     if (listFiles == null) {
       log.error("File: [{}] Does not exist", dir);
       return;
     }
-    for (final File file : listFiles) {
+    for (File file : listFiles) {
       if (file.isDirectory()) { // recursive
         scanConfigLocation(file, files, filter);
       }
@@ -159,10 +159,10 @@ public class WebServletApplicationLoader
   protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
     WebServletApplicationContext ret = getWebServletApplicationContext();
     if (ret == null) {
-      final long startupDate = System.currentTimeMillis();
+      long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
-      final ConfigurableWebServletApplicationContext context = createContext();
+      ConfigurableWebServletApplicationContext context = createContext();
       ret = context;
       context.setServletContext(servletContext);
       setApplicationContext(context);
@@ -190,7 +190,7 @@ public class WebServletApplicationLoader
   @Override
   public void onStartup(Set<Class<?>> classes, ServletContext servletContext) {
     Assert.notNull(servletContext, "ServletContext can't be null");
-    final WebApplicationContext context = prepareApplicationContext(servletContext);
+    WebApplicationContext context = prepareApplicationContext(servletContext);
     try {
       try {
         servletContext.setRequestCharacterEncoding(getRequestCharacterEncoding());
@@ -228,8 +228,8 @@ public class WebServletApplicationLoader
   @Override
   protected DispatcherHandler createDispatcher(WebApplicationContext ctx) {
     Assert.isInstanceOf(WebServletApplicationContext.class, ctx, "context must be a WebServletApplicationContext");
-    final WebServletApplicationContext context = (WebServletApplicationContext) ctx;
-    final DispatcherServletInitializer initializer = context.getBean(DispatcherServletInitializer.class);
+    WebServletApplicationContext context = (WebServletApplicationContext) ctx;
+    DispatcherServletInitializer initializer = context.getBean(DispatcherServletInitializer.class);
     if (initializer != null) {
       DispatcherServlet ret = initializer.getServlet();
       if (ret == null) {
@@ -247,7 +247,7 @@ public class WebServletApplicationLoader
 
   @Override
   protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
-    final WebServletApplicationContext ctx = obtainApplicationContext();
+    WebServletApplicationContext ctx = obtainApplicationContext();
 
     configureFilterInitializers(ctx, initializers);
     configureServletInitializers(ctx, initializers);
@@ -275,14 +275,14 @@ public class WebServletApplicationLoader
    *         {@link WebApplicationInitializer}s
    */
   protected void configureFilterInitializers(
-          final WebApplicationContext applicationContext, final List<WebApplicationInitializer> contextInitializers) {
+          WebApplicationContext applicationContext, List<WebApplicationInitializer> contextInitializers) {
 
     List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
-    for (final Filter filter : filters) {
-      final Class<?> beanClass = filter.getClass();
+    for (Filter filter : filters) {
+      Class<?> beanClass = filter.getClass();
       WebFilterInitializer<Filter> webFilterInitializer = new WebFilterInitializer<>(filter);
       WebFilter webFilter = beanClass.getAnnotation(WebFilter.class);
-      final Set<String> urlPatterns = new HashSet<>();
+      Set<String> urlPatterns = new HashSet<>();
       Collections.addAll(urlPatterns, webFilter.value());
       Collections.addAll(urlPatterns, webFilter.urlPatterns());
 
@@ -296,7 +296,7 @@ public class WebServletApplicationLoader
 
       String name = webFilter.filterName();
       if (StringUtils.isEmpty(name)) {
-        final String displayName = webFilter.displayName();
+        String displayName = webFilter.displayName();
         if (StringUtils.isEmpty(displayName)) {
           name = applicationContext.getBeanName(beanClass);
         }
@@ -321,11 +321,11 @@ public class WebServletApplicationLoader
    *         {@link WebApplicationInitializer}s
    */
   protected void configureServletInitializers(
-          final WebApplicationContext applicationContext, final List<WebApplicationInitializer> contextInitializers) {
+          WebApplicationContext applicationContext, List<WebApplicationInitializer> contextInitializers) {
 
     Collection<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
     for (Servlet servlet : servlets) {
-      final Class<?> beanClass = servlet.getClass();
+      Class<?> beanClass = servlet.getClass();
       WebServletInitializer<Servlet> webServletInitializer = new WebServletInitializer<>(servlet);
       WebServlet webServlet = beanClass.getAnnotation(WebServlet.class);
       String[] urlPatterns = webServlet.urlPatterns();
@@ -340,18 +340,18 @@ public class WebServletApplicationLoader
         webServletInitializer.addInitParameter(initParam.name(), initParam.value());
       }
 
-      final MultipartConfig multipartConfig = beanClass.getAnnotation(MultipartConfig.class);
+      MultipartConfig multipartConfig = beanClass.getAnnotation(MultipartConfig.class);
       if (multipartConfig != null) {
         webServletInitializer.setMultipartConfig(new MultipartConfigElement(multipartConfig));
       }
-      final ServletSecurity servletSecurity = beanClass.getAnnotation(ServletSecurity.class);
+      ServletSecurity servletSecurity = beanClass.getAnnotation(ServletSecurity.class);
       if (servletSecurity != null) {
         webServletInitializer.setServletSecurity(new ServletSecurityElement(servletSecurity));
       }
 
       String name = webServlet.name();
       if (StringUtils.isEmpty(name)) {
-        final String displayName = webServlet.displayName();
+        String displayName = webServlet.displayName();
         if (StringUtils.isEmpty(displayName)) {
           name = applicationContext.getBeanName(beanClass);
         }
@@ -374,7 +374,7 @@ public class WebServletApplicationLoader
    *         {@link WebApplicationInitializer}s
    */
   protected void configureListenerInitializers(
-          final WebApplicationContext context, final List<WebApplicationInitializer> contextInitializers) {
+          WebApplicationContext context, List<WebApplicationInitializer> contextInitializers) {
     Collection<EventListener> eventListeners = context.getAnnotatedBeans(WebListener.class);
     for (EventListener eventListener : eventListeners) {
       contextInitializers.add(new WebListenerInitializer<>(eventListener));

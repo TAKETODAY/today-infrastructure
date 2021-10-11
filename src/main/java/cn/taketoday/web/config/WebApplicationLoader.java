@@ -74,7 +74,7 @@ public class WebApplicationLoader
 
   @Override
   public void onStartup(WebApplicationContext context) throws Throwable {
-    final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
+    WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
     configureTemplateLoader(context, mvcConfiguration);
     configureResourceHandler(context, mvcConfiguration);
@@ -116,8 +116,8 @@ public class WebApplicationLoader
 
   protected void configureHandlerRegistry(
           List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
+    DispatcherHandler obtainDispatcher = obtainDispatcher();
+    HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
     if (handlerRegistry != null) {
       registries.add(handlerRegistry);
     }
@@ -130,7 +130,7 @@ public class WebApplicationLoader
   }
 
   private void configureHandlerAdapter(
-          final WebApplicationContext context, final WebMvcConfiguration mvcConfiguration) {
+          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
   }
 
@@ -143,23 +143,23 @@ public class WebApplicationLoader
    *         {@link WebMvcConfiguration}
    */
   protected void configureHandlerAdapter(
-          final List<HandlerAdapter> adapters, final WebMvcConfiguration mvcConfiguration) {
+          List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
     // 先看有的
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final HandlerAdapter[] handlerAdapters = obtainDispatcher.getHandlerAdapters();
+    DispatcherHandler obtainDispatcher = obtainDispatcher();
+    HandlerAdapter[] handlerAdapters = obtainDispatcher.getHandlerAdapters();
     if (handlerAdapters != null) {
       Collections.addAll(adapters, handlerAdapters);
     }
     // 添加默认的
     adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
-    final WebApplicationContext context = obtainApplicationContext();
+    WebApplicationContext context = obtainApplicationContext();
     // ViewControllerHandlerRegistry must configured
-    final ViewControllerHandlerRegistry viewControllerRegistry = context.getBean(ViewControllerHandlerRegistry.class);
+    ViewControllerHandlerRegistry viewControllerRegistry = context.getBean(ViewControllerHandlerRegistry.class);
     if (viewControllerRegistry != null) {
-      final ViewControllerHandlerAdapter bean = context.getBean(ViewControllerHandlerAdapter.class);
+      ViewControllerHandlerAdapter bean = context.getBean(ViewControllerHandlerAdapter.class);
       if (bean == null) {
         ViewControllerHandlerAdapter viewControllerHandlerAdapter = null;
-        for (final HandlerAdapter adapter : adapters) {
+        for (HandlerAdapter adapter : adapters) {
           if (adapter instanceof ViewControllerHandlerAdapter) {
             viewControllerHandlerAdapter = (ViewControllerHandlerAdapter) adapter;
             break;
@@ -210,7 +210,7 @@ public class WebApplicationLoader
    */
   protected void configureExceptionHandler(
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
-    final DispatcherHandler dispatcherHandler = obtainDispatcher();
+    DispatcherHandler dispatcherHandler = obtainDispatcher();
     HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
     if (exceptionHandler != null) {
       handlers.add(exceptionHandler);
@@ -230,7 +230,7 @@ public class WebApplicationLoader
   }
 
   protected void configureFunctionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    final FunctionHandlerRegistry registry = context.getBean(FunctionHandlerRegistry.class);
+    FunctionHandlerRegistry registry = context.getBean(FunctionHandlerRegistry.class);
     if (registry != null) {
       mvcConfiguration.configureFunctionHandler(registry);
     }
@@ -242,7 +242,7 @@ public class WebApplicationLoader
    * @since 2.3.7
    */
   protected void configureTemplateLoader(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    final Class<Object> loaderClass = ClassUtils.load("freemarker.cache.TemplateLoader");
+    Class<Object> loaderClass = ClassUtils.load("freemarker.cache.TemplateLoader");
     if (loaderClass != null) {
       List<?> beans = context.getBeans(loaderClass);
       mvcConfiguration.configureTemplateLoader(beans);
@@ -280,14 +280,14 @@ public class WebApplicationLoader
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureResultHandler(List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final SelectableReturnValueHandler existingHandlers = obtainDispatcher.getReturnValueHandler();
+    DispatcherHandler obtainDispatcher = obtainDispatcher();
+    SelectableReturnValueHandler existingHandlers = obtainDispatcher.getReturnValueHandler();
     if (existingHandlers != null) {
       handlers.addAll(existingHandlers.getInternalHandlers());
     }
-    final WebApplicationContext context = obtainApplicationContext();
+    WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
-    final ReturnValueHandlers returnValueHandlers = context.getBean(ReturnValueHandlers.class);
+    ReturnValueHandlers returnValueHandlers = context.getBean(ReturnValueHandlers.class);
     Assert.state(returnValueHandlers != null, "No ResultHandlers");
     // user config
     mvcConfiguration.configureResultHandler(handlers);
@@ -315,12 +315,12 @@ public class WebApplicationLoader
    */
   protected void configureParameterResolving(
           List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
-    final WebApplicationContext context = obtainApplicationContext();
-    final ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
+    WebApplicationContext context = obtainApplicationContext();
+    ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
     Assert.state(registry != null, "No ParameterResolvers");
 
     // user customize multipartConfig
-    final MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
+    MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
     mvcConfiguration.configureMultipart(multipartConfig);
 
     // User customize parameter resolver
@@ -337,7 +337,7 @@ public class WebApplicationLoader
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureResourceHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    final ResourceHandlerRegistry registry = context.getBean(ResourceHandlerRegistry.class);
+    ResourceHandlerRegistry registry = context.getBean(ResourceHandlerRegistry.class);
     if (registry != null) {
       mvcConfiguration.configureResourceHandler(registry);
     }
@@ -349,7 +349,7 @@ public class WebApplicationLoader
    * @since 3.0
    */
   protected void configureValidators(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    final WebValidator webValidator = context.getBean(WebValidator.class);
+    WebValidator webValidator = context.getBean(WebValidator.class);
     if (webValidator != null) {
       log.info("Enable Bean Validation using web validator: {}", webValidator);
       // user Manual config
@@ -368,13 +368,13 @@ public class WebApplicationLoader
    * @throws Throwable
    *         If any initialize exception occurred
    */
-  protected void initializerStartup(final WebApplicationContext context,
-                                    final WebMvcConfiguration mvcConfiguration) throws Throwable //
+  protected void initializerStartup(WebApplicationContext context,
+                                    WebMvcConfiguration mvcConfiguration) throws Throwable //
   {
-    final List<WebApplicationInitializer> initializers = context.getBeans(WebApplicationInitializer.class);
+    List<WebApplicationInitializer> initializers = context.getBeans(WebApplicationInitializer.class);
     configureInitializer(initializers, mvcConfiguration);
 
-    for (final WebApplicationInitializer initializer : initializers) {
+    for (WebApplicationInitializer initializer : initializers) {
       initializer.onStartup(context);
     }
   }
@@ -412,7 +412,7 @@ public class WebApplicationLoader
           ViewControllerHandlerRegistry registry) throws Throwable {
     // find the configure file
     log.info("TODAY WEB Framework Is Looking For ViewController Configuration File.");
-    final String webMvcConfigLocation = getWebMvcConfigLocation();
+    String webMvcConfigLocation = getWebMvcConfigLocation();
     if (StringUtils.isEmpty(webMvcConfigLocation)) {
       log.info("Configuration File does not exist.");
       return registry;
@@ -443,7 +443,7 @@ public class WebApplicationLoader
 
   public DispatcherHandler obtainDispatcher() {
     if (dispatcher == null) {
-      final WebApplicationContext context = obtainApplicationContext();
+      WebApplicationContext context = obtainApplicationContext();
       DispatcherHandler dispatcherHandler = context.getBean(DispatcherHandler.class);
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
