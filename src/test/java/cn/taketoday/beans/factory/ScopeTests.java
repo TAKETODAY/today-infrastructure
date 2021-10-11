@@ -19,26 +19,23 @@
  */
 package cn.taketoday.beans.factory;
 
-import org.junit.Test;
-
-import java.util.Collections;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author TODAY <br>
  * 2020-04-02 21:15
  */
-public class ScopeTest {
+class ScopeTests {
 
   static class ScopeBean {
 
@@ -50,12 +47,13 @@ public class ScopeTest {
   }
 
   @Test
-  public void testSimpleThreadScope() {
+  void testSimpleThreadScope() {
 
     SimpleThreadScope thread = new SimpleThreadScope();
 
-    try (ApplicationContext context = new StandardApplicationContext()) {
-      context.registerScope("thread", thread);
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      context.getBeanFactory()
+              .registerScope("thread", thread);
 
       final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
       context.registerBean(def);
@@ -69,15 +67,14 @@ public class ScopeTest {
         public void run() {
           final Object bean2 = context.getBean(def);
           System.err.println(bean2);
-          assertNotEquals(bean2, bean);
+          Assertions.assertNotEquals(bean2, bean);
         }
-
-        ;
       }.start();
 
-      context.destroyScopedBean("scopeBean");
+      context.getBeanFactory()
+              .destroyScopedBean("scopeBean");
       System.err.println(bean);
-      assertNotEquals(bean, context.getBean(def));
+      Assertions.assertNotEquals(bean, context.getBean(def));
     }
   }
 
@@ -88,7 +85,7 @@ public class ScopeTest {
     SimpleThreadScope thread = new SimpleThreadScope();
     configurer.addScope("thread", thread);
 
-    try (ConfigurableApplicationContext context = new StandardApplicationContext()) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
 
       final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
       context.registerBean(def);
@@ -101,14 +98,12 @@ public class ScopeTest {
         assertTrue(true);
       }
       context.addBeanFactoryPostProcessor(configurer);
-      context.getCandidateComponentScanner().setCandidates(Collections.emptySet());
 
       context.scan();
-      context.getCandidateComponentScanner().setCandidates(null);
 
       final Object bean = context.getBean(def);
       final Object bean2 = context.getBean(def);
-      assertEquals(bean, bean2);
+      Assertions.assertEquals(bean, bean2);
 
       new Thread() {
         public void run() {
@@ -120,7 +115,7 @@ public class ScopeTest {
         ;
       }.start();
 
-      context.destroyScopedBean("scopeBean");
+      context.getBeanFactory().destroyScopedBean("scopeBean");
       System.err.println(bean);
       assertNotEquals(bean, context.getBean(def));
     }

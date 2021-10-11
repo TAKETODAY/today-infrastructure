@@ -19,6 +19,13 @@
  */
 package cn.taketoday.beans.factory;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -32,12 +39,6 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DataSize;
 import lombok.ToString;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,20 +47,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * 2019-01-22 18:55
  */
-public class BeanFactoryTest {
+class BeanFactoryTests {
 
-  private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
+  private static Logger log = LoggerFactory.getLogger(BeanFactoryTests.class);
 
-  private final ConfigurableApplicationContext context = //
+  private StandardApplicationContext context = //
           new StandardApplicationContext("", "cn.taketoday.beans.factory", "test.demo.config");
 
-  private final ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+  private ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
   public ConfigurableBeanFactory getBeanFactory() {
     return beanFactory;
   }
 
-  public ConfigurableApplicationContext getContext() {
+  public StandardApplicationContext getContext() {
     return context;
   }
 
@@ -72,7 +73,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_GetBeanWithType() throws NoSuchBeanDefinitionException {
+  void test_GetBeanWithType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Object bean = beanFactory.getBean(Interface.class);
@@ -87,12 +88,12 @@ public class BeanFactoryTest {
     assert implements3 != null;
   }
 
-  public String createBeanName(Class<?> c){
+  public String createBeanName(Class<?> c) {
     return ClassUtils.getShortName(c);
   }
 
   @Test
-  public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
+  void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Object bean = beanFactory.getBean(createBeanName(Interface.class));
@@ -109,7 +110,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_GetBeans() throws NoSuchBeanDefinitionException {
+  void test_GetBeans() throws NoSuchBeanDefinitionException {
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
@@ -125,7 +126,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
+  void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
@@ -135,7 +136,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_GetType() throws NoSuchBeanDefinitionException {
+  void test_GetType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     Class<?> type = beanFactory.getType("implements1");
     log.debug("type: {}", type);
@@ -143,7 +144,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_GetAliases() throws NoSuchBeanDefinitionException {
+  void test_GetAliases() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     Set<String> aliases = beanFactory.getAliases(Interface.class);
 
@@ -152,7 +153,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_GetBeanName() throws NoSuchBeanDefinitionException {
+  void test_GetBeanName() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     String name = beanFactory.getBeanName(Implements1.class);
@@ -168,7 +169,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_IsPrototype() throws NoSuchBeanDefinitionException {
+  void test_IsPrototype() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     assert beanFactory.isPrototype("FactoryBean-Config");
@@ -181,7 +182,7 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void test_IsSingleton() throws NoSuchBeanDefinitionException {
+  void test_IsSingleton() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     assert beanFactory.isSingleton("implements1");
   }
@@ -189,15 +190,15 @@ public class BeanFactoryTest {
   // ------------------------------------2.1.6
 
   @Test
-  public void testAddBeanPostProcessor() {
+  void testAddBeanPostProcessor() {
 
     AbstractBeanFactory beanFactory = (AbstractBeanFactory) getBeanFactory();
 
-    final BeanPostProcessor beanPostProcessor = new BeanPostProcessor() { };
+    BeanPostProcessor beanPostProcessor = new BeanPostProcessor() { };
 
-    final List<BeanPostProcessor> postProcessors = beanFactory.getPostProcessors();
+    List<BeanPostProcessor> postProcessors = beanFactory.getPostProcessors();
 
-    final int size = postProcessors.size();
+    int size = postProcessors.size();
     System.err.println(size);
 
     beanFactory.addBeanPostProcessor(beanPostProcessor);
@@ -228,7 +229,7 @@ public class BeanFactoryTest {
 
     @Override
     public TEST getBean() {
-      final TEST test = new TEST();
+      TEST test = new TEST();
       test.test = testInt;
       return test;
     }
@@ -245,21 +246,21 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void testFactoryBean() {
-    final ConfigurableBeanFactory beanFactory = getBeanFactory();
-    final TEST bean = beanFactory.getBean("testBean", TEST.class);
+  void testFactoryBean() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    TEST bean = beanFactory.getBean("testBean", TEST.class);
 
     System.err.println(bean);
 
-    final BeanDefinition beanDefinition = beanFactory.getBeanDefinition("testBean");
+    BeanDefinition beanDefinition = beanFactory.getBeanDefinition("testBean");
     System.err.println(beanDefinition);
     System.err.println(beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + "testBean"));
   }
 
   @Test
-  public void testGetBeansOfType() {
-    final ConfigurableBeanFactory beanFactory = getBeanFactory();
-    final Map<String, Interface> beansOfType = beanFactory.getBeansOfType(Interface.class);
+  void testGetBeansOfType() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    Map<String, Interface> beansOfType = beanFactory.getBeansOfType(Interface.class);
     assert beansOfType.size() == 3;
   }
 
@@ -274,14 +275,14 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void registerBean() {
-    final ConfigurableBeanFactory beanFactory = getBeanFactory();
+  void registerBean() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
     // System.err.println(beanFactory);
 
-    final RegisterBean obj = new RegisterBean();
-    beanFactory.registerBean("registerBean", obj);
+    RegisterBean obj = new RegisterBean();
+    context.registerBean("registerBean", obj);
 
-    final Interface singleton = beanFactory.getBean("registerBean", Interface.class);
+    Interface singleton = beanFactory.getBean("registerBean", Interface.class);
 
     assertThat(singleton)
             .isEqualTo(obj)
@@ -292,10 +293,10 @@ public class BeanFactoryTest {
     // @since 4.0
 
     // name
-    final RegisterBeanSupplier registerBeanSupplier = new RegisterBeanSupplier();
+    RegisterBeanSupplier registerBeanSupplier = new RegisterBeanSupplier();
 
-    beanFactory.registerBean("registerBeanSupplier-singleton", () -> registerBeanSupplier);
-    beanFactory.registerBean("registerBeanSupplier-prototype", RegisterBeanSupplier::new);
+    context.registerBean("registerBeanSupplier-singleton", () -> registerBeanSupplier);
+    context.registerBean("registerBeanSupplier-prototype", RegisterBeanSupplier::new);
 
     assertThat(registerBeanSupplier)
             .isEqualTo(beanFactory.getBean("registerBeanSupplier-singleton"))
@@ -310,21 +311,21 @@ public class BeanFactoryTest {
 
     // type
 
-    beanFactory.registerBean(RegisterBeanSupplier.class, RegisterBeanSupplier::new, true);
-    final RegisterBeanSupplier prototypeBean = beanFactory.getBean(RegisterBeanSupplier.class);
+    context.registerBean(RegisterBeanSupplier.class, RegisterBeanSupplier::new, true);
+    RegisterBeanSupplier prototypeBean = beanFactory.getBean(RegisterBeanSupplier.class);
 
     assertThat(prototypeBean)
             .isNotNull()
             .isNotEqualTo(beanFactory.getBean(RegisterBeanSupplier.class));
 
-    beanFactory.registerBean(RegisterBeanSupplier.class, RegisterBeanSupplier::new);
-    final RegisterBeanSupplier bean = beanFactory.getBean(RegisterBeanSupplier.class);
+    context.registerBean(RegisterBeanSupplier.class, RegisterBeanSupplier::new);
+    RegisterBeanSupplier bean = beanFactory.getBean(RegisterBeanSupplier.class);
     assertThat(bean)
             .isNotNull()
             .isEqualTo(beanFactory.getBean(RegisterBeanSupplier.class));
 
     // Annotation
-    beanFactory.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, true);
+    context.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, true);
 
     assertThat(beanFactory.getBean(AnnotationRegisterBeanSupplier.class))
             .isNotNull()
@@ -332,7 +333,7 @@ public class BeanFactoryTest {
 
     beanFactory.removeBean(AnnotationRegisterBeanSupplier.class);
 
-    beanFactory.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, false);
+    context.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, false);
 
     assertThat(beanFactory.getBean(AnnotationRegisterBeanSupplier.class))
             .isNotNull()
@@ -349,9 +350,9 @@ public class BeanFactoryTest {
   }
 
   @Test
-  public void getSingleton() {
-    final ConfigurableBeanFactory beanFactory = getBeanFactory();
-    final Interface singleton = beanFactory.getSingleton(Interface.class);
+  void getSingleton() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    Interface singleton = beanFactory.getSingleton(Interface.class);
     assertThat(singleton)
             .isNotNull();
 

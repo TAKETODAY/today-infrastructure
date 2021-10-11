@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.AnnotatedElement;
 
@@ -34,8 +34,8 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.context.loader.ConditionEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY
  * 2020/9/17 16:16
  */
-public class AutowireCapableBeanFactoryTest {
+class AutowireCapableBeanFactoryTests {
 
   static class CreateTestBean {
     int property;
@@ -51,14 +51,16 @@ public class AutowireCapableBeanFactoryTest {
 
   @Test
   public void testCreateBean() {
-    try (ApplicationContext context = new StandardApplicationContext()) {
-      CreateTestBean bean = context.createBean(CreateTestBean.class);
-      CreateTestBean bean2 = context.createBean(CreateTestBean.class);
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
+
+      CreateTestBean bean = beanFactory.createBean(CreateTestBean.class);
+      CreateTestBean bean2 = beanFactory.createBean(CreateTestBean.class);
       assertThat(bean.property).isZero();
       assertThat(bean2).isNotEqualTo(bean);
 
-      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
-      CreateTestBean cachedBeanDef2 = context.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef2 = beanFactory.createBean(CreateTestBean.class, true);
 
       assertThat(cachedBeanDef.property).isZero();
       assertThat(cachedBeanDef2).isNotEqualTo(cachedBeanDef);
@@ -124,13 +126,15 @@ public class AutowireCapableBeanFactoryTest {
   }
 
   @Test
-  public void testAutowireBean() {
+  void testAutowireBean() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
-      context.addBeanPostProcessor(new PostProcessor());
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+      beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
-      context.autowireBean(autowireTestBean);
+      beanFactory.autowireBean(autowireTestBean);
 
       assertThat(autowireTestBean.name).isEqualTo("autowireTestBean");
       assertThat(autowireTestBean.property).isEqualTo(2);
@@ -144,13 +148,16 @@ public class AutowireCapableBeanFactoryTest {
   }
 
   @Test
-  public void testAutowireBeanProperties() {
-    try (ApplicationContext context = new StandardApplicationContext()) {
-      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
-      context.addBeanPostProcessor(new PostProcessor());
+  void testAutowireBeanProperties() {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+      beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
-      context.autowireBeanProperties(autowireTestBean);
+      beanFactory.autowireBeanProperties(autowireTestBean);
       assertThat(autowireTestBean.name).isNull();
       assertThat(autowireTestBean.property).isEqualTo(2);
       assertThat(autowireTestBean.initMethod).isFalse();
@@ -190,16 +197,19 @@ public class AutowireCapableBeanFactoryTest {
   }
 
   @Test
-  public void testInitializeBean() {
+  void testInitializeBean() {
     String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
-    try (ApplicationContext context = new StandardApplicationContext()) {
-      CreateTestBean cachedBeanDef = context.createBean(CreateTestBean.class, true);
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      context.addBeanPostProcessor(new PostProcessor());
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+
+      beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
-      context.initializeBean(autowireTestBean, beanName);
+      beanFactory.initializeBean(autowireTestBean, beanName);
 
       assertThat(autowireTestBean.name).isEqualTo(beanName);
 
@@ -214,16 +224,17 @@ public class AutowireCapableBeanFactoryTest {
   }
 
   @Test
-  public void testApplyBeanPostProcessorsBeforeInitialization() {
+  void testApplyBeanPostProcessorsBeforeInitialization() {
     String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
-    try (ApplicationContext context = new StandardApplicationContext()) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      context.addBeanPostProcessor(new PostProcessor());
+      beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
 
-      Object before = context.applyBeanPostProcessorsBeforeInitialization(autowireTestBean, beanName);
+      Object before = beanFactory.applyBeanPostProcessorsBeforeInitialization(autowireTestBean, beanName);
       assertThat(autowireTestBean).isEqualTo(before);
 
       assertThat(autowireTestBean.bean).isNull();
@@ -239,16 +250,17 @@ public class AutowireCapableBeanFactoryTest {
   }
 
   @Test
-  public void testApplyBeanPostProcessorsAfterInitialization() {
+  void testApplyBeanPostProcessorsAfterInitialization() {
     String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
-    try (ApplicationContext context = new StandardApplicationContext()) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      context.addBeanPostProcessor(new PostProcessor());
+      beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
 
-      Object after = context.applyBeanPostProcessorsAfterInitialization(autowireTestBean, beanName);
+      Object after = beanFactory.applyBeanPostProcessorsAfterInitialization(autowireTestBean, beanName);
       assertThat(autowireTestBean).isEqualTo(after);
 
       assertThat(autowireTestBean.bean).isNull();
@@ -265,10 +277,12 @@ public class AutowireCapableBeanFactoryTest {
   }
 
   @Test
-  public void testDestroyBean() {
+  void testDestroyBean() {
 
-    try (ApplicationContext context = new StandardApplicationContext()) {
-      context.addBeanPostProcessor(new PostProcessor());
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
 
@@ -282,7 +296,7 @@ public class AutowireCapableBeanFactoryTest {
       assertThat(autowireTestBean.afterPostProcessor).isFalse();
       assertThat(autowireTestBean.beforePostProcessor).isFalse();
 
-      context.destroyBean(autowireTestBean);
+      beanFactory.destroyBean(autowireTestBean);
       assertThat(autowireTestBean.postProcessBeforeDestruction).isTrue();
 
     }

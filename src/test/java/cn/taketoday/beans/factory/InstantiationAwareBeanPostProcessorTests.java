@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author TODAY 2021/4/21 22:47
  */
-public class InstantiationAwareBeanPostProcessorTests {
+class InstantiationAwareBeanPostProcessorTests {
 
   static class InstantiationAwareBeanPostProcessor0 implements InstantiationAwareBeanPostProcessor {
     final BeanFactory factory;
@@ -76,13 +76,14 @@ public class InstantiationAwareBeanPostProcessorTests {
   }
 
   @Test
-  public void postProcessBeforeInstantiation() {
+  void postProcessBeforeInstantiation() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.registerFrameworkComponents();
-      AutowireCapableBeanFactory capableBeanFactory = context.getAutowireCapableBeanFactory();
+
       ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
-      capableBeanFactory.importBeans(InstantiationAwareBeanPostProcessorBean.class);
-      capableBeanFactory.importBeans(InstantiationAwareBeanPostProcessorConfig.class);
+
+      context.importBeans(InstantiationAwareBeanPostProcessorBean.class);
+      context.importBeans(InstantiationAwareBeanPostProcessorConfig.class);
 
       final InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
       beanFactory.addBeanPostProcessor(postProcessor);

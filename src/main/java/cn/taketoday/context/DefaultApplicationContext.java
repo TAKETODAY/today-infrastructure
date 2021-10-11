@@ -240,4 +240,24 @@ public class DefaultApplicationContext
     beanDefinitionReader.registerBean(clazz, supplier, prototype, ignoreAnnotation);
   }
 
+  /**
+   * Register a bean with the given bean name and instance supplier
+   *
+   * <p>
+   * register as singleton or prototype defined in your supplier
+   * </p>
+   *
+   * @param name
+   *         bean name
+   * @param supplier
+   *         bean instance supplier
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 4.0
+   */
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    beanDefinitionReader.registerBean(name, supplier);
+  }
+
 }
