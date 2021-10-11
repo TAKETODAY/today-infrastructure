@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,18 +19,18 @@
  */
 package cn.taketoday.web.view.template;
 
-import java.io.IOException;
-import java.io.Reader;
-
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ConcurrentCache;
 import cn.taketoday.util.ObjectUtils;
 import freemarker.cache.TemplateLoader;
+
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  * Default {@link TemplateLoader} implementation
@@ -43,7 +43,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   private String prefix;
   private String suffix;
-  private ResourceLoader pathMatchingResolver = new PathMatchingPatternResourceLoader();
+  private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
 
   public final ConcurrentCache<String, TemplateSource> cache;
 
@@ -61,7 +61,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     this.cache = ConcurrentCache.fromSize(size);
   }
 
-  protected String getTemplate(final String name) {
+  protected String getTemplate(String name) {
     return new StringBuilder(getPrefix())
             .append(name)
             .append(getSuffix())
@@ -73,11 +73,11 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     TemplateSource ret = cache.get(name);
     // TODO 过期
     if (ret == null) {
-      final String template = getTemplate(name);
+      String template = getTemplate(name);
       try {
-        final Resource[] resources = pathMatchingResolver.getResources(template);
+        Resource[] resources = resourceLoader.getResources(template);
         if (ObjectUtils.isNotEmpty(resources)) {
-          for (final Resource resource : resources) {
+          for (Resource resource : resources) {
             if (resource.exists()) {
               cache.put(name, ret = TemplateSource.create(resource));
               if (log.isDebugEnabled()) {
@@ -101,7 +101,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   }
 
   @Override
-  public long getLastModified(final Object source) {
+  public long getLastModified(Object source) {
     if (source instanceof TemplateSource) {
       return ((TemplateSource) source).lastModified;
     }
@@ -109,7 +109,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   }
 
   @Override
-  public Reader getReader(final Object source, final String encoding) throws IOException {
+  public Reader getReader(Object source, String encoding) throws IOException {
     if (source instanceof TemplateSource) {
       return ((TemplateSource) source).reader.get(encoding);
     }
@@ -117,14 +117,14 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   }
 
   @Override
-  public void closeTemplateSource(final Object source) throws IOException { }
+  public void closeTemplateSource(Object source) { }
 
-  public void setPathMatchingResolver(ResourceLoader pathMatchingResolver) {
-    this.pathMatchingResolver = pathMatchingResolver;
+  public void setResourceLoader(PatternResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
   }
 
-  public ResourceLoader getPathMatchingResolver() {
-    return pathMatchingResolver;
+  public PatternResourceLoader getResourceLoader() {
+    return resourceLoader;
   }
 
   /**
@@ -172,7 +172,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
    *
    * @return this
    */
-  public DefaultResourceTemplateLoader putTemplate(final String name, final long lastModified, final ReaderSupplier reader) {
+  public DefaultResourceTemplateLoader putTemplate(String name, long lastModified, ReaderSupplier reader) {
     cache.put(name, TemplateSource.create(lastModified, reader));
     return this;
   }
@@ -190,17 +190,17 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     return this;
   }
 
-  public static final class TemplateSource {
+  static final class TemplateSource {
     static final TemplateSource EMPTY = new TemplateSource(0, null);
 
-    private final long lastModified;
-    private final ReaderSupplier reader;
+    final long lastModified;
+    final ReaderSupplier reader;
 
-    protected TemplateSource(Resource resource) throws IOException {
+    TemplateSource(Resource resource) throws IOException {
       this(resource.lastModified(), resource::getReader);
     }
 
-    protected TemplateSource(long lastModified, ReaderSupplier reader) {
+    TemplateSource(long lastModified, ReaderSupplier reader) {
       this.reader = reader;
       this.lastModified = lastModified;
     }
@@ -209,14 +209,14 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
       return new TemplateSource(resource);
     }
 
-    public static TemplateSource create(final long lastModified, final ReaderSupplier reader) {
+    public static TemplateSource create(long lastModified, ReaderSupplier reader) {
       return new TemplateSource(lastModified, reader);
     }
   }
 
   @FunctionalInterface
   public interface ReaderSupplier {
-    Reader get(String c) throws IOException;
+    Reader get(String encoding) throws IOException;
   }
 
   // Setter Getter
@@ -224,9 +224,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("DefaultResourceTemplateLoader [prefix=").append(prefix).append(", suffix=").append(suffix).append("]");
-    return builder.toString();
+    return ObjectUtils.toHexString(this) + " [prefix=" + prefix + ", suffix=" + suffix + "]";
   }
 
   public String getSuffix() {
