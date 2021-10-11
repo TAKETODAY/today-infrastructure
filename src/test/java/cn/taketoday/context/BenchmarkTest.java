@@ -1,16 +1,7 @@
 package cn.taketoday.context;
 
-import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.reflect.MethodAccessor;
-import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.util.ReflectionUtils;
-import lombok.Getter;
-import lombok.Setter;
 import org.junit.Ignore;
 import org.junit.Test;
-import test.demo.config.Config;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -20,6 +11,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.IntSupplier;
 import java.util.function.LongFunction;
+
+import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.reflect.MethodAccessor;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.util.ReflectionUtils;
+import lombok.Getter;
+import lombok.Setter;
+import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,8 +38,9 @@ public class BenchmarkTest {
   @Test
   public void testSingleton() {
     long start = System.currentTimeMillis();
-    ApplicationContext applicationContext = new StandardApplicationContext();
+    StandardApplicationContext applicationContext = new StandardApplicationContext();
     applicationContext.scan("cn.taketoday.context");
+    applicationContext.refresh();
     System.out.println("start context used: " + (System.currentTimeMillis() - start) + "ms");
     start = System.currentTimeMillis();
     for (int i = 0; i < times; i++) {
@@ -53,8 +55,10 @@ public class BenchmarkTest {
   //	@Test
   public void testPrototype() {
     long start = System.currentTimeMillis();
-    ApplicationContext applicationContext = new StandardApplicationContext();
+    StandardApplicationContext applicationContext = new StandardApplicationContext();
     applicationContext.scan();
+    applicationContext.refresh();
+
     System.out.println("start context used: " + (System.currentTimeMillis() - start) + "ms");
     start = System.currentTimeMillis();
 

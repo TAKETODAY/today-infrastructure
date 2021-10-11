@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,32 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.framework;
 
-import org.junit.Test;
+package cn.taketoday.core.env;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.HashMap;
 
-import cn.taketoday.framework.StandardWebEnvironment;
+import cn.taketoday.context.ApplicationPropertySourcesProcessor;
+import cn.taketoday.context.DefaultApplicationContext;
 
 /**
- * @author TODAY <br>
- * 2019-06-18 09:16
+ * @author TODAY 2021/10/11 22:27
  */
-public class StandardWebServletEnvironmentTest {
+class ApplicationPropertySourcesProcessorTests {
 
   @Test
-  public void testLoadProperties() throws IOException {
+  void test() throws IOException {
 
-    StandardWebEnvironment environment = new StandardWebEnvironment();
-    environment.loadProperties();
+    try (DefaultApplicationContext context = new DefaultApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor
+              = new ApplicationPropertySourcesProcessor(context);
 
-    final Properties properties = environment.getProperties();
+      processor.postProcessEnvironment();
 
-    assert "http://go.taketoday.cn".equals(properties.get("site.Access-Control-Allow-Origin"));
+      HashMap<String, Object> source = processor.getSource();
 
-    properties.list(System.err);
+
+
+    }
   }
-
 }

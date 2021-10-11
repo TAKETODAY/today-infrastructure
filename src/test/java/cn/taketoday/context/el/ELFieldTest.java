@@ -26,8 +26,9 @@ import org.junit.Test;
 import java.util.Date;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.Value;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.expression.ExpressionProcessor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -98,8 +99,9 @@ public class ELFieldTest {
     user.setAge(20)//
             .setBrithday(new Date())//
             .setId(1);
+    ExpressionProcessor processor = applicationContext.getBean(ExpressionProcessor.class);
+    processor.defineBean("user", user);
 
-    applicationContext.getEnvironment().getExpressionProcessor().defineBean("user", user);
     applicationContext.scan("cn.taketoday.context.el");
 
     ELFieldTest bean = applicationContext.getBean(getClass());
@@ -116,8 +118,11 @@ public class ELFieldTest {
             .setBrithday(new Date())//
             .setId(1);
 
-    applicationContext.getEnvironment().getExpressionProcessor().defineBean("user", user);
+    ExpressionProcessor processor = applicationContext.getBean(ExpressionProcessor.class);
+    processor.defineBean("user", user);
+
     applicationContext.scan("cn.taketoday.context.el");
+    applicationContext.refresh();
 
     ELFieldTest bean = applicationContext.getBean(getClass());
     System.err.println(bean);

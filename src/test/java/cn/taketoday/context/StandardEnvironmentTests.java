@@ -19,9 +19,7 @@
  */
 package cn.taketoday.context;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -30,8 +28,10 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.util.ResourceUtils;
 
@@ -40,22 +40,10 @@ import cn.taketoday.util.ResourceUtils;
  *
  * 2018-11-15 16:56
  */
-public class StandardEnvironmentTest {
-
-  private long start;
-
-  @Before
-  public void start() {
-    start = System.currentTimeMillis();
-  }
-
-  @After
-  public void end() {
-    System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-  }
+class StandardEnvironmentTests {
 
   @Test
-  public void test_AutoloadProperties()
+  void test_AutoloadProperties()
           throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
 
     try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
@@ -65,7 +53,7 @@ public class StandardEnvironmentTest {
   }
 
   @Test
-  public void test_loadProperties() throws IOException {
+  void test_loadProperties() throws IOException {
     ConfigurableEnvironment environment = new StandardEnvironment();
 
     PropertySources propertySources = environment.getPropertySources();
@@ -79,7 +67,7 @@ public class StandardEnvironmentTest {
   }
 
   @Test
-  public void test_ActiveProfile() throws IOException {
+  void test_ActiveProfile() throws IOException {
 
     try (ApplicationContext applicationContext
             = new StandardApplicationContext("", "cn.taketoday.context.env")) {
@@ -94,7 +82,7 @@ public class StandardEnvironmentTest {
   }
 
   @Test
-  public void test_AddActiveProfile() throws IOException {
+  void test_AddActiveProfile() throws IOException {
 
     try (ConfigurableApplicationContext applicationContext
             = new StandardApplicationContext("", "cn.taketoday.context.env")) {
@@ -108,7 +96,7 @@ public class StandardEnvironmentTest {
   }
 
   @Test
-  public void test_AcceptsProfiles() throws IOException {
+  void test_AcceptsProfiles() throws IOException {
 
     try (ConfigurableApplicationContext applicationContext
             = new StandardApplicationContext("", "cn.taketoday.context.env")) {
