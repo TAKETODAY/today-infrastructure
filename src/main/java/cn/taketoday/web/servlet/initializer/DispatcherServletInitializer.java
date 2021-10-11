@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -23,6 +23,8 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -34,7 +36,7 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  * 2019-02-03 14:08
  */
 public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> {
-  static final String DISPATCHER_SERVLET = "dispatcherServlet";
+  public static final String DISPATCHER_SERVLET = "dispatcherServlet";
 
   private static final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
 
@@ -48,7 +50,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
   public DispatcherServletInitializer(WebServletApplicationContext context, DispatcherServlet dispatcherServlet) {
     super(dispatcherServlet);
     this.applicationContext = context;
-    setOrder(HIGHEST_PRECEDENCE - 100);
+    setOrder(HIGHEST_PRECEDENCE + 100);
     setName(DISPATCHER_SERVLET);
     addUrlMappings(DEFAULT_MAPPING);
   }
@@ -57,9 +59,12 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
   public DispatcherServlet getServlet() {
     DispatcherServlet dispatcherServlet = super.getServlet();
     if (dispatcherServlet == null && isAutoCreateDispatcher()) {
-      final WebServletApplicationContext context = getApplicationContext();
-      if (!context.containsBeanDefinition(DispatcherServlet.class)) {
-        context.registerBean(DISPATCHER_SERVLET, DispatcherServlet.class);
+      WebServletApplicationContext context = getApplicationContext();
+      BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
+      if (!registry.containsBeanDefinition(DispatcherServlet.class)) {
+        BeanDefinitionReader reader = new BeanDefinitionReader(context, registry);
+        reader.setEnableConditionEvaluation(false);
+        reader.registerBean(DISPATCHER_SERVLET, DispatcherServlet.class);
       }
       dispatcherServlet = context.getBean(DispatcherServlet.class);
       setServlet(dispatcherServlet);
@@ -80,7 +85,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     MultipartConfigElement multipartConfig = getMultipartConfig();
     if (multipartConfig == null) {
 
-      final MultipartConfiguration configuration = getApplicationContext().getBean(MultipartConfiguration.class);
+      MultipartConfiguration configuration = getApplicationContext().getBean(MultipartConfiguration.class);
       multipartConfig = new MultipartConfigElement(configuration.getLocation(),
                                                    configuration.getMaxFileSize().toBytes(),
                                                    configuration.getMaxRequestSize().toBytes(),
