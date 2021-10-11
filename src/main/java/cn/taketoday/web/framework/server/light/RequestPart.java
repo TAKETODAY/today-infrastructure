@@ -18,20 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.demo;
-
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+package cn.taketoday.web.framework.server.light;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY 2021/4/16 23:41
  */
-@Import(AppConfig.class)
-public class DemoApplication {
+public interface RequestPart {
 
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
-  }
-
+  String getName();
 }

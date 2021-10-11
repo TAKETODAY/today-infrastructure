@@ -15,23 +15,28 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package cn.taketoday.web.framework;
 
-package cn.taketoday.web.demo;
-
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY <br>
+ * 2019-02-14 21:09
  */
-@Import(AppConfig.class)
-public class DemoApplication {
+public class WebServerException extends WebNestedRuntimeException {
+  private static final long serialVersionUID = 1L;
 
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
+  public WebServerException(Throwable cause) {
+    super(cause);
   }
 
+  public WebServerException(String message) {
+    super(message);
+  }
+
+  public WebServerException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

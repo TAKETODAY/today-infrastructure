@@ -18,20 +18,36 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.demo;
+package cn.taketoday.web.framework.config;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import cn.taketoday.context.Props;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.web.framework.server.JettyServer;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY 2021/3/30 23:47
  */
-@Import(AppConfig.class)
-public class DemoApplication {
+@Retention(RUNTIME)
+@Target({ TYPE, METHOD })
+@Import(JettyConfig.class)
+public @interface EnableJettyHandling {
 
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
+}
+
+class JettyConfig {
+
+  @MissingBean
+  @Props(prefix = { "server.", "server.jetty." })
+  JettyServer jettyServer() {
+    return new JettyServer();
   }
 
 }

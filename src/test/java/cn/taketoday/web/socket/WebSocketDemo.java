@@ -32,7 +32,7 @@ import javax.websocket.Session;
 
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.framework.WebApplication;
+import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.annotation.GET;
 
 /**

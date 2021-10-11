@@ -17,21 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.web.framework.config;
 
-package cn.taketoday.web.demo;
-
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY <br>
+ * 2019-06-17 20:25
  */
-@Import(AppConfig.class)
-public class DemoApplication {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PropertiesSource {
 
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
-  }
+  /**
+   * Indicate the resource location(s) of the properties file to be loaded.
+   */
+  String value();
 
 }

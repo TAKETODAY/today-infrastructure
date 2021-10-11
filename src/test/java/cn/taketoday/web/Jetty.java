@@ -47,7 +47,7 @@ import javax.annotation.PreDestroy;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
-import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
+import cn.taketoday.web.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;

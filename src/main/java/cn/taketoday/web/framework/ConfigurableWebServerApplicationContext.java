@@ -17,21 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.web.framework;
 
-package cn.taketoday.web.demo;
-
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+import cn.taketoday.web.ConfigurableWebApplicationContext;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY <br>
+ * 2019-11-13 23:27
  */
-@Import(AppConfig.class)
-public class DemoApplication {
-
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
-  }
+public interface ConfigurableWebServerApplicationContext
+        extends ConfigurableWebApplicationContext, WebServerApplicationContext {
 
 }

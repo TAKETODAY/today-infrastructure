@@ -17,21 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.web.framework.config;
 
-package cn.taketoday.web.demo;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY <br>
+ * 2020-08-16 12:45
  */
-@Import(AppConfig.class)
-public class DemoApplication {
-
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
-  }
+@Retention(RUNTIME)
+@Target({ TYPE, METHOD })
+@Import(WebDocumentConfiguration.class)
+public @interface EnableWebDocumentConfiguration {
 
 }

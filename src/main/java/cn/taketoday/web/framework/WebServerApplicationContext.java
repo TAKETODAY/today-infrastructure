@@ -15,23 +15,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package cn.taketoday.web.framework;
 
-package cn.taketoday.web.demo;
-
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.demo.config.AppConfig;
+import cn.taketoday.web.framework.server.WebServer;
+import cn.taketoday.web.WebApplicationContext;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * @author TODAY <br>
+ * 2019-01-17 15:57
  */
-@Import(AppConfig.class)
-public class DemoApplication {
+public interface WebServerApplicationContext extends WebApplicationContext {
 
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
-  }
+  /**
+   * Returns the {@link WebServer} that was created by the context or {@code null}
+   * if the server has not yet been created.
+   *
+   * @return the web server
+   */
+  WebServer getWebServer();
+
+  /**
+   * Get startup class
+   */
+  Class<?> getStartupClass();
 
 }
