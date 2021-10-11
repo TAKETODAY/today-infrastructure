@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -124,6 +125,11 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     if (attributes != null) {
       attributes.clear();
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return ObjectUtils.nullSafeHashCode(attributes);
   }
 
   @Override
