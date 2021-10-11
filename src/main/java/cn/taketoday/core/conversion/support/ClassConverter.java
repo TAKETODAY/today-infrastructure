@@ -29,7 +29,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 3.0
  */
 public class ClassConverter extends StringSourceConverter<Class<?>> {
-  private ClassLoader classLoader = ClassUtils.getClassLoader();
+  private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
   @Override
   public Class<?> convert(String source) {

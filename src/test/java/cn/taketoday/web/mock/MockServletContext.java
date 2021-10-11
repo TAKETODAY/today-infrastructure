@@ -525,7 +525,7 @@ public class MockServletContext implements ServletContext {
   @Override
 
   public ClassLoader getClassLoader() {
-    return ClassUtils.getClassLoader();
+    return ClassUtils.getDefaultClassLoader();
   }
 
   @Override

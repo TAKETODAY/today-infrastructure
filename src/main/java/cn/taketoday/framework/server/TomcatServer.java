@@ -373,7 +373,7 @@ public class TomcatServer extends AbstractServletWebServer {
       }
 
       context.addLifecycleListener(new FixContextListener());
-      context.setParentClassLoader(ClassUtils.getClassLoader());
+      context.setParentClassLoader(ClassUtils.getDefaultClassLoader());
 
       resetDefaultLocaleMapping(context);
       addLocaleMappings(context);

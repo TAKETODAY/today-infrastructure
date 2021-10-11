@@ -69,7 +69,7 @@ public class ClassMetaReader {
   private static final HashMap<Resource, ClassNode> resourceClassNodeCache = new HashMap<>(128); // class-name to ClassNode
 
   public static ClassNode read(Class<?> classToRead) {
-    return read(classToRead, ClassUtils.getClassLoader());
+    return read(classToRead, ClassUtils.getDefaultClassLoader());
   }
 
   public static ClassNode read(Class<?> key, ClassLoader classLoader) {
@@ -77,7 +77,7 @@ public class ClassMetaReader {
   }
 
   public static ClassNode read(String className) {
-    return read(className, ClassUtils.getClassLoader());
+    return read(className, ClassUtils.getDefaultClassLoader());
   }
 
   public static ClassNode read(String className, ClassLoader classLoader) {

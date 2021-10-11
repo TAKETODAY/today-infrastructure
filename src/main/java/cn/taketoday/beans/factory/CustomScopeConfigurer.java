@@ -56,7 +56,7 @@ public class CustomScopeConfigurer
 
   private Map<String, Object> scopes;
 
-  private ClassLoader beanClassLoader = ClassUtils.getClassLoader();
+  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /**
    * Specify the custom scopes that are to be registered.

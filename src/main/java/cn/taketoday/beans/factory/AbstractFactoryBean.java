@@ -67,7 +67,7 @@ public abstract class AbstractFactoryBean<T>
   private boolean initialized = false;
   private T singletonInstance;
   private T earlySingletonInstance;
-  private ClassLoader beanClassLoader = ClassUtils.getClassLoader();
+  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /**
    * Set if a singleton should be created, or a new object on each request

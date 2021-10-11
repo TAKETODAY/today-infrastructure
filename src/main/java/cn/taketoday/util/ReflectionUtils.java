@@ -1670,7 +1670,7 @@ public abstract class ReflectionUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return (T) newInstance(ClassUtils.getClassLoader().loadClass(beanClassName));
+    return (T) newInstance(ClassUtils.getDefaultClassLoader().loadClass(beanClassName));
   }
 
   /**
@@ -1707,7 +1707,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static <T> Class<T> defineClass(String className, byte[] bytes) {
-    return defineClass(className, bytes, ClassUtils.getClassLoader(), null);
+    return defineClass(className, bytes, ClassUtils.getDefaultClassLoader(), null);
   }
 
   /**

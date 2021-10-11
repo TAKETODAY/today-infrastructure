@@ -75,7 +75,7 @@ public class ContextUtilsTest {
 
   @Test
   public void test_GetUrlAsProperties() throws IOException {
-    URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+    URL resource = ClassUtils.getDefaultClassLoader().getResource("info.properties");
     Properties properties = PropertiesUtils.loadProperties(resource.getProtocol() + ":" + resource.getPath());
 
     assert resource.getProtocol().equals("file");

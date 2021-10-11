@@ -57,7 +57,7 @@ public class SessionTemplate implements SqlSession, DisposableBean {
     this.configuration = sqlSessionFactory.getConfiguration();
     final ExecutorType executorType = configuration.getDefaultExecutorType();
     this.proxy = (SqlSession) Proxy.newProxyInstance(
-            ClassUtils.getClassLoader(),
+            ClassUtils.getDefaultClassLoader(),
             new Class[] { SqlSession.class },
             new SqlSessionInterceptor(executorType, sqlSessionFactory));
   }

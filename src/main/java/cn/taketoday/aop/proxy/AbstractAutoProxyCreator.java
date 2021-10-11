@@ -73,7 +73,7 @@ public abstract class AbstractAutoProxyCreator
    */
   private boolean freezeProxy = false;
   private transient TargetSourceCreator[] targetSourceCreators;
-  private transient ClassLoader proxyClassLoader = ClassUtils.getClassLoader();
+  private transient ClassLoader proxyClassLoader = ClassUtils.getDefaultClassLoader();
   private List<Advisor> candidateAdvisors;
 
   /**

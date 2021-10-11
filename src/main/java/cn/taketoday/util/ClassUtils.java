@@ -56,13 +56,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-0? ?
@@ -79,11 +79,6 @@ public abstract class ClassUtils {
   /** Prefix for internal non-primitive array class names: {@code "[L"}. */
   public static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
   public static final String CLASS_FILE_SUFFIX = ".class";
-
-//    private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
-
-  /** class loader **/
-  private static ClassLoader classLoader;
 
   /** @since 3.0 */
   public static HashSet<Class<?>> primitiveTypes;
@@ -112,15 +107,6 @@ public abstract class ClassUtils {
   private static final HashMap<String, Class<?>> commonClassCache = new HashMap<>(64);
 
   static {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    if (classLoader == null) {
-      classLoader = ClassUtils.class.getClassLoader();
-    }
-    if (classLoader == null) {
-      classLoader = ClassLoader.getSystemClassLoader();
-    }
-    setClassLoader(classLoader);
-
     primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
     primitiveWrapperTypeMap.put(Byte.class, byte.class);
     primitiveWrapperTypeMap.put(Character.class, char.class);
@@ -202,20 +188,6 @@ public abstract class ClassUtils {
    * clear cache
    */
   public static void clearCache() { }
-
-  public static void setClassLoader(ClassLoader classLoader) {
-    ClassUtils.classLoader = classLoader;
-  }
-
-  /**
-   * default class loader
-   *
-   * @deprecated use {@link #getDefaultClassLoader()}
-   */
-  @Deprecated
-  public static ClassLoader getClassLoader() {
-    return classLoader;
-  }
 
   /**
    * Return the default ClassLoader to use: typically the thread context
@@ -418,7 +390,7 @@ public abstract class ClassUtils {
    * @since 2.1.6
    */
   public static Class<?> forName(String name) throws ClassNotFoundException {
-    return forName(name, classLoader);
+    return forName(name, getDefaultClassLoader());
   }
 
   /**
@@ -477,7 +449,7 @@ public abstract class ClassUtils {
    * @return class if not found will returns null
    */
   public static <T> Class<T> load(String name) {
-    return load(name, classLoader);
+    return load(name, getDefaultClassLoader());
   }
 
   /**

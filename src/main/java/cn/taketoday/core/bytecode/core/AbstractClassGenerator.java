@@ -247,7 +247,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       t = getDefaultClassLoader();
     }
     if (t == null) {
-      return ClassUtils.getClassLoader();
+      return ClassUtils.getDefaultClassLoader();
     }
     return t;
   }

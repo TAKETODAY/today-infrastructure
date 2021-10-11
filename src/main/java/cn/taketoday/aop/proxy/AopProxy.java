@@ -47,7 +47,7 @@ public interface AopProxy {
    * @see Thread#getContextClassLoader()
    */
   default Object getProxy() {
-    return getProxy(ClassUtils.getClassLoader());
+    return getProxy(ClassUtils.getDefaultClassLoader());
   }
 
   /**

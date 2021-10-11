@@ -47,7 +47,7 @@ public class ProxyFactoryBean
   private String[] interceptorNames;
   private BeanFactory beanFactory;
   private Set<Class<?>> proxyInterfaces;
-  private ClassLoader classLoader = ClassUtils.getClassLoader();
+  private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
   public ClassLoader getClassLoader() {
     return classLoader;

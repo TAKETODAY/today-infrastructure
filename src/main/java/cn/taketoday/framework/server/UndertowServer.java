@@ -241,7 +241,7 @@ public class UndertowServer
   }
 
   protected ClassLoader getClassLoader() {
-    return ClassUtils.getClassLoader();
+    return ClassUtils.getDefaultClassLoader();
   }
 
   protected void configureLocaleMappings(DeploymentInfo deployment) {

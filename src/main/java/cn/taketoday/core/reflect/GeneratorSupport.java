@@ -143,7 +143,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     if (classLoader == null) {
       classLoader = targetClass.getClassLoader();
       if (classLoader == null) {
-        classLoader = ClassUtils.getClassLoader();
+        classLoader = ClassUtils.getDefaultClassLoader();
       }
     }
     return classLoader;

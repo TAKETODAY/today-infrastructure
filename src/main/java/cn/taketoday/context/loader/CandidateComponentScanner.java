@@ -73,7 +73,7 @@ public class CandidateComponentScanner {
   private static String[] defaultIgnoreScanJarPrefixs;
   private boolean useDefaultIgnoreScanJarPrefix = true;
 
-  private ClassLoader classLoader = ClassUtils.getClassLoader();
+  private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
   private int scanningTimes = 0;
 
@@ -107,7 +107,7 @@ public class CandidateComponentScanner {
   @Deprecated
   private static void readFromMetaInfoIgnore(HashSet<String> ignoreScanJars) {
     try { // @since 2.1.6
-      Enumeration<URL> resources = ClassUtils.getClassLoader().getResources("META-INF/ignore/jar-prefix");
+      Enumeration<URL> resources = ClassUtils.getDefaultClassLoader().getResources("META-INF/ignore/jar-prefix");
       Charset charset = Constant.DEFAULT_CHARSET;
 
       while (resources.hasMoreElements()) {
@@ -426,7 +426,7 @@ public class CandidateComponentScanner {
   public ClassLoader getClassLoader() {
     ClassLoader classLoader = this.classLoader;
     if (classLoader == null) {
-      return this.classLoader = ClassUtils.getClassLoader();
+      return this.classLoader = ClassUtils.getDefaultClassLoader();
     }
     return classLoader;
   }
