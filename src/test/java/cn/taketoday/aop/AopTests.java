@@ -22,7 +22,7 @@ package cn.taketoday.aop;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -44,25 +44,25 @@ import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Throwing;
 import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.core.AttributeAccessor;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author TODAY <br>
  * 2018-08-10 21:29
  */
 @Slf4j
-public class AopTest {
+public class AopTests {
 
 //  static {
 //    DebuggingClassWriter.setDebugLocation("~/temp/debug");
@@ -80,22 +80,22 @@ public class AopTest {
   }
 
   @Test
-  public void testAop() throws Throwable {
+  void testAop() throws Throwable {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 //      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
-      final StandardBeanFactory beanFactory = context.getBeanFactory();
+      StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      beanFactory.importBeans(AopConfig.class);
-      final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
+      context.importBeans(AopConfig.class);
+      AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
       proxyCreator.setBeanFactory(beanFactory);
       proxyCreator.setProxyTargetClass(true);
-      context.addBeanPostProcessor(proxyCreator);
+      beanFactory.addBeanPostProcessor(proxyCreator);
 
       UserService userService = context.getBean(UserService.class);
 
-      final Class<? extends UserService> userServiceClass = userService.getClass();
+      Class<? extends UserService> userServiceClass = userService.getClass();
       assertNotEquals(DefaultUserService.class, userServiceClass);
       assertEquals(DefaultUserService.class, userServiceClass.getSuperclass());
 
@@ -125,20 +125,20 @@ public class AopTest {
 //
 //    try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.proxy")) {
 //
-//      final OldStandardProxyGenerator proxyGenerator = new OldStandardProxyGenerator(context);
-//      final Bean target = new Bean();
+//      OldStandardProxyGenerator proxyGenerator = new OldStandardProxyGenerator(context);
+//      Bean target = new Bean();
 //      proxyGenerator.setTarget(target);
 //      proxyGenerator.setTargetClass(Bean.class);
 //
-//      final OldTargetSource targetSource = new OldTargetSource(target, Bean.class);
+//      OldTargetSource targetSource = new OldTargetSource(target, Bean.class);
 //      proxyGenerator.setTargetSource(targetSource);
 //
-//      final Map<Method, List<MethodInterceptor>> mapping = new LinkedHashMap<>();
-//      final List<MethodInterceptor> advices = new ArrayList<>();
+//      Map<Method, List<MethodInterceptor>> mapping = new LinkedHashMap<>();
+//      List<MethodInterceptor> advices = new ArrayList<>();
 //
 //      advices.add(invocation -> {
 //        System.out.println("=========before========");
-//        final Object proceed = invocation.proceed();
+//        Object proceed = invocation.proceed();
 //        System.out.println("=========after========");
 //        return proceed;
 //      });
@@ -148,7 +148,7 @@ public class AopTest {
 //      mapping.put(Bean.class.getDeclaredMethod("testReturn"), advices);
 //      targetSource.setAspectMappings(mapping);
 //
-//      final Bean created = (Bean) proxyGenerator.create();
+//      Bean created = (Bean) proxyGenerator.create();
 //
 //      System.out.println(created);
 //
@@ -164,7 +164,7 @@ public class AopTest {
 
     @AfterReturning(TimeAware.class)
     public void afterReturning(@JoinPoint Joinpoint joinpoint, @Attribute AttributeAccessor accessor) {
-      final long start = (long) accessor.getAttribute("Time");
+      long start = (long) accessor.getAttribute("Time");
       log.debug("TimeAspect @AfterReturning Use [{}] ms", System.currentTimeMillis() - start);
     }
 
@@ -222,19 +222,19 @@ public class AopTest {
   }
 
   @Test
-  public void testAttributeAccessor() throws Throwable {
+  void testAttributeAccessor() throws Throwable {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      final StandardBeanFactory beanFactory = context.getBeanFactory();
-      final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+      AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
       proxyCreator.setBeanFactory(beanFactory);
 
-      context.addBeanPostProcessor(proxyCreator);
+      beanFactory.addBeanPostProcessor(proxyCreator);
 
-      beanFactory.importBeans(TimerAspect.class, PrinterBean.class);
+      context.importBeans(TimerAspect.class, PrinterBean.class);
 
-      final PrinterBean bean = context.getBean(PrinterBean.class);
+      PrinterBean bean = context.getBean(PrinterBean.class);
       bean.print();
     }
   }
@@ -246,7 +246,7 @@ public class AopTest {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
       System.out.println("LoggingInterceptor @Around Before method");
-      final Object proceed = invocation.proceed();
+      Object proceed = invocation.proceed();
       System.out.println("LoggingInterceptor @Around After method");
       return proceed;
     }
@@ -257,8 +257,8 @@ public class AopTest {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-      final Object proceed = invocation.proceed();
-      final Object aThis = invocation.getThis();
+      Object proceed = invocation.proceed();
+      Object aThis = invocation.getThis();
       System.out.println(aThis);
       return proceed;
     }
@@ -282,11 +282,11 @@ public class AopTest {
   }
 
   @Test
-  public void testNewVersionAop() throws Throwable {
+  void testNewVersionAop() throws Throwable {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      final TargetSourceCreator targetSourceCreator = new TargetSourceCreator() {
+      TargetSourceCreator targetSourceCreator = new TargetSourceCreator() {
 
         @Override
         public TargetSource getTargetSource(BeanDefinition def) {
@@ -306,9 +306,9 @@ public class AopTest {
         }
       };
 
-      final StandardBeanFactory beanFactory = context.getBeanFactory();
-      final DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
-      context.addBeanPostProcessor(autoProxyCreator);
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+      DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
+      beanFactory.addBeanPostProcessor(autoProxyCreator);
       autoProxyCreator.setBeanFactory(beanFactory);
       autoProxyCreator.setFrozen(true);
       autoProxyCreator.setExposeProxy(true);
@@ -317,18 +317,18 @@ public class AopTest {
 
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
-      beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
+      context.importBeans(LoggingConfig.class, PrinterBean.class);
 //      DebuggingClassWriter.setDebugLocation("~/temp/debug");
       // TODO 调试 构造器问题
 //      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
 
-      final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
+      PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 
       bean.print();
 
       bean.none();
       bean.none("TODAY");
-      final int none = bean.none(1);
+      int none = bean.none(1);
       assertThat(none).isEqualTo(1);
 
       assertThat(bean).isInstanceOf(Advised.class);
@@ -336,7 +336,7 @@ public class AopTest {
 
       assertThat(advised.getAdvisors()).hasSize(1);
 
-      final Class<?> targetClass = advised.getTargetClass();
+      Class<?> targetClass = advised.getTargetClass();
       assertThat(targetClass).isEqualTo(PrinterBean.class);
 
       assertThat(advised.isFrozen())
