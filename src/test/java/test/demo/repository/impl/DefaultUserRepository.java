@@ -1,5 +1,5 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
@@ -52,10 +52,10 @@ public class DefaultUserRepository implements UserRepository, BeanNameAware {
   @PostConstruct
   public void initData() {
     log.info("init data: [{}]", this);
-    users.put("666", new User(1, "杨海健", 20, "666", "666", "男", new Date()));
-    users.put("6666", new User(2, "杨海健1", 20, "6666", "6666", "男", new Date()));
-    users.put("66666", new User(3, "杨海健2", 20, "66666", "66666", "男", new Date()));
-    users.put("666666", new User(4, "杨海健3", 20, "666666", "666666", "男", new Date()));
+    users.put("666", new User(1, "Harry Yang", 20, "666", "666", "男", new Date()));
+    users.put("6666", new User(2, "Harry Yang1", 20, "6666", "6666", "男", new Date()));
+    users.put("66666", new User(3, "Harry Yang2", 20, "66666", "66666", "男", new Date()));
+    users.put("666666", new User(4, "Harry Yang3", 20, "666666", "666666", "男", new Date()));
   }
 
   @Override

@@ -1,5 +1,5 @@
-/**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
@@ -27,8 +27,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
@@ -85,7 +85,7 @@ public class FreeMarkerTemplateRenderer
 
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> TemplateLoader createTemplateLoader(final List<T> loaders) {
+  protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
 
     if (loaders.isEmpty()) {
       if (StringUtils.isNotEmpty(prefix) && prefix.startsWith("/WEB-INF/")) {// prefix -> /WEB-INF/..
@@ -105,12 +105,12 @@ public class FreeMarkerTemplateRenderer
    * @return {@link TemplateHashModel}
    */
   @Override
-  protected TemplateHashModel createModel(final RequestContext context) {
+  protected TemplateHashModel createModel(RequestContext context) {
 
-    final ObjectWrapper wrapper = getObjectWrapper();
-    final HttpServletRequest request = context.nativeRequest();
+    ObjectWrapper wrapper = getObjectWrapper();
+    HttpServletRequest request = context.nativeRequest();
 
-    final AllHttpScopesHashModel ret = new AllHttpScopesHashModel(wrapper, servletContext, request);
+    AllHttpScopesHashModel ret = new AllHttpScopesHashModel(wrapper, servletContext, request);
     ret.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, getApplicationModel());
     // Create hash model wrapper for request
     ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
@@ -120,15 +120,15 @@ public class FreeMarkerTemplateRenderer
     return ret;
   }
 
-  protected void installParametersModel(final HttpServletRequest request, final AllHttpScopesHashModel ret) {
+  protected void installParametersModel(HttpServletRequest request, AllHttpScopesHashModel ret) {
     ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
   }
 
-  protected void installTaglibFactory(final AllHttpScopesHashModel ret) {
+  protected void installTaglibFactory(AllHttpScopesHashModel ret) {
     ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, getTaglibFactory());
   }
 
-  protected void installSessionModel(final HttpServletRequest request, final AllHttpScopesHashModel ret) {
+  protected void installSessionModel(HttpServletRequest request, AllHttpScopesHashModel ret) {
     // Create hash model wrapper for session
     HttpSession session = request.getSession(false);
     if (session != null) {
