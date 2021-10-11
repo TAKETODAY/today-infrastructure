@@ -57,11 +57,12 @@ public class ApplicationPropertySourcesProcessor {
 
   private String propertiesLocation;
   private final ConfigurableEnvironment environment;
-  private final ConfigurableApplicationContext context;
 
-  public ApplicationPropertySourcesProcessor(
-          ConfigurableEnvironment environment, ConfigurableApplicationContext context) {
-    this.context = context;
+  public ApplicationPropertySourcesProcessor(ConfigurableApplicationContext context) {
+    this.environment = context.getEnvironment();
+  }
+
+  public ApplicationPropertySourcesProcessor(ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 
@@ -283,10 +284,6 @@ public class ApplicationPropertySourcesProcessor {
 
   public String getPropertiesLocation() {
     return propertiesLocation;
-  }
-
-  public ConfigurableApplicationContext getContext() {
-    return context;
   }
 
   public ConfigurableEnvironment getEnvironment() {

@@ -115,11 +115,9 @@ public class StandardApplicationContext
   protected void initPropertySources() throws IOException {
     super.initPropertySources();
     ConfigurableEnvironment environment = getEnvironment();
-
-    ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(environment, this);
+    ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
     processor.setPropertiesLocation(propertiesLocation);
     processor.postProcessEnvironment();
-
     // prepare properties
     TodayStrategies detector = TodayStrategies.getDetector();
     List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(
