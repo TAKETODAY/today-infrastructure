@@ -54,7 +54,7 @@ public class StandardWebServletApplicationContext
    *         {@link ConfigurableEnvironment} instance
    */
   public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
-    super(env, beanFactory);
+    setEnvironment(env);
     WebUtils.setLastStartupWebContext(this);
   }
 
@@ -78,7 +78,8 @@ public class StandardWebServletApplicationContext
    */
   public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
     this(servletContext);
-    scan(classes);
+    registerBean(classes);
+    refresh();
   }
 
   /**
@@ -97,7 +98,6 @@ public class StandardWebServletApplicationContext
     scan(locations);
   }
 
-  @Override
   protected StandardBeanFactory createBeanFactory() {
     return new StandardWebServletBeanFactory(this);
   }
