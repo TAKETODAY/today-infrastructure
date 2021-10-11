@@ -20,26 +20,27 @@
 
 package cn.taketoday.context.event;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.EventObject;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.Value;
+import cn.taketoday.context.annotation.Singleton;
 import lombok.ToString;
 
 /**
  * @author TODAY 2021/3/17 12:40
  */
-public class MethodEventDrivenPostProcessorTests {
+class MethodEventDrivenPostProcessorTests {
 
   @Test
-  public void testMethodEventDrivenPostProcessor() {
+  void testMethodEventDrivenPostProcessor() {
 
-    try (final StandardApplicationContext context = new StandardApplicationContext()) {
-      context.addBeanPostProcessor(new MethodEventDrivenPostProcessor(context));
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      context.getBeanFactory()
+              .addBeanPostProcessor(new MethodEventDrivenPostProcessor(context));
 
       context.importBeans(EventBean.class);
 
@@ -61,12 +62,12 @@ public class MethodEventDrivenPostProcessorTests {
   }
 
   @Test
-  public void testEnableMethodEventDriven() {
+  void enableMethodEventDriven() {
 
-    try (final StandardApplicationContext context = new StandardApplicationContext()) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(Config.class);
 
-      context.scan(Collections.emptyList());
+      context.scan("cn.taketoday.context.event");
 
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));
@@ -115,7 +116,7 @@ public class MethodEventDrivenPostProcessorTests {
 
   @ToString
   static class Event {
-    final String name;
+    String name;
 
     Event(String name) {
       this.name = name;
