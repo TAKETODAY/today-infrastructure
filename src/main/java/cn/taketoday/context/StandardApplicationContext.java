@@ -40,7 +40,7 @@ public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
   private String propertiesLocation;
-  private final ScanningBeanDefinitionReader reader = new ScanningBeanDefinitionReader(this);
+  private final ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(this);
 
   /**
    * Default Constructor
@@ -131,12 +131,12 @@ public class StandardApplicationContext
 
   @Override
   public void importBeans(Class<?>... components) {
-    reader.importBeans(components);
+    beanDefinitionReader.importBeans(components);
   }
 
   @Override
   public void scan(String... basePackages) {
-    reader.scan(basePackages);
+    scanningReader.scan(basePackages);
   }
 
 }
