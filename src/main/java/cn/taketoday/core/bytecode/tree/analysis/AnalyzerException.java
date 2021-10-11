@@ -39,7 +39,7 @@ public class AnalyzerException extends Exception {
 
   private static final long serialVersionUID = 3154190448018943333L;
 
-  /** The bytecode instruction where the analysis failed. */
+  /* The bytecode instruction where the analysis failed. */
   public final transient AbstractInsnNode node;
 
   /**
