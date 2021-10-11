@@ -20,6 +20,12 @@
 
 package cn.taketoday.core;
 
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -37,13 +43,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Base class for YAML factories.
@@ -208,10 +207,7 @@ public class YamlProcessor {
             }
           }
         }
-        if (log.isDebugEnabled()) {
-          log.debug("Loaded " + count + " document" + (count > 1 ? "s" : Constant.BLANK) +
-                            " from YAML resource: " + resource);
-        }
+        log.debug("Loaded {} document {} from YAML resource: {}", count, (count > 1 ? "s" : Constant.BLANK), resource);
       }
     }
     catch (IOException ex) {
@@ -221,13 +217,11 @@ public class YamlProcessor {
   }
 
   private void handleProcessError(Resource resource, IOException ex) {
-    if (this.resolutionMethod != ResolutionMethod.FIRST_FOUND &&
-            this.resolutionMethod != ResolutionMethod.OVERRIDE_AND_IGNORE) {
+    if (this.resolutionMethod != ResolutionMethod.FIRST_FOUND
+            && this.resolutionMethod != ResolutionMethod.OVERRIDE_AND_IGNORE) {
       throw new IllegalStateException(ex);
     }
-    if (log.isWarnEnabled()) {
-      log.warn("Could not load map from " + resource + ": " + ex.getMessage());
-    }
+    log.warn("Could not load map from {}: {}", resource, ex.getMessage(), ex);
   }
 
   @SuppressWarnings("unchecked")
@@ -344,6 +338,24 @@ public class YamlProcessor {
       }
     });
   }
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	protected void merge(Map<String, Object> output, Map<String, Object> map) {
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
+      Object existing = output.get(key);
+			if (value instanceof Map && existing instanceof Map) {
+				// Inner cast required by Eclipse IDE.
+				LinkedHashMap<String, Object> result = new LinkedHashMap<>((Map<String, Object>) existing);
+				merge(result, (Map) value);
+				output.put(key, result);
+			}
+			else {
+				output.put(key, value);
+			}
+		}
+	}
 
   /**
    * Callback interface used to process the YAML parsing results.

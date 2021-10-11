@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,16 +19,9 @@
  */
 package cn.taketoday.web.handler;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
-
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -39,6 +32,13 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.TemplateRendererReturnValueHandler;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
 
 /**
  * Simple {@link HandlerExceptionHandler}
@@ -226,16 +226,10 @@ public class SimpleExceptionHandler
    */
   public BufferedImage resolveImageException(
           final Throwable ex, final RequestContext context) throws IOException {
-    final URL resource = ClassUtils.getClassLoader()
-            .getResource(new StringBuilder()
-                                 .append("/error/")
-                                 .append(getErrorStatusValue(ex))
-                                 .append(".png").toString());
-
-    Assert.state(resource != null, "System Error");
-
+    ClassPathResource pathResource = new ClassPathResource("error/" + getErrorStatusValue(ex) + ".png");
+    Assert.state(pathResource.exists(), "System Error");
     context.setContentType(MediaType.IMAGE_JPEG_VALUE);
-    return ImageIO.read(resource);
+    return ImageIO.read(pathResource.getInputStream());
   }
 
 }
