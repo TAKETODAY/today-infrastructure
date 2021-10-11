@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Chris Beams
  * @author Juergen Hoeller
  */
-class MutablePropertySourcesTests {
+class PropertySourcesTests {
 
 	@Test
 	void test() {
