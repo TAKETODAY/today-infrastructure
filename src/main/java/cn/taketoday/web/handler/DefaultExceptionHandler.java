@@ -66,7 +66,7 @@ public class DefaultExceptionHandler
     // prepare context throwable
     context.setAttribute(KEY_THROWABLE, target);
     // catch all handlers
-    final ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
+    ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
       return super.handleException(context, target, handler);
     }
@@ -75,7 +75,7 @@ public class DefaultExceptionHandler
     try {
       return handleException(context, exHandler);
     }
-    catch (final Throwable handlerEx) {
+    catch (Throwable handlerEx) {
       logResultedInException(target, handlerEx);
       throw target;
     }
@@ -108,14 +108,14 @@ public class DefaultExceptionHandler
    *
    * @return Mapped {@link Exception} handler mapping
    */
-  protected ThrowableHandlerMethod lookupExceptionHandler(final Throwable ex) {
-    final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
+  protected ThrowableHandlerMethod lookupExceptionHandler(Throwable ex) {
+    ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
     if (ret == null) {
       if (inheritable) {
-        final Class<? extends Throwable> runtimeEx = ex.getClass();
-        for (final Map.Entry<Class<? extends Throwable>, ThrowableHandlerMethod> entry
+        Class<? extends Throwable> runtimeEx = ex.getClass();
+        for (Map.Entry<Class<? extends Throwable>, ThrowableHandlerMethod> entry
                 : exceptionHandlers.entrySet()) {
-          final Class<? extends Throwable> entryKey = entry.getKey();
+          Class<? extends Throwable> entryKey = entry.getKey();
 
           if (entryKey != Throwable.class && entryKey.isAssignableFrom(runtimeEx)) {
             return entry.getValue();
@@ -146,17 +146,17 @@ public class DefaultExceptionHandler
   // WebApplicationInitializer
 
   @Override
-  public void onStartup(final WebApplicationContext beanFactory) {
+  public void onStartup(WebApplicationContext beanFactory) {
     log.info("Initialize @ExceptionHandler");
     HandlerMethodBuilder<ThrowableHandlerMethod> handlerBuilder = new HandlerMethodBuilder<>(beanFactory);
     handlerBuilder.setHandlerMethodClass(ThrowableHandlerMethod.class);
 
     // get all error handlers
-    final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
-    for (final Object errorHandler : errorHandlers) {
-      for (final Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
+    List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
+    for (Object errorHandler : errorHandlers) {
+      for (Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
-          final Class<? extends Throwable>[] catchExClasses = getCatchThrowableClasses(method);
+          Class<? extends Throwable>[] catchExClasses = getCatchThrowableClasses(method);
           for (Class<? extends Throwable> exceptionClass : catchExClasses) {
             // @since 3.0
             ThrowableHandlerMethod handlerMethod = handlerBuilder.build(errorHandler, method);
@@ -167,7 +167,7 @@ public class DefaultExceptionHandler
     }
 
     // @since 3.0
-    final ThrowableHandlerMethod global = exceptionHandlers.get(Throwable.class);
+    ThrowableHandlerMethod global = exceptionHandlers.get(Throwable.class);
     if (global != null) {
       setGlobalHandler(global);
       exceptionHandlers.remove(Throwable.class);
@@ -181,16 +181,16 @@ public class DefaultExceptionHandler
    * @return Throwable class array
    */
   @SuppressWarnings("unchecked")
-  protected Class<? extends Throwable>[] getCatchThrowableClasses(final Method method) {
+  protected Class<? extends Throwable>[] getCatchThrowableClasses(Method method) {
     Class<? extends Throwable>[] catchExClasses = method.getAnnotation(ExceptionHandler.class).value();
     if (ObjectUtils.isEmpty(catchExClasses)) {
-      final Class<?>[] parameterTypes = method.getParameterTypes();
+      Class<?>[] parameterTypes = method.getParameterTypes();
       if (ObjectUtils.isEmpty(parameterTypes)) {
         catchExClasses = new Class[] { Throwable.class };
       }
       else {
         HashSet<Class<?>> classes = new HashSet<>();
-        for (final Class<?> parameterType : parameterTypes) {
+        for (Class<?> parameterType : parameterTypes) {
           if (Throwable.class.isAssignableFrom(parameterType)) {
             classes.add(parameterType);
           }
@@ -210,16 +210,16 @@ public class DefaultExceptionHandler
     }
 
     @Override
-    protected void applyResponseStatus(final RequestContext context) {
-      final ResponseStatus status = getResponseStatus();
+    protected void applyResponseStatus(RequestContext context) {
+      ResponseStatus status = getResponseStatus();
       if (status == null) {
-        final Object attribute = context.getAttribute(KEY_THROWABLE);
+        Object attribute = context.getAttribute(KEY_THROWABLE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
-          final HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
+          HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
           context.setStatus(httpStatus);
         }
         else if (attribute instanceof Throwable) {
-          final ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
+          ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
           applyResponseStatus(context, runtimeErrorStatus);
         }
       }

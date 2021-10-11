@@ -52,7 +52,7 @@ public class SimpleExceptionHandler
 
   @Override
   public Object handleException(
-          final RequestContext context, final Throwable target, final Object handler) throws Throwable {
+          RequestContext context, Throwable target, Object handler) throws Throwable {
     logCatchThrowable(target);
     try {
       if (handler instanceof HandlerMethod) {
@@ -78,7 +78,7 @@ public class SimpleExceptionHandler
    * @param target
    *         Throwable occurred in target request handler
    */
-  protected void logCatchThrowable(final Throwable target) {
+  protected void logCatchThrowable(Throwable target) {
     if (log.isDebugEnabled()) {
       log.debug("Catch Throwable: [{}]", target.toString(), target);
     }
@@ -177,12 +177,12 @@ public class SimpleExceptionHandler
    */
   protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
     context.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    final PrintWriter writer = context.getWriter();
+    PrintWriter writer = context.getWriter();
     writer.write(buildDefaultErrorMessage(ex));
     writer.flush();
   }
 
-  protected String buildDefaultErrorMessage(final Throwable ex) {
+  protected String buildDefaultErrorMessage(Throwable ex) {
     return new StringBuilder()
             .append("{\"message\":\"")
             .append(ex.getMessage())
@@ -201,7 +201,7 @@ public class SimpleExceptionHandler
    */
   public int getErrorStatusValue(Throwable ex) {
     if (ex instanceof HttpStatusCapable) { // @since 3.0.1
-      final HttpStatus httpStatus = ((HttpStatusCapable) ex).getHttpStatus();
+      HttpStatus httpStatus = ((HttpStatusCapable) ex).getHttpStatus();
       return httpStatus.value();
     }
     return WebUtils.getStatusValue(ex);
@@ -216,7 +216,7 @@ public class SimpleExceptionHandler
    *         Current request context
    */
   public Object handleExceptionInternal(
-          final Throwable ex, final RequestContext context) throws IOException {
+          Throwable ex, RequestContext context) throws IOException {
     context.sendError(getErrorStatusValue(ex), ex.getMessage());
     return NONE_RETURN_VALUE;
   }
@@ -225,7 +225,7 @@ public class SimpleExceptionHandler
    * resolve image
    */
   public BufferedImage resolveImageException(
-          final Throwable ex, final RequestContext context) throws IOException {
+          Throwable ex, RequestContext context) throws IOException {
     ClassPathResource pathResource = new ClassPathResource("error/" + getErrorStatusValue(ex) + ".png");
     Assert.state(pathResource.exists(), "System Error");
     context.setContentType(MediaType.IMAGE_JPEG_VALUE);
