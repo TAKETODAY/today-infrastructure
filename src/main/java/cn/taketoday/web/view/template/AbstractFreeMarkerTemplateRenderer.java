@@ -27,9 +27,9 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.Props;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -120,14 +120,14 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   }
 
   @Override
-  public void configureParameterResolving(final List<ParameterResolvingStrategy> resolvers) {
+  public void configureParameterResolving(List<ParameterResolvingStrategy> resolvers) {
     resolvers.add(new FreemarkerConfigParameterResolver());
     resolvers.add(new SharedVariableParameterResolver());
   }
 
   @Override
   public <T> void configureTemplateLoader(List<T> loaders) {
-    final TemplateLoader loader = createTemplateLoader(loaders);
+    TemplateLoader loader = createTemplateLoader(loaders);
     getConfiguration().setTemplateLoader(loader);
 
     if (log.isInfoEnabled()) {
@@ -153,15 +153,15 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   protected abstract TemplateHashModel createModel(RequestContext context);
 
   @Override
-  public void render(final String name, final RequestContext context) throws IOException {
-    final Template template = getConfiguration().getTemplate(name, locale, encoding);
-    final TemplateHashModel model = createModel(context);
+  public void render(String name, RequestContext context) throws IOException {
+    Template template = getConfiguration().getTemplate(name, locale, encoding);
+    TemplateHashModel model = createModel(context);
 
     // Give subclasses a chance to hook into preprocessing
     if (preTemplateProcess(template, model, context)) {
       try {
         // Process the template
-        final Environment env = template.createProcessingEnvironment(model, context.getWriter());
+        Environment env = template.createProcessingEnvironment(model, context.getWriter());
         env.setOutputEncoding(encoding);
         processEnvironment(env, context);
       }
@@ -204,7 +204,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * @return true to process the template, false to suppress template processing.
    */
   protected boolean preTemplateProcess(
-          final Template template, final TemplateModel model, final RequestContext context) throws IOException {
+          Template template, TemplateModel model, RequestContext context) throws IOException {
     return true;
   }
 
@@ -224,7 +224,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * @since 2.3.7
    */
   protected void processEnvironment(
-          final Environment env, final RequestContext context) throws TemplateException, IOException {
+          Environment env, RequestContext context) throws TemplateException, IOException {
     env.process();
   }
 
@@ -245,7 +245,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * @since 2.3.7
    */
   protected void postTemplateProcess(
-          final Template template, final TemplateModel data, final RequestContext context) throws IOException {
+          Template template, TemplateModel data, RequestContext context) throws IOException {
 
   }
 
@@ -282,14 +282,14 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
     @Override
     protected Object resolveInternal(SharedVariable target, RequestContext context, MethodParameter parameter) {
-      final TemplateModel sharedVariable = getConfiguration().getSharedVariable(parameter.getName());
+      TemplateModel sharedVariable = getConfiguration().getSharedVariable(parameter.getName());
 
       if (parameter.isInstance(sharedVariable)) {
         return sharedVariable;
       }
 
       if (sharedVariable instanceof WrapperTemplateModel) {
-        final Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
+        Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
         if (parameter.isInstance(wrappedObject)) {
           return wrappedObject;
         }
