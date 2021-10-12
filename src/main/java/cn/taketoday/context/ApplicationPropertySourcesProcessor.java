@@ -20,6 +20,21 @@
 
 package cn.taketoday.context;
 
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 
@@ -29,20 +44,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.env.MapPropertySource;
-import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/10/8 22:47
@@ -58,12 +59,24 @@ public class ApplicationPropertySourcesProcessor {
   private String propertiesLocation;
   private final ConfigurableEnvironment environment;
 
+  private final ResourceLoader resourceLoader;
+
   public ApplicationPropertySourcesProcessor(ConfigurableApplicationContext context) {
     this.environment = context.getEnvironment();
+    this.resourceLoader = context;
   }
 
   public ApplicationPropertySourcesProcessor(ConfigurableEnvironment environment) {
+    Assert.notNull(environment, "environment must not be null");
     this.environment = environment;
+    this.resourceLoader = new DefaultResourceLoader();
+  }
+
+  public ApplicationPropertySourcesProcessor(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
+    Assert.notNull(environment, "environment must not be null");
+    Assert.notNull(resourceLoader, "resourceLoader must not be null");
+    this.environment = environment;
+    this.resourceLoader = resourceLoader;
   }
 
   public void postProcessEnvironment() throws IOException {
@@ -130,7 +143,7 @@ public class ApplicationPropertySourcesProcessor {
 
   public void loadProperties(String propertiesLocation) throws IOException {
     Assert.notNull(propertiesLocation, "Properties dir can't be null");
-    Resource resource = ResourceUtils.getResource(propertiesLocation);
+    Resource resource = resourceLoader.getResource(propertiesLocation);
     loadProperties(resource);
   }
 
@@ -246,7 +259,7 @@ public class ApplicationPropertySourcesProcessor {
    * @throws IOException
    *         if the resource is not available
    */
-  public static void doLoadFromDirectory(
+  static void doLoadFromDirectory(
           Resource directory,
           Map<String, Object> properties,
           ResourceFilter propertiesFileFilter) throws IOException //
@@ -270,7 +283,7 @@ public class ApplicationPropertySourcesProcessor {
    * @throws IOException
    *         if the resource is not available
    */
-  public static void doLoad(Map<String, Object> properties, Resource resource) throws IOException {
+  static void doLoad(Map<String, Object> properties, Resource resource) throws IOException {
     if (log.isInfoEnabled()) {
       log.info("Found Properties Resource: [{}]", resource.getLocation());
     }

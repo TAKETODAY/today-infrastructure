@@ -116,8 +116,10 @@ public class StandardApplicationContext
     super.initPropertySources();
     ConfigurableEnvironment environment = getEnvironment();
     ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
-    processor.setPropertiesLocation(propertiesLocation);
-    processor.postProcessEnvironment();
+    if(propertiesLocation!=null) {
+      processor.setPropertiesLocation(propertiesLocation);
+      processor.postProcessEnvironment();
+    }
     // prepare properties
     TodayStrategies detector = TodayStrategies.getDetector();
     List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(

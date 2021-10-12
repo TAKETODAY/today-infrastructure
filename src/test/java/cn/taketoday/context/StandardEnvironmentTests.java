@@ -43,9 +43,7 @@ import cn.taketoday.util.ResourceUtils;
 class StandardEnvironmentTests {
 
   @Test
-  void test_AutoloadProperties()
-          throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
-
+  void test_AutoloadProperties() throws Exception {
     try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
       Environment environment = applicationContext.getEnvironment();
       assert "https://taketoday.cn".equals(environment.getProperty("site.host"));
