@@ -50,12 +50,6 @@ public class PropertyPlaceholderHandler {
   /** Value separator for system property placeholders: ":". */
   public static final String VALUE_SEPARATOR = ":";
 
-  public static final PropertyPlaceholderHandler strict = new PropertyPlaceholderHandler(
-          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, false);
-
-  public static final PropertyPlaceholderHandler defaults = new PropertyPlaceholderHandler(
-          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, true);
-
   private static final HashMap<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
   static {
@@ -63,6 +57,12 @@ public class PropertyPlaceholderHandler {
     wellKnownSimplePrefixes.put("]", "[");
     wellKnownSimplePrefixes.put(")", "(");
   }
+
+  public static final PropertyPlaceholderHandler strict = new PropertyPlaceholderHandler(
+          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, false);
+
+  public static final PropertyPlaceholderHandler defaults = new PropertyPlaceholderHandler(
+          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, true);
 
   private final String simplePrefix;
   private final String placeholderPrefix;

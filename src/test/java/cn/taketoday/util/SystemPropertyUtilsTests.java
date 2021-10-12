@@ -101,8 +101,8 @@ class SystemPropertyUtilsTests {
 
   @Test
   void replaceWithNoDefault() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            SystemPropertyUtils.resolvePlaceholders("${test.prop}"));
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> SystemPropertyUtils.resolvePlaceholders("${test.prop}"));
   }
 
   @Test
