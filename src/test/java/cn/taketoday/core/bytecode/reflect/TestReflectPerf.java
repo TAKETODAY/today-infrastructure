@@ -15,22 +15,21 @@
  */
 package cn.taketoday.core.bytecode.reflect;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.reflect.FastMethodAccessor;
 import cn.taketoday.core.reflect.MethodAccess;
 import cn.taketoday.core.reflect.MethodDelegate;
 import cn.taketoday.core.reflect.MethodInvoker;
 
-public class TestReflectPerf extends CodeGenTestCase {
+public class TestReflectPerf {
   public interface IndexOf {
     int indexOf(String s, int start);
   }
 
+  @Test
   public void testReflectPerf() throws Throwable {
     int iterations = 1000000/*_0*/;
     System.out.println();
@@ -97,21 +96,5 @@ public class TestReflectPerf extends CodeGenTestCase {
                                + (t7 - t6) + "\n" + "delegate     = " + (t8 - t7) + "\n" + "raw          = " + (t9 - t8)
                                + "  \n methodInvoker    = " + (t1 - t0));
   }
-
-  public TestReflectPerf(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestReflectPerf.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

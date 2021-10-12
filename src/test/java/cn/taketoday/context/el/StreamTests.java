@@ -40,9 +40,9 @@
 
 package cn.taketoday.context.el;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -51,15 +51,15 @@ import java.util.List;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionProcessor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class StreamTest {
+class StreamTests {
 
   static ExpressionProcessor elp;
   static DataBase database = null;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws Exception {
     elp = new ExpressionProcessor();
     database = new DataBase();
@@ -69,8 +69,8 @@ public class StreamTest {
     elp.defineBean("orders", database.getOrders());
   }
 
-  @Before
-  public void setup() { }
+  @BeforeEach
+  void setup() { }
 
   void p(String msg) {
     System.out.println(msg);
@@ -149,7 +149,7 @@ public class StreamTest {
   static String[] exp4 = { "20", "30", "40" };
 
   @Test
-  public void testFilterMap() {
+  void testFilterMap() {
     testStream("filter", "[1,2,3,4].stream().filter(i->i > 1).toList()", exp3);
     testStream("map", "[2,3,4].stream().map(i->i*10).iterator()", exp4);
     testStream("filtermap", "[1,2,3,4].stream().filter(i->i > 1)\n" + "                  .map(i->i*10).toArray()", exp4);
@@ -160,7 +160,7 @@ public class StreamTest {
   static String[] exp6 = { "Product: 203, History of Golf, book, 11.0, 30", "Product: 200, Eagle, book, 12.5, 100", "Product: 205, iSee, book, 12.5, 150", "Product: 202, Greatest Hits, cd, 6.5, 200", "Product: 201, Coming Home, dvd, 8.0, 50", "Product: 204, Toy Story, dvd, 10.0, 1000" };
 
   @Test
-  public void testSorted() {
+  void testSorted() {
     testStream("distinct", "[2, 3, 2, 4, 4].stream().distinct().toList()", exp3);
     testStream("sorted", "[1, 3, 5, 2, 4, 6].stream().sorted().toList()", exp0);
     testStream("sorted", "[1, 3, 5, 2, 4, 6].stream().sorted((i,j)->i-j).toList()", exp0);
@@ -183,7 +183,7 @@ public class StreamTest {
   String exp11[] = { "1", "2", "3", "4" };
 
   @Test
-  public void testForEach() {
+  void testForEach() {
     testStream("forEach",
                "lst = []; products.stream().forEach(p->lst.add(p.name)); lst", exp8);
     testStream("peek",
@@ -196,7 +196,7 @@ public class StreamTest {
   static String[] exp9 = { "t", "h", "e", "q", "u", "i", "c", "k", "b", "r", "o", "w", "n", "f", "o", "x" };
 
   @Test
-  public void testFlapMap() {
+  void testFlapMap() {
     testStream("flatMap",
                "customers.stream().filter(c->c.country=='USA')\n" + "                  .flatMap(c->c.orders.stream()).toList()",
                exp7);
@@ -208,14 +208,14 @@ public class StreamTest {
   static String exp10[] = { "0", "1", "2" };
 
   @Test
-  public void testSubstream() {
+  void testSubstream() {
     testStream("limit", "[0,1,2,3,4,5].stream().limit(3).toList()", exp10);
     testStream("substream", "[0,1,2,3,4].stream().substream(2).toList()", exp3);
     testStream("substream", "[0,1,2,3,4,5,6].stream().substream(2,5).toList()", exp3);
   }
 
   @Test
-  public void testReduce() {
+  void testReduce() {
     testStream("reduce", "[1,2,3,4,5].stream().reduce(0, (l,r)->l+r)", Long.valueOf(15));
     testStream("reduce", "[1,2,3,4,5].stream().reduce((l,r)->l+r).get()", Long.valueOf(15));
     testStream("reduce", "[].stream().reduce((l,r)->l+r).orElse(101)", Long.valueOf(101));
@@ -223,7 +223,7 @@ public class StreamTest {
   }
 
   @Test
-  public void testMatch() {
+  void testMatch() {
     testStream("anyMatch", "[1,2,3,4].stream().anyMatch(e->e == 3)", Boolean.TRUE);
     testStream("anyMatch", "[1,2,3,4].stream().anyMatch(e->e > 10)", Boolean.FALSE);
     testStream("allMatch", "[1,2,3,4].stream().allMatch(e->e > 0)", Boolean.TRUE);
@@ -233,14 +233,14 @@ public class StreamTest {
   }
 
   @Test
-  public void testToType() {
+  void testToType() {
     testStream("toArray", "[2,3,4].stream().map(i->i*10).toArray()", exp4);
     testStream("toList", "[2,3,4].stream().map(i->i*10).toList()", exp4);
     testStream("Iterator", "[2,3,4].stream().map(i->i*10).iterator()", exp4);
   }
 
   @Test
-  public void testFind() {
+  void testFind() {
     testStream("findFirst", "[101, 100].stream().findFirst().get()", Long.valueOf(101));
     boolean caught = false;
     try {
@@ -255,7 +255,7 @@ public class StreamTest {
   }
 
   @Test
-  public void testArith() {
+  void testArith() {
     testStream("sum", "[1,2,3,4,5].stream().sum()", Long.valueOf(15));
     testStream("sum", "[1.4,2,3,4,5.1].stream().sum()", Double.valueOf(15.5));
     testStream("average", "[1,2,3,4,5].stream().average().get()", Double.valueOf(3.0));
@@ -264,7 +264,7 @@ public class StreamTest {
   }
 
   @Test
-  public void testMinMax() {
+  void testMinMax() {
     testStream("min", "[2,3,1,5].stream().min().get()", Long.valueOf(1));
     testStream("max", "[2,3,1,5].stream().max().get()", Long.valueOf(5));
     testStream("max", "['xy', 'xyz', 'abc'].stream().max().get()", "xyz");
@@ -279,7 +279,7 @@ public class StreamTest {
   }
 
   @Test
-  public void testMap() {
+  void testMap() {
     Object r = elp.eval("v = {'one':1, 'two':2}");
     System.out.println(" " + r);
     r = elp.eval("{1,2,3}");

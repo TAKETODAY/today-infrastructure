@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/3/19 20:13
  * @since 3.0
  */
-public class DataBinderParameterResolverTests extends TestCase {
+public class DataBinderParameterResolverTests {
 
   @Data
   public static class UserForm {
@@ -101,9 +101,9 @@ public class DataBinderParameterResolverTests extends TestCase {
 
   static {
     try {
-      final Method test = DataBinderParameterResolverTests.class.getDeclaredMethod("test", UserForm.class);
-      final Method multipartFileUserForm = DataBinderParameterResolverTests.class.getDeclaredMethod("test", MultipartFileUserForm.class);
-      final Method testList = DataBinderParameterResolverTests.class
+      Method test = DataBinderParameterResolverTests.class.getDeclaredMethod("test", UserForm.class);
+      Method multipartFileUserForm = DataBinderParameterResolverTests.class.getDeclaredMethod("test", MultipartFileUserForm.class);
+      Method testList = DataBinderParameterResolverTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class, Map.class);
 
       testUser = new MethodParameter(0, test, "user");
@@ -120,7 +120,7 @@ public class DataBinderParameterResolverTests extends TestCase {
   }
 
   static class ParameterMockRequestContext extends MockRequestContext {
-    final Map<String, String[]> parameters;
+    Map<String, String[]> parameters;
     MultiValueMap<String, MultipartFile> multipartFiles;
 
     ParameterMockRequestContext() {
@@ -147,26 +147,27 @@ public class DataBinderParameterResolverTests extends TestCase {
 
   }
 
+  @Test
   public void testSimpleResolveParameter() throws Throwable {
-    final UserForm today = new UserForm().setAge(20).setName("TODAY");
+    UserForm today = new UserForm().setAge(20).setName("TODAY");
 
-    final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
+    DataBinderParameterResolver resolver = new DataBinderParameterResolver();
 
-    final Map<String, Object> map = BeanMap.create(today);
-    final Map<String, String[]> params = map.entrySet().stream()
+    Map<String, Object> map = BeanMap.create(today);
+    Map<String, String[]> params = map.entrySet().stream()
             .filter(entry -> entry.getValue() != null)
             .collect(Collectors.toMap(Map.Entry::getKey, (entry) -> {
-              final Object value = entry.getValue();
+              Object value = entry.getValue();
               return new String[] { value.toString() };
             }));
 
-    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    ParameterMockRequestContext context = new ParameterMockRequestContext(params);
     // new version
-    final Object newVersion = resolver.resolveParameter(context, testUser);
+    Object newVersion = resolver.resolveParameter(context, testUser);
     assertThat(newVersion).isEqualTo(today);
   }
 
-  final Map<String, String[]> params = new HashMap<String, String[]>() {
+  Map<String, String[]> params = new HashMap<String, String[]>() {
     {
       put("age", "20");
       put("name", "TODAY");
@@ -202,14 +203,15 @@ public class DataBinderParameterResolverTests extends TestCase {
     }
   };
 
+  @Test
   public void testResolveParameter() throws Throwable {
-    final UserForm today = new UserForm().setAge(20).setName("TODAY");
-    final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
+    UserForm today = new UserForm().setAge(20).setName("TODAY");
+    DataBinderParameterResolver resolver = new DataBinderParameterResolver();
 
-    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
-    final Object newVersion = resolver.resolveParameter(context, testUser);
+    Object newVersion = resolver.resolveParameter(context, testUser);
     assertThat(newVersion).isInstanceOf(UserForm.class);
 
     UserForm user = (UserForm) newVersion;
@@ -251,7 +253,7 @@ public class DataBinderParameterResolverTests extends TestCase {
         return true;
       if (!(o instanceof UserForm))
         return false;
-      final UserForm userForm = (UserForm) o;
+      UserForm userForm = (UserForm) o;
       return age == userForm.age && Objects.equals(name, userForm.name);
     }
 
@@ -275,23 +277,24 @@ public class DataBinderParameterResolverTests extends TestCase {
     }
   }
 
+  @Test
   public void testBindMultipartFile() throws Throwable {
 
-    final MultipartFileUserForm today = new MultipartFileUserForm().setAge(20).setName("TODAY");
-    final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
-    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    MultipartFileUserForm today = new MultipartFileUserForm().setAge(20).setName("TODAY");
+    DataBinderParameterResolver resolver = new DataBinderParameterResolver();
+    ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     MultiValueMap<String, MultipartFile> map = new DefaultMultiValueMap<>();
-    final List<MultipartFile> uploadFile = Collections.singletonList(new NamedMockMultipartFile("uploadFile"));
-    final List<MultipartFile> files = Arrays.asList(new NamedMockMultipartFile("uploadFiles"),
-                                                    new NamedMockMultipartFile("uploadFiles"));
+    List<MultipartFile> uploadFile = Collections.singletonList(new NamedMockMultipartFile("uploadFile"));
+    List<MultipartFile> files = Arrays.asList(new NamedMockMultipartFile("uploadFiles"),
+                                              new NamedMockMultipartFile("uploadFiles"));
 
     map.put("uploadFile", uploadFile);
     map.put("uploadFiles", files);
     context.setMultipartFiles(map);
 
     // new version
-    final Object newVersion = resolver.resolveParameter(context, testMultipartFileUserForm);
+    Object newVersion = resolver.resolveParameter(context, testMultipartFileUserForm);
     assertThat(newVersion).isInstanceOf(MultipartFileUserForm.class);
 
     System.out.println(newVersion);
@@ -299,10 +302,10 @@ public class DataBinderParameterResolverTests extends TestCase {
   }
 
   //
-
+  @Test
   @SuppressWarnings("unchecked")
   public void testResolveCollection() throws Throwable {
-    final Map<String, String[]> params = new HashMap<String, String[]>() {
+    Map<String, String[]> params = new HashMap<String, String[]>() {
       {
         put("userList[0].age", "20");
         put("userList[0].name", "TODAY");
@@ -338,20 +341,20 @@ public class DataBinderParameterResolverTests extends TestCase {
       }
     };
 
-    final UserForm today = new UserForm().setAge(20).setName("TODAY");
+    UserForm today = new UserForm().setAge(20).setName("TODAY");
 
-    final DataBinderCollectionParameterResolver resolver = new DataBinderCollectionParameterResolver();
-    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    DataBinderCollectionParameterResolver resolver = new DataBinderCollectionParameterResolver();
+    ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
-    final Object parameter = resolver.resolveParameter(context, testListUsers);
+    Object parameter = resolver.resolveParameter(context, testListUsers);
 
     assertThat(parameter)
             .isInstanceOf(List.class);
 
     List<UserForm> res = (List<UserForm>) parameter;
 
-    final UserForm userForm = res.get(0);
+    UserForm userForm = res.get(0);
 
     assertThat(userForm).isEqualTo(today);
     assertThat(userForm.name).isEqualTo("TODAY");
@@ -367,7 +370,7 @@ public class DataBinderParameterResolverTests extends TestCase {
             .containsEntry("1", 1)
             .containsEntry("2", 2);
 
-    final UserForm userForm10 = res.get(10);
+    UserForm userForm10 = res.get(10);
 
     assertThat(userForm10.name).isEqualTo("TODAY");
     assertThat(userForm10.age).isZero();
@@ -384,15 +387,15 @@ public class DataBinderParameterResolverTests extends TestCase {
     // set
 
     // new version
-    final Object setParameter = resolver.resolveParameter(context, testUserSet);
+    Object setParameter = resolver.resolveParameter(context, testUserSet);
 
     assertThat(setParameter)
             .isInstanceOf(Set.class);
 
     Set<UserForm> setRes = (Set<UserForm>) setParameter;
 
-    final Iterator<UserForm> iterator = setRes.iterator();
-    final UserForm userFormSet = iterator.next();
+    Iterator<UserForm> iterator = setRes.iterator();
+    UserForm userFormSet = iterator.next();
 
     assertThat(userFormSet).isEqualTo(today);
     assertThat(userFormSet.name).isEqualTo("TODAY");
@@ -408,7 +411,7 @@ public class DataBinderParameterResolverTests extends TestCase {
             .containsEntry("1", 1)
             .containsEntry("2", 2);
 
-    final UserForm userFormSet10 = iterator.next();
+    UserForm userFormSet10 = iterator.next();
 
     assertThat(userFormSet10.name).isEqualTo("TODAY");
     assertThat(userFormSet10.age).isZero();
@@ -423,8 +426,10 @@ public class DataBinderParameterResolverTests extends TestCase {
             .hasSize(1);
   }
 
+  @Test
+
   public void testResolveArray() throws Throwable {
-    final Map<String, String[]> params = new HashMap<String, String[]>() {
+    Map<String, String[]> params = new HashMap<String, String[]>() {
       {
         put("userArray[0].age", "20");
         put("userArray[0].name", "TODAY");
@@ -448,20 +453,20 @@ public class DataBinderParameterResolverTests extends TestCase {
       }
     };
 
-    final UserForm today = new UserForm().setAge(20).setName("TODAY");
+    UserForm today = new UserForm().setAge(20).setName("TODAY");
 
-    final DataBinderArrayParameterResolver resolver = new DataBinderArrayParameterResolver();
-    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    DataBinderArrayParameterResolver resolver = new DataBinderArrayParameterResolver();
+    ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // array
-    final Object parameter = resolver.resolveParameter(context, testUserArray);
+    Object parameter = resolver.resolveParameter(context, testUserArray);
 
     assertThat(parameter)
             .isInstanceOf(UserForm[].class);
 
     UserForm[] res = (UserForm[]) parameter;
 
-    final UserForm userForm = res[0];
+    UserForm userForm = res[0];
 
     assertThat(userForm).isEqualTo(today);
     assertThat(userForm.name).isEqualTo("TODAY");
@@ -477,7 +482,7 @@ public class DataBinderParameterResolverTests extends TestCase {
             .containsEntry("1", 1)
             .containsEntry("2", 2);
 
-    final UserForm userForm10 = res[10];
+    UserForm userForm10 = res[10];
 
     assertThat(userForm10.name).isEqualTo("TODAY");
     assertThat(userForm10.age).isZero();
@@ -493,8 +498,9 @@ public class DataBinderParameterResolverTests extends TestCase {
 
   }
 
+  @Test
   public void testResolveMap() throws Throwable {
-    final Map<String, String[]> params = new HashMap<String, String[]>() {
+    Map<String, String[]> params = new HashMap<String, String[]>() {
       {
 
         put("mapUser[yhj].age", "20");
@@ -525,20 +531,20 @@ public class DataBinderParameterResolverTests extends TestCase {
       }
     };
 
-    final UserForm today = new UserForm().setAge(23).setName("TODAY");
+    UserForm today = new UserForm().setAge(23).setName("TODAY");
 
-    final DataBinderMapParameterResolver resolver = new DataBinderMapParameterResolver();
-    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    DataBinderMapParameterResolver resolver = new DataBinderMapParameterResolver();
+    ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // array
-    final Object parameter = resolver.resolveParameter(context, testMapUser);
+    Object parameter = resolver.resolveParameter(context, testMapUser);
 
     assertThat(parameter)
             .isInstanceOf(Map.class);
 
     Map<String, UserForm> res = (Map<String, UserForm>) parameter;
 
-    final UserForm userForm = res.get("yhj");
+    UserForm userForm = res.get("yhj");
 
     assertThat(userForm.name).isEqualTo("yhj");
     assertThat(userForm.age).isEqualTo(20);
@@ -553,7 +559,7 @@ public class DataBinderParameterResolverTests extends TestCase {
             .containsEntry("1", 1)
             .containsEntry("2", 2);
 
-    final UserForm userForm10 = res.get("today");
+    UserForm userForm10 = res.get("today");
     assertThat(userForm10).isEqualTo(today);
 
     assertThat(userForm10.name).isEqualTo("TODAY");

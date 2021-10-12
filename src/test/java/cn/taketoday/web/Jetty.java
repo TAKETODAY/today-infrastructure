@@ -44,14 +44,14 @@ import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
-import cn.taketoday.web.framework.server.ServletWebServerApplicationLoader;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;

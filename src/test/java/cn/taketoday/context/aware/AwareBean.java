@@ -21,8 +21,8 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.lang.Singleton;
 import lombok.Getter;
 
 /**

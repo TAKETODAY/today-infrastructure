@@ -19,8 +19,8 @@
  */
 package cn.taketoday.web;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,15 +38,15 @@ import cn.taketoday.web.utils.HttpUtils;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author TODAY <br>
  * 2020-04-28 15:39
  */
-@Ignore
+@Disabled
 @RestController
 @EnableViewController
 public class AnnotationHandlerTests extends Base implements WebMvcConfiguration {
@@ -70,9 +70,9 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
   }
 
   public void testViewController(ViewControllerHandlerRegistry registry) {
-    final Object defaultHandler = registry.getDefaultHandler();
+    Object defaultHandler = registry.getDefaultHandler();
     assertNull(defaultHandler);
-    final ViewController viewController = registry.getViewController("/view/controller/null");
+    ViewController viewController = registry.getViewController("/view/controller/null");
     assertNotNull(viewController);
     assertNull(viewController.getStatus());
     assertNull(viewController.getResource());
@@ -130,7 +130,7 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
             "&array=arr&array=aaa&map%5Bkey%5D=value" +
             "&address.place=address";
 
-    final UserForm expected = HttpUtils.post("http://localhost:81/test-bean", params, UserForm.class);
+    UserForm expected = HttpUtils.post("http://localhost:81/test-bean", params, UserForm.class);
     assertThat(expected.address.place).isEqualTo("address");
     assertThat(expected.age).isEqualTo(23);
     assertThat(expected.name).isEqualTo("TODAY");

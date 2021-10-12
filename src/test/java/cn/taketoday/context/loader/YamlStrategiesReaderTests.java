@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.loader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author TODAY 2021/7/20 22:17
  */
-public class YamlStrategiesReaderTests {
+class YamlStrategiesReaderTests {
 
   @Test
   public void readInternal() {

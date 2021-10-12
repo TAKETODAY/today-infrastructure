@@ -50,12 +50,7 @@ import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -67,6 +62,11 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -127,7 +127,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   private final PathMatchingPatternResourceLoader patternResourceLoader = new PathMatchingPatternResourceLoader();
 
   public AbstractApplicationContext() {
-    ContextUtils.setLastStartupContext(this); // @since 2.1.6
+    ApplicationContextHolder.register(this); // @since 4.0
   }
 
   /**
@@ -495,6 +495,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     applyState(State.CLOSING);
     publishEvent(new ContextCloseEvent(this));
     applyState(State.CLOSED);
+    ApplicationContextHolder.remove(this);
   }
 
   @NonNull

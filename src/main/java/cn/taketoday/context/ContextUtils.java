@@ -33,7 +33,6 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
@@ -50,62 +49,6 @@ import cn.taketoday.util.StringUtils;
  * 2019-01-16 20:04
  */
 public abstract class ContextUtils {
-
-  // @since 2.1.6 shared applicationContext
-  private static ApplicationContext lastStartupContext;
-
-  /**
-   * @since 3.0
-   */
-  private static ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
-
-  /**
-   * Get {@link ApplicationContext}
-   *
-   * @return {@link ApplicationContext}
-   */
-  public static ApplicationContext getLastStartupContext() {
-    return lastStartupContext;
-  }
-
-  public static void setLastStartupContext(ApplicationContext lastStartupContext) {
-    ContextUtils.lastStartupContext = lastStartupContext;
-    expressionEvaluator = new ExpressionEvaluator(lastStartupContext);
-  }
-
-  /**
-   * set Global {@link ExpressionEvaluator}
-   *
-   * @param expressionEvaluator
-   *         a none null ExpressionEvaluator
-   *
-   * @since 3.0
-   */
-  public static void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
-    Assert.notNull(expressionEvaluator, "ExpressionEvaluator must not be null");
-    ContextUtils.expressionEvaluator = expressionEvaluator;
-  }
-
-  /**
-   * @since 3.0
-   */
-  public static ExpressionEvaluator getExpressionEvaluator() {
-    return expressionEvaluator;
-  }
-
-  /**
-   * Get shared {@link ExpressionProcessor}
-   *
-   * @return Shared {@link ExpressionProcessor}
-   *
-   * @throws IllegalStateException
-   *         There isn't a ApplicationContext
-   */
-  public static ExpressionProcessor getExpressionProcessor() {
-    final ApplicationContext ctx = getLastStartupContext();
-    Assert.state(ctx != null, "There isn't a ApplicationContext");
-    return ctx.getBean(ExpressionProcessor.class);
-  }
 
   // META-INF
   // ----------------------
@@ -169,7 +112,7 @@ public abstract class ContextUtils {
    * @since 3.0
    */
   public static <T> Set<T> loadBeansFromMetaInfo(String resource) {
-    return loadBeansFromMetaInfo(resource, getLastStartupContext());
+    return loadBeansFromMetaInfo(resource, ApplicationContextHolder.getLastStartupContext());
   }
 
   @SuppressWarnings("unchecked")

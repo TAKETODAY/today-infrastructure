@@ -40,9 +40,9 @@
 
 package cn.taketoday.context.el;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -52,10 +52,10 @@ import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.MethodExpression;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ELProcessorTest {
+public class ELProcessorTests {
   public static void printlnError(String x) {
 //    System.err.println(x);
   }
@@ -68,18 +68,18 @@ public class ELProcessorTest {
   static ExpressionManager elm;
   static ExpressionFactory factory;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws Exception {
     elp = new ExpressionProcessor();
     elm = elp.getManager();
     factory = elm.getExpressionFactory();
   }
 
-  @Before
-  public void setUp() { }
+  @BeforeEach
+  void setUp() { }
 
   @Test
-  public void testMethExpr() {
+  void testMethExpr() {
     MethodExpression meth = null;
     ExpressionContext ctxt = elm.getContext();
     try {
@@ -96,7 +96,7 @@ public class ELProcessorTest {
   }
 
   @Test
-  public void testGetValue() {
+  void testGetValue() {
     Object result = elp.eval("10 + 1");
     assertEquals(result.toString(), "11");
     result = elp.getValue("10 + 2", String.class);
@@ -104,7 +104,7 @@ public class ELProcessorTest {
   }
 
   @Test
-  public void testSetVariable() {
+  void testSetVariable() {
     elp.setVariable("xx", "100");
     Object result = elp.getValue("xx + 11", String.class);
     assertEquals(result, "111");
@@ -116,7 +116,7 @@ public class ELProcessorTest {
   }
 
   @Test
-  public void testConcat() {
+  void testConcat() {
     Object result = elp.eval("'10' + 1");
     assertEquals(result, 11L);
     result = elp.eval("10 += '1'");
@@ -124,7 +124,7 @@ public class ELProcessorTest {
   }
 
   @Test
-  public void defineFuncTest() {
+  void defineFuncTest() {
     Class c = MyBean.class;
     Method meth = null;
     Method meth2 = null;
@@ -192,7 +192,7 @@ public class ELProcessorTest {
    */
 
   @Test
-  public void testImport() {
+  void testImport() {
     elm.importClass("cn.taketoday.context.el.ELProcessorTest$MyBean");
     assertTrue((Boolean) elp.eval("ELProcessorTest$MyBean.aaaa == 101"));
     assertTrue((Boolean) elp.eval("ELProcessorTest$MyBean.getBar() == 64"));

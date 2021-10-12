@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import cn.taketoday.context.annotation.Profile;
+import cn.taketoday.context.condition.WindowsCondition;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.context.condition.WindowsCondition;
 import test.demo.config.User;
 
 import static org.assertj.core.api.Assertions.assertThat;

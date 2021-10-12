@@ -15,22 +15,27 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.bytecode.proxysample.ProxySampleInterface_ReturnsBasic;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Chris Nokleberg
  * <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
  * @version $Id: TestProxy.java,v 1.6 2012/07/27 16:02:49 baliuka Exp $
  */
-public class TestProxy extends CodeGenTestCase {
+public class TestProxy {
 
   private class SimpleInvocationHandler implements InvocationHandler {
     Object o = null;
@@ -47,30 +52,33 @@ public class TestProxy extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testGetProxyClassAndConstructor() throws Exception {
     HashMap map = new HashMap();
     map.put("test", "test");
     InvocationHandler handler = new SimpleInvocationHandler(map);
     Class proxyClass = Proxy.getProxyClass(TestProxy.class.getClassLoader(), new Class[] { Map.class });
     Map proxyMap = (Map) proxyClass.getConstructor(new Class[] { InvocationHandler.class }).newInstance(new Object[] { handler });
-    assertEquals("proxy delegation not correct",
-                 map.get("test"), proxyMap.get("test"));
+    assertEquals(map.get("test"),
+                 proxyMap.get("test"), "proxy delegation not correct");
   }
 
+  @Test
   public void testGetProxyInstance() throws Exception {
     HashMap map = new HashMap();
     map.put("test", "test");
     InvocationHandler handler = new SimpleInvocationHandler(map);
     Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
-    assertEquals("proxy delegation not correct", map.get("test"), proxyMap.get("test"));
+    assertEquals(map.get("test"), proxyMap.get("test"), "proxy delegation not correct");
   }
 
+  @Test
   public void testIsProxyClass() throws Exception {
     HashMap map = new HashMap();
     map.put("test", "test");
     InvocationHandler handler = new SimpleInvocationHandler(map);
     Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
-    assertTrue("real proxy not accepted", Proxy.isProxyClass(proxyMap.getClass()));
+    assertTrue(Proxy.isProxyClass(proxyMap.getClass()), "real proxy not accepted");
   }
 
   private class FakeProxy extends Proxy {
@@ -79,9 +87,9 @@ public class TestProxy extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testIsNotProxyClass() throws Exception {
-    assertTrue("fake proxy accepted as real",
-               !Proxy.isProxyClass(FakeProxy.class));
+    assertFalse(Proxy.isProxyClass(FakeProxy.class), "fake proxy accepted as real");
   }
 
   private static class ReturnNullHandler implements InvocationHandler {
@@ -90,12 +98,12 @@ public class TestProxy extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testReturnNull() throws Exception {
     System.err.println("hello");
-    ProxySampleInterface_ReturnsBasic rb = (ProxySampleInterface_ReturnsBasic) Proxy.newProxyInstance(null,
-                                                                                                      new Class[]
-                                                                                                              { ProxySampleInterface_ReturnsBasic.class },
-                                                                                                      new ReturnNullHandler());
+    ProxySampleInterface_ReturnsBasic rb = (ProxySampleInterface_ReturnsBasic)
+            Proxy.newProxyInstance(null, new Class[] { ProxySampleInterface_ReturnsBasic.class },
+                                   new ReturnNullHandler());
     try {
       int result = rb.getKala(11);
       fail("must throw an exception, but returned " + result);
@@ -103,6 +111,7 @@ public class TestProxy extends CodeGenTestCase {
     catch (NullPointerException ignore) { }
   }
 
+  @Test
   public void testGetInvocationHandler() throws Exception {
     HashMap map = new HashMap();
     map.put("test", "test");
@@ -112,9 +121,10 @@ public class TestProxy extends CodeGenTestCase {
       }
     };
     Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
-    assertSame("should be the same handler", handler, Proxy.getInvocationHandler(proxyMap));
+    assertSame(handler, Proxy.getInvocationHandler(proxyMap), "should be the same handler");
   }
 
+  @Test
   public void testException() throws Exception {
     HashMap map = new HashMap();
     map.put("test", "test");
@@ -136,6 +146,7 @@ public class TestProxy extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testEquals() throws Exception {
     final Object k1 = new Object();
     final Object k2 = new Object();
@@ -148,20 +159,8 @@ public class TestProxy extends CodeGenTestCase {
       }
     };
     Object proxy = Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
-    assertTrue(proxy.equals(k1));
-    assertTrue(!proxy.equals(k2));
-  }
-
-  public TestProxy(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestProxy.class);
+    assertEquals(proxy, k1);
+    assertNotEquals(proxy, k2);
   }
 
   public void perform(ClassLoader loader) throws Throwable {
@@ -171,7 +170,6 @@ public class TestProxy extends CodeGenTestCase {
       }
     };
     Proxy.newProxyInstance(loader, new Class[] { Map.class }, handler);
-
   }
 
 }

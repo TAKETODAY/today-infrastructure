@@ -57,7 +57,7 @@ public class ClassFileTest extends AsmTest {
           final PrecompiledClass classParameter) {
     ClassFile classFile = new ClassFile(classParameter.getBytes());
 
-    Executable newInstance = () -> classFile.newInstance();
+    Executable newInstance = classFile::newInstance;
 
     if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);

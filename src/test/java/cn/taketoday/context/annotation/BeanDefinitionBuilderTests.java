@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -45,7 +45,7 @@ class BeanDefinitionBuilderTests {
   }
 
   @Test
-  public void testBuildBeanDefinitions() throws Exception {
+  void testBuildBeanDefinitions() throws Exception {
     try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
 
       List<BeanDefinition> beanDefinitions = BeanDefinitionBuilder.from(getClass());

@@ -1,24 +1,24 @@
 package cn.taketoday.context.el;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import cn.taketoday.expression.ExpressionProcessor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Ignore
+@Disabled
 public class LinqTest {
 
   static ExpressionProcessor elp;
   static DataBase database = null;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws Exception {
     elp = new ExpressionProcessor();
     database = new DataBase();
@@ -28,7 +28,7 @@ public class LinqTest {
     elp.defineBean("orders", database.getOrders());
   }
 
-  @Before
+  @BeforeEach
   public void setup() { }
 
   void p(String msg) {

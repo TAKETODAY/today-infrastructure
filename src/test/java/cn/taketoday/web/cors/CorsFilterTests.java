@@ -20,8 +20,8 @@
 
 package cn.taketoday.web.cors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +29,7 @@ import java.util.Arrays;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 
+import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.CorsConfiguration;
 import cn.taketoday.web.http.CorsFilter;
@@ -53,7 +54,7 @@ public class CorsFilterTests {
 
   private final CorsConfiguration config = new CorsConfiguration();
 
-  @Before
+  @BeforeEach
   public void setup() {
     config.setAllowedOrigins(Arrays.asList("https://domain1.com", "https://domain2.com"));
     config.setAllowedMethods(Arrays.asList("GET", "POST"));

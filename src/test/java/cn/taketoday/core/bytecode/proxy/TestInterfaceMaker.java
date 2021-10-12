@@ -15,26 +15,29 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestInterfaceMaker extends CodeGenTestCase {
+public class TestInterfaceMaker {
+
+  @Test
   public void testStandalone() throws Exception {
     InterfaceMaker im = new InterfaceMaker();
     im.add(D1.class);
     im.add(D2.class);
     Class<?> iface = im.create();
     Method[] methods = iface.getMethods();
-    assertTrue(methods.length == 2);
+    assertEquals(2, methods.length);
     String name1 = methods[0].getName();
     String name2 = methods[1].getName();
     assertTrue(("herby".equals(name1) && "derby".equals(name2)) || ("herby".equals(name2) && "derby".equals(name1)));
   }
 
+  @Test
   public void testEnhancer() throws Exception {
     InterfaceMaker im = new InterfaceMaker();
     im.add(D1.class);
@@ -48,22 +51,5 @@ public class TestInterfaceMaker extends CodeGenTestCase {
     Method method = obj.getClass().getMethod("herby", (Class[]) null);
     assertTrue("test".equals(method.invoke(obj, (Object[]) null)));
   }
-
-  public TestInterfaceMaker(String testName) {
-    super(testName);
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestInterfaceMaker.class);
-  }
-
-  public static void main(String args[]) {
-    String[] testCaseName = { TestInterfaceMaker.class.getName() };
-    junit.textui.TestRunner.main(testCaseName);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

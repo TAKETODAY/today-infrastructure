@@ -24,9 +24,9 @@ import org.jooq.Record;
 import org.jooq.ResultQuery;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.sql2o.Sql2o;
@@ -53,12 +53,12 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Configuration;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
+import cn.taketoday.lang.Configuration;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.orm.hibernate5.EnableHibernate;
 
 /**
@@ -66,7 +66,7 @@ import cn.taketoday.orm.hibernate5.EnableHibernate;
  * <p>
  * TODO: must read 10-100 rows instead 1
  */
-@Ignore
+@Disabled
 public class PojoPerformanceTest {
 
   private final static String DRIVER_CLASS = "org.h2.Driver";
@@ -80,7 +80,7 @@ public class PojoPerformanceTest {
 
   private JdbcOperations operations;
 
-  @Before
+  @BeforeEach
   public void setup() {
     Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 

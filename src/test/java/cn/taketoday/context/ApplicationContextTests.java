@@ -40,9 +40,9 @@ import test.demo.config.User;
 import test.demo.repository.impl.DefaultUserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Today

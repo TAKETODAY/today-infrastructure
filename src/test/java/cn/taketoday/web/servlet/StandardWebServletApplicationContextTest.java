@@ -19,14 +19,14 @@
  */
 package cn.taketoday.web.servlet;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.ServletContext;
 
 import cn.taketoday.web.Base;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author TODAY <br>
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 public class StandardWebServletApplicationContextTest extends Base {
 
   @Test
-  @Ignore
+  @Disabled
   public void testStandardWebServletApplicationContext() {
     final ServletContext servletContext = context.getServletContext();
     assertEquals(servletContext, getServletContext());

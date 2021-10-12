@@ -20,7 +20,9 @@
 
 package cn.taketoday.web.handler;
 
-import org.junit.Test;
+
+
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;

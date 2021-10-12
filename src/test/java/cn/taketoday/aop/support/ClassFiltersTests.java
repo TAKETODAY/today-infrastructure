@@ -20,7 +20,9 @@
 
 package cn.taketoday.aop.support;
 
-import org.junit.Test;
+
+
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.ITestBean;

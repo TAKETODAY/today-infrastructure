@@ -1,21 +1,18 @@
 package cn.taketoday.jdbc.issues;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.result.Table;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by lars on 05.10.2014.
@@ -51,7 +48,7 @@ public class H2Tests {
     try (JdbcConnection connection = sql2o.open()) {
       int val = connection.createQuery("select 42").fetchScalar(Integer.class);
 
-      assertThat(val, is(equalTo(42)));
+      assertThat(val).isEqualTo(42);
     }
   }
 
@@ -75,10 +72,10 @@ public class H2Tests {
 
       Table table = connection.createQuery("select * from uuidtest").fetchTable();
 
-      assertThat((UUID) table.rows().get(0).getObject("id"), is(equalTo(uuid1)));
-      assertThat((UUID) table.rows().get(0).getObject("val"), is(equalTo(uuid2)));
-      assertThat((UUID) table.rows().get(1).getObject("id"), is(equalTo(uuid3)));
-      assertThat(table.rows().get(1).getObject("val"), is(nullValue()));
+      assertThat((UUID) table.rows().get(0).getObject("id")).isEqualTo(uuid1);
+      assertThat((UUID) table.rows().get(0).getObject("val")).isEqualTo(uuid2);
+      assertThat((UUID) table.rows().get(1).getObject("id")).isEqualTo(uuid3);
+      assertThat(table.rows().get(1).getObject("val")).isNull();
 
       connection.rollback();
     }

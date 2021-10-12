@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -40,15 +40,15 @@ import cn.taketoday.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * @author TODAY 2021/3/9 20:14
  */
-public class ResourceTests {
+class ResourceTests {
 
   @Test
-  public void byteArrayResource() throws IOException {
+  void byteArrayResource() throws IOException {
     Resource resource = new ByteArrayResource("testString".getBytes());
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isOpen()).isFalse();
@@ -59,7 +59,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void byteArrayResourceWithDescription() throws IOException {
+  void byteArrayResourceWithDescription() throws IOException {
     Resource resource = new ByteArrayResource("testString".getBytes(), "my description");
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isOpen()).isFalse();
@@ -70,7 +70,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void inputStreamResource() throws IOException {
+  void inputStreamResource() throws IOException {
     InputStream is = new ByteArrayInputStream("testString".getBytes());
     Resource resource = new InputStreamResource(is);
     assertThat(resource.exists()).isTrue();
@@ -81,7 +81,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void inputStreamResourceWithDescription() throws IOException {
+  void inputStreamResourceWithDescription() throws IOException {
     InputStream is = new ByteArrayInputStream("testString".getBytes());
     Resource resource = new InputStreamResource(is, "my description");
     assertThat(resource.exists()).isTrue();
@@ -95,7 +95,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void classPathResource() throws IOException {
+  void classPathResource() throws IOException {
     Resource resource = new ClassPathResource("cn/taketoday/core/io/Resource.class");
     doTestResource(resource);
     Resource resource2 = new ClassPathResource("cn/taketoday/context/../core/io/./Resource.class");
@@ -113,7 +113,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void classPathResourceWithClassLoader() throws IOException {
+  void classPathResourceWithClassLoader() throws IOException {
     Resource resource = new ClassPathResource("cn/taketoday/core/io/Resource.class", getClass().getClassLoader());
     doTestResource(resource);
     assertThat(new ClassPathResource("cn/taketoday/context/../core/io/./Resource.class", getClass().getClassLoader()))
@@ -121,7 +121,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void classPathResourceWithClass() throws IOException {
+  void classPathResourceWithClass() throws IOException {
     ClassPathResource resource = new ClassPathResource("Resource.class", getClass());
     final Resource originalResource = resource.getOriginalResource();
     doTestResource(resource);
@@ -129,7 +129,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void fileBasedResource() throws IOException {
+  void fileBasedResource() throws IOException {
     String file = getClass().getResource("Resource.class").getFile();
     Resource resource = new FileBasedResource(file);
     doTestResource(resource);
@@ -137,7 +137,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void fileBasedResourceWithFile() throws IOException {
+  void fileBasedResourceWithFile() throws IOException {
     File file = new File(getClass().getResource("Resource.class").getFile());
     Resource resource = new FileBasedResource(file);
     doTestResource(resource);
@@ -145,7 +145,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void fileBasedResourceWithFilePath() throws Exception {
+  void fileBasedResourceWithFilePath() throws Exception {
     Path filePath = Paths.get(getClass().getResource("Resource.class").toURI());
     Resource resource = new FileBasedResource(filePath);
     doTestResource(resource);
@@ -153,13 +153,13 @@ public class ResourceTests {
   }
 
   @Test
-  public void FileBasedResourceWithPlainPath() {
+  void FileBasedResourceWithPlainPath() {
     Resource resource = new FileBasedResource("core/io/Resource.class");
     assertThat(new FileBasedResource("context/../core/io/./Resource.class")).isEqualTo(resource);
   }
 
   @Test
-  public void urlResource() throws IOException {
+  void urlResource() throws IOException {
     Resource resource = new UrlBasedResource(getClass().getResource("Resource.class"));
     doTestResource(resource);
     assertThat(resource).isEqualTo(new UrlBasedResource(getClass().getResource("Resource.class")));
@@ -215,28 +215,28 @@ public class ResourceTests {
   }
 
   @Test
-  public void classPathResourceWithRelativePath() throws IOException {
+  void classPathResourceWithRelativePath() throws IOException {
     Resource resource = new ClassPathResource("dir/");
     Resource relative = resource.createRelative("subdir");
     assertThat(relative).isEqualTo(new ClassPathResource("dir/subdir"));
   }
 
   @Test
-  public void FileBasedResourceWithRelativePath() throws IOException {
+  void FileBasedResourceWithRelativePath() throws IOException {
     Resource resource = new FileBasedResource("dir/");
     Resource relative = resource.createRelative("subdir");
     assertThat(relative).isEqualTo(new FileBasedResource("dir/subdir"));
   }
 
   @Test
-  public void urlResourceWithRelativePath() throws IOException {
+  void urlResourceWithRelativePath() throws IOException {
     Resource resource = new UrlBasedResource("file:dir/");
     Resource relative = resource.createRelative("subdir");
     assertThat(relative).isEqualTo(new UrlBasedResource("file:dir/subdir"));
   }
 
   @Test
-  public void nonFileResourceExists() throws Exception {
+  void nonFileResourceExists() throws Exception {
     URL url = new URL("https://spring.io/");
 
     // Abort if spring.io is not reachable.
@@ -259,7 +259,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void abstractResourceExceptions() throws Exception {
+  void abstractResourceExceptions() throws Exception {
     final String name = "test-resource";
 
     Resource resource = new AbstractResource() {
@@ -290,7 +290,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void contentLength() throws IOException {
+  void contentLength() throws IOException {
     AbstractResource resource = new AbstractResource() {
       @Override
       public InputStream getInputStream() {
@@ -306,7 +306,7 @@ public class ResourceTests {
   }
 
   @Test
-  public void readableChannel() throws IOException {
+  void readableChannel() throws IOException {
     Resource resource = new FileBasedResource(getClass().getResource("Resource.class").getFile());
     try (ReadableByteChannel channel = resource.readableChannel()) {
       ByteBuffer buffer = ByteBuffer.allocate((int) resource.contentLength());
@@ -317,14 +317,14 @@ public class ResourceTests {
   }
 
   @Test
-  public void inputStreamNotFoundOnFileBasedResource() throws IOException {
+  void inputStreamNotFoundOnFileBasedResource() throws IOException {
     assertThatExceptionOfType(FileNotFoundException.class)
             .isThrownBy(() -> new FileBasedResource(getClass().getResource("Resource.class").getFile())
                     .createRelative("X").getInputStream());
   }
 
   @Test
-  public void readableChannelNotFoundOnFileBasedResource() throws IOException {
+  void readableChannelNotFoundOnFileBasedResource() throws IOException {
     assertThatExceptionOfType(FileNotFoundException.class)
             .isThrownBy(() -> new FileBasedResource(
                     getClass().getResource("Resource.class").getFile())
@@ -332,14 +332,14 @@ public class ResourceTests {
   }
 
   @Test
-  public void inputStreamNotFoundOnClassPathResource() throws IOException {
+  void inputStreamNotFoundOnClassPathResource() throws IOException {
     assertThatExceptionOfType(FileNotFoundException.class)
             .isThrownBy(() -> new ClassPathResource("Resource.class", getClass())
                     .createRelative("X").getInputStream());
   }
 
   @Test
-  public void readableChannelNotFoundOnClassPathResource() throws IOException {
+  void readableChannelNotFoundOnClassPathResource() throws IOException {
     assertThatExceptionOfType(FileNotFoundException.class)
             .isThrownBy(() -> new ClassPathResource("Resource.class", getClass())
                     .createRelative("X").readableChannel());

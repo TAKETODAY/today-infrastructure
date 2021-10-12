@@ -20,7 +20,7 @@
 package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 

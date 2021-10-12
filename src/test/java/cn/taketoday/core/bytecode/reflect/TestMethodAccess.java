@@ -15,8 +15,7 @@
  */
 package cn.taketoday.core.bytecode.reflect;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -24,12 +23,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.reflect.FastConstructorAccessor;
 import cn.taketoday.core.reflect.FastMethodAccessor;
 import cn.taketoday.core.reflect.MethodAccess;
 
-public class TestMethodAccess extends CodeGenTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class TestMethodAccess {
   public static class Simple { }
 
   public static class ThrowsSomething {
@@ -38,11 +40,13 @@ public class TestMethodAccess extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testSimple() throws Throwable {
     MethodAccess.from(Simple.class).newInstance();
     MethodAccess.from(Simple.class).newInstance();
   }
 
+  @Test
   public void testException() throws Throwable {
     MethodAccess fc = MethodAccess.from(ThrowsSomething.class);
     ThrowsSomething ts = new ThrowsSomething();
@@ -57,12 +61,14 @@ public class TestMethodAccess extends CodeGenTestCase {
 
   public static class Child extends cn.taketoday.core.bytecode.reflect.sub.Parent { }
 
+  @Test
   public void testSuperclass() throws Throwable {
     MethodAccess fc = MethodAccess.from(Child.class);
     assertEquals("dill", new Child().getHerb());
     assertEquals("dill", fc.invoke("getHerb", new Class[0], new Child(), new Object[0]));
   }
 
+  @Test
   public void testTypeMismatch() throws Throwable {
     MethodAccess fc = MethodAccess.from(ThrowsSomething.class);
     ThrowsSomething ts = new ThrowsSomething();
@@ -73,33 +79,36 @@ public class TestMethodAccess extends CodeGenTestCase {
     catch (IllegalArgumentException ignore) { }
   }
 
+  @Test
   public void testComplex() throws Throwable {
     MethodAccess fc = MethodAccess.from(MemberSwitchBean.class);
     MemberSwitchBean bean = (MemberSwitchBean) fc.newInstance();
-    assertEquals("bean.init", 0, bean.init);
-    assertEquals("fc.getName()", "cn.taketoday.core.bytecode.reflect.MemberSwitchBean", fc.getName());
-    assertEquals("fc.getDeclaringClass()", MemberSwitchBean.class, fc.getDeclaringClass());
-    assertEquals("fc.getMaxIndex()", 13, fc.getMaxIndex());
+    assertEquals(0, bean.init, "bean.init");
+    assertEquals("cn.taketoday.core.bytecode.reflect.MemberSwitchBean", fc.getName(), "fc.getName()");
+    assertEquals(MemberSwitchBean.class, fc.getDeclaringClass(), "fc.getDeclaringClass()");
+    assertEquals(13, fc.getMaxIndex(), "fc.getMaxIndex()");
 
     Constructor c1 = MemberSwitchBean.class.getConstructor();
     FastConstructorAccessor fc1 = fc.getConstructor(c1);
-    assertEquals("((MemberSwitchBean)fc1.newInstance()).init", 0, ((MemberSwitchBean) fc1.newInstance()).init);
+    assertEquals(0, ((MemberSwitchBean) fc1.newInstance()).init, "((MemberSwitchBean)fc1.newInstance()).init");
     assertEquals("fc1.toString()", "public cn.taketoday.core.bytecode.reflect.MemberSwitchBean()", fc1.toString());
 
     Method m1 = MemberSwitchBean.class.getMethod("foo", Integer.TYPE, String.class);
-    assertEquals("fc.getMethod(m1).invoke(bean, new Object[]{ new Integer(0), \"\" })", 6, fc.getMethod(m1).invoke(bean,
-                                                                                                                   new Object[]
-                                                                                                                           { 0, "" }));
+    assertEquals(6, fc.getMethod(m1).invoke(bean,
+                                            new Object[]
+                                                    { 0, "" }),
+                 "fc.getMethod(m1).invoke(bean, new Object[]{ new Integer(0), \"\" })");
 
     // TODO: should null be allowed here?
     Method m2 = MemberSwitchBean.class.getDeclaredMethod("pkg", (Class[]) null);
-    assertEquals("fc.getMethod(m2).invoke(bean, null)", 9, fc.getMethod(m2).invoke(bean, null));
+    assertEquals(9, fc.getMethod(m2).invoke(bean, null), "fc.getMethod(m2).invoke(bean, null)");
   }
 
+  @Test
   public void testStatic() throws Throwable {
     MethodAccess fc = MethodAccess.from(MemberSwitchBean.class);
     // MemberSwitchBean bean = (MemberSwitchBean)fc.newInstance();
-    assertTrue(fc.invoke("staticMethod", new Class[0], null, null).equals(new Integer(10)));
+    assertEquals(fc.invoke("staticMethod", new Class[0], null, null), new Integer(10));
   }
 
   private static abstract class ReallyBigClass {
@@ -1066,11 +1075,13 @@ public class TestMethodAccess extends CodeGenTestCase {
     abstract public void methodB120(int i, byte d, float f);
   }
 
+  @Test
   public void testReallyBigClass() throws IOException {
     MethodAccess.Generator gen = new MethodAccess.Generator(ReallyBigClass.class);
     MethodAccess fc = gen.create();
   }
 
+  @Test
   public void testGetMethod() throws Exception {
     MethodAccess fc = MethodAccess.from(Base.class);
     FastMethodAccessor method = fc.getMethod(
@@ -1085,6 +1096,7 @@ public class TestMethodAccess extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testGetMethod_covarientOverride() throws Exception {
     MethodAccess fc = MethodAccess.from(Sub.class);
     FastMethodAccessor method = fc.getMethod(
@@ -1099,22 +1111,6 @@ public class TestMethodAccess extends CodeGenTestCase {
     }
   }
 
-  public TestMethodAccess(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestMethodAccess.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable {
-    MethodAccess.from(loader, Simple.class).newInstance();
-  }
-
   class HasProtectedMethod {
     protected int foo() {
       return 2;
@@ -1123,12 +1119,14 @@ public class TestMethodAccess extends CodeGenTestCase {
 
   // Previously fastclass would refuse to generate accessors for protected
   // methods.
+  @Test
   public void testProtectedMethod() throws Exception {
     MethodAccess fc = MethodAccess.from(HasProtectedMethod.class);
     Method fooMethod = HasProtectedMethod.class.getDeclaredMethod("foo");
     assertEquals(2, fc.getMethod(fooMethod).invoke(new HasProtectedMethod(), new Object[0]));
   }
 
+  @Test
   public void testProtectedMethod_bootstrapClassLoader() throws Exception {
     // Can't access protected methods on the bootstrap loader
     MethodAccess fc = MethodAccess.from(ArrayList.class);
@@ -1142,6 +1140,7 @@ public class TestMethodAccess extends CodeGenTestCase {
     catch (IllegalArgumentException iae) { }
   }
 
+  @Test
   public void testPackagePrivateMethod_bootstrapClassLoader() throws Exception {
     // Executable getRoot()
     // versions of fastclass would try to call it and it would result in an

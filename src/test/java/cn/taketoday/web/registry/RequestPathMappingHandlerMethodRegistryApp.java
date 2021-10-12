@@ -20,17 +20,17 @@
 
 package cn.taketoday.web.registry;
 
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.event.EnableMethodEventDriven;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.framework.config.EnableTomcatHandling;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
+import cn.taketoday.web.framework.WebApplication;
+import cn.taketoday.web.framework.config.EnableTomcatHandling;
 import cn.taketoday.web.http.HttpHeaders;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -39,18 +39,18 @@
  */
 package cn.taketoday.context.el;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
+import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.ValueExpression;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Kin-man
@@ -61,12 +61,12 @@ public class OperatorTest {
 
   public OperatorTest() { }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws Exception {
     elp = new ExpressionProcessor();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDownClass() throws Exception { }
 
   @Before

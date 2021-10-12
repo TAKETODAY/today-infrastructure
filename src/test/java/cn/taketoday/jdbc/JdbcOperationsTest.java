@@ -6,9 +6,7 @@ import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,24 +42,19 @@ import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
 import cn.taketoday.util.StreamUtils;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by IntelliJ IDEA. User: lars Date: 5/21/11 Time: 9:25 PM Most sql2o
  * tests are in this class.
  */
-@RunWith(Parameterized.class)
+//@RunWith(Parameterized.class)
 public class JdbcOperationsTest extends BaseMemDbTest {
 
   private static final int NUMBER_OF_USERS_IN_THE_TEST = 10000;
@@ -94,7 +87,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     JdbcOperations jndiSql2o = new JdbcOperations("Sql2o");
 
-    assertTrue(jndiSql2o != null);
+    assertNotNull(jndiSql2o);
   }
 
   @Test
@@ -154,7 +147,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
       List<Entity> fetched = con.createQuery("select * from testExecWithNullsTbl").fetch(Entity.class);
 
-      assertTrue(fetched.size() == 5);
+      assertEquals(5, fetched.size());
       assertNull(fetched.get(2).text);
       assertNotNull(fetched.get(3).text);
 
@@ -278,15 +271,15 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     assertTrue(ciEntities2.size() == 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testSetMaxBatchRecords() {
     try (JdbcConnection conn = this.jdbcOperations.open()) {
       Query q = conn.createQuery("select 'test'");
       q.setMaxBatchRecords(20);
-      assertTrue(q.getMaxBatchRecords() == 20);
+      assertEquals(20, q.getMaxBatchRecords());
 
       q.setMaxBatchRecords(0);
-      assertTrue(q.getMaxBatchRecords() == 0);
+      assertEquals(0, q.getMaxBatchRecords());
 
       q.setMaxBatchRecords(-1);
     }
@@ -901,23 +894,23 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     TestEnum testEnum = jdbcOperations.createQuery("select 'HELLO' from (values(0))")
             .fetchScalar(TestEnum.class);
-    assertThat(testEnum, is(TestEnum.HELLO));
+    assertThat(testEnum).isEqualTo(TestEnum.HELLO);
 
     TestEnum testEnum2 = jdbcOperations.createQuery("select NULL from (values(0))")
             .fetchScalar(TestEnum.class);
-    assertThat(testEnum2, is(nullValue()));
+    assertThat(testEnum2).isNull();
 
-    final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
+    TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
     handlerRegistry.setDefaultEnumTypeHandler(EnumOrdinalTypeHandler.class);
     jdbcOperations.setTypeHandlerRegistry(handlerRegistry);
 
     List<EntityWithEnum> list = jdbcOperations.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
             .fetch(EntityWithEnum.class);
 
-    assertThat(list.get(0).val, is(TestEnum.HELLO));
-    assertThat(list.get(0).val2, is(TestEnum.HELLO));
-    assertThat(list.get(1).val, is(TestEnum.WORLD));
-    assertThat(list.get(1).val2, is(TestEnum.WORLD));
+    assertThat(list.get(0).val).isEqualTo(TestEnum.HELLO);
+    assertThat(list.get(0).val2).isEqualTo(TestEnum.HELLO);
+    assertThat(list.get(1).val).isEqualTo(TestEnum.WORLD);
+    assertThat(list.get(1).val2).isEqualTo(TestEnum.WORLD);
 
   }
 
@@ -970,7 +963,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     BlobPOJO1 pojo1 = jdbcOperations.createQuery(sql)
             .fetchFirst(BlobPOJO1.class);
 
-    final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
+    TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
     handlerRegistry.register(InputStream.class, new BytesInputStreamTypeHandler());
     jdbcOperations.setTypeHandlerRegistry(handlerRegistry);
 
@@ -978,14 +971,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             .fetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
-    assertThat(dataString, is(equalTo(pojo1DataString)));
+    assertThat(dataString).isEqualTo(pojo1DataString);
 
-    final InputStream inputStream = pojo2.data;
+    InputStream inputStream = pojo2.data;
 
-    final String pojo2DataString = StreamUtils.copyToString(inputStream);
+    String pojo2DataString = StreamUtils.copyToString(inputStream);
 //    byte[] pojo2Data = IOUtils.toByteArray(pojo2.data);
 //    String pojo2DataString = new String(pojo2Data);
-    assertThat(dataString, is(equalTo(pojo2DataString)));
+    assertThat(dataString).isEqualTo(pojo2DataString);
   }
 
   @Test
@@ -1007,11 +1000,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     BlobPOJO2 pojo2 = jdbcOperations.createQuery(sql).fetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
-    assertThat(dataString, is(equalTo(pojo1DataString)));
+    assertThat(dataString).isEqualTo(pojo1DataString);
 
     byte[] pojo2Data = IOUtils.toByteArray(pojo2.data);
     String pojo2DataString = new String(pojo2Data);
-    assertThat(dataString, is(equalTo(pojo2DataString)));
+    assertThat(dataString).isEqualTo(pojo2DataString);
   }
 
   @Test
@@ -1022,17 +1015,17 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     Period p = new Period(new LocalTime(sqlTime), new LocalTime());
 
-    assertThat(sqlTime, is(notNullValue()));
+    assertThat(sqlTime).isNotNull();
     assertTrue(p.getMinutes() == 0);
 
     Date date = jdbcOperations.createQuery(sql)
             .fetchScalar(Date.class);
-    assertThat(date, is(notNullValue()));
+    assertThat(date).isNotNull();
 
     LocalTime jodaTime = jdbcOperations.createQuery(sql)
             .fetchScalar(LocalTime.class);
     assertTrue(jodaTime.getMillisOfDay() > 0);
-    assertThat(jodaTime.getHourOfDay(), is(equalTo(new LocalTime().getHourOfDay())));
+    assertThat(jodaTime.getHourOfDay()).isEqualTo(new LocalTime().getHourOfDay());
   }
 
   public static class BindablePojo {
@@ -1119,17 +1112,17 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     Integer col1AsInteger = r.getObject("col1", Integer.class);
     Long col1AsLong = r.getObject("col1", Long.class);
 
-    assertThat(col1AsString, is(equalTo("1")));
-    assertThat(col1AsInteger, is(equalTo(1)));
-    assertThat(col1AsLong, is(equalTo(1L)));
+    assertThat(col1AsString).isEqualTo("1");
+    assertThat(col1AsInteger).isEqualTo(1);
+    assertThat(col1AsLong).isEqualTo(1L);
 
     String col2AsString = r.getObject("col2", String.class);
     Integer col2AsInteger = r.getObject("col2", Integer.class);
     Long col2AsLong = r.getObject("col2", Long.class);
 
-    assertThat(col2AsString, is(equalTo("23")));
-    assertThat(col2AsInteger, is(equalTo(23)));
-    assertThat(col2AsLong, is(equalTo(23L)));
+    assertThat(col2AsString).isEqualTo("23");
+    assertThat(col2AsInteger).isEqualTo(23);
+    assertThat(col2AsLong).isEqualTo(23L);
   }
 
   @Test
@@ -1214,7 +1207,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       userIterable.setAutoCloseConnection(true);
 
       for (User u : userIterable) {
-        assertThat(u.getEmail(), is(not(nullValue())));
+        assertThat(u.getEmail()).isNotNull();
       }
     }
 
@@ -1233,11 +1226,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       for (Row r : lt.rows()) {
         String name = r.getString("name");
 
-        assertThat(name, notNullValue());
+        assertThat(name).isNotNull();
       }
 
       // still in autoClosable scope. Expecting connection to be open.
-      assertThat(q.getConnection().getJdbcConnection().isClosed(), is(false));
+      assertThat(q.getConnection().getJdbcConnection().isClosed()).isFalse();
     }
     finally {
       // simulate autoClose.
@@ -1245,7 +1238,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
 
     // simulated autoClosable scope exited. Expecting connection to be closed.
-    assertThat(q.getConnection().getJdbcConnection().isClosed(), is(true));
+    assertThat(q.getConnection().getJdbcConnection().isClosed()).isTrue();
   }
 
   @Test
@@ -1265,7 +1258,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
 
     int count = jdbcOperations.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
-    assertThat(count, is(equalTo(0)));
+    assertThat(count).isEqualTo(0);
 
     connection = null;
     try {
@@ -1281,7 +1274,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
 
     count = jdbcOperations.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
-    assertThat(count, is(equalTo(1)));
+    assertThat(count).isEqualTo(1);
 
   }
 
@@ -1306,7 +1299,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
       int count = globalConnection.createQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
-      assertThat(count, is(equalTo(1)));
+      assertThat(count).isEqualTo(1);
 
       JdbcConnection connection3 = jdbcOperations.beginTransaction(globalTransaction);
       String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
@@ -1318,7 +1311,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
       int count1 = globalConnection.createQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
-      assertThat(count1, is(equalTo(2)));
+      assertThat(count1).isEqualTo(2);
 
       globalConnection.commit();
     }
@@ -1327,7 +1320,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
 
-      assertThat(count, is(equalTo(2)));
+      assertThat(count).isEqualTo(2);
     }
 
   }
@@ -1352,7 +1345,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      JdbcConnection connection2 = defaultSession.open(globalTransaction);
 //      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
 //              .executeAndFetchFirst(Integer.class);
-//      assertThat(count, is(equalTo(1)));
+//      assertThat(count).isEqualTo(1)));
 //
 //      JdbcConnection connection3 = defaultSession.beginTransaction(globalTransaction);
 //      String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
@@ -1365,7 +1358,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      JdbcConnection connection4 = defaultSession.open(globalTransaction);
 //      int count1 = connection4.createQuery("select count(*) from testExternalTransactionCommit")
 //              .executeAndFetchFirst(Integer.class);
-//      assertThat(count1, is(equalTo(2)));
+//      assertThat(count1).isEqualTo(2)));
 //
 //      globalConnection.commit();
 //    }
@@ -1374,7 +1367,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
 //              .executeAndFetchFirst(Integer.class);
 //
-//      assertThat(count, is(equalTo(2)));
+//      assertThat(count).isEqualTo(2)));
 //    }
 //
 //  }
@@ -1399,7 +1392,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
 //        int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(
 //                Integer.class);
-//        assertThat(count, is(equalTo(1)));
+//        assertThat(count).isEqualTo(1)));
 //      }
 //
 //      try (JdbcConnection connection = defaultSession.beginTransaction(globalTransaction)) {
@@ -1411,7 +1404,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
 //        int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(
 //                Integer.class);
-//        assertThat(count, is(equalTo(2)));
+//        assertThat(count).isEqualTo(2)));
 //      }
 //
 //      globalConnection.commit();
@@ -1420,7 +1413,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //    try (JdbcConnection connection2 = defaultSession.open()) {
 //      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(Integer.class);
 //
-//      assertThat(count, is(equalTo(2)));
+//      assertThat(count).isEqualTo(2)));
 //    }
 //
 //  }
@@ -1444,7 +1437,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       JdbcConnection connection2 = jdbcOperations.open(globalTransaction);
       int count = connection2.createQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
-      assertThat(count, is(equalTo(1)));
+      assertThat(count).isEqualTo(1);
 
       JdbcConnection connection3 = jdbcOperations.beginTransaction(globalTransaction);
       String sql2 = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
@@ -1457,14 +1450,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       JdbcConnection connection4 = jdbcOperations.open(globalTransaction);
       int count1 = connection4.createQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
-      assertThat(count1, is(equalTo(2)));
+      assertThat(count1).isEqualTo(2);
       globalConnection.rollback();
     }
 
     try (JdbcConnection connection2 = jdbcOperations.open()) {
       int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").fetchFirst(Integer.class);
 
-      assertThat(count, is(equalTo(0)));
+      assertThat(count).isEqualTo(0);
     }
 
   }
@@ -1488,7 +1481,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
 //        int count = connection2.createQuery("select count(*) from testExternalTransactionRollback")
 //                .executeAndFetchFirst(Integer.class);
-//        assertThat(count, is(equalTo(1)));
+//        assertThat(count).isEqualTo(1)));
 //      }
 //
 //      try (JdbcConnection connection = defaultSession.beginTransaction(globalTransaction)) {
@@ -1503,7 +1496,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
 //        int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").executeAndFetchFirst(
 //                Integer.class);
-//        assertThat(count, is(equalTo(2)));
+//        assertThat(count).isEqualTo(2)));
 //      }
 //
 //      globalConnection.rollback();
@@ -1512,7 +1505,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //    try (JdbcConnection connection2 = defaultSession.open()) {
 //      int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").executeAndFetchFirst(Integer.class);
 //
-//      assertThat(count, is(equalTo(0)));
+//      assertThat(count).isEqualTo(0)));
 //    }
 //
 //  }
@@ -1524,16 +1517,16 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     createAndFillUserTable(connection);
 
-    assertThat(connection.getJdbcConnection().isClosed(), is(false));
+    assertThat(connection.getJdbcConnection().isClosed()).isFalse();
 
     List<User> users = connection.createQuery("select * from User").fetch(User.class);
 
-    assertThat(users.size(), is(equalTo(NUMBER_OF_USERS_IN_THE_TEST)));
-    assertThat(connection.getJdbcConnection().isClosed(), is(false));
+    assertThat(users.size()).isEqualTo(NUMBER_OF_USERS_IN_THE_TEST);
+    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
 
     connection.close();
 
-    assertThat(connection.getJdbcConnection().isClosed(), is(true));
+    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
   }
 
   @Test
@@ -1541,7 +1534,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     createAndFillUserTable();
 
-    final String insertsql = "insert into User(name, email, text) values (:name, :email, :text)";
+    String insertsql = "insert into User(name, email, text) values (:name, :email, :text)";
 
     jdbcOperations.withConnection((connection, argument) -> {
 
@@ -1569,7 +1562,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       return jdbcOperations.createQuery("select * from User").fetch(User.class);
     });
 
-    assertThat(users.size(), is(equalTo(10003)));
+    assertThat(users.size()).isEqualTo(10003);
 
     try {
       jdbcOperations.withConnection(new StatementRunnable() {
@@ -1593,7 +1586,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     List<User> users2 = jdbcOperations.createQuery("select * from User").fetch(User.class);
 
     // expect that that the last insert was committed, as this should not be run in a transaction.
-    assertThat(users2.size(), is(equalTo(10004)));
+    assertThat(users2.size()).isEqualTo(10004);
   }
 
   static class LocalPojo {
@@ -1661,7 +1654,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
               .addParameter("id", 1)
               .fetchScalar(String.class);
 
-      assertThat(val, is(equalTo("something")));
+      assertThat(val).isEqualTo("something");
     }
 
   }
@@ -1838,12 +1831,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   private void genericTestOnUserData(JdbcConnection connection) {
     List<User> users = connection.createQuery("select * from User order by id").fetch(User.class);
 
-    assertThat(users.size(), is(equalTo(NUMBER_OF_USERS_IN_THE_TEST)));
+    assertThat(users.size()).isEqualTo(NUMBER_OF_USERS_IN_THE_TEST);
 
     for (int idx = 0; idx < NUMBER_OF_USERS_IN_THE_TEST; idx++) {
       User user = users.get(idx);
-      assertThat("a name " + idx, is(equalTo(user.name)));
-      assertThat(String.format("test%s@email.com", idx), is(equalTo(user.getEmail())));
+      assertThat("a name " + idx).isEqualTo(user.name);
+      assertThat(String.format("test%s@email.com", idx)).isEqualTo(user.getEmail());
     }
   }
 

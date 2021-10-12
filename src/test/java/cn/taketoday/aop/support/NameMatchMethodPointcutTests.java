@@ -20,8 +20,8 @@
 
 package cn.taketoday.aop.support;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -46,7 +46,7 @@ public class NameMatchMethodPointcutTests {
   /**
    * Create an empty pointcut, populating instance variables.
    */
-  @Before
+  @BeforeEach
   public void setup() {
     ProxyFactory pf = new ProxyFactory(new SerializablePerson());
     nop = new SerializableNopInterceptor();

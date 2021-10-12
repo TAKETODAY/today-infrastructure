@@ -1,7 +1,7 @@
 package cn.taketoday.context;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -29,14 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @since 2.4
  */
-@Ignore
-public class BenchmarkTest {
+@Disabled
+class BenchmarkTests {
 
   private long times = 5000;
 //	private long times = 1_0000_0000_0;
 
   @Test
-  public void testSingleton() {
+  void testSingleton() {
     long start = System.currentTimeMillis();
     StandardApplicationContext applicationContext = new StandardApplicationContext();
     applicationContext.scan("cn.taketoday.context");
@@ -53,7 +53,7 @@ public class BenchmarkTest {
   }
 
   //	@Test
-  public void testPrototype() {
+  void testPrototype() {
     long start = System.currentTimeMillis();
     StandardApplicationContext applicationContext = new StandardApplicationContext();
     applicationContext.scan();
@@ -76,7 +76,7 @@ public class BenchmarkTest {
   }
 
   @Test
-  public void testConstructor() throws Exception {
+  void testConstructor() throws Exception {
 
     Constructor<ConstructorTestBean> constructor = BeanUtils.obtainConstructor(ConstructorTestBean.class);
 
@@ -118,7 +118,7 @@ public class BenchmarkTest {
   }
 
   @Test
-  public void testMethod() throws Throwable {
+  void testMethod() throws Throwable {
 
     Method test = ReflectionUtils.findMethod(ITest.class, "test", String.class);
     MethodAccessor methodAccessor = MethodInvoker.fromMethod(test);
@@ -163,7 +163,7 @@ public class BenchmarkTest {
   }
 
   @Test
-  public void testProperty() throws IllegalAccessException {
+  void testProperty() throws IllegalAccessException {
     Field field = ReflectionUtils.findField(PropertyTestBean.class, "value");
     PropertyAccessor propertyAccessor = PropertyAccessor.fromField(field);
 
@@ -209,15 +209,15 @@ public class BenchmarkTest {
 
     Bench1() { }
 
-    public void func0() { v++; }
+    void func0() { v++; }
 
-    public void func1() { v--; }
+    void func1() { v--; }
 
-    public void func2() { v++; }
+    void func2() { v++; }
 
-    public void func3() { v--; }
+    void func3() { v--; }
 
-    public void testInterface() {
+    void testInterface() {
       Runnable[] rs = {
               this::func0,
               this::func1,
@@ -231,7 +231,7 @@ public class BenchmarkTest {
       System.out.format("Interface    : %d %dms\n", v, t);
     }
 
-    public void testReflect() throws Throwable {
+    void testReflect() throws Throwable {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
       MethodHandle[] ms = {
               lookup.unreflect(Bench1.class.getMethod("func0")),
@@ -246,7 +246,7 @@ public class BenchmarkTest {
       System.out.format("MethodHandle : %d %dms\n", v, t);
     }
 
-    public void testMethodAccessor() throws Throwable {
+    void testMethodAccessor() throws Throwable {
 
       MethodInvoker[] ma = new MethodInvoker[] {
               MethodInvoker.fromMethod(Bench1.class.getMethod("func0")),
@@ -285,9 +285,9 @@ public class BenchmarkTest {
 
     Bench2() { }
 
-    public void func0() { v++; }
+    void func0() { v++; }
 
-    public void testInterface() {
+    void testInterface() {
       Runnable rs = this::func0;
       long t = System.nanoTime();
       for (int i = 0; i < 4_0000_0000; i++)
@@ -296,7 +296,7 @@ public class BenchmarkTest {
       System.out.format("Interface: %d %dms\n", v, t);
     }
 
-    public void testReflect() throws Throwable {
+    void testReflect() throws Throwable {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
       MethodHandle ms = lookup.unreflect(Bench2.class.getMethod("func0"));
       long t = System.nanoTime();
@@ -306,7 +306,7 @@ public class BenchmarkTest {
       System.out.format("MethodHandle  : %d %dms\n", v, t);
     }
 
-    public void testMethodAccessor() throws Throwable {
+    void testMethodAccessor() throws Throwable {
 
       MethodInvoker ma = MethodInvoker.fromMethod(Bench2.class.getMethod("func0"));
 
@@ -502,7 +502,7 @@ public class BenchmarkTest {
   }
 
   @Test
-  public void testVariableAccess() {
+  void testVariableAccess() {
     final VariableAccess variableAccess = new VariableAccess();
     benchmark(variableAccess::field, "field");
     benchmark(variableAccess::localVariable, "localVariable");

@@ -15,14 +15,13 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author baliuka
  */
-public class TestImmutableBean extends TestCase {
+public class TestImmutableBean {
 
   public void testSimple() {
     MA bean = new MA();
@@ -38,15 +37,4 @@ public class TestImmutableBean extends TestCase {
     catch (IllegalStateException ignore) { }
   }
 
-  public TestImmutableBean(java.lang.String testName) {
-    super(testName);
-  }
-
-  public static void main(java.lang.String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestImmutableBean.class);
-  }
 }

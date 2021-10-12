@@ -16,13 +16,14 @@
 
 package cn.taketoday.core.bytecode.transform.impl;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.transform.AbstractTransformTest;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.core.bytecode.transform.ClassTransformerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author baliuka
@@ -33,17 +34,10 @@ public class TestInterceptFields extends AbstractTransformTest implements Interc
 
   String field;
 
-  /** Creates a new instance of TestInterceptFields */
-  public TestInterceptFields() { }
-
-  /** Creates a new instance of TestInterceptFields */
-  public TestInterceptFields(String name) {
-    super(name);
-  }
-
-  public void test() {
-
-    InterceptFieldEnabled e = (InterceptFieldEnabled) this;
+  @Test
+  public void test() throws Exception {
+    Object o = new TestInterceptFields().transform().newInstance();
+    InterceptFieldEnabled e = (InterceptFieldEnabled) o;
     e.setInterceptFieldCallback(this);
     field = "test";
     assertEquals(TEST_VALUE, field);
@@ -165,14 +159,6 @@ public class TestInterceptFields extends AbstractTransformTest implements Interc
   public short writeShort(Object _this, String name, short oldValue, short newValue) {
 
     return newValue;
-  }
-
-  public static void main(String[] args) throws Exception {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() throws Exception {
-    return new TestSuite(new TestInterceptFields().transform());
   }
 
 }

@@ -15,30 +15,32 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyDescriptor;
 
 import cn.taketoday.core.bytecode.core.CglibReflectUtils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
-public class TestBeanGenerator extends TestCase {
-
+public class TestBeanGenerator {
+  @Test
   public void testSimple() throws Exception {
     BeanGenerator bg = new BeanGenerator();
     bg.addProperty("sin", Double.TYPE);
     Object bean = bg.create();
 
     PropertyDescriptor[] pds = CglibReflectUtils.getBeanProperties(bean.getClass());
-    assertTrue(pds.length == 1);
-    assertTrue(pds[0].getName().equals("sin"));
-    assertTrue(pds[0].getPropertyType().equals(Double.TYPE));
+    assertEquals(1, pds.length);
+    assertEquals("sin", pds[0].getName());
+    assertEquals(pds[0].getPropertyType(), Double.TYPE);
   }
 
+  @Test
   public void testSuperclass() throws Exception {
     BeanGenerator bg = new BeanGenerator();
     bg.setSuperclass(MA.class);
@@ -49,15 +51,4 @@ public class TestBeanGenerator extends TestCase {
     assertTrue(BeanMap.create(bean).keySet().contains("sin"));
   }
 
-  public TestBeanGenerator(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestBeanGenerator.class);
-  }
 }

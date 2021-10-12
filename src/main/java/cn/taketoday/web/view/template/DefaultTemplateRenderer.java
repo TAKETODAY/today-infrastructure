@@ -25,6 +25,7 @@ import java.io.Writer;
 
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Props;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.core.io.Resource;
@@ -54,7 +55,7 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   private ResolversSupplier resolversSupplier;
 
   public DefaultTemplateRenderer() {
-    this(ContextUtils.getExpressionProcessor().getManager());
+    this(ExpressionProcessor.getSharedInstance().getManager());
   }
 
   public DefaultTemplateRenderer(ExpressionManager elManager) {

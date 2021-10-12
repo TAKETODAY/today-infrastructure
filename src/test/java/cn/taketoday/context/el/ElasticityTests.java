@@ -40,10 +40,10 @@
 
 package cn.taketoday.context.el;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,24 +55,24 @@ import cn.taketoday.expression.ExpressionProcessor;
 /**
  * @author kichung
  */
-public class ElasticityTest {
+public class ElasticityTests {
 
   ExpressionProcessor elp;
 
-  public ElasticityTest() { }
+  public ElasticityTests() { }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws Exception { }
 
-  @AfterClass
+  @AfterAll
   public static void tearDownClass() throws Exception { }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     elp = new ExpressionProcessor();
   }
 
-  @After
+  @AfterEach
   public void tearDown() { }
 
   static public class Data {

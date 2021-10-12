@@ -15,17 +15,18 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author baliuka
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestBulkBean extends TestCase {
+public class TestBulkBean {
   private String[] getters = {
           "getIntP", "getLongP", "getByteP", "getShortP",
           "getFloatP", "isBooleanP", "getCharP", "getDoubleP",
@@ -51,18 +52,7 @@ public class TestBulkBean extends TestCase {
           "test", new Long(88), "test2", "private"
   };
 
-  public TestBulkBean(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestBulkBean.class);
-  }
-
+  @Test
   /** Test of create method, of class cn.taketoday.core.bytecode.BulkBean. */
   public void testGetInstance() throws Throwable {
     BulkBean mClass = BulkBean.create(MA.class, getters, setters, types);
@@ -73,14 +63,16 @@ public class TestBulkBean extends TestCase {
     Object[] values1 = mClass.getPropertyValues(bean);
 
     for (int i = 0; i < types.length; i++) {
-      assertEquals(" property " + getters[i] + "/" + setters[i], values[i], values1[i]);
+      assertEquals(values[i], values1[i], " property " + getters[i] + "/" + setters[i]);
     }
   }
 
+  @Test
   public void testEmpty() throws Throwable {
     BulkBean.create(MA.class, new String[0], new String[0], new Class[0]);
   }
 
+  @Test
   public void testBadTypes() throws Throwable {
     Class[] types2 = types.clone();
     types2[2] = String.class;
@@ -93,6 +85,7 @@ public class TestBulkBean extends TestCase {
     }
   }
 
+  @Test
   public void testMismatchedLengths() throws Throwable {
     try {
       BulkBean.create(MA.class, getters, setters, new Class[0]);
@@ -103,6 +96,7 @@ public class TestBulkBean extends TestCase {
     }
   }
 
+  @Test
   public void testMissingProperty() throws Throwable {
     String[] getters2 = getters.clone();
     getters2[3] = "getChris";
@@ -115,6 +109,7 @@ public class TestBulkBean extends TestCase {
     }
   }
 
+  @Test
   public void testSetWrongType() throws Throwable {
     BulkBean mClass = BulkBean.create(MA.class, getters, setters, types);
     MA bean = new MA();

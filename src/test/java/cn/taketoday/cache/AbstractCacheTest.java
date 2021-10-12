@@ -19,13 +19,16 @@
  */
 package cn.taketoday.cache;
 
-import junit.framework.TestCase;
-
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public abstract class AbstractCacheTest extends TestCase {
+public abstract class AbstractCacheTest {
 
   protected Cache cache;
 
@@ -42,7 +45,7 @@ public abstract class AbstractCacheTest extends TestCase {
     return this.cache;
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     getCache().put("key1", "value1");
     getCache().put("key2", "value2");
@@ -50,15 +53,18 @@ public abstract class AbstractCacheTest extends TestCase {
     getCache().put("key128", 128);
   }
 
+  @Test
   public void testGetName() {
     assertEquals(getCache().getName(), "test");
   }
 
+  @Test
   public void testSetName() {
     getCache().setName("test1");
     assertEquals(getCache().getName(), "test1");
   }
 
+  @Test
   public void testGet() {
     final Cache cache = getCache();
     assertThat(cache.get("key")).isNull();
@@ -99,6 +105,7 @@ public abstract class AbstractCacheTest extends TestCase {
     assertThat(cache.get("key---dddddddd", (CacheCallback<String>) () -> null)).isNull();
   }
 
+  @Test
   public void testLookupValue() {
     final Cache cache = getCache();
     cache.put("null", null);
@@ -111,17 +118,20 @@ public abstract class AbstractCacheTest extends TestCase {
     assertEquals(nullValue, NullCacheValue.INSTANCE);
   }
 
+  @Test
   public void testToStoreValue() {
     assertEquals(Cache.toStoreValue(null), NullCacheValue.INSTANCE);
     assertEquals(Cache.toStoreValue("null"), "null");
   }
 
+  @Test
   public void testToRealValue() {
     assertNull(Cache.toRealValue(null));
     assertNull(Cache.toRealValue(NullCacheValue.INSTANCE));
     assertEquals(Cache.toRealValue("null"), "null");
   }
 
+  @Test
   public void testEvict() {
     final Cache cache = getCache();
 
@@ -133,6 +143,7 @@ public abstract class AbstractCacheTest extends TestCase {
     assertNull(cache.get("key3"));
   }
 
+  @Test
   public void testClear() {
     final Cache cache = getCache();
 

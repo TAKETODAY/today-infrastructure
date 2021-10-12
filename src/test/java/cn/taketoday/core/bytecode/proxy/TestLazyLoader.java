@@ -15,14 +15,11 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
-
-public class TestLazyLoader extends CodeGenTestCase {
+public class TestLazyLoader {
 
   private static class LazyBean {
     private String name;
@@ -38,6 +35,7 @@ public class TestLazyLoader extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testLazyLoader() {
     LazyLoader loader = new LazyLoader() {
 
@@ -55,23 +53,7 @@ public class TestLazyLoader extends CodeGenTestCase {
     System.err.println(obj.getClass());
     System.err.println(obj.getName());
 
-    Assert.assertEquals("TEST", obj.getName());
+    assertEquals("TEST", obj.getName());
   }
-
-  public TestLazyLoader(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestLazyLoader.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

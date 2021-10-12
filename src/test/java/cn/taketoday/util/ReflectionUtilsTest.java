@@ -20,9 +20,7 @@
 
 package cn.taketoday.util;
 
-import junit.framework.TestCase;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -47,18 +45,24 @@ import lombok.Setter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author TODAY <br>
  * 2020-08-13 21:55
  */
-public class ReflectionUtilsTest extends TestCase {
+public class ReflectionUtilsTest {
 
   public static class POJO1 {
 
   }
 
+  @Test
   public void testCreate() {
     Object o = BeanInstantiator.fromClass(POJO1.class).instantiate();
     assertNotNull(o);
@@ -73,12 +77,14 @@ public class ReflectionUtilsTest extends TestCase {
     public boolean pojo4_constructorInvoked = true;
   }
 
+  @Test
   public void testCallConstructor() {
     POJO3 pojo3 = (POJO3) BeanInstantiator.fromClass(POJO3.class).instantiate();
     assertNotNull(pojo3);
     assertTrue(pojo3.constructorInvoked);
   }
 
+  @Test
   public void testCallParentConstructor() {
     POJO4 pojo = (POJO4) BeanInstantiator.fromClass(POJO4.class).instantiate();
     assertNotNull(pojo);
@@ -86,7 +92,7 @@ public class ReflectionUtilsTest extends TestCase {
     assertTrue(pojo.pojo4_constructorInvoked);
   }
 
-  public static class SetterMethodTest extends TestCase {
+  public static class SetterMethodTest {
     @Getter
     @Setter
     public static class POJO1 {
@@ -283,7 +289,7 @@ public class ReflectionUtilsTest extends TestCase {
 
   // --------------
 
-  public static class GetterMethodTest extends TestCase {
+  public static class GetterMethodTest {
     @Getter
     @Setter
     public static class POJO1 {

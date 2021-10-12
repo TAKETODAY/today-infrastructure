@@ -38,11 +38,8 @@ import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextUtils;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.context.ApplicationContextHolder;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
@@ -50,6 +47,9 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ConcurrentCache;
 import cn.taketoday.util.StringUtils;
 
@@ -185,7 +185,7 @@ public abstract class AbstractCacheInterceptor
     };
 
     static {
-      ApplicationContext lastStartupContext = ContextUtils.getLastStartupContext();
+      ApplicationContext lastStartupContext = ApplicationContextHolder.getLastStartupContext();
       if (lastStartupContext != null) {
         StandardExpressionContext context = lastStartupContext.getBean(StandardExpressionContext.class);
         Assert.state(context != null, "No shared ExpressionContext");

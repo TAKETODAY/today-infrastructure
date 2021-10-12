@@ -28,11 +28,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;

@@ -106,6 +106,8 @@ import cn.taketoday.lang.Constant;
  * @since EL 3.0
  */
 public class ExpressionProcessor {
+  // @since 4.0
+  private static final ExpressionProcessor sharedInstance = new ExpressionProcessor();
 
   private final ExpressionFactory factory;
   private final ExpressionManager elManager;
@@ -341,7 +343,7 @@ public class ExpressionProcessor {
   private static Class<?> toClass(String type, ClassLoader loader)
           throws ClassNotFoundException //
   {
-    Class<?> c = null;
+    Class<?> c;
     int i0 = type.indexOf('[');
     int dims = 0;
     if (i0 > 0) {
@@ -353,24 +355,35 @@ public class ExpressionProcessor {
       type = type.substring(0, i0);
     }
 
-    if ("boolean".equals(type))
-      c = boolean.class;
-    else if ("char".equals(type))
-      c = char.class;
-    else if ("byte".equals(type))
-      c = byte.class;
-    else if ("short".equals(type))
-      c = short.class;
-    else if ("int".equals(type))
-      c = int.class;
-    else if ("long".equals(type))
-      c = long.class;
-    else if ("float".equals(type))
-      c = float.class;
-    else if ("double".equals(type))
-      c = double.class;
-    else
-      c = loader.loadClass(type);
+    switch (type) {
+      case "boolean":
+        c = boolean.class;
+        break;
+      case "char":
+        c = char.class;
+        break;
+      case "byte":
+        c = byte.class;
+        break;
+      case "short":
+        c = short.class;
+        break;
+      case "int":
+        c = int.class;
+        break;
+      case "long":
+        c = long.class;
+        break;
+      case "float":
+        c = float.class;
+        break;
+      case "double":
+        c = double.class;
+        break;
+      default:
+        c = loader.loadClass(type);
+        break;
+    }
 
     if (dims == 0)
       return c;
@@ -390,4 +403,14 @@ public class ExpressionProcessor {
     }
     return "${" + expression + '}';
   }
+
+  // static
+
+  /**
+   * @since 4.0
+   */
+  public static ExpressionProcessor getSharedInstance() {
+    return sharedInstance;
+  }
+
 }

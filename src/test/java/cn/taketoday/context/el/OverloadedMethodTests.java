@@ -40,9 +40,9 @@
 
 package cn.taketoday.context.el;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
@@ -52,21 +52,21 @@ import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.MethodExpression;
 import cn.taketoday.expression.MethodNotFoundException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Dongbin Nie
  */
-public class OverloadedMethodTest {
+class OverloadedMethodTests {
 
   ExpressionProcessor elp;
   ExpressionFactory exprFactory;
   ExpressionContext elContext;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     exprFactory = ExpressionFactory.getSharedInstance();
     final ExpressionManager elManager = new ExpressionManager();
     elContext = elManager.getContext();
@@ -81,16 +81,16 @@ public class OverloadedMethodTest {
 
   }
 
-  @After
-  public void tearDown() { }
+  @AfterEach
+  void tearDown() { }
 
   @Test
-  public void testMethodWithNoArg() {
+  void testMethodWithNoArg() {
     assertEquals("methodWithNoArg", elp.eval("foo.methodWithNoArg()"));
   }
 
   @Test
-  public void testMethodNotExisted() {
+  void testMethodNotExisted() {
     try {
       elp.eval("foo.methodNotExisted()");
       fail("testNoExistedMethod Failed");
@@ -99,14 +99,14 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testMethodWithSingleArg() {
+  void testMethodWithSingleArg() {
     assertEquals("I1", elp.eval("foo.methodWithSingleArg(i1)"));
     assertEquals("I2Impl", elp.eval("foo.methodWithSingleArg(i2)"));
     assertEquals("I1AndI2Impl", elp.eval("foo.methodWithSingleArg(i12)"));
   }
 
   @Test
-  public void testMethodWithDoubleArgs() {
+  void testMethodWithDoubleArgs() {
     assertEquals("I1Impl, I2", elp.eval("foo.methodWithDoubleArgs(i1, i2)"));
     assertEquals("I1, I2", elp.eval("foo.methodWithDoubleArgs(i12, i2)"));
     assertEquals("I1AndI2Impl, I1AndI2Impl", elp.eval("foo.methodWithDoubleArgs(i12, i12)"));
@@ -115,7 +115,7 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testMethodWithAmbiguousArgs() {
+  void testMethodWithAmbiguousArgs() {
     assertEquals("I1AndI2Impl, I2", elp.eval("foo.methodWithAmbiguousArgs(i12, i2)"));
     assertEquals("I1, I1AndI2Impl", elp.eval("foo.methodWithAmbiguousArgs(i1, i12)"));
     try {
@@ -126,7 +126,7 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testMethodWithCoercibleArgs() {
+  void testMethodWithCoercibleArgs() {
     assertEquals("String, String", elp.eval("foo.methodWithCoercibleArgs('foo', 'bar')"));
     assertEquals("String, String", elp.eval("foo.methodWithCoercibleArgs(i1, i12)"));
 
@@ -135,7 +135,7 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testMethodWithVarArgs() {
+  void testMethodWithVarArgs() {
     assertEquals("I1, I1...", elp.eval("foo.methodWithVarArgs(i1)"));
     assertEquals("I1, I1...", elp.eval("foo.methodWithVarArgs(i1, i1)"));
     assertEquals("I1, I1...", elp.eval("foo.methodWithVarArgs(i12, i1, i12)"));
@@ -147,7 +147,7 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testExactVarArgs() {
+  void testExactVarArgs() {
     String[] args = { "foo", "bar", "hello" };
     elp.defineBean("args", args);
     assertEquals("foo,bar,hello,", elp.eval("foo.methodWithExactVarArgs('foo', 'bar', 'hello')"));
@@ -155,7 +155,7 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testMethodInStdout() {
+  void testMethodInStdout() {
     elp.defineBean("out", System.out);
     elp.eval("out.println('hello!')");
     elp.eval("out.println(12345678)");
@@ -166,7 +166,7 @@ public class OverloadedMethodTest {
    * arguments (not null).
    */
   @Test
-  public void testMethodExprInvokingWithoutArgs() {
+  void testMethodExprInvokingWithoutArgs() {
     MethodExpression methodExpr = exprFactory.createMethodExpression(
             elContext,
             "${foo.methodForMethodExpr}",
@@ -180,7 +180,7 @@ public class OverloadedMethodTest {
   }
 
   @Test
-  public void testMethodExprInvoking() {
+  void testMethodExprInvoking() {
     final Class<?>[] classes = { Runnable.class };
     MethodExpression methodExpr =
             exprFactory.createMethodExpression(

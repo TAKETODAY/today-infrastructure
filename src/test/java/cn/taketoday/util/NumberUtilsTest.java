@@ -19,9 +19,7 @@
  */
 package cn.taketoday.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -33,18 +31,6 @@ import cn.taketoday.core.conversion.ConversionException;
  * 2018年7月6日 下午1:36:29
  */
 public class NumberUtilsTest {
-
-  private long start;
-
-  @Before
-  public void start() {
-    start = System.currentTimeMillis();
-  }
-
-  @After
-  public void end() {
-    System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-  }
 
   @Test
   public void test_IsNumber() throws ConversionException {

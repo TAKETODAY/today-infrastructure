@@ -20,14 +20,14 @@
 
 package cn.taketoday.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Map;
 
 import static cn.taketoday.util.ReflectionUtils.findMethod;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author TODAY 2021/3/8 19:29
@@ -36,44 +36,43 @@ import static org.junit.Assert.assertNull;
 public class GenericTypeResolverTests {
 
   @Test
-  public void simpleInterfaceType() {
+  void simpleInterfaceType() {
     assertEquals(String.class, GenericTypeResolver.resolveTypeArgument(MySimpleInterfaceType.class, MyInterfaceType.class));
   }
 
   @Test
-  public void simpleCollectionInterfaceType() {
+  void simpleCollectionInterfaceType() {
     assertEquals(Collection.class, GenericTypeResolver.resolveTypeArgument(MyCollectionInterfaceType.class, MyInterfaceType.class));
   }
 
   @Test
-  public void simpleSuperclassType() {
+  void simpleSuperclassType() {
     assertEquals(String.class, GenericTypeResolver.resolveTypeArgument(MySimpleSuperclassType.class, MySuperclassType.class));
   }
 
   @Test
-  public void simpleCollectionSuperclassType() {
+  void simpleCollectionSuperclassType() {
     assertEquals(Collection.class, GenericTypeResolver.resolveTypeArgument(MyCollectionSuperclassType.class, MySuperclassType.class));
   }
 
   @Test
-  public void nullIfNotResolvable() {
+  void nullIfNotResolvable() {
     GenericClass<String> obj = new GenericClass<>();
     assertNull(GenericTypeResolver.resolveTypeArgument(obj.getClass(), GenericClass.class));
   }
 
   @Test
-  public void methodReturnTypes() {
+  void methodReturnTypes() {
     assertEquals(Integer.class,
                  GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "integer"), MyInterfaceType.class));
     assertEquals(String.class,
                  GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "string"), MyInterfaceType.class));
-    assertEquals(null, GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "raw"), MyInterfaceType.class));
-    assertEquals(null,
-                 GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "object"), MyInterfaceType.class));
+    assertNull(GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "raw"), MyInterfaceType.class));
+    assertNull(GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "object"), MyInterfaceType.class));
   }
 
   @Test
-  public void testBoundParameterizedType() {
+  void testBoundParameterizedType() {
     assertEquals(B.class, GenericTypeResolver.resolveTypeArgument(TestImpl.class, ITest.class));
   }
 
@@ -177,13 +176,13 @@ public class GenericTypeResolverTests {
       return null;
     }
 
-    public void readIntegerInputMessage(MyInterfaceType<Integer> message) {
+    void readIntegerInputMessage(MyInterfaceType<Integer> message) {
     }
 
-    public void readIntegerArrayInputMessage(MyInterfaceType<Integer>[] message) {
+    void readIntegerArrayInputMessage(MyInterfaceType<Integer>[] message) {
     }
 
-    public void readGenericArrayInputMessage(T[] message) {
+    void readGenericArrayInputMessage(T[] message) {
     }
   }
 

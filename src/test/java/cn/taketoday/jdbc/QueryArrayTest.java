@@ -1,13 +1,12 @@
 package cn.taketoday.jdbc;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zapodot.junit.db.EmbeddedDatabaseRule;
 
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.zapodot.junit.db.EmbeddedDatabaseRule.CompatibilityMode.Oracle;
 
 /**
@@ -34,7 +33,7 @@ public class QueryArrayTest {
       final List<Foo> foos = query.addParameters("bars", 1, 2)
               .fetch(Foo.class);
 
-      assertThat(foos.size(), equalTo(2));
+      assertThat(foos.size()).isEqualTo(2);
     }
   }
 
@@ -47,7 +46,7 @@ public class QueryArrayTest {
 
       final List<Foo> noFoos = query.addParameters("bars", new Integer[] {})
               .fetch(Foo.class);
-      assertThat(noFoos.size(), equalTo(0));
+      assertThat(noFoos.size()).isZero();
     }
   }
 }

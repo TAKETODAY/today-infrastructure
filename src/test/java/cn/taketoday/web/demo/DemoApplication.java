@@ -21,8 +21,8 @@
 package cn.taketoday.web.demo;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.demo.config.AppConfig;
+import cn.taketoday.web.framework.WebApplication;
 
 /**
  * @author TODAY 2021/8/29 22:22

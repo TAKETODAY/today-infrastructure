@@ -19,7 +19,7 @@
  */
 package cn.taketoday.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,14 +28,14 @@ import java.util.List;
 
 import cn.taketoday.util.ResourceUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author TODAY <br>
  * 2019-12-05 23:15
  */
-public class PathMatchingPatternResourceLoaderTests {
+class PathMatchingPatternResourceLoaderTests {
 
   private PathMatchingPatternResourceLoader resolver = new PathMatchingPatternResourceLoader();
   private static final String[] CLASSES_IN_IO = new String[] { //
@@ -134,14 +134,14 @@ public class PathMatchingPatternResourceLoaderTests {
         found = true;
       }
     }
-    assertTrue("Could not find pom.properties", found);
+    assertTrue(found, "Could not find pom.properties");
   }
 
   private void assertProtocolAndFilenames(Resource[] resources,
                                           String protocol,
                                           String... filenames) throws IOException {
 
-    assertEquals("Correct number of files found", filenames.length, resources.length);
+    assertEquals(filenames.length, resources.length, "Correct number of files found");
     for (Resource resource : resources) {
       String actualProtocol = resource.getLocation().getProtocol();
       assertEquals(protocol, actualProtocol);
@@ -151,8 +151,8 @@ public class PathMatchingPatternResourceLoaderTests {
 
   private void assertFilenameIn(Resource resource, String... filenames) {
     String filename = resource.getName();
-    assertTrue(resource + " does not have a filename that matches any of the specified names",
-               Arrays.stream(filenames).anyMatch(filename::endsWith));
+    assertTrue(Arrays.stream(filenames).anyMatch(filename::endsWith),
+               resource + " does not have a filename that matches any of the specified names");
   }
 
 }

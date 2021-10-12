@@ -40,21 +40,21 @@
 
 package cn.taketoday.context.el;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.expression.ExpressionProcessor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LambdaTest {
 
-  @BeforeClass
-  public static void setUpClass() throws Exception { }
+  @BeforeAll
+  static void setUpClass() throws Exception { }
 
-  @Before
-  public void setUp() { }
+  @BeforeEach
+  void setUp() { }
 
   void testExpr(ExpressionProcessor elp, String testname, String expr, Long expected) {
     System.out.println("=== Test Lambda Expression:" + testname + " ===");
@@ -65,7 +65,7 @@ public class LambdaTest {
   }
 
   @Test
-  public void testImmediate() {
+  void testImmediate() {
     ExpressionProcessor elp = new ExpressionProcessor();
     testExpr(elp, "immediate", "(x->x+1)(10)", 11L);
     testExpr(elp, "immediate0", "(()->1001)()", 1001L);
@@ -75,14 +75,14 @@ public class LambdaTest {
   }
 
   @Test
-  public void testAssignInvoke() {
+  void testAssignInvoke() {
     ExpressionProcessor elp = new ExpressionProcessor();
     testExpr(elp, "assign", "func = x->x+1; func(10)", 11L);
     testExpr(elp, "assign 2", "func = (x,y)->x+y; func(3,4)", 7L);
   }
 
   @Test
-  public void testConditional() {
+  void testConditional() {
     ExpressionProcessor elp = new ExpressionProcessor();
     elp.eval("cond = true");
     testExpr(elp, "conditional", "(x->cond? x+1: x+2)(10)", 11L);
@@ -92,21 +92,21 @@ public class LambdaTest {
   }
 
   @Test
-  public void testFact() {
+  void testFact() {
     ExpressionProcessor elp = new ExpressionProcessor();
     testExpr(elp, "factorial", "fact = n->n==0? 1: n*fact(n-1); fact(5)", 120L);
     testExpr(elp, "fibonacci", "f = n->n==0? 0: n==1? 1: f(n-1)+f(n-2); f(10)", 55L);
   }
 
   @Test
-  public void testVar() {
+  void testVar() {
     ExpressionProcessor elp = new ExpressionProcessor();
     elp.setVariable("v", "x->x+1");
     testExpr(elp, "assignment to variable", "v(10)", 11L);
   }
 
   @Test
-  public void testLambda() {
+  void testLambda() {
     ExpressionProcessor elp = new ExpressionProcessor();
     testExpr(elp, "Lambda Lambda", "f = ()->y->y+1; f()(100)", 101L);
     testExpr(elp, "Lambda Lambda 2", "f = (x)->(tem=x; y->tem+y); f(1)(100)", 101L);

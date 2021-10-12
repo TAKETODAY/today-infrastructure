@@ -1,8 +1,8 @@
 package cn.taketoday.jdbc.converters;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,8 +13,8 @@ import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.Query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BidirectionalConverterTest {
 
@@ -31,7 +31,7 @@ public class BidirectionalConverterTest {
 
   UUIDWrapperComparator comparator = new UUIDWrapperComparator();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     this.sql2o = new JdbcOperations("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
     this.wrappers = randomWrappers();
@@ -40,7 +40,7 @@ public class BidirectionalConverterTest {
     this.createAndFillTable(this.wrappers);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     deleteTable();
   }

@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -32,11 +32,11 @@ import cn.taketoday.core.bytecode.proxy.Dispatcher;
 import cn.taketoday.core.bytecode.proxy.Enhancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author TODAY 2021/5/29 23:08
@@ -142,8 +142,8 @@ public class BeanMappingTests {
     TestBeanMapBean bean = new TestBeanMapBean();
     BeanMapping<TestBeanMapBean> map = BeanMapping.ofObject(bean);
     BeanMapping<TestBeanMapBean> map2 = BeanMapping.ofObject(bean);
-    assertEquals("BeanMap.create should use exactly the same bean class when called multiple times",
-                 map.getClass(), map2.getClass());
+    assertEquals(map.getClass(),
+                 map2.getClass(), "BeanMap.create should use exactly the same bean class when called multiple times");
 
     assertEquals(6, map.size());
     assertNull(map.get("foo"));

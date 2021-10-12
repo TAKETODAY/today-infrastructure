@@ -916,7 +916,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.junit.Test;
+
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;

@@ -15,9 +15,6 @@
  */
 package cn.taketoday.core.bytecode.util;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +22,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.util.ResourceUtils;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Chris Nokleberg
@@ -34,7 +32,7 @@ import cn.taketoday.util.ResourceUtils;
  * @version $Id: TestParallelSorter.java,v 1.4 2004/06/24 21:15:13 herbyderby
  * Exp $
  */
-public class TestParallelSorter extends CodeGenTestCase {
+public class TestParallelSorter {
   public void testSorts() throws Throwable {
     Object[] data1 = getTestData();
     Object[] data2 = copy(data1);
@@ -95,21 +93,5 @@ public class TestParallelSorter extends CodeGenTestCase {
     System.arraycopy(data, 0, copy, 0, data.length);
     return copy;
   }
-
-  public TestParallelSorter(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestParallelSorter.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

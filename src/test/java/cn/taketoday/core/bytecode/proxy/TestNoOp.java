@@ -15,12 +15,12 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestNoOp extends CodeGenTestCase {
+public class TestNoOp {
+
   private static class Foo {
     public Foo() { }
 
@@ -29,25 +29,13 @@ public class TestNoOp extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testNoOp() {
     Object obj = Enhancer.create(Foo.class, NoOp.INSTANCE);
-    assertTrue("foo".equals(obj.toString()));
+    assertEquals("foo", obj.toString());
   }
 
-  public TestNoOp(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestNoOp.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
+  @Test
   public void testFailOnMemoryLeak() throws Throwable { }
 
 }

@@ -24,9 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertiesPropertySource;

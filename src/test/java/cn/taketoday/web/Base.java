@@ -19,8 +19,8 @@
  */
 package cn.taketoday.web;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import javax.servlet.ServletContext;
 
@@ -41,7 +41,7 @@ public class Base {
   protected long start = System.currentTimeMillis();
   protected StandardWebServletApplicationContext context;
 
-  @Before
+  @BeforeEach
   public void before() {
     final Jetty jetty = getJetty();
     jetty.start();
@@ -49,7 +49,7 @@ public class Base {
     servletContext = context.getServletContext();
   }
 
-  @After
+  @AfterEach
   public void after() {
     if (context != null) {
       context.close();

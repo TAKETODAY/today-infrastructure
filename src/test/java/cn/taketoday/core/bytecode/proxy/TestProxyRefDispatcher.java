@@ -15,19 +15,21 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Chris Nokleberg, Bob Lee
  * @version $Id: TestProxyRefDispatcher.java,v 1.1 2004/12/10 08:48:43
  * herbyderby Exp $
  */
-public class TestProxyRefDispatcher extends CodeGenTestCase {
+public class TestProxyRefDispatcher {
+
   interface Foo {
     String foo();
   }
@@ -36,6 +38,7 @@ public class TestProxyRefDispatcher extends CodeGenTestCase {
     String bar();
   }
 
+  @Test
   public void testSimple() throws Exception {
     final Object[] impls = new Object[] { new Foo() {
       public String foo() {
@@ -89,20 +92,7 @@ public class TestProxyRefDispatcher extends CodeGenTestCase {
     assertSame(obj, proxyReference[0]);
   }
 
-  public TestProxyRefDispatcher(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestProxyRefDispatcher.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
+  @Test
   public void testFailOnMemoryLeak() throws Throwable { }
 
 }

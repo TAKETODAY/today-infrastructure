@@ -20,7 +20,7 @@
 
 package cn.taketoday.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,21 +36,21 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.DefaultComponent;
-import cn.taketoday.lang.Service;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.DefaultComponent;
+import cn.taketoday.lang.Service;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author TODAY 2021/7/28 21:41

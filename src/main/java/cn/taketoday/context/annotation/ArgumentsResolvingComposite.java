@@ -30,7 +30,6 @@ import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Value;
@@ -161,7 +160,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
   //---------------------------------------------------------------------
 
   private static final class EnvExecutableArgumentsResolver extends AbstractArgumentsResolvingStrategy {
-    private final ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
+    private final ExpressionEvaluator expressionEvaluator = ExpressionEvaluator.getSharedInstance();
 
     @Override
     protected boolean supportsArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
@@ -175,7 +174,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
   }
 
   private static final class ValueExecutableArgumentsResolver extends AbstractArgumentsResolvingStrategy {
-    private final ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
+    private final ExpressionEvaluator expressionEvaluator = ExpressionEvaluator.getSharedInstance();
 
     @Override
     protected boolean supportsArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {

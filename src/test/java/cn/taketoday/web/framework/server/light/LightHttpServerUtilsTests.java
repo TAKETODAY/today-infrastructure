@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.framework.server.light;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import cn.taketoday.web.http.HttpHeaders;
 /**
  * @author TODAY 2021/4/13 14:43
  */
-public class LightHttpServerUtilsTests extends TestCase {
+public class LightHttpServerUtilsTests {
   static String http = "GET /home.html HTTP/1.1\n" +
           "Host: developer.mozilla.org\n" +
           "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\n" +
@@ -47,6 +47,7 @@ public class LightHttpServerUtilsTests extends TestCase {
           "\r\n" +
           "";
 
+  @Test
   public void testReadHeaders() throws IOException {
     String header = "Host: developer.mozilla.org\n" +
             "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\n" +

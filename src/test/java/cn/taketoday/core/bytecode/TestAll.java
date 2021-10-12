@@ -25,7 +25,7 @@ package cn.taketoday.core.bytecode;
  * @version $Id: TestAll.java,v 1.66 2004/12/23 03:46:25 herbyderby Exp $
  */
 /*
-public class TestAll extends TestCase {
+public class TestAll {
 
 //  static {
 //    final PrintStream printStream = new PrintStream(new NopFilterOutputStream(), true) {

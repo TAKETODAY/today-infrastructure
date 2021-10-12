@@ -15,35 +15,38 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.bytecode.core.Converter;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author baliuka
  */
-public class TestBeanCopier extends TestCase {
+public class TestBeanCopier {
 
+  @Test
   public void testSimple() {
     BeanCopier copier = BeanCopier.create(MA.class, MA.class, false);
     MA bean1 = new MA();
     bean1.setIntP(42);
     MA bean2 = new MA();
     copier.copy(bean1, bean2, null);
-    assertTrue(bean2.getIntP() == 42);
+    assertEquals(42, bean2.getIntP());
   }
 
+  @Test
   public void testOneWay() {
     BeanCopier copier = BeanCopier.create(SampleGetter.class, SampleSetter.class, false);
     SampleGetter sampleGetter = new SampleGetter();
     sampleGetter.foo = 42;
     SampleSetter sampleSetter = new SampleSetter();
     copier.copy(sampleGetter, sampleSetter, null);
-    assertTrue(sampleSetter.foo == 42);
+    assertEquals(42, sampleSetter.foo);
   }
 
+  @Test
   public void testConvert() {
     BeanCopier copier = BeanCopier.create(MA.class, MA.class, true);
     MA bean1 = new MA();
@@ -57,18 +60,7 @@ public class TestBeanCopier extends TestCase {
         return value;
       }
     });
-    assertTrue(bean2.getIntP() == 43);
+    assertEquals(43, bean2.getIntP());
   }
 
-  public TestBeanCopier(java.lang.String testName) {
-    super(testName);
-  }
-
-  public static void main(java.lang.String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestBeanCopier.class);
-  }
 }

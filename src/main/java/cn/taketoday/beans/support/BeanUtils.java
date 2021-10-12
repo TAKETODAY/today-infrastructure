@@ -27,10 +27,11 @@ import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.context.ContextUtils;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextHolder;
 import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -51,7 +52,7 @@ public abstract class BeanUtils {
    *
    * @throws BeanInstantiationException
    *         if any reflective operation exception occurred
-   * @see ContextUtils#getLastStartupContext()
+   * @see ApplicationContextHolder#getLastStartupContext()
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
@@ -60,7 +61,7 @@ public abstract class BeanUtils {
     if (constructor.getParameterCount() == 0) {
       return newInstance(constructor, null);
     }
-    BeanFactory lastStartupContext = ContextUtils.getLastStartupContext();
+    ApplicationContext lastStartupContext = ApplicationContextHolder.getLastStartupContext();
     ArgumentsResolver argumentsResolver = ArgumentsResolver.getOrShared(lastStartupContext);
     Object[] parameter = argumentsResolver.resolve(constructor, lastStartupContext, null);
     return newInstance(constructor, parameter);

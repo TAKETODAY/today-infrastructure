@@ -19,14 +19,15 @@
  */
 package cn.taketoday.logging;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author TODAY <br>
- *         2019-12-06 23:09
+ * 2019-12-06 23:09
  */
 public class LoggerTest {
 
@@ -87,8 +88,8 @@ public class LoggerTest {
     assertTrue(logger.isWarnEnabled());
     assertTrue(logger.isInfoEnabled());
     assertTrue(logger.isErrorEnabled());
-    assertTrue(!logger.isDebugEnabled());
-    assertTrue(!logger.isTraceEnabled());
+    assertFalse(logger.isDebugEnabled());
+    assertFalse(logger.isTraceEnabled());
 
     logger.info("testLog4jLogger");
     logger.warn("testLog4jLogger");

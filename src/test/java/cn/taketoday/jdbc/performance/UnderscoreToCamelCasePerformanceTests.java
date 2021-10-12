@@ -3,7 +3,7 @@ package cn.taketoday.jdbc.performance;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.List;

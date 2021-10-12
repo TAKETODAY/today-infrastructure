@@ -15,12 +15,11 @@
  */
 package cn.taketoday.core.bytecode.util;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestXmlParsing extends CodeGenTestCase {
+public class TestXmlParsing {
   private static final String ATTRIBUTE_STR = "attribute";
   private static final String ATTRIBUTE_DIRECTIVE_STR = "directive.attribute";
   private static final String BODY_STR = "body";
@@ -227,6 +226,7 @@ public class TestXmlParsing extends CodeGenTestCase {
     return -1;
   }
 
+  @Test
   public void testStartElement() throws Throwable {
     int numWords = 10000;
     int reps = 1000;
@@ -276,21 +276,5 @@ public class TestXmlParsing extends CodeGenTestCase {
     System.err.println("intern: " + (t2 - t1) + "ms");
     System.err.println("switch: " + (t3 - t2) + "ms");
   }
-
-  public TestXmlParsing(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestXmlParsing.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

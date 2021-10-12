@@ -40,42 +40,42 @@
 
 package cn.taketoday.context.el;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.expression.ExpressionProcessor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author kichung
  */
-public class StaticRefTest {
+public class StaticRefTests {
 
   ExpressionProcessor elp;
 
-  public StaticRefTest() { }
+  public StaticRefTests() { }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws Exception { }
 
-  @AfterClass
+  @AfterAll
   public static void tearDownClass() throws Exception { }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     elp = new ExpressionProcessor();
   }
 
-  @After
+  @AfterEach
   public void tearDown() { }
 
   @Test
-  public void testStaticRef() {
+  void testStaticRef() {
     // Pre imported java.lang classes
 //        assertTrue((Boolean)elp.eval("T(java.lang.Boolean).TRUE"));
 //        assertTrue((Boolean)elp.eval("T(Boolean).TRUE"));
@@ -89,13 +89,13 @@ public class StaticRefTest {
    */
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
 //        assertEquals(new Integer(1001), elp.eval("T(Integer)(1001)"));
     assertEquals(new Integer(1001), elp.eval("Integer(1001)"));
   }
 
   @Test
-  public void testStaticMethod() {
+  void testStaticMethod() {
     assertEquals(4, elp.eval("Integer.numberOfTrailingZeros(16)"));
   }
 }

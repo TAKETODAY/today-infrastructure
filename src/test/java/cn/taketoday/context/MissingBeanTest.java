@@ -22,8 +22,6 @@ package cn.taketoday.context;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.lang.Configuration;

@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.http;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;

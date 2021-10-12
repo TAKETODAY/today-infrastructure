@@ -15,18 +15,17 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Chris Nokleberg
  * @version $Id: TestDispatcher.java,v 1.6 2004/06/24 21:15:17 herbyderby Exp $
  */
-public class TestDispatcher extends CodeGenTestCase {
+public class TestDispatcher {
   interface Foo {
     String foo();
   }
@@ -35,6 +34,7 @@ public class TestDispatcher extends CodeGenTestCase {
     String bar();
   }
 
+  @Test
   public void testSimple() throws Exception {
     final Object[] impls = new Object[] { new Foo() {
       public String foo() {
@@ -77,18 +77,6 @@ public class TestDispatcher extends CodeGenTestCase {
       }
     };
     assertTrue(((Foo) obj).foo().equals("foo2"));
-  }
-
-  public TestDispatcher(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestDispatcher.class);
   }
 
   public void perform(ClassLoader loader) throws Throwable { }

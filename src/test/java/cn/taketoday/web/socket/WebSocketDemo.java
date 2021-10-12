@@ -30,10 +30,10 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.framework.WebApplication;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.framework.WebApplication;
 
 /**
  * @author TODAY 2021/4/3 11:54

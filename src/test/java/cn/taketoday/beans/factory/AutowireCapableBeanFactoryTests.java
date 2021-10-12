@@ -32,10 +32,10 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Component;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

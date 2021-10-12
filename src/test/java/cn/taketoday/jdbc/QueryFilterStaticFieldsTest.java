@@ -3,13 +3,13 @@ package cn.taketoday.jdbc;
 import com.google.common.primitives.Longs;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zapodot.junit.db.EmbeddedDatabaseRule;
 
 import java.util.Comparator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class QueryFilterStaticFieldsTest {
 
@@ -35,7 +35,7 @@ public class QueryFilterStaticFieldsTest {
     try (final JdbcConnection connection = dataBase.open();
             final Query query = connection.createQuery("SELECT * FROM TEST WHERE ver=1")) {
       final Entity entity = query.fetchFirst(Entity.class);
-      assertThat(entity.ver, equalTo(1L));
+      assertThat(entity.ver).isEqualTo(1L);
     }
   }
 }

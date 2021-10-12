@@ -19,8 +19,8 @@
  */
 package cn.taketoday.util;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class ContextUtilsTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   @SuppressWarnings("unchecked")
   public void testResolveParameter() throws Exception {
 
@@ -111,7 +111,6 @@ public class ContextUtilsTest {
 
 //      properties.list(System.err);
 //      System.err.println(properties.get("placeHolder"));
-      ContextUtils.setLastStartupContext(applicationContext);
 
       Object[] parameters = new ArgumentsResolver().resolve(constructor, beanFactory);
 

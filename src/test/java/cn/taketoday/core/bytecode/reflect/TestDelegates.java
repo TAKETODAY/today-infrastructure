@@ -15,25 +15,25 @@
  */
 package cn.taketoday.core.bytecode.reflect;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.reflect.ConstructorDelegate;
 import cn.taketoday.core.reflect.MethodDelegate;
 import cn.taketoday.core.reflect.MulticastDelegate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @version $Id: TestDelegates.java,v 1.4 2004/06/24 21:15:16 herbyderby Exp $
  */
-public class TestDelegates extends CodeGenTestCase {
+public class TestDelegates {
 
   public interface StringMaker {
     Object newInstance(char[] buf, int offset, int count);
   }
 
+  @Test
   public void testConstructor() throws Throwable {
     StringMaker maker = ConstructorDelegate.create(String.class, StringMaker.class);
     assertEquals("nil", maker.newInstance("vanilla".toCharArray(), 2, 3));
@@ -59,16 +59,19 @@ public class TestDelegates extends CodeGenTestCase {
     String format(String format, Object... args);
   }
 
+  @Test
   public void testFancy() throws Throwable {
     Substring delegate = MethodDelegate.create("CGLIB", "substring", Substring.class);
     assertEquals("LI", delegate.substring(2, 4));
   }
 
+  @Test
   public void testFancyNames() throws Throwable {
     Substring2 delegate = MethodDelegate.create("CGLIB", "substring", Substring2.class);
     assertEquals("LI", delegate.anyNameAllowed(2, 4));
   }
 
+  @Test
   public void testFancyTypes() throws Throwable {
     String test = "abcabcabc";
     IndexOf delegate = MethodDelegate.create(test, "indexOf", IndexOf.class);
@@ -76,6 +79,7 @@ public class TestDelegates extends CodeGenTestCase {
     assertEquals(delegate.indexOf("ab"), test.indexOf("ab"));
   }
 
+  @Test
   public void testVarArgs() throws Throwable {
     String formatStr = "Time: %d";
     long time = System.currentTimeMillis();
@@ -84,6 +88,7 @@ public class TestDelegates extends CodeGenTestCase {
   }
 
   @SuppressWarnings("unlikely-arg-type")
+  @Test
   public void testEquals() throws Throwable {
     String test = "abc";
     IndexOf mc1 = MethodDelegate.create(test, "indexOf", IndexOf.class);
@@ -107,6 +112,7 @@ public class TestDelegates extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testStaticDelegate() throws Throwable {
     MainDelegate start = MethodDelegate.createStatic(
             MainTest.class, "alternateMain", MainDelegate.class);
@@ -134,6 +140,7 @@ public class TestDelegates extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testPublisher() throws Throwable {
     final Publisher p = new Publisher();
     Listener l1 = new Listener() {
@@ -154,6 +161,7 @@ public class TestDelegates extends CodeGenTestCase {
     public int execute();
   }
 
+  @Test
   public void testMulticastReturnValue() {
     SuperSimple ss1 = new SuperSimple() {
       public int execute() {
@@ -173,21 +181,5 @@ public class TestDelegates extends CodeGenTestCase {
     multi = multi.add(ss1);
     assertEquals(1, ((SuperSimple) multi).execute());
   }
-
-  public TestDelegates(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestDelegates.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

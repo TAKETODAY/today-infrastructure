@@ -25,10 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.ValueExpressionContext;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
@@ -40,6 +37,9 @@ import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.StandardExpressionContext;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.PlaceholderResolver;
@@ -53,6 +53,9 @@ import cn.taketoday.util.StringUtils;
  * @since 3.0
  */
 public class ExpressionEvaluator implements PlaceholderResolver {
+  // @since 4.0
+  private static final ExpressionEvaluator sharedInstance = new ExpressionEvaluator();
+
   public static final String ENV = "env";
   public static final String EL_PREFIX = "${";
   public static final String PLACE_HOLDER_PREFIX = "#{";
@@ -278,7 +281,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
       ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
       ApplicationContext context = this.context;
       if (context == null) {
-        context = ContextUtils.getLastStartupContext();
+        context = ApplicationContextHolder.getLastStartupContext();
         if (context == null) {
           log.info("There isn't a global ApplicationContext");
         }
@@ -303,6 +306,15 @@ public class ExpressionEvaluator implements PlaceholderResolver {
       this.expressionProcessor = new ExpressionProcessor(new ExpressionManager(globalContext, exprFactory));
     }
     return expressionProcessor;
+  }
+
+  // static
+
+  /**
+   * @since 4.0
+   */
+  public static ExpressionEvaluator getSharedInstance() {
+    return sharedInstance;
   }
 
 }

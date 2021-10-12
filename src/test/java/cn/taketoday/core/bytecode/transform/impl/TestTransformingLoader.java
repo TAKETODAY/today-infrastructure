@@ -15,12 +15,10 @@
  */
 package cn.taketoday.core.bytecode.transform.impl;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.transform.ClassFilter;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
@@ -29,11 +27,14 @@ import cn.taketoday.core.bytecode.transform.ClassTransformerFactory;
 import cn.taketoday.core.bytecode.transform.TransformingClassLoader;
 import cn.taketoday.util.ReflectionUtils;
 
+import static cn.taketoday.context.el.ELProcessorTests.printlnError;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @version $Id: TestTransformingLoader.java,v 1.6 2006/03/05 02:43:17
  * herbyderby Exp $
  */
-public class TestTransformingLoader extends CodeGenTestCase {
+public class TestTransformingLoader {
 
   private static final ClassFilter TEST_FILTER = new ClassFilter() {
     public boolean accept(String name) {
@@ -45,7 +46,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
   private ClassTransformer getExampleTransformer(String name, Type type) {
     return new AddPropertyTransformer(new String[] { name }, new Type[] { type });
   }
-
+  @Test
   public void testExample() throws Exception {
     ClassTransformer t1 = getExampleTransformer("herby", Type.TYPE_STRING);
     ClassTransformer t2 = getExampleTransformer("derby", Type.DOUBLE_TYPE);
@@ -65,6 +66,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
     printlnError("INITING: " + foo);
   }
 
+  @Test
   public void testAddStatic() throws Exception {
     Method m = ReflectionUtils.findMethod(TestTransformingLoader.class, "initStatic", Class.class);
     ;
@@ -77,7 +79,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
     Object obj = loaded.newInstance();
     // TODO
   }
-
+  @Test
   public void testInterceptField() throws Exception {
     ClassTransformer t = new InterceptFieldTransformer(new InterceptFieldFilter() {
       public boolean acceptRead(Type owner, String name) {
@@ -92,6 +94,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
     // TODO
   }
 
+  @Test
   public void testFieldProvider() throws Exception {
     ClassTransformer t = new FieldProviderTransformer();
     Class loaded = loadHelper(t, Example.class);
@@ -122,21 +125,5 @@ public class TestTransformingLoader extends CodeGenTestCase {
     );
     return loader.loadClass(target.getName());
   }
-
-  public TestTransformingLoader(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestTransformingLoader.class);
-  }
-
-  public void perform(ClassLoader loader) throws Throwable { }
-
-  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

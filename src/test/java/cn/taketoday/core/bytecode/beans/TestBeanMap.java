@@ -15,21 +15,24 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import cn.taketoday.core.bytecode.CodeGenTestCase;
 import cn.taketoday.core.bytecode.proxy.Callback;
 import cn.taketoday.core.bytecode.proxy.CallbackFilter;
 import cn.taketoday.core.bytecode.proxy.Dispatcher;
 import cn.taketoday.core.bytecode.proxy.Enhancer;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestBeanMap extends CodeGenTestCase {
+public class TestBeanMap {
 
   public static class TestBean2 {
     private String foo;
@@ -76,56 +79,61 @@ public class TestBeanMap extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testBeanMap() {
     TestBeanMapBean bean = new TestBeanMapBean();
     BeanMap map = BeanMap.create(bean);
     BeanMap map2 = BeanMap.create(bean);
-    assertEquals("BeanMap.create should use exactly the same bean class when called multiple times",
-                 map.getClass(), map2.getClass());
+    assertEquals(map.getClass(),
+                 map2.getClass(), "BeanMap.create should use exactly the same bean class when called multiple times");
     BeanMap map3 = BeanMap.create(new TestBean2());
-    assertNotSame("BeanMap.create should use different classes for different beans",
-                  map.getClass(), map3.getClass());
-    assertTrue(map.size() == 6);
-    assertTrue(map.get("foo") == null);
+    assertNotSame(map.getClass(),
+                  map3.getClass(), "BeanMap.create should use different classes for different beans");
+    assertEquals(6, map.size());
+    assertNull(map.get("foo"));
     map.put("foo", "FOO");
-    assertTrue("FOO".equals(map.get("foo")));
-    assertTrue(bean.getFoo().equals("FOO"));
-    assertTrue("x".equals(map.get("bar")));
-    assertTrue(((Integer) map.get("quick")).intValue() == 42);
+    assertEquals("FOO", map.get("foo"));
+    assertEquals("FOO", bean.getFoo());
+    assertEquals("x", map.get("bar"));
+    assertEquals(42, ((Integer) map.get("quick")).intValue());
     map.put("quud", new Integer(13));
-    assertTrue(bean.getQuud() == 13);
+    assertEquals(13, bean.getQuud());
 
-    assertTrue(map.getPropertyType("foo").equals(String.class));
-    assertTrue(map.getPropertyType("quud").equals(Integer.TYPE));
-    assertTrue(map.getPropertyType("kdkkj") == null);
+    assertEquals(map.getPropertyType("foo"), String.class);
+    assertEquals(map.getPropertyType("quud"), Integer.TYPE);
+    assertNull(map.getPropertyType("kdkkj"));
   }
 
+  @Test
   public void testEntrySet() {
     TestBeanMapBean bean = new TestBeanMapBean();
     BeanMap map = BeanMap.create(bean);
-    assertTrue(map.entrySet().size() == map.size());
+    assertEquals(map.entrySet().size(), map.size());
   }
 
+  @Test
   public void testNoUnderlyingBean() {
     BeanMap.Generator gen = new BeanMap.Generator();
     gen.setBeanClass(TestBeanMapBean.class);
     BeanMap map = gen.create();
 
     TestBeanMapBean bean = new TestBeanMapBean();
-    assertTrue(bean.getFoo() == null);
-    assertTrue(map.put(bean, "foo", "FOO") == null);
-    assertTrue(bean.getFoo().equals("FOO"));
-    assertTrue(map.get(bean, "foo").equals("FOO"));
+    assertNull(bean.getFoo());
+    assertFalse(map.put(bean, "foo", "FOO") != null);
+    assertEquals("FOO", bean.getFoo());
+    assertEquals("FOO", map.get(bean, "foo"));
   }
 
+  @Test
   public void testMixinMapIntoBean() {
     Object bean = new TestBeanMapBean();
     bean = mixinMapIntoBean(bean);
     ((TestBeanMapBean) bean).setFoo("hello");
     assertTrue(bean instanceof Map);
-    assertTrue(((Map) bean).get("foo").equals("hello"));
+    assertEquals("hello", ((Map) bean).get("foo"));
   }
 
+  @Test
   public void testRequire() {
     BeanMap.Generator gen = new BeanMap.Generator();
     gen.setBeanClass(TestBeanMapBean.class);
@@ -133,7 +141,7 @@ public class TestBeanMap extends CodeGenTestCase {
     BeanMap map = gen.create();
     assertTrue(map.containsKey("foo"));
     assertTrue(map.containsKey("bar"));
-    assertTrue(!map.containsKey("baz"));
+    assertFalse(map.containsKey("baz"));
   }
 
   // testContainsValue
@@ -149,6 +157,7 @@ public class TestBeanMap extends CodeGenTestCase {
     }
   }
 
+  @Test
   public void testContainsValue() {
     TestBeanFullGetters bean = new TestBeanFullGetters();
     BeanMap map = BeanMap.create(bean);
@@ -160,6 +169,7 @@ public class TestBeanMap extends CodeGenTestCase {
     assertTrue(map.containsValue("baz"));
   }
 
+  @Test
   public void testEquals() {
 
     TestBeanFullGetters bean = new TestBeanFullGetters();
@@ -206,22 +216,10 @@ public class TestBeanMap extends CodeGenTestCase {
   // TODO: test change bean instance
   // TODO: test toString
 
-  public TestBeanMap(String testName) {
-    super(testName);
-  }
-
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestBeanMap.class);
-  }
-
   public void perform(ClassLoader loader) throws Throwable {
     // tested in enhancer test unit
   }
-
+  
   public void testFailOnMemoryLeak() throws Throwable { }
 
 }

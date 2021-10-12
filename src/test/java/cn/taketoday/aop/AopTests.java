@@ -49,8 +49,8 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.lang.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;

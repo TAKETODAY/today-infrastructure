@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.Map;
 import cn.taketoday.jdbc.parsing.ParameterIndexHolder;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ArrayParametersTest {
 

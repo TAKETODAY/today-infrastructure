@@ -1,12 +1,13 @@
 package cn.taketoday.jdbc;
 
-import junit.framework.TestCase;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import javax.sql.DataSource;
 
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.when;
 /**
  * User: dimzon Date: 4/29/14 Time: 10:05 PM
  */
-public class ConnectionTest extends TestCase {
+public class ConnectionTest {
 
   public void test_createQueryWithParams() throws Throwable {
     DataSource dataSource = mock(DataSource.class);

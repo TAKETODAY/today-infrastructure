@@ -23,15 +23,15 @@ package cn.taketoday.web.framework.server.light;
 import java.io.File;
 import java.io.IOException;
 
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.POST;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
