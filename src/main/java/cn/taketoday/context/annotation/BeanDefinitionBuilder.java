@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -43,18 +44,19 @@ import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.lang.Constant.VALUE;
 
@@ -410,6 +412,7 @@ public class BeanDefinitionBuilder {
     LinkedHashSet<PropertySetter> propertySetters = null;
 
     if (autowire) {
+      Assert.state(beanClass != null, "bean-class must not be null");
       propertySetters = resolvePropertyValue(beanClass);
     }
 
@@ -574,6 +577,12 @@ public class BeanDefinitionBuilder {
     if (ObjectUtils.isEmpty(names)) {
       return new String[] { defaultName }; // default name
     }
+    HashSet<String> hashSet = new HashSet<>();
+    CollectionUtils.addAll(hashSet, names);
+    hashSet.remove(Constant.BLANK);
+    if (hashSet.isEmpty()) {
+      return new String[] { defaultName }; // default name
+    }
     return names;
   }
 
@@ -633,7 +642,7 @@ public class BeanDefinitionBuilder {
 
   public static DefaultBeanDefinition defaults(Class<?> candidate) {
     Assert.notNull(candidate, "bean-class must not be null");
-    String defaultBeanName = ClassUtils.getShortName(candidate);
+    String defaultBeanName = defaultBeanName(candidate);
     return defaults(defaultBeanName, candidate, null);
   }
 
@@ -661,8 +670,8 @@ public class BeanDefinitionBuilder {
 
   public static List<BeanDefinition> from(Class<?> candidate) {
     Assert.notNull(candidate, "bean-class must not be null");
+    String defaultBeanName = defaultBeanName(candidate);
 
-    String defaultBeanName = ClassUtils.getShortName(candidate);
     AnnotationAttributes[] annotationAttributes =
             AnnotationUtils.getAttributesArray(candidate, Component.class);
     // has Component
@@ -683,4 +692,13 @@ public class BeanDefinitionBuilder {
       return Collections.singletonList(defaults);
     }
   }
+
+  public static String defaultBeanName(String clazzName) {
+    return StringUtils.uncapitalize(clazzName);
+  }
+
+  public static String defaultBeanName(Class<?> clazz) {
+    return StringUtils.uncapitalize(ClassUtils.getShortName(clazz));
+  }
+
 }

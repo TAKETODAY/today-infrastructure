@@ -155,12 +155,12 @@ public class TestEnhancer {
     obj.setName("herby");
     EA proxy = (EA) Enhancer.create(EA.class, new DelegateInterceptor(save));
 
-    assertEquals("proxy.getName()", "herby", proxy.getName());
+    assertEquals("herby", proxy.getName(), "proxy.getName()");
 
     Factory factory = (Factory) proxy;
-    assertEquals("((EA)factory.newInstance(factory.getCallbacks())).getName()", "herby", ((EA) factory.newInstance(
+    assertEquals("herby", ((EA) factory.newInstance(
             factory.getCallbacks()))
-            .getName());
+            .getName(), "((EA)factory.newInstance(factory.getCallbacks())).getName()");
   }
 
   static class DelegateInterceptor implements MethodInterceptor {
@@ -301,8 +301,7 @@ public class TestEnhancer {
         proxyClassName = actualProxyClassName;
       }
       else {
-        assertEquals("GC iteration " + i + ", proxy class should survive GC and be reused even across GC",
-                     proxyClassName, actualProxyClassName);
+        assertEquals(proxyClassName, actualProxyClassName, "GC iteration " + i + ", proxy class should survive GC and be reused even across GC");
       }
       System.gc();
     }
@@ -728,7 +727,8 @@ public class TestEnhancer {
       }
     });
     Class<?> proxied = e.create().getClass();
-    assertEquals("Class name should match the one returned by NamingPolicy", desiredClassName, proxied.getName());
+    assertEquals(desiredClassName, proxied.getName(),
+                 "Class name should match the one returned by NamingPolicy");
   }
 
   public static Object enhance(

@@ -44,21 +44,21 @@ import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -219,6 +219,8 @@ public class BeanDefinitionReader {
           BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
           builder.factoryMethod(method);
           builder.declaringName(declaringBeanName);
+          builder.beanClass(method.getReturnType());
+
           builder.build(defaultBeanName, attributes, (attribute, definition) -> {
             // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
             definition.setAttribute(MissingBean.MissingBeanMetadata, attribute);
@@ -254,6 +256,7 @@ public class BeanDefinitionReader {
     BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
     builder.factoryMethod(method);
     builder.declaringName(declaringBeanName);
+    builder.beanClass(method.getReturnType());
     builder.build(defaultBeanName, components, (component, definition) -> {
       register(definition);
       if (definition.isAnnotationPresent(Configuration.class)) {
@@ -402,7 +405,7 @@ public class BeanDefinitionReader {
    * @see ClassUtils#getShortName(Class)
    */
   protected String createBeanName(Class<?> type) {
-    return ClassUtils.getShortName(type);
+    return BeanDefinitionBuilder.defaultBeanName(type);
   }
 
   public BeanDefinition registerBean(String name, BeanDefinition beanDefinition) {

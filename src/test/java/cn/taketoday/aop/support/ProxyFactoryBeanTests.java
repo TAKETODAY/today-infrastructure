@@ -49,7 +49,7 @@ class ProxyFactoryBeanTests {
 
       // test == 0
 
-      final TargetBean obj1 = (TargetBean) mi.getThis();
+      TargetBean obj1 = (TargetBean) mi.getThis();
       obj1.test = 10;
       obj = mi.proceed(); // toString
 
@@ -106,7 +106,7 @@ class ProxyFactoryBeanTests {
 //    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
     try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.support")) {
-      final ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+      ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
       proxyFactoryBean.setProxyTargetClass(true);
       proxyFactoryBean.setBeanFactory(context);
       proxyFactoryBean.setExposeProxy(true);
@@ -114,10 +114,10 @@ class ProxyFactoryBeanTests {
       proxyFactoryBean.setInterceptorNames("myAspect", "myAfterReturning", "myBefore", "myThrows");
       proxyFactoryBean.setTargetName("targetBean");
 
-      final Object bean = proxyFactoryBean.getBean();
+      Object bean = proxyFactoryBean.getBean();
       log.debug(bean.toString());
 
-      final String ret = ((TargetBean) bean).throwsTest();
+      String ret = ((TargetBean) bean).throwsTest();
 
       assert ret.equals("异常数据");
     }

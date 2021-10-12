@@ -15,9 +15,8 @@
  */
 package cn.taketoday.core.bytecode.transform.impl;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * @author Juozas
@@ -29,15 +28,18 @@ public class TestInterceptFieldsSubclass extends TestInterceptFields {
 
   public TestInterceptFieldsSubclass() {
     super();
+
   }
 
+  public TestInterceptFieldsSubclass(String name) {
+    super(name);
 
-  @Test
-  public void testSubClass() throws Exception {
+  }
+
+  public void testSubClass() {
     super.test();
-    Object o = new TestInterceptFieldsSubclass().transform().newInstance();
-    assertTrue(readTest, "super class read field");
-    assertTrue(readTest, "super class write field");
+    assertTrue("super class read field", readTest);
+    assertTrue("super class write field", readTest);
   }
 
   public Object readObject(Object _this, String name, Object oldValue) {
@@ -57,4 +59,11 @@ public class TestInterceptFieldsSubclass extends TestInterceptFields {
     return super.writeObject(_this, name, oldValue, newValue);
   }
 
+  public static void main(String[] args) throws Exception {
+    junit.textui.TestRunner.run(suite());
+  }
+
+  public static Test suite() throws Exception {
+    return new TestSuite(new TestInterceptFieldsSubclass().transform());
+  }
 }

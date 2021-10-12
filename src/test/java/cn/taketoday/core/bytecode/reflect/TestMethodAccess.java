@@ -91,7 +91,7 @@ public class TestMethodAccess {
     Constructor c1 = MemberSwitchBean.class.getConstructor();
     FastConstructorAccessor fc1 = fc.getConstructor(c1);
     assertEquals(0, ((MemberSwitchBean) fc1.newInstance()).init, "((MemberSwitchBean)fc1.newInstance()).init");
-    assertEquals("fc1.toString()", "public cn.taketoday.core.bytecode.reflect.MemberSwitchBean()", fc1.toString());
+    assertEquals("public cn.taketoday.core.bytecode.reflect.MemberSwitchBean()", fc1.toString(), "fc1.toString()");
 
     Method m1 = MemberSwitchBean.class.getMethod("foo", Integer.TYPE, String.class);
     assertEquals(6, fc.getMethod(m1).invoke(bean,

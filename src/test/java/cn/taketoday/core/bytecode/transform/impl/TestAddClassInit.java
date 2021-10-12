@@ -16,15 +16,13 @@
 
 package cn.taketoday.core.bytecode.transform.impl;
 
-import org.junit.jupiter.api.Test;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.transform.AbstractTransformTest;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.core.bytecode.transform.ClassTransformerFactory;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author baliuka
@@ -49,14 +47,18 @@ public class TestAddClassInit extends AbstractTransformTest {
 
   public TestAddClassInit() { }
 
-  @Test
   public void testInitTransform() {
     assertEquals(i, 11);
   }
 
-  @Test
   public void testRegistred() {
+
     assertNotNull(registred);
+
+  }
+
+  public TestAddClassInit(String s) {
+    super(s);
   }
 
   protected ClassTransformerFactory getTransformer() throws Exception {
@@ -73,6 +75,14 @@ public class TestAddClassInit extends AbstractTransformTest {
       }
     };
 
+  }
+
+  public static void main(String[] args) throws Exception {
+    junit.textui.TestRunner.run(suite());
+  }
+
+  public static Test suite() throws Exception {
+    return new TestSuite(new TestAddClassInit().transform());
   }
 
 }

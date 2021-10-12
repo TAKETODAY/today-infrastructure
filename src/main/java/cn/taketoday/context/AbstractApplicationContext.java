@@ -41,6 +41,7 @@ import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.ValueExpressionContext;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
@@ -69,7 +70,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -382,7 +382,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   public String createBeanName(Class<?> clazz) {
-    return ClassUtils.getShortName(clazz);
+    return BeanDefinitionBuilder.defaultBeanName(clazz);
   }
 
   /**

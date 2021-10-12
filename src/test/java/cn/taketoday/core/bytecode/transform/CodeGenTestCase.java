@@ -15,27 +15,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.core.bytecode.transform;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
-import cn.taketoday.util.ClassUtils;
+import junit.framework.TestCase;
 
 /**
- * load bean definitions
- *
- * @author TODAY 2018-06-23 11:18:22
- * @since 4.0
+ * @author Chris Nokleberg
+ * <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
+ * @version $Id: CodeGenTestCase.java,v 1.10 2012/07/27 16:02:49 baliuka Exp $
  */
-public interface BeanDefinitionLoader {
+public abstract class CodeGenTestCase extends TestCase {
 
-  void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry);
-
-  default String createBeanName(Class<?> beanClass) {
-    return BeanDefinitionBuilder.defaultBeanName(beanClass);
+  public CodeGenTestCase(String testName) {
+    super(testName);
   }
 
+  public abstract void perform(ClassLoader loader) throws Throwable;
+
+  public static void printlnError(String x) {
+//    System.err.println(x);
+  }
+
+  public static void println(String x) {
+    //    System.out.println(x);
+  }
 }

@@ -15,18 +15,22 @@
  */
 package cn.taketoday.core.bytecode.transform.impl;
 
-import org.junit.jupiter.api.Test;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import cn.taketoday.core.bytecode.transform.AbstractTransformTest;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.core.bytecode.transform.ClassTransformerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /**
  * @author baliuka
  */
 public class TestAddDelegate extends AbstractTransformTest {
+
+  /** Creates a new instance of TestAddDelegate */
+  public TestAddDelegate(String name) {
+    super(name);
+  }
 
   public interface Interface {
 
@@ -36,10 +40,8 @@ public class TestAddDelegate extends AbstractTransformTest {
 
   }
 
-  @Test
   public void test() {
-    // TODO
-//    Class transform = new TestAddDelegate().transform();
+
     Interface i = (Interface) this;
     assertEquals(i.getTarget(), this);
 
@@ -62,6 +64,10 @@ public class TestAddDelegate extends AbstractTransformTest {
     }
   }
 
+  public TestAddDelegate() {
+    super(null);
+  }
+
   protected ClassTransformerFactory getTransformer() throws Exception {
 
     return new ClassTransformerFactory() {
@@ -73,6 +79,16 @@ public class TestAddDelegate extends AbstractTransformTest {
       }
 
     };
+
+  }
+
+  public static void main(String[] args) throws Exception {
+    junit.textui.TestRunner.run(suite());
+  }
+
+  public static Test suite() throws Exception {
+
+    return new TestSuite(new TestAddDelegate().transform());
 
   }
 

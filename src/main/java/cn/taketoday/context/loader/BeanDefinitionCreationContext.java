@@ -22,7 +22,6 @@ package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/10/10 22:10
@@ -45,11 +44,11 @@ public class BeanDefinitionCreationContext {
   }
 
   public String createBeanName(Class<?> c) {
-    return ClassUtils.getShortName(c);
+    return BeanDefinitionBuilder.defaultBeanName(c);
   }
 
   public String createBeanName(String className) {
-    return ClassUtils.getShortName(className);
+    return BeanDefinitionBuilder.defaultBeanName(className);
   }
 
 }

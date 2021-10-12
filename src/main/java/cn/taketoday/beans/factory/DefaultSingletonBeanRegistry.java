@@ -25,8 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.lang.Assert;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.core.ObjectFactory;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -184,7 +185,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * @see ClassUtils#getShortName(Class)
    */
   protected String createBeanName(Class<?> type) {
-    return ClassUtils.getShortName(type);
+    return BeanDefinitionBuilder.defaultBeanName(type);
   }
 
   @Override
