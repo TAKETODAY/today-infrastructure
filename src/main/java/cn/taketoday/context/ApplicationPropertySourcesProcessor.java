@@ -118,10 +118,10 @@ public class ApplicationPropertySourcesProcessor {
           String name = file.getName();
           return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
         };
-        doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
+        doLoadFromDirectory(propertiesResource, propertiesFileFilter);
       }
       else {
-        doLoad(this.properties, propertiesResource);
+        doLoad(propertiesResource);
       }
     }
   }
@@ -253,37 +253,28 @@ public class ApplicationPropertySourcesProcessor {
    *
    * @param directory
    *         base dir
-   * @param properties
-   *         properties
-   *
    * @throws IOException
    *         if the resource is not available
    */
-  static void doLoadFromDirectory(
-          Resource directory,
-          Map<String, Object> properties,
-          ResourceFilter propertiesFileFilter) throws IOException //
-  {
+  private void doLoadFromDirectory(Resource directory, ResourceFilter propertiesFileFilter) throws IOException {
     Resource[] listResources = directory.list(propertiesFileFilter);
     for (Resource resource : listResources) {
       if (resource.isDirectory()) { // recursive
-        doLoadFromDirectory(resource, properties, propertiesFileFilter);
+        doLoadFromDirectory(resource, propertiesFileFilter);
         continue;
       }
-      doLoad(properties, resource);
+      doLoad(resource);
     }
   }
 
   /**
-   * @param properties
-   *         Target properties to store
    * @param resource
    *         Resource to load
    *
    * @throws IOException
    *         if the resource is not available
    */
-  static void doLoad(Map<String, Object> properties, Resource resource) throws IOException {
+  private void doLoad(Resource resource) throws IOException {
     if (log.isInfoEnabled()) {
       log.info("Found Properties Resource: [{}]", resource.getLocation());
     }
