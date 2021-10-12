@@ -56,7 +56,7 @@ public class PathMatchingPatternResourceLoaderTests {
           "UrlBasedResource.class", //
           "OutputStreamSource.class", //
           "WritableResource.class", //
-          "PathMatchingResourcePatternResolverTest.class", //
+          "PathMatchingPatternResourceLoaderTests.class", //
           "ResourceTests.class", //
           "ResourceTests$2.class", //
           "ResourceTests$1.class", //
@@ -77,17 +77,17 @@ public class PathMatchingPatternResourceLoaderTests {
 
   @Test
   public void singleResourceOnFileSystem() throws IOException {
-    Resource[] resources = resolver.getResources("cn/taketoday/core/io/PathMatchingResourcePatternResolverTest.class");
+    Resource[] resources = resolver.getResources("cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class");
     assertEquals(1, resources.length);
     assertTrue(resources[0].exists());
-    assertProtocolAndFilenames(resources, "file", "PathMatchingResourcePatternResolverTest.class");
+    assertProtocolAndFilenames(resources, "file", "PathMatchingPatternResourceLoaderTests.class");
 
     // ---------------------------------------
 
-    final Resource[] resources2 = ResourceUtils.getResources("cn/taketoday/core/io/PathMatchingResourcePatternResolverTest.class");
+    final Resource[] resources2 = ResourceUtils.getResources("cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class");
     assertEquals(1, resources2.length);
     assertTrue(resources2[0].exists());
-    assertProtocolAndFilenames(resources2, "file", "PathMatchingResourcePatternResolverTest.class");
+    assertProtocolAndFilenames(resources2, "file", "PathMatchingPatternResourceLoaderTests.class");
   }
 
   @Test
@@ -109,7 +109,7 @@ public class PathMatchingPatternResourceLoaderTests {
       }
     }
 
-    resources = noCloverResources.toArray(new Resource[noCloverResources.size()]);
+    resources = noCloverResources.toArray(Resource.EMPTY_ARRAY);
     assertProtocolAndFilenames(resources, "file", CLASSES_IN_IO);
   }
 

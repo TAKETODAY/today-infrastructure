@@ -36,7 +36,7 @@ import test.demo.service.impl.DefaultUserService;
  * @author TODAY <br>
  * 2019-09-01 11:22
  */
-class DemoTest {
+class DemoTests {
 
   @Test
   void testLogin() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {

@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.loader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -29,20 +29,20 @@ import java.util.List;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.StrategiesDetector;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.YamlStrategiesReader;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY 2021/7/17 22:17
  */
-public class StrategiesDetectorTests {
+class StrategiesDetectorTests {
 
   @Test
-  public void load() {
+  void load() {
 
     final StrategiesDetector loader = new StrategiesDetector();
     loader.setStrategiesLocation(TodayStrategies.STRATEGIES_LOCATION);
@@ -53,7 +53,7 @@ public class StrategiesDetectorTests {
 
     assertThat(loader.getStrategies())
             .containsKey("cn.taketoday.context.loader.PropertyValueResolver")
-            .hasSize(2);
+            .hasSize(3);
 
     final Collection<String> strategies = loader.getStrategies("cn.taketoday.context.loader.PropertyValueResolver");
 
@@ -62,7 +62,7 @@ public class StrategiesDetectorTests {
   }
 
   @Test
-  public void testYaml() {
+  void testYaml() {
     final StrategiesDetector loader = new StrategiesDetector(
             new YamlStrategiesReader(), "classpath:META-INF/today.strategies.yaml");
     loader.loadStrategies();

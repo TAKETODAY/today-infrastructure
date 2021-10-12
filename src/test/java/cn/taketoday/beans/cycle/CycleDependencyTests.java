@@ -20,7 +20,7 @@
 package cn.taketoday.beans.cycle;
 
 import org.aopalliance.intercept.Joinpoint;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
@@ -33,21 +33,21 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Order;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Singleton;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author TODAY <br>
  * 2019-12-12 09:50
  */
-public class CycleDependencyTest {
+class CycleDependencyTests {
 
   @Test
-  public void testCycleDependency() {
+  void testCycleDependency() {
 
     CandidateComponentScanner.getSharedInstance().clear();
 

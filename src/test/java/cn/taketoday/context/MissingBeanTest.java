@@ -19,16 +19,14 @@
  */
 package cn.taketoday.context;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import lombok.Getter;
@@ -37,7 +35,7 @@ import test.demo.config.User;
 
 /**
  * @author TODAY <br>
- *         2019-02-01 10:48
+ * 2019-02-01 10:48
  */
 @Setter
 @Getter
@@ -48,7 +46,7 @@ public class MissingBeanTest {
   private long start;
 
   private static ConfigurableApplicationContext applicationContext = ///
-          new StandardApplicationContext(Arrays.asList(MissingBeanTest.class));
+          new StandardApplicationContext(MissingBeanTest.class);
 
   private String process;
 
@@ -64,17 +62,7 @@ public class MissingBeanTest {
     return applicationContext;
   }
 
-  @Before
-  public void start() {
-    setStart(System.currentTimeMillis());
-  }
-
-  @After
-  public void end() {
-    log.debug("process: [{}] takes {} ms.", getProcess(), (System.currentTimeMillis() - getStart()));
-  }
-
-  @AfterClass
+  @AfterAll
   public static void endClass() {
     ConfigurableApplicationContext applicationContext = getApplicationContext();
     if (applicationContext != null) {
@@ -83,7 +71,7 @@ public class MissingBeanTest {
   }
 
   @Test
-  public void test_MissingBeanName() {
+  void missingBeanName() {
 
     setProcess("test missing user bean");
 

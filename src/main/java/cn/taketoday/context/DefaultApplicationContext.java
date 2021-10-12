@@ -28,9 +28,9 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.lang.Component;
 import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
 
 /**
  * ApplicationContext default implementation
@@ -138,6 +138,10 @@ public class DefaultApplicationContext
    */
   public void registerBean(Class<?> clazz) {
     beanDefinitionReader.registerBean(clazz);
+  }
+
+  public void registerBean(Class<?>... candidates) {
+    beanDefinitionReader.registerBean(candidates);
   }
 
   /**

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -36,7 +36,7 @@ import cn.taketoday.core.env.PropertySources;
  *
  * 2018-08-04 15:58
  */
-public class ValuePropertyResolveTest {
+class ValuePropertyResolveTests {
 
   @Value("#{site.host}")
   private String host = null;
@@ -48,7 +48,7 @@ public class ValuePropertyResolveTest {
   private String test = null;
 
   @Test
-  public void testResolveProperty() throws Exception {
+  public void valuePropertyResolver() throws Exception {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
@@ -57,7 +57,7 @@ public class ValuePropertyResolveTest {
       // host
       // ----------------------------
       DefaultPropertySetter host = (DefaultPropertySetter) propertyResolver.resolveProperty(
-              resolvingContext, ValuePropertyResolveTest.class.getDeclaredField("host"));
+              resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("host"));
 
       assert host.getValue() != null;
 
@@ -66,7 +66,7 @@ public class ValuePropertyResolveTest {
       // name
       // ----------------------------
       DefaultPropertySetter name = (DefaultPropertySetter) propertyResolver.resolveProperty(
-              resolvingContext, ValuePropertyResolveTest.class.getDeclaredField("name"));
+              resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("name"));
 
       assert name.getValue() != null;
 
@@ -84,7 +84,7 @@ public class ValuePropertyResolveTest {
       properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
 
       DefaultPropertySetter test = (DefaultPropertySetter) propertyResolver.resolveProperty(
-              resolvingContext, ValuePropertyResolveTest.class.getDeclaredField("test"));
+              resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("test"));
       assert "TEST".equals(test.getValue());
 
     }

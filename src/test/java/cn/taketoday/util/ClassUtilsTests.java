@@ -38,7 +38,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -47,13 +46,13 @@ import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.bytecode.proxy.Enhancer;
 import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.core.bytecode.proxy.MethodProxy;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.lang.Singleton;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -189,7 +188,8 @@ class ClassUtilsTests {
   @Test
   void testAutowiredOnConstructor() {
 
-    try (StandardApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      context.refresh();
 
       AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
 

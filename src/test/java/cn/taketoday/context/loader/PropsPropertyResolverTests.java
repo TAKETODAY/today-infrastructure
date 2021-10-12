@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -34,7 +34,7 @@ import cn.taketoday.context.StandardApplicationContext;
  *
  * 2018-08-04 16:01
  */
-public class PropsPropertyResolverTest {
+class PropsPropertyResolverTests {
 
   @Props(value = "info", prefix = "site")
   private Properties properties;
@@ -43,14 +43,14 @@ public class PropsPropertyResolverTest {
   private String name;
 
   @Test
-  public void test_() throws Throwable {
+  public void propsPropertyResolver() throws Throwable {
 
     try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
       PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
       DefaultPropertySetter resolveProperty = //
-              (DefaultPropertySetter) propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTest.class.getDeclaredField("properties"));
+              (DefaultPropertySetter) propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("properties"));
 
       assert resolveProperty.getValue() != null;
 
@@ -60,13 +60,13 @@ public class PropsPropertyResolverTest {
   }
 
   @Test
-  public void test_Error() throws Throwable {
+  void errorPropsPropertyResolver() throws Throwable {
 
     try (ApplicationContext applicationContext = new StandardApplicationContext()) {
       PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
-      propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTest.class.getDeclaredField("name"));
+      propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("name"));
     }
 
   }

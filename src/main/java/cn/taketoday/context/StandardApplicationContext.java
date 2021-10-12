@@ -20,16 +20,14 @@
 package cn.taketoday.context;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Standard {@link ApplicationContext}
@@ -64,8 +62,9 @@ public class StandardApplicationContext
    * @param classes
    *         class set
    */
-  public StandardApplicationContext(Collection<Class<?>> classes) {
-    this(Constant.BLANK);
+  public StandardApplicationContext(Class<?>... classes) {
+    registerBean(classes);
+    refresh();
   }
 
   /**
@@ -116,7 +115,7 @@ public class StandardApplicationContext
     super.initPropertySources();
     ConfigurableEnvironment environment = getEnvironment();
     ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
-    if(propertiesLocation!=null) {
+    if (propertiesLocation != null) {
       processor.setPropertiesLocation(propertiesLocation);
       processor.postProcessEnvironment();
     }

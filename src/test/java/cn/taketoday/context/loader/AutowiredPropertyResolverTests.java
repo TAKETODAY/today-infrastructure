@@ -19,9 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import org.junit.Test;
-
-import java.util.HashSet;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,15 +27,15 @@ import javax.inject.Named;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.lang.Autowired;
 
 /**
  * @author Today <br>
  *
  * 2018-08-04 15:56
  */
-public class AutowiredPropertyResolverTest {
+class AutowiredPropertyResolverTests {
 
   @Autowired
   private String name;
@@ -50,22 +48,24 @@ public class AutowiredPropertyResolverTest {
   private String name2;
 
   @Test
-  public void test_() throws Throwable {
+  public void autowiredPropertyResolver() throws Throwable {
 
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+    try (ConfigurableApplicationContext context = new StandardApplicationContext()) {
+      context.refresh();
+
       PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
       PropsReader propsReader = new PropsReader(context.getEnvironment());
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(context, propsReader);
       PropertySetter resolveProperty = autowiredPropertyResolver.resolveProperty(
               resolvingContext,
-              AutowiredPropertyResolverTest.class.getDeclaredField("name")//
+              AutowiredPropertyResolverTests.class.getDeclaredField("name")//
       );
 
       System.err.println(resolveProperty);
       assert resolveProperty != null;
 
-      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTest.class.getDeclaredField("name1")) != null;
-      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTest.class.getDeclaredField("name2")) != null;
+      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTests.class.getDeclaredField("name1")) != null;
+      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTests.class.getDeclaredField("name2")) != null;
 
     }
   }

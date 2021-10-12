@@ -22,7 +22,7 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.MethodBeforeAdvice;
@@ -36,7 +36,7 @@ import lombok.ToString;
 /**
  * @author TODAY 2021/2/20 21:26
  */
-public class ProxyFactoryBeanTests {
+class ProxyFactoryBeanTests {
   static final Logger log = LoggerFactory.getLogger(ProxyFactoryBeanTests.class);
 
   //需要实现接口，确定哪个通知，及告诉Aop应该执行哪个方法
@@ -102,7 +102,7 @@ public class ProxyFactoryBeanTests {
   }
 
   @Test
-  public void test() {
+  public void testProxyFactoryBean() {
 //    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
     try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.support")) {

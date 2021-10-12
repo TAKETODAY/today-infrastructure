@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.session;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.HttpCookie;
 import java.util.List;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/4/30 22:24
  * @since 3.0
  */
-public class DefaultWebSessionManagerTests {
+class DefaultWebSessionManagerTests {
 
   @EnableWebSession
   static class AppConfig {
@@ -42,7 +42,7 @@ public class DefaultWebSessionManagerTests {
   }
 
   @Test
-  public void test() {
+  public void testWebSession() {
 
     try (final StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.importBeans(AppConfig.class);

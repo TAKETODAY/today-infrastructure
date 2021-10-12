@@ -19,20 +19,20 @@
  */
 package cn.taketoday.context.el;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanFactoryResolver;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.el.ELFieldTest.User;
+import cn.taketoday.context.el.ELFieldTests.User;
 
 /**
  * @author TODAY <br>
  * 2019-06-12 20:39
  */
-public class BeanFactoryResolverTest {
+class BeanFactoryResolverTests {
 
   @Test
-  public void testIsReadOnly() {
+  void testIsReadOnly() {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 

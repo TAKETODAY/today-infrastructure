@@ -62,7 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * 2018-08-10 21:29
  */
 @Slf4j
-public class AopTests {
+class AopTests {
 
 //  static {
 //    DebuggingClassWriter.setDebugLocation("~/temp/debug");

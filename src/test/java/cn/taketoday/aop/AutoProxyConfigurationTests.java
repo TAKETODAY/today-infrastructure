@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author TODAY 2021/3/18 21:53
  */
-public class AutoProxyConfigurationTests {
+class AutoProxyConfigurationTests {
 
   @EnableAspectAutoProxy(proxyTargetClass = false, exposeProxy = true)
   static class AopConfig {
@@ -42,7 +42,7 @@ public class AutoProxyConfigurationTests {
   }
 
   @Test
-  public void test() {
+  void testEnableAspectAutoProxy() {
     try (final StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(AopConfig.class);
 

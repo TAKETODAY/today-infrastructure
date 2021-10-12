@@ -188,15 +188,15 @@ public class ResourceTests {
     assertThat(relative1.contentLength() > 0).isTrue();
     assertThat(relative1.lastModified() > 0).isTrue();
 
-    Resource relative2 = resource.createRelative("PathMatchingResourcePatternResolver.class");
-    assertThat(relative2.getName()).isEqualTo("PathMatchingResourcePatternResolver.class");
-    assertThat(relative2.getLocation().getFile().endsWith("ResourcePatternResolver.class")).isTrue();
+    Resource relative2 = resource.createRelative("PathMatchingPatternResourceLoader.class");
+    assertThat(relative2.getName()).isEqualTo("PathMatchingPatternResourceLoader.class");
+    assertThat(relative2.getLocation().getFile().endsWith("PatternResourceLoader.class")).isTrue();
     assertThat(relative2.exists()).isTrue();
     assertThat(relative2.isReadable()).isTrue();
     assertThat(relative2.contentLength() > 0).isTrue();
     assertThat(relative2.lastModified() > 0).isTrue();
 
-    Resource relative3 = resource.createRelative("../Constant.class");
+    Resource relative3 = resource.createRelative("../../lang/Constant.class");
     assertThat(relative3.getName()).isEqualTo("Constant.class");
     assertThat(relative3.getLocation().getFile().endsWith("Constant.class")).isTrue();
     assertThat(relative3.exists()).isTrue();

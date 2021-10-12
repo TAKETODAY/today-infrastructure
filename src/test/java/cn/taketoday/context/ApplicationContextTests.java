@@ -21,7 +21,6 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.beans.DisposableBean;
@@ -142,8 +141,8 @@ class ApplicationContextTests {
   @Test
   public void testLoadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-    try (ApplicationContext applicationContext = //
-            new StandardApplicationContext(Collections.singletonList(ConfigurationBean.class))) {
+    try (ApplicationContext applicationContext =
+            new StandardApplicationContext(ConfigurationBean.class)) {
 
       long start = System.currentTimeMillis();
 

@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -54,13 +54,13 @@ public class HandlerMethodBuilderTests {
   }
 
   @Test
-  public void testBuild() throws NoSuchMethodException {
+  void testBuild() throws NoSuchMethodException {
 
     try (StandardApplicationContext context = new StandardWebServletApplicationContext()) {
       context.scan("cn.taketoday.web.handler");
       context.importBeans(AppConfig.class);
 
-      final HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
+      HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
       HandlerMethod handlerMethod = handlerMethodBuilder.build(new MyController(), MyController.class.getMethod("get"));
       assertThat(handlerMethod).isNotNull();
       assertThat(handlerMethod.getBean()).isNotNull();
@@ -69,7 +69,7 @@ public class HandlerMethodBuilderTests {
 
       List<HandlerInterceptor> interceptors = new LinkedList<>();
 
-      final CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor();
+      CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor();
       interceptors.add(interceptor);
       handlerMethod = handlerMethodBuilder.build(new MyController(), MyController.class.getMethod("get"), interceptors);
       assertThat(handlerMethod.getInterceptors()).isNotNull().hasSize(1);

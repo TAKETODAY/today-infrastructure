@@ -19,16 +19,15 @@
  */
 package cn.taketoday.context.el;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.lang.Singleton;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -39,10 +38,10 @@ import lombok.ToString;
  */
 @ToString
 @Singleton
-public class ELFieldTest {
-  StandardApplicationContext applicationContext;
+public class ELFieldTests {
+  StandardApplicationContext applicationContext = new StandardApplicationContext("");
 
-  @After
+  @AfterEach
   public void ends() {
     if (applicationContext != null) {
       applicationContext.close();
@@ -60,11 +59,6 @@ public class ELFieldTest {
 
   @Value(value = "${env['site.name']}")
   private String siteName;
-
-  @Before
-  public void start() {
-    applicationContext = new StandardApplicationContext("");
-  }
 
   @Getter
   @Setter
@@ -84,7 +78,7 @@ public class ELFieldTest {
 
     applicationContext.scan("cn.taketoday.context.el");
 
-    ELFieldTest bean = applicationContext.getBean(getClass());
+    ELFieldTests bean = applicationContext.getBean(getClass());
     System.err.println(bean.testFloat);
     System.err.println(bean.testDouble);
 
@@ -104,7 +98,7 @@ public class ELFieldTest {
 
     applicationContext.scan("cn.taketoday.context.el");
 
-    ELFieldTest bean = applicationContext.getBean(getClass());
+    ELFieldTests bean = applicationContext.getBean(getClass());
     System.err.println(bean);
     assert bean.user == user;
     assert bean.siteName.equals("TODAY BLOG");
@@ -124,7 +118,7 @@ public class ELFieldTest {
     applicationContext.scan("cn.taketoday.context.el");
     applicationContext.refresh();
 
-    ELFieldTest bean = applicationContext.getBean(getClass());
+    ELFieldTests bean = applicationContext.getBean(getClass());
     System.err.println(bean);
     assert bean.user == user;
   }
