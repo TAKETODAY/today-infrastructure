@@ -26,7 +26,6 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.Props;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;

@@ -32,7 +32,7 @@ import javax.persistence.Entity;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.logging.Logger;

@@ -26,7 +26,7 @@ import java.net.URLConnection;
 import java.security.CodeSource;
 import java.util.Locale;
 
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.logging.Logger;

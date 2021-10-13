@@ -24,7 +24,7 @@ import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.Value;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.ArraySizeTrimmer;

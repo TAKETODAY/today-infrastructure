@@ -26,7 +26,7 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.StandardApplicationContext;
 
 /**

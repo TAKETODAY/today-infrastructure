@@ -20,77 +20,52 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
-import cn.taketoday.context.Env;
-import cn.taketoday.context.Props;
-import cn.taketoday.context.Value;
 import cn.taketoday.core.env.MapPropertyResolver;
-import cn.taketoday.core.env.PropertiesPropertyResolver;
-import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.util.ClassUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author TODAY 2021/10/3 14:10
  */
 class PropsReaderTests {
 
-  @Getter
-  @Setter
-  @ToString
+  @Test
+  void illegalArgumentException() {
+    assertThatThrownBy(() -> new PropsReader((PropertyResolver) null)).hasMessage("PropertyResolver must not be null");
+    assertThatThrownBy(() -> new PropsReader((ApplicationContext) null)).hasMessage("ApplicationContext must not be null");
+    assertThrows(IllegalArgumentException.class, () -> new PropsReader((PropertyResolver) null));
+    assertThrows(IllegalArgumentException.class, () -> new PropsReader((ApplicationContext) null));
+
+    PropsReader propsReader = new PropsReader();
+    assertThatThrownBy(() -> propsReader.read(null)).hasMessage("AnnotatedElement must not be null");
+  }
+
+  @Data
   public static class PropsReaderConfig {
-
-    public PropsReaderConfig(
-            @Props(prefix = "site.admin.") PropsReaderNested model, //
-            @Props(prefix = "site.") Properties properties, //
-            Properties emptyProperties, //
-            @Env("placeHolder") int placeHolderEnv,
-            @Value("#{placeHolder}") int placeHolder) {
-      assert placeHolder == 12345;
-      assert placeHolderEnv == 12345;
-      System.err.println("model -> " + model);
-      System.err.println(properties.getClass());
-    }
-
-    public PropsReaderConfig() { }
-
     @Props
     PropsReaderNested nested;
 
     private String cdn;
-    private String icp;
-    private String host;
-    private File index;
-    private File upload;
-    private String keywords;
-    private String siteName;
-    private String copyright;
-    private File serverPath;
     private String description;
   }
 
-  @Getter
-  @Setter
-  @ToString
-  @NoArgsConstructor
+  @Data
   public static class PropsReaderNested {
 
     private String userId;
@@ -105,37 +80,38 @@ class PropsReaderTests {
 
   }
 
-  @Props(prefix = "site.")
+  @Props(prefix = "test.")
   PropsReaderConfig test;
 
   PropsReaderConfig none;
 
   @Test
-  void testResolveProps() throws NoSuchFieldException, SecurityException, IOException, NoSuchMethodException {
+  void readClassAsBean() throws Exception {
+    HashMap<String, Object> keyValues = new HashMap<>();
+    MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
+
+    PropsReader propsReader = new PropsReader(propertyResolver);
     Field declaredField = getClass().getDeclaredField("test");
     Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
 
-    URL resource = Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("info.properties");
-    Properties properties = PropertiesUtils.loadProperties(
-            resource.getProtocol() + ":" + resource.getPath());
-//    properties.list(System.err);
+    keyValues.put("test.description", "TODAY BLOG");
+    keyValues.put("test.cdn", "https://cdn.taketoday.cn");
+    keyValues.put("test.nested.age", "23");
+    keyValues.put("test.nested.userId", "666");
+    keyValues.put("test.nested.userName", "TODAY");
 
-    PropsReader propsReader = new PropsReader(new PropertiesPropertyResolver(properties));
+    PropsReaderConfig bean = propsReader.read(declaredAnnotation, PropsReaderConfig.class);
+    assertThat(bean).isNotNull();
+    assertThat(bean.description).isEqualTo("TODAY BLOG");
+    assertThat(bean.cdn).isEqualTo("https://cdn.taketoday.cn");
 
-    PropsReaderConfig resolveProps = propsReader.read(declaredAnnotation, PropsReaderConfig.class);
+    assertThat(bean.nested).isNotNull();
+    assertThat(bean.nested.age).isEqualTo(23);
+    assertThat(bean.nested.userId).isEqualTo("666");
+    assertThat(bean.nested.userName).isEqualTo("TODAY");
 
-//    System.err.println(resolveProps);
-
-    assert "TODAY BLOG".equals(resolveProps.getDescription());
-    assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
-
-    assert 21 == resolveProps.getNested().getAge();
-    assert "666".equals(resolveProps.getNested().getUserId());
-    assert "TODAY".equals(resolveProps.getNested().getUserName());
-
-    assert propsReader.read(getClass().getDeclaredField("none")).equals(Collections.emptyList());
-
-    propsReader.read(getClass().getMethod("testResolveProps"));
+    List<PropertySetter> none = propsReader.read(getClass().getDeclaredField("none"));
+    assertThat(none).isNotNull().isEmpty();
   }
 
 

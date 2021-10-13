@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Autowired;

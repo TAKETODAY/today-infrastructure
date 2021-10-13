@@ -27,7 +27,7 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.DefaultProps;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ResolvableType;

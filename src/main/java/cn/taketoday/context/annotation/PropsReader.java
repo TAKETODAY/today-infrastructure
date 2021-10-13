@@ -31,7 +31,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.Props;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.TypeDescriptor;
@@ -70,7 +69,7 @@ import java.util.Properties;
 
 /**
  * @author TODAY 2021/10/3 13:41
- * @see cn.taketoday.context.Props
+ * @see Props
  * @since 4.0
  */
 public class PropsReader {
@@ -201,12 +200,11 @@ public class PropsReader {
         boolean replace = nestedProps.replace();
         String[] prefixsToUse = nestedProps.prefix();
         for (int i = 0; i < prefixsToUse.length; i++) {
-          String str = prefixsToUse[i];
-          if (StringUtils.isEmpty(str)) {
+          if (StringUtils.isEmpty(prefixsToUse[i])) {
             prefixsToUse[i] = key.concat(".");
           }
           else if (!replace) { // don't replace the parent prefix
-            prefixsToUse[i] = prefix.concat(str);
+            prefixsToUse[i] = key.concat(prefixsToUse[i]);
           }
         }
         value = read(nestedProps.setPrefix(prefixsToUse), fieldType, propertyResolver);

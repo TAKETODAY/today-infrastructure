@@ -38,9 +38,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.env.ConfigurableEnvironment;

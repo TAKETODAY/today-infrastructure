@@ -23,8 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;

@@ -39,7 +39,6 @@ import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Props;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
@@ -242,7 +241,7 @@ public class BeanDefinitionBuilder {
    *
    * @return this
    *
-   * @see cn.taketoday.context.Props
+   * @see Props
    * @see PropsReader
    */
   public BeanDefinitionBuilder resolveProps(boolean resolveProps) {

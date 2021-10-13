@@ -13,4 +13,9 @@ class PropertiesUtilsTests {
     assert PropertiesUtils.checkPropertiesName("info.properties").equals("info.properties");
   }
 
+  @Test
+  void loadProperties() {
+
+  }
+
 }

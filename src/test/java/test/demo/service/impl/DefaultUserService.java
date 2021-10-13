@@ -21,7 +21,7 @@ package test.demo.service.impl;
 
 import javax.annotation.Resource;
 
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;

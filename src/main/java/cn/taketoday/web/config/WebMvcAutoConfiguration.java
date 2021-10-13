@@ -21,7 +21,7 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
