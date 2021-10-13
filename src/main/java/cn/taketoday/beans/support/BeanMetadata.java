@@ -235,6 +235,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   protected String getAnnotatedPropertyName(Field propertyElement) {
+    // just alias name, cannot override its getter,setter
     AnnotationAttributes attributes = AnnotationUtils.getAttributes(Property.class, propertyElement);
     if (attributes != null) {
       final String name = attributes.getString(Constant.VALUE);
