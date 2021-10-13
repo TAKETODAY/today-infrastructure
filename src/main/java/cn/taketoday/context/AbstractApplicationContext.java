@@ -131,6 +131,9 @@ public abstract class AbstractApplicationContext
   private final PathMatchingPatternResourceLoader patternResourceLoader
           = new PathMatchingPatternResourceLoader(this);
 
+  /** @since 4.0 */
+  private boolean refreshable;
+
   public AbstractApplicationContext() {
     ApplicationContextHolder.register(this); // @since 4.0
   }
@@ -302,9 +305,6 @@ public abstract class AbstractApplicationContext
     if (StringUtils.hasText(appName)) {
       setApplicationName(appName);
     }
-
-    // register framework beans
-    registerFrameworkComponents(beanFactory);
   }
 
   /**
@@ -426,9 +426,13 @@ public abstract class AbstractApplicationContext
 
   @Override
   public void refresh() {
+    assertRefreshable();
     try {
       // Prepare refresh
       prepareRefresh();
+
+      // register framework beans
+      registerFrameworkComponents();
 
       // Prepare BeanFactory
       prepareBeanFactory();
@@ -460,7 +464,14 @@ public abstract class AbstractApplicationContext
     finally {
       resetCommonCaches();
     }
+  }
 
+  private void assertRefreshable() {
+    if ((state == State.STARTED
+            || state == State.STARTING
+            || state == State.CLOSING) && !refreshable) {
+      throw new IllegalStateException("cannot refresh again");
+    }
   }
 
   protected void handleDependency() {
@@ -582,6 +593,11 @@ public abstract class AbstractApplicationContext
     Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
 
     getFactoryPostProcessors().add(postProcessor);
+  }
+
+  @Override
+  public void setRefreshable(boolean refreshable) {
+    this.refreshable = refreshable;
   }
 
   //---------------------------------------------------------------------

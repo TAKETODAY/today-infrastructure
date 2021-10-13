@@ -116,4 +116,17 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    */
   void setEventPublisher(ApplicationEventPublisher eventPublisher);
 
+  /**
+   * Set this context can refresh again
+   * <p>
+   * default is false
+   * </p>
+   *
+   * @see cn.taketoday.context.ApplicationContext.State#STARTED
+   * @see cn.taketoday.context.ApplicationContext.State#STARTING
+   * @see cn.taketoday.context.ApplicationContext.State#CLOSING
+   * @since 4.0
+   */
+  void setRefreshable(boolean refreshable);
+
 }
