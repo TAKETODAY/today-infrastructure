@@ -41,7 +41,7 @@ public interface AnnotationConfigRegistry {
    *
    * @param components
    *         one or more component classes,
-   *         e.g. {@link Configuration @Configuration} classes   *
+   *         e.g. {@link Configuration @Configuration} classes
    *
    * @since 3.0
    */

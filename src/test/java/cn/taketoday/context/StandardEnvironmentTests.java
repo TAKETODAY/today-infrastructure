@@ -40,15 +40,17 @@ import cn.taketoday.util.ResourceUtils;
 class StandardEnvironmentTests {
 
   @Test
-  void test_AutoloadProperties() throws Exception {
-    try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-      Environment environment = applicationContext.getEnvironment();
+  void autoLoadProperties() {
+    try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
+      Environment environment = context.getEnvironment();
+      context.refresh();
+
       assert "https://taketoday.cn".equals(environment.getProperty("site.host"));
     }
   }
 
   @Test
-  void test_loadProperties() throws IOException {
+  void loadProperties() throws IOException {
     ConfigurableEnvironment environment = new StandardEnvironment();
 
     PropertySources propertySources = environment.getPropertySources();
@@ -62,7 +64,7 @@ class StandardEnvironmentTests {
   }
 
   @Test
-  void test_ActiveProfile() throws IOException {
+  void activeProfile() throws IOException {
 
     try (ApplicationContext applicationContext
             = new StandardApplicationContext("", "cn.taketoday.context.env")) {
@@ -77,11 +79,11 @@ class StandardEnvironmentTests {
   }
 
   @Test
-  void test_AddActiveProfile() throws IOException {
+  void addActiveProfile() {
 
-    try (ConfigurableApplicationContext applicationContext
-            = new StandardApplicationContext("", "cn.taketoday.context.env")) {
-      ConfigurableEnvironment environment = applicationContext.getEnvironment();
+    try (ConfigurableApplicationContext context
+            = new StandardApplicationContext("classpath:info.properties", "cn.taketoday.context.env")) {
+      ConfigurableEnvironment environment = context.getEnvironment();
 
       environment.addActiveProfile("prod");
       String[] activeProfiles = environment.getActiveProfiles();

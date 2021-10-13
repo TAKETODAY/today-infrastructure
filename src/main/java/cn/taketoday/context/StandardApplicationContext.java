@@ -22,6 +22,7 @@ package cn.taketoday.context;
 import java.io.IOException;
 import java.util.List;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
@@ -62,8 +63,8 @@ public class StandardApplicationContext
    * @param parent
    *         the parent application context
    *
-   * @see #registerBeanDefinition
-   * @see #refresh
+   * @see #registerBeanDefinition(String, BeanDefinition)
+   * @see #refresh()
    */
   public StandardApplicationContext(@Nullable ApplicationContext parent) {
     setParent(parent);
@@ -77,8 +78,8 @@ public class StandardApplicationContext
    * @param parent
    *         the parent application context
    *
-   * @see #registerBeanDefinition
-   * @see #refresh
+   * @see #registerBeanDefinition(String, BeanDefinition)
+   * @see #refresh()
    */
   public StandardApplicationContext(StandardBeanFactory beanFactory, ApplicationContext parent) {
     this(beanFactory);
@@ -98,11 +99,15 @@ public class StandardApplicationContext
   /**
    * Start with given class set
    *
-   * @param classes
-   *         class set
+   * @param components
+   *         one or more component classes,
+   *         e.g. {@link cn.taketoday.lang.Configuration @Configuration} classes
+   *
+   * @see #refresh()
+   * @see #register(Class[])
    */
-  public StandardApplicationContext(Class<?>... classes) {
-    registerBean(classes);
+  public StandardApplicationContext(Class<?>... components) {
+    register(components);
     refresh();
   }
 
@@ -113,6 +118,8 @@ public class StandardApplicationContext
    *         a file or a directory contains
    * @param locations
    *         scan classes from packages
+   *
+   * @see #refresh()
    */
   public StandardApplicationContext(String propertiesLocation, String... locations) {
     setPropertiesLocation(propertiesLocation);
