@@ -44,7 +44,7 @@ class AutoProxyConfigurationTests {
   @Test
   void testEnableAspectAutoProxy() {
     try (final StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(AopConfig.class);
+      context.register(AopConfig.class);
 
       final BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
 

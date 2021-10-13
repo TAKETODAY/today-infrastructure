@@ -916,8 +916,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-
-
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -957,7 +955,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
   public void testLifecycle() {
 
     try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
-      context.importBeans(LifecycleBean.class);
+      context.register(LifecycleBean.class);
 
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
       Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitions();

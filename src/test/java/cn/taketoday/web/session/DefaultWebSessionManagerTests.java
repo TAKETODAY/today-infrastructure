@@ -45,7 +45,7 @@ class DefaultWebSessionManagerTests {
   public void testWebSession() {
 
     try (final StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.importBeans(AppConfig.class);
+      applicationContext.register(AppConfig.class);
 
       final WebSessionManager sessionManager = applicationContext.getBean(WebSessionManager.class);
       final MockRequestContext context = new MockRequestContext();

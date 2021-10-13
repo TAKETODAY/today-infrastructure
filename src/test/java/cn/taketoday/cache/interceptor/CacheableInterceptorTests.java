@@ -93,11 +93,11 @@ class CacheableInterceptorTests {
   void testContext() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(CacheUserService.class);
-      context.importBeans(CacheableInterceptor.class);
-      context.importBeans(CaffeineCacheManager.class);
-      context.importBeans(AspectAutoProxyCreator.class);
-      context.importBeans(DefaultCacheExceptionResolver.class);
+      context.register(CacheUserService.class);
+      context.register(CacheableInterceptor.class);
+      context.register(CaffeineCacheManager.class);
+      context.register(AspectAutoProxyCreator.class);
+      context.register(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
 
       CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);

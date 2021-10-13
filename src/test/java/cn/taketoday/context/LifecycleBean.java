@@ -96,7 +96,7 @@ public class LifecycleBean
   @Test
   public void lifecycle() {
     try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
-      context.importBeans(LifecycleBean.class);
+      context.register(LifecycleBean.class);
 
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
       Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitions();

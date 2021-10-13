@@ -193,7 +193,7 @@ class ClassUtilsTests {
 
       AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
 
-      context.importBeans(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
+      context.register(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
 
       assertThat(context.getBean(AutowiredOnConstructor.class))
               .isNotNull();

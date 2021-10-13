@@ -55,7 +55,7 @@ class ContextCloseListenerTests {
 
       context.addApplicationListener(new ContextCloseListener());
 
-      context.importBeans(ContextCloseListenerConfig.class);
+      context.register(ContextCloseListenerConfig.class);
 
       context.refresh();
     }

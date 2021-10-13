@@ -24,7 +24,7 @@ import cn.taketoday.lang.Configuration;
 
 /**
  * Common interface for annotation config application contexts,
- * defining {@link #importBeans(Class[])} and {@link #scan(String...)} methods.
+ * defining {@link #register(Class[])} and {@link #scan(String...)} methods.
  *
  * @author TODAY 2021/9/30 23:06
  * @since 4.0
@@ -45,7 +45,7 @@ public interface AnnotationConfigRegistry {
    *
    * @since 3.0
    */
-  void importBeans(Class<?>... components);
+  void register(Class<?>... components);
 
 //  void importComponents(Class<?>... components);
 

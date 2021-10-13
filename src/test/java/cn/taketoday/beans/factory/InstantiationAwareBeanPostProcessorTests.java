@@ -82,8 +82,8 @@ class InstantiationAwareBeanPostProcessorTests {
 
       ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
 
-      context.importBeans(InstantiationAwareBeanPostProcessorBean.class);
-      context.importBeans(InstantiationAwareBeanPostProcessorConfig.class);
+      context.register(InstantiationAwareBeanPostProcessorBean.class);
+      context.register(InstantiationAwareBeanPostProcessorConfig.class);
 
       final InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
       beanFactory.addBeanPostProcessor(postProcessor);

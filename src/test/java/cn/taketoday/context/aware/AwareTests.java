@@ -39,7 +39,7 @@ class AwareTests {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-      applicationContext.importBeans(AwareBean.class);
+      applicationContext.register(AwareBean.class);
       applicationContext.refresh();
 
       AwareBean bean = applicationContext.getBean(AwareBean.class);

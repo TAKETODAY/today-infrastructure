@@ -54,11 +54,11 @@ class CachePutInterceptorTests {
   void testInContext() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(CacheUserService.class);
-      context.importBeans(CachePutInterceptor.class);
-      context.importBeans(CaffeineCacheManager.class);
-      context.importBeans(AspectAutoProxyCreator.class);
-      context.importBeans(DefaultCacheExceptionResolver.class);
+      context.register(CacheUserService.class);
+      context.register(CachePutInterceptor.class);
+      context.register(CaffeineCacheManager.class);
+      context.register(AspectAutoProxyCreator.class);
+      context.register(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
 
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
@@ -104,11 +104,11 @@ class CachePutInterceptorTests {
   public void testContextConditional() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(CacheUserService.class);
-      context.importBeans(CachePutInterceptor.class);
-      context.importBeans(CaffeineCacheManager.class);
-      context.importBeans(AspectAutoProxyCreator.class);
-      context.importBeans(DefaultCacheExceptionResolver.class);
+      context.register(CacheUserService.class);
+      context.register(CachePutInterceptor.class);
+      context.register(CaffeineCacheManager.class);
+      context.register(AspectAutoProxyCreator.class);
+      context.register(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
 
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);

@@ -149,7 +149,7 @@ class ImportTests {
       Assertions.assertTrue(context.containsBeanDefinition(ImportTESTBean.class));
       Assertions.assertTrue(context.containsBeanDefinition(TEST.class));
 
-      context.importBeans(AopConfig.class);
+      context.register(AopConfig.class);
 
       final AopSelector bean = context.getBean(AopSelector.class);
       final BeanDefinitionRegistrar beanDefinitionRegistrar = context.getBean(BeanDefinitionRegistrar.class);

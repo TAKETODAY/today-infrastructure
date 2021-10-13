@@ -42,7 +42,7 @@ class MethodEventDrivenPostProcessorTests {
       context.getBeanFactory()
               .addBeanPostProcessor(new MethodEventDrivenPostProcessor(context));
 
-      context.importBeans(EventBean.class);
+      context.register(EventBean.class);
 
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));
@@ -65,7 +65,7 @@ class MethodEventDrivenPostProcessorTests {
   void enableMethodEventDriven() {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(Config.class);
+      context.register(Config.class);
 
       context.scan("cn.taketoday.context.event");
 

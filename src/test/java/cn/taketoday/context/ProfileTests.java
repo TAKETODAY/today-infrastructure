@@ -70,7 +70,7 @@ class ProfileTests {
   void testProfile() throws IOException {
     try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
 
-      context.importBeans(ProfileTestConfig.class);
+      context.register(ProfileTestConfig.class);
 
       User user = context.getBean("user", User.class);
       System.out.println(user);
@@ -85,7 +85,7 @@ class ProfileTests {
             = new StandardApplicationContext("info.properties", "test.demo.config")) {
       User yhj = context.getBean("yhj", User.class);
       Assertions.assertThat(yhj).isNull();
-      context.importBeans(ProfileTestConfig.class);
+      context.register(ProfileTestConfig.class);
 
       String system = context.getEnvironment().getProperty("os.name");
       if (system != null && system.contains("Windows")) {

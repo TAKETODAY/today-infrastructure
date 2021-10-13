@@ -159,8 +159,8 @@ public class StandardApplicationContext
   }
 
   @Override
-  public void importBeans(Class<?>... components) {
-    beanDefinitionReader.importBeans(components);
+  public void register(Class<?>... components) {
+    beanDefinitionReader.register(components);
   }
 
   @Override

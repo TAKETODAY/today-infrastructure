@@ -87,7 +87,7 @@ class AopTests {
 
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      context.importBeans(AopConfig.class);
+      context.register(AopConfig.class);
       AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
       proxyCreator.setBeanFactory(beanFactory);
       proxyCreator.setProxyTargetClass(true);
@@ -232,7 +232,7 @@ class AopTests {
 
       beanFactory.addBeanPostProcessor(proxyCreator);
 
-      context.importBeans(TimerAspect.class, PrinterBean.class);
+      context.register(TimerAspect.class, PrinterBean.class);
 
       PrinterBean bean = context.getBean(PrinterBean.class);
       bean.print();
@@ -317,7 +317,7 @@ class AopTests {
 
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
-      context.importBeans(LoggingConfig.class, PrinterBean.class);
+      context.register(LoggingConfig.class, PrinterBean.class);
 //      DebuggingClassWriter.setDebugLocation("~/temp/debug");
       // TODO 调试 构造器问题
 //      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");

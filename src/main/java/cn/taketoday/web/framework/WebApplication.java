@@ -102,7 +102,7 @@ public class WebApplication {
       AnnotationConfigRegistry configRegistry = context.unwrap(AnnotationConfigRegistry.class);
 
       final Class<?> startupClass = context.getStartupClass();
-      configRegistry.importBeans(startupClass); // @since 1.0.2 import startup class
+      configRegistry.register(startupClass); // @since 1.0.2 import startup class
       if (startupClass == null) {
         log.info("There isn't a Startup Class");
         configRegistry.scan(); // load from all classpath

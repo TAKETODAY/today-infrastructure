@@ -62,7 +62,7 @@ class ParameterHandlerTests {
   void resolveParameter() throws NoSuchMethodException {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(ParameterHandlerBean.class);
+      context.register(ParameterHandlerBean.class);
 
       ArgumentsResolver argumentsResolver = new ArgumentsResolver(context);
       Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);

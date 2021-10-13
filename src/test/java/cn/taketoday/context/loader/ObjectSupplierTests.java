@@ -61,7 +61,7 @@ class ObjectSupplierTests {
   @Test
   public void testProperty() throws Throwable {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.importBeans(Bean.class, TEST.class);
+      context.register(Bean.class, TEST.class);
 
       TEST test = context.getBean(TEST.class);
       Bean bean = context.getBean(Bean.class);
@@ -84,7 +84,7 @@ class ObjectSupplierTests {
       ArgumentsResolvingContext resolvingContext =
               new ArgumentsResolvingContext(constructor, context, null);
 
-      context.importBeans(Bean.class);
+      context.register(Bean.class);
 
       ObjectSupplier<?> supplier = (ObjectSupplier<?>) parameterResolver.resolveArgument(parameters[0], resolvingContext);
 

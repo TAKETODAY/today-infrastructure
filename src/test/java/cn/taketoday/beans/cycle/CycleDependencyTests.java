@@ -146,7 +146,7 @@ class CycleDependencyTests {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-      applicationContext.importBeans(LoggingAspect.class);
+      applicationContext.register(LoggingAspect.class);
       applicationContext.scan("cn.taketoday.beans.cycle");
 
       final LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
