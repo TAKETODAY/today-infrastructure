@@ -24,8 +24,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Constant;
 
 /**
  * Adapter class for exposing a {@code TypeDescriptor}'s annotations as an

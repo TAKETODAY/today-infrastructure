@@ -25,10 +25,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
-import cn.taketoday.core.ObjectFactory;
 
 /**
  * Indicates whether a bean is to be lazily initialized.

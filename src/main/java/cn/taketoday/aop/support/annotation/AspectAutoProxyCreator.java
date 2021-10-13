@@ -39,15 +39,15 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.lang.Component;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 

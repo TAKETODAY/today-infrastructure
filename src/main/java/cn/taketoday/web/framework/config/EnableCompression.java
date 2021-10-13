@@ -22,9 +22,9 @@ package cn.taketoday.web.framework.config;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

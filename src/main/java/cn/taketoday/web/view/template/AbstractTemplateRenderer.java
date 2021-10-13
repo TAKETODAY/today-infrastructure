@@ -22,8 +22,8 @@ package cn.taketoday.web.view.template;
 import java.io.IOException;
 import java.util.Locale;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 

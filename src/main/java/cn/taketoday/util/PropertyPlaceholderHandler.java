@@ -45,7 +45,7 @@ import cn.taketoday.logging.LoggerFactory;
  */
 public class PropertyPlaceholderHandler {
   private static final Logger log = LoggerFactory.getLogger(PropertyPlaceholderHandler.class);
-  
+
   public static final String PLACE_HOLDER_SUFFIX = "}";
   public static final String PLACE_HOLDER_PREFIX = "#{";
   /** Value separator for system property placeholders: ":". */

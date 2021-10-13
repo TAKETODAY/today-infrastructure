@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.cache.ConcurrentMapCache;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;

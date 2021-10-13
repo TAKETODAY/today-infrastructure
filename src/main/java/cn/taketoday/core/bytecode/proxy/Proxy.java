@@ -18,8 +18,8 @@ package cn.taketoday.core.bytecode.proxy;
 import java.io.Serializable;
 import java.util.Objects;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.lang.Constant;
 
 /**
  * This class is meant to be used as replacement for

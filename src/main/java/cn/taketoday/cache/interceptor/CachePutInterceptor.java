@@ -27,8 +27,8 @@ import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Constant;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.isConditionPassing;

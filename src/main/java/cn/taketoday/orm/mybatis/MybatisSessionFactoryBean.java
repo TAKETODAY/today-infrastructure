@@ -29,8 +29,8 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.lang.Autowired;
 
 /**
  * @author TODAY <br>

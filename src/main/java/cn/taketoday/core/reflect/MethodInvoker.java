@@ -26,7 +26,6 @@ import java.util.Objects;
 
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -36,6 +35,7 @@ import cn.taketoday.core.bytecode.core.ClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 

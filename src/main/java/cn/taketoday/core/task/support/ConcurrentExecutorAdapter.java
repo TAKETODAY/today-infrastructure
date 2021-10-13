@@ -18,9 +18,9 @@ package cn.taketoday.core.task.support;
 
 import java.util.concurrent.Executor;
 
+import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.core.task.TaskExecutor;
 
 /**
  * Adapter that exposes the {@link Executor} interface

@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.lang.Component;
 
 /**
  * @author TODAY <br>

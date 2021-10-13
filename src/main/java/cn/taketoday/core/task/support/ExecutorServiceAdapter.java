@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.core.task.TaskExecutor;
 
 /**
  * Adapter that takes a {@link cn.taketoday.core.task.TaskExecutor}

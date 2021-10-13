@@ -22,9 +22,9 @@ package cn.taketoday.core.conversion.support;
 import java.util.Collection;
 import java.util.StringJoiner;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Constant;
 
 /**
  * Converts a Collection to a comma-delimited String.

@@ -40,9 +40,9 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author Kin-man Chung

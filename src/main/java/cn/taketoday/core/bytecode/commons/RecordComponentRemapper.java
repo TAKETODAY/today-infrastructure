@@ -28,10 +28,10 @@
 
 package cn.taketoday.core.bytecode.commons;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.RecordComponentVisitor;
 import cn.taketoday.core.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link RecordComponentVisitor} that remaps types with a {@link Remapper}.

@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -32,6 +31,7 @@ import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.StringUtils;
 
 /**

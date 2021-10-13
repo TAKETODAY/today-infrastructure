@@ -21,14 +21,14 @@ package cn.taketoday.web.framework;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.web.framework.server.WebServer;
-import cn.taketoday.web.framework.utils.WebApplicationUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.StandardWebBeanFactory;
+import cn.taketoday.web.framework.server.WebServer;
+import cn.taketoday.web.framework.utils.WebApplicationUtils;
 
 /**
  * @author TODAY <br>

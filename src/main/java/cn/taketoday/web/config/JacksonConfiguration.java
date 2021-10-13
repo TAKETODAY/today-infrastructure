@@ -27,9 +27,9 @@ import java.util.List;
 
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.ObjectNotationProcessor;
 import cn.taketoday.web.handler.JacksonObjectNotationProcessor;

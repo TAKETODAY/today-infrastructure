@@ -28,10 +28,10 @@ import java.util.Locale;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.web.framework.WebServerApplicationContext;
 
 /**
  * @author TODAY 2019-02-05 13:09

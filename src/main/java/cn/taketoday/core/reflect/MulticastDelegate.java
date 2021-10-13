@@ -23,7 +23,6 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -35,6 +34,7 @@ import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.bytecode.core.ProcessArrayCallback;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

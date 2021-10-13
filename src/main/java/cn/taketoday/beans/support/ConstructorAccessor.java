@@ -20,8 +20,8 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.reflect.Accessor;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/8/27 21:41

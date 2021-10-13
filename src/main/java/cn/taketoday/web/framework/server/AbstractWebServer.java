@@ -30,14 +30,20 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.web.framework.config.CompressionConfiguration;
@@ -46,12 +52,6 @@ import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebApplicationConfiguration;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.framework.utils.WebApplicationUtils;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.session.SessionConfiguration;
 
 /**

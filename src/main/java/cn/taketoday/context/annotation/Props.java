@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.lang.Constant;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY 2018-08-04 13:13
@@ -37,11 +37,13 @@ public @interface Props {
   /**
    * Properties file name
    * <p>
-   *   Properties 文件名
+   * Properties 文件名
+   *
    * @return Properties file name
+   *
    * @see PropsReader
    */
-  String[] value() default { };
+  String[] value() default {};
 
   /**
    * Property prefix
@@ -62,6 +64,6 @@ public @interface Props {
    * and if the Props annotation is not used inside the class,
    * it is ignored (stop recursion or iteration)
    */
-  Class<?>[] nested() default { };
+  Class<?>[] nested() default {};
 
 }

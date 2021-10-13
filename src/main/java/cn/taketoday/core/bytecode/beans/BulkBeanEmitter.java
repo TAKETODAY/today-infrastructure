@@ -18,7 +18,6 @@ package cn.taketoday.core.bytecode.beans;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -29,6 +28,7 @@ import cn.taketoday.core.bytecode.core.ClassEmitter;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })

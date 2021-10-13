@@ -20,8 +20,8 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.lang.Configuration;
 
 /**
  * Interface to be implemented by any @{@link Configuration} class that wishes

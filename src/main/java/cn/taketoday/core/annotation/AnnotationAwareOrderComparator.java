@@ -25,9 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.core.DecoratingProxy;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.OrderComparator;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@code AnnotationAwareOrderComparator} is an extension of

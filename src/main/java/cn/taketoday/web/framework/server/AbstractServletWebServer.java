@@ -37,15 +37,15 @@ import javax.servlet.annotation.ServletSecurity;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.config.DefaultServletConfiguration;
 import cn.taketoday.web.framework.config.JspServletConfiguration;
-import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.session.SessionConfiguration;

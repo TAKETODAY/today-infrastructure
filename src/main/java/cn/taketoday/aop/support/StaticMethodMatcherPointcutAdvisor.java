@@ -26,8 +26,8 @@ import java.io.Serializable;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.PointcutAdvisor;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Assert;
 
 /**
  * Convenient base class for Advisors that are also static pointcuts.

@@ -24,8 +24,8 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

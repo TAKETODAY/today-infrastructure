@@ -16,8 +16,8 @@
 
 package cn.taketoday.core.env;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.conversion.ConfigurableConversionService;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Configuration interface to be implemented by most if not all {@link PropertyResolver}

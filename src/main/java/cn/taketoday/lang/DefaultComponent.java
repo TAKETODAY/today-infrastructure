@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY <br>

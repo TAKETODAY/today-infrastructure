@@ -29,9 +29,10 @@ import cn.taketoday.lang.Constant;
 
 /**
  * Property alias name
- *<p>
- *   just alias name, cannot override its getter,setter
- *</p>
+ * <p>
+ * just alias name, cannot override its getter,setter
+ * </p>
+ *
  * @author TODAY 2021/1/27 22:32
  */
 @Retention(RetentionPolicy.RUNTIME)

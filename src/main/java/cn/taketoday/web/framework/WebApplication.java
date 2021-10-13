@@ -21,14 +21,14 @@ package cn.taketoday.web.framework;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.AnnotationConfigRegistry;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.web.framework.server.WebServer;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.web.framework.server.WebServer;
 
 /**
  * Web Application Runner

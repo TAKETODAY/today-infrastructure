@@ -22,9 +22,9 @@ package cn.taketoday.web.handler;
 import java.io.Serializable;
 import java.util.Objects;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.OrderUtils;
+import cn.taketoday.lang.Assert;
 
 /**
  * Pattern handler match in runtime

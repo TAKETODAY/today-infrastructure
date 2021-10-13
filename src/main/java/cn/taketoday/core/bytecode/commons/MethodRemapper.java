@@ -28,12 +28,12 @@
 
 package cn.taketoday.core.bytecode.commons;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link MethodVisitor} that remaps types with a {@link Remapper}.

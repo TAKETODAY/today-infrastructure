@@ -27,8 +27,8 @@ import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.DecoratingProxy;
+import cn.taketoday.lang.Assert;
 
 /**
  * Utility methods for AOP proxy factories.

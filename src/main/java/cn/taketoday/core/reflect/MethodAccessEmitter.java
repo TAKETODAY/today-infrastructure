@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -43,6 +42,7 @@ import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.bytecode.core.MethodInfoTransformer;
 import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.core.bytecode.core.VisibilityPredicate;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 

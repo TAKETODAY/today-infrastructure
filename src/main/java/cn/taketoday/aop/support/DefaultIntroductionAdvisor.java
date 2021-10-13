@@ -30,9 +30,9 @@ import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInfo;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 

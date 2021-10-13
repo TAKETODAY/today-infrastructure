@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
@@ -35,6 +34,7 @@ import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.core.DefaultGeneratorStrategy;
 import cn.taketoday.core.bytecode.core.EmitUtils;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;

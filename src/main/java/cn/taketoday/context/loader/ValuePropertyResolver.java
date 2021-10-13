@@ -27,9 +27,9 @@ import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Required;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.StringUtils;
 
 /**

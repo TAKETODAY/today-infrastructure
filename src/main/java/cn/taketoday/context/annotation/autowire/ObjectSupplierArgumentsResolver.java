@@ -27,8 +27,8 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.NonNull;
 
 /**
  * for {@link ObjectSupplier} ArgumentsResolverStrategy

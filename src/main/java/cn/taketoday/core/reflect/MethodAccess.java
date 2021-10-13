@@ -24,11 +24,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

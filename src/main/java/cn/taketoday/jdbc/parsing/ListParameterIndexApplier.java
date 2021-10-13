@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.jdbc.ParameterBinder;
+import cn.taketoday.lang.NonNull;
 
 /**
  * @author TODAY 2021/6/8 23:53

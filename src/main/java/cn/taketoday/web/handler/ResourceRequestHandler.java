@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPOutputStream;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;

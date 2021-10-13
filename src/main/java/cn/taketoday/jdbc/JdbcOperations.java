@@ -25,7 +25,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.jdbc.parsing.QueryParameter;
@@ -40,6 +39,7 @@ import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.jdbc.utils.FeatureDetector;
+import cn.taketoday.lang.Assert;
 
 /**
  * JdbcOperations is the main class for the today-jdbc library.

@@ -22,7 +22,6 @@ package cn.taketoday.context.loader;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * load bean definitions

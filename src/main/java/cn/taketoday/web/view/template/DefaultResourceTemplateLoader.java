@@ -22,10 +22,10 @@ package cn.taketoday.web.view.template;
 import java.io.IOException;
 import java.io.Reader;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ConcurrentCache;

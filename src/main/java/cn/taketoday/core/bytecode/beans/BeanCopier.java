@@ -34,9 +34,9 @@ import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.lang.Constant.SOURCE_FILE;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.core.bytecode.Opcodes.JAVA_VERSION;
+import static cn.taketoday.lang.Constant.SOURCE_FILE;
 
 /**
  * @author Chris Nokleberg

@@ -23,9 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
