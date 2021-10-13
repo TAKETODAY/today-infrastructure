@@ -21,8 +21,9 @@ package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.io.ProtocolResolver;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-11-14 21:16
@@ -89,5 +90,24 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @since 4.0
    */
   void setEnvironment(ConfigurableEnvironment environment);
+
+  /**
+   * Register the given protocol resolver with this application context,
+   * allowing for additional resource protocols to be handled.
+   * <p>Any such resolver will be invoked ahead of this context's standard
+   * resolution rules. It may therefore also override any default rules.
+   *
+   * @since 4.0
+   */
+  void addProtocolResolver(ProtocolResolver resolver);
+
+  /**
+   * Specify the ClassLoader to load class path resources and bean classes with.
+   * <p>This context class loader will be passed to the internal bean factory.
+   *
+   * @see cn.taketoday.core.io.DefaultResourceLoader#DefaultResourceLoader(ClassLoader)
+   * @since 4.0
+   */
+  void setClassLoader(ClassLoader classLoader);
 
 }
