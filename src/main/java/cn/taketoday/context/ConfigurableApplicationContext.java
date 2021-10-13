@@ -21,6 +21,7 @@ package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ProtocolResolver;
 import cn.taketoday.lang.Nullable;
@@ -109,5 +110,10 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @since 4.0
    */
   void setClassLoader(ClassLoader classLoader);
+
+  /**
+   * @since 4.0
+   */
+  void setEventPublisher(ApplicationEventPublisher eventPublisher);
 
 }

@@ -50,13 +50,12 @@ import cn.taketoday.util.ObjectUtils;
 public class DefaultApplicationContext
         extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
-  private final StandardBeanFactory beanFactory;
   @Nullable
   private ResourceLoader resourceLoader;
-
   private boolean customClassLoader = false;
 
-  protected final BeanDefinitionReader beanDefinitionReader = new BeanDefinitionReader(this, this);
+  protected final StandardBeanFactory beanFactory;
+  protected final BeanDefinitionReader beanDefinitionReader;
 
   /**
    * Default Constructor
@@ -66,6 +65,7 @@ public class DefaultApplicationContext
    */
   public DefaultApplicationContext() {
     this.beanFactory = new StandardBeanFactory();
+    this.beanDefinitionReader = new BeanDefinitionReader(this, beanFactory);
   }
 
   /**
@@ -80,6 +80,7 @@ public class DefaultApplicationContext
   public DefaultApplicationContext(StandardBeanFactory beanFactory) {
     Assert.notNull(beanFactory, "BeanFactory must not be null");
     this.beanFactory = beanFactory;
+    this.beanDefinitionReader = new BeanDefinitionReader(this, beanFactory);
   }
 
   /**

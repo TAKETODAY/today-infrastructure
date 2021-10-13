@@ -75,6 +75,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -118,13 +119,14 @@ public abstract class AbstractApplicationContext
   private ApplicationContext parent;
 
   /** Display name. */
-  private String displayName = ObjectUtils.identityToString(this);
+  private String applicationName = ObjectUtils.identityToString(this);
 
   /** @since 4.0 */
-  private ApplicationEventPublisher eventPublisher = new DefaultApplicationEventPublisher(getBeanFactory());
+  private ApplicationEventPublisher eventPublisher;
 
   /** @since 4.0 */
   private BeanFactoryAwareBeanInstantiator beanInstantiator;
+
   /** @since 4.0 */
   private final PathMatchingPatternResourceLoader patternResourceLoader
           = new PathMatchingPatternResourceLoader(this);
@@ -180,24 +182,19 @@ public abstract class AbstractApplicationContext
    * Typically, done during initialization of concrete context implementations.
    * <p>Default is the object id of the context instance.
    */
-  public void setDisplayName(String displayName) {
-    Assert.hasLength(displayName, "Display name must not be empty");
-    this.displayName = displayName;
+  public void setApplicationName(String applicationName) {
+    Assert.hasLength(applicationName, "Application name must not be empty");
+    this.applicationName = applicationName;
   }
 
   /**
-   * Return a friendly name for this context.
+   * Return this application name for this context.
    *
    * @return a display name for this context (never {@code null})
    */
   @Override
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  @Override
   public String getApplicationName() {
-    return null; // TODO application.name property
+    return applicationName;
   }
 
   /**
@@ -298,6 +295,12 @@ public abstract class AbstractApplicationContext
     }
     if (environment.getFlag(ENABLE_FULL_LIFECYCLE)) {
       beanFactory.setFullLifecycle(true);
+    }
+
+    // @since 4.0
+    String appName = environment.getProperty(APPLICATION_NAME);
+    if (StringUtils.hasText(appName)) {
+      setApplicationName(appName);
     }
 
     // register framework beans
@@ -839,6 +842,7 @@ public abstract class AbstractApplicationContext
   }
 
   /** @since 4.0 */
+  @Override
   public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
     Assert.notNull(eventPublisher, "event-publisher must not be nul");
     this.eventPublisher = eventPublisher;
@@ -846,6 +850,9 @@ public abstract class AbstractApplicationContext
 
   /** @since 4.0 */
   public ApplicationEventPublisher getEventPublisher() {
+    if (eventPublisher == null) {
+      eventPublisher = new DefaultApplicationEventPublisher(getBeanFactory());
+    }
     return eventPublisher;
   }
 

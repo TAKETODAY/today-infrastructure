@@ -38,6 +38,13 @@ public interface ApplicationContext
         extends Closeable, HierarchicalBeanFactory, ApplicationEventPublisher, PatternResourceLoader {
 
   /**
+   *
+   * @since 4.0
+   * @see Environment
+   */
+  String APPLICATION_NAME = "application.name";
+
+  /**
    * Get {@link Environment}
    *
    * @return {@link Environment}
@@ -126,15 +133,6 @@ public interface ApplicationContext
    * @since 4.0
    */
   String getApplicationName();
-
-  /**
-   * Return a friendly name for this context.
-   *
-   * @return a display name for this context (never {@code null})
-   *
-   * @since 4.0
-   */
-  String getDisplayName();
 
   /**
    * Return the parent context, or {@code null} if there is no parent
