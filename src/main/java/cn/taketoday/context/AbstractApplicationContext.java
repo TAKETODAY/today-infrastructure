@@ -58,6 +58,7 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.expression.ExpressionFactory;
@@ -96,7 +97,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @author TODAY 2018-09-09 22:02
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
+public abstract class AbstractApplicationContext
+        extends DefaultResourceLoader implements ConfigurableApplicationContext {
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
   private long startupDate;
@@ -124,7 +126,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /** @since 4.0 */
   private BeanFactoryAwareBeanInstantiator beanInstantiator;
   /** @since 4.0 */
-  private final PathMatchingPatternResourceLoader patternResourceLoader = new PathMatchingPatternResourceLoader();
+  private final PathMatchingPatternResourceLoader patternResourceLoader
+          = new PathMatchingPatternResourceLoader(this);
 
   public AbstractApplicationContext() {
     ApplicationContextHolder.register(this); // @since 4.0
@@ -145,21 +148,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   // Implementation of PatternResourceLoader interface
   //---------------------------------------------------------------------
 
-  @NonNull
-  @Override
-  public Resource getResource(String location) {
-    return patternResourceLoader.getResource(location);
-  }
-
   @Override
   public Resource[] getResources(String locationPattern) throws IOException {
     return patternResourceLoader.getResources(locationPattern);
-  }
-
-  @Nullable
-  @Override
-  public ClassLoader getClassLoader() {
-    return patternResourceLoader.getClassLoader();
   }
 
   //---------------------------------------------------------------------
