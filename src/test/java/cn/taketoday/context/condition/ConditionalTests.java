@@ -64,7 +64,7 @@ class ConditionalTests {
   @Test
   void testConditionalOnClass() {
 
-    try (final ApplicationContext applicationContext = //
+    try (ApplicationContext applicationContext = //
             new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
       BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
 
@@ -93,7 +93,7 @@ class ConditionalTests {
   @Test
   void conditionalOnExpression() {
 
-    try (final ApplicationContext applicationContext = //
+    try (ApplicationContext applicationContext = //
             new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
 
       BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
@@ -133,9 +133,9 @@ class ConditionalTests {
   @Test
   public void testConditionalOnProperty() throws Exception {
 
-    try (final ApplicationContext applicationContext = //
+    try (ApplicationContext context =
             new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
-      BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
+      BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnProperty_.class));
       Assertions.assertTrue(!registry.containsBeanDefinition(ConditionalOnProperty__.class));
@@ -173,7 +173,7 @@ class ConditionalTests {
   @Test
   public void testConditionalOnResource() throws Exception {
 
-    try (final ApplicationContext applicationContext = //
+    try (ApplicationContext applicationContext = //
             new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
       BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
       Assertions.assertFalse(registry.containsBeanDefinition(ConditionalOnResource_.class));

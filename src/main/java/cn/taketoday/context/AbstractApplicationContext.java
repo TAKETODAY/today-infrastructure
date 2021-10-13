@@ -56,7 +56,6 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
@@ -134,9 +133,7 @@ public abstract class AbstractApplicationContext
   /** @since 4.0 */
   private boolean refreshable;
 
-  public AbstractApplicationContext() {
-    ApplicationContextHolder.register(this); // @since 4.0
-  }
+  public AbstractApplicationContext() { }
 
   /**
    * Create a new AbstractApplicationContext with the given parent context.
@@ -187,7 +184,9 @@ public abstract class AbstractApplicationContext
    */
   public void setApplicationName(String applicationName) {
     Assert.hasLength(applicationName, "Application name must not be empty");
+    ApplicationContextHolder.remove(this);
     this.applicationName = applicationName;
+    ApplicationContextHolder.register(this); // @since 4.0
   }
 
   /**
@@ -285,11 +284,12 @@ public abstract class AbstractApplicationContext
     log.info("Starting Application Context at [{}].", formatStartupDate());
 
     applyState(State.STARTING);
+    ConfigurableEnvironment environment = getEnvironment();
 
     // Initialize any placeholder property sources in the context environment.
-    initPropertySources();
+    initPropertySources(environment);
+    environment.validateRequiredProperties();
 
-    ConfigurableEnvironment environment = getEnvironment();
     AbstractBeanFactory beanFactory = getBeanFactory();
 
     // @since 2.1.6
@@ -299,12 +299,12 @@ public abstract class AbstractApplicationContext
     if (environment.getFlag(ENABLE_FULL_LIFECYCLE)) {
       beanFactory.setFullLifecycle(true);
     }
-
     // @since 4.0
     String appName = environment.getProperty(APPLICATION_NAME);
     if (StringUtils.hasText(appName)) {
       setApplicationName(appName);
     }
+    ApplicationContextHolder.register(this); // @since 4.0
   }
 
   /**
@@ -484,11 +484,13 @@ public abstract class AbstractApplicationContext
   }
 
   /**
-   * <p>Replace any stub property sources with actual instances.
+   * <p>
+   * load properties files or itself strategies
    *
-   * @see PropertySource.StubPropertySource
+   * @param environment
+   *         ConfigurableEnvironment
    */
-  protected void initPropertySources() throws IOException {
+  protected void initPropertySources(ConfigurableEnvironment environment) throws IOException {
     // for sub-class loading properties or prepare property-source
   }
 

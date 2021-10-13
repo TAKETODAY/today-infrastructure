@@ -148,9 +148,8 @@ public class StandardApplicationContext
   }
 
   @Override
-  protected void initPropertySources() throws IOException {
-    super.initPropertySources();
-    ConfigurableEnvironment environment = getEnvironment();
+  protected void initPropertySources(ConfigurableEnvironment environment) throws IOException {
+    super.initPropertySources(environment);
     ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
     if (propertiesLocation != null) {
       processor.setPropertiesLocation(propertiesLocation);

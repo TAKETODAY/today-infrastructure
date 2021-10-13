@@ -62,6 +62,7 @@ class ObjectSupplierTests {
   public void testProperty() throws Throwable {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(Bean.class, TEST.class);
+      context.refresh();
 
       TEST test = context.getBean(TEST.class);
       Bean bean = context.getBean(Bean.class);

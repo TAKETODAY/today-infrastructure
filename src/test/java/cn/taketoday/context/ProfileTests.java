@@ -71,6 +71,7 @@ class ProfileTests {
     try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
 
       context.register(ProfileTestConfig.class);
+      context.refresh();
 
       User user = context.getBean("user", User.class);
       System.out.println(user);

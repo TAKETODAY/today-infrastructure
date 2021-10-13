@@ -198,7 +198,7 @@ public abstract class PropertySource<T> {
    * intended default position/order of the property source, then be replaced
    * during context refresh.
    *
-   * @see cn.taketoday.context.AbstractApplicationContext#initPropertySources()
+   * @see cn.taketoday.context.AbstractApplicationContext#initPropertySources(ConfigurableEnvironment)
    */
   public static class StubPropertySource extends PropertySource<Object> {
 
