@@ -19,7 +19,6 @@
  */
 package cn.taketoday.core.io;
 
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -74,7 +73,6 @@ public interface ResourceLoader {
    * @see Resource#exists()
    * @see Resource#getInputStream()
    */
-  @NonNull
   Resource getResource(String location);
 
   /**
