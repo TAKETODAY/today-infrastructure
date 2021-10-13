@@ -114,6 +114,34 @@ class PropsReaderTests {
     assertThat(none).isNotNull().isEmpty();
   }
 
+  @Test
+  void readClassAsBeanPlaceholder() throws Exception {
+    HashMap<String, Object> keyValues = new HashMap<>();
+    MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
+
+    PropsReader propsReader = new PropsReader(propertyResolver);
+    Field declaredField = getClass().getDeclaredField("test");
+    Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
+
+    keyValues.put("test.description", "TODAY BLOG #{1+1}");
+    keyValues.put("test.cdn", "${test.cdn.placeholder}");
+    keyValues.put("test.cdn.placeholder", "https://cdn.taketoday.cn");
+    keyValues.put("test.nested.age", "${age:30}");
+    keyValues.put("age", "23");
+    keyValues.put("test.nested.userId", "666");
+    keyValues.put("test.nested.userName", "${name:lost-TODAY}");
+
+    PropsReaderConfig bean = propsReader.read(declaredAnnotation, PropsReaderConfig.class);
+    assertThat(bean).isNotNull();
+    assertThat(bean.description).isEqualTo("TODAY BLOG");
+    assertThat(bean.cdn).isEqualTo("https://cdn.taketoday.cn");
+
+    assertThat(bean.nested).isNotNull();
+    assertThat(bean.nested.age).isEqualTo(23);
+    assertThat(bean.nested.userId).isEqualTo("666");
+    assertThat(bean.nested.userName).isEqualTo("lost-TODAY");
+
+  }
 
   //
 
@@ -213,5 +241,7 @@ class PropsReaderTests {
     assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isFalse();
 
   }
+  //
+
 
 }
