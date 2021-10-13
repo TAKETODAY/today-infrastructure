@@ -51,7 +51,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -477,17 +476,17 @@ public abstract class ClassUtils {
     return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
   }
 
-  public static String getClassName(final byte[] classFile) {
+  public static String getClassName(byte[] classFile) {
     return getClassName(new ClassReader(classFile));
   }
 
-  public static String getClassName(final Resource resource) throws IOException {
-    try (final InputStream inputStream = resource.getInputStream()) {
+  public static String getClassName(Resource resource) throws IOException {
+    try (InputStream inputStream = resource.getInputStream()) {
       return getClassName(inputStream);
     }
   }
 
-  public static String getClassName(final InputStream inputStream) throws IOException {
+  public static String getClassName(InputStream inputStream) throws IOException {
     return getClassName(new ClassReader(inputStream));
   }
 
@@ -517,7 +516,8 @@ public abstract class ClassUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> getUserClass(T synthetic) {
-    return (Class<T>) getUserClass(Objects.requireNonNull(synthetic).getClass());
+    Assert.notNull(synthetic, "synthetic must not be null");
+    return (Class<T>) getUserClass(synthetic.getClass());
   }
 
   /**
@@ -533,7 +533,8 @@ public abstract class ClassUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> getUserClass(Class<T> syntheticClass) {
-    if (Objects.requireNonNull(syntheticClass).getName().lastIndexOf(CGLIB_CLASS_SEPARATOR) > -1) {
+    Assert.notNull(syntheticClass, "syntheticClass must not be null");
+    if (syntheticClass.getName().lastIndexOf(CGLIB_CLASS_SEPARATOR) > -1) {
       Class<?> superclass = syntheticClass.getSuperclass();
       if (superclass != null && superclass != Object.class) {
         return (Class<T>) superclass;
@@ -554,7 +555,8 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static <T> Class<T> getUserClass(String name) {
-    final int i = Objects.requireNonNull(name).indexOf(CGLIB_CLASS_SEPARATOR);
+    Assert.notNull(name, "synthetic-name must not be null");
+    int i = name.indexOf(CGLIB_CLASS_SEPARATOR);
     return i > 0 ? load(name.substring(0, i)) : load(name);
   }
 
@@ -568,18 +570,18 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static java.lang.reflect.Type[] getGenerics(final Class<?> type) {
+  public static java.lang.reflect.Type[] getGenerics(Class<?> type) {
     if (type != null) {
-      final java.lang.reflect.Type genericSuperclass = type.getGenericSuperclass();
+      java.lang.reflect.Type genericSuperclass = type.getGenericSuperclass();
 
-      final Class<?> superclass = type.getSuperclass();
+      Class<?> superclass = type.getSuperclass();
       if (genericSuperclass == superclass && genericSuperclass != Object.class) {
         return getGenerics(superclass);
       }
       if (genericSuperclass instanceof ParameterizedType) {
         return getActualTypeArguments(genericSuperclass);
       }
-      final java.lang.reflect.Type[] genericInterfaces = type.getGenericInterfaces();
+      java.lang.reflect.Type[] genericInterfaces = type.getGenericInterfaces();
       if (ObjectUtils.isNotEmpty(genericInterfaces)) {
         return getActualTypeArguments(genericInterfaces[0]);
       }
@@ -588,17 +590,17 @@ public abstract class ClassUtils {
   }
 
   @Nullable
-  public static java.lang.reflect.Type[] getGenericTypes(final Field property) {
+  public static java.lang.reflect.Type[] getGenericTypes(Field property) {
     return property != null ? getActualTypeArguments(property.getGenericType()) : null;
   }
 
   @Nullable
-  public static java.lang.reflect.Type[] getGenericTypes(final Parameter parameter) {
+  public static java.lang.reflect.Type[] getGenericTypes(Parameter parameter) {
     return parameter != null ? getActualTypeArguments(parameter.getParameterizedType()) : null;
   }
 
   @Nullable
-  static java.lang.reflect.Type[] getActualTypeArguments(final java.lang.reflect.Type pType) {
+  static java.lang.reflect.Type[] getActualTypeArguments(java.lang.reflect.Type pType) {
     if (pType instanceof ParameterizedType) {
       return ((ParameterizedType) pType).getActualTypeArguments();
     }
@@ -618,7 +620,7 @@ public abstract class ClassUtils {
    * @since 3.0
    */
   @Nullable
-  public static Class<?>[] getGenerics(final Class<?> type, Class<?> superClass) {
+  public static Class<?>[] getGenerics(Class<?> type, Class<?> superClass) {
     return GenericTypeResolver.resolveTypeArguments(type, superClass);
   }
 
@@ -1307,7 +1309,7 @@ public abstract class ClassUtils {
    *         target is not a enum
    * @since 3.0
    */
-  public static Class<?> getEnumType(final Class<?> targetType) {
+  public static Class<?> getEnumType(Class<?> targetType) {
     Class<?> enumType = targetType;
     while (enumType != null && !enumType.isEnum()) {
       enumType = enumType.getSuperclass();
