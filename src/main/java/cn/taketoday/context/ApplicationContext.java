@@ -38,9 +38,8 @@ public interface ApplicationContext
         extends Closeable, HierarchicalBeanFactory, ApplicationEventPublisher, PatternResourceLoader {
 
   /**
-   *
-   * @since 4.0
    * @see Environment
+   * @since 4.0
    */
   String APPLICATION_NAME = "application.name";
 
@@ -68,7 +67,8 @@ public interface ApplicationContext
    * @see #getBeanFactory()
    * @since 4.0
    */
-  @NonNull <T> T unwrapFactory(Class<T> requiredType);
+  @NonNull
+  <T> T unwrapFactory(Class<T> requiredType);
 
   /**
    * unwrap this ApplicationContext to {@code requiredType}
@@ -77,14 +77,8 @@ public interface ApplicationContext
    *         not a requiredType
    * @since 4.0
    */
-  @NonNull <T> T unwrap(Class<T> requiredType);
-
-  /**
-   * Refresh factory, initialize singleton
-   *
-   * @since 2.0.1
-   */
-  void refresh() throws ApplicationContextException;
+  @NonNull
+  <T> T unwrap(Class<T> requiredType);
 
   /**
    * Close context and destroy all singletons

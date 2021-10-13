@@ -129,4 +129,11 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    */
   void setRefreshable(boolean refreshable);
 
+  /**
+   * Refresh factory, initialize singleton
+   *
+   * @since 2.0.1
+   */
+  void refresh() throws ApplicationContextException;
+
 }
