@@ -32,7 +32,7 @@ import cn.taketoday.context.StandardApplicationContext;
 class PropsTests {
 
   @Test
-  public void props() {
+  void props() {
     try (ApplicationContext applicationContext
             = new StandardApplicationContext("", "test.context.props")) {
 
@@ -42,7 +42,7 @@ class PropsTests {
   }
 
   @Test
-  public void propsOnConstructor() {
+  void propsOnConstructor() {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 

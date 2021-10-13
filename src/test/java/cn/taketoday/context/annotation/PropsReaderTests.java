@@ -20,6 +20,21 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.context.DefaultProps;
+import cn.taketoday.context.Env;
+import cn.taketoday.context.Props;
+import cn.taketoday.context.Value;
+import cn.taketoday.core.env.MapPropertyResolver;
+import cn.taketoday.core.env.PropertiesPropertyResolver;
+import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.lang.Singleton;
+import cn.taketoday.util.ClassUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -27,20 +42,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
 
-import cn.taketoday.context.Env;
-import cn.taketoday.context.Props;
-import cn.taketoday.context.Value;
-import cn.taketoday.core.env.PropertiesPropertyResolver;
-import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.lang.Singleton;
-import cn.taketoday.util.ClassUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY 2021/10/3 14:10
@@ -130,6 +136,106 @@ class PropsReaderTests {
     assert propsReader.read(getClass().getDeclaredField("none")).equals(Collections.emptyList());
 
     propsReader.read(getClass().getMethod("testResolveProps"));
+  }
+
+
+  //
+
+  @Test
+  void systemProperties() {
+    String value = "best programming language in the world";
+    System.setProperty("java", value);
+
+    PropsReader propsReader = new PropsReader(); // use default systemProperties
+    DefaultProps defaultProps = new DefaultProps();
+    PropsReaderBean read = propsReader.read(defaultProps, PropsReaderBean.class);
+    assertThat(read.java).isEqualTo(value);
+  }
+
+  @Data
+  static class PropsReaderBean {
+    String java;
+  }
+
+  @Data
+  @EqualsAndHashCode(callSuper = true)
+  static class PrefixPropsReaderBean extends PropsReaderBean {
+  }
+
+  @Test
+  void read() {
+    String value = "best programming language in the world";
+    HashMap<String, Object> keyValues = new HashMap<>();
+    keyValues.put("java", value);
+    MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
+
+    PropsReader propsReader = new PropsReader(propertyResolver);
+    DefaultProps defaultProps = new DefaultProps();
+    PropsReaderBean read = propsReader.read(defaultProps, PropsReaderBean.class);
+
+    assertThat(read.java).isEqualTo(value);
+    keyValues.clear();
+
+    // PrefixPropsReaderBean
+
+    DefaultProps prefix = new DefaultProps();
+    prefix.setPrefix("prefix.");
+
+    keyValues.put("prefix.java", value);
+
+    PrefixPropsReaderBean prefixBean = propsReader.read(prefix, PrefixPropsReaderBean.class);
+    assertThat(prefixBean.java).isEqualTo(value);
+
+  }
+
+  @Setter
+  @Getter
+  static class TypeConversionBean {
+    String java;
+    int intValue;
+    float floatValue;
+    byte byteValue;
+    boolean booleanValue;
+  }
+
+  @Test
+  void typeConversion() {
+    String value = "best programming language in the world";
+    HashMap<String, Object> keyValues = new HashMap<>();
+    keyValues.put("java", value);
+    keyValues.put("intValue", 11);
+    keyValues.put("floatValue", 11.11f);
+    keyValues.put("byteValue", 1);
+    keyValues.put("booleanValue", 1);
+
+    MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
+    PropsReader propsReader = new PropsReader(propertyResolver);
+
+    TypeConversionBean prefixBean = propsReader.read(new DefaultProps(), TypeConversionBean.class);
+    assertThat(prefixBean.java).isEqualTo(value);
+    assertThat(prefixBean.intValue).isEqualTo(11);
+    assertThat(prefixBean.floatValue).isEqualTo(11.11f);
+    assertThat(prefixBean.byteValue).isEqualTo((byte) 1);
+    assertThat(prefixBean.booleanValue).isTrue();
+
+    keyValues.put("booleanValue", "false");
+    assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isFalse();
+
+    keyValues.put("booleanValue", "true");
+    assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isTrue();
+
+    keyValues.put("booleanValue", "1");
+    assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isTrue();
+
+    keyValues.put("booleanValue", "yes");
+    assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isTrue();
+
+    keyValues.put("booleanValue", "no");
+    assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isFalse();
+
+    keyValues.put("booleanValue", "0");
+    assertThat(propsReader.read(new DefaultProps(), TypeConversionBean.class).booleanValue).isFalse();
+
   }
 
 }

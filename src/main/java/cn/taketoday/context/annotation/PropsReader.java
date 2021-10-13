@@ -20,17 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
@@ -44,13 +33,11 @@ import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.conversion.ConversionUtils;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.IterablePropertyResolver;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.env.PropertyResolver;
@@ -60,11 +47,26 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author TODAY 2021/10/3 13:41
@@ -87,6 +89,8 @@ public class PropsReader {
 
   private ResourceLoader resourceLoader;
 
+  private ConversionService conversionService;
+
   public PropsReader() {
     this.propertyResolver = new StandardEnvironment();
   }
@@ -103,7 +107,6 @@ public class PropsReader {
   public PropsReader(PropertyResolver propertyResolver) {
     Assert.notNull(propertyResolver, "PropertyResolver must not be null");
     this.propertyResolver = propertyResolver;
-    this.expressionEvaluator = new ExpressionEvaluator(propertyResolver);
   }
 
   public List<PropertySetter> read(AnnotatedElement annotated) {
@@ -119,9 +122,11 @@ public class PropsReader {
     }
 
     DefaultProps defaultProps = new DefaultProps(attributes);
+    PropertyResolver propertyResolver = getResolver(defaultProps);
+
     ArrayList<PropertySetter> propertySetters = new ArrayList<>();
     for (BeanProperty property : BeanMetadata.ofClass(type)) {
-      Object converted = read(property, defaultProps);
+      Object converted = read(property, defaultProps, propertyResolver);
       if (converted != null) {
         propertySetters.add(new DefaultPropertySetter(converted, property));
       }
@@ -161,9 +166,19 @@ public class PropsReader {
 
     boolean isSimpleType = ClassUtils.isSimpleType(fieldType);
 
-    for (String prefix : props.prefix()) {// maybe a default value: ""
+    String[] prefixs = props.prefix();
+    if (ObjectUtils.isEmpty(prefixs)) {
+      prefixs = new String[] { Constant.BLANK };
+    }
 
-      String key = prefix.concat(property.getName());
+    for (String prefix : prefixs) {// maybe a default value: ""
+      String key;
+      if (StringUtils.isEmpty(prefix)) {
+        key = property.getAlias();
+      }
+      else {
+        key = prefix.concat(property.getAlias());
+      }
       Object value;
       if (isSimpleType) {
         value = propertyResolver.getProperty(key, fieldType);
@@ -194,7 +209,7 @@ public class PropsReader {
             prefixsToUse[i] = prefix.concat(str);
           }
         }
-        value = read(nestedProps.setPrefix(prefixsToUse), fieldType);
+        value = read(nestedProps.setPrefix(prefixsToUse), fieldType, propertyResolver);
       }
       if (debugEnabled) {
         log.debug("Found Property: [{}] = [{}]", key, value);
@@ -203,7 +218,7 @@ public class PropsReader {
         return resolveValue((String) value, fieldType, propertyResolver);
       }
       if (value != null) {
-        return ConversionUtils.convert(value, fieldType);
+        return convertIfNecessary(value, property);
       }
     }
     return null;
@@ -247,6 +262,16 @@ public class PropsReader {
     return expressionEvaluator.evaluate(value, expectedType);
   }
 
+  private Object convertIfNecessary(Object value, BeanProperty property) {
+    if (property.isInstance(value)) {
+      return value;
+    }
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+    }
+    return conversionService.convert(value, TypeDescriptor.fromProperty(property));
+  }
+
   /**
    * Resolve target object with {@link Props} and target object's class
    *
@@ -258,10 +283,15 @@ public class PropsReader {
    * @since 2.1.5
    */
   public <T> T read(Props props, Class<T> beanClass) {
+    PropertyResolver propertyResolver = getResolver(props);
+    return read(props, beanClass, propertyResolver);
+  }
+
+  public <T> T read(Props props, Class<T> beanClass, PropertyResolver propertyResolver) {
     if (beanInstantiator == null) {
       beanInstantiator = new BeanFactoryAwareBeanInstantiator(beanFactory);
     }
-    return read(props, beanInstantiator.instantiate(beanClass));
+    return read(props, beanInstantiator.instantiate(beanClass), propertyResolver);
   }
 
   /**
@@ -274,6 +304,10 @@ public class PropsReader {
    */
   public <T> T read(Props props, T bean) {
     PropertyResolver propertyResolver = getResolver(props);
+    return read(props, bean, propertyResolver);
+  }
+
+  public <T> T read(Props props, T bean, PropertyResolver propertyResolver) {
     for (BeanProperty property : BeanMetadata.ofObject(bean)) {
       Object converted = read(property, props, propertyResolver);
       if (converted != null) {
@@ -282,6 +316,7 @@ public class PropsReader {
     }
     return bean;
   }
+
 
   /**
    * Load {@link Properties} from {@link Props} {@link Annotation}
@@ -350,6 +385,22 @@ public class PropsReader {
   @Nullable
   public BeanFactoryAwareBeanInstantiator getBeanInstantiator() {
     return beanInstantiator;
+  }
+
+  public void setResourceLoader(ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
+
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
+  public ResourceLoader getResourceLoader() {
+    return resourceLoader;
   }
 
 }

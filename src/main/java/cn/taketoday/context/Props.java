@@ -40,8 +40,11 @@ public @interface Props {
   String[] value() default {};
 
   /**
-   * Prefix of the key <br>
-   * * default ""
+   * Prefix of the key default is ""
+   * <p>
+   *   framework will just concat this prefix to property name, so
+   *   if you have a dot dont miss it
+   * </p>
    */
   String[] prefix() default Constant.BLANK;
 
