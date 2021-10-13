@@ -490,7 +490,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 3.0
    */
   <T> Map<String, T> getBeansOfType(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
+          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
   //
 
@@ -580,7 +580,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 4.0
    */
   Set<String> getBeanNamesOfType(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
+          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
   /**
    * Find all names of beans which are annotated with the supplied {@link Annotation}

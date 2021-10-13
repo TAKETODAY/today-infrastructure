@@ -115,6 +115,10 @@ public abstract class AbstractBeanFactory
     if (supplier != null) {
       return supplier.get();
     }
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    if (parentBeanFactory != null) {
+      return parentBeanFactory.getBean(name);
+    }
     return null;
   }
 
@@ -213,6 +217,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+
     return null; // TODO
   }
 
@@ -998,10 +1003,12 @@ public abstract class AbstractBeanFactory
       }
     }
     if (includeNoneRegistered) {
-      for (Entry<String, Object> entry : getSingletons().entrySet()) {
-        Object bean = entry.getValue();
-        if (requiredType == null || requiredType.isInstance(bean)) {
-          beanNames.add(entry.getKey());
+      synchronized(getSingletons()) {
+        for (Entry<String, Object> entry : getSingletons().entrySet()) {
+          Object bean = entry.getValue();
+          if (requiredType == null || requiredType.isInstance(bean)) {
+            beanNames.add(entry.getKey());
+          }
         }
       }
     }
@@ -1027,17 +1034,60 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    HashMap<String, T> beans = new HashMap<>();
 
-    return null;
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (includeNonSingletons || def.isSingleton()) {
+        if (requiredType == null || def.isAssignableTo(requiredType)) {
+          Object bean = getBean(def);
+          if (bean != null) {
+            beans.put(entry.getKey(), (T) bean);
+          }
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      for (Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
+        if (!beans.containsKey(entry.getKey())
+                && (requiredType == null || requiredType.isInstance(bean))) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
+    return beans;
   }
 
   @Override
   public Set<String> getBeanNamesOfType(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
 
-    return null;
+    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (includeNonSingletons || def.isSingleton()) {
+        if (requiredType == null || def.isAssignableTo(requiredType)) {
+          beanNames.add(entry.getKey());
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      synchronized(getSingletons()) {
+        for (Entry<String, Object> entry : getSingletons().entrySet()) {
+          Object bean = entry.getValue();
+          if (requiredType == null || requiredType.isInstance(bean)) {
+            beanNames.add(entry.getKey());
+          }
+        }
+      }
+    }
+    return beanNames;
   }
 
   @Override
