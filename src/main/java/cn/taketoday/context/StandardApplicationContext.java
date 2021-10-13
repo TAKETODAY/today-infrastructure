@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
 /**
@@ -46,13 +47,51 @@ public class StandardApplicationContext
   public StandardApplicationContext() { }
 
   /**
+   * Construct with {@link StandardBeanFactory}
+   *
+   * @param beanFactory
+   *         {@link StandardBeanFactory} instance
+   */
+  public StandardApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
+  }
+
+  /**
+   * Create a new StandardApplicationContext with the given parent.
+   *
+   * @param parent
+   *         the parent application context
+   *
+   * @see #registerBeanDefinition
+   * @see #refresh
+   */
+  public StandardApplicationContext(@Nullable ApplicationContext parent) {
+    setParent(parent);
+  }
+
+  /**
+   * Create a new DefaultApplicationContext with the given StandardBeanFactory.
+   *
+   * @param beanFactory
+   *         the StandardBeanFactory instance to use for this context
+   * @param parent
+   *         the parent application context
+   *
+   * @see #registerBeanDefinition
+   * @see #refresh
+   */
+  public StandardApplicationContext(StandardBeanFactory beanFactory, ApplicationContext parent) {
+    this(beanFactory);
+    setParent(parent);
+  }
+
+  /**
    * Set given properties location
    *
    * @param propertiesLocation
    *         a file or a di rectory to scan
    */
   public StandardApplicationContext(String propertiesLocation) {
-    this();
     setPropertiesLocation(propertiesLocation);
   }
 
@@ -68,16 +107,6 @@ public class StandardApplicationContext
   }
 
   /**
-   * Construct with {@link StandardBeanFactory}
-   *
-   * @param beanFactory
-   *         {@link StandardBeanFactory} instance
-   */
-  public StandardApplicationContext(StandardBeanFactory beanFactory) {
-    super(beanFactory);
-  }
-
-  /**
    * Start context with given properties location and base scan packages
    *
    * @param propertiesLocation
@@ -86,8 +115,9 @@ public class StandardApplicationContext
    *         scan classes from packages
    */
   public StandardApplicationContext(String propertiesLocation, String... locations) {
-    this(propertiesLocation);
+    setPropertiesLocation(propertiesLocation);
     scan(locations);
+    refresh();
   }
 
   public void setPropertiesLocation(String propertiesLocation) {
