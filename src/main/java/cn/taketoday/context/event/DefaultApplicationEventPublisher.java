@@ -115,30 +115,32 @@ public class DefaultApplicationEventPublisher implements ApplicationEventPublish
   @Override
   public void addApplicationListener(ApplicationListener<?> listener) {
     Assert.notNull(listener, "listener can't be null");
+    invalidateCache();
     applicationListeners.add(listener);
   }
 
   @Override
   public void addApplicationListener(String listenerBeanName) {
+    invalidateCache();
     listenerBeanNames.add(listenerBeanName);
   }
 
   @Override
   public void removeAllListeners() {
-    applicationListenerCache.clear();
+    invalidateCache();
     listenerBeanNames.clear();
     applicationListeners.clear();
   }
 
   @Override
   public void removeApplicationListener(String listenerBeanName) {
-    applicationListenerCache.clear();
+    invalidateCache();
     listenerBeanNames.remove(listenerBeanName);
   }
 
   @Override
   public void removeApplicationListener(ApplicationListener<?> listener) {
-    applicationListenerCache.clear();
+    invalidateCache();
     applicationListeners.remove(listener);
   }
 
@@ -149,6 +151,10 @@ public class DefaultApplicationEventPublisher implements ApplicationEventPublish
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  private void invalidateCache() {
+    applicationListenerCache.clear();
   }
 
 }
