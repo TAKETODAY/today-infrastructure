@@ -1,8 +1,21 @@
 = @Props 注解
 
-== prefix();
+== value()
+
+该属性 是 Properties 文件名，文件名称可以省略 '.properties' 后缀, 当 `PropsReader` 根据不同条件配置时，会使用该属性，该值存在的时候会
+去加载对应的 文件， 组合成新的 `PropertyResolver`。properties 文件加载失败的时候会抛出 `ApplicationContextException` 异常
+
+== prefix()
+
 前缀默认为 “”，框架只会将此前缀连接到属性名称，不要忘掉 '.' 不然找不到 对应的 property 就会绑定失败。
 
 == nested()
+
 一般用在外层级别, 没有声明并且,如果类的内部也没有 使用 Props 注解 则忽略 (停止递归或迭代)。
 
+== 支持占位符 ${key}
+
+[source=java]
+----
+
+----
