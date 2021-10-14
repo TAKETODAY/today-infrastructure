@@ -19,15 +19,15 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Simple {@link BeanFactoryPostProcessor} implementation that registers custom
@@ -91,7 +91,9 @@ public class CustomScopeConfigurer
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     if (this.scopes != null) {
-      this.scopes.forEach((name, scope) -> {
+      for (Map.Entry<String, Object> entry : scopes.entrySet()) {
+        String name = entry.getKey();
+        Object scope = entry.getValue();
         if (scope instanceof Scope) {
           beanFactory.registerScope(name, (Scope) scope);
         }
@@ -107,12 +109,12 @@ public class CustomScopeConfigurer
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
         else {
-          throw new IllegalArgumentException(
+          throw new IllegalStateException(
                   "Mapped value [" + scope + "] for scope key [" + name
                           + "] is not an instance of required type [" + Scope.class.getName()
                           + "] or a corresponding Class or String value indicating a Scope implementation");
         }
-      });
+      }
     }
   }
 
