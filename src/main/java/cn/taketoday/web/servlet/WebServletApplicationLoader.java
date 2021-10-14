@@ -168,9 +168,9 @@ public class WebServletApplicationLoader
       setApplicationContext(context);
       context.refresh();
     }
-    else if (ret instanceof WebServletApplicationContext && ret.getServletContext() == null) {
-      ((WebServletApplicationContext) ret).setServletContext(servletContext);
-      log.info("ServletContext: [{}] Configure Success.", servletContext);
+    else if (ret.getServletContext() == null) {
+      ret.setServletContext(servletContext);
+      log.info("ServletContext: [{}] configure successfully.", servletContext);
     }
     return ret;
   }
