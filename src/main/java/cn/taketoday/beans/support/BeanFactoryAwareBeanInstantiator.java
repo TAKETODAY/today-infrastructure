@@ -20,13 +20,13 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+
+import java.lang.reflect.Constructor;
 
 /**
  * provide Bean Constructor Arguments resolving
@@ -41,9 +41,7 @@ public class BeanFactoryAwareBeanInstantiator {
   private ArgumentsResolver argumentsResolver;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
-  public BeanFactoryAwareBeanInstantiator() {
-    this.argumentsResolver = ArgumentsResolver.getSharedInstance();
-  }
+  public BeanFactoryAwareBeanInstantiator() { }
 
   public BeanFactoryAwareBeanInstantiator(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
@@ -74,6 +72,9 @@ public class BeanFactoryAwareBeanInstantiator {
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
+    }
+    if (argumentsResolver == null) {
+      argumentsResolver = ArgumentsResolver.getSharedInstance();
     }
     Object[] args = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);

@@ -20,11 +20,7 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ApplicationContext;
@@ -35,6 +31,9 @@ import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author TODAY 2021/8/22 21:51
@@ -80,28 +79,9 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    * @since 2.1.2
    */
+  @SuppressWarnings("unchecked")
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return newInstance(ClassUtils.load(beanClassName));
-  }
-
-  /**
-   * Use default {@link BeanDefinition#newInstance(BeanFactory)}
-   * to create bean instance.
-   *
-   * @param def
-   *         Target bean's definition
-   * @param beanFactory
-   *         Bean factory
-   *
-   * @return {@link BeanDefinition} 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
-   * @since 2.1.5
-   */
-  @Deprecated
-  public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory) {
-    return def.newInstance(beanFactory);
+    return (T) newInstance(ClassUtils.forName(beanClassName));
   }
 
   /**
