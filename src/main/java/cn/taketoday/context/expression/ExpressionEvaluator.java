@@ -22,9 +22,6 @@ package cn.taketoday.context.expression;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextHolder;
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
@@ -62,9 +59,6 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   private static volatile ExpressionEvaluator sharedInstance;
 
   public static final String ENV = "env";
-  public static final String EL_PREFIX = "${";
-  public static final String PLACE_HOLDER_PREFIX = "#{";
-  public static final char PLACE_HOLDER_SUFFIX = '}';
 
   private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
@@ -133,36 +127,29 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   }
 
   public <T> T evaluate(String expression, Class<T> expectedType, PlaceholderResolver resolver) {
-    if (expression.contains(PLACE_HOLDER_PREFIX)) {
-      String replaced = resolvePlaceholders(expression, resolver, throwIfPropertyNotFound);
-      return conversionService.convert(replaced, expectedType);
+    String replaced = resolvePlaceholders(expression, resolver, throwIfPropertyNotFound);
+    try {
+      replaced = obtainProcessor().getValue(replaced, null);
     }
-    if (expression.contains(EL_PREFIX)) {
-      try {
-        return obtainProcessor().getValue(expression, expectedType);
-      }
-      catch (ExpressionException e) {
-        throw new ConfigurationException(e);
-      }
+    catch (ExpressionException e) {
+      throw new ExpressionEvaluationException(e);
     }
-    return conversionService.convert(expression, expectedType);
+    return convertIfNecessary(replaced, expectedType);
   }
 
+  /**
+   * replace Placeholders first and evaluate EL
+   */
   public <T> T evaluate(
           String expression, ExpressionContext context, Class<T> expectedType) {
-    if (expression.contains(PLACE_HOLDER_PREFIX)) {
-      String replaced = resolvePlaceholders(expression, this, throwIfPropertyNotFound);
-      return conversionService.convert(replaced, expectedType);
+    String replaced = resolvePlaceholders(expression, this, throwIfPropertyNotFound);
+    try {
+      replaced = obtainProcessor().getValue(replaced, context, null);
     }
-    if (expression.contains(EL_PREFIX)) {
-      try {
-        return obtainProcessor().getValue(expression, context, expectedType);
-      }
-      catch (ExpressionException e) {
-        throw new ConfigurationException(e);
-      }
+    catch (ExpressionException e) {
+      throw new ExpressionEvaluationException(e);
     }
-    return conversionService.convert(expression, expectedType);
+    return convertIfNecessary(replaced, expectedType);
   }
 
   /**
@@ -175,19 +162,17 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    *
    * @return A resolved value object
    *
-   * @throws ConfigurationException
+   * @throws ExpressionEvaluationException
    *         Can't resolve expression
    * @since 2.1.6
    */
   public <T> T evaluate(Env value, Class<T> expectedType) {
-    T resolveValue = evaluate(
-            PLACE_HOLDER_PREFIX + value.value() + PLACE_HOLDER_SUFFIX, expectedType
-    );
-    if (resolveValue != null) {
-      return resolveValue;
+    String replaced = resolvePlaceholders(value.value(), this, throwIfPropertyNotFound);
+    if (replaced != null) {
+      return convertIfNecessary(replaced, expectedType);
     }
     if (value.required()) {
-      throw new ConfigurationException("Can't resolve property: [" + value.value() + "]");
+      throw new ExpressionEvaluationException("Can't resolve property: [" + value.value() + "]");
     }
 
     String defaultValue = value.defaultValue();
@@ -207,7 +192,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    *
    * @return A resolved value object
    *
-   * @throws ConfigurationException
+   * @throws ExpressionEvaluationException
    *         Can't resolve expression
    * @since 2.1.6
    */
@@ -217,7 +202,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
       return resolveValue;
     }
     if (value.required()) {
-      throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
+      throw new ExpressionEvaluationException("Can't resolve expression: [" + value.value() + "]");
     }
     String defaultValue = value.defaultValue();
     if (StringUtils.isEmpty(defaultValue)) {
@@ -244,8 +229,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    */
   public String resolvePlaceholders(
           String input, PlaceholderResolver resolver, boolean throwIfPropertyNotFound) {
-    PropertyPlaceholderHandler placeholderHandler =
-            throwIfPropertyNotFound ? PropertyPlaceholderHandler.strict : PropertyPlaceholderHandler.defaults;
+    PropertyPlaceholderHandler placeholderHandler = PropertyPlaceholderHandler.shared(!throwIfPropertyNotFound);
     return placeholderHandler.replacePlaceholders(input, resolver);
   }
 
@@ -261,14 +245,15 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   /**
    * @since 4.0
    */
-  private Object convertIfNecessary(Object value, BeanProperty property) {
-    if (property.isInstance(value)) {
-      return value;
+  @SuppressWarnings("unchecked")
+  private <T> T convertIfNecessary(Object value, Class<T> requiredType) {
+    if (requiredType.isInstance(value)) {
+      return (T) value;
     }
     if (conversionService == null) {
       conversionService = DefaultConversionService.getSharedInstance();
     }
-    return conversionService.convert(value, TypeDescriptor.fromProperty(property));
+    return conversionService.convert(value, requiredType);
   }
 
   public void setConversionService(@Nullable ConversionService conversionService) {
