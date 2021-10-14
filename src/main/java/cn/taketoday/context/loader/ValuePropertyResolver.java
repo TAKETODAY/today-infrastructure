@@ -23,9 +23,9 @@ import java.lang.reflect.Field;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.context.Env;
-import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.Value;
+import cn.taketoday.lang.Env;
+import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.lang.Value;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
@@ -39,8 +39,6 @@ import cn.taketoday.util.StringUtils;
 public class ValuePropertyResolver
         extends AbstractPropertyValueResolver implements PropertyValueResolver {
 
-  private ExpressionEvaluator expressionEvaluator;
-
   @Override
   protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
     return AnnotationUtils.isPresent(field, Value.class)
@@ -53,12 +51,12 @@ public class ValuePropertyResolver
   @Override
   protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
     String expression;
-    final Value value = AnnotationUtils.getAnnotation(Value.class, field);
+    Value value = AnnotationUtils.getAnnotation(Value.class, field);
     if (value != null) {
       expression = value.value();
     }
     else {
-      final Env env = AnnotationUtils.getAnnotation(Env.class, field);
+      Env env = AnnotationUtils.getAnnotation(Env.class, field);
       expression = env.value();
       if (StringUtils.isNotEmpty(expression)) {
         expression = new StringBuilder(expression.length() + 3)//
@@ -78,6 +76,7 @@ public class ValuePropertyResolver
     }
     Object resolved;
     try {
+      ExpressionEvaluator expressionEvaluator = context.getExpressionEvaluator();
       resolved = expressionEvaluator.evaluate(expression, field.getType());
     }
     catch (ConfigurationException e) {
@@ -89,13 +88,13 @@ public class ValuePropertyResolver
     return new DefaultPropertySetter(resolved, field);
   }
 
-  private DefaultPropertySetter fallback(final Field field,
-                                         final String expression,
+  private DefaultPropertySetter fallback(Field field,
+                                         String expression,
                                          ConfigurationException e) {
     boolean required;
-    final Env env = AnnotationUtils.getAnnotation(Env.class, field);
+    Env env = AnnotationUtils.getAnnotation(Env.class, field);
     if (env == null) {
-      final Value value = AnnotationUtils.getAnnotation(Value.class, field);
+      Value value = AnnotationUtils.getAnnotation(Value.class, field);
       required = value.required();
     }
     else {

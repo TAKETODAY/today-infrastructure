@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context;
+package cn.taketoday.lang;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,11 +25,30 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Properties;
 
-import cn.taketoday.lang.Constant;
-
 /**
- * @author TODAY <br>
- * 2019-07-14 11:37
+ * Annotation used at the field or method/constructor parameter level
+ * that indicates a default value expression for the annotated element.
+ *
+ * <p>Typically used for property-driven dependency injection.
+ * Also supported for dynamic resolution of handler method arguments &mdash; for
+ * example, in Web MVC.
+ *
+ * <p>A common use case is to inject values using <code>my.app.myProp</code>
+ * style property placeholders.
+ *
+ * <p>Note that actual processing of the {@code @Value} annotation is performed
+ * by a {@link cn.taketoday.context.loader.ValuePropertyResolver ValuePropertyResolver}
+ * which in turn means that you <em>cannot</em> use {@code @Value} within
+ * {@link cn.taketoday.context.loader.ValuePropertyResolver ValuePropertyResolver} or
+ * {@link cn.taketoday.context.loader.PropertyValueResolver PropertyValueResolver}
+ * types.
+ *
+ * @author TODAY 2019-07-14 11:37
+ * @see Autowired
+ * @see Value
+ * @see cn.taketoday.context.expression.ExpressionEvaluator
+ * @see cn.taketoday.context.loader.ValuePropertyResolver
+ * @see cn.taketoday.context.loader.PropertyValueResolver
  */
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)

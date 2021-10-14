@@ -41,7 +41,7 @@ import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
-import cn.taketoday.context.ExpressionEvaluator;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.TypeDescriptor;
@@ -99,7 +99,7 @@ public class PropsReader {
     this.resourceLoader = context;
     this.beanFactory = context.getBeanFactory();
     this.propertyResolver = context.getEnvironment();
-    this.expressionEvaluator = new ExpressionEvaluator(context);
+    this.expressionEvaluator = context.getExpressionEvaluator();
     this.beanInstantiator = new BeanFactoryAwareBeanInstantiator(context);
   }
 

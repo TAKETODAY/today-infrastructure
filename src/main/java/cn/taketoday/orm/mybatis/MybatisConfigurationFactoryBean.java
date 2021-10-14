@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.Env;
+import cn.taketoday.lang.Env;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.ResourceUtils;

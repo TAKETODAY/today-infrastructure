@@ -44,6 +44,7 @@ import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
@@ -752,7 +753,7 @@ public class BeanDefinitionReader {
    *
    * @see ConditionEvaluator
    * @see cn.taketoday.context.Condition
-   * @see cn.taketoday.context.Conditional
+   * @see Conditional
    */
   public void setEnableConditionEvaluation(boolean enableConditionEvaluation) {
     this.enableConditionEvaluation = enableConditionEvaluation;

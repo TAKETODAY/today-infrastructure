@@ -21,6 +21,7 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.annotation.PropsReader;
 
 /**
@@ -31,6 +32,8 @@ public final class PropertyResolvingContext {
   private final PropsReader propsReader;
   private final ApplicationContext context;
 
+  private final ExpressionEvaluator expressionEvaluator;
+
   public PropertyResolvingContext(ApplicationContext context) {
     this(context, new PropsReader(context.getEnvironment()));
   }
@@ -38,6 +41,7 @@ public final class PropertyResolvingContext {
   public PropertyResolvingContext(ApplicationContext context, PropsReader propsReader) {
     this.context = context;
     this.propsReader = propsReader;
+    this.expressionEvaluator = context.getExpressionEvaluator();
   }
 
   public ApplicationContext getContext() {
@@ -46,6 +50,10 @@ public final class PropertyResolvingContext {
 
   public PropsReader getPropsReader() {
     return propsReader;
+  }
+
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
   }
 
 }
