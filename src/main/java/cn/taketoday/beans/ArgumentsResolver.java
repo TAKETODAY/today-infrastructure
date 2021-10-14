@@ -20,20 +20,20 @@
 
 package cn.taketoday.beans;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.annotation.ArgumentsResolvingComposite;
+import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Env;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.lang.Value;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.lang.Env;
-import cn.taketoday.lang.Value;
-import cn.taketoday.context.annotation.ArgumentsResolvingComposite;
-import cn.taketoday.core.StrategiesDetector;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -162,14 +162,17 @@ public class ArgumentsResolver {
   }
 
   public static ArgumentsResolver getSharedInstance() {
-    if (shared == null) {
+    ArgumentsResolver resolver = shared;
+    if (resolver == null) {
       synchronized(ArgumentsResolver.class) {
-        if (shared == null) {
-          shared = new ArgumentsResolver();
+        resolver = shared;
+        if (resolver == null) {
+          resolver = new ArgumentsResolver();
+          shared = resolver;
         }
       }
     }
-    return shared;
+    return resolver;
   }
 
 }
