@@ -40,11 +40,11 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.expression.lang.LocalBeanNameResolver;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import cn.taketoday.expression.lang.LocalBeanNameResolver;
 
 /**
  * A standard ELContext suitable for use in a stand alone environment. This
@@ -113,6 +113,7 @@ public class StandardExpressionContext extends ExpressionContext {
       resolver.add(streamELResolver);
     }
     resolver.add(new BeanExpressionResolver());
+    resolver.trimToSize();
 
     this.elResolver = resolver;
   }

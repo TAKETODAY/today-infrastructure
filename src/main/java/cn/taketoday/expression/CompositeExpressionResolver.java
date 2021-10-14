@@ -17,7 +17,11 @@
 
 package cn.taketoday.expression;
 
-import java.util.Objects;
+import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
+
+import java.util.ArrayList;
 
 /**
  * Maintains an ordered composite list of child <code>ELResolver</code>s.
@@ -52,23 +56,21 @@ import java.util.Objects;
  * @see ExpressionResolver
  * @since JSP 2.1
  */
-public class CompositeExpressionResolver extends ExpressionResolver {
+public class CompositeExpressionResolver extends ExpressionResolver implements ArraySizeTrimmer {
 
-  private int size;
-  private ExpressionResolver[] elResolvers;
+  private final ArrayList<ExpressionResolver> elResolvers;
 
   public CompositeExpressionResolver() {
     this(6);
   }
 
-  public CompositeExpressionResolver(int init) {
-    this.size = 0;
-    this.elResolvers = new ExpressionResolver[init];
+  public CompositeExpressionResolver(int size) {
+    this.elResolvers = new ArrayList<>(size);
   }
 
-  public CompositeExpressionResolver(ExpressionResolver... eLResolvers) {
-    this.elResolvers = Objects.requireNonNull(eLResolvers);
-    this.size = eLResolvers.length;
+  public CompositeExpressionResolver(ExpressionResolver... resolvers) {
+    this.elResolvers = new ArrayList<>(resolvers.length);
+    CollectionUtils.addAll(elResolvers, resolvers);
   }
 
   /**
@@ -85,16 +87,8 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    *         If the provided resolver is <code>null</code>.
    */
   public void add(ExpressionResolver elResolver) {
-
-    Objects.requireNonNull(elResolver);
-
-    if (size >= elResolvers.length) {
-      ExpressionResolver[] newResolvers = new ExpressionResolver[size + 1];
-      System.arraycopy(elResolvers, 0, newResolvers, 0, size);
-      elResolvers = newResolvers;
-    }
-
-    elResolvers[size++] = elResolver;
+    Assert.notNull(elResolver, "ExpressionResolver is required");
+    elResolvers.add(elResolver);
   }
 
   /**
@@ -162,18 +156,13 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    *         variable resolution. The thrown exception must be included as the
    *         cause property of this exception, if available.
    */
+  @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
-
     context.setPropertyResolved(false);
-
-    final int size = this.size;
-    if (size > 0) {
-      final ExpressionResolver[] elResolvers = this.elResolvers;
-      for (int i = 0; i < size; i++) {
-        final Object value = elResolvers[i].getValue(context, base, property);
-        if (context.isPropertyResolved()) {
-          return value;
-        }
+    for (ExpressionResolver elResolver : elResolvers) {
+      final Object value = elResolver.getValue(context, base, property);
+      if (context.isPropertyResolved()) {
+        return value;
       }
     }
     return null;
@@ -243,18 +232,13 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    *
    * @since EL 2.2
    */
+  @Override
   public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
-
     context.setPropertyResolved(false);
-
-    final int size = this.size;
-    if (size > 0) {
-      final ExpressionResolver[] elResolvers = this.elResolvers;
-      for (int i = 0; i < size; i++) {
-        final Object value = elResolvers[i].invoke(context, base, method, paramTypes, params);
-        if (context.isPropertyResolved()) {
-          return value;
-        }
+    for (ExpressionResolver elResolver : elResolvers) {
+      final Object value = elResolver.invoke(context, base, method, paramTypes, params);
+      if (context.isPropertyResolved()) {
+        return value;
       }
     }
     return null;
@@ -327,18 +311,13 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    *         variable resolution. The thrown exception must be included as the
    *         cause property of this exception, if available.
    */
+  @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
-
     context.setPropertyResolved(false);
-
-    final int size = this.size;
-    if (size > 0) {
-      final ExpressionResolver[] elResolvers = this.elResolvers;
-      for (int i = 0; i < size; i++) {
-        final Class<?> type = elResolvers[i].getType(context, base, property);
-        if (context.isPropertyResolved()) {
-          return type;
-        }
+    for (ExpressionResolver elResolver : elResolvers) {
+      final Class<?> type = elResolver.getType(context, base, property);
+      if (context.isPropertyResolved()) {
+        return type;
       }
     }
     return null;
@@ -411,17 +390,13 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    *         or variable. The thrown exception must be included as the cause
    *         property of this exception, if available.
    */
+  @Override
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
-
     context.setPropertyResolved(false);
-    final int size = this.size;
-    if (size > 0) {
-      final ExpressionResolver[] elResolvers = this.elResolvers;
-      for (int i = 0; i < size; i++) {
-        elResolvers[i].setValue(context, base, property, val);
-        if (context.isPropertyResolved()) {
-          return;
-        }
+    for (ExpressionResolver elResolver : elResolvers) {
+      elResolver.setValue(context, base, property, val);
+      if (context.isPropertyResolved()) {
+        return;
       }
     }
   }
@@ -493,18 +468,13 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    *         variable resolution. The thrown exception must be included as the
    *         cause property of this exception, if available.
    */
+  @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
     context.setPropertyResolved(false);
-
-    final int size = this.size;
-    if (size > 0) {
-      final ExpressionResolver[] elResolvers = this.elResolvers;
-      for (int i = 0; i < size; i++) {
-        final boolean readOnly = elResolvers[i].isReadOnly(context, base, property);
-        if (context.isPropertyResolved()) {
-          return readOnly;
-        }
+    for (ExpressionResolver elResolver : elResolvers) {
+      final boolean readOnly = elResolver.isReadOnly(context, base, property);
+      if (context.isPropertyResolved()) {
+        return readOnly;
       }
     }
     return false; // Does not matter
@@ -531,20 +501,18 @@ public class CompositeExpressionResolver extends ExpressionResolver {
    */
   @Override
   public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType) {
-
     context.setPropertyResolved(false);
-
-    final int size = this.size;
-    if (size > 0) {
-      final ExpressionResolver[] elResolvers = this.elResolvers;
-      for (int i = 0; i < size; i++) {
-        final Object value = elResolvers[i].convertToType(context, obj, targetType);
-        if (context.isPropertyResolved()) {
-          return value;
-        }
+    for (ExpressionResolver elResolver : elResolvers) {
+      final Object value = elResolver.convertToType(context, obj, targetType);
+      if (context.isPropertyResolved()) {
+        return value;
       }
     }
     return null;
   }
 
+  @Override
+  public void trimToSize() {
+    elResolvers.trimToSize();
+  }
 }
