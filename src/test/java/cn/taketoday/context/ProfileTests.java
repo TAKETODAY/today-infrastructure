@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.context.annotation.Conditional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

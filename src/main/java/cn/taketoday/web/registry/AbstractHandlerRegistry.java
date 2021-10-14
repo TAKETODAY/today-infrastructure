@@ -20,7 +20,7 @@
 package cn.taketoday.web.registry;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ExpressionEvaluator;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
@@ -41,7 +41,7 @@ public abstract class AbstractHandlerRegistry
   private int order = Ordered.LOWEST_PRECEDENCE;
 
   /** @since 3.0.3 */
-  private ExpressionEvaluator expressionEvaluator = ExpressionEvaluator.getSharedInstance();
+  private ExpressionEvaluator expressionEvaluator;
 
   /**
    * Look up a handler for the given request, falling back to the default
@@ -98,7 +98,7 @@ public abstract class AbstractHandlerRegistry
   @Override
   protected void initApplicationContext(ApplicationContext context) {
     super.initApplicationContext(context);
-    this.expressionEvaluator = new ExpressionEvaluator(context);
+    this.expressionEvaluator = context.getExpressionEvaluator();
   }
 
   /** @since 3.0.3 */

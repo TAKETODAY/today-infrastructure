@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.Value;
+import cn.taketoday.lang.Value;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Singleton;
 import lombok.Getter;

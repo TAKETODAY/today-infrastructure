@@ -21,7 +21,7 @@ package cn.taketoday.context.el;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanFactoryResolver;
+import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.el.ELFieldTests.User;
 
