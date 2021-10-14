@@ -23,7 +23,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Properties;
 
 /**
  * Annotation used at the field or method/constructor parameter level
@@ -36,9 +35,9 @@ import java.util.Properties;
  * <p>A common use case is to inject values using <code>my.app.myProp</code>
  * style property placeholders.
  *
- * <p>Note that actual processing of the {@code @Value} annotation is performed
+ * <p>Note that actual processing of the {@code @Env} annotation is performed
  * by a {@link cn.taketoday.context.loader.ValuePropertyResolver ValuePropertyResolver}
- * which in turn means that you <em>cannot</em> use {@code @Value} within
+ * which in turn means that you <em>cannot</em> use {@code @Env} within
  * {@link cn.taketoday.context.loader.ValuePropertyResolver ValuePropertyResolver} or
  * {@link cn.taketoday.context.loader.PropertyValueResolver PropertyValueResolver}
  * types.
@@ -54,14 +53,35 @@ import java.util.Properties;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Env {
 
-  /** {@link Properties} key */
+  /**
+   * property-key to find in application environment
+   *
+   * <p>
+   * If value is empty string when declared on Field, use
+   * <pre>
+   *     PropertyPlaceholderHandler.PLACEHOLDER_PREFIX +
+   *               field.getDeclaringClass().getName() +
+   *               Constant.PACKAGE_SEPARATOR +
+   *               field.getName() +
+   *               PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX
+   *  </pre>
+   * class full name dot property name as property-key to find in application environment
+   * </p>
+   *
+   * @see java.lang.reflect.Field
+   */
   String value() default Constant.BLANK;
 
-  /** is required ? */
+  /**
+   * Is required ?
+   *
+   * @see Required
+   * @see cn.taketoday.context.expression.ExpressionEvaluationException
+   */
   boolean required() default false;
 
   /**
-   * Default value
+   * default value expression or fallback expression
    * <p>
    * #{xxx}, ${xxx}
    * </p>

@@ -155,7 +155,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 3.0
    */
   @Nullable
-  public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType)
+  <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType)
           throws NoSuchBeanDefinitionException;
 
   /**

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.lang;
 
-import cn.taketoday.context.expression.ExpressionEvaluator;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -49,7 +47,7 @@ import java.lang.annotation.Target;
  * @author TODAY 2018-08-04 15:57
  * @see Autowired
  * @see Env
- * @see ExpressionEvaluator
+ * @see cn.taketoday.context.expression.ExpressionEvaluator
  * @see cn.taketoday.context.loader.ValuePropertyResolver
  * @see cn.taketoday.context.loader.PropertyValueResolver
  */
@@ -60,13 +58,34 @@ public @interface Value {
   /**
    * The actual value expression such as <code>#{systemProperties.myProp}</code>
    * or property placeholder such as <code>${my.app.myProp}</code>.
+   * <p>
+   * If value is empty string when declared on Field, use
+   * <pre>
+   *     PropertyPlaceholderHandler.PLACEHOLDER_PREFIX +
+   *               field.getDeclaringClass().getName() +
+   *               Constant.PACKAGE_SEPARATOR +
+   *               field.getName() +
+   *               PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX
+   *  </pre>
+   * class full name dot property name as property-key to find in
+   * application environment
+   * </p>
+   *
+   * @see java.lang.reflect.Field
    */
   String value() default Constant.BLANK;
 
-  /** Is required ? */
+  /**
+   * Is required ?
+   *
+   * @see Required
+   * @see cn.taketoday.context.expression.ExpressionEvaluationException
+   */
   boolean required() default true;
 
-  /** Default value */
+  /**
+   * default value expression or fallback expression
+   */
   String defaultValue() default Constant.BLANK;
 
 }
