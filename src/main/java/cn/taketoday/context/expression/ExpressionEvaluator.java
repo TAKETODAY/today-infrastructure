@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.expression;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Properties;
 
@@ -38,10 +37,8 @@ import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Env;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Value;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.PlaceholderResolver;
@@ -166,74 +163,6 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     return convertIfNecessary(expression, expectedType);
   }
 
-  /**
-   * Resolve {@link Env} {@link Annotation}
-   *
-   * @param value
-   *         {@link Env} {@link Annotation}
-   * @param expectedType
-   *         expected value type
-   *
-   * @return A resolved value object
-   *
-   * @throws ExpressionEvaluationException
-   *         Can't resolve expression
-   * @since 2.1.6
-   */
-  public <T> T resolvePlaceholders(Env value, Class<T> expectedType) {
-    String replaced = resolvePlaceholders(value.value(), throwIfPropertyNotFound);
-    if (replaced != null) {
-      return convertIfNecessary(replaced, expectedType);
-    }
-    if (value.required()) {
-      throw new ExpressionEvaluationException("Can't resolve property: [" + value.value() + "]");
-    }
-
-    String defaultValue = value.defaultValue();
-    if (StringUtils.isEmpty(defaultValue)) {
-      return null;
-    }
-    return evaluate(defaultValue, expectedType);
-  }
-
-  /**
-   * Resolve {@link Value} {@link Annotation}
-   *
-   * @param value
-   *         {@link Value} {@link Annotation}
-   * @param expectedType
-   *         expected value type
-   *
-   * @return A resolved value object
-   *
-   * @throws ExpressionEvaluationException
-   *         Can't resolve expression
-   * @since 2.1.6
-   */
-  public <T> T evaluate(Value value, Class<T> expectedType) {
-    T resolveValue = evaluate(value.value(), expectedType);
-    if (resolveValue != null) {
-      return resolveValue;
-    }
-    if (value.required()) {
-      throw new ExpressionEvaluationException("Can't resolve expression: [" + value.value() + "]");
-    }
-    String defaultValue = value.defaultValue();
-    if (StringUtils.isEmpty(defaultValue)) {
-      return null;
-    }
-    return evaluate(defaultValue, expectedType);
-  }
-
-  /**
-   * this method is
-   *
-   * @param expr
-   * @param expectedType
-   * @param <T>
-   *
-   * @return
-   */
   @Nullable
   public <T> T evaluate(ExpressionInfo expr, Class<T> expectedType) {
     if (expr.isPlaceholderOnly()) {

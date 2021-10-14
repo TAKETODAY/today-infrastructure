@@ -22,16 +22,17 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.DataBinder;
-import cn.taketoday.lang.Env;
-import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.lang.Value;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Value;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -443,7 +444,8 @@ public class ParameterResolvingRegistry
 
     @Override
     protected Object resolveInternal(Value target, RequestContext context, MethodParameter parameter) {
-      return expressionEvaluator.evaluate(target, parameter.getParameterClass());
+      ExpressionInfo expressionInfo = new ExpressionInfo(target);
+      return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterClass());
     }
   }
 
@@ -457,7 +459,8 @@ public class ParameterResolvingRegistry
 
     @Override
     protected Object resolveInternal(Env target, RequestContext context, MethodParameter parameter) {
-      return expressionEvaluator.evaluate(target, parameter.getParameterClass());
+      ExpressionInfo expressionInfo = new ExpressionInfo(target);
+      return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterClass());
     }
   }
 

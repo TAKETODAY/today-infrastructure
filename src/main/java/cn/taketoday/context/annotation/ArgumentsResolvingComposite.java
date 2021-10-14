@@ -25,18 +25,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.AbstractArgumentsResolvingStrategy;
 import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.annotation.autowire.ArrayArgumentsResolver;
 import cn.taketoday.context.annotation.autowire.CollectionArgumentsResolver;
 import cn.taketoday.context.annotation.autowire.MapArgumentsResolver;
 import cn.taketoday.context.annotation.autowire.ObjectSupplierArgumentsResolver;
+import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.ExpressionInfo;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
@@ -159,31 +161,33 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
   // Implementations of ArgumentsResolvingStrategy interface
   //---------------------------------------------------------------------
 
-  private static final class EnvExecutableArgumentsResolver extends AbstractArgumentsResolvingStrategy {
+  private static final class EnvExecutableArgumentsResolver implements ArgumentsResolvingStrategy {
     private final ExpressionEvaluator expressionEvaluator = ExpressionEvaluator.getSharedInstance();
 
+    @Nullable
     @Override
-    protected boolean supportsArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      return parameter.isAnnotationPresent(Env.class);
-    }
-
-    @Override
-    protected Object resolveInternal(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      return expressionEvaluator.evaluate(parameter.getAnnotation(Env.class), parameter.getType());
+    public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+      AnnotationAttributes attributes = AnnotationUtils.getAttributes(Env.class, parameter);
+      if (attributes != null) {
+        ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
+        return expressionEvaluator.evaluate(expressionInfo, parameter.getType());
+      }
+      return null;
     }
   }
 
-  private static final class ValueExecutableArgumentsResolver extends AbstractArgumentsResolvingStrategy {
+  private static final class ValueExecutableArgumentsResolver implements ArgumentsResolvingStrategy {
     private final ExpressionEvaluator expressionEvaluator = ExpressionEvaluator.getSharedInstance();
 
+    @Nullable
     @Override
-    protected boolean supportsArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      return parameter.isAnnotationPresent(Value.class);
-    }
-
-    @Override
-    protected Object resolveInternal(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      return expressionEvaluator.evaluate(parameter.getAnnotation(Value.class), parameter.getType());
+    public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+      AnnotationAttributes attributes = AnnotationUtils.getAttributes(Value.class, parameter);
+      if (attributes != null) {
+        ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
+        return expressionEvaluator.evaluate(expressionInfo, parameter.getType());
+      }
+      return null; // next resolver
     }
 
   }
