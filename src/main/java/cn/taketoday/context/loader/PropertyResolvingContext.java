@@ -31,7 +31,6 @@ import cn.taketoday.context.annotation.PropsReader;
 public final class PropertyResolvingContext {
   private final PropsReader propsReader;
   private final ApplicationContext context;
-
   private final ExpressionEvaluator expressionEvaluator;
 
   public PropertyResolvingContext(ApplicationContext context) {

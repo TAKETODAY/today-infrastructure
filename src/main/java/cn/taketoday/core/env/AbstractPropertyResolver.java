@@ -50,12 +50,12 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   private boolean ignoreUnresolvableNestedPlaceholders = false;
 
-  private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;
+  private String placeholderPrefix = PropertyPlaceholderHandler.PLACEHOLDER_PREFIX;
 
-  private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
+  private String placeholderSuffix = PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX;
 
   @Nullable
-  private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
+  private String valueSeparator = PropertyPlaceholderHandler.VALUE_SEPARATOR;
 
   @Nullable
   private LinkedHashSet<String> requiredProperties;
@@ -88,7 +88,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * Set the prefix that placeholders replaced by this resolver must begin with.
    * <p>The default is "${".
    *
-   * @see cn.taketoday.util.SystemPropertyUtils#PLACEHOLDER_PREFIX
+   * @see cn.taketoday.util.PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
    */
   @Override
   public void setPlaceholderPrefix(String placeholderPrefix) {
@@ -100,7 +100,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * Set the suffix that placeholders replaced by this resolver must end with.
    * <p>The default is "}".
    *
-   * @see cn.taketoday.util.SystemPropertyUtils#PLACEHOLDER_SUFFIX
+   * @see cn.taketoday.util.PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
    */
   @Override
   public void setPlaceholderSuffix(String placeholderSuffix) {
@@ -114,7 +114,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * special character should be processed as a value separator.
    * <p>The default is ":".
    *
-   * @see cn.taketoday.util.SystemPropertyUtils#VALUE_SEPARATOR
+   * @see cn.taketoday.util.PropertyPlaceholderHandler#VALUE_SEPARATOR
    */
   @Override
   public void setValueSeparator(@Nullable String valueSeparator) {
