@@ -45,6 +45,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.lang.Constant;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * <p>
@@ -276,7 +277,7 @@ public class ExpressionProcessor {
       String[] params = method.substring(j + 1, p).split(",");
       Class<?>[] paramTypes = new Class<?>[params.length];
       for (int i = 0; i < params.length; i++) {
-        paramTypes[i] = toClass(params[i], loader);
+        paramTypes[i] = ClassUtils.forName(params[i], loader);
       }
       Class<?> klass = Class.forName(className, false, loader);
       meth = klass.getDeclaredMethod(methodName, paramTypes);
@@ -336,63 +337,6 @@ public class ExpressionProcessor {
     elManager.defineBean(name, bean);
   }
 
-  /**
-   * Return the Class object associated with the class or interface with the given
-   * name.
-   */
-  private static Class<?> toClass(String type, ClassLoader loader)
-          throws ClassNotFoundException //
-  {
-    Class<?> c;
-    int i0 = type.indexOf('[');
-    int dims = 0;
-    if (i0 > 0) {
-      // This is an array. Count the dimensions
-      for (int i = 0; i < type.length(); i++) {
-        if (type.charAt(i) == '[')
-          dims++;
-      }
-      type = type.substring(0, i0);
-    }
-
-    switch (type) {
-      case "boolean":
-        c = boolean.class;
-        break;
-      case "char":
-        c = char.class;
-        break;
-      case "byte":
-        c = byte.class;
-        break;
-      case "short":
-        c = short.class;
-        break;
-      case "int":
-        c = int.class;
-        break;
-      case "long":
-        c = long.class;
-        break;
-      case "float":
-        c = float.class;
-        break;
-      case "double":
-        c = double.class;
-        break;
-      default:
-        c = loader.loadClass(type);
-        break;
-    }
-
-    if (dims == 0)
-      return c;
-    if (dims == 1)
-      return Array.newInstance(c, 1).getClass();
-    // Array of more than i dimension
-    return Array.newInstance(c, new int[dims]).getClass();
-  }
-
   private String bracket(String expression) {
     if (expression == null) {
       return "${null}";
@@ -401,7 +345,7 @@ public class ExpressionProcessor {
     if (firstChar == '#' || firstChar == '$') {
       return expression;
     }
-    return "${" + expression + '}';
+    return "#{" + expression + '}';
   }
 
   // static
