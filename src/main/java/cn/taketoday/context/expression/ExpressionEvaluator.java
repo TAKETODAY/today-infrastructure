@@ -20,6 +20,10 @@
 
 package cn.taketoday.context.expression;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.Properties;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextHolder;
 import cn.taketoday.core.conversion.ConversionService;
@@ -44,10 +48,6 @@ import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Expression Evaluator
  *
@@ -59,6 +59,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   private static volatile ExpressionEvaluator sharedInstance;
 
   public static final String ENV = "env";
+  public static final String EL_PREFIX = "#{";
 
   private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
@@ -119,7 +120,16 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   }
 
   public <T> T evaluate(String expression, Class<T> expectedType) {
-    return evaluate(expression, expectedType, this);
+    expression = resolvePlaceholders(expression, throwIfPropertyNotFound);
+    if (expression.contains(EL_PREFIX)) {
+      try {
+        expression = obtainProcessor().getValue(expression, null);
+      }
+      catch (ExpressionException e) {
+        throw new ExpressionEvaluationException(e);
+      }
+    }
+    return convertIfNecessary(expression, expectedType);
   }
 
   public <T> T evaluate(String expression, Class<T> expectedType, Map<String, String> variables) {
@@ -127,14 +137,16 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   }
 
   public <T> T evaluate(String expression, Class<T> expectedType, PlaceholderResolver resolver) {
-    String replaced = resolvePlaceholders(expression, resolver, throwIfPropertyNotFound);
-    try {
-      replaced = obtainProcessor().getValue(replaced, null);
+    expression = resolvePlaceholders(expression, resolver, throwIfPropertyNotFound);
+    if (expression.contains(EL_PREFIX)) {
+      try {
+        expression = obtainProcessor().getValue(expression, null);
+      }
+      catch (ExpressionException e) {
+        throw new ExpressionEvaluationException(e);
+      }
     }
-    catch (ExpressionException e) {
-      throw new ExpressionEvaluationException(e);
-    }
-    return convertIfNecessary(replaced, expectedType);
+    return convertIfNecessary(expression, expectedType);
   }
 
   /**
@@ -142,14 +154,16 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    */
   public <T> T evaluate(
           String expression, ExpressionContext context, Class<T> expectedType) {
-    String replaced = resolvePlaceholders(expression, this, throwIfPropertyNotFound);
-    try {
-      replaced = obtainProcessor().getValue(replaced, context, null);
+    expression = resolvePlaceholders(expression, throwIfPropertyNotFound);
+    if (expression.contains(EL_PREFIX)) {
+      try {
+        expression = obtainProcessor().getValue(expression, context, null);
+      }
+      catch (ExpressionException e) {
+        throw new ExpressionEvaluationException(e);
+      }
     }
-    catch (ExpressionException e) {
-      throw new ExpressionEvaluationException(e);
-    }
-    return convertIfNecessary(replaced, expectedType);
+    return convertIfNecessary(expression, expectedType);
   }
 
   /**
@@ -166,8 +180,8 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    *         Can't resolve expression
    * @since 2.1.6
    */
-  public <T> T evaluate(Env value, Class<T> expectedType) {
-    String replaced = resolvePlaceholders(value.value(), this, throwIfPropertyNotFound);
+  public <T> T resolvePlaceholders(Env value, Class<T> expectedType) {
+    String replaced = resolvePlaceholders(value.value(), throwIfPropertyNotFound);
     if (replaced != null) {
       return convertIfNecessary(replaced, expectedType);
     }
@@ -211,6 +225,69 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     return evaluate(defaultValue, expectedType);
   }
 
+  /**
+   * this method is
+   *
+   * @param expr
+   * @param expectedType
+   * @param <T>
+   *
+   * @return
+   */
+  @Nullable
+  public <T> T evaluate(ExpressionInfo expr, Class<T> expectedType) {
+    if (expr.isPlaceholderOnly()) {
+      // find in env
+      String property = variablesResolver.getProperty(expr.getExpression());
+      if (property != null) {
+        return convertIfNecessary(property, expectedType);
+      }
+      if (expr.isRequired()) {
+        throw new ExpressionEvaluationException(
+                "Can't resolve property: [" + expr.getExpression() + "] in PropertyResolver: " + variablesResolver);
+      }
+      else {
+        // try evaluate default-value-expr
+        String defaultValueExpr = expr.getDefaultValue();
+        if (StringUtils.isNotEmpty(defaultValueExpr)) {
+          try {
+            return evaluate(defaultValueExpr, expectedType);
+          }
+          catch (ExpressionEvaluationException e) {
+            // required check
+            if (expr.isRequired()) {
+              throw e;
+            }
+            else {
+              // not required returns null
+              return null;
+            }
+          }
+        }
+        return null;
+      }
+    }
+    else {
+      try {
+        return evaluate(expr.getExpression(), expectedType);
+      }
+      catch (ExpressionEvaluationException e) {
+        // required check
+        if (expr.isRequired()) {
+          throw e;
+        }
+        else {
+          // not required evaluate default
+          String defaultValueExpr = expr.getDefaultValue();
+          if (StringUtils.isEmpty(defaultValueExpr)) {
+            return null;
+          }
+          return evaluate(defaultValueExpr, expectedType);
+        }
+      }
+    }
+  }
+
   //---------------------------------------------------------------------
   // resolvePlaceholders
   //---------------------------------------------------------------------
@@ -231,6 +308,18 @@ public class ExpressionEvaluator implements PlaceholderResolver {
           String input, PlaceholderResolver resolver, boolean throwIfPropertyNotFound) {
     PropertyPlaceholderHandler placeholderHandler = PropertyPlaceholderHandler.shared(!throwIfPropertyNotFound);
     return placeholderHandler.replacePlaceholders(input, resolver);
+  }
+
+  public String resolvePlaceholders(String input) {
+    return resolvePlaceholders(input, throwIfPropertyNotFound);
+  }
+
+  public String resolvePlaceholders(
+          String input, boolean throwIfPropertyNotFound) {
+    if (throwIfPropertyNotFound) {
+      return variablesResolver.resolveRequiredPlaceholders(input);
+    }
+    return variablesResolver.resolvePlaceholders(input);
   }
 
   /**
