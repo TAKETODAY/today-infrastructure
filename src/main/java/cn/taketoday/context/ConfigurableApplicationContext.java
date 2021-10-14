@@ -77,7 +77,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @param parent
    *         the parent context
    *
-   * @see cn.taketoday.web.ConfigurableWebApplicationContext
    * @since 4.0
    */
   void setParent(@Nullable ApplicationContext parent);

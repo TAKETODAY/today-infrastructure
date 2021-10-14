@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import java.io.Closeable;
+
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
@@ -28,8 +30,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-
-import java.io.Closeable;
 
 /**
  * @author TODAY <br>
