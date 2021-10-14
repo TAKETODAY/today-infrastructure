@@ -23,87 +23,72 @@ import java.lang.reflect.Field;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.lang.Env;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.lang.Value;
+import cn.taketoday.context.expression.ExpressionInfo;
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Env;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
+import cn.taketoday.lang.Value;
+import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
  * 2018-08-04 15:58
  */
-public class ValuePropertyResolver
-        extends AbstractPropertyValueResolver implements PropertyValueResolver {
-
-  @Override
-  protected boolean supportsProperty(PropertyResolvingContext context, Field field) {
-    return AnnotationUtils.isPresent(field, Value.class)
-            || AnnotationUtils.isPresent(field, Env.class);
-  }
+public class ValuePropertyResolver implements PropertyValueResolver {
 
   /**
    * Resolve {@link Value} and {@link Env} annotation property.
    */
+
+  @Nullable
   @Override
-  protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
-    String expression;
-    Value value = AnnotationUtils.getAnnotation(Value.class, field);
-    if (value != null) {
-      expression = value.value();
+  public PropertySetter resolveProperty(
+          PropertyResolvingContext context, Field field) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Value.class, field);
+    if (attributes != null) {
+      ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
+      return resolve(context, field, expressionInfo);
+    }
+    else if ((attributes = AnnotationUtils.getAttributes(Env.class, field)) != null) {
+      ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
+      return resolve(context, field, expressionInfo);
     }
     else {
-      Env env = AnnotationUtils.getAnnotation(Env.class, field);
-      expression = env.value();
-      if (StringUtils.isNotEmpty(expression)) {
-        expression = new StringBuilder(expression.length() + 3)//
-                .append(ExpressionEvaluator.PLACE_HOLDER_PREFIX)//
-                .append(expression)//
-                .append(ExpressionEvaluator.PLACE_HOLDER_SUFFIX).toString();
-      }
+      return null;
     }
-
-    if (StringUtils.isEmpty(expression)) {
-      // use class full name and field name
-      expression = new StringBuilder(ExpressionEvaluator.PLACE_HOLDER_PREFIX) //
-              .append(field.getDeclaringClass().getName())//
-              .append(Constant.PACKAGE_SEPARATOR)//
-              .append(field.getName())//
-              .append(ExpressionEvaluator.PLACE_HOLDER_SUFFIX).toString();
-    }
-    Object resolved;
-    try {
-      ExpressionEvaluator expressionEvaluator = context.getExpressionEvaluator();
-      resolved = expressionEvaluator.evaluate(expression, field.getType());
-    }
-    catch (ConfigurationException e) {
-      return fallback(field, expression, e);
-    }
-    if (resolved == null) {
-      return fallback(field, expression, null);
-    }
-    return new DefaultPropertySetter(resolved, field);
   }
 
-  private DefaultPropertySetter fallback(Field field,
-                                         String expression,
-                                         ConfigurationException e) {
-    boolean required;
-    Env env = AnnotationUtils.getAnnotation(Env.class, field);
-    if (env == null) {
-      Value value = AnnotationUtils.getAnnotation(Value.class, field);
-      required = value.required();
+  private PropertySetter resolve(PropertyResolvingContext context, Field field, ExpressionInfo expr) {
+    ExpressionEvaluator evaluator = context.getExpressionEvaluator();
+
+    String expression = expr.getExpression();
+    if (StringUtils.isEmpty(expression)) {
+      // use class full name and field name
+      expression = PropertyPlaceholderHandler.PLACEHOLDER_PREFIX +
+              field.getDeclaringClass().getName() +
+              Constant.PACKAGE_SEPARATOR +
+              field.getName() +
+              PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX;
+      expr.setPlaceholderOnly(false);
+      expr.setExpression(expression);
     }
-    else {
-      required = env.required();
+
+    Object value = evaluator.evaluate(expr, field.getType());
+    if (value == null) {
+      // perform @Required Annotation
+      if (AnnotationUtils.isPresent(field, Required.class)) {
+        throw new ConfigurationException(
+                "Can't resolve expression of field: [" + field +
+                        "] with expression: [" + expr.getExpression() + "].");
+      }
     }
-    if (required || AnnotationUtils.isPresent(field, Required.class)) {
-      throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].", e);
-    }
-    return null;
+    return new DefaultPropertySetter(value, field);
   }
 
 }
