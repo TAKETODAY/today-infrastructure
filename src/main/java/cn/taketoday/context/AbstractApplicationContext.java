@@ -19,14 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -39,7 +31,8 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.factory.ValueExpressionContext;
+import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.ValueExpressionContext;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
@@ -75,6 +68,14 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -132,6 +133,9 @@ public abstract class AbstractApplicationContext
 
   /** @since 4.0 */
   private boolean refreshable;
+
+  /** @since 4.0 */
+  private ExpressionEvaluator expressionEvaluator;
 
   public AbstractApplicationContext() { }
 
@@ -215,23 +219,11 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public boolean containsBean(String name) {
-    return getBeanFactory().containsBean(name);
-  }
-
-  @Override
-  public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
-    return getBeanFactory().isTypeMatch(name, typeToMatch);
-  }
-
-  @Override
-  public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
-    return getBeanFactory().isTypeMatch(name, typeToMatch);
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
-    return getBeanFactory().getObjectSupplier(requiredType);
+  public ExpressionEvaluator getExpressionEvaluator() {
+    if (expressionEvaluator == null) {
+      expressionEvaluator = new ExpressionEvaluator(this);
+    }
+    return expressionEvaluator;
   }
 
   //---------------------------------------------------------------------
@@ -748,6 +740,26 @@ public abstract class AbstractApplicationContext
   @Override
   public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     return getBeanFactory().getBeanNamesForAnnotation(annotationType);
+  }
+
+  @Override
+  public boolean containsBean(String name) {
+    return getBeanFactory().containsBean(name);
+  }
+
+  @Override
+  public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
+    return getBeanFactory().isTypeMatch(name, typeToMatch);
+  }
+
+  @Override
+  public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    return getBeanFactory().isTypeMatch(name, typeToMatch);
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+    return getBeanFactory().getObjectSupplier(requiredType);
   }
 
   // ArgumentsResolverProvider
