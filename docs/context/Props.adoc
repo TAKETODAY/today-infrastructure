@@ -1,4 +1,16 @@
+[[annotation-props]]
+
 = @Props 注解
+Harry Yang
+//:toc: left
+:toclevels: 2
+:tabsize: 2
+:docinfo1:
+:doctype: article
+:encoding: utf-8
+:lang: zh_CN
+:numbered:
+
 
 == value()
 
@@ -14,6 +26,7 @@
 一般用在外层级别, 没有声明并且,如果类的内部也没有 使用 Props 注解 则忽略 (停止递归或迭代)。
 
 == 支持占位符 ${key}
+include::ExpressionEvaluator.adoc[]
 
 [source=java]
 ----

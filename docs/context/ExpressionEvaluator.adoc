@@ -1,0 +1,14 @@
+[[expression-evaluator]]
+= ExpressionEvaluator
+:toc: left
+:toclevels: 2
+:tabsize: 2
+:docinfo1:
+
+
+
+处理表达式的工具类，可以执行EL表达式和占位符替换
+
+== 使用示例
+
+
