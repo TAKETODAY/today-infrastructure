@@ -41,12 +41,11 @@ public class ModelAttributeResolver extends ExpressionResolver {
 
   @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
-    if (base == null && property instanceof String) {
-      final Model model = this.model;
-      if (model.containsAttribute((String) property)) {
-        context.setPropertyResolved(null, property);
-        return model.getAttribute((String) property);
-      }
+    if (base == null
+            && property instanceof String
+            && model.containsAttribute((String) property)) {
+      context.setPropertyResolved(null, property);
+      return model.getAttribute((String) property);
     }
     return null;
   }
@@ -54,11 +53,10 @@ public class ModelAttributeResolver extends ExpressionResolver {
   @Override
   public void setValue(ExpressionContext elContext, Object base, Object property, Object value) {
     if (base == null && property instanceof String) {
-      final String beanName = (String) property;
-      final Model model = this.model;
+      String beanName = (String) property;
       if (model.containsAttribute(beanName)) {
         model.setAttribute(beanName, value);
-        elContext.setPropertyResolved(base, property);
+        elContext.setPropertyResolved(null, property);
       }
     }
   }
@@ -66,7 +64,6 @@ public class ModelAttributeResolver extends ExpressionResolver {
   @Override
   public Class<?> getType(ExpressionContext elContext, Object base, Object property) {
     if (base == null && property instanceof String) {
-      final Model model = this.model;
       if (model.containsAttribute((String) property)) {
         elContext.setPropertyResolved(true);
         return model.getAttribute((String) property).getClass();
