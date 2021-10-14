@@ -357,7 +357,7 @@ public abstract class AbstractApplicationContext
     }
 
     // register Environment
-    beanFactory.registerSingleton(createBeanName(Environment.class), getEnvironment());
+    beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
     // register ApplicationContext
     beanFactory.registerSingleton(createBeanName(ApplicationContext.class), this);
     // register BeanFactory @since 2.1.7

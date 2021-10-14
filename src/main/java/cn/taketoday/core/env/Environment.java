@@ -65,6 +65,8 @@ import cn.taketoday.lang.Constant;
  */
 public interface Environment extends PropertyResolver {
 
+  String ENVIRONMENT_BEAN_NAME = "environment";
+
   String PROPERTIES_SUFFIX = Constant.PROPERTIES_SUFFIX;
   String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
   String DEFAULT_YAML_FILE = "classpath:application.yaml";

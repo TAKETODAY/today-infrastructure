@@ -96,7 +96,7 @@ import java.lang.reflect.Modifier;
  * ELProcessor to define a bean and evaluate its property. <blockquote>
  *
  * <pre>
- * ELProcessor elp = new ELProcessor();
+ * ExpressionProcessor elp = new ExpressionProcessor();
  * elp.defineBean("employee", new Employee("Charlie Brown"));
  * String name = elp.eval("employee.name");
  * </pre>
