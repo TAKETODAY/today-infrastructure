@@ -40,12 +40,11 @@
 
 package cn.taketoday.expression;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * <p>
@@ -108,7 +107,7 @@ import cn.taketoday.util.ClassUtils;
  */
 public class ExpressionProcessor {
   // @since 4.0
-  private static final ExpressionProcessor sharedInstance = new ExpressionProcessor();
+  private static volatile ExpressionProcessor sharedInstance;
 
   private final ExpressionFactory factory;
   private final ExpressionManager elManager;
@@ -354,7 +353,17 @@ public class ExpressionProcessor {
    * @since 4.0
    */
   public static ExpressionProcessor getSharedInstance() {
-    return sharedInstance;
+    ExpressionProcessor processor = sharedInstance;
+    if (processor == null) {
+      synchronized(ExpressionProcessor.class) {
+        processor = sharedInstance;
+        if (processor == null) {
+          processor = new ExpressionProcessor();
+          sharedInstance = processor;
+        }
+      }
+    }
+    return processor;
   }
 
 }
