@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -103,7 +104,7 @@ public class StandardWebServletApplicationContext
   }
 
   @Override
-  protected void registerFrameworkComponents(AbstractBeanFactory beanFactory) {
+  protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     super.registerFrameworkComponents(beanFactory);
     beanFactory.registerSingleton(this);
   }

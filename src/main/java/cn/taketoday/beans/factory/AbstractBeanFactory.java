@@ -211,6 +211,8 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+
+    // 单例 父容器
     BeanDefinition beanDefinition = obtainBeanDefinition(name);
     return beanDefinition.isAssignableTo(typeToMatch);
   }

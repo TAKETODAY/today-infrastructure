@@ -20,6 +20,7 @@
 package cn.taketoday.web.framework;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Constant;
@@ -72,7 +73,7 @@ public class StandardWebServerApplicationContext
   }
 
   @Override
-  protected void registerFrameworkComponents(AbstractBeanFactory beanFactory) {
+  protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     beanFactory.registerSingleton(this);
   }
 

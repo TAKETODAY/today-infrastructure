@@ -19,6 +19,14 @@
  */
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -27,12 +35,11 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.context.expression.ValueExpressionContext;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
@@ -44,6 +51,8 @@ import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
+import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.ValueExpressionContext;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -68,14 +77,6 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -282,7 +283,7 @@ public abstract class AbstractApplicationContext
     initPropertySources(environment);
     environment.validateRequiredProperties();
 
-    AbstractBeanFactory beanFactory = getBeanFactory();
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     // @since 2.1.6
     if (environment.getFlag(ENABLE_FULL_PROTOTYPE)) {
@@ -335,7 +336,7 @@ public abstract class AbstractApplicationContext
   /**
    * Register Framework Beans
    */
-  protected void registerFrameworkComponents(AbstractBeanFactory beanFactory) {
+  protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.info("Registering framework beans");
     ExpressionProcessor elProcessor = beanFactory.getBean(ExpressionProcessor.class);
     if (elProcessor == null) {
@@ -501,7 +502,7 @@ public abstract class AbstractApplicationContext
   @Override
   @SuppressWarnings("unchecked")
   public <T> T unwrapFactory(Class<T> requiredType) {
-    AbstractBeanFactory beanFactory = getBeanFactory();
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
     if (requiredType.isInstance(beanFactory)) {
       return (T) beanFactory;
     }
@@ -800,7 +801,7 @@ public abstract class AbstractApplicationContext
   protected void registerApplicationListeners() {
     log.info("Loading Application Listeners.");
     addApplicationListener(new ContextCloseListener());
-    AbstractBeanFactory beanFactory = getBeanFactory();
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Set<String> beanNamesOfType = beanFactory.getBeanNamesOfType(
             ApplicationListener.class, true, true);
