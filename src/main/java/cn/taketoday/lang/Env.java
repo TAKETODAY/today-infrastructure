@@ -60,7 +60,12 @@ public @interface Env {
   /** is required ? */
   boolean required() default false;
 
-  /** Default value */
+  /**
+   * Default value
+   * <p>
+   * #{xxx}, ${xxx}
+   * </p>
+   */
   String defaultValue() default Constant.BLANK;
 
 }

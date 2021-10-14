@@ -20,15 +20,16 @@
 
 package cn.taketoday.util;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Utility class for working with Strings that have placeholder values in them.
@@ -46,9 +47,13 @@ import cn.taketoday.logging.LoggerFactory;
 public class PropertyPlaceholderHandler {
   private static final Logger log = LoggerFactory.getLogger(PropertyPlaceholderHandler.class);
 
-  public static final String PLACE_HOLDER_SUFFIX = "}";
-  public static final String PLACE_HOLDER_PREFIX = "#{";
-  /** Value separator for system property placeholders: ":". */
+  /** Suffix for property placeholders: "}". */
+  public static final String PLACEHOLDER_SUFFIX = "}";
+
+  /** Prefix for property placeholders: "${". */
+  public static final String PLACEHOLDER_PREFIX = "${";
+
+  /** Value separator for property placeholders: ":". */
   public static final String VALUE_SEPARATOR = ":";
 
   private static final HashMap<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
@@ -60,14 +65,17 @@ public class PropertyPlaceholderHandler {
   }
 
   public static final PropertyPlaceholderHandler strict = new PropertyPlaceholderHandler(
-          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, false);
+          PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX, VALUE_SEPARATOR, false);
 
-  public static final PropertyPlaceholderHandler defaults = new PropertyPlaceholderHandler(
-          PLACE_HOLDER_PREFIX, PLACE_HOLDER_SUFFIX, VALUE_SEPARATOR, true);
+  public static final PropertyPlaceholderHandler nonStrict = new PropertyPlaceholderHandler(
+          PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX, VALUE_SEPARATOR, true);
 
   private final String simplePrefix;
   private final String placeholderPrefix;
   private final String placeholderSuffix;
+
+  private final int placeholderPrefixLength;
+  private final int placeholderSuffixLength;
 
   @Nullable
   private final String valueSeparator;
@@ -118,6 +126,8 @@ public class PropertyPlaceholderHandler {
     }
     this.valueSeparator = valueSeparator;
     this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
+    this.placeholderPrefixLength = placeholderPrefix.length();
+    this.placeholderSuffixLength = placeholderSuffix.length();
   }
 
   /**
@@ -157,7 +167,7 @@ public class PropertyPlaceholderHandler {
 //    if (value == null || value.length() <= 3) { // #{} > 3
 //      return value;
 //    }
-    int startIndex = value.indexOf(this.placeholderPrefix);
+    int startIndex = value.indexOf(placeholderPrefix);
     if (startIndex == -1) {
       return value;
     }
@@ -166,7 +176,7 @@ public class PropertyPlaceholderHandler {
     while (startIndex != -1) {
       int endIndex = findPlaceholderEndIndex(result, startIndex);
       if (endIndex != -1) {
-        String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
+        String placeholder = result.substring(startIndex + placeholderPrefixLength, endIndex);
         String originalPlaceholder = placeholder;
         if (visitedPlaceholders == null) {
           visitedPlaceholders = new HashSet<>(4);
@@ -179,11 +189,11 @@ public class PropertyPlaceholderHandler {
         placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
         // Now obtain the value for the fully resolved key...
         String propVal = placeholderResolver.resolvePlaceholder(placeholder);
-        if (propVal == null && this.valueSeparator != null) {
-          int separatorIndex = placeholder.indexOf(this.valueSeparator);
+        if (propVal == null && valueSeparator != null) {
+          int separatorIndex = placeholder.indexOf(valueSeparator);
           if (separatorIndex != -1) {
             String actualPlaceholder = placeholder.substring(0, separatorIndex);
-            String defaultValue = placeholder.substring(separatorIndex + this.valueSeparator.length());
+            String defaultValue = placeholder.substring(separatorIndex + valueSeparator.length());
             propVal = placeholderResolver.resolvePlaceholder(actualPlaceholder);
             if (propVal == null) {
               propVal = defaultValue;
@@ -194,15 +204,15 @@ public class PropertyPlaceholderHandler {
           // Recursive invocation, parsing placeholders contained in the
           // previously resolved placeholder value.
           propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
-          result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
+          result.replace(startIndex, endIndex + placeholderSuffixLength, propVal);
           if (traceEnabled) {
             log.trace("Resolved placeholder '{}'", placeholder);
           }
-          startIndex = result.indexOf(this.placeholderPrefix, startIndex + propVal.length());
+          startIndex = result.indexOf(placeholderPrefix, startIndex + propVal.length());
         }
-        else if (this.ignoreUnresolvablePlaceholders) {
+        else if (ignoreUnresolvablePlaceholders) {
           // Proceed with unprocessed value.
-          startIndex = result.indexOf(this.placeholderPrefix, endIndex + this.placeholderSuffix.length());
+          startIndex = result.indexOf(placeholderPrefix, endIndex + placeholderSuffixLength);
         }
         else {
           throw new IllegalArgumentException(
@@ -219,28 +229,35 @@ public class PropertyPlaceholderHandler {
   }
 
   private int findPlaceholderEndIndex(CharSequence buf, int startIndex) {
-    int index = startIndex + this.placeholderPrefix.length();
+    int index = startIndex + placeholderPrefixLength;
     int withinNestedPlaceholder = 0;
     int length = buf.length();
     while (index < length) {
-      if (StringUtils.substringMatch(buf, index, this.placeholderSuffix)) {
+      if (StringUtils.substringMatch(buf, index, placeholderSuffix)) {
         if (withinNestedPlaceholder > 0) {
           withinNestedPlaceholder--;
-          index = index + this.placeholderSuffix.length();
+          index = index + placeholderSuffixLength;
         }
         else {
           return index;
         }
       }
-      else if (StringUtils.substringMatch(buf, index, this.simplePrefix)) {
+      else if (StringUtils.substringMatch(buf, index, simplePrefix)) {
         withinNestedPlaceholder++;
-        index = index + this.simplePrefix.length();
+        index = index + simplePrefix.length();
       }
       else {
         index++;
       }
     }
     return -1;
+  }
+
+// static
+
+  @NonNull
+  public static PropertyPlaceholderHandler shared(boolean ignoreUnresolvablePlaceholders) {
+    return ignoreUnresolvablePlaceholders ? nonStrict : strict;
   }
 
 }

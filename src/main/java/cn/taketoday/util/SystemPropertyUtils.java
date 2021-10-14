@@ -33,27 +33,12 @@ import cn.taketoday.lang.Nullable;
  * @author Rob Harrop
  * @author Dave Syer
  * @author TODAY 2021/9/28 22:39
- * @see #PLACEHOLDER_PREFIX
- * @see #PLACEHOLDER_SUFFIX
+ * @see PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
+ * @see PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
  * @see System#getProperty(String)
  * @since 4.0
  */
 public abstract class SystemPropertyUtils {
-
-  /** Prefix for system property placeholders: "${". */
-  public static final String PLACEHOLDER_PREFIX = "${";
-
-  /** Suffix for system property placeholders: "}". */
-  public static final String PLACEHOLDER_SUFFIX = "}";
-
-  /** Value separator for system property placeholders: ":". */
-  public static final String VALUE_SEPARATOR = ":";
-
-  private static final PropertyPlaceholderHandler strictHelper =
-          new PropertyPlaceholderHandler(PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX, VALUE_SEPARATOR, false);
-
-  private static final PropertyPlaceholderHandler nonStrictHelper =
-          new PropertyPlaceholderHandler(PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX, VALUE_SEPARATOR, true);
 
   /**
    * Resolve {@code ${...}} placeholders in the given text, replacing them with
@@ -66,8 +51,8 @@ public abstract class SystemPropertyUtils {
    *
    * @throws IllegalArgumentException
    *         if there is an unresolvable placeholder
-   * @see #PLACEHOLDER_PREFIX
-   * @see #PLACEHOLDER_SUFFIX
+   * @see PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
+   * @see PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
    */
   public static String resolvePlaceholders(String text) {
     return resolvePlaceholders(text, false);
@@ -87,16 +72,16 @@ public abstract class SystemPropertyUtils {
    *
    * @throws IllegalArgumentException
    *         if there is an unresolvable placeholder
-   * @see #PLACEHOLDER_PREFIX
-   * @see #PLACEHOLDER_SUFFIX
+   * @see PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
+   * @see PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
    * and the "ignoreUnresolvablePlaceholders" flag is {@code false}
    */
   public static String resolvePlaceholders(String text, boolean ignoreUnresolvablePlaceholders) {
     if (text.isEmpty()) {
       return text;
     }
-    PropertyPlaceholderHandler helper = (ignoreUnresolvablePlaceholders ? nonStrictHelper : strictHelper);
-    return helper.replacePlaceholders(text, new SystemPropertyPlaceholderResolver(text));
+    PropertyPlaceholderHandler shared = PropertyPlaceholderHandler.shared(ignoreUnresolvablePlaceholders);
+    return shared.replacePlaceholders(text, new SystemPropertyPlaceholderResolver(text));
   }
 
   /**
