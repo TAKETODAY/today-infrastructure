@@ -17,16 +17,16 @@
 
 package cn.taketoday.expression;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Stack;
-
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.expression.lang.EvaluationContext;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -102,7 +102,7 @@ public abstract class ExpressionContext {
   private Locale locale;
 
   /** @since 3.0.4 */
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+  private ConversionService conversionService;
 
   /**
    * Called to indicate that a <code>ELResolver</code> has successfully resolved a
@@ -315,7 +315,6 @@ public abstract class ExpressionContext {
    * @return true if arg is a LambdaArgument, false otherwise.
    */
   public boolean isLambdaArgument(String arg) {
-    final Stack<Map<String, Object>> lambdaArgs = this.lambdaArgs;
     if (lambdaArgs == null) {
       return false;
     }
@@ -345,7 +344,6 @@ public abstract class ExpressionContext {
    * @since EL 3.0
    */
   public Object getLambdaArgument(String arg) {
-    final Stack<Map<String, Object>> lambdaArgs = this.lambdaArgs;
     if (lambdaArgs == null) {
       return null;
     }
@@ -417,6 +415,11 @@ public abstract class ExpressionContext {
       }
       // @since 3.0.4
       final TypeDescriptor targetDescriptor = TypeDescriptor.valueOf(targetType);
+
+      if (conversionService == null) { // @since 4.0
+        conversionService = DefaultConversionService.getSharedInstance();
+      }
+
       final TypeConverter typeConverter = conversionService.getConverter(obj.getClass(), targetDescriptor);
       if (typeConverter != null) {
         return typeConverter.convert(targetDescriptor, obj);
@@ -440,9 +443,11 @@ public abstract class ExpressionContext {
    */
   public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) throws ExpressionException {
     if (base == null) {
-      throw new PropertyNotFoundException("ELResolver cannot handle a null base Object with identifier ''" + property + "''");
+      throw new PropertyNotFoundException(
+              "ExpressionResolver cannot handle a null base Object with identifier ''" + property + "''");
     }
-    throw new PropertyNotFoundException("ELResolver did not handle type: " + base.getClass() + " with property of ''" + property + "''");
+    throw new PropertyNotFoundException(
+            "ExpressionResolver did not handle type: " + base.getClass() + " with property of ''" + property + "''");
   }
 
   /**
@@ -453,9 +458,6 @@ public abstract class ExpressionContext {
    * @since 3.0.4
    */
   public void setConversionService(ConversionService conversionService) {
-    if (conversionService == null) {
-      conversionService = DefaultConversionService.getSharedInstance();
-    }
     this.conversionService = conversionService;
   }
 
