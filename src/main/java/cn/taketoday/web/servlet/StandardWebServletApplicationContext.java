@@ -23,7 +23,6 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
@@ -36,7 +35,7 @@ import cn.taketoday.web.WebUtils;
  * 2018-07-10 1:16:17
  */
 public class StandardWebServletApplicationContext
-        extends StandardApplicationContext implements WebServletApplicationContext, ConfigurableWebServletApplicationContext {
+        extends StandardApplicationContext implements WebServletApplicationContext {
 
   /** Servlet context */
   private ServletContext servletContext;

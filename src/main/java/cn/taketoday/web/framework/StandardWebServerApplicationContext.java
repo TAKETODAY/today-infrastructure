@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.framework;
 
-import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -36,8 +35,7 @@ import cn.taketoday.web.framework.utils.WebApplicationUtils;
  * 2019-11-13 22:07
  */
 public class StandardWebServerApplicationContext
-        extends StandardApplicationContext
-        implements ConfigurableWebServerApplicationContext, WebServerApplicationContext {
+        extends StandardApplicationContext implements WebServerApplicationContext {
   private static final Logger log = LoggerFactory.getLogger(StandardWebServerApplicationContext.class);
 
   private WebServer webServer;

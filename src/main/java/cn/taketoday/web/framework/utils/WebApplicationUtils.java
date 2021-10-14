@@ -35,7 +35,7 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.config.WebApplicationLoader;
-import cn.taketoday.web.framework.ConfigurableWebServerApplicationContext;
+import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.server.AbstractWebServer;
 import cn.taketoday.web.framework.server.ConfigurableWebServer;
 import cn.taketoday.web.framework.server.WebServer;
@@ -53,7 +53,7 @@ public abstract class WebApplicationUtils {
    *
    * @return WebServer
    */
-  public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) {
+  public static WebServer obtainWebServer(WebServerApplicationContext beanFactory) {
     // disable web mvc xml
     TodayStrategies.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, "false");
     // Get WebServer instance

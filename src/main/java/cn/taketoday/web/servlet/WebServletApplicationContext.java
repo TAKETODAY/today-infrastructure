@@ -30,6 +30,14 @@ import cn.taketoday.web.WebApplicationContext;
 public interface WebServletApplicationContext extends WebApplicationContext {
 
   /**
+   * Set ServletContext
+   *
+   * @param servletContext
+   *         Target {@link ServletContext} object
+   */
+  void setServletContext(ServletContext servletContext);
+
+  /**
    * Return the standard Servlet API ServletContext for this application.
    */
   ServletContext getServletContext();

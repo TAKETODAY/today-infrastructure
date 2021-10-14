@@ -19,13 +19,13 @@
  */
 package cn.taketoday.web;
 
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
  * @author TODAY <br>
  * 2019-07-10 22:03
  */
-public interface WebApplicationContext extends ApplicationContext {
+public interface WebApplicationContext extends ConfigurableApplicationContext {
 
   /**
    * Returns the portion of the request URI that indicates the context of the

@@ -38,7 +38,7 @@ import cn.taketoday.web.framework.server.WebServer;
 public class WebApplication {
   private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
 
-  private final ConfigurableWebServerApplicationContext context;
+  private final WebServerApplicationContext context;
   private final String appBasePath = System.getProperty("user.dir");
 
   public WebApplication() {
@@ -51,11 +51,11 @@ public class WebApplication {
               : new StandardWebServerApplicationContext(startupClass, args);
   }
 
-  public WebApplication(ConfigurableWebServerApplicationContext context) {
+  public WebApplication(WebServerApplicationContext context) {
     this.context = context;
   }
 
-  public ConfigurableWebServerApplicationContext getApplicationContext() {
+  public WebServerApplicationContext getApplicationContext() {
     return context;
   }
 
@@ -67,7 +67,7 @@ public class WebApplication {
    * @param args
    *         Startup arguments
    */
-  public static ConfigurableWebServerApplicationContext run(Class<?> startupClass, String... args) {
+  public static WebServerApplicationContext run(Class<?> startupClass, String... args) {
     return new WebApplication(startupClass, args).run(args);
   }
 
@@ -79,7 +79,7 @@ public class WebApplication {
    * @param args
    *         Startup arguments
    */
-  public static ConfigurableWebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
+  public static WebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
     return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run(args);
   }
 
@@ -89,19 +89,19 @@ public class WebApplication {
    * @param args
    *         Startup arguments
    *
-   * @return {@link ConfigurableWebServerApplicationContext}
+   * @return {@link WebServerApplicationContext}
    */
-  public ConfigurableWebServerApplicationContext run(String... args) {
+  public WebServerApplicationContext run(String... args) {
     log.info("Starting Web Application at [{}]", getAppBasePath());
 
-    final ConfigurableWebServerApplicationContext context = getApplicationContext();
+    WebServerApplicationContext context = getApplicationContext();
     try {
       SingletonBeanRegistry registry = context.unwrapFactory(SingletonBeanRegistry.class);
       registry.registerSingleton(this);
 
       AnnotationConfigRegistry configRegistry = context.unwrap(AnnotationConfigRegistry.class);
 
-      final Class<?> startupClass = context.getStartupClass();
+      Class<?> startupClass = context.getStartupClass();
       configRegistry.register(startupClass); // @since 1.0.2 import startup class
       if (startupClass == null) {
         log.info("There isn't a Startup Class");
@@ -113,7 +113,7 @@ public class WebApplication {
 
       context.refresh();
 
-      final WebServer webServer = context.getWebServer();
+      WebServer webServer = context.getWebServer();
       Assert.state(webServer != null, "No Web server.");
       webServer.start();
 

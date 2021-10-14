@@ -36,8 +36,7 @@ import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
  * 2019-01-17 15:54
  */
 public class ServletWebServerApplicationContext
-        extends StandardWebServletApplicationContext
-        implements WebServerApplicationContext, ConfigurableWebServerApplicationContext {
+        extends StandardWebServletApplicationContext implements WebServerApplicationContext {
   private static final Logger log = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
 
   private WebServer webServer;

@@ -162,24 +162,24 @@ public class WebServletApplicationLoader
       long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
-      ConfigurableWebServletApplicationContext context = createContext();
+      WebServletApplicationContext context = createContext();
       ret = context;
       context.setServletContext(servletContext);
       setApplicationContext(context);
       context.refresh();
     }
-    else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
-      ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
+    else if (ret instanceof WebServletApplicationContext && ret.getServletContext() == null) {
+      ((WebServletApplicationContext) ret).setServletContext(servletContext);
       log.info("ServletContext: [{}] Configure Success.", servletContext);
     }
     return ret;
   }
 
   /**
-   * create a {@link ConfigurableWebServletApplicationContext},
+   * create a {@link WebServletApplicationContext},
    * subclasses can override this method to create user customize context
    */
-  protected ConfigurableWebServletApplicationContext createContext() {
+  protected WebServletApplicationContext createContext() {
     return new StandardWebServletApplicationContext();
   }
 

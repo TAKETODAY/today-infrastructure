@@ -34,10 +34,9 @@ import cn.taketoday.web.StandardWebBeanFactory;
  * @author TODAY 2019-03-23 14:59
  */
 public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
+  private final WebServletApplicationContext context;
 
-  private ConfigurableWebServletApplicationContext context;
-
-  public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
+  public StandardWebServletBeanFactory(WebServletApplicationContext context) {
     this.context = context;
   }
 

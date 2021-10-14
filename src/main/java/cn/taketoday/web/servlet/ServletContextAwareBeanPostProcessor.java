@@ -30,14 +30,14 @@ import cn.taketoday.web.ServletContextAware;
  * @since 4.0
  */
 public class ServletContextAwareBeanPostProcessor implements BeanPostProcessor {
-  private final ConfigurableWebServletApplicationContext context;
+  private final WebServletApplicationContext context;
 
-  public ServletContextAwareBeanPostProcessor(ConfigurableWebServletApplicationContext context) {
+  public ServletContextAwareBeanPostProcessor(WebServletApplicationContext context) {
     this.context = context;
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
+  public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) {
     if (bean instanceof Aware) {
       if (bean instanceof ServletContextAware) {
         ((ServletContextAware) bean).setServletContext(context.getServletContext());
