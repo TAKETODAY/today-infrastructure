@@ -20,18 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -48,6 +36,7 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.AnnotationAttributes;
@@ -67,6 +56,18 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -350,7 +351,7 @@ public class BeanDefinitionReader {
         }
         else {
           log.info("@MissingBean -> '{}' cannot pass the condition " +
-                           "or contains its bean definition, dont register to the map", beanClass);
+                  "or contains its bean definition, dont register to the map", beanClass);
         }
       }
       else {
@@ -582,6 +583,11 @@ public class BeanDefinitionReader {
     AnnotationAttributes lazy = AnnotationUtils.getAttributes(Lazy.class, clazz);
     if (lazy != null) {
       builder.lazyInit(lazy.getBoolean(Constant.VALUE));
+    }
+
+    AnnotationAttributes role = AnnotationUtils.getAttributes(Role.class, clazz);
+    if (role != null) {
+      builder.role(role.getNumber(Constant.VALUE));
     }
 
     if (ignoreAnnotation) {
