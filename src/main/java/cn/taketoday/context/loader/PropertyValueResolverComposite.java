@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -50,8 +49,7 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
 
   @Nullable
   @Override
-  public PropertySetter resolveProperty(
-          PropertyResolvingContext context, Field field) throws PropertyValueException {
+  public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
     for (PropertyValueResolver propertyValueResolver : getResolvers()) {
       PropertySetter propertySetter = propertyValueResolver.resolveProperty(context, field);
       if (propertySetter != null) {
