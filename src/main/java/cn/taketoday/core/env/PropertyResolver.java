@@ -75,7 +75,8 @@ public interface PropertyResolver {
    *
    * @see #getRequiredProperty(String, Class)
    */
-  @Nullable <T> T getProperty(String key, Class<T> targetType);
+  @Nullable
+  <T> T getProperty(String key, Class<T> targetType);
 
   /**
    * Return the property value associated with the given key,
