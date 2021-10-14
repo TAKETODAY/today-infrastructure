@@ -6,7 +6,10 @@ import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -54,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Created by IntelliJ IDEA. User: lars Date: 5/21/11 Time: 9:25 PM Most sql2o
  * tests are in this class.
  */
-//@RunWith(Parameterized.class)
+@RunWith(Parameterized.class)
 public class JdbcOperationsTest extends BaseMemDbTest {
 
   private static final int NUMBER_OF_USERS_IN_THE_TEST = 10000;
@@ -271,7 +274,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     assertTrue(ciEntities2.size() == 20);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testSetMaxBatchRecords() {
     try (JdbcConnection conn = this.jdbcOperations.open()) {
       Query q = conn.createQuery("select 'test'");
@@ -1522,7 +1525,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     List<User> users = connection.createQuery("select * from User").fetch(User.class);
 
     assertThat(users.size()).isEqualTo(NUMBER_OF_USERS_IN_THE_TEST);
-    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
+    assertThat(connection.getJdbcConnection().isClosed()).isFalse();
 
     connection.close();
 
