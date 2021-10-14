@@ -91,9 +91,9 @@ class ClassUtilsTests {
     }
     catch (ClassNotFoundException e) {
     }
-    assert ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNER") == INNER.class;
+    assert ClassUtils.forName("cn.taketoday.util.ClassUtilsTests.INNER") == INNER.class;
     try {
-      ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNERs");//
+      ClassUtils.forName("cn.taketoday.util.ClassUtilsTests.INNERs");//
     }
     catch (ClassNotFoundException e) {
     }
@@ -132,8 +132,8 @@ class ClassUtilsTests {
 
   @Test
   void forNameWithNestedType() throws ClassNotFoundException {
-    assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTest$NestedClass", classLoader)).isEqualTo(NestedClass.class);
-    assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.NestedClass", classLoader)).isEqualTo(NestedClass.class);
+    assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTests$NestedClass", classLoader)).isEqualTo(NestedClass.class);
+    assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTests.NestedClass", classLoader)).isEqualTo(NestedClass.class);
   }
 
   @Test
@@ -595,7 +595,7 @@ class ClassUtilsTests {
   @Test
   void getShortName() {
     String className = ClassUtils.getShortName(getClass());
-    assertThat(className).as("Class name did not match").isEqualTo("ClassUtilsTest");
+    assertThat(className).as("Class name did not match").isEqualTo("ClassUtilsTests");
   }
 
   @Test
@@ -625,19 +625,19 @@ class ClassUtilsTests {
   @Test
   void getShortNameForNestedClass() {
     String className = ClassUtils.getShortName(NestedClass.class);
-    assertThat(className).as("Class name did not match").isEqualTo("ClassUtilsTest.NestedClass");
+    assertThat(className).as("Class name did not match").isEqualTo("ClassUtilsTests.NestedClass");
   }
 
   @Test
   void getShortNameAsProperty() {
     String shortName = ClassUtils.getShortNameAsProperty(this.getClass());
-    assertThat(shortName).as("Class name did not match").isEqualTo("classUtilsTest");
+    assertThat(shortName).as("Class name did not match").isEqualTo("classUtilsTests");
   }
 
   @Test
   void getClassFileName() {
     assertThat(ClassUtils.getClassFileName(String.class)).isEqualTo("String.class");
-    assertThat(ClassUtils.getClassFileName(getClass())).isEqualTo("ClassUtilsTest.class");
+    assertThat(ClassUtils.getClassFileName(getClass())).isEqualTo("ClassUtilsTests.class");
   }
 
   @Test
@@ -649,7 +649,7 @@ class ClassUtilsTests {
   @Test
   void getQualifiedName() {
     String className = ClassUtils.getQualifiedName(getClass());
-    assertThat(className).as("Class name did not match").isEqualTo("cn.taketoday.util.ClassUtilsTest");
+    assertThat(className).as("Class name did not match").isEqualTo("cn.taketoday.util.ClassUtilsTests");
   }
 
   @Test

@@ -38,7 +38,7 @@ import cn.taketoday.core.env.PropertySources;
  */
 class ValuePropertyResolveTests {
 
-  @Value("#{site.host}")
+  @Value("${site.host}")
   private String host = null;
 
   @Env("site.name")

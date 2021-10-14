@@ -156,7 +156,7 @@ public class ELProcessorTests {
     assertTrue(caught);
 
     try {
-      elp.defineFunction("yy", "", "cn.taketoday.context.el.test.ELProcessorTest$MyBean", "getBar");
+      elp.defineFunction("yy", "", "cn.taketoday.context.el.test.ELProcessorTests$MyBean", "getBar");
       Object ret = elp.eval("yy:getBar() == 64");
       assertTrue((Boolean) ret);
     }
@@ -166,7 +166,7 @@ public class ELProcessorTests {
 
     caught = false;
     try {
-      elp.defineFunction("yy", "", "cn.taketoday.context.el.test.ELProcessorTest$MyBean", "getFooBar");
+      elp.defineFunction("yy", "", "cn.taketoday.context.el.test.ELProcessorTests$MyBean", "getFooBar");
       Object ret = elp.eval("yy:getBar() == 100");
       assertTrue((Boolean) ret);
     }
@@ -193,12 +193,12 @@ public class ELProcessorTests {
 
   @Test
   void testImport() {
-    elm.importClass("cn.taketoday.context.el.ELProcessorTest$MyBean");
-    assertTrue((Boolean) elp.eval("ELProcessorTest$MyBean.aaaa == 101"));
-    assertTrue((Boolean) elp.eval("ELProcessorTest$MyBean.getBar() == 64"));
-    elm.importStatic("cn.taketoday.context.el.ELProcessorTest$MyBean.aaaa");
+    elm.importClass("cn.taketoday.context.el.ELProcessorTests$MyBean");
+    assertTrue((Boolean) elp.eval("ELProcessorTests$MyBean.aaaa == 101"));
+    assertTrue((Boolean) elp.eval("ELProcessorTests$MyBean.getBar() == 64"));
+    elm.importStatic("cn.taketoday.context.el.ELProcessorTests$MyBean.aaaa");
     assertEquals(new Integer(101), elp.eval("aaaa"));
-    elm.importStatic("cn.taketoday.context.el.ELProcessorTest$MyBean.getBar");
+    elm.importStatic("cn.taketoday.context.el.ELProcessorTests$MyBean.getBar");
     assertEquals(new Integer(64), elp.eval("getBar()"));
     /*
      * elm.importStatic("a.b.NonExisting.foobar"); elp.eval("foobar");
