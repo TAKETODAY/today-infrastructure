@@ -19,6 +19,13 @@
  */
 package cn.taketoday.web.http;
 
+import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.annotation.CrossOrigin;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,13 +37,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.annotation.CrossOrigin;
 
 /**
  * A container for CORS configuration along with methods to check against the
@@ -122,7 +122,7 @@ public class CorsConfiguration {
    */
   public void setAllowedOrigins(@Nullable List<String> origins) {
     this.allowedOrigins = (origins == null ? null :
-                           origins.stream().filter(Objects::nonNull).map(this::trimTrailingSlash).collect(Collectors.toList()));
+            origins.stream().filter(Objects::nonNull).map(this::trimTrailingSlash).collect(Collectors.toList()));
   }
 
   private String trimTrailingSlash(String origin) {
@@ -276,7 +276,7 @@ public class CorsConfiguration {
   /**
    * Add an HTTP method to allow.
    */
-  public void addAllowedMethod(final String method) {
+  public void addAllowedMethod(String method) {
     if (StringUtils.isNotEmpty(method)) {
       if (this.allowedMethods == null) {
         this.allowedMethods = new ArrayList<>(4);
@@ -307,7 +307,7 @@ public class CorsConfiguration {
    * <p>
    * By default this is not set.
    */
-  public void setAllowedHeaders(final List<String> allowedHeaders) {
+  public void setAllowedHeaders(List<String> allowedHeaders) {
     this.allowedHeaders = (allowedHeaders != null ? new ArrayList<>(allowedHeaders) : null);
   }
 
@@ -344,7 +344,7 @@ public class CorsConfiguration {
    * <p>
    * By default this is not set.
    */
-  public void setExposedHeaders(final List<String> exposedHeaders) {
+  public void setExposedHeaders(List<String> exposedHeaders) {
     this.exposedHeaders = (exposedHeaders != null ? new ArrayList<>(exposedHeaders) : null);
   }
 
@@ -547,19 +547,19 @@ public class CorsConfiguration {
    * request origin is not allowed
    */
   @Nullable
-  public String checkOrigin(@Nullable final String requestOrigin) {
+  public String checkOrigin(@Nullable String requestOrigin) {
     if (StringUtils.isEmpty(requestOrigin)) {
       return null;
     }
-    final List<String> allowedOrigins = this.allowedOrigins;
-    final String originToCheck = trimTrailingSlash(requestOrigin);
+    List<String> allowedOrigins = this.allowedOrigins;
+    String originToCheck = trimTrailingSlash(requestOrigin);
 
     if (CollectionUtils.isNotEmpty(allowedOrigins)) {
       if (allowedOrigins.contains(ALL)) {
         validateAllowCredentials();
         return ALL;
       }
-      for (final String allowedOrigin : allowedOrigins) {
+      for (String allowedOrigin : allowedOrigins) {
         if (originToCheck.equalsIgnoreCase(allowedOrigin)) {
           return requestOrigin;
         }
@@ -611,15 +611,14 @@ public class CorsConfiguration {
    * request, or {@code null} if none of the supplied request headers is
    * allowed
    */
-  public List<String> checkHeaders(final List<String> requestHeaders) {
-
+  @Nullable
+  public List<String> checkHeaders(List<String> requestHeaders) {
     if (requestHeaders == null) {
       return null;
     }
     if (requestHeaders.isEmpty()) {
       return Collections.emptyList();
     }
-    final List<String> allowedHeaders = this.allowedHeaders;
     if (CollectionUtils.isEmpty(allowedHeaders)) {
       return null;
     }
@@ -632,7 +631,7 @@ public class CorsConfiguration {
           result.add(requestHeader);
         }
         else {
-          for (final String allowedHeader : allowedHeaders) {
+          for (String allowedHeader : allowedHeaders) {
             if (requestHeader.equalsIgnoreCase(allowedHeader)) {
               result.add(requestHeader);
               break;
@@ -656,6 +655,7 @@ public class CorsConfiguration {
    * request, or {@code null} if the supplied {@code requestMethod} is not
    * allowed
    */
+  @Nullable
   public List<String> checkHttpMethod(String method) {
     if (method == null) {
       return null;
@@ -664,44 +664,6 @@ public class CorsConfiguration {
       return Collections.singletonList(method);
     }
     return (this.resolvedMethods.contains(method) ? this.resolvedMethods : null);
-  }
-
-  public void updateCorsConfig(CrossOrigin annotation) {
-    if (annotation == null) {
-      return;
-    }
-    for (String origin : annotation.value()) {
-      addAllowedOrigin(resolveCorsValue(origin));
-    }
-    for (HttpMethod method : annotation.methods()) {
-      addAllowedMethod(method.name());
-    }
-    for (String header : annotation.allowedHeaders()) {
-      addAllowedHeader(resolveCorsValue(header));
-    }
-    for (String header : annotation.exposedHeaders()) {
-      addExposedHeader(resolveCorsValue(header));
-    }
-
-    String allowCredentials = resolveCorsValue(annotation.allowCredentials());
-    if ("true".equalsIgnoreCase(allowCredentials)) {
-      setAllowCredentials(true);
-    }
-    else if ("false".equalsIgnoreCase(allowCredentials)) {
-      setAllowCredentials(false);
-    }
-    else if (!allowCredentials.isEmpty()) {
-      throw new IllegalStateException("@CrossOrigin's allowCredentials value must be \"true\", \"false\", " +
-                                              "or an empty string (\"\"): current value is [" + allowCredentials + "]");
-    }
-
-    if (annotation.maxAge() >= 0 && getMaxAge() == null) {
-      setMaxAge(annotation.maxAge());
-    }
-  }
-
-  protected String resolveCorsValue(String value) {
-    return ExpressionEvaluator.getSharedInstance().evaluate(value, String.class);
   }
 
   /**

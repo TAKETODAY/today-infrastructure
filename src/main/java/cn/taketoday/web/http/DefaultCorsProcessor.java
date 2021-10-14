@@ -43,15 +43,14 @@ import cn.taketoday.web.WebUtils;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
- * @author TODAY <br>
- * 2019-12-23 21:02
+ * @author TODAY 2019-12-23 21:02
  */
 public class DefaultCorsProcessor implements CorsProcessor {
   private static final Logger log = LoggerFactory.getLogger(DefaultCorsProcessor.class);
 
   @Override
-  public boolean process(final CorsConfiguration config, final RequestContext context) throws IOException {
-    final HttpHeaders responseHeaders = context.responseHeaders();
+  public boolean process(CorsConfiguration config, RequestContext context) throws IOException {
+    HttpHeaders responseHeaders = context.responseHeaders();
     responseHeaders.setVary(
             Arrays.asList(HttpHeaders.ORIGIN,
                           HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
@@ -67,7 +66,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
-    final boolean preFlightRequest = WebUtils.isPreFlightRequest(context);
+    boolean preFlightRequest = WebUtils.isPreFlightRequest(context);
     if (config == null) {
       if (preFlightRequest) {
         rejectRequest(context);
@@ -94,8 +93,8 @@ public class DefaultCorsProcessor implements CorsProcessor {
    * Handle the given request.
    */
   protected boolean handleInternal(
-          final RequestContext context, final CorsConfiguration config, boolean preFlightRequest) throws IOException {
-    final String requestOrigin = context.requestHeaders().getOrigin();
+          RequestContext context, CorsConfiguration config, boolean preFlightRequest) throws IOException {
+    String requestOrigin = context.requestHeaders().getOrigin();
 
     String allowOrigin = checkOrigin(config, requestOrigin);
 
@@ -121,7 +120,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return false;
     }
 
-    final HttpHeaders responseHeaders = context.responseHeaders();
+    HttpHeaders responseHeaders = context.responseHeaders();
     responseHeaders.setAccessControlAllowOrigin(allowOrigin);
 
     if (preFlightRequest) {

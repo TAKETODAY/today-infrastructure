@@ -19,14 +19,17 @@
  */
 package cn.taketoday.web.registry;
 
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.CorsConfiguration;
 import cn.taketoday.web.http.CorsProcessor;
 import cn.taketoday.web.http.DefaultCorsProcessor;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -37,6 +40,9 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
   private CorsProcessor processor;
 
+  @Nullable
+  private ExpressionEvaluator expressionEvaluator;
+
   public HandlerCorsCustomizer() {
     this(new DefaultCorsProcessor());
   }
@@ -46,35 +52,35 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
   }
 
   @Override
-  public Object customize(final HandlerMethod handler) {
+  public Object customize(HandlerMethod handler) {
 
     // 预防已经设置
-    final HandlerInterceptor[] interceptors = handler.getInterceptors();
+    HandlerInterceptor[] interceptors = handler.getInterceptors();
     if (ObjectUtils.isNotEmpty(interceptors)) {
-      for (final HandlerInterceptor interceptor : interceptors) {
+      for (HandlerInterceptor interceptor : interceptors) {
         if (interceptor instanceof CorsHandlerInterceptor) {
           return handler;
         }
       }
     }
 
-    final CrossOrigin methodCrossOrigin = handler.getMethodAnnotation(CrossOrigin.class);
-    final CrossOrigin classCrossOrigin = handler.getDeclaringClassAnnotation(CrossOrigin.class);
+    CrossOrigin methodCrossOrigin = handler.getMethodAnnotation(CrossOrigin.class);
+    CrossOrigin classCrossOrigin = handler.getDeclaringClassAnnotation(CrossOrigin.class);
 
     if (classCrossOrigin == null && methodCrossOrigin == null) {
       // 没有 @CrossOrigin 配置
       return handler;
     }
 
-    final CorsConfiguration config = new CorsConfiguration();
+    CorsConfiguration config = new CorsConfiguration();
 
-    config.updateCorsConfig(classCrossOrigin);
-    config.updateCorsConfig(methodCrossOrigin);
+    updateCorsConfig(config, classCrossOrigin);
+    updateCorsConfig(config, methodCrossOrigin);
 
     // 覆盖默认
     config.applyPermitDefaultValues();
 
-    final CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor(config);
+    CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor(config);
     interceptor.setCorsProcessor(processor);
     interceptor.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
@@ -95,6 +101,57 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
   public void setCorsProcessor(CorsProcessor processor) {
     Assert.notNull(processor, "CorsProcessor must not be null");
     this.processor = processor;
+  }
+
+  public void updateCorsConfig(CorsConfiguration config, CrossOrigin annotation) {
+    if (annotation == null) {
+      return;
+    }
+    for (String origin : annotation.value()) {
+      config.addAllowedOrigin(resolveExpressionValue(origin));
+    }
+    for (HttpMethod method : annotation.methods()) {
+      config.addAllowedMethod(method.name());
+    }
+    for (String header : annotation.allowedHeaders()) {
+      config.addAllowedHeader(resolveExpressionValue(header));
+    }
+    for (String header : annotation.exposedHeaders()) {
+      config.addExposedHeader(resolveExpressionValue(header));
+    }
+
+    String allowCredentials = resolveExpressionValue(annotation.allowCredentials());
+    if ("true".equalsIgnoreCase(allowCredentials)) {
+      config.setAllowCredentials(true);
+    }
+    else if ("false".equalsIgnoreCase(allowCredentials)) {
+      config.setAllowCredentials(false);
+    }
+    else if (!allowCredentials.isEmpty()) {
+      throw new IllegalStateException(
+              "@CrossOrigin's allowCredentials value must be \"true\", \"false\", " +
+                      "or an empty string (\"\"): current value is [" + allowCredentials + "]");
+    }
+
+    if (annotation.maxAge() >= 0 && config.getMaxAge() == null) {
+      config.setMaxAge(annotation.maxAge());
+    }
+  }
+
+  protected String resolveExpressionValue(String value) {
+    if (expressionEvaluator != null) {
+      return expressionEvaluator.evaluate(value, String.class);
+    }
+    return value;
+  }
+
+  public void setExpressionEvaluator(@Nullable ExpressionEvaluator expressionEvaluator) {
+    this.expressionEvaluator = expressionEvaluator;
+  }
+
+  @Nullable
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
   }
 
 }
