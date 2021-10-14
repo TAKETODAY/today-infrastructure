@@ -41,37 +41,37 @@ public final class Config implements Serializable {
 
   private Integer id;
 
-  @Value("#{site.cdn}")
+  @Value("${site.cdn}")
   private String cdn;
 
-  @Value("#{site.icp}")
+  @Value("${site.icp}")
   private String icp;
 
-  @Value("#{site.host}")
+  @Value("${site.host}")
   private String host;
 
-  @Value("#{site.index}")
+  @Value("${site.index}")
   private File index;
 
-  @Value("#{site.upload}")
+  @Value("${site.upload}")
   private File upload;
 
-  @Value("#{site.keywords}")
+  @Value("${site.keywords}")
   private String keywords;
 
-  @Value("#{site.name}")
+  @Value("${site.name}")
   private String siteName;
 
-  @Value("#{site.copyright}")
+  @Value("${site.copyright}")
   private String copyright;
 
-  @Value("#{site.server.path}")
+  @Value("${site.server.path}")
   private File serverPath;
 
-  @Value("#{site.description}")
+  @Value("${site.description}")
   private String description;
 
-  @Value("#{site.otherFooterInfo}")
+  @Value("${site.otherFooterInfo}")
   private String otherFooterInfo;
 
   @Autowired(required = false)

@@ -172,7 +172,7 @@ public class ContextUtilsTest {
             @Props(prefix = "site.") Properties properties, //
             Properties emptyProperties, //
             @Env("placeHolder") int placeHolderEnv,
-            @Value("#{placeHolder}") int placeHolder,
+            @Value("${placeHolder}") int placeHolder,
 
             Collection<Object> objects,
             Set<Object> setObjects,

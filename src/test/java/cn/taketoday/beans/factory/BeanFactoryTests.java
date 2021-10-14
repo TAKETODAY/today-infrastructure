@@ -223,7 +223,7 @@ class BeanFactoryTests {
   // @Singleton("test.beans.factory.BeanFactoryTest.FactoryBeanTestBean")
   public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
-    @Value("${env['upload.maxFileSize']}")
+    @Value("#{env['upload.maxFileSize']}")
 //    private int testInt;
     private DataSize testInt;
 

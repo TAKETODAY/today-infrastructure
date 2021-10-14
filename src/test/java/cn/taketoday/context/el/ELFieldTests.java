@@ -48,16 +48,16 @@ public class ELFieldTests {
     }
   }
 
-  @Value("${235.1}")
+  @Value("#{235.1}")
   private double testDouble;
 
-  @Value("${235.1}")
+  @Value("#{235.1}")
   private float testFloat;
 
-  @Value(required = false, value = "${user}")
+  @Value(required = false, value = "#{user}")
   private User user;
 
-  @Value(value = "${env['site.name']}")
+  @Value(value = "#{env['site.name']}")
   private String siteName;
 
   @Getter

@@ -103,12 +103,12 @@ class MethodEventDrivenPostProcessorTests {
     }
 
     @EventListener
-    public void listener(@Value("${1+2}") int value, EventObjectEvent event/* EventObject No need to declare first place*/) {
+    public void listener(@Value("#{1+2}") int value, EventObjectEvent event/* EventObject No need to declare first place*/) {
       assert value == 3;
     }
 
     @EventListener(EventObjectEvent.class)
-    public void listener(@Value("${1+2}") int value/*You can also not use event*/) {
+    public void listener(@Value("#{1+2}") int value/*You can also not use event*/) {
       assert value == 3;
     }
 

@@ -85,7 +85,7 @@ class AutowireCapableBeanFactoryTests {
   @Conditional(AutowireTestBeanCondition.class)
   @Component(initMethods = "init", destroyMethods = "destroy")
   static class AutowireTestBean implements BeanNameAware, InitializingBean {
-    @Value("${1+1}")
+    @Value("#{1+1}")
     int property;
 
     @Autowired
