@@ -230,7 +230,7 @@ public class TomcatServer extends AbstractServletWebServer {
   @PreDestroy
   public synchronized void stop() throws WebServerException {
     try {
-      final AtomicBoolean started = getStarted();
+      AtomicBoolean started = getStarted();
       if (started.get()) {
         started.set(false);
         stopSilently();
@@ -278,7 +278,7 @@ public class TomcatServer extends AbstractServletWebServer {
   protected void contextInitialized() {
     super.contextInitialized();
     try {
-      final Context context = findContext();
+      Context context = findContext();
       context.addLifecycleListener((event) -> {
         if (context.equals(event.getSource()) && Lifecycle.START_EVENT.equals(event.getType())) {
           // Remove service connectors so that protocol binding doesn't
@@ -317,17 +317,17 @@ public class TomcatServer extends AbstractServletWebServer {
    * @param connector
    *         Connector
    */
-  protected void configureConnector(final Connector connector) {
+  protected void configureConnector(Connector connector) {
     connector.setPort(getPort());
     if (StringUtils.isNotEmpty(getServerHeader())) {
       connector.setProperty("server", getServerHeader());
     }
-    final CompressionConfiguration compression = getCompression();
+    CompressionConfiguration compression = getCompression();
     // config compression
     if (compression != null) {
       getWebApplicationConfiguration().configureCompression(compression);
       if (compression.isEnable()) {
-        final ProtocolHandler handler = connector.getProtocolHandler();
+        ProtocolHandler handler = connector.getProtocolHandler();
         if (handler instanceof AbstractHttp11Protocol) {
           configureCompressionProtocol(compression, (AbstractHttp11Protocol<?>) handler);
         }
@@ -355,7 +355,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
   protected void doPrepareContext(Host host) {
     try {
-      final ServletWebServerApplicationLoader starter = //
+      ServletWebServerApplicationLoader starter = //
               new ServletWebServerApplicationLoader(obtainApplicationContext(), this::getMergedInitializers);
       TomcatEmbeddedContext context = new TomcatEmbeddedContext(sessionIdGenerator);
       context.setFailCtxIfServletStartFails(true);
@@ -364,9 +364,9 @@ public class TomcatServer extends AbstractServletWebServer {
       context.setDisplayName(getDisplayName());
       context.setPath(getContextPath());
 
-      final WebDocumentConfiguration webDocumentConfiguration = getWebDocumentConfiguration();
+      WebDocumentConfiguration webDocumentConfiguration = getWebDocumentConfiguration();
       if (webDocumentConfiguration != null) {
-        final Resource validDocBase = webDocumentConfiguration.getValidDocumentDirectory();
+        Resource validDocBase = webDocumentConfiguration.getValidDocumentDirectory();
         if (validDocBase != null && validDocBase.exists() && validDocBase.isDirectory()) {
           context.setDocBase(validDocBase.getFile().getAbsolutePath());
         }
@@ -380,7 +380,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
       context.setUseRelativeRedirects(useRelativeRedirects);
 
-      final ClassLoader parentClassLoader = context.getParentClassLoader();
+      ClassLoader parentClassLoader = context.getParentClassLoader();
       WebappLoader loader = new WebappLoader(parentClassLoader);
       loader.setLoaderClass(WebappClassLoader.class.getName());
       loader.setDelegate(true);
@@ -400,10 +400,10 @@ public class TomcatServer extends AbstractServletWebServer {
 
   protected void configureJasperInitializer(TomcatEmbeddedContext context) {
 
-    final JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
+    JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
     if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
       // org.apache.jasper.servlet.JasperInitializer
-      final Class<ServletContainerInitializer> jasperInitializer = //
+      Class<ServletContainerInitializer> jasperInitializer = //
               ClassUtils.load("org.apache.jasper.servlet.JasperInitializer");
       if (jasperInitializer != null) {
         context.addServletContainerInitializer(
@@ -463,7 +463,7 @@ public class TomcatServer extends AbstractServletWebServer {
     }
 
     if (!this.contextValves.isEmpty()) {
-      final Pipeline pipeline = context.getPipeline();
+      Pipeline pipeline = context.getPipeline();
       for (Valve valve : this.contextValves) {
         pipeline.addValve(valve);
       }
@@ -472,7 +472,7 @@ public class TomcatServer extends AbstractServletWebServer {
     configureErrorPages(context);
     configureWelcomePages(context);
 
-    final MimeMappings mimeMappings = getMimeMappings();
+    MimeMappings mimeMappings = getMimeMappings();
     // config MimeMappings
     getWebApplicationConfiguration().configureMimeMappings(mimeMappings);
 
@@ -480,17 +480,17 @@ public class TomcatServer extends AbstractServletWebServer {
       context.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
     }
     // internal servlet HttpSession settings
-    final SessionConfiguration sessionConfig = getSessionConfig();
+    SessionConfiguration sessionConfig = getSessionConfig();
     if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
       configureSession(context, sessionConfig);
     }
   }
 
   protected void configureWelcomePages(Context context) {
-    final Set<String> welcomePages = getWelcomePages();
+    Set<String> welcomePages = getWelcomePages();
     getWebApplicationConfiguration().configureWelcomePages(welcomePages);
 
-    for (final String welcomePage : welcomePages) {
+    for (String welcomePage : welcomePages) {
       context.addWelcomeFile(welcomePage);
     }
   }
@@ -499,12 +499,12 @@ public class TomcatServer extends AbstractServletWebServer {
    *
    */
   protected void configureErrorPages(Context context) {
-    final Set<ErrorPage> errorPages = getErrorPages();
+    Set<ErrorPage> errorPages = getErrorPages();
 
     // config error pages
     getWebApplicationConfiguration().configureErrorPages(errorPages);
     for (ErrorPage errorPage : errorPages) {
-      final org.apache.tomcat.util.descriptor.web.ErrorPage tomcatErrorPage = new org.apache.tomcat.util.descriptor.web.ErrorPage();
+      org.apache.tomcat.util.descriptor.web.ErrorPage tomcatErrorPage = new org.apache.tomcat.util.descriptor.web.ErrorPage();
       if (errorPage.getPath() != null) {
         tomcatErrorPage.setLocation(errorPage.getPath());
       }
@@ -518,7 +518,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
   protected void configureSession(Context context, SessionConfiguration sessionConfig) {
     context.setSessionTimeout(getSessionTimeoutInMinutes(sessionConfig));
-    final SessionCookieConfiguration cookieConfig = sessionConfig.getCookieConfig();
+    SessionCookieConfiguration cookieConfig = sessionConfig.getCookieConfig();
     if (cookieConfig != null) {
       context.setUseHttpOnly(cookieConfig.isHttpOnly());
     }
@@ -538,8 +538,8 @@ public class TomcatServer extends AbstractServletWebServer {
     else {
       context.addLifecycleListener((event) -> {
         if (Lifecycle.START_EVENT.equals(event.getType())) {
-          final Context context_ = (Context) event.getLifecycle();
-          final Manager manager_ = context_.getManager();
+          Context context_ = (Context) event.getLifecycle();
+          Manager manager_ = context_.getManager();
           if (manager_ instanceof StandardManager) {
             ((StandardManager) manager_).setPathname(null);
           }
@@ -559,7 +559,7 @@ public class TomcatServer extends AbstractServletWebServer {
   protected void configurePersistSession(Manager manager) {
     if (manager instanceof StandardManager) {
       try {
-        final Class<?> startupClass = obtainApplicationContext().getStartupClass();
+        Class<?> startupClass = obtainApplicationContext().getStartupClass();
         File storeDirectory = getStoreDirectory(startupClass);
         ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
       }
