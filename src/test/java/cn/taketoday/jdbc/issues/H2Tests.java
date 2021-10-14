@@ -1,5 +1,6 @@
 package cn.taketoday.jdbc.issues;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by lars on 05.10.2014.
  */
-public class H2Tests {
+class H2Tests {
 
   DataSource ds;
 
@@ -26,7 +27,7 @@ public class H2Tests {
   String user;
   String pass;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     driverClassName = "org.h2.Driver";
     url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";
@@ -41,7 +42,7 @@ public class H2Tests {
   }
 
   @Test
-  public void testIssue155() {
+  void testIssue155() {
 
     JdbcOperations sql2o = new JdbcOperations(ds);
 
@@ -56,7 +57,7 @@ public class H2Tests {
    * Ref issue #73
    */
   @Test
-  public void testUUID() {
+  void testUUID() {
 
     try (JdbcConnection connection = new JdbcOperations(ds).beginTransaction()) {
       connection.createQuery("create table uuidtest(id uuid primary key, val uuid null)").executeUpdate();

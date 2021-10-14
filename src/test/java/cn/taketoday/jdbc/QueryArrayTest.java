@@ -1,7 +1,7 @@
 package cn.taketoday.jdbc;
 
 import org.junit.Rule;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.zapodot.junit.db.EmbeddedDatabaseRule;
 
 import java.util.List;
