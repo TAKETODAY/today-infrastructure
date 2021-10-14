@@ -1,7 +1,27 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
 package cn.taketoday.context.annotation;
 
-
+import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.lang.Configuration;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -13,8 +33,7 @@ import java.lang.annotation.Target;
  * Indicates the 'role' hint for a given bean.
  *
  * <p>May be used on any class directly or indirectly annotated with
- * {@link org.springframework.stereotype.Component} or on methods
- * annotated with {@link Bean}.
+ * {@link cn.taketoday.lang.Component}
  *
  * <p>If this annotation is not present on a Component or Bean definition,
  * the default value of {@link BeanDefinition#ROLE_APPLICATION} will apply.
@@ -25,25 +44,23 @@ import java.lang.annotation.Target;
  * is different than that of the @{@link Lazy} annotation, for example.
  *
  * @author Chris Beams
- * @since 4.0
+ * @author yanghaijian 2021/10/14 14:26
  * @see BeanDefinition#ROLE_APPLICATION
  * @see BeanDefinition#ROLE_INFRASTRUCTURE
- * @see BeanDefinition#ROLE_SUPPORT
  * @see cn.taketoday.lang.Component
- * @author yanghaijian 2021/10/14 14:26
+ * @since 4.0
  */
-
-@Target({ ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Role {
 
-	/**
-	 * Set the role hint for the associated bean.
-	 * @see BeanDefinition#ROLE_APPLICATION
-	 * @see BeanDefinition#ROLE_INFRASTRUCTURE
-	 * @see BeanDefinition#ROLE_SUPPORT
-	 */
-	int value();
+  /**
+   * Set the role hint for the associated bean.
+   *
+   * @see BeanDefinition#ROLE_APPLICATION
+   * @see BeanDefinition#ROLE_INFRASTRUCTURE
+   */
+  int value();
 
 }
