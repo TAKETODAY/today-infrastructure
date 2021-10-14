@@ -27,12 +27,15 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.lang.Value;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
+import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * @author TODAY 2018-06-26 11:26:01
@@ -40,7 +43,10 @@ import cn.taketoday.web.ServletContextAware;
 public class ThymeleafTemplateRenderer
         extends AbstractTemplateRenderer implements InitializingBean, ServletContextAware {
 
-  @Value(value = "#{thymeleaf.cacheable}", required = false)
+  /**
+   * @see ServletContextTemplateResolver#setCacheable(boolean)
+   */
+  @Value(value = "${thymeleaf.cacheable}", required = false)
   private boolean cacheable = true;
   private ServletContext servletContext;
   private final TemplateEngine templateEngine;
@@ -58,8 +64,7 @@ public class ThymeleafTemplateRenderer
    */
   @Override
   public void afterPropertiesSet() {
-
-    final ServletContextTemplateResolver templateResolver
+    ServletContextTemplateResolver templateResolver
             = new ServletContextTemplateResolver(servletContext);
 
     templateResolver.setPrefix(prefix);
@@ -77,14 +82,11 @@ public class ThymeleafTemplateRenderer
    * Resolve Thymeleaf View.
    */
   @Override
-  public void render(final String template, final RequestContext context) throws IOException {
-
-    templateEngine.process(template,
-                           new WebContext(context.nativeRequest(),
-                                          context.nativeResponse(),
-                                          servletContext,
-                                          locale),
-                           context.getWriter());
+  public void render(String template, RequestContext context) throws IOException {
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
+    HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
+    WebContext webContext = new WebContext(servletRequest, servletResponse, servletContext, locale);
+    templateEngine.process(template, webContext, context.getWriter());
   }
 
   @Override
