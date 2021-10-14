@@ -17,21 +17,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.factory;
+package cn.taketoday.context.expression;
 
-import cn.taketoday.expression.BeanNameExpressionResolver;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.expression.BeanNameResolver;
 
 /**
  * @author TODAY <br>
- * 2019-02-21 19:41
+ * 2019-02-23 10:36
  */
-public class ValueExpressionContext extends StandardExpressionContext {
+public class BeanFactoryResolver extends BeanNameResolver {
+  private final BeanFactory beanFactory;
 
-  public ValueExpressionContext(ExpressionFactory exprFactory, BeanFactory beanFactory) {
-    super(exprFactory);
-    addResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
+  public BeanFactoryResolver(BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+  }
+
+  public BeanFactoryResolver(AbstractApplicationContext beanFactory) {
+    this(beanFactory.getBeanFactory());
+  }
+
+  @Override
+  public boolean isReadOnly(String beanName) {
+    return true;
+  }
+
+  @Override
+  public boolean isNameResolved(String beanName) {
+    return beanFactory.containsBeanDefinition(beanName);
+  }
+
+  @Override
+  public Object getBean(String beanName) {
+    return beanFactory.getBean(beanName);
   }
 
 }
