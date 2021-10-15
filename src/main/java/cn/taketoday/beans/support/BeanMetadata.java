@@ -20,15 +20,6 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.function.Consumer;
-
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
@@ -42,6 +33,16 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 /**
  * @author TODAY 2021/1/27 22:26
@@ -199,6 +200,20 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   @NonNull
   public HashMap<String, BeanProperty> getBeanProperties() {
     return propertyHolder().mapping;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public int getPropertySize() {
+    return propertyHolder().beanProperties.size();
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean containsProperty(String name) {
+    return propertyHolder().mapping.containsKey(name);
   }
 
   /**

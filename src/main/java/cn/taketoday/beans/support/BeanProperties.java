@@ -137,7 +137,7 @@ public class BeanProperties {
     else {
       BeanMetadata sourceMetadata = BeanMetadata.ofObject(source);
       for (BeanProperty property : sourceMetadata) {
-        String propertyName = property.getAlias();
+        String propertyName = property.getPropertyName();
         if (allowCopy(ignoreProperties, propertyName)) {
           BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
           if (beanProperty != null && !beanProperty.isReadOnly()) {

@@ -20,17 +20,18 @@
 
 package cn.taketoday.beans.support;
 
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.ObjectUtils;
+
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -72,7 +73,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
     for (BeanProperty property : metadata) {
       Object value = property.getValue(target);
-      entrySet.add(new Node<>(property.getAlias(), value));
+      entrySet.add(new Node<>(property.getPropertyName(), value));
     }
     return entrySet;
   }
@@ -167,12 +168,15 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   @Override
   public boolean containsKey(Object key) {
-    return keySet().contains(key);
+    if (key instanceof String) {
+      return metadata.containsProperty((String) key);
+    }
+    return false;
   }
 
   @Override
   public int size() {
-    return keySet().size();
+    return metadata.getPropertySize();
   }
 
   @Override
@@ -194,15 +198,26 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   @SuppressWarnings("rawtypes")
   public boolean equals(Object o) {
     if (o != this) {
+      if (o instanceof BeanMapping) {
+        // is BeanMapping
+        BeanMapping other = (BeanMapping) o;
+        return ObjectUtils.nullSafeEquals(target, other.target)
+                && Objects.equals(metadata, other.metadata);
+      }
+
       if (!(o instanceof Map)) {
         return false;
       }
+
+      int propertySize = metadata.getPropertySize();
       Map other = (Map) o;
-      if (size() != other.size()) {
+      if (propertySize != other.size()) {
         return false;
       }
-      for (Object key : keySet()) {
-        if (!Objects.equals(get(key), other.get(key))) {
+      Object target = obtainTarget();
+      for (BeanProperty property : metadata) {
+        Object value = property.getValue(target);
+        if (!ObjectUtils.nullSafeEquals(value, other.get(property.getPropertyName()))) {
           return false;
         }
       }

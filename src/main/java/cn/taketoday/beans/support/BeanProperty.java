@@ -347,6 +347,9 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return field;
   }
 
+  /**
+   * original property name
+   */
   public String getName() {
     return field.getName();
   }
@@ -364,7 +367,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @see cn.taketoday.beans.Property
    * @since 4.0
    */
-  public String getAlias() {
+  public String getPropertyName() {
     return alias;
   }
 
