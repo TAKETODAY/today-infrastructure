@@ -20,40 +20,40 @@
 
 package cn.taketoday.context.annotation.autowire;
 
-import java.lang.reflect.Parameter;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
+import java.lang.reflect.Parameter;
+import java.util.function.Supplier;
 
 /**
  * for {@link ObjectSupplier} ArgumentsResolverStrategy
  *
  * @author TODAY 2021/3/6 12:06
  */
-public class ObjectSupplierArgumentsResolver
-        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy {
+public class ObjectSupplierArgumentsResolver implements ArgumentsResolvingStrategy {
 
+  @Nullable
   @Override
-  protected boolean supportsInternal(Parameter parameter, @NonNull ArgumentsResolvingContext beanFactory) {
-    final Class<?> type = parameter.getType();
-    return type == ObjectSupplier.class || type == Supplier.class;
-  }
-
-  @Override
-  protected Object resolveInternal(
-          Parameter parameter, BeanFactory beanFactory, ArgumentsResolvingContext resolvingContext) {
-    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
-    if (parameterType.hasGenerics()) {
-      final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
-      return beanFactory.getObjectSupplier(generic);
+  public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+    BeanFactory beanFactory = resolvingContext.getBeanFactory();
+    if (beanFactory != null) {
+      Class<?> type = parameter.getType();
+      if (type == ObjectSupplier.class || type == Supplier.class) {
+        ResolvableType parameterType = ResolvableType.fromParameter(parameter);
+        if (parameterType.hasGenerics()) {
+          ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
+          return beanFactory.getObjectSupplier(generic);
+        }
+        throw new UnsupportedOperationException(
+                "Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
+      }
     }
-    throw new UnsupportedOperationException(
-            "Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
+    return null; // next
   }
 
 }
