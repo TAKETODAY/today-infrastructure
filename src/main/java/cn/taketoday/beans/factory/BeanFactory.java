@@ -60,24 +60,17 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Find the bean with the given type
    *
-   * @param name
-   *         Bean name
-   *
+   * @param name Bean name
    * @return Bet bean instance, returns null if it doesn't exist .
-   *
-   * @throws BeansException
-   *         Exception occurred when getting a named bean
+   * @throws BeansException Exception occurred when getting a named bean
    */
   Object getBean(String name) throws BeansException;
 
   /**
    * Find the bean with the given name and cast to required type.
    *
-   * @param name
-   *         Bean name
-   * @param requiredType
-   *         Cast to required type
-   *
+   * @param name Bean name
+   * @param requiredType Cast to required type
    * @return get casted bean instance. returns null if it doesn't exist.
    */
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
@@ -87,39 +80,27 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>
    * Find it in the singleton pool when it is not found in the bean definition map
    *
-   * @param name
-   *         Bean name
-   *
+   * @param name Bean name
    * @return If this bean is a singleton
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         If a bean does not exist
+   * @throws NoSuchBeanDefinitionException If a bean does not exist
    */
   boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
   /**
    * Is Prototype ?
    *
-   * @param name
-   *         Bean name
-   *
+   * @param name Bean name
    * @return If this bean is a prototype
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         If a bean does not exist
+   * @throws NoSuchBeanDefinitionException If a bean does not exist
    */
   boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
   /**
    * Get bean type
    *
-   * @param name
-   *         Bean name
-   *
+   * @param name Bean name
    * @return Target bean type
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         If a bean does not exist
+   * @throws NoSuchBeanDefinitionException If a bean does not exist
    */
   @Nullable
   Class<?> getType(String name) throws NoSuchBeanDefinitionException;
@@ -127,11 +108,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Get the target class's name
    *
-   * @param beanType
-   *         bean type
-   *
+   * @param beanType bean type
    * @return Get bane name
-   *
    * @since 2.1.2
    */
   String getBeanName(Class<?> beanType) throws NoSuchBeanDefinitionException;
@@ -141,16 +119,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * traversing its interfaces and super classes if no annotation can be found on
    * the given class itself, as well as checking the bean's factory method (if any).
    *
-   * @param beanName
-   *         the name of the bean to look for annotations on
-   * @param annotationType
-   *         the type of annotation to look for
-   *         (at class, interface or factory method level of the specified bean)
-   *
+   * @param beanName the name of the bean to look for annotations on
+   * @param annotationType the type of annotation to look for
+   * (at class, interface or factory method level of the specified bean)
    * @return the annotation of the given type if found, or {@code null} otherwise
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if there is no bean with the given name
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
    * @see #getAnnotatedBeans
    * @since 3.0
    */
@@ -171,11 +144,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * return value from this method does not necessarily indicate that {@link #getBean}
    * will be able to obtain an instance for the same name.
    *
-   * @param name
-   *         the name of the bean to query
-   *
+   * @param name the name of the bean to query
    * @return whether a bean with the given name is present
-   *
    * @since 4.0
    */
   boolean containsBean(String name);
@@ -186,11 +156,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * and ignores any singleton beans that have been registered by
    * other means than bean definitions.
    *
-   * @param beanName
-   *         the name of the bean to look for
-   *
+   * @param beanName the name of the bean to look for
    * @return if this bean factory contains a bean definition with the given name
-   *
    * @see #containsBean(String)
    * @since 4.0
    */
@@ -203,16 +170,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Translates aliases back to the corresponding canonical bean name.
    * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name
-   *         the name of the bean to query
-   * @param typeToMatch
-   *         the type to match against (as a {@code ResolvableType})
-   *
+   * @param name the name of the bean to query
+   * @param typeToMatch the type to match against (as a {@code ResolvableType})
    * @return {@code true} if the bean type matches,
    * {@code false} if it doesn't match or cannot be determined yet
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if there is no bean with the given name
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
    * @see #getBean
    * @see #getType
    * @since 4.0
@@ -226,16 +188,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Translates aliases back to the corresponding canonical bean name.
    * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name
-   *         the name of the bean to query
-   * @param typeToMatch
-   *         the type to match against (as a {@code Class})
-   *
+   * @param name the name of the bean to query
+   * @param typeToMatch the type to match against (as a {@code Class})
    * @return {@code true} if the bean type matches,
    * {@code false} if it doesn't match or cannot be determined yet
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if there is no bean with the given name
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
    * @see #getBean
    * @see #getType
    * @since 4.0
@@ -252,13 +209,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p><b>NOTE:</b> This method does <i>not</i> consider ancestor factories.
    * It is only meant for accessing local bean definitions of this factory.
    *
-   * @param beanName
-   *         the name of the bean
-   *
+   * @param beanName the name of the bean
    * @return the registered BeanDefinition
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if there is no bean with the given name defined in this factory
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name defined in this factory
    * @since 4.0
    */
   BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
@@ -274,17 +227,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * of the given type. For more extensive retrieval operations across sets of beans,
    * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
    *
-   * @param requiredType
-   *         type the bean must match; can be an interface or superclass
-   *
+   * @param requiredType type the bean must match; can be an interface or superclass
    * @return an instance of the single bean matching the required type
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if no bean of the given type was found
-   * @throws NoUniqueBeanException
-   *         if more than one bean of the given type was found
-   * @throws BeansException
-   *         if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws BeansException if the bean could not be created
    * @since 3.0
    */
   <T> T getBean(Class<T> requiredType) throws BeansException;
@@ -295,15 +242,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note that this method considers objects created by FactoryBeans, which means
    * that FactoryBeans will get initialized in order to determine their object type.
    *
-   * @param annotationType
-   *         the type of annotation to look for
-   *         (at class, interface or factory method level of the specified bean)
-   *
+   * @param annotationType the type of annotation to look for
+   * (at class, interface or factory method level of the specified bean)
    * @return a List with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values, never be {@code null}
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see #getAnnotationOnBean
    * @since 3.0
    */
@@ -318,15 +261,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note that this method considers objects created by FactoryBeans, which means
    * that FactoryBeans will get initialized in order to determine their object type.
    *
-   * @param annotationType
-   *         the type of annotation to look for
-   *         (at class, interface or factory method level of the specified bean)
-   *
+   * @param annotationType the type of annotation to look for
+   * (at class, interface or factory method level of the specified bean)
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values, never be {@code null}
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see #getAnnotationOnBean
    * @since 3.0
    */
@@ -340,18 +279,13 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note that this method considers objects created by FactoryBeans, which means
    * that FactoryBeans will get initialized in order to determine their object type.
    *
-   * @param annotationType
-   *         the type of annotation to look for
-   *         (at class, interface or factory method level of the specified bean)
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   *
+   * @param annotationType the type of annotation to look for
+   * (at class, interface or factory method level of the specified bean)
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values, never be {@code null}
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see #getAnnotationOnBean
    * @since 3.0
    */
@@ -362,11 +296,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Get a set of beans with given type
    *
-   * @param requiredType
-   *         Given bean type
-   *
+   * @param requiredType Given bean type
    * @return A set of beans with given type, never be {@code null}
-   *
    * @since 2.1.2
    */
   default <T> List<T> getBeans(Class<T> requiredType) {
@@ -383,12 +314,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Get a map of beans with given type
    * </p>
    *
-   * @param requiredType
-   *         Given bean type
-   *
+   * @param requiredType Given bean type
    * @return A Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values, never be {@code null}
-   *
    * @since 2.1.6
    */
   default <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
@@ -410,17 +338,12 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * include singletons already in {@code singletons} but not in {@code beanDefinitionMap}
    * </p>
    *
-   * @param requiredType
-   *         the class or interface to match, or {@code null} for all concrete beans
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   *
+   * @param requiredType the class or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see FactoryBean#getBeanClass
    * @since 3.0
    */
@@ -436,22 +359,15 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Get a map of beans with given type
    * </p>
    *
-   * @param requiredType
-   *         the class or interface to match, or {@code null} for all concrete beans
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   * @param <T>
-   *         required type
-   *
+   * @param requiredType the class or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
+   * @param <T> required type
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see FactoryBean#getBeanClass
    * @since 3.0
    */
@@ -470,22 +386,15 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Get a map of beans with given type
    * </p>
    *
-   * @param requiredType
-   *         the ResolvableType or interface to match, or {@code null} for all concrete beans
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   * @param <T>
-   *         required type
-   *
+   * @param requiredType the ResolvableType or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
+   * @param <T> required type
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see FactoryBean#getBeanClass
    * @since 3.0
    */
@@ -499,12 +408,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * judging from either bean definitions or the value of {@code getBeanClass}
    * in the case of FactoryBeans.
    *
-   * @param requiredType
-   *         the class or interface to match, or {@code null} for all bean names
-   *
+   * @param requiredType the class or interface to match, or {@code null} for all bean names
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   *
    * @see FactoryBean#getBeanClass()
    * @since 3.0
    */
@@ -520,15 +426,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * include singletons already in {@code singletons} but not in {@code beanDefinitionMap}
    * </p>
    *
-   * @param requiredType
-   *         the class or interface to match, or {@code null} for all bean names
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   *
+   * @param requiredType the class or interface to match, or {@code null} for all bean names
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   *
    * @see FactoryBean#getBeanClass()
    * @since 3.0
    */
@@ -539,18 +441,13 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * judging from either bean definitions or the value of {@code getBeanClass}
    * in the case of FactoryBeans.
    *
-   * @param requiredType
-   *         the class or interface to match, or {@code null} for all concrete beans
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   *
+   * @param requiredType the class or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   *
    * @see FactoryBean#getBeanClass()
    * @since 3.0
    */
@@ -564,18 +461,13 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * judging from either bean definitions or the value of {@code getBeanClass}
    * in the case of FactoryBeans.
    *
-   * @param requiredType
-   *         the ResolvableType or interface to match, or {@code null} for all concrete beans
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   *
+   * @param requiredType the ResolvableType or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   *
    * @see FactoryBean#getBeanClass()
    * @since 4.0
    */
@@ -588,12 +480,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * <p>Note that this method considers objects created by FactoryBeans, which means
    * that FactoryBeans will get initialized in order to determine their object type.
    *
-   * @param annotationType
-   *         the type of annotation to look for
-   *         (at class, interface or factory method level of the specified bean)
-   *
+   * @param annotationType the type of annotation to look for
+   * (at class, interface or factory method level of the specified bean)
    * @return the names of all matching beans
-   *
    * @see #getAnnotationOnBean(String, Class)
    * @since 4.0
    */
@@ -603,11 +492,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
    * of instances, including availability and uniqueness options.
    *
-   * @param requiredType
-   *         type the bean must match; can be an interface or superclass
-   *
+   * @param requiredType type the bean must match; can be an interface or superclass
    * @return a corresponding provider handle
-   *
    * @see #getObjectSupplier(ResolvableType)
    * @since 3.0
    */
@@ -617,15 +503,12 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
    * of instances, including availability and uniqueness options.
    *
-   * @param requiredType
-   *         type the bean must match; can be a generic type declaration.
-   *         Note that collection types are not supported here, in contrast to reflective
-   *         injection points. For programmatically retrieving a list of beans matching a
-   *         specific type, specify the actual bean type as an argument here and subsequently
-   *         use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
-   *
+   * @param requiredType type the bean must match; can be a generic type declaration.
+   * Note that collection types are not supported here, in contrast to reflective
+   * injection points. For programmatically retrieving a list of beans matching a
+   * specific type, specify the actual bean type as an argument here and subsequently
+   * use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
    * @return a corresponding provider handle
-   *
    * @see ObjectSupplier#iterator()
    * @see ObjectSupplier#stream()
    * @see ObjectSupplier#orderedStream()
@@ -636,9 +519,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Get all bean name
    *
-   * @param type
-   *         Bean type
-   *
+   * @param type Bean type
    * @return A set of names with given type
    */
   @Deprecated
@@ -651,11 +532,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Get the bean with the given {@link BeanDefinition}
    *
-   * @param def
-   *         {@link BeanDefinition}
-   *
+   * @param def {@link BeanDefinition}
    * @return Target {@link Object}
-   *
    * @since 2.1.7
    */
   Object getBean(BeanDefinition def);
@@ -663,13 +541,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Get the bean with the given {@link BeanDefinition} and {@link Scope}
    *
-   * @param def
-   *         {@link BeanDefinition}
-   * @param scope
-   *         {@link Scope}
-   *
+   * @param def {@link BeanDefinition}
+   * @param scope {@link Scope}
    * @return Target {@link Object}
-   *
    * @since 3.0
    */
   Object getScopeBean(BeanDefinition def, Scope scope);
@@ -678,9 +552,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
    * of instances, including availability and uniqueness options.
    *
-   * @param def
-   *         BeanDefinition
-   *
+   * @param def BeanDefinition
    * @see #getObjectSupplier(ResolvableType)
    * @since 3.0
    */
@@ -727,7 +599,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * other means than bean definitions.
    *
    * @return the number of beans defined in the factory
-   *
    * @since 4.0
    */
   int getBeanDefinitionCount();
@@ -740,7 +611,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    *
    * @return the names of all beans defined in this factory,
    * or an empty array if none defined
-   *
    * @since 4.0
    */
   Set<String> getBeanDefinitionNames();
@@ -752,7 +622,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * analogous to how type/annotation specific retrieval of bean names works.
    *
    * @return the composite iterator for the bean names view
-   *
    * @see #containsBeanDefinition
    * @see #getBeanNamesOfType(Class)
    * @see #getBeanNamesForAnnotation
@@ -764,7 +633,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Get all {@link BeanDefinition}s
    *
    * @return All {@link BeanDefinition}s
-   *
    * @since 2.1.6
    */
   Map<String, BeanDefinition> getBeanDefinitions();
