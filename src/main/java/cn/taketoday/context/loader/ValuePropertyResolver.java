@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Field;
-
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -36,16 +34,21 @@ import cn.taketoday.lang.Value;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
 
+import java.lang.reflect.Field;
+
 /**
- * @author TODAY <br>
- * 2018-08-04 15:58
+ * Resolve {@link Value} and {@link Env} annotation property.
+ *
+ * @author TODAY 2018-08-04 15:58
+ * @see Env
+ * @see Value
+ * @see Required
  */
 public class ValuePropertyResolver implements PropertyValueResolver {
 
   /**
    * Resolve {@link Value} and {@link Env} annotation property.
    */
-
   @Nullable
   @Override
   public PropertySetter resolveProperty(
@@ -80,13 +83,10 @@ public class ValuePropertyResolver implements PropertyValueResolver {
     }
 
     Object value = evaluator.evaluate(expr, field.getType());
-    if (value == null) {
-      // perform @Required Annotation
-      if (AnnotationUtils.isPresent(field, Required.class)) {
-        throw new ConfigurationException(
-                "Can't resolve expression of field: [" + field +
-                        "] with expression: [" + expr.getExpression() + "].");
-      }
+    if (value == null && AnnotationUtils.isPresent(field, Required.class)) {// perform @Required Annotation
+      throw new ConfigurationException(
+              "Can't resolve expression of field: [" + field +
+                      "] with expression: [" + expr.getExpression() + "].");
     }
     return new DefaultPropertySetter(value, field);
   }
