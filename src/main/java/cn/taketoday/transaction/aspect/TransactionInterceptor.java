@@ -19,20 +19,12 @@
  */
 package cn.taketoday.transaction.aspect;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -50,6 +42,12 @@ import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.Transactional;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author TODAY <br>
@@ -199,7 +197,7 @@ public class TransactionInterceptor implements MethodInterceptor {
       attributes = AnnotationUtils.getAttributes(Transactional.class, method.getDeclaringClass());
     }
     if (attributes == null) {
-      throw new ConfigurationException(
+      throw new IllegalStateException(
               "'cn.taketoday.transaction.Transactional' must present on: ["
                       + method + "] or on its class");
     }
