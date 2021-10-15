@@ -50,7 +50,7 @@ public class ObjectSupplierArgumentsResolver
     final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
     if (parameterType.hasGenerics()) {
       final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
-      return beanFactory.getObjectSupplier(generic.toClass());
+      return beanFactory.getObjectSupplier(generic);
     }
     throw new UnsupportedOperationException(
             "Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
