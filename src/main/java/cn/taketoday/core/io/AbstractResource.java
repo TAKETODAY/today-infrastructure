@@ -68,7 +68,15 @@ public abstract class AbstractResource implements Resource {
   @Override
   public boolean isReadable() {
     try {
-      URL url = getLocation();
+      return checkReadable(getLocation());
+    }
+    catch (IOException ex) {
+      return false;
+    }
+  }
+
+  boolean checkReadable(URL url) {
+    try {
       if (ResourceUtils.isFileURL(url)) {
         // Proceed with file system resolution
         File file = getFile();
@@ -113,11 +121,8 @@ public abstract class AbstractResource implements Resource {
    * delegates to {@link #customizeConnection(HttpURLConnection)} if possible.
    * Can be overridden in subclasses.
    *
-   * @param con
-   *         the URLConnection to customize
-   *
-   * @throws IOException
-   *         if thrown from URLConnection methods
+   * @param con the URLConnection to customize
+   * @throws IOException if thrown from URLConnection methods
    */
   protected void customizeConnection(URLConnection con) throws IOException {
     ResourceUtils.useCachesIfNecessary(con);
@@ -131,11 +136,8 @@ public abstract class AbstractResource implements Resource {
    * {@link #exists()}, {@link #contentLength()} or {@link #lastModified()} call.
    * <p>Sets request method "HEAD" by default. Can be overridden in subclasses.
    *
-   * @param con
-   *         the HttpURLConnection to customize
-   *
-   * @throws IOException
-   *         if thrown from HttpURLConnection methods
+   * @param con the HttpURLConnection to customize
+   * @throws IOException if thrown from HttpURLConnection methods
    */
   protected void customizeConnection(HttpURLConnection con) throws IOException {
     con.setRequestMethod("HEAD");
@@ -256,12 +258,9 @@ public abstract class AbstractResource implements Resource {
    * <p>The default implementation delegates to {@link #getFile()}.
    *
    * @return the File to use for timestamp checking (never {@code null})
-   *
-   * @throws FileNotFoundException
-   *         if the resource cannot be resolved as
-   *         an absolute file path, i.e. is not available in a file system
-   * @throws IOException
-   *         in case of general resolution/reading failures
+   * @throws FileNotFoundException if the resource cannot be resolved as
+   * an absolute file path, i.e. is not available in a file system
+   * @throws IOException in case of general resolution/reading failures
    */
   protected File getFileForLastModifiedCheck() throws IOException {
     return getFile();
