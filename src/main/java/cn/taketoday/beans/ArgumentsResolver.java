@@ -20,6 +20,11 @@
 
 package cn.taketoday.beans;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.annotation.ArgumentsResolvingComposite;
 import cn.taketoday.core.StrategiesDetector;
@@ -29,11 +34,6 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.lang.Value;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -85,13 +85,9 @@ public class ArgumentsResolver {
   /**
    * Resolve parameters list
    *
-   * @param executable
-   *         Target executable instance {@link Method} or a {@link Constructor}
-   * @param beanFactory
-   *         Bean factory
-   *
+   * @param executable Target executable instance {@link Method} or a {@link Constructor}
+   * @param beanFactory Bean factory
    * @return Parameter list objects
-   *
    * @since 2.1.2
    */
   public Object[] resolve(Executable executable, @Nullable BeanFactory beanFactory) {
@@ -105,15 +101,10 @@ public class ArgumentsResolver {
   /**
    * Resolve parameters list
    *
-   * @param executable
-   *         Target executable instance {@link Method} or a {@link Constructor}
-   * @param beanFactory
-   *         Bean factory
-   * @param providedArgs
-   *         provided args
-   *
+   * @param executable Target executable instance {@link Method} or a {@link Constructor}
+   * @param beanFactory Bean factory
+   * @param providedArgs provided args
    * @return Parameter list objects
-   *
    * @since 3.0
    */
   public Object[] resolve(
