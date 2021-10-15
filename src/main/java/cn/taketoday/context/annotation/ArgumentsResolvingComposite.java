@@ -20,6 +20,11 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
@@ -44,11 +49,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author TODAY 2021/10/3 22:38
@@ -91,6 +91,10 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
         if (argument != null) {
           return argument;
         }
+
+        if (resolver instanceof ArgumentsResolvingComposite) {
+          return null;
+        }
       }
       throw new ArgumentsNotSupportedException(
               "Target parameter:[" + parameter + "] not supports in this context: " + resolvingContext);
@@ -118,13 +122,13 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
       BeanFactory beanFactory = resolvingContext.getBeanFactory();
       List<ArgumentsResolvingStrategy> strategies = getStrategies(strategiesDetector, beanFactory);
       Collections.addAll(strategies,
-              new MapArgumentsResolver(),
-              new ArrayArgumentsResolver(),
-              new CollectionArgumentsResolver(),
-              new ObjectSupplierArgumentsResolver(),
-              new EnvExecutableArgumentsResolver(),
-              new ValueExecutableArgumentsResolver(),
-              new AutowiredArgumentsResolver()
+                         new MapArgumentsResolver(),
+                         new ArrayArgumentsResolver(),
+                         new CollectionArgumentsResolver(),
+                         new ObjectSupplierArgumentsResolver(),
+                         new EnvExecutableArgumentsResolver(),
+                         new ValueExecutableArgumentsResolver(),
+                         new AutowiredArgumentsResolver()
       );
       setResolvingStrategies(strategies);
     }
