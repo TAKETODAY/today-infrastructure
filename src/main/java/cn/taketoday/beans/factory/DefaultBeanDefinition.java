@@ -19,18 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -52,6 +40,18 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -147,10 +147,8 @@ public class DefaultBeanDefinition
   /**
    * Build a {@link BeanDefinition} with given child {@link BeanDefinition}
    *
-   * @param beanName
-   *         Bean name
-   * @param childDef
-   *         Child {@link BeanDefinition}
+   * @param beanName Bean name
+   * @param childDef Child {@link BeanDefinition}
    */
   public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
     copy(childDef);
@@ -289,8 +287,7 @@ public class DefaultBeanDefinition
   }
 
   /**
-   * @param propertySetters
-   *         collection of PropertySetter
+   * @param propertySetters collection of PropertySetter
    *
    * @since 4.0
    */
@@ -365,8 +362,7 @@ public class DefaultBeanDefinition
   /**
    * Apply the child bean name
    *
-   * @param childDef
-   *         Child BeanDefinition
+   * @param childDef Child BeanDefinition
    *
    * @return {@link DefaultBeanDefinition}
    */
@@ -399,10 +395,8 @@ public class DefaultBeanDefinition
   }
 
   public BeanInstantiator getConstructor(BeanFactory factory) {
-    BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
-      constructor = createConstructor(factory);
-      this.constructor = constructor;
+      this.constructor = createConstructor(factory);
     }
     return constructor;
   }
@@ -412,10 +406,8 @@ public class DefaultBeanDefinition
   }
 
   public Executable getExecutable() {
-    Executable executable = this.executable;
     if (executable == null) {
-      executable = BeanUtils.getConstructor(getBeanClass());
-      this.executable = executable;
+      this.executable = BeanUtils.getConstructor(getBeanClass());
     }
     return executable;
   }
@@ -423,7 +415,6 @@ public class DefaultBeanDefinition
   /** @since 3.0 */
   @Override
   public Object newInstance(BeanFactory factory) {
-    Supplier<?> instanceSupplier = this.instanceSupplier;
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
@@ -433,10 +424,8 @@ public class DefaultBeanDefinition
   }
 
   /**
-   * @param factory
-   *         input bean factory
-   * @param args
-   *         arguments to use when creating a corresponding instance
+   * @param factory input bean factory
+   * @param args arguments to use when creating a corresponding instance
    *
    * @since 3.0
    */
@@ -449,13 +438,10 @@ public class DefaultBeanDefinition
   /**
    * use {@link MethodInvoker} fast invoke init methods
    *
-   * @param bean
-   *         target bean
-   * @param beanFactory
-   *         target factory
+   * @param bean target bean
+   * @param beanFactory target factory
    */
   public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
-    MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
       ArgumentsResolver resolver = beanFactory.getArgumentsResolver();
       for (MethodInvoker methodInvoker : methodInvokers) {
@@ -541,7 +527,6 @@ public class DefaultBeanDefinition
   }
 
   protected Class<?> obtainBeanClass() {
-    Class<?> beanClass = getBeanClass();
     Assert.state(beanClass != null, "Bean Class is Null");
     return beanClass;
   }
