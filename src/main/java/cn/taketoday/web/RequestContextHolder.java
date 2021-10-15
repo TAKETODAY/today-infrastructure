@@ -19,21 +19,24 @@
  */
 package cn.taketoday.web;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.net.HttpCookie;
-import java.util.Map;
-
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.net.HttpCookie;
+
 /**
  * Holder class to expose the web request in the form of a thread-bound
  * {@link RequestContext} object.
+ * <p>
+ * user can replace RequestThreadLocal use {@link #replaceContextHolder(RequestThreadLocal)}
+ * to hold RequestContext
+ * </p>
  *
  * @author TODAY 2019-03-23 10:29
  * @see #replaceContextHolder(RequestThreadLocal)
@@ -101,107 +104,103 @@ public abstract class RequestContextHolder {
       return null;
     }
 
-    @Override protected String doGetQueryString() {
+    @Override
+    public String getRequestURL() {
       return null;
     }
 
-    @Override public String getRequestURL() {
+    @Override
+    protected String doGetQueryString() {
       return null;
     }
 
-    @Override public String getQueryString() {
-      return null;
-    }
-
-    @Override protected HttpCookie[] doGetCookies() {
+    @Override
+    protected HttpCookie[] doGetCookies() {
       return new HttpCookie[0];
     }
 
-    @Override public void addCookie(HttpCookie cookie) {
-
-    }
-
-    @Override public Map<String, String[]> doGetParameters() {
+    @Override
+    protected String doGetMethod() {
       return null;
     }
 
-    @Override public String doGetMethod() {
+    @Override
+    public String remoteAddress() {
       return null;
     }
 
-    @Override public String remoteAddress() {
-      return null;
-    }
-
-    @Override public long getContentLength() {
+    @Override
+    public long getContentLength() {
       return 0;
     }
 
-    @Override protected InputStream doGetInputStream() throws IOException {
+    @Override
+    protected InputStream doGetInputStream() throws IOException {
       return null;
     }
 
-    @Override protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
+    @Override
+    protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
       return null;
     }
 
-    @Override public String getContentType() {
+    @Override
+    public String getContentType() {
       return null;
     }
 
-    @Override protected HttpHeaders createRequestHeaders() {
+    @Override
+    protected HttpHeaders createRequestHeaders() {
       return null;
     }
 
-    @Override public void setContentLength(long length) {
-
-    }
-
-    @Override public boolean isCommitted() {
+    @Override
+    public boolean isCommitted() {
       return false;
     }
 
-    @Override public void sendRedirect(String location) throws IOException {
+    @Override
+    public void sendRedirect(String location) { }
 
-    }
+    @Override
+    public void setStatus(int sc) { }
 
-    @Override public void setStatus(int sc) {
+    @Override
+    public void setStatus(int status, String message) { }
 
-    }
-
-    @Override public void setStatus(int status, String message) {
-
-    }
-
-    @Override public int getStatus() {
+    @Override
+    public int getStatus() {
       return 0;
     }
 
-    @Override public void sendError(int sc) throws IOException {
+    @Override
+    public void sendError(int sc) throws IOException { }
 
-    }
+    @Override
+    public void sendError(int sc, String msg) throws IOException { }
 
-    @Override public void sendError(int sc, String msg) throws IOException {
-
-    }
-
-    @Override protected OutputStream doGetOutputStream() throws IOException {
+    @Override
+    protected OutputStream doGetOutputStream() throws IOException {
       return null;
     }
 
-    @Override public <T> T nativeRequest() {
+    @Override
+    public <T> T nativeRequest() {
       return null;
     }
 
-    @Override public <T> T nativeRequest(Class<T> requestClass) {
+    @Override
+    public <T> T unwrapRequest(Class<T> requestClass) {
       return null;
     }
 
-    @Override public <T> T nativeResponse() {
+    @Override
+    public <T> T nativeResponse() {
       return null;
     }
 
-    @Override public <T> T nativeResponse(Class<T> responseClass) {
+    @Override
+    public <T> T unwrapResponse(Class<T> responseClass) {
       return null;
     }
 

@@ -467,7 +467,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public <T> T nativeRequest(Class<T> requestClass) {
+  public <T> T unwrapRequest(Class<T> requestClass) {
     if (requestClass.isInstance(request)) {
       return requestClass.cast(request);
     }
@@ -511,7 +511,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public <T> T nativeResponse(Class<T> responseClass) {
+  public <T> T unwrapResponse(Class<T> responseClass) {
     final T ret = nativeResponse();
     if (responseClass.isInstance(ret)) {
       return ret;

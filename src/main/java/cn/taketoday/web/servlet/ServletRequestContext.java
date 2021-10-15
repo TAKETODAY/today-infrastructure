@@ -90,12 +90,12 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public <T> T nativeRequest(Class<T> requestClass) {
+  public <T> T unwrapRequest(Class<T> requestClass) {
     return ServletUtils.getNativeRequest(request, requestClass);
   }
 
   @Override
-  public <T> T nativeResponse(Class<T> responseClass) {
+  public <T> T unwrapResponse(Class<T> responseClass) {
     return ServletUtils.getNativeResponse(response, responseClass);
   }
 

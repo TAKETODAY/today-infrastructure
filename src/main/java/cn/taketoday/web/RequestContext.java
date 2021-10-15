@@ -447,6 +447,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
     return reader;
   }
 
+  /** template method for get reader */
   protected BufferedReader doGetReader() throws IOException {
     return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
   }
@@ -464,7 +465,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   /**
-   * map list {@link MultipartFile}
+   * template method for different MultipartFile parsing strategy
+   *
+   * @return map list {@link MultipartFile}
    *
    * @throws cn.taketoday.web.resolver.NotMultipartRequestException
    *         if this request is not of type multipart/form-data
@@ -497,6 +500,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   /**
+   * template method for create request http-headers
+   *
    * @since 3.0
    */
   protected abstract HttpHeaders createRequestHeaders();
@@ -729,6 +734,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
     return outputStream;
   }
 
+  /** template method for get OutputStream */
   protected abstract OutputStream doGetOutputStream() throws IOException;
 
   /**
@@ -759,6 +765,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
     return writer;
   }
 
+  /**
+   * template method for get writer
+   */
   protected PrintWriter doGetWriter() throws IOException {
     return new PrintWriter(getOutputStream());
   }
@@ -802,6 +811,17 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   /**
+   * merge headers to response http-headers
+   *
+   * @since 3.0
+   */
+  public void mergeToResponse(HttpHeaders headers) {
+    responseHeaders().putAll(headers);
+  }
+
+  /**
+   * create a new response http-header
+   *
    * @since 3.0
    */
   protected HttpHeaders createResponseHeaders() {
@@ -815,11 +835,11 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   public abstract <T> T nativeRequest();
 
-  public abstract <T> T nativeRequest(Class<T> requestClass);
+  public abstract <T> T unwrapRequest(Class<T> requestClass);
 
   public abstract <T> T nativeResponse();
 
-  public abstract <T> T nativeResponse(Class<T> responseClass);
+  public abstract <T> T unwrapResponse(Class<T> responseClass);
 
   // ------------------
 

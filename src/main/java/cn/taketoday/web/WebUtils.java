@@ -99,12 +99,12 @@ public abstract class WebUtils {
   }
 
   // ---
-  public static boolean isMultipart(final RequestContext requestContext) {
+  public static boolean isMultipart(RequestContext requestContext) {
 
     if (!"POST".equals(requestContext.getMethod())) {
       return false;
     }
-    final String contentType = requestContext.getContentType();
+    String contentType = requestContext.getContentType();
     return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
   }
 
@@ -131,12 +131,12 @@ public abstract class WebUtils {
    *
    * @since 2.1.x
    */
-  public static void downloadFile(final RequestContext context,
-                                  final Resource download, final int bufferSize) throws IOException //
+  public static void downloadFile(
+          RequestContext context, Resource download, int bufferSize) throws IOException //
   {
     context.setContentLength(download.contentLength());
     context.setContentType(HttpHeaders.APPLICATION_FORCE_DOWNLOAD);
-    final HttpHeaders httpHeaders = context.responseHeaders();
+    HttpHeaders httpHeaders = context.responseHeaders();
 
     httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, HttpHeaders.BINARY);
     httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
@@ -146,19 +146,18 @@ public abstract class WebUtils {
                             .toString()
     );
 
-    try (final InputStream in = download.getInputStream()) {
-
+    try (InputStream in = download.getInputStream()) {
       StreamUtils.copy(in, context.getOutputStream(), bufferSize);
     }
   }
 
   // ResponseStatus
 
-  public static int getStatusValue(final Throwable ex) {
+  public static int getStatusValue(Throwable ex) {
     return getResponseStatus(ex).value().value();
   }
 
-  public static ResponseStatus getResponseStatus(final Throwable ex) {
+  public static ResponseStatus getResponseStatus(Throwable ex) {
     return getResponseStatus(ex.getClass());
   }
 
@@ -166,14 +165,14 @@ public abstract class WebUtils {
     if (ConversionException.class.isAssignableFrom(exceptionClass)) {
       return new DefaultResponseStatus(HttpStatus.BAD_REQUEST);
     }
-    final ResponseStatus status = AnnotationUtils.getAnnotation(ResponseStatus.class, exceptionClass);
+    ResponseStatus status = AnnotationUtils.getAnnotation(ResponseStatus.class, exceptionClass);
     if (status != null) {
       return new DefaultResponseStatus(status);
     }
     return new DefaultResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  public static ResponseStatus getResponseStatus(final HandlerMethod handler) {
+  public static ResponseStatus getResponseStatus(HandlerMethod handler) {
     Assert.notNull(handler, "handler method must not be null");
     ResponseStatus status = handler.getMethodAnnotation(ResponseStatus.class);
     if (status == null) {
@@ -186,11 +185,11 @@ public abstract class WebUtils {
     return status != null ? new DefaultResponseStatus(status) : null;
   }
 
-  public static ResponseStatus getResponseStatus(final AnnotatedElement handler) {
+  public static ResponseStatus getResponseStatus(AnnotatedElement handler) {
     Assert.notNull(handler, "AnnotatedElement must not be null");
     ResponseStatus status = handler.getDeclaredAnnotation(ResponseStatus.class);
     if (status == null && handler instanceof Method) {
-      final Class<?> declaringClass = ((Method) handler).getDeclaringClass();
+      Class<?> declaringClass = ((Method) handler).getDeclaringClass();
       status = declaringClass.getDeclaredAnnotation(ResponseStatus.class);
     }
     return wrapStatus(status);
@@ -204,8 +203,8 @@ public abstract class WebUtils {
    * Returns {@code true} if the request is a valid CORS one by checking
    * {@code Origin} header presence and ensuring that origins are different.
    */
-  public static boolean isCorsRequest(final RequestContext request) {
-    final HttpHeaders httpHeaders = request.requestHeaders();
+  public static boolean isCorsRequest(RequestContext request) {
+    HttpHeaders httpHeaders = request.requestHeaders();
     return httpHeaders.getOrigin() != null;
   }
 
@@ -214,9 +213,9 @@ public abstract class WebUtils {
    * used in combination with {@link #isCorsRequest(RequestContext)} since regular
    * CORS checks are not invoked here for performance reasons.
    */
-  public static boolean isPreFlightRequest(final RequestContext request) {
+  public static boolean isPreFlightRequest(RequestContext request) {
     if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
-      final HttpHeaders requestHeaders = request.requestHeaders();
+      HttpHeaders requestHeaders = request.requestHeaders();
       return requestHeaders.containsKey(HttpHeaders.ORIGIN)
               && requestHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
     }
@@ -226,31 +225,31 @@ public abstract class WebUtils {
   // checkNotModified
   // ---------------------------------------------
 
-  protected static boolean matches(final String matchHeader, final String etag) {
+  protected static boolean matches(String matchHeader, String etag) {
     if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
       return "*".equals(etag) || matchHeader.equals(etag);
     }
     return false;
   }
 
-  public static boolean checkNotModified(String etag, final RequestContext context) {
+  public static boolean checkNotModified(String etag, RequestContext context) {
     return checkNotModified(etag, -1, context);
   }
 
-  public static boolean checkNotModified(long lastModifiedTimestamp, final RequestContext context) {
+  public static boolean checkNotModified(long lastModifiedTimestamp, RequestContext context) {
     return checkNotModified(null, lastModifiedTimestamp, context);
   }
 
-  public static boolean checkNotModified(final String eTag,
-                                         final long lastModified,
-                                         final RequestContext context) {
+  public static boolean checkNotModified(String eTag,
+                                         long lastModified,
+                                         RequestContext context) {
 
     // Validate request headers for caching
     // ---------------------------------------------------
 
     // If-None-Match header should contain "*" or ETag. If so, then return 304
-    final HttpHeaders requestHeaders = context.requestHeaders();
-    final String ifNoneMatch = requestHeaders.getFirst(HttpHeaders.IF_NONE_MATCH);
+    HttpHeaders requestHeaders = context.requestHeaders();
+    String ifNoneMatch = requestHeaders.getFirst(HttpHeaders.IF_NONE_MATCH);
     if (matches(ifNoneMatch, eTag)) {
       context.responseHeaders().setETag(eTag); // 304.
       context.setStatus(HttpStatus.NOT_MODIFIED);
@@ -261,7 +260,7 @@ public abstract class WebUtils {
     // If so, then return 304
     // This header is ignored if any If-None-Match header is specified
 
-    final long ifModifiedSince = requestHeaders.getIfModifiedSince();// If-Modified-Since
+    long ifModifiedSince = requestHeaders.getIfModifiedSince();// If-Modified-Since
     if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
       // if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
       context.responseHeaders().setLastModified(lastModified); // 304
@@ -273,7 +272,7 @@ public abstract class WebUtils {
     // ----------------------------------------------------
 
     // If-Match header should contain "*" or ETag. If not, then return 412
-    final String ifMatch = requestHeaders.getFirst(HttpHeaders.IF_MATCH);
+    String ifMatch = requestHeaders.getFirst(HttpHeaders.IF_MATCH);
     if (ifMatch != null && !matches(ifMatch, eTag)) {
 //      context.status(412);
       context.setStatus(HttpStatus.PRECONDITION_FAILED);
@@ -282,7 +281,7 @@ public abstract class WebUtils {
 
     // If-Unmodified-Since header should be greater than LastModified.
     // If not, then return 412.
-    final long ifUnmodifiedSince = requestHeaders.getIfUnmodifiedSince();// "If-Unmodified-Since"
+    long ifUnmodifiedSince = requestHeaders.getIfUnmodifiedSince();// "If-Unmodified-Since"
     if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
       context.setStatus(HttpStatus.PRECONDITION_FAILED);
       return true;
@@ -292,12 +291,12 @@ public abstract class WebUtils {
 
   //
 
-  public static void parseParameters(MultiValueMap<String, String> parameterMap, final String s) {
+  public static void parseParameters(MultiValueMap<String, String> parameterMap, String s) {
     if (StringUtils.isNotEmpty(s)) {
       int nameStart = 0;
       int valueStart = -1;
       int i;
-      final int len = s.length();
+      int len = s.length();
       loop:
       for (i = 0; i < len; i++) {
         switch (s.charAt(i)) {
@@ -332,8 +331,8 @@ public abstract class WebUtils {
    *
    * @return Map of list parameters
    */
-  public static MultiValueMap<String, String> parseParameters(final String s) {
-    final DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
+  public static MultiValueMap<String, String> parseParameters(String s) {
+    DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
     parseParameters(params, s);
     return params;
   }

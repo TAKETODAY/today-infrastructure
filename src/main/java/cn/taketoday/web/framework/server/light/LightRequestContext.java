@@ -261,7 +261,7 @@ public class LightRequestContext extends RequestContext {
   }
 
   @Override
-  public <T> T nativeRequest(Class<T> requestClass) {
+  public <T> T unwrapRequest(Class<T> requestClass) {
     return null;
   }
 
@@ -271,7 +271,7 @@ public class LightRequestContext extends RequestContext {
   }
 
   @Override
-  public <T> T nativeResponse(Class<T> responseClass) {
+  public <T> T unwrapResponse(Class<T> responseClass) {
     return null;
   }
 

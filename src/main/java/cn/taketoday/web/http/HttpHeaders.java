@@ -802,7 +802,7 @@ public abstract class HttpHeaders
    */
   @Nullable
   public HttpMethod getAccessControlRequestMethod() {
-    final String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
+    String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
     if (StringUtils.isEmpty(first)) {
       return null;
     }
@@ -1818,7 +1818,7 @@ public abstract class HttpHeaders
 
   @Override
   public void addAll(String key, List<? extends String> values) {
-    for (final String value : values) {
+    for (String value : values) {
       add(key, value);
     }
   }
