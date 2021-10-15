@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -176,10 +175,10 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
               break;
             }
             else {
-              throw new ConfigurationException("Not supported " + parameterType);
+              throw new UnsupportedOperationException("Not supported " + parameterType);
             }
           }
-          throw new ConfigurationException("Not supported " + inv);
+          throw new UnsupportedOperationException("Not supported " + inv);
         case TYPE_ARGUMENTS:
           args[idx] = inv.getArguments();
           break;
@@ -227,7 +226,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
               break;
             }
           }
-          throw new ConfigurationException("Not supported " + parameterType);
+          throw new UnsupportedOperationException("Not supported " + parameterType);
         }
       }
       idx++;
