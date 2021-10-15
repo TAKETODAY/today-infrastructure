@@ -18,36 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache;
+package cn.taketoday.lang;
 
 import java.io.Serializable;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * Simple serializable class that serves as a {@code null} replacement
  * for cache stores which otherwise do not support {@code null} values.
  *
- * @author Juergen Hoeller
  * @author TODAY 2021/9/25 10:42
  * @since 4.0
  */
-public final class NullCacheValue implements Serializable {
+public final class NullValue implements Serializable {
   private static final long serialVersionUID = 1L;
-  public static final NullCacheValue INSTANCE = new NullCacheValue();
+  public static final NullValue INSTANCE = new NullValue();
 
   private Object readResolve() {
     return INSTANCE;
   }
 
   @Override
-  public boolean equals(@Nullable Object obj) {
-    return (this == obj || obj == null);
-  }
-
-  @Override
   public int hashCode() {
-    return NullCacheValue.class.hashCode();
+    return NullValue.class.hashCode();
   }
 
   @Override

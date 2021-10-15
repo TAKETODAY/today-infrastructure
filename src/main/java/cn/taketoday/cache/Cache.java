@@ -19,6 +19,8 @@
  */
 package cn.taketoday.cache;
 
+import cn.taketoday.lang.NullValue;
+
 /**
  * @author TODAY 2019-02-27 17:11
  */
@@ -68,12 +70,12 @@ public abstract class Cache {
    *
    * @return the value to which this cache maps the specified key, A straight
    * {@code null} being returned means that the cache contains no mapping
-   * for this key. if returns {@link NullCacheValue#INSTANCE} indicates that
+   * for this key. if returns {@link NullValue#INSTANCE} indicates that
    * the key maps to a {@code null} value
    *
    * @see #get(Object, Class)
-   * @see NullCacheValue#INSTANCE
-   * @see NullCacheValue
+   * @see NullValue#INSTANCE
+   * @see NullValue
    * @see #toRealValue(Object)
    */
   public Object get(final Object key, final boolean unWarp) {
@@ -243,7 +245,7 @@ public abstract class Cache {
    * @return Store value maybe a serializable object
    */
   public static Object toStoreValue(final Object userValue) {
-    return userValue == null ? NullCacheValue.INSTANCE : userValue;
+    return userValue == null ? NullValue.INSTANCE : userValue;
   }
 
   /**
@@ -252,11 +254,11 @@ public abstract class Cache {
    * @param cachedValue
    *         cached value in mappings
    *
-   * @return if {@code cachedValue} is {@link NullCacheValue#INSTANCE}
+   * @return if {@code cachedValue} is {@link NullValue#INSTANCE}
    * indicates that real value is {@code null}
    */
   public static Object toRealValue(final Object cachedValue) {
-    return cachedValue == NullCacheValue.INSTANCE ? null : cachedValue;
+    return cachedValue == NullValue.INSTANCE ? null : cachedValue;
   }
 
 }

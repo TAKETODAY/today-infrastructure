@@ -26,7 +26,7 @@ import java.util.Map;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.ConcurrentMapCache;
-import cn.taketoday.cache.NullCacheValue;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
@@ -125,7 +125,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         handler = lookupPatternHandler(handlerKey, context);
         matchingCache.put(handlerKey, handler);
       }
-      else if (handler == NullCacheValue.INSTANCE) {
+      else if (handler == NullValue.INSTANCE) {
         return null;
       }
     }
