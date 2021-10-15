@@ -440,7 +440,6 @@ public class ResolvableType implements Serializable {
     if (this == NONE) {
       return NONE;
     }
-    Class<?> resolved = resolve();
     if (resolved == null || resolved == type) {
       return this;
     }
