@@ -234,7 +234,7 @@ public class ExpressionProcessor {
    *         method of the class, or if the method signature is not valid, or
    *         if the method is not a static method.
    */
-  public void defineFunction(String prefix, String function, String className, String method) //
+  public void defineFunction(String prefix, String function, String className, String method)
           throws ClassNotFoundException, NoSuchMethodException //
   {
     if (prefix == null || function == null || className == null || method == null) {
@@ -242,7 +242,7 @@ public class ExpressionProcessor {
     }
 
     Method meth = null;
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    ClassLoader loader = ClassUtils.getDefaultClassLoader();
     if (loader == null) {
       loader = getClass().getClassLoader();
     }
@@ -265,13 +265,13 @@ public class ExpressionProcessor {
       // First get the method name, ignore the return type
       int p = method.indexOf(' ');
       if (p < 0) {
-        throw new NoSuchMethodException("Bad method singnature: " + method);
+        throw new NoSuchMethodException("Bad method signature: " + method);
       }
       String methodName = method.substring(p + 1, j).trim();
       // Extract parameter types
       p = method.indexOf(')', j + 1);
       if (p < 0) {
-        throw new NoSuchMethodException("Bad method singnature: " + method);
+        throw new NoSuchMethodException("Bad method signature: " + method);
       }
       String[] params = method.substring(j + 1, p).split(",");
       Class<?>[] paramTypes = new Class<?>[params.length];
