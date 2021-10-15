@@ -21,6 +21,7 @@
 package cn.taketoday.util;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import cn.taketoday.lang.Nullable;
 
@@ -76,7 +77,7 @@ public final class MethodClassKey implements Comparable<MethodClassKey> {
     }
     MethodClassKey otherKey = (MethodClassKey) other;
     return (this.method.equals(otherKey.method) &&
-            ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
+            Objects.equals(this.targetClass, otherKey.targetClass));
   }
 
   @Override

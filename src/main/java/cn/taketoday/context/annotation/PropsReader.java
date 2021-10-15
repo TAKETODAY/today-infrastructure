@@ -173,10 +173,10 @@ public class PropsReader {
     for (String prefix : prefixs) {// maybe a default value: ""
       String key;
       if (StringUtils.isEmpty(prefix)) {
-        key = property.getAlias();
+        key = property.getPropertyName();
       }
       else {
-        key = prefix.concat(property.getAlias());
+        key = prefix.concat(property.getPropertyName());
       }
       Object value;
       if (isSimpleType) {

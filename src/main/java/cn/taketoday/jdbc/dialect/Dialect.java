@@ -87,7 +87,7 @@ public abstract class Dialect {
     for (BeanProperty property : beanMetadata) {
       Object value = property.getValue(model);
       if (value != null) {
-        columnNames.append(",").append(" ").append(property.getAlias());
+        columnNames.append(",").append(" ").append(property.getPropertyName());
         placeholder.append(", ?");
       }
     }
@@ -117,7 +117,7 @@ public abstract class Dialect {
           if (value == null) {
             continue;
           }
-          setSQL.append(property.getAlias()).append(" = ?, ");
+          setSQL.append(property.getPropertyName()).append(" = ?, ");
         }
       }
     }
@@ -144,7 +144,7 @@ public abstract class Dialect {
           if (value == null) {
             continue;
           }
-          columnNames.append(property.getAlias()).append(" = ? and ");
+          columnNames.append(property.getPropertyName()).append(" = ? and ");
         }
         if (columnNames.length() > 0) {
           sql.append(" WHERE ").append(columnNames.substring(0, columnNames.length() - 5));
@@ -160,7 +160,7 @@ public abstract class Dialect {
     StringBuilder sql = new StringBuilder();
     JdbcBeanMetadata beanMetadata = new JdbcBeanMetadata(model);
     for (BeanProperty property : beanMetadata) {
-      String alias = property.getAlias();
+      String alias = property.getPropertyName();
       if (excludedColumns.contains(alias)) {
         sql.append(alias).append(',');
       }

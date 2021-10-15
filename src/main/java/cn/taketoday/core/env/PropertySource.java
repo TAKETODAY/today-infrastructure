@@ -22,6 +22,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 
+import java.util.Objects;
+
 /**
  * Abstract base class representing a source of name/value property pairs. The underlying
  * {@linkplain #getSource() source object} may be of any type {@code T} that encapsulates
@@ -133,7 +135,7 @@ public abstract class PropertySource<T> {
   @Override
   public boolean equals(@Nullable Object other) {
     return (this == other || (other instanceof PropertySource
-            && ObjectUtils.nullSafeEquals(getName(), ((PropertySource<?>) other).getName())));
+            && Objects.equals(getName(), ((PropertySource<?>) other).getName())));
   }
 
   /**

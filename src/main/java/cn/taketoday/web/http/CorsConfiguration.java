@@ -715,8 +715,7 @@ public class CorsConfiguration {
       if (other == null || !getClass().equals(other.getClass())) {
         return false;
       }
-      return ObjectUtils.nullSafeEquals(
-              this.declaredPattern, ((OriginPattern) other).declaredPattern);
+      return Objects.equals(this.declaredPattern, ((OriginPattern) other).declaredPattern);
     }
 
     @Override

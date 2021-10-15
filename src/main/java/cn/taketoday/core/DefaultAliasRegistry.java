@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.lang.Assert;
@@ -99,7 +100,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
    */
   public boolean hasAlias(String name, String alias) {
     String registeredName = this.aliasMap.get(alias);
-    return ObjectUtils.nullSafeEquals(registeredName, name)
+    return Objects.equals(registeredName, name)
             || (registeredName != null && hasAlias(name, registeredName));
   }
 

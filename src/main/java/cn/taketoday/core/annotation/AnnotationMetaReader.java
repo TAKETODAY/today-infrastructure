@@ -222,7 +222,7 @@ public abstract class AnnotationMetaReader {
     final BeanMetadata metadata = BeanMetadata.ofClass(implClass);
     for (BeanProperty property : metadata) {
       // method name must == field name
-      String name = property.getAlias();
+      String name = property.getPropertyName();
       property.setValue(instance, source.getAttribute(name, property.getType()));
     }
     return instance;

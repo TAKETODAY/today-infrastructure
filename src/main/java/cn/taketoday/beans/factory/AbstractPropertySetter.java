@@ -21,9 +21,9 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * <p>
@@ -91,7 +91,7 @@ public abstract class AbstractPropertySetter implements PropertySetter {
     if (!(o instanceof AbstractPropertySetter))
       return false;
     final AbstractPropertySetter that = (AbstractPropertySetter) o;
-    return ObjectUtils.nullSafeEquals(property, that.property);
+    return Objects.equals(property, that.property);
   }
 
   @Override
