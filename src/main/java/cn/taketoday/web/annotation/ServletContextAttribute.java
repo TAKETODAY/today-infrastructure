@@ -33,7 +33,7 @@ import cn.taketoday.lang.Constant;
 @RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Application {
+public @interface ServletContextAttribute {
 
   /**
    * Servlet Context attribute name

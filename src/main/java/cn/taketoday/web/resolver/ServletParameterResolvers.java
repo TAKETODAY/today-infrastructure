@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.Application;
+import cn.taketoday.web.annotation.ServletContextAttribute;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -63,12 +63,12 @@ public class ServletParameterResolvers {
   static class ServletRequestParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(ServletRequest.class);
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
       return context.nativeRequest();
     }
   }
@@ -76,12 +76,12 @@ public class ServletParameterResolvers {
   static class ServletResponseParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(ServletResponse.class);
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
       return context.nativeResponse();
     }
   }
@@ -89,13 +89,13 @@ public class ServletParameterResolvers {
   static class HttpSessionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isAssignableTo(HttpSession.class);
     }
 
     @Override
     public Object resolveParameter(
-            final RequestContext context, final MethodParameter parameter) throws Throwable {
+            RequestContext context, MethodParameter parameter) throws Throwable {
       return ServletUtils.getHttpSession(context);
     }
   }
@@ -108,8 +108,8 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-      final HttpSession httpSession = ServletUtils.getHttpSession(context, false);
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+      HttpSession httpSession = ServletUtils.getHttpSession(context, false);
       if (httpSession == null) {
         return null;
       }
@@ -126,12 +126,12 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.is(ServletContext.class);
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
       return servletContext;
     }
   }
@@ -141,15 +141,15 @@ public class ServletParameterResolvers {
   static class ServletCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.is(Cookie.class);
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
 
-      final String name = parameter.getName();
-      for (final Cookie cookie : context.nativeRequest(HttpServletRequest.class).getCookies()) {
+      String name = parameter.getName();
+      for (Cookie cookie : context.unwrapRequest(HttpServletRequest.class).getCookies()) {
         if (name.equals(cookie.getName())) {
           return cookie;
         }
@@ -172,9 +172,8 @@ public class ServletParameterResolvers {
 
     @Override
     protected List<?> resolveCollection(RequestContext context, MethodParameter parameter) {
-
-      final Cookie[] cookies = context.nativeRequest(HttpServletRequest.class).getCookies();
-      final List<Cookie> ret = new ArrayList<>(cookies.length);
+      Cookie[] cookies = context.unwrapRequest(HttpServletRequest.class).getCookies();
+      ArrayList<Cookie> ret = new ArrayList<>(cookies.length);
       Collections.addAll(ret, cookies);
       return ret;
     }
@@ -188,8 +187,8 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-      return context.nativeRequest(HttpServletRequest.class).getCookies();
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+      return context.unwrapRequest(HttpServletRequest.class).getCookies();
     }
   }
 
@@ -202,11 +201,11 @@ public class ServletParameterResolvers {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-      return parameter.isAnnotationPresent(Application.class);
+      return parameter.isAnnotationPresent(ServletContextAttribute.class);
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
       return servletContext.getAttribute(parameter.getName());
     }
   }
