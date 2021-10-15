@@ -44,7 +44,6 @@ import javax.servlet.annotation.WebServlet;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ExceptionUtils;
@@ -200,9 +199,8 @@ public class WebServletApplicationLoader
       onStartup(context);
     }
     catch (Throwable ex) {
-      ex = ExceptionUtils.unwrapThrowable(ex);
       context.publishEvent(new WebApplicationFailedEvent(context, ex));
-      throw new ConfigurationException("Your Application Initialized ERROR: [" + ex + "]", ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
   }
 
