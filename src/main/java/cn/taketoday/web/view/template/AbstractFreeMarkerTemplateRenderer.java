@@ -116,7 +116,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
     catch (TemplateException e) {
       throw new ConfigurationException("Set FreeMarker's Properties Error, With: [" + e + "]", e);
     }
-    log.info("Configuration FreeMarker Template View Resolver Success.");
+    log.info("FreeMarker template renderer init successfully.");
   }
 
   @Override
