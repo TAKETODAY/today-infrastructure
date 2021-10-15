@@ -20,17 +20,17 @@
 
 package cn.taketoday.beans.factory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Default SingletonBeanRegistry implementation
@@ -39,13 +39,10 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(DefaultSingletonBeanRegistry.class);
 
   /** Map of bean instance, keyed by bean name */
   private final HashMap<String, Object> singletons = new HashMap<>(128);
-
-  /** object factories */
-  private Map<String, Supplier<?>> objectFactories;
 
   @Override
   public void registerSingleton(final String name, final Object singleton) {
@@ -70,7 +67,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   protected void singletonAlreadyExist(String name, Object singleton, Object existBean) {
     log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-             name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(existBean));
+            name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(existBean));
   }
 
   @Override
@@ -92,11 +89,9 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * Return the (raw) singleton object registered under the given name,
    * creating and registering a new one if none registered yet.
    *
-   * @param beanName
-   *         the name of the bean
-   * @param singletonSupplier
-   *         the ObjectFactory to lazily create the singleton
-   *         with, if necessary
+   * @param beanName the name of the bean
+   * @param singletonSupplier the ObjectFactory to lazily create the singleton
+   * with, if necessary
    *
    * @return the registered singleton object
    */
@@ -127,8 +122,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * Callback before singleton creation.
    * <p>The default implementation register the singleton as currently in creation.
    *
-   * @param beanName
-   *         the name of the singleton about to be created
+   * @param beanName the name of the singleton about to be created
    */
   protected void beforeSingletonCreation(String beanName) {
 
@@ -138,8 +132,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * Callback after singleton creation.
    * <p>The default implementation marks the singleton as not in creation anymore.
    *
-   * @param beanName
-   *         the name of the singleton that has been created
+   * @param beanName the name of the singleton that has been created
    */
   protected void afterSingletonCreation(String beanName) {
 
@@ -162,13 +155,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     return (T) singleton;
   }
 
-  private Map<String, Supplier<?>> getObjectFactories() {
-    if (objectFactories == null) {
-      objectFactories = new HashMap<>();
-    }
-    return objectFactories;
-  }
-
   /**
    * default is use {@link ClassUtils#getShortName(Class)}
    *
@@ -176,8 +162,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * sub-classes can overriding this method to provide a strategy to create bean name
    * </p>
    *
-   * @param type
-   *         type
+   * @param type type
    *
    * @return bean name
    *

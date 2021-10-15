@@ -19,15 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.MissingBean;
@@ -36,6 +27,13 @@ import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -46,14 +44,6 @@ public class StandardBeanFactory
         extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
-
-  /** Map from serialized id to factory instance. */
-  private static final ConcurrentHashMap<String, Reference<StandardBeanFactory>>
-          serializableFactories = new ConcurrentHashMap<>(8);
-
-  /** Optional id for this factory, for serialization purposes. */
-  @Nullable
-  private String serializationId;
 
   /**
    * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
@@ -66,33 +56,6 @@ public class StandardBeanFactory
 
   /** Map of bean definition objects, keyed by bean name */
   private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
-
-  /**
-   * Specify an id for serialization purposes, allowing this BeanFactory to be
-   * deserialized from this id back into the BeanFactory object, if needed.
-   *
-   * @since 4.0
-   */
-  public void setSerializationId(@Nullable String serializationId) {
-    if (serializationId != null) {
-      serializableFactories.put(serializationId, new WeakReference<>(this));
-    }
-    else if (this.serializationId != null) {
-      serializableFactories.remove(this.serializationId);
-    }
-    this.serializationId = serializationId;
-  }
-
-  /**
-   * Return an id for serialization purposes, if specified, allowing this BeanFactory
-   * to be deserialized from this id back into the BeanFactory object, if needed.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public String getSerializationId() {
-    return this.serializationId;
-  }
 
   /**
    * Preventing Cycle Dependency expected {@link Prototype} beans

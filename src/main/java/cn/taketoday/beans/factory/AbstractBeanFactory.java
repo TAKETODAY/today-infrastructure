@@ -53,6 +53,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -63,6 +65,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractBeanFactory
         extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
+  private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
   /** object factories */
   private Map<Class<?>, Object> objectFactories;
@@ -122,7 +125,7 @@ public abstract class AbstractBeanFactory
   }
 
   /**
-   * @throws ConfigurationException
+   * @throws IllegalStateException
    *         bean definition scope not exist in this bean factory
    */
   @Override
@@ -145,7 +148,7 @@ public abstract class AbstractBeanFactory
       else {
         Scope scope = scopes.get(def.getScope());
         if (scope == null) {
-          throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this " + this);
+          throw new IllegalStateException("No such scope: [" + def.getScope() + "] in this " + this);
         }
         return getScopeBean(def, scope);
       }
@@ -421,7 +424,7 @@ public abstract class AbstractBeanFactory
     if (factory instanceof FactoryBean) {
       return (FactoryBean<T>) factory;
     }
-    throw new ConfigurationException("object must be FactoryBean");
+    throw new IllegalStateException("object must be FactoryBean");
   }
 
   /**

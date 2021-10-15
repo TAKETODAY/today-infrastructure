@@ -21,6 +21,8 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -31,6 +33,7 @@ import cn.taketoday.util.ClassUtils;
  */
 public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+  private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
