@@ -20,6 +20,10 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.ObjectNotationProcessor;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,12 +37,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.ObjectNotationProcessor;
 
 /**
  * jackson {@link ObjectNotationProcessor} implementation
@@ -136,8 +134,8 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
 
   protected Class<?> getCollectionValueType(TypeDescriptor parameter) {
     TypeDescriptor valueType = parameter.getGeneric(Collection.class);
-    if (valueType.is(Object.class)) {
-      throw new ConfigurationException("Not support " + parameter);
+    if (valueType == null || valueType.is(Object.class)) {
+      throw new UnsupportedOperationException("Not support " + parameter);
     }
     return valueType.getType();
   }
