@@ -64,7 +64,7 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  */
 public abstract class RequestContext implements InputStreamSource, OutputStreamSource, Model, Flushable {
 
-  public static final HttpCookie[] EMPTY_COOKIES = {};
+  public static final HttpCookie[] EMPTY_COOKIES = { };
 
   protected String contextPath;
   protected Object requestBody;
@@ -219,8 +219,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * Returns a {@link HttpCookie} object the client sent with this request. This
    * method returns <code>null</code> if no target cookie were sent.
    *
-   * @param name
-   *         Cookie name
+   * @param name Cookie name
    *
    * @return a {@link HttpCookie} object the client sent with this request. This
    * method returns <code>null</code> if no target cookie were sent.
@@ -241,8 +240,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * Adds the specified cookie to the response. This method can be called multiple
    * times to set more than one cookie.
    *
-   * @param cookie
-   *         the Cookie to return to the client
+   * @param cookie the Cookie to return to the client
    */
   public void addCookie(HttpCookie cookie) {
     responseCookies().add(cookie);
@@ -312,9 +310,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * <p>
    * If the parameter has a single value, the array has a length of 1.
    *
-   * @param name
-   *         a <code>String</code> containing the name of the parameter whose
-   *         value is requested
+   * @param name a <code>String</code> containing the name of the parameter whose
+   * value is requested
    *
    * @return an array of <code>String</code> objects containing the parameter's
    * values
@@ -351,8 +348,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * HTTP POST request, then reading the body directly via {@link #getInputStream}
    * or {@link #getReader} can interfere with the execution of this method.
    *
-   * @param name
-   *         a <code>String</code> specifying the name of the parameter
+   * @param name a <code>String</code> specifying the name of the parameter
    *
    * @return a <code>String</code> representing the single value of the parameter
    *
@@ -408,11 +404,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @return a {@link InputStream} object containing the body of the request
    *
-   * @throws IllegalStateException
-   *         For Servlet Environment if the {@link #getReader} method has
-   *         already been called for this request
-   * @throws IOException
-   *         if an input or output exception occurred
+   * @throws IllegalStateException For Servlet Environment if the {@link #getReader} method has
+   * already been called for this request
+   * @throws IOException if an input or output exception occurred
    */
   @Override
   public InputStream getInputStream() throws IOException {
@@ -432,11 +426,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @return a <code>BufferedReader</code> containing the body of the request
    *
-   * @throws IllegalStateException
-   *         For Servlet Environment if {@link #getInputStream} method has
-   *         been called on this request
-   * @throws IOException
-   *         if an input or output exception occurred
+   * @throws IllegalStateException For Servlet Environment if {@link #getInputStream} method has
+   * been called on this request
+   * @throws IOException if an input or output exception occurred
    * @see #getInputStream
    */
   @Override
@@ -469,10 +461,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @return map list {@link MultipartFile}
    *
-   * @throws cn.taketoday.web.resolver.NotMultipartRequestException
-   *         if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartParsingException
-   *         multipart parse failed
+   * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
+   * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
    */
   protected abstract MultiValueMap<String, MultipartFile> parseMultipartFiles();
 
@@ -535,9 +525,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * Sets the length of the content body in the response , this method sets the
    * HTTP Content-Length header.
    *
-   * @param length
-   *         an long specifying the length of the content being returned to the
-   *         client; sets the Content-Length header
+   * @param length an long specifying the length of the content being returned to the
+   * client; sets the Content-Length header
    */
   public void setContentLength(long length) {
     responseHeaders().setContentLength(length);
@@ -563,8 +552,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * behavior of using the stale object is undefined. If the response has been
    * committed, this method throws an <code>IllegalStateException</code>.
    *
-   * @throws IllegalStateException
-   *         if the response has already been committed
+   * @throws IllegalStateException if the response has already been committed
    */
   public void reset() {
     resetResponseHeader();
@@ -590,14 +578,11 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * IllegalStateException. After using this method, the response should be
    * considered to be committed and should not be written to.
    *
-   * @param location
-   *         the redirect location URL
+   * @param location the redirect location URL
    *
-   * @throws IOException
-   *         If an input or output exception occurs
-   * @throws IllegalStateException
-   *         If the response was committed or if a partial URL is given and
-   *         cannot be converted into a valid URL
+   * @throws IOException If an input or output exception occurs
+   * @throws IllegalStateException If the response was committed or if a partial URL is given and
+   * cannot be converted into a valid URL
    */
   public abstract void sendRedirect(String location) throws IOException;
 
@@ -612,26 +597,22 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * Valid status codes are those in the 2XX, 3XX, 4XX, and 5XX ranges. Other
    * status codes are treated as container specific.
    *
-   * @param sc
-   *         the status code
+   * @param sc the status code
    */
   public abstract void setStatus(int sc);
 
   /**
    * Sets the status code and message for this response.
    *
-   * @param status
-   *         the status code
-   * @param message
-   *         the status message
+   * @param status the status code
+   * @param message the status message
    */
   public abstract void setStatus(int status, String message);
 
   /**
    * Sets the status code and message for this response.
    *
-   * @param status
-   *         the status
+   * @param status the status
    */
   public void setStatus(HttpStatus status) {
     setStatus(status.value(), status.getReasonPhrase());
@@ -660,13 +641,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * IllegalStateException. After using this method, the response should be
    * considered to be committed and should not be written to.
    *
-   * @param sc
-   *         the error status code
+   * @param sc the error status code
    *
-   * @throws IOException
-   *         If an input or output exception occurs
-   * @throws IllegalStateException
-   *         If the response was committed before this method call
+   * @throws IOException If an input or output exception occurs
+   * @throws IllegalStateException If the response was committed before this method call
    */
   public abstract void sendError(int sc) throws IOException;
 
@@ -695,15 +673,11 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * IllegalStateException. After using this method, the response should be
    * considered to be committed and should not be written to.
    *
-   * @param sc
-   *         the error status code
-   * @param msg
-   *         the descriptive message
+   * @param sc the error status code
+   * @param msg the descriptive message
    *
-   * @throws IOException
-   *         If an input or output exception occurs
-   * @throws IllegalStateException
-   *         If the response was committed
+   * @throws IOException If an input or output exception occurs
+   * @throws IllegalStateException If the response was committed
    */
   public abstract void sendError(int sc, String msg) throws IOException;
 
@@ -718,11 +692,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @return a {@link OutputStream} for writing binary data
    *
-   * @throws IllegalStateException
-   *         For Servlet Environment if the <code>getWriter</code> method
-   *         has been called on this response
-   * @throws IOException
-   *         if an input or output exception occurred
+   * @throws IllegalStateException For Servlet Environment if the <code>getWriter</code> method
+   * has been called on this response
+   * @throws IOException if an input or output exception occurred
    * @see #getWriter
    * @see #reset
    */
@@ -749,11 +721,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * @return a <code>PrintWriter</code> object that can return character data to
    * the client
    *
-   * @throws IOException
-   *         if an input or output exception occurred
-   * @throws IllegalStateException
-   *         For Servlet Environment if the <code>getOutputStream</code>
-   *         method has already been called for this response object
+   * @throws IOException if an input or output exception occurred
+   * @throws IllegalStateException For Servlet Environment if the <code>getOutputStream</code>
+   * method has already been called for this response object
    * @see #getOutputStream
    * @see #reset
    */
@@ -791,8 +761,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * way for doing so. In the case of HTTP, the <code>Content-Type</code> header
    * is used.
    *
-   * @param contentType
-   *         a <code>String</code> specifying the MIME type of the content
+   * @param contentType a <code>String</code> specifying the MIME type of the content
    */
   public void setContentType(String contentType) {
     responseHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
@@ -831,14 +800,29 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   // ----------------------
 
   /**
-   * Native request : HttpServletRequest
+   * Native request eg: HttpServletRequest
    */
   public abstract <T> T nativeRequest();
 
+  /**
+   * @param requestClass wrapped request class
+   *
+   * @return returns {@code null} indicated that not a requestClass
+   */
+  @Nullable
   public abstract <T> T unwrapRequest(Class<T> requestClass);
 
+  /**
+   * @return this request-context underlying implementation
+   */
   public abstract <T> T nativeResponse();
 
+  /**
+   * @param responseClass wrapped response class
+   *
+   * @return returns {@code null} indicated that not a responseClass
+   */
+  @Nullable
   public abstract <T> T unwrapResponse(Class<T> responseClass);
 
   // ------------------
@@ -856,8 +840,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * If input body is {@code null} will cache {@link cn.taketoday.core.EmptyObject#INSTANCE}
    * </p>
    *
-   * @param body
-   *         Target request body object
+   * @param body Target request body object
    */
   public void setRequestBody(Object body) {
     this.requestBody = body != null ? body : EmptyObject.INSTANCE;
@@ -870,8 +853,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   /**
    * set current {@link PathVariable}s
    *
-   * @param variables
-   *         {@link PathVariable}s
+   * @param variables {@link PathVariable}s
    *
    * @return input variables
    */
@@ -941,8 +923,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * to this method automatically commits the response, meaning the status
    * code and headers will be written.
    *
-   * @throws IOException
-   *         if the act of flushing the buffer cannot be completed.
+   * @throws IOException if the act of flushing the buffer cannot be completed.
    * @see #isCommitted
    * @see #reset
    */

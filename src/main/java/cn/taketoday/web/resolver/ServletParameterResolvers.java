@@ -28,6 +28,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.RequestContext;
@@ -69,7 +70,7 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
-      return context.nativeRequest();
+      return ServletUtils.getServletRequest(context);
     }
   }
 
@@ -82,7 +83,7 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
-      return context.nativeResponse();
+      return ServletUtils.getServletResponse(context);
     }
   }
 

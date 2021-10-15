@@ -19,23 +19,10 @@
  */
 package cn.taketoday.web.framework.reactive;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpCookie;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Supplier;
-
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
@@ -65,6 +52,19 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpCookie;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Supplier;
 
 /**
  * @author TODAY 2019-07-04 21:24
@@ -110,9 +110,9 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getScheme() {
-    final SocketAddress socketAddress = channelContext.channel().localAddress();
+    SocketAddress socketAddress = channelContext.channel().localAddress();
     if (socketAddress instanceof InetSocketAddress) {
-      final int port = ((InetSocketAddress) socketAddress).getPort();
+      int port = ((InetSocketAddress) socketAddress).getPort();
       if (port == 443) {
         return Constant.HTTPS;
       }
@@ -122,7 +122,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected final String doGetRequestPath() {
-    final int index = queryStringIndex;
+    int index = queryStringIndex;
     if (index == -1) {
       return uri;
     }
@@ -133,7 +133,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public final String doGetQueryString() {
-    final int index = queryStringIndex;
+    int index = queryStringIndex;
     if (index == -1) {
       return Constant.BLANK;
     }
@@ -144,14 +144,14 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getRequestURL() {
-    final String host = request.headers().get(HttpHeaderNames.HOST);
+    String host = request.headers().get(HttpHeaderNames.HOST);
     return getScheme() + "://" + host + getRequestPath();
   }
 
   @Override
   public final String remoteAddress() {
     if (remoteAddress == null) {
-      final InetSocketAddress remote = (InetSocketAddress) channelContext.channel().remoteAddress();
+      InetSocketAddress remote = (InetSocketAddress) channelContext.channel().remoteAddress();
       remoteAddress = remote.getAddress().getHostAddress();
     }
     return remoteAddress;
@@ -174,9 +174,9 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected cn.taketoday.web.http.HttpHeaders createRequestHeaders() {
-    final HttpHeaders headers = request.headers();
-    final DefaultHttpHeaders ret = new DefaultHttpHeaders();
-    for (final Map.Entry<String, String> header : headers) {
+    HttpHeaders headers = request.headers();
+    DefaultHttpHeaders ret = new DefaultHttpHeaders();
+    for (Map.Entry<String, String> header : headers) {
       ret.add(header.getKey(), header.getValue());
     }
     return ret;
@@ -194,18 +194,18 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public HttpCookie[] doGetCookies() {
-    final List<String> allCookie = request.headers().getAll(HttpHeaderNames.COOKIE);
+    List<String> allCookie = request.headers().getAll(HttpHeaderNames.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
-    final Set<Cookie> decoded;
-    final ServerCookieDecoder cookieDecoder = config.getCookieDecoder();
+    Set<Cookie> decoded;
+    ServerCookieDecoder cookieDecoder = config.getCookieDecoder();
     if (allCookie.size() == 1) {
       decoded = cookieDecoder.decode(allCookie.get(0));
     }
     else {
       decoded = new TreeSet<>();
-      for (final String header : allCookie) {
+      for (String header : allCookie) {
         decoded.addAll(cookieDecoder.decode(header));
       }
     }
@@ -214,16 +214,16 @@ public class NettyRequestContext extends RequestContext {
     }
     else {
       int i = 0;
-      final HttpCookie[] ret = new HttpCookie[decoded.size()];
-      for (final Cookie cookie : decoded) {
+      HttpCookie[] ret = new HttpCookie[decoded.size()];
+      for (Cookie cookie : decoded) {
         ret[i++] = mapHttpCookie(cookie);
       }
       return ret;
     }
   }
 
-  private HttpCookie mapHttpCookie(final Cookie cookie) {
-    final HttpCookie ret = new HttpCookie(cookie.name(), cookie.value());
+  private HttpCookie mapHttpCookie(Cookie cookie) {
+    HttpCookie ret = new HttpCookie(cookie.name(), cookie.value());
     ret.setPath(cookie.path());
     ret.setDomain(cookie.domain());
     ret.setMaxAge(cookie.maxAge());
@@ -236,11 +236,11 @@ public class NettyRequestContext extends RequestContext {
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
     super.postGetParameters(parameters);
 
-    final List<InterfaceHttpData> bodyHttpData = getRequestDecoder().getBodyHttpDatas();
-    for (final InterfaceHttpData data : bodyHttpData) {
+    List<InterfaceHttpData> bodyHttpData = requestDecoder().getBodyHttpDatas();
+    for (InterfaceHttpData data : bodyHttpData) {
       if (data instanceof Attribute) {
         try {
-          final String name = data.getName();
+          String name = data.getName();
           parameters.add(name, ((Attribute) data).getValue());
         }
         catch (IOException e) {
@@ -250,15 +250,12 @@ public class NettyRequestContext extends RequestContext {
     }
   }
 
-  private InterfaceHttpPostRequestDecoder getRequestDecoder() {
-    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
+  private InterfaceHttpPostRequestDecoder requestDecoder() {
     if (requestDecoder == null) {
-      final NettyRequestContextConfig config = this.config;
-      final Charset charset = config.getPostRequestDecoderCharset();
-      final HttpDataFactory httpDataFactory = config.getHttpDataFactory();
-      requestDecoder = new HttpPostRequestDecoder(httpDataFactory, request, charset);
+      Charset charset = config.getPostRequestDecoderCharset();
+      HttpDataFactory httpDataFactory = config.getHttpDataFactory();
+      this.requestDecoder = new HttpPostRequestDecoder(httpDataFactory, request, charset);
       requestDecoder.setDiscardThreshold(0);
-      this.requestDecoder = requestDecoder;
     }
     return requestDecoder;
   }
@@ -283,7 +280,7 @@ public class NettyRequestContext extends RequestContext {
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
-      final Supplier<ByteBuf> bufSupplier = config.getResponseBody();
+      Supplier<ByteBuf> bufSupplier = config.getResponseBody();
       if (bufSupplier != null) {
         responseBody = bufSupplier.get(); // may null
       }
@@ -300,16 +297,13 @@ public class NettyRequestContext extends RequestContext {
   }
 
   private boolean isKeepAlive() {
-    Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
-      keepAlive = HttpUtil.isKeepAlive(request);
-      this.keepAlive = keepAlive;
+      this.keepAlive = HttpUtil.isKeepAlive(request);
     }
     return keepAlive;
   }
 
   private int readableBytes() {
-    ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
       return 0;
     }
@@ -328,19 +322,17 @@ public class NettyRequestContext extends RequestContext {
   /**
    * Send HTTP message to the client
    *
-   * @throws IllegalStateException
-   *         If the response has been committed
+   * @throws IllegalStateException If the response has been committed
    */
   private void send() {
     assertNotCommitted();
     // obtain response object
-    FullHttpResponse response = this.response;
     if (response == null) {
       ByteBuf responseBody = this.responseBody;
       if (responseBody == null) {
         responseBody = Unpooled.EMPTY_BUFFER;
       }
-      response = new DefaultFullHttpResponse(
+      this.response = new DefaultFullHttpResponse(
               config.getHttpVersion(),
               status,
               responseBody,
@@ -353,7 +345,7 @@ public class NettyRequestContext extends RequestContext {
       response.setStatus(status);
     }
     // set Content-Length header
-    final HttpHeaders responseHeaders = originalResponseHeaders(); // never null
+    HttpHeaders responseHeaders = originalResponseHeaders(); // never null
     if (responseHeaders.get(HttpHeaderNames.CONTENT_LENGTH) == null) {
       responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
     }
@@ -367,7 +359,7 @@ public class NettyRequestContext extends RequestContext {
               .addListener(ChannelFutureListener.CLOSE);
     }
 
-    final InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
+    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
@@ -409,8 +401,7 @@ public class NettyRequestContext extends RequestContext {
   /**
    * assert that response is committed?
    *
-   * @throws IllegalStateException
-   *         if response is committed
+   * @throws IllegalStateException if response is committed
    */
   private void assertNotCommitted() {
     if (committed) {
@@ -422,7 +413,7 @@ public class NettyRequestContext extends RequestContext {
   public void addCookie(HttpCookie cookie) {
     super.addCookie(cookie);
 
-    final DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
+    DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
     nettyCookie.setPath(cookie.getPath());
     nettyCookie.setDomain(cookie.getDomain());
     nettyCookie.setMaxAge(cookie.getMaxAge());
@@ -434,12 +425,12 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void setStatus(final int sc) {
+  public void setStatus(int sc) {
     this.status = HttpResponseStatus.valueOf(sc);
   }
 
   @Override
-  public void setStatus(final int status, final String message) {
+  public void setStatus(int status, String message) {
     this.status = new HttpResponseStatus(status, message);
   }
 
@@ -462,61 +453,53 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T nativeRequest() {
-    return (T) request;
-  }
-
-  @Override
-  public <T> T unwrapRequest(Class<T> requestClass) {
-    if (requestClass.isInstance(request)) {
-      return requestClass.cast(request);
-    }
-    throw new ConfigurationException("The runtime request is not a: [" + requestClass + "] object");
+  public final FullHttpRequest nativeRequest() {
+    return request;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T nativeResponse() {
-    return (T) getResponse();
-  }
-
-  public final FullHttpRequest getRequest() {
-    return request;
-  }
-
-  public HttpHeaders originalResponseHeaders() {
-    HttpHeaders originalResponseHeaders = this.originalResponseHeaders;
-    if (originalResponseHeaders == null) {
-      final NettyRequestContextConfig config = this.config;
-      originalResponseHeaders = config.isSingleFieldHeaders()
-                                ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
-                                : new CombinedHttpHeaders(config.isValidateHeaders());
-      this.originalResponseHeaders = originalResponseHeaders;
-    }
-    return originalResponseHeaders;
-  }
-
-  public final FullHttpResponse getResponse() {
-    FullHttpResponse response = this.response;
+  public final FullHttpResponse nativeResponse() {
     if (response == null) {
-      final NettyRequestContextConfig config = this.config;
-      response = new DefaultFullHttpResponse(config.getHttpVersion(),
-                                             HttpResponseStatus.OK,
-                                             responseBody(),
-                                             originalResponseHeaders(),
-                                             config.getTrailingHeaders().get());
-      this.response = response;
+      this.response = new DefaultFullHttpResponse(
+              config.getHttpVersion(),
+              HttpResponseStatus.OK,
+              responseBody(),
+              originalResponseHeaders(),
+              config.getTrailingHeaders().get()
+      );
     }
     return response;
   }
 
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    final T ret = nativeResponse();
-    if (responseClass.isInstance(ret)) {
-      return ret;
+
+  public HttpHeaders originalResponseHeaders() {
+    if (originalResponseHeaders == null) {
+      this.originalResponseHeaders = config.isSingleFieldHeaders()
+              ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
+              : new CombinedHttpHeaders(config.isValidateHeaders());
     }
-    throw new ConfigurationException("The runtime response is not a: [" + responseClass + "] object");
+    return originalResponseHeaders;
+  }
+
+  @Override
+  @Nullable
+  public <T> T unwrapRequest(Class<T> requestClass) {
+    if (requestClass.isInstance(request)) {
+      return requestClass.cast(request);
+    }
+    return null;
+  }
+
+  @Nullable
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T unwrapResponse(Class<T> responseClass) {
+    Object ret = nativeResponse();
+    if (responseClass.isInstance(ret)) {
+      return (T) ret;
+    }
+    return null;
   }
 
   @Override
@@ -527,9 +510,9 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
     DefaultMultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
-    for (InterfaceHttpData data : getRequestDecoder().getBodyHttpDatas()) {
+    for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload) {
-        final String name = data.getName();
+        String name = data.getName();
         multipartFiles.add(name, new FileUploadMultipartFile((FileUpload) data));
       }
     }

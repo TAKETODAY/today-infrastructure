@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Autowired;
@@ -46,12 +47,12 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
 public class JstlTemplateRenderer extends AbstractTemplateRenderer {
 
   @Override
-  public void render(final String template, final RequestContext context) throws IOException {
-
+  public void render(String template, RequestContext context) throws IOException {
     HttpServletRequest request = ServletUtils.getServletRequest(context);
+    HttpServletResponse response = ServletUtils.getServletResponse(context);
     try {
       request.getRequestDispatcher(prepareTemplate(template))
-              .forward(request, context.nativeResponse());
+              .forward(request, response);
     }
     catch (ServletException e) {
       throw new InternalServerException(e);
@@ -63,13 +64,13 @@ public class JstlTemplateRenderer extends AbstractTemplateRenderer {
    */
   @Autowired
   public void afterPropertiesSet(WebServletApplicationContext context) {
-    final String jspServlet = "org.apache.jasper.servlet.JspServlet";
+    String jspServlet = "org.apache.jasper.servlet.JspServlet";
 
     if (!ClassUtils.isPresent(jspServlet)) {
       throw new ConfigurationException("You must provide: [" + jspServlet + "] to your application's class path");
     }
 
-    final ServletContext servletContext = context.getServletContext();
+    ServletContext servletContext = context.getServletContext();
 
     boolean register = true;
     for (Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations().entrySet()) {
@@ -86,7 +87,7 @@ public class JstlTemplateRenderer extends AbstractTemplateRenderer {
     }
 
     LoggerFactory.getLogger(getClass())
-            .info("Configuration Jstl Template View Resolver Success. prefix: [{}], suffix: [{}]", prefix, suffix);
+            .info("Jstl template view renderer configure success. prefix: [{}], suffix: [{}]", prefix, suffix);
   }
 
 }

@@ -38,7 +38,7 @@ public class NettyWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapte
   @Override
   protected void doHandshake(RequestContext context, WebSocketSession session, WebSocketHandler handler) {
     final NettyRequestContext nettyContext = (NettyRequestContext) context; // just cast
-    final FullHttpRequest request = nettyContext.getRequest();
+    final FullHttpRequest request = nettyContext.nativeRequest();
     final ChannelHandlerContext channelContext = nettyContext.getChannelContext();
     final WebSocketServerHandshakerFactory wsFactory
             = new WebSocketServerHandshakerFactory(request.uri(), null, true); // TODO subprotocols
