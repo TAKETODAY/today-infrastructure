@@ -42,16 +42,14 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   /**
    * Remove bean with the given name
    *
-   * @param name
-   *         bean name
+   * @param name bean name
    */
   void removeBean(String name);
 
   /**
    * Remove bean with the given bean class
    *
-   * @param beanClass
-   *         bean type
+   * @param beanClass bean type
    *
    * @since 4.0
    */
@@ -62,8 +60,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * <p>Any exception that arises during destruction should be caught
    * and logged instead of propagated to the caller of this method.
    *
-   * @param name
-   *         the bean name
+   * @param name the bean name
    *
    * @since 2.1.0
    */
@@ -75,20 +72,16 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * <p>Any exception that arises during destruction should be caught
    * and logged instead of propagated to the caller of this method.
    *
-   * @param beanName
-   *         the name of the bean definition
-   * @param beanInstance
-   *         the bean instance to destroy
+   * @param beanName the name of the bean definition
+   * @param beanInstance the bean instance to destroy
    */
   void destroyBean(String beanName, Object beanInstance);
 
   /**
    * Destroy a bean with bean instance and bean definition
    *
-   * @param beanInstance
-   *         Bean instance
-   * @param def
-   *         Bean definition
+   * @param beanInstance Bean instance
+   * @param def Bean definition
    *
    * @since 3.0
    */
@@ -97,8 +90,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   /**
    * initialize bean with given name
    *
-   * @param name
-   *         bean name
+   * @param name bean name
    *
    * @since 1.2.0
    */
@@ -107,8 +99,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   /**
    * initialize bean definition
    *
-   * @param beanDefinition
-   *         bean definition
+   * @param beanDefinition bean definition
    *
    * @return initialized object
    *
@@ -124,11 +115,9 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Typically invoked at the end of factory setup, if desired.
    * </p>
    *
-   * @throws BeansException
-   *         if one of the singleton beans could not be created.
-   *         Note: This may have left the factory with some beans already initialized!
-   * @throws Throwable
-   *         when could not initialize singletons
+   * @throws BeansException if one of the singleton beans could not be created.
+   * Note: This may have left the factory with some beans already initialized!
+   * @throws Throwable when could not initialize singletons
    * @since 2.1.2
    */
   void initializeSingletons() throws Throwable;
@@ -136,8 +125,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   /**
    * Add a {@link BeanPostProcessor}
    *
-   * @param beanPostProcessor
-   *         bean post processor instance
+   * @param beanPostProcessor bean post processor instance
    *
    * @since 2.1.2
    */
@@ -146,8 +134,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   /**
    * Remove a {@link BeanPostProcessor}
    *
-   * @param beanPostProcessor
-   *         bean post processor instance
+   * @param beanPostProcessor bean post processor instance
    *
    * @since 2.1.2
    */
@@ -173,10 +160,8 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   /**
    * Register the given scope, backed by the given Scope implementation.
    *
-   * @param name
-   *         scope name
-   * @param scope
-   *         The backing Scope implementation
+   * @param name scope name
+   * @param scope The backing Scope implementation
    *
    * @since 2.1.7
    */
@@ -188,8 +173,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Any exception that arises during destruction should be caught and logged
    * instead of propagated to the caller of this method.
    *
-   * @param beanName
-   *         the name of the scoped bean
+   * @param beanName the name of the scoped bean
    *
    * @since 2.1.7
    */
@@ -200,34 +184,34 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * <p>Note that the parent cannot be changed: It should only be set outside
    * a constructor if it isn't available at the time of factory instantiation.
    *
-   * @param parentBeanFactory
-   *         the parent BeanFactory
+   * @param parentBeanFactory the parent BeanFactory
    *
-   * @throws IllegalStateException
-   *         if this factory is already associated with
-   *         a parent BeanFactory
+   * @throws IllegalStateException if this factory is already associated with
+   * a parent BeanFactory
    * @see #getParentBeanFactory()
    * @since 4.0
    */
   void setParentBeanFactory(BeanFactory parentBeanFactory) throws IllegalStateException;
 
   /**
-	 * Register a special dependency type with corresponding autowired value.
-	 * <p>This is intended for factory/context references that are supposed
-	 * to be autowirable but are not defined as beans in the factory:
-	 * e.g. a dependency of type ApplicationContext resolved to the
-	 * ApplicationContext instance that the bean is living in.
-	 * <p>Note: There are no such default types registered in a plain BeanFactory,
-	 * not even for the BeanFactory interface itself.
-	 * @param dependencyType the dependency type to register. This will typically
-	 * be a base interface such as BeanFactory, with extensions of it resolved
-	 * as well if declared as an autowiring dependency (e.g. ListableBeanFactory),
-	 * as long as the given value actually implements the extended interface.
-	 * @param autowiredValue the corresponding autowired value. This may also be an
-	 * implementation of the {@link java.util.function.Supplier}
-	 * interface, which allows for lazy resolution of the actual target value.
-   *  @since 4.0
-	 */
-	void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
+   * Register a special dependency type with corresponding autowired value.
+   * <p>This is intended for factory/context references that are supposed
+   * to be autowirable but are not defined as beans in the factory:
+   * e.g. a dependency of type ApplicationContext resolved to the
+   * ApplicationContext instance that the bean is living in.
+   * <p>Note: There are no such default types registered in a plain BeanFactory,
+   * not even for the BeanFactory interface itself.
+   *
+   * @param dependencyType the dependency type to register. This will typically
+   * be a base interface such as BeanFactory, with extensions of it resolved
+   * as well if declared as an autowiring dependency (e.g. ListableBeanFactory),
+   * as long as the given value actually implements the extended interface.
+   * @param autowiredValue the corresponding autowired value. This may also be an
+   * implementation of the {@link java.util.function.Supplier}
+   * interface, which allows for lazy resolution of the actual target value.
+   *
+   * @since 4.0
+   */
+  void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
 
 }
