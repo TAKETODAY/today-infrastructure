@@ -21,13 +21,13 @@ package cn.taketoday.web.framework;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.AnnotationConfigRegistry;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.web.WebApplicationFailedEvent;
 import cn.taketoday.web.framework.server.WebServer;
 
 /**
@@ -47,8 +47,8 @@ public class WebApplication {
 
   public WebApplication(Class<?> startupClass, String... args) {
     context = ClassUtils.isPresent(Constant.ENV_SERVLET)
-              ? new ServletWebServerApplicationContext(startupClass, args)
-              : new StandardWebServerApplicationContext(startupClass, args);
+            ? new ServletWebServerApplicationContext(startupClass, args)
+            : new StandardWebServerApplicationContext(startupClass, args);
   }
 
   public WebApplication(WebServerApplicationContext context) {
@@ -62,10 +62,8 @@ public class WebApplication {
   /**
    * Startup Web Application
    *
-   * @param startupClass
-   *         Startup class
-   * @param args
-   *         Startup arguments
+   * @param startupClass Startup class
+   * @param args Startup arguments
    */
   public static WebServerApplicationContext run(Class<?> startupClass, String... args) {
     return new WebApplication(startupClass, args).run(args);
@@ -74,10 +72,8 @@ public class WebApplication {
   /**
    * Startup Reactive Web Application
    *
-   * @param startupClass
-   *         Startup class
-   * @param args
-   *         Startup arguments
+   * @param startupClass Startup class
+   * @param args Startup arguments
    */
   public static WebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
     return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run(args);
@@ -86,8 +82,7 @@ public class WebApplication {
   /**
    * Startup Web Application
    *
-   * @param args
-   *         Startup arguments
+   * @param args Startup arguments
    *
    * @return {@link WebServerApplicationContext}
    */
@@ -118,14 +113,14 @@ public class WebApplication {
       webServer.start();
 
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-               System.currentTimeMillis() - context.getStartupDate()//
+              System.currentTimeMillis() - context.getStartupDate()//
       );
       return context;
     }
     catch (Throwable e) {
-      e = ExceptionUtils.unwrapThrowable(e);
       context.close();
-      throw new ConfigurationException("Your Application Initialized ERROR: [" + e + "]", e);
+      context.publishEvent(new WebApplicationFailedEvent(context, e));
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
