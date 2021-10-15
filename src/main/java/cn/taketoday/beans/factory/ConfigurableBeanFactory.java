@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 
 /**
@@ -209,5 +210,24 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @since 4.0
    */
   void setParentBeanFactory(BeanFactory parentBeanFactory) throws IllegalStateException;
+
+  /**
+	 * Register a special dependency type with corresponding autowired value.
+	 * <p>This is intended for factory/context references that are supposed
+	 * to be autowirable but are not defined as beans in the factory:
+	 * e.g. a dependency of type ApplicationContext resolved to the
+	 * ApplicationContext instance that the bean is living in.
+	 * <p>Note: There are no such default types registered in a plain BeanFactory,
+	 * not even for the BeanFactory interface itself.
+	 * @param dependencyType the dependency type to register. This will typically
+	 * be a base interface such as BeanFactory, with extensions of it resolved
+	 * as well if declared as an autowiring dependency (e.g. ListableBeanFactory),
+	 * as long as the given value actually implements the extended interface.
+	 * @param autowiredValue the corresponding autowired value. This may also be an
+	 * implementation of the {@link java.util.function.Supplier}
+	 * interface, which allows for lazy resolution of the actual target value.
+   *  @since 4.0
+	 */
+	void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
 
 }

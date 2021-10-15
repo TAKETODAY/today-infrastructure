@@ -45,7 +45,6 @@ import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -660,16 +659,16 @@ public abstract class AbstractBeanFactory
    */
   protected BeanDefinition getPrimaryBeanDefinition(List<BeanDefinition> defs) {
     if (defs.size() > 1) {
-      log.info("Finding primary bean which annotated @Primary in {}", defs);
+      log.debug("Finding primary bean which annotated @Primary or primary flag is set, in {}", defs);
       ArrayList<BeanDefinition> primaries = new ArrayList<>(defs.size());
       for (BeanDefinition def : defs) {
-        if (def.isAnnotationPresent(Primary.class)) {
+        if (def.isPrimary()) {
           primaries.add(def);
         }
       }
       if (!primaries.isEmpty()) {
         AnnotationAwareOrderComparator.sort(primaries); // size > 1 sort
-        log.info("Found primary beans {} use first one", primaries);
+        log.debug("Found primary beans {} use first one", primaries);
         return primaries.get(0);
       }
       // not found sort bean-defs
@@ -689,7 +688,7 @@ public abstract class AbstractBeanFactory
    * @return A list of {@link BeanDefinition}s, Never be null
    */
   protected List<BeanDefinition> doGetChildDefinition(String beanName, Class<?> beanClass) {
-    HashSet<BeanDefinition> ret = new HashSet<>();
+    LinkedHashSet<BeanDefinition> ret = new LinkedHashSet<>();
 
     for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       BeanDefinition childDef = entry.getValue();
@@ -720,7 +719,7 @@ public abstract class AbstractBeanFactory
     if (CollectionUtils.isNotEmpty(objectFactories)) {
       Object objectFactory = objectFactories.get(ref.getReferenceClass());
       if (objectFactory != null) {
-        class DependencyBeanDefinition extends DefaultBeanDefinition {
+        final class DependencyBeanDefinition extends DefaultBeanDefinition {
 
           public DependencyBeanDefinition(String name, Class<?> beanClass) {
             super(name, beanClass);
@@ -798,9 +797,9 @@ public abstract class AbstractBeanFactory
   }
 
   /**
-   * Get {@link ObjectFactory}s
+   * Get object {@link Supplier}s
    *
-   * @return {@link ObjectFactory}s
+   * @return object {@link Supplier}s
    *
    * @since 2.3.7
    */
@@ -809,6 +808,11 @@ public abstract class AbstractBeanFactory
       objectFactories = createObjectFactories();
     }
     return objectFactories;
+  }
+
+  @Override
+  public void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
+    getObjectFactories().put(dependencyType, autowiredValue);
   }
 
   protected Map<Class<?>, Object> createObjectFactories() {

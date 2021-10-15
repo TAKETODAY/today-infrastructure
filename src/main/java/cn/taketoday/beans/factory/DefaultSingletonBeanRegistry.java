@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
-import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -95,14 +94,14 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    *
    * @param beanName
    *         the name of the bean
-   * @param singletonFactory
+   * @param singletonSupplier
    *         the ObjectFactory to lazily create the singleton
    *         with, if necessary
    *
    * @return the registered singleton object
    */
   @SuppressWarnings("unchecked")
-  public <T> T getSingleton(String beanName, ObjectFactory<T> singletonFactory) {
+  public <T> T getSingleton(String beanName, Supplier<T> singletonSupplier) {
     Assert.notNull(beanName, "Bean name must not be null");
     Object singletonObject = singletons.get(beanName);
     if (singletonObject == null) {
@@ -112,7 +111,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
           log.debug("Creating shared instance of singleton bean '{}'", beanName);
           beforeSingletonCreation(beanName);
           try {
-            singletonObject = singletonFactory.get();
+            singletonObject = singletonSupplier.get();
           }
           finally {
             afterSingletonCreation(beanName);

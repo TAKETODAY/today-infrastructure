@@ -24,8 +24,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.function.Supplier;
 
-import cn.taketoday.core.ObjectFactory;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
@@ -53,7 +53,7 @@ import cn.taketoday.lang.Configuration;
  * on injection points marked with {@link Autowired}
  * or {@link javax.inject.Inject}: In that context, it leads to the creation of a
  * lazy-resolution proxy for all affected dependencies, as an alternative to using
- * {@link ObjectFactory} or {@link javax.inject.Provider}.
+ * {@link Supplier} or {@link javax.inject.Provider}.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
