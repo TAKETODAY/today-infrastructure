@@ -49,11 +49,8 @@ public interface ConversionService {
    * whether this {@link ConversionService} supports to convert source object to
    * target class object
    *
-   * @param targetType
-   *         target class
-   * @param source
-   *         source object
-   *
+   * @param targetType target class
+   * @param source source object
    * @return whether this {@link ConversionService} supports to convert source object
    * to target class object
    */
@@ -67,11 +64,8 @@ public interface ConversionService {
    * If source object is {@code null} just returns {@code null}
    * </p>
    *
-   * @param source
-   *         source object
-   * @param targetClass
-   *         targetClass
-   *
+   * @param source source object
+   * @param targetClass targetClass
    * @return converted object
    */
   default <T> T convert(Object source, Class<T> targetClass) {
@@ -84,10 +78,8 @@ public interface ConversionService {
    * If source object is {@code null} just returns {@code null}
    * </p>
    *
-   * @param source
-   *         source object
-   * @param targetType
-   *         target class and generics info
+   * @param source source object
+   * @param targetType target class and generics info
    */
   <T> T convert(Object source, TypeDescriptor targetType);
 
@@ -101,11 +93,8 @@ public interface ConversionService {
   /**
    * Get Target {@link TypeConverter}
    *
-   * @param source
-   *         input source
-   * @param targetType
-   *         convert to target class
-   *
+   * @param source input source
+   * @param targetType convert to target class
    * @return TypeConverter
    */
   default TypeConverter getConverter(Object source, Class<?> targetType) {

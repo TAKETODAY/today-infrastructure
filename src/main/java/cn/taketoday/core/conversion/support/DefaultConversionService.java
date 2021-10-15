@@ -96,12 +96,12 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @Override
-  public <T> T convert(final Object source, final TypeDescriptor targetType) {
+  public <T> T convert(Object source, TypeDescriptor targetType) {
     if (source == null) {
       return convertNull(targetType);
     }
     Assert.notNull(targetType, "targetType must not be null");
-    final TypeConverter typeConverter = getConverter(source.getClass(), targetType);
+    TypeConverter typeConverter = getConverter(source.getClass(), targetType);
     if (typeConverter == null) {
       return handleConverterNotFound(source, targetType);
     }
@@ -126,7 +126,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> T convertNull(final TypeDescriptor targetType) {
+  protected <T> T convertNull(TypeDescriptor targetType) {
     return (T) nullMappings.get(targetType.getType());
   }
 
@@ -150,17 +150,14 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   /**
    * Get Target {@link TypeConverter}
    *
-   * @param sourceType
-   *         input sourceType
-   * @param targetType
-   *         convert to target class
-   *
+   * @param sourceType input sourceType
+   * @param targetType convert to target class
    * @return TypeConverter
    */
   @Override
-  public TypeConverter getConverter(final Class<?> sourceType, final TypeDescriptor targetType) {
-    final ConverterKey key = new ConverterKey(targetType, sourceType);
-    final TypeConverter typeConverter = converterMappings.get(key, targetType);
+  public TypeConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
+    ConverterKey key = new ConverterKey(targetType, sourceType);
+    TypeConverter typeConverter = converterMappings.get(key, targetType);
     if (typeConverter != NO_MATCH) {
       return typeConverter;
     }
@@ -170,10 +167,10 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   class ConverterMappings extends Mappings<TypeConverter, TypeDescriptor> {
 
     @Override
-    protected TypeConverter createValue(final Object key, final TypeDescriptor targetType) {
-      final Class<?> sourceType = ((ConverterKey) key).sourceType;
+    protected TypeConverter createValue(Object key, TypeDescriptor targetType) {
+      Class<?> sourceType = ((ConverterKey) key).sourceType;
 
-      for (final TypeConverter converter : converters) {
+      for (TypeConverter converter : converters) {
         if (converter.supports(targetType, sourceType)) {
           return converter;
         }
@@ -214,13 +211,11 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   /**
    * Add {@link TypeConverter} to {@link #converters}
    *
-   * @param converters
-   *         {@link TypeConverter} object
-   *
+   * @param converters {@link TypeConverter} object
    * @since 2.1.6
    */
   @Override
-  public void addConverters(@Nullable final TypeConverter... converters) {
+  public void addConverters(@Nullable TypeConverter... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       Collections.addAll(this.converters, converters);
       sort();
@@ -240,13 +235,11 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   /**
    * Add a list of {@link TypeConverter} to {@link #converters}
    *
-   * @param converters
-   *         {@link TypeConverter} object
-   *
+   * @param converters {@link TypeConverter} object
    * @since 2.1.6
    */
   @Override
-  public void addConverters(@Nullable final List<TypeConverter> converters) {
+  public void addConverters(@Nullable List<TypeConverter> converters) {
     if (CollectionUtils.isNotEmpty(converters)) {
       this.converters.addAll(converters);
       invalidateCache();
@@ -259,7 +252,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @Override
-  public void setConverters(@Nullable final TypeConverter... converters) {
+  public void setConverters(@Nullable TypeConverter... converters) {
     this.converters.clear();
     invalidateCache();
 
@@ -277,25 +270,25 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @Override
-  public void addConverters(final Converter<?, ?>... converters) {
+  public void addConverters(Converter<?, ?>... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
-      for (final Converter<?, ?> converter : converters) {
+      for (Converter<?, ?> converter : converters) {
         addConverter(converter);
       }
     }
   }
 
   @Override
-  public <S, T> void addConverter(final Converter<S, T> converter) {
+  public <S, T> void addConverter(Converter<S, T> converter) {
     if (converter instanceof TypeCapable) {
       addConverter((TypeCapable) converter, converter);
     }
     else {
       Assert.notNull(converter, "converter must not be null");
-      final Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(converter.getClass(), Converter.class);
+      Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(converter.getClass(), Converter.class);
       if (ObjectUtils.isNotEmpty(generics)) {
-        final Class<T> targetType = (Class<T>) generics[1];
-        final Class<S> sourceType = (Class<S>) generics[0];
+        Class<T> targetType = (Class<T>) generics[1];
+        Class<S> sourceType = (Class<S>) generics[0];
         addConverter(targetType, sourceType, converter);
       }
       else {
@@ -305,12 +298,12 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @SuppressWarnings({ "rawtypes" })
-  public void addConverter(final TypeCapable typeCapable, final Converter converter) {
+  public void addConverter(TypeCapable typeCapable, Converter converter) {
     Assert.notNull(converter, "converter must not be null");
-    final Class<?> targetType = typeCapable.getTargetType();
+    Class<?> targetType = typeCapable.getTargetType();
     Assert.state(targetType != null, "targetType must not be null");
 
-    final Class<?>[] sourceTypes = typeCapable.getSourceTypes();
+    Class<?>[] sourceTypes = typeCapable.getSourceTypes();
     if (sourceTypes == null) {
       addConverter(targetType, converter);
     }
@@ -324,10 +317,12 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   public <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
     ResolvableType type = ResolvableType.fromInstance(converter).as(Converter.class);
     if (type.hasGenerics()) {
-      final ResolvableType generic = type.getGeneric(0);
+      ResolvableType generic = type.getGeneric(0);
       addConverter(targetType, (Class<S>) generic.toClass(), converter);
     }
-    throw new IllegalArgumentException("can't register get converter's source class");
+    else {
+      throw new IllegalArgumentException("can't get converter's generics: " + converter);
+    }
   }
 
   @Override
@@ -356,12 +351,9 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   /**
    * Add converters appropriate for most environments.
    *
-   * @param registry
-   *         the registry of converters to add to
-   *         (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
-   *
-   * @throws ClassCastException
-   *         if the given ConverterRegistry could not be cast to a ConversionService
+   * @param registry the registry of converters to add to
+   * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
+   * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
    */
   public static void addDefaultConverters(ConverterRegistry registry) {
     addScalarConverters(registry);
@@ -388,12 +380,9 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   /**
    * Add common collection converters.
    *
-   * @param registry
-   *         the registry of converters to add to
-   *         (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
-   *
-   * @throws ClassCastException
-   *         if the given ConverterRegistry could not be cast to a ConversionService
+   * @param registry the registry of converters to add to
+   * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
+   * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
    */
   public static void addCollectionConverters(ConverterRegistry registry) {
     ConversionService conversionService = (ConversionService) registry;
@@ -494,7 +483,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> source) {
 
-      final Class<?> targetClass;
+      Class<?> targetClass;
       if (targetType.isArray()) {
         targetClass = targetType.getComponentType();
       }
@@ -546,7 +535,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
       if (targetType.is(this.targetType)) {
-        for (final Class<?> type : this.sourceTypes) {
+        for (Class<?> type : this.sourceTypes) {
           if (type == sourceType || ClassUtils.isAssignable(type, sourceType)) {
             return true;
           }
@@ -575,7 +564,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     }
 
     @Override
-    public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
+    public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
       return targetType.is(this.targetType) && (
               this.sourceType == sourceType || this.sourceType.isAssignableFrom(sourceType)
       );
