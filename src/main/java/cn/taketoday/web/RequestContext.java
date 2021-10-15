@@ -19,6 +19,26 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.core.EmptyObject;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.io.InputStreamSource;
+import cn.taketoday.core.io.OutputStreamSource;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
+import cn.taketoday.web.annotation.PathVariable;
+import cn.taketoday.web.http.DefaultHttpHeaders;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.view.Model;
+import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.ModelAttributes;
+
 import java.io.BufferedReader;
 import java.io.Flushable;
 import java.io.IOException;
@@ -33,25 +53,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import cn.taketoday.core.EmptyObject;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.io.InputStreamSource;
-import cn.taketoday.core.io.OutputStreamSource;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
-import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.http.DefaultHttpHeaders;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelAttributes;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
@@ -122,10 +123,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * indicates the context of the request
    */
   public String getContextPath() {
-    String contextPath = this.contextPath;
     if (contextPath == null) {
-      contextPath = doGetContextPath();
-      this.contextPath = contextPath;
+      this.contextPath = doGetContextPath();
     }
     return contextPath;
   }
@@ -161,10 +160,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * protocol name up to the query string
    */
   public String getRequestPath() {
-    String requestPath = this.requestPath;
     if (requestPath == null) {
-      requestPath = doGetRequestPath();
-      this.requestPath = requestPath;
+      this.requestPath = doGetRequestPath();
     }
     return requestPath;
   }
@@ -189,10 +186,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * not decoded by the container.
    */
   public String getQueryString() {
-    String queryString = this.queryString;
     if (queryString == null) {
-      queryString = doGetQueryString();
-      this.queryString = queryString;
+      this.queryString = doGetQueryString();
     }
     return queryString;
   }
@@ -208,10 +203,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
   public HttpCookie[] getCookies() {
-    HttpCookie[] cookies = this.cookies;
     if (cookies == null) {
-      cookies = doGetCookies();
-      this.cookies = cookies;
+      this.cookies = doGetCookies();
     }
     return cookies;
   }
@@ -234,8 +227,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @since 2.3.7
    */
-  public HttpCookie getCookie(final String name) {
-    for (final HttpCookie cookie : getCookies()) {
+  @Nullable
+  public HttpCookie getCookie(String name) {
+    for (HttpCookie cookie : getCookies()) {
       if (Objects.equals(name, cookie.getName())) {
         return cookie;
       }
@@ -255,10 +249,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   public ArrayList<HttpCookie> responseCookies() {
-    ArrayList<HttpCookie> responseCookies = this.responseCookies;
     if (responseCookies == null) {
-      responseCookies = new ArrayList<>();
-      this.responseCookies = responseCookies;
+      this.responseCookies = new ArrayList<>();
     }
     return responseCookies;
   }
@@ -275,17 +267,15 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * values in the parameter map are of type String array.
    */
   public Map<String, String[]> getParameters() {
-    Map<String, String[]> parameters = this.parameters;
     if (parameters == null) {
-      parameters = doGetParameters();
-      this.parameters = parameters;
+      this.parameters = doGetParameters();
     }
     return parameters;
   }
 
   protected Map<String, String[]> doGetParameters() {
-    final String queryString = StringUtils.decodeURL(getQueryString());
-    final MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
+    String queryString = StringUtils.decodeURL(getQueryString());
+    MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
     postGetParameters(parameters);
     if (!parameters.isEmpty()) {
       return parameters.toArrayMap(String[]::new);
@@ -307,7 +297,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * empty <code>Iterator</code> if the request has no parameters
    */
   public Iterator<String> getParameterNames() {
-    final Map<String, String[]> parameters = getParameters();
+    Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return Collections.emptyIterator();
     }
@@ -331,8 +321,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @see #getParameters()
    */
+  @Nullable
   public String[] getParameters(String name) {
-    final Map<String, String[]> parameters = getParameters();
+    Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;
     }
@@ -367,8 +358,9 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @see #getParameters(String)
    */
+  @Nullable
   public String getParameter(String name) {
-    final String[] parameters = getParameters(name);
+    String[] parameters = getParameters(name);
     if (ObjectUtils.isNotEmpty(parameters)) {
       return parameters[0];
     }
@@ -383,10 +375,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * this request was made
    */
   public final String getMethod() {
-    String method = this.method;
     if (method == null) {
-      method = doGetMethod();
-      this.method = method;
+      this.method = doGetMethod();
     }
     return method;
   }
@@ -426,10 +416,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    InputStream inputStream = this.inputStream;
     if (inputStream == null) {
-      inputStream = doGetInputStream();
-      this.inputStream = inputStream;
+      this.inputStream = doGetInputStream();
     }
     return inputStream;
   }
@@ -453,10 +441,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   @Override
   public BufferedReader getReader() throws IOException {
-    BufferedReader reader = this.reader;
     if (reader == null) {
-      reader = doGetReader();
-      this.reader = reader;
+      this.reader = doGetReader();
     }
     return reader;
   }
@@ -471,10 +457,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * Get all {@link MultipartFile}s from current request
    */
   public MultiValueMap<String, MultipartFile> multipartFiles() {
-    MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
-      multipartFiles = parseMultipartFiles();
-      this.multipartFiles = multipartFiles;
+      this.multipartFiles = parseMultipartFiles();
     }
     return multipartFiles;
   }
@@ -506,11 +490,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * @since 3.0
    */
   public HttpHeaders requestHeaders() {
-    HttpHeaders ret = this.requestHeaders;
-    if (ret == null) {
-      this.requestHeaders = ret = createRequestHeaders();
+    if (requestHeaders == null) {
+      this.requestHeaders = createRequestHeaders();
     }
-    return ret;
+    return requestHeaders;
   }
 
   /**
@@ -530,12 +513,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * {@link ApplicationNotStartedContext}
    */
   public ModelAndView modelAndView() {
-    ModelAndView ret = this.modelAndView;
-    if (ret == null) {
-      ret = new ModelAndView(this);
-      this.modelAndView = ret;
+    if (modelAndView == null) {
+      this.modelAndView = new ModelAndView(this);
     }
-    return ret;
+    return modelAndView;
   }
 
   /**
@@ -742,10 +723,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   @Override
   public OutputStream getOutputStream() throws IOException {
-    OutputStream outputStream = this.outputStream;
     if (outputStream == null) {
-      outputStream = doGetOutputStream();
-      this.outputStream = outputStream;
+      this.outputStream = doGetOutputStream();
     }
     return outputStream;
   }
@@ -774,10 +753,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   @Override
   public PrintWriter getWriter() throws IOException {
-    PrintWriter writer = this.writer;
     if (writer == null) {
-      writer = doGetWriter();
-      this.writer = writer;
+      this.writer = doGetWriter();
     }
     return writer;
   }
@@ -818,11 +795,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * @since 3.0
    */
   public HttpHeaders responseHeaders() {
-    HttpHeaders ret = this.responseHeaders;
-    if (ret == null) {
-      this.responseHeaders = ret = createResponseHeaders();
+    if (responseHeaders == null) {
+      this.responseHeaders = createResponseHeaders();
     }
-    return ret;
+    return responseHeaders;
   }
 
   /**
@@ -889,10 +865,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * @since 3.0
    */
   private Model obtainModel() {
-    Model model = this.model;
     if (model == null) {
-      model = createModel();
-      this.model = model;
+      this.model = createModel();
     }
     return model;
   }
@@ -954,12 +928,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   @Override
   public void flush() throws IOException {
-    final PrintWriter writer = this.writer;
     if (writer != null) {
       writer.flush();
     }
     else {
-      final OutputStream outputStream = this.outputStream;
       if (outputStream != null) {
         outputStream.flush();
       }
@@ -970,11 +942,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * cleanup multipart in this request context
    */
   public void cleanupMultipartFiles() {
-    final MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
     if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
-        final List<MultipartFile> value = entry.getValue();
-        for (final MultipartFile multipartFile : value) {
+      for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
+        List<MultipartFile> value = entry.getValue();
+        for (MultipartFile multipartFile : value) {
           try {
             multipartFile.delete();
           }
