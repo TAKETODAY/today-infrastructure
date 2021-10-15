@@ -19,6 +19,13 @@
  */
 package cn.taketoday.web.http;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -47,12 +54,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -618,8 +619,8 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguageAsLocales(List<Locale> locales) {
     setAcceptLanguage(locales.stream()
-                              .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
-                              .collect(Collectors.toList()));
+            .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
+            .collect(Collectors.toList()));
   }
 
   /**
@@ -706,7 +707,7 @@ public abstract class HttpHeaders
    * Return the value of the {@code Access-Control-Allow-Methods} response header.
    */
   public List<HttpMethod> getAccessControlAllowMethods() {
-    List<HttpMethod> result = new ArrayList<>();
+    ArrayList<HttpMethod> result = new ArrayList<>();
     String value = getFirst(ACCESS_CONTROL_ALLOW_METHODS);
     if (value != null) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
@@ -799,6 +800,7 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Access-Control-Request-Method} request header.
    */
+  @Nullable
   public HttpMethod getAccessControlRequestMethod() {
     final String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
     if (StringUtils.isEmpty(first)) {
@@ -1051,8 +1053,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-           ? ContentDisposition.parse(contentDisposition)
-           : ContentDisposition.empty();
+            ? ContentDisposition.parse(contentDisposition)
+            : ContentDisposition.empty();
   }
 
   /**
@@ -1077,6 +1079,7 @@ public abstract class HttpHeaders
    * content languages.
    * </p>
    */
+  @Nullable
   public Locale getContentLanguage() {
     return getValuesAsList(CONTENT_LANGUAGE)
             .stream()
@@ -1125,6 +1128,7 @@ public abstract class HttpHeaders
    * <p>
    * Returns {@code null} when the content-type is unknown.
    */
+  @Nullable
   public MediaType getContentType() {
     String value = getFirst(CONTENT_TYPE);
     return (StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null);
@@ -1189,6 +1193,7 @@ public abstract class HttpHeaders
   /**
    * Return the entity tag of the body, as specified by the {@code ETag} header.
    */
+  @Nullable
   public String getETag() {
     return getFirst(ETAG);
   }
@@ -1261,6 +1266,7 @@ public abstract class HttpHeaders
    * {@linkplain InetSocketAddress#getPort() port} in the returned address will be
    * {@code 0}.
    */
+  @Nullable
   public InetSocketAddress getHost() {
     String value = getFirst(HOST);
     if (value == null) {
@@ -1269,7 +1275,9 @@ public abstract class HttpHeaders
 
     String host = null;
     int port = 0;
-    int separator = (value.startsWith("[") ? value.indexOf(':', value.indexOf(']')) : value.lastIndexOf(':'));
+    int separator = StringUtils.matchesFirst(value, '[')
+            ? value.indexOf(':', value.indexOf(']'))
+            : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);
@@ -1459,6 +1467,7 @@ public abstract class HttpHeaders
    * <p>
    * Returns {@code null} when the location is unknown.
    */
+  @Nullable
   public URI getLocation() {
     String value = getFirst(LOCATION);
     return (value != null ? URI.create(value) : null);
@@ -1474,6 +1483,7 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Origin} header.
    */
+  @Nullable
   public String getOrigin() {
     return getFirst(ORIGIN);
   }
@@ -1488,6 +1498,7 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Pragma} header.
    */
+  @Nullable
   public String getPragma() {
     return getFirst(PRAGMA);
   }
@@ -1502,6 +1513,7 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Upgrade} header.
    */
+  @Nullable
   public String getUpgrade() {
     return getFirst(UPGRADE);
   }
@@ -1516,6 +1528,18 @@ public abstract class HttpHeaders
    */
   public void setVary(List<String> requestHeaders) {
     set(VARY, StringUtils.collectionToString(requestHeaders, ", "));
+  }
+
+  /**
+   * Set the request header names (e.g. "Accept-Language") for which the response
+   * is subject to content negotiation and variances based on the value of those
+   * request headers.
+   *
+   * @param requestHeaders
+   *         the request header names
+   */
+  public void setVary(String... requestHeaders) {
+    set(VARY, StringUtils.arrayToString(requestHeaders, ", "));
   }
 
   /**
@@ -1602,6 +1626,7 @@ public abstract class HttpHeaders
    *
    * @return the parsed date header, or {@code null} if none
    */
+  @Nullable
   public ZonedDateTime getFirstZonedDateTime(String headerName) {
     return getFirstZonedDateTime(headerName, true);
   }
@@ -1621,6 +1646,7 @@ public abstract class HttpHeaders
    *
    * @return the parsed date header, or {@code null} if none (or invalid)
    */
+  @Nullable
   public ZonedDateTime getFirstZonedDateTime(String headerName, boolean rejectInvalid) {
     String headerValue = getFirst(headerName);
     if (headerValue == null) {
@@ -1733,6 +1759,7 @@ public abstract class HttpHeaders
    *
    * @return the combined result
    */
+  @Nullable
   public String getFieldValues(String headerName) {
     List<String> headerValues = get(headerName);
     return (headerValues != null ? collectionToString(headerValues) : null);
@@ -1769,6 +1796,7 @@ public abstract class HttpHeaders
    *
    * @return the first header value, or {@code null} if none
    */
+  @Nullable
   @Override
   public abstract String getFirst(String headerName);
 
@@ -1815,9 +1843,11 @@ public abstract class HttpHeaders
     values.forEach(this::set);
   }
 
+  @Nullable
   @Override
   public abstract List<String> get(Object headerName);
 
+  @Nullable
   @Override
   public abstract List<String> remove(Object headerName);
 
@@ -1843,8 +1873,8 @@ public abstract class HttpHeaders
             .map(entry -> {
               List<String> values = entry.getValue();
               return entry.getKey() + ":" + (values.size() == 1 ?
-                                             "\"" + values.get(0) + "\"" :
-                                             values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                      "\"" + values.get(0) + "\"" :
+                      values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }
@@ -1889,7 +1919,7 @@ public abstract class HttpHeaders
     return new String(encodedBytes, charset);
   }
 
-  public static DefaultHttpHeaders of() {
+  public static DefaultHttpHeaders create() {
     return new DefaultHttpHeaders();
   }
 

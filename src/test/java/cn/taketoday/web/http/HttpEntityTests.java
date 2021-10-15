@@ -46,7 +46,7 @@ public class HttpEntityTests {
 
   @Test
   public void httpHeaders() {
-    HttpHeaders headers = HttpHeaders.of();
+    HttpHeaders headers = HttpHeaders.create();
     headers.setContentType(MediaType.TEXT_PLAIN);
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body, headers);
@@ -91,7 +91,7 @@ public class HttpEntityTests {
 
   @Test
   public void responseEntity() {
-    HttpHeaders headers = HttpHeaders.of();
+    HttpHeaders headers = HttpHeaders.create();
     headers.setContentType(MediaType.TEXT_PLAIN);
     String body = "foo";
     HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);

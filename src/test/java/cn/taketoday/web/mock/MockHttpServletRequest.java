@@ -821,7 +821,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   private void updateAcceptLanguageHeader() {
-    HttpHeaders headers = HttpHeaders.of();
+    HttpHeaders headers = HttpHeaders.create();
     headers.setAcceptLanguageAsLocales(this.locales);
     doAddHeaderValue(HttpHeaders.ACCEPT_LANGUAGE, headers.getFirst(HttpHeaders.ACCEPT_LANGUAGE), true);
   }
@@ -1043,7 +1043,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     else if (HttpHeaders.ACCEPT_LANGUAGE.equalsIgnoreCase(name) &&
             !this.headers.containsKey(HttpHeaders.ACCEPT_LANGUAGE)) {
       try {
-        HttpHeaders headers = HttpHeaders.of();
+        HttpHeaders headers = HttpHeaders.create();
         headers.add(HttpHeaders.ACCEPT_LANGUAGE, value.toString());
         List<Locale> locales = headers.getAcceptLanguageAsLocales();
         this.locales.clear();

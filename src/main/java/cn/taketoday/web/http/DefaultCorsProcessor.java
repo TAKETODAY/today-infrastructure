@@ -19,17 +19,16 @@
  */
 package cn.taketoday.web.http;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The default implementation of {@link CorsProcessor}, as defined by the
@@ -52,10 +51,9 @@ public class DefaultCorsProcessor implements CorsProcessor {
   public boolean process(CorsConfiguration config, RequestContext context) throws IOException {
     HttpHeaders responseHeaders = context.responseHeaders();
     responseHeaders.setVary(
-            Arrays.asList(HttpHeaders.ORIGIN,
-                          HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
-                          HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
-            )
+            HttpHeaders.ORIGIN,
+            HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
+            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
     );
 
     if (!WebUtils.isCorsRequest(context)) {
