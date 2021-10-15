@@ -96,7 +96,7 @@ public class NettyRequestContext extends RequestContext {
 
   private FullHttpResponse response;
 
-  private final int queryStringIndex; // optimize
+  private final int queryStringIndex; // for optimize
 
   public NettyRequestContext(
           ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
@@ -359,7 +359,6 @@ public class NettyRequestContext extends RequestContext {
               .addListener(ChannelFutureListener.CLOSE);
     }
 
-    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }

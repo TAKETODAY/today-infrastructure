@@ -1,8 +1,5 @@
 package cn.taketoday.web.framework.reactive;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
@@ -21,6 +18,9 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handle websocket request and http request
@@ -52,10 +52,8 @@ public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
   /**
    * Handle websocket request
    *
-   * @param ctx
-   *         ChannelHandlerContext
-   * @param frame
-   *         WebSocket Request
+   * @param ctx ChannelHandlerContext
+   * @param frame WebSocket Request
    */
   private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
     final Channel channel = ctx.channel();
@@ -69,19 +67,19 @@ public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
       socketHandler.onClose(webSocketSession, closeStatus);
       channel.writeAndFlush(frame)
               .addListener(ChannelFutureListener.CLOSE);
-      return;
     }
-    final Message<?> message = getMessage(frame);
-    if (message != null) {
-      socketHandler.handleMessage(webSocketSession, message);
+    else {
+      final Message<?> message = getMessage(frame);
+      if (message != null) {
+        socketHandler.handleMessage(webSocketSession, message);
+      }
     }
   }
 
   /**
    * Adapt WebSocketFrame to {@link Message}
    *
-   * @param frame
-   *         WebSocketFrame
+   * @param frame WebSocketFrame
    *
    * @return websocket message
    */

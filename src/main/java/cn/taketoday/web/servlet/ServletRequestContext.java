@@ -143,7 +143,7 @@ public final class ServletRequestContext extends RequestContext {
   protected HttpCookie[] doGetCookies() {
 
     final Cookie[] servletCookies = request.getCookies();
-    if (ObjectUtils.isEmpty(servletCookies)) { // there is not cookies
+    if (ObjectUtils.isEmpty(servletCookies)) { // there is no cookies
       return EMPTY_COOKIES;
     }
     final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
@@ -272,12 +272,11 @@ public final class ServletRequestContext extends RequestContext {
    */
   @Override
   protected HttpHeaders createRequestHeaders() {
-    final HttpServletRequest servletRequest = this.request;
     final DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-    final Enumeration<String> headerNames = servletRequest.getHeaderNames();
+    final Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {
       final String name = headerNames.nextElement();
-      final Enumeration<String> headers = servletRequest.getHeaders(name);
+      final Enumeration<String> headers = request.getHeaders(name);
       httpHeaders.addAll(name, headers);
     }
     return httpHeaders;
@@ -340,7 +339,6 @@ public final class ServletRequestContext extends RequestContext {
     @Override
     public void putAll(Map<? extends String, ? extends List<String>> map) {
       super.putAll(map);
-      final HttpServletResponse response = this.response;
       for (final Entry<? extends String, ? extends List<String>> entry : map.entrySet()) {
         doPut(entry.getKey(), entry.getValue(), response);
       }
@@ -409,7 +407,6 @@ public final class ServletRequestContext extends RequestContext {
     @Override
     public void clear() {
       super.clear();
-      final HttpServletRequest request = ServletRequestContext.this.request;
       Enumeration<String> attributeNames = request.getAttributeNames();
       while (attributeNames.hasMoreElements()) {
         final String name = attributeNames.nextElement();
