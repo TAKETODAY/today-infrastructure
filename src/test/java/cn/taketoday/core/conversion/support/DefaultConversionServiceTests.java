@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.conversion.support;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -69,7 +70,8 @@ class DefaultConversionServiceTests {
 
   private final DefaultConversionService conversionService = new DefaultConversionService();
 
-  {
+  @BeforeEach
+  void before() {
     DefaultConversionService.addDefaultConverters(conversionService);
   }
 
@@ -389,8 +391,8 @@ class DefaultConversionServiceTests {
 
     ConverterRegistry registry = conversionService;
     registry.addConverter(new ColorConverter());
-    final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
-    final TypeDescriptor descriptor = TypeDescriptor.forParameter(handlerMethod, 0);
+    Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
+    TypeDescriptor descriptor = TypeDescriptor.forParameter(handlerMethod, 0);
 
     List<Color> colors = conversionService.convert(new String[] { "ffffff", "#000000" }, descriptor);
 
@@ -1002,7 +1004,8 @@ class DefaultConversionServiceTests {
 
   public Object assignableTarget;
 
-  void handlerMethod(List<Color> color) {
+  public void handlerMethod(List<Color> color) {
+
   }
 
   public enum Foo {
