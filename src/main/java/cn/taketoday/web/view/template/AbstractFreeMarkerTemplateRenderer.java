@@ -19,12 +19,6 @@
  */
 package cn.taketoday.web.view.template;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
@@ -51,6 +45,12 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.Version;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Abstract FreeMarker template-renderer
@@ -293,11 +293,10 @@ public abstract class AbstractFreeMarkerTemplateRenderer
         if (parameter.isInstance(wrappedObject)) {
           return wrappedObject;
         }
-        throw new ConfigurationException("Not a instance of: " + parameter.getParameterClass());
+        throw new IllegalStateException("Not a instance of: " + parameter.getParameterClass());
       }
-
       if (parameter.isRequired()) {
-        throw new ConfigurationException("There is no shared variable named: ".concat(parameter.getName()));
+        throw new IllegalStateException("There is no shared variable named: ".concat(parameter.getName()));
       }
       return DefaultConversionService.getSharedInstance()
               .convert(parameter.getDefaultValue(), parameter.getTypeDescriptor());

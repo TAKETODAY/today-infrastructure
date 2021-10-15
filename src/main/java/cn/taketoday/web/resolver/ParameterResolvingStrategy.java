@@ -31,6 +31,7 @@ import cn.taketoday.web.handler.MethodParameter;
  *
  * @author TODAY 2019-07-07 23:24
  * @see MethodParameter
+ * @see MethodParameterResolvingException
  */
 public interface ParameterResolvingStrategy {
 
@@ -54,6 +55,7 @@ public interface ParameterResolvingStrategy {
    *
    * @throws Throwable
    *         if any {@link Exception} occurred
+   * @see MethodParameterResolvingException
    */
   @Nullable
   Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;

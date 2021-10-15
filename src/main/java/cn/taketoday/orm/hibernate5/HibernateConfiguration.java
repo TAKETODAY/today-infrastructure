@@ -88,7 +88,7 @@ public class HibernateConfiguration extends Configuration
       dataSource = context.getBean(DataSource.class);
     }
     if (dataSource == null) {
-      throw new ConfigurationException("You must provide a javax.sql.DataSource bean");
+      throw new ConfigurationException("You must provide a javax.sql.DataSource bean in " + context);
     }
     return dataSource;
   }

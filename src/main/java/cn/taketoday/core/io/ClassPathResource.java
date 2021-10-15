@@ -29,7 +29,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -200,7 +199,7 @@ public class ClassPathResource implements Resource, WritableResource {
     if (resource instanceof OutputStreamSource) {
       return ((OutputStreamSource) resource).writableChannel();
     }
-    throw new ConfigurationException("Writable operation is not supported");
+    throw new UnsupportedOperationException("Writable operation is not supported");
   }
 
   @Override

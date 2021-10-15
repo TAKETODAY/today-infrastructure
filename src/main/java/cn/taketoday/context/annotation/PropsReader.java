@@ -43,7 +43,6 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionService;
@@ -144,7 +143,7 @@ public class PropsReader {
     if (annotated instanceof Method) {
       return ((Method) annotated).getReturnType();
     }
-    throw new ConfigurationException("Not support annotated element: [" + annotated + "]");
+    throw new UnsupportedOperationException("Not support annotated element: [" + annotated + "]");
   }
 
   public Object read(Field declaredField, Props props) {

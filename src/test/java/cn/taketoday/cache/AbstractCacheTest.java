@@ -19,6 +19,7 @@
  */
 package cn.taketoday.cache;
 
+import cn.taketoday.lang.NullValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -115,19 +116,19 @@ public abstract class AbstractCacheTest {
 
     final Object nullValue = cache.doGet("null");
     assertNotNull(nullValue);
-    assertEquals(nullValue, NullCacheValue.INSTANCE);
+    assertEquals(nullValue, NullValue.INSTANCE);
   }
 
   @Test
   public void testToStoreValue() {
-    assertEquals(Cache.toStoreValue(null), NullCacheValue.INSTANCE);
+    assertEquals(Cache.toStoreValue(null), NullValue.INSTANCE);
     assertEquals(Cache.toStoreValue("null"), "null");
   }
 
   @Test
   public void testToRealValue() {
     assertNull(Cache.toRealValue(null));
-    assertNull(Cache.toRealValue(NullCacheValue.INSTANCE));
+    assertNull(Cache.toRealValue(NullValue.INSTANCE));
     assertEquals(Cache.toRealValue("null"), "null");
   }
 

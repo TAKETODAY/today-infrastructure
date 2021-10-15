@@ -20,40 +20,41 @@
 
 package cn.taketoday.context.annotation.autowire;
 
-import java.lang.reflect.Parameter;
-import java.util.Collection;
-import java.util.Map;
-
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+
+import java.lang.reflect.Parameter;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author TODAY 2020/10/11 21:54
  * @since 3.0
  */
-public class CollectionArgumentsResolver
-        extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy {
+public class CollectionArgumentsResolver implements ArgumentsResolvingStrategy {
 
+  @Nullable
   @Override
-  protected boolean supportsInternal(Parameter parameter, ArgumentsResolvingContext context) {
-    return Collection.class.isAssignableFrom(parameter.getType());
-  }
-
-  @Override
-  protected Object resolveInternal(
-          Parameter parameter, BeanFactory beanFactory, ArgumentsResolvingContext resolvingContext) {
-    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
-    if (parameterType.hasGenerics()) {
-      final ResolvableType type = parameterType.asCollection().getGeneric(0);
-      final Map<String, ?> beans = beanFactory.getBeansOfType(type.toClass());
-      final Collection<Object> objects = CollectionUtils.createCollection(parameter.getType(), beans.size());
-      objects.addAll(beans.values());
-      return objects;
+  public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+    if (Collection.class.isAssignableFrom(parameter.getType())) {
+      BeanFactory beanFactory = resolvingContext.getBeanFactory();
+      if (beanFactory != null) {
+        ResolvableType parameterType = ResolvableType.fromParameter(parameter);
+        if (parameterType.hasGenerics()) {
+          ResolvableType type = parameterType.asCollection().getGeneric(0);
+          Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);
+          Collection<Object> objects = CollectionUtils.createCollection(parameter.getType(), beans.size());
+          if (beans.isEmpty()) {
+            objects.addAll(beans.values());
+          }
+          return objects;
+        }
+      }
     }
-    throw new ConfigurationException("Not Support " + parameter);
+    return null;
   }
 }

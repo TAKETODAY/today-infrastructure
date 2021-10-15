@@ -19,24 +19,26 @@
  */
 package cn.taketoday.context.annotation;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Parameter;
-
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Parameter;
+
 /**
  * Resolve {@link Autowired} on {@link Parameter}
  *
  * @author TODAY 2019-10-28 20:27
+ * @see Required
  */
 public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
 
@@ -51,25 +53,28 @@ public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
       if (parameter.isAnnotationPresent(Props.class)) {
         bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
       }
-      if (bean == null && isRequired(parameter, autowired)) { // if it is required
-        NoSuchBeanDefinitionException noSuchBean = new NoSuchBeanDefinitionException(parameter.getType());
-        LoggerFactory.getLogger(AutowiredArgumentsResolver.class)//
-                .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
-                       parameter, parameter.getDeclaringExecutable(), parameter.getType(), noSuchBean);
-        throw noSuchBean;
+      if (bean == null) {
+        if (isRequired(parameter, autowired)) { // if it is required
+          NoSuchBeanDefinitionException noSuchBean = new NoSuchBeanDefinitionException(parameter.getType());
+          LoggerFactory.getLogger(AutowiredArgumentsResolver.class)//
+                  .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
+                          parameter, parameter.getDeclaringExecutable(), parameter.getType(), noSuchBean);
+          throw noSuchBean;
+        }
+        return NullValue.INSTANCE; // not required
       }
       return bean;
     }
-    return null;
+    return null; // next resolver
   }
 
   // @since 3.0 Required
-  public static boolean isRequired(AnnotatedElement element, Autowired autowired) {
+  public static boolean isRequired(AnnotatedElement element, @Nullable Autowired autowired) {
     return (autowired == null || autowired.required())
             || AnnotationUtils.isPresent(element, Required.class);
   }
 
-  protected Object resolveBean(String name, Class<?> type, BeanFactory beanFactory) {
+  protected Object resolveBean(@Nullable String name, Class<?> type, BeanFactory beanFactory) {
     if (StringUtils.isNotEmpty(name)) {
       // use name and bean type to get bean
       return beanFactory.getBean(name, type);
@@ -77,7 +82,7 @@ public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
     return beanFactory.getBean(type);
   }
 
-  protected Object resolvePropsInternal(Parameter parameter, Props props, Object bean) {
+  protected Object resolvePropsInternal(Parameter parameter, Props props, @Nullable Object bean) {
     PropsReader propsReader = new PropsReader();
     if (bean != null) {
       return propsReader.read(props, bean);

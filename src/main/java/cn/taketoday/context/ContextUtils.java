@@ -19,6 +19,13 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,14 +36,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * ApplicationContext Utils
@@ -56,13 +55,11 @@ public abstract class ContextUtils {
   /**
    * Scan classes set from META-INF/xxx
    *
-   * @param resource
-   *         Resource file start with 'META-INF'
+   * @param resource Resource file start with 'META-INF'
    *
    * @return Class set from META-INF/xxx
    *
-   * @throws ApplicationContextException
-   *         If any {@link IOException} occurred
+   * @throws ApplicationContextException If any {@link IOException} occurred
    */
   public static Set<Class<?>> loadFromMetaInfo(final String resource) {
     Assert.notNull(resource, "META-INF resource must not be null");
@@ -71,6 +68,9 @@ public abstract class ContextUtils {
 
       Set<Class<?>> ret = new HashSet<>();
       ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+      if (classLoader == null) {
+        classLoader = ContextUtils.class.getClassLoader();
+      }
       Charset charset = Constant.DEFAULT_CHARSET;
       try {
         Enumeration<URL> resources = classLoader.getResources(resource);
@@ -78,7 +78,7 @@ public abstract class ContextUtils {
           URL url = resources.nextElement();
           String className = null;
           try (BufferedReader reader = //
-                  new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
+                       new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
             while ((className = reader.readLine()) != null) {
               if (StringUtils.isNotEmpty(className)) { // @since 3.0 FIX empty lines
@@ -87,7 +87,7 @@ public abstract class ContextUtils {
             }
           }
           catch (ClassNotFoundException e) {
-            throw new ConfigurationException("Class file: '" + className + "' not in " + url);
+            throw new IllegalStateException("Class file: '" + className + "' not in " + url);
           }
         }
         return ret;
@@ -96,19 +96,17 @@ public abstract class ContextUtils {
         throw new ApplicationContextException("Exception occurred when load from '" + resource + '\'', e);
       }
     }
-    throw new ConfigurationException("Resource must start with 'META-INF'");
+    throw new IllegalArgumentException("Resource must start with 'META-INF'");
   }
 
   /**
    * Scan beans set from META-INF/xxx
    *
-   * @param resource
-   *         Resource file start with 'META-INF'
+   * @param resource Resource file start with 'META-INF'
    *
    * @return bean set from META-INF/xxx
    *
-   * @throws ApplicationContextException
-   *         If any {@link IOException} occurred
+   * @throws ApplicationContextException If any {@link IOException} occurred
    * @since 3.0
    */
   public static <T> Set<T> loadBeansFromMetaInfo(String resource) {

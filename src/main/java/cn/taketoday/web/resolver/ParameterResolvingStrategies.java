@@ -20,6 +20,13 @@
 
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.MethodParameter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -28,19 +35,13 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy.SupportsFunction;
-
 /**
  * Composite ParameterResolvingStrategy
  *
  * @author TODAY 2021/9/26 21:07
  * @since 4.0
  */
-public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy> {
+public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy>, ParameterResolvingStrategy {
   private final ArrayList<ParameterResolvingStrategy> strategies;
 
   public ParameterResolvingStrategies() {
@@ -55,6 +56,31 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
     this.strategies = strategies;
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of ParameterResolvingStrategy interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public boolean supportsParameter(MethodParameter parameter) {
+    for (ParameterResolvingStrategy strategy : strategies) {
+      if (strategy.supportsParameter(parameter)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Nullable
+  @Override
+  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    for (ParameterResolvingStrategy strategy : strategies) {
+      if (strategy.supportsParameter(parameter)) {
+        return strategy.resolveParameter(context, parameter);
+      }
+    }
+    return null;
+  }
+
   public void add(ParameterResolvingStrategy resolver) {
     strategies.add(resolver);
   }
@@ -62,8 +88,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   /**
    * add resolvers or resolving-strategies
    *
-   * @param resolver
-   *         resolvers or resolving-strategies
+   * @param resolver resolvers or resolving-strategies
    */
   public void add(ParameterResolvingStrategy... resolver) {
     Collections.addAll(strategies, resolver);
@@ -72,8 +97,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   /**
    * add resolvers or resolving-strategies
    *
-   * @param resolvers
-   *         resolvers or resolving-strategies
+   * @param resolvers resolvers or resolving-strategies
    */
   public void add(List<ParameterResolvingStrategy> resolvers) {
     this.strategies.addAll(resolvers);
@@ -87,8 +111,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   /**
    * set or clear resolvers
    *
-   * @param resolver
-   *         can be null
+   * @param resolver can be null
    */
   public void set(@Nullable List<ParameterResolvingStrategy> resolver) {
     strategies.clear();
@@ -99,23 +122,20 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   }
 
   /**
-   * Removes all of the elements of this collection that satisfy the given
+   * Removes all the elements of this collection that satisfy the given
    * predicate.  Errors or runtime exceptions thrown during iteration or by
    * the predicate are relayed to the caller.
    *
-   * @param filter
-   *         a predicate which returns {@code true} for elements to be
-   *         removed
+   * @param filter a predicate which returns {@code true} for elements to be
+   * removed
    *
    * @return {@code true} if any elements were removed
    *
-   * @throws NullPointerException
-   *         if the specified filter is null
-   * @throws UnsupportedOperationException
-   *         if elements cannot be removed
-   *         from this collection.  Implementations may throw this exception if a
-   *         matching element cannot be removed or if, in general, removal is not
-   *         supported.
+   * @throws NullPointerException if the specified filter is null
+   * @throws UnsupportedOperationException if elements cannot be removed
+   * from this collection.  Implementations may throw this exception if a
+   * matching element cannot be removed or if, in general, removal is not
+   * supported.
    * @implSpec The default implementation traverses all elements of the collection using
    * its {@link List#iterator()}.  Each matching element is removed using
    * {@link Iterator#remove()}.  If the collection's iterator does not
@@ -133,8 +153,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    * at least one element <tt>e</tt> such that
    * <tt>(resolverClass == resolver.getClass())</tt>.
    *
-   * @param resolverClass
-   *         element whose presence in this defaultResolvers or customizedResolvers is to be tested
+   * @param resolverClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
    *
    * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
    */

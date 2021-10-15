@@ -33,6 +33,8 @@ public final class NullValue implements Serializable {
   private static final long serialVersionUID = 1L;
   public static final NullValue INSTANCE = new NullValue();
 
+  private NullValue() { }
+
   private Object readResolve() {
     return INSTANCE;
   }

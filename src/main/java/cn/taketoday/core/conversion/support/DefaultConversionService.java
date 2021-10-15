@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -300,7 +299,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
         addConverter(targetType, sourceType, converter);
       }
       else {
-        throw new ConfigurationException("can't register get converter's target class");
+        throw new IllegalArgumentException("can't get converter's generics: " + converter);
       }
     }
   }
@@ -328,8 +327,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
       final ResolvableType generic = type.getGeneric(0);
       addConverter(targetType, (Class<S>) generic.toClass(), converter);
     }
-    else
-      throw new ConfigurationException("can't register get converter's source class");
+    throw new IllegalArgumentException("can't register get converter's source class");
   }
 
   @Override

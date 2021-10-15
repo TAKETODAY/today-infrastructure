@@ -20,11 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
@@ -41,6 +36,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.lang.Value;
@@ -48,6 +44,11 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author TODAY 2021/10/3 22:38
@@ -68,12 +69,25 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
     this.strategiesDetector = strategiesDetector;
   }
 
+  /**
+   * @param parameter Target method {@link Parameter}
+   * @param resolvingContext resolving context never {@code null}
+   *
+   * @return arg never returns {@link NullValue}
+   *
+   * @throws ArgumentsNotSupportedException parameter not support, configure a ArgumentsResolvingStrategy
+   */
   @Override
   public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
     Object argument = findProvidedArgument(parameter, resolvingContext.getProvidedArgs());
     if (argument == null) {
       for (ArgumentsResolvingStrategy resolver : resolvingStrategies(resolvingContext)) {
+        // if returns a {@link NullValue} indicates that returns null object
         argument = resolver.resolveArgument(parameter, resolvingContext);
+        if (argument == NullValue.INSTANCE) {
+          return null;
+        }
+        // null indicates not supports
         if (argument != null) {
           return argument;
         }
@@ -84,6 +98,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
     return argument;
   }
 
+  @Nullable
   public static Object findProvidedArgument(Parameter parameter, @Nullable Object[] providedArgs) {
     if (ObjectUtils.isNotEmpty(providedArgs)) {
       final Class<?> parameterType = parameter.getType();
@@ -103,13 +118,13 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
       BeanFactory beanFactory = resolvingContext.getBeanFactory();
       List<ArgumentsResolvingStrategy> strategies = getStrategies(strategiesDetector, beanFactory);
       Collections.addAll(strategies,
-                         new MapArgumentsResolver(),
-                         new ArrayArgumentsResolver(),
-                         new CollectionArgumentsResolver(),
-                         new ObjectSupplierArgumentsResolver(),
-                         new EnvExecutableArgumentsResolver(),
-                         new ValueExecutableArgumentsResolver(),
-                         new AutowiredArgumentsResolver()
+              new MapArgumentsResolver(),
+              new ArrayArgumentsResolver(),
+              new CollectionArgumentsResolver(),
+              new ObjectSupplierArgumentsResolver(),
+              new EnvExecutableArgumentsResolver(),
+              new ValueExecutableArgumentsResolver(),
+              new AutowiredArgumentsResolver()
       );
       setResolvingStrategies(strategies);
     }

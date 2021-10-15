@@ -26,9 +26,11 @@ import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Configuration exception
+ * <p>
+ *   throw it in startup time (Configuration time)
+ * </p>
  *
- * @author TODAY <br>
- * 2018-08-08 09:55
+ * @author TODAY 2018-08-08 09:55
  */
 public class ConfigurationException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
@@ -46,7 +48,7 @@ public class ConfigurationException extends NestedRuntimeException {
 
   public ConfigurationException(String message, Throwable cause) {
     super(message, cause);
-    log.error("Configuration Exception Message: [" + message + "]", this);
+    log.error("\nConfiguration Exception Message: [" + message + "]\n", this);
   }
 
   public static <T> T nonNull(final T obj) {
