@@ -204,14 +204,24 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    *
    * @param dependencyType the dependency type to register. This will typically
    * be a base interface such as BeanFactory, with extensions of it resolved
-   * as well if declared as an autowiring dependency (e.g. ListableBeanFactory),
+   * as well if declared as an autowiring dependency (e.g. BeanFactory),
    * as long as the given value actually implements the extended interface.
    * @param autowiredValue the corresponding autowired value. This may also be an
-   * implementation of the {@link java.util.function.Supplier}
-   * interface, which allows for lazy resolution of the actual target value.
+   * implementation of the {@link java.util.function.Supplier} interface,
+   * which allows for lazy resolution of the actual target value.
    *
    * @since 4.0
    */
   void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
+
+  /**
+   * Ensure that all non-lazy-init singletons are instantiated, also considering
+   * {@link FactoryBean FactoryBeans}. Typically, invoked at the end of factory
+   * setup, if desired.
+   *
+   * @throws BeansException if one of the singleton beans could not be created.
+   * @since 4.0
+   */
+  void preInitialization() throws BeansException;
 
 }
