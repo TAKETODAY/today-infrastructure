@@ -79,7 +79,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     if (path.startsWith(ResourceUtils.JAR_ENTRY_URL_PREFIX)) {
       return path;
     }
-    final String concat = ResourceUtils.JAR_ENTRY_URL_PREFIX.concat(path);
+    String concat = ResourceUtils.JAR_ENTRY_URL_PREFIX.concat(path);
     if (concat.endsWith(ResourceUtils.JAR_URL_SEPARATOR)) {
       return concat;
     }
@@ -88,7 +88,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   protected static String getJarFilePath(String path) {
 
-    final int indexOf = path.indexOf(ResourceUtils.JAR_SEPARATOR);
+    int indexOf = path.indexOf(ResourceUtils.JAR_SEPARATOR);
     if (path.startsWith("file:")) { // fix #11 jar file not found
       return indexOf == -1 ? path.substring(5) : path.substring(5, indexOf);
     }
@@ -97,8 +97,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
   }
 
   private static String getJarEntryName(String path) {
-
-    final int indexOf = path.indexOf(ResourceUtils.JAR_SEPARATOR);
+    int indexOf = path.indexOf(ResourceUtils.JAR_SEPARATOR);
     if (indexOf == -1) {
       return Constant.BLANK;
     }
@@ -116,13 +115,11 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public InputStream getInputStream() throws IOException {
-
-    final String name = this.name;
     if (name.isEmpty()) {
       return new FileInputStream(jarFile);
     }
 
-    final JarFile jarFile = getJarFile();
+    JarFile jarFile = getJarFile();
     InputStream inputStream = jarFile.getInputStream(jarFile.getEntry(name));
     return new JarEntryInputStream(inputStream, jarFile);
   }
@@ -139,11 +136,10 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public boolean exists() {
-    final String name = this.name;
     if (name.isEmpty()) {
       return jarFile.exists();
     }
-    try (final JarFile jarFile = getJarFile()) {
+    try (JarFile jarFile = getJarFile()) {
       return jarFile.getEntry(name) != null;
     }
     catch (IOException e) {
@@ -153,24 +149,24 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public boolean isDirectory() throws IOException {
-    try (final JarFile jarFile = getJarFile()) {
+    try (JarFile jarFile = getJarFile()) {
       return jarFile.getEntry(name).isDirectory();
     }
   }
 
   @Override
   public String[] list() throws IOException {
-    try (final JarFile jarFile = getJarFile()) {
+    try (JarFile jarFile = getJarFile()) {
 
-      final String name = this.name;
+      String name = this.name;
       Set<String> result = new HashSet<>();
-      final Enumeration<JarEntry> entries = jarFile.entries();
+      Enumeration<JarEntry> entries = jarFile.entries();
       while (entries.hasMoreElements()) {
         JarEntry jarEntry = entries.nextElement();
-        final String entryName = jarEntry.getName();
+        String entryName = jarEntry.getName();
         if (!entryName.equals(name) && entryName.startsWith(name)) {
-          final String substring = entryName.substring(name.length());
-          final int index = substring.indexOf(Constant.PATH_SEPARATOR);
+          String substring = entryName.substring(name.length());
+          int index = substring.indexOf(Constant.PATH_SEPARATOR);
 
           if (index > -1) { // is dir
             result.add(substring.substring(0, index));
@@ -226,8 +222,10 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public void close() throws Exception {
-    jar.close();
-    jar = null;
+    if (jar != null) {
+      jar.close();
+      jar = null;
+    }
   }
 
   private static class JarEntryInputStream extends FilterInputStream {
