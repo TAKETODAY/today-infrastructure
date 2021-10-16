@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.style.ToStringBuilder;
 
 /**
  * <p>
@@ -62,11 +63,8 @@ public abstract class AbstractPropertySetter implements PropertySetter {
   /**
    * resolve property value
    *
-   * @param beanFactory
-   *         AbstractBeanFactory
-   *
+   * @param beanFactory AbstractBeanFactory
    * @return property value
-   *
    * @see #DO_NOT_SET
    */
   protected abstract Object resolveValue(AbstractBeanFactory beanFactory);
@@ -101,11 +99,11 @@ public abstract class AbstractPropertySetter implements PropertySetter {
 
   @Override
   public String toString() {
-    return new StringBuilder()
-            .append("{\"property\":\"").append(property.getName())
-            .append("\",\"propertyClass\":\"").append(property.getType())
-            .append("\",\"beanClass:\":\"").append(property.getDeclaringClass())
-            .append("\"}")
+    return new ToStringBuilder(this)
+            .append("property", property.getName())
+            .append("propertyClass", property.getType())
+            .append("beanClass", property.getDeclaringClass())
             .toString();
+
   }
 }
