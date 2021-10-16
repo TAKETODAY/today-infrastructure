@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 
 /**
  * Interface for a resource descriptor that abstracts from the actual type of
@@ -64,17 +66,15 @@ public interface Resource extends InputStreamSource {
   /**
    * Get location of this resource.
    *
-   * @throws IOException
-   *         if the resource is not available
+   * @throws IOException if the resource is not available
    */
   URL getLocation() throws IOException;
 
   /**
    * Return a URI handle for this resource.
    *
-   * @throws IOException
-   *         if the resource cannot be resolved as URI, i.e. if the resource
-   *         is not available as descriptor
+   * @throws IOException if the resource cannot be resolved as URI, i.e. if the resource
+   * is not available as descriptor
    * @since 2.1.7
    */
   URI getURI() throws IOException;
@@ -82,8 +82,7 @@ public interface Resource extends InputStreamSource {
   /**
    * Return a File handle for this resource.
    *
-   * @throws IOException
-   *         in case of general resolution/reading failures
+   * @throws IOException in case of general resolution/reading failures
    */
   File getFile() throws IOException;
 
@@ -122,9 +121,19 @@ public interface Resource extends InputStreamSource {
   }
 
   /**
-   * Is a directory?
+   * Tests whether the resource denoted by this abstract pathname is a
+   * directory.
    *
-   * @throws IOException
+   * <p> Where it is required to distinguish an I/O exception from the case
+   * that the file is not a directory, or where several attributes of the
+   * same file are required at the same time, then the {@link
+   * java.nio.file.Files#readAttributes(Path, Class, LinkOption[])
+   * Files.readAttributes} method may be used.
+   *
+   * @return <code>true</code> if and only if the file denoted by this
+   * abstract pathname exists <em>and</em> is a directory;
+   * <code>false</code> otherwise
+   * @throws IOException cannot determine resource
    */
   boolean isDirectory() throws IOException;
 
@@ -132,35 +141,25 @@ public interface Resource extends InputStreamSource {
    * list {@link Resource} under the directory
    *
    * @return {@link Resource} names
-   *
-   * @throws IOException
-   *         if the resource is not available
+   * @throws IOException if the resource is not available
    */
   String[] list() throws IOException;
 
   /**
    * list {@link Resource} under the directory
    *
-   * @param filter
-   *         filter {@link Resource}
-   *
+   * @param filter filter {@link Resource}
    * @return {@link Resource} names
-   *
-   * @throws IOException
-   *         if the resource is not available
+   * @throws IOException if the resource is not available
    */
   Resource[] list(ResourceFilter filter) throws IOException;
 
   /**
    * Create a resource relative to this resource.
    *
-   * @param relativePath
-   *         the relative path (relative to this resource)
-   *
+   * @param relativePath the relative path (relative to this resource)
    * @return the resource handle for the relative resource
-   *
-   * @throws IOException
-   *         if the relative resource cannot be determined
+   * @throws IOException if the relative resource cannot be determined
    */
   Resource createRelative(String relativePath) throws IOException;
 
