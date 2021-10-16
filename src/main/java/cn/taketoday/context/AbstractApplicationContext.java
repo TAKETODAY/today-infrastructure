@@ -143,8 +143,7 @@ public abstract class AbstractApplicationContext
   /**
    * Create a new AbstractApplicationContext with the given parent context.
    *
-   * @param parent
-   *         the parent context
+   * @param parent the parent context
    */
   public AbstractApplicationContext(@Nullable ApplicationContext parent) {
     this();
@@ -169,8 +168,7 @@ public abstract class AbstractApplicationContext
    * <p>Default is the object id of the context instance, or the name
    * of the context bean if the context is itself defined as a bean.
    *
-   * @param id
-   *         the unique id of the context
+   * @param id the unique id of the context
    */
   @Override
   public void setId(String id) {
@@ -480,8 +478,7 @@ public abstract class AbstractApplicationContext
    * <p>
    * load properties files or itself strategies
    *
-   * @param environment
-   *         ConfigurableEnvironment
+   * @param environment ConfigurableEnvironment
    */
   protected void initPropertySources(ConfigurableEnvironment environment) throws IOException {
     // for sub-class loading properties or prepare property-source
@@ -763,6 +760,11 @@ public abstract class AbstractApplicationContext
     return getBeanFactory().getObjectSupplier(requiredType);
   }
 
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    return getBeanFactory().getObjectSupplier(requiredType, includeNoneRegistered, includeNonSingletons);
+  }
   // ArgumentsResolverProvider
 
   @NonNull

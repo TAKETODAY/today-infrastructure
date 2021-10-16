@@ -517,6 +517,28 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType);
 
   /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options.
+   *
+   * @param requiredType type the bean must match; can be a generic type declaration.
+   * Note that collection types are not supported here, in contrast to reflective
+   * injection points. For programmatically retrieving a list of beans matching a
+   * specific type, specify the actual bean type as an argument here and subsequently
+   * use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
+   * @return a corresponding provider handle
+   * @see ObjectSupplier#iterator()
+   * @see ObjectSupplier#stream()
+   * @see ObjectSupplier#orderedStream()
+   * @since 4.0
+   */
+  <T> ObjectSupplier<T> getObjectSupplier(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
+
+  /**
    * Get all bean name
    *
    * @param type Bean type
