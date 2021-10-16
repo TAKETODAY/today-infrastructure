@@ -158,7 +158,7 @@ public abstract class AbstractResource implements Resource {
 
   @Override
   public URI getURI() throws IOException {
-    final URL location = getLocation();
+    URL location = getLocation();
     try {
       return location.toURI();
     }
@@ -184,13 +184,13 @@ public abstract class AbstractResource implements Resource {
 
   @Override
   public Resource[] list(ResourceFilter filter) throws IOException {
-    final String[] names = list();
+    String[] names = list();
 
     if (ObjectUtils.isEmpty(names)) {
       return EMPTY_ARRAY;
     }
 
-    List<Resource> resources = new ArrayList<>();
+    ArrayList<Resource> resources = new ArrayList<>();
     for (String name : names) { // this resource is a directory
       Resource resource = createRelative(name);
       if ((filter == null) || filter.accept(resource)) {

@@ -477,7 +477,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     if (result.isEmpty()) {
       return false;
     }
-    String duplicatePath = filePath.startsWith("/") ? filePath.substring(1) : "/".concat(filePath);
+    String duplicatePath = StringUtils.matchesFirst(filePath, '/')
+                           ? filePath.substring(1)
+                           : "/".concat(filePath);
     try {
       return result.contains(new JarEntryResource(
               new StringBuilder(duplicatePath.length() + 11)
@@ -523,7 +525,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     return result.toArray(new Resource[result.size()]);
   }
 
-  protected void rootDirResource(String subPattern, Set<Resource> result, Resource rootResource) throws IOException {
+  protected void rootDirResource(
+          String subPattern, Set<Resource> result, Resource rootResource) throws IOException {
     if (rootResource instanceof JarResource) {
       result.addAll(doFindPathMatchingJarResources((JarResource) rootResource, subPattern));
     }
@@ -555,7 +558,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   protected String determineRootDir(String location) {
     int prefixEnd = location.indexOf(':') + 1;
     int rootDirEnd = location.length();
-    while (rootDirEnd > prefixEnd && getPathMatcher().isPattern(location.substring(prefixEnd, rootDirEnd))) {
+    while (rootDirEnd > prefixEnd && pathMatcher.isPattern(location.substring(prefixEnd, rootDirEnd))) {
       rootDirEnd = location.lastIndexOf('/', rootDirEnd - 2) + 1;
     }
     if (rootDirEnd == 0) {
@@ -604,8 +607,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         // The Sun JRE does not return a slash here, but BEA JRockit does.
         rootEntryPath = rootEntryPath.concat("/");
       }
-
-      PathMatcher pathMatcher = getPathMatcher();
 
       LinkedHashSet<Resource> result = new LinkedHashSet<>(8);
       Enumeration<JarEntry> entries = jarFile.entries();
@@ -757,7 +758,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       log.trace("Searching directory [{}] for files matching pattern [{}]", dir.getAbsolutePath(), fullPattern);
     }
 
-    PathMatcher pathMatcher = getPathMatcher();
     for (File content : listDirectory(dir)) {
       // TODO 优化
       String currPath = StringUtils.replace(content.getAbsolutePath(), File.separator, "/");

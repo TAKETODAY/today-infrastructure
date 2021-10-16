@@ -74,7 +74,7 @@ public class UrlBasedResource extends AbstractResource {
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    final URLConnection con = this.url.openConnection();
+    URLConnection con = this.url.openConnection();
     ResourceUtils.useCachesIfNecessary(con);
     try {
       return con.getInputStream();
@@ -127,9 +127,9 @@ public class UrlBasedResource extends AbstractResource {
    * @see #createRelative(String)
    * @see java.net.URL#URL(java.net.URL, String)
    */
-  protected URL createRelativeURL(final String relativePath) throws MalformedURLException {
+  protected URL createRelativeURL(String relativePath) throws MalformedURLException {
     String relativePathToUse = relativePath;
-    if (relativePathToUse.startsWith("/")) {
+    if (StringUtils.matchesFirst(relativePathToUse, '/')) {
       relativePathToUse = relativePathToUse.substring(1);
     }
     // # can appear in filenames, java.net.URL should not treat it as a fragment

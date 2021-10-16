@@ -26,6 +26,8 @@ import java.net.URL;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Interface for a resource descriptor that abstracts from the actual type of
  * underlying resource, such as a file or class path resource.
@@ -152,7 +154,7 @@ public interface Resource extends InputStreamSource {
    * @return {@link Resource} names
    * @throws IOException if the resource is not available
    */
-  Resource[] list(ResourceFilter filter) throws IOException;
+  Resource[] list(@Nullable ResourceFilter filter) throws IOException;
 
   /**
    * Create a resource relative to this resource.

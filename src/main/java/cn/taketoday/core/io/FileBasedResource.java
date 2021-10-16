@@ -24,35 +24,51 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.List;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2019-05-14 22:50
+ * {@link Resource} implementation for {@code java.io.File} and
+ * {@code java.nio.file.Path} handles with a file system target.
+ * Supports resolution as a {@code File} and also as a {@code URL}.
+ * Implements the extended {@link WritableResource} interface.
+ *
+ * <p>Note: As of 4.0, this {@link Resource} implementation uses
+ * NIO.2 API for read/write interactions. it may be constructed with a
+ * {@link java.nio.file.Path} handle in which case it will perform all file system
+ * interactions via NIO.2, only resorting to {@link File} on {@link #getFile()}.
+ *
+ * @author TODAY 2019-05-14 22:50
+ * @see java.io.File
+ * @see java.nio.file.Files
  * @since 2.1.6
  */
 public class FileBasedResource extends AbstractResource implements WritableResource {
 
+  @Nullable
   private final File file;
+
   private final String path;
   private final Path filePath;
 
   public FileBasedResource(String path) {
     this.file = new File(this.path = StringUtils.cleanPath(path));
-    this.filePath = this.file.toPath();
+    this.filePath = file.toPath();
   }
 
   public FileBasedResource(File file) {
@@ -68,10 +84,29 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   }
 
   /**
+   * Create a new {@code FileBasedResource} from a {@link FileSystem} handle,
+   * locating the specified path.
+   * <p>This is an alternative to {@link #FileBasedResource(String)},
+   * performing all file system interactions via NIO.2 instead of {@link File}.
+   *
+   * @param fileSystem the FileSystem to locate the path within
+   * @param path a file path
+   * @see #FileBasedResource(File)
+   * @since 4.0
+   */
+  public FileBasedResource(FileSystem fileSystem, String path) {
+    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(fileSystem, "FileSystem must not be null");
+    this.file = null;
+    this.path = StringUtils.cleanPath(path);
+    this.filePath = fileSystem.getPath(this.path).normalize();
+  }
+
+  /**
    * Return the file path for this resource.
    */
   public final String getPath() {
-    return this.path;
+    return path;
   }
 
   /**
@@ -79,7 +114,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public boolean exists() {
-    return (this.file != null ? this.file.exists() : Files.exists(this.filePath));
+    return file != null ? file.exists() : Files.exists(filePath);
   }
 
   /**
@@ -88,7 +123,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   @Override
   public InputStream getInputStream() throws IOException {
     try {
-      return Files.newInputStream(this.filePath);
+      return Files.newInputStream(filePath);
     }
     catch (NoSuchFileException ex) {
       throw new FileNotFoundException(ex.getMessage());
@@ -102,7 +137,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public OutputStream getOutputStream() throws IOException {
-    return Files.newOutputStream(this.filePath);
+    return Files.newOutputStream(filePath);
   }
 
   /**
@@ -110,7 +145,15 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public URL getLocation() throws IOException {
-    return (this.file != null ? this.file.toURI().toURL() : this.filePath.toUri().toURL());
+    return file != null ? file.toURI().toURL() : filePath.toUri().toURL();
+  }
+
+  /**
+   * Return a URI handle for this resource.
+   */
+  @Override
+  public URI getURI() {
+    return file != null ? file.toURI() : filePath.toUri();
   }
 
   /**
@@ -118,7 +161,20 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public File getFile() {
-    return (this.file != null ? this.file : this.filePath.toFile());
+    return file != null ? file : filePath.toFile();
+  }
+
+  /**
+   * @throws SecurityException If a security manager exists and its <code>{@link
+   * java.lang.SecurityManager#checkRead(java.lang.String)}</code>
+   * method denies read access to the file
+   */
+  @Override
+  public boolean isDirectory() throws IOException {
+    if (file != null) {
+      return file.isDirectory();
+    }
+    return Files.isDirectory(filePath);
   }
 
   /**
@@ -126,15 +182,15 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public long contentLength() throws IOException {
-    if (this.file != null) {
-      long length = this.file.length();
-      if (length == 0L && !this.file.exists()) {
+    if (file != null) {
+      long length = file.length();
+      if (length == 0L && !file.exists()) {
         throw new FileNotFoundException(getName() + " cannot be resolved its content length");
       }
       return length;
     }
     try {
-      return Files.size(this.filePath);
+      return Files.size(filePath);
     }
     catch (NoSuchFileException ex) {
       throw new FileNotFoundException(ex.getMessage());
@@ -146,11 +202,11 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public long lastModified() throws IOException {
-    if (this.file != null) {
+    if (file != null) {
       return super.lastModified();
     }
     try {
-      return Files.getLastModifiedTime(this.filePath).toMillis();
+      return Files.getLastModifiedTime(filePath).toMillis();
     }
     catch (NoSuchFileException ex) {
       throw new FileNotFoundException(ex.getMessage());
@@ -159,25 +215,31 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 
   @Override
   public Resource createRelative(String relativePath) throws IOException {
-    final String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
-    return (this.file != null
-            ? new FileBasedResource(pathToUse)
-            : new FileBasedResource(this.filePath.getFileSystem().getPath(pathToUse).normalize()));
+    String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
+    return file != null
+           ? new FileBasedResource(pathToUse)
+           : new FileBasedResource(this.filePath.getFileSystem(), pathToUse);
+  }
+
+  @Override
+  public String[] list() throws IOException {
+    if (file != null) {
+      return file.list();
+    }
+    return filePath.toFile().list();
   }
 
   @Override
   public Resource[] list(ResourceFilter filter) throws IOException {
-
-    final String[] names = list();
-
+    String[] names = list();
     if (ObjectUtils.isEmpty(names)) {
       return EMPTY_ARRAY;
     }
 
-    final String path = this.path;
-    final List<Resource> resources = new ArrayList<>();
-    for (final String name : names) { // this resource is a directory
-      final FileBasedResource resource = new FileBasedResource(new File(path, name));
+    File parent = getFile();
+    ArrayList<Resource> resources = new ArrayList<>(names.length);
+    for (String name : names) { // this resource is a directory
+      FileBasedResource resource = new FileBasedResource(new File(parent, name));
       if (filter == null || filter.accept(resource)) {
         resources.add(resource);
       }
@@ -194,7 +256,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
       return file.getName();
     }
     if (filePath != null) {
-      final Path fileName = filePath.getFileName();
+      Path fileName = filePath.getFileName();
       if (fileName != null) {
         return fileName.toString();
       }
@@ -210,7 +272,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   @Override
   public ReadableByteChannel readableChannel() throws IOException {
     try {
-      return FileChannel.open(this.filePath, StandardOpenOption.READ);
+      return FileChannel.open(filePath, StandardOpenOption.READ);
     }
     catch (NoSuchFileException ex) {
       throw new FileNotFoundException(ex.getMessage());
@@ -224,7 +286,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public WritableByteChannel writableChannel() throws IOException {
-    return FileChannel.open(this.filePath, StandardOpenOption.WRITE);
+    return FileChannel.open(filePath, StandardOpenOption.WRITE);
   }
 
   /**
@@ -236,18 +298,18 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public boolean isReadable() {
-    return (this.file != null ? this.file.canRead() && !this.file.isDirectory() :
-            Files.isReadable(this.filePath) && !Files.isDirectory(this.filePath));
+    return (file != null ? file.canRead() && !file.isDirectory() :
+            Files.isReadable(filePath) && !Files.isDirectory(filePath));
   }
 
   @Override
   public boolean equals(Object other) {
-    return (this == other || (other instanceof FileBasedResource && this.path.equals(((FileBasedResource) other).path)));
+    return (this == other || (other instanceof FileBasedResource && path.equals(((FileBasedResource) other).path)));
   }
 
   @Override
   public int hashCode() {
-    return this.path.hashCode();
+    return path.hashCode();
   }
 
   @Override
