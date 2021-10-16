@@ -31,14 +31,12 @@ public abstract class AbstractArgumentsResolvingStrategy implements ArgumentsRes
   /**
    * If this {@link ArgumentsResolvingStrategy} supports target {@link Parameter}
    *
-   * @param parameter
-   *         Target method {@link Parameter}
-   * @param resolvingContext
-   *         resolving context
-   *
+   * @param parameter Target method {@link Parameter}
+   * @param resolvingContext resolving context
    * @return If supports target {@link Parameter}
    */
-  protected abstract boolean supportsArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext);
+  protected abstract boolean supportsArgument(
+          Parameter parameter, ArgumentsResolvingContext resolvingContext);
 
   @Override
   public final Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {

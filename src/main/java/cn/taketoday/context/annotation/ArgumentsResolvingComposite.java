@@ -72,9 +72,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
   /**
    * @param parameter Target method {@link Parameter}
    * @param resolvingContext resolving context never {@code null}
-   *
    * @return arg never returns {@link NullValue}
-   *
    * @throws ArgumentsNotSupportedException parameter not support, configure a ArgumentsResolvingStrategy
    */
   @Override
