@@ -42,7 +42,6 @@ import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
@@ -238,7 +237,7 @@ public class ResolvableType implements Serializable {
    * @see #isAssignableFrom(Class)
    */
   public boolean isInstance(Object obj) {
-    return obj != null && isAssignableFrom(ClassUtils.getUserClass(obj));
+    return obj != null && isAssignableFrom(obj.getClass());
   }
 
   /**
@@ -868,7 +867,7 @@ public class ResolvableType implements Serializable {
    * <p>Note: The returned {@link ResolvableType} should only be used as an intermediary
    * as it cannot be serialized.
    */
-  private ResolvableType resolveType(final Type type) {
+  private ResolvableType resolveType(Type type) {
     if (type instanceof ParameterizedType) {
       return valueOf(((ParameterizedType) type).getRawType(), variableResolver);
     }
@@ -1037,7 +1036,7 @@ public class ResolvableType implements Serializable {
    * @see #forParameter(Executable, int, Class)
    * @see #fromParameter(Parameter)
    */
-  public static ResolvableType forParameter(final Executable executable, final int parameterIndex) {
+  public static ResolvableType forParameter(Executable executable, int parameterIndex) {
     return forParameter(executable, parameterIndex, null);
   }
 
@@ -1050,7 +1049,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forReturnType(Method method) {
     Assert.notNull(method, "Method must not be null");
-    final Type genericReturnType = method.getGenericReturnType();
+    Type genericReturnType = method.getGenericReturnType();
     return fromType(genericReturnType);
   }
 
@@ -1066,9 +1065,9 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forReturnType(Method method, @Nullable Class<?> implementationClass) {
     Assert.notNull(method, "Method must not be null");
-    final Class<?> declaringClass = method.getDeclaringClass();
-    final ResolvableType owner = implementationClass == null
-                                 ? fromType(declaringClass) : fromType(implementationClass).as(declaringClass);
+    Class<?> declaringClass = method.getDeclaringClass();
+    ResolvableType owner = implementationClass == null
+                           ? fromType(declaringClass) : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new TypeProvider() {
 
       @Override
@@ -1095,12 +1094,12 @@ public class ResolvableType implements Serializable {
    * @see #fromParameter(Parameter)
    */
   public static ResolvableType forParameter(
-          final Executable executable, final int parameterIndex, @Nullable Class<?> implementationClass) {
-    final Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
-    final Class<?> declaringClass = executable.getDeclaringClass();
-    final ResolvableType owner = implementationClass == null
-                                 ? fromType(declaringClass)
-                                 : fromType(implementationClass).as(declaringClass);
+          Executable executable, int parameterIndex, @Nullable Class<?> implementationClass) {
+    Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
+    Class<?> declaringClass = executable.getDeclaringClass();
+    ResolvableType owner = implementationClass == null
+                           ? fromType(declaringClass)
+                           : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter, parameterIndex), owner.asVariableResolver());
   }
 
@@ -1127,12 +1126,12 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType fromParameter(Parameter parameter, ResolvableType implementationType) {
     Assert.notNull(parameter, "Parameter must not be null");
-    final Executable executable = parameter.getDeclaringExecutable();
-    final Class<?> declaringClass = executable.getDeclaringClass();
+    Executable executable = parameter.getDeclaringExecutable();
+    Class<?> declaringClass = executable.getDeclaringClass();
 
-    final ResolvableType owner = implementationType != null
-                                 ? implementationType.as(declaringClass)
-                                 : fromType(declaringClass);
+    ResolvableType owner = implementationType != null
+                           ? implementationType.as(declaringClass)
+                           : fromType(declaringClass);
 
     return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
@@ -1152,8 +1151,8 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType fromParameter(Parameter parameter, @Nullable Type targetType) {
     Assert.notNull(parameter, "Parameter must not be null");
-    final Executable executable = parameter.getDeclaringExecutable();
-    final Class<?> declaringClass = executable.getDeclaringClass();
+    Executable executable = parameter.getDeclaringExecutable();
+    Class<?> declaringClass = executable.getDeclaringClass();
     ResolvableType owner = fromType(declaringClass);
     return valueOf(targetType, new SerializableTypeWrapper.ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
@@ -1527,8 +1526,8 @@ public class ResolvableType implements Serializable {
 
     @Override
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
-      final TypeVariable<?> variableToCompare = SerializableTypeWrapper.unwrap(variable);
-      final TypeVariable<?>[] variables = this.variables;
+      TypeVariable<?> variableToCompare = SerializableTypeWrapper.unwrap(variable);
+      TypeVariable<?>[] variables = this.variables;
       for (int i = 0; i < variables.length; i++) {
         TypeVariable<?> resolvedVariable = SerializableTypeWrapper.unwrap(variables[i]);
         if (Objects.equals(resolvedVariable, variableToCompare)) {
