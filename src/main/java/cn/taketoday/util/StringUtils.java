@@ -1637,6 +1637,20 @@ else */
     return isNotEmpty(str) && str.charAt(0) == charToMatch;
   }
 
+  /**
+   * Test if the last given {@code String} matches the given single character.
+   *
+   * @param str
+   *         given string
+   * @param charToMatch
+   *         char To Match
+   *
+   * @since 4.0
+   */
+  public static boolean matchesEnd(@Nullable String str, char charToMatch) {
+    return isNotEmpty(str) && str.charAt(str.length() - 1) == charToMatch;
+  }
+
   //
 
   /**

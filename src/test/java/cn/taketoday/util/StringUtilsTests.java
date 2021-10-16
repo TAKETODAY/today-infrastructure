@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  *
  * 2018-12-10 19:06
  */
-class StringUtilsTest {
+class StringUtilsTests {
 
   @Test
   void test_IsEmpty() {
@@ -647,6 +647,27 @@ class StringUtilsTest {
     assertThat(StringUtils.split(null, ",")).isNull();
     assertThat(StringUtils.split("Hello, world", null)).isNull();
     assertThat(StringUtils.split(null, null)).isNull();
+  }
+
+  @Test
+  void matchesFirst(){
+    assertThat(StringUtils.matchesFirst("Hello, world", 'H')).isTrue();
+    assertThat(StringUtils.matchesFirst("Hello, world", 'f')).isFalse();
+    assertThat(StringUtils.matchesFirst("world", 'w')).isTrue();
+    assertThat(StringUtils.matchesFirst("world", 'o')).isFalse();
+
+    assertThat(StringUtils.matchesFirst("", 'o')).isFalse();
+    assertThat(StringUtils.matchesFirst(null, 'o')).isFalse();
+  }
+
+  @Test
+  void matchesEnd() {
+    assertThat(StringUtils.matchesEnd("Hello, world", 'd')).isTrue();
+    assertThat(StringUtils.matchesEnd("Hello, world,", ',')).isTrue();
+    assertThat(StringUtils.matchesEnd("Hello, world,", 's')).isFalse();
+
+    assertThat(StringUtils.matchesEnd(null, ',')).isFalse();
+    assertThat(StringUtils.matchesEnd("", ',')).isFalse();
   }
 
 }
