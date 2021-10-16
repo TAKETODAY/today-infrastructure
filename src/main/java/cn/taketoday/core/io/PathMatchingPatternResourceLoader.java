@@ -727,7 +727,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
 
     String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
-    if (!pattern.startsWith("/")) {
+
+    if(!StringUtils.matchesFirst(pattern, '/')) {
       fullPattern += '/';
     }
     fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
