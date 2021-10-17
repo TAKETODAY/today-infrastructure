@@ -56,7 +56,8 @@ public abstract class GeneratorSupport<T extends Accessor> {
   protected ClassLoader classLoader;
   protected final Class<?> targetClass;
 
-  protected static final Mappings<Accessor, GeneratorSupport<?>> mappings = new Mappings<Accessor, GeneratorSupport<?>>() {
+  protected static final Mappings<Accessor, GeneratorSupport<?>> mappings
+          = new Mappings<Accessor, GeneratorSupport<?>>() {
     @Override
     protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
       try {

@@ -31,6 +31,7 @@ import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.Mappings;
 
 @SuppressWarnings("rawtypes")
@@ -156,7 +157,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   }
 
   static final Mappings<ResultSetHandler, ResultSetMetaData> CACHE
-          = new Mappings<ResultSetHandler, ResultSetMetaData>() {
+          = new Mappings<ResultSetHandler, ResultSetMetaData>(new ConcurrentReferenceHashMap<>()) {
 
     @Override
     protected ResultSetHandler createValue(Object key, ResultSetMetaData param) {

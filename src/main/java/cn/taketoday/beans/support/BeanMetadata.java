@@ -20,6 +20,17 @@
 
 package cn.taketoday.beans.support;
 
+import com.hazelcast.util.ConcurrentReferenceHashMap;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
@@ -33,16 +44,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
 /**
  * @author TODAY 2021/1/27 22:26
@@ -106,13 +107,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Get {@link PropertyAccessor}
    *
-   * @param propertyName
-   *         Property name
-   *
+   * @param propertyName Property name
    * @return {@link PropertyAccessor}
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
+   * @throws NoSuchPropertyException If no such property
    */
   public PropertyAccessor getPropertyAccessor(String propertyName) {
     return obtainBeanProperty(propertyName).getPropertyAccessor();
@@ -126,13 +123,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Get {@link BeanProperty} with given name
    *
-   * @param propertyName
-   *         property name
-   *
+   * @param propertyName property name
    * @return target {@link BeanProperty}
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
+   * @throws NoSuchPropertyException If no such property
    */
   public BeanProperty obtainBeanProperty(final String propertyName) {
     final BeanProperty beanProperty = getBeanProperty(propertyName);
@@ -145,17 +138,11 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Set a value to root object
    *
-   * @param root
-   *         Root object
-   * @param propertyName
-   *         Property name
-   * @param value
-   *         new value to set
-   *
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
-   * @throws NoSuchPropertyException
-   *         If no such property
+   * @param root Root object
+   * @param propertyName Property name
+   * @param value new value to set
+   * @throws PropertyReadOnlyException If this property is read only
+   * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
   public void setProperty(final Object root, final String propertyName, final Object value) {
@@ -165,13 +152,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Get property value
    *
-   * @param root
-   *         Root object
-   * @param propertyName
-   *         Property name
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
+   * @param root Root object
+   * @param propertyName Property name
+   * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
   public Object getProperty(final Object root, final String propertyName) {
@@ -181,11 +164,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Get property type
    *
-   * @param propertyName
-   *         Property name
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
+   * @param propertyName Property name
+   * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
   public Class<?> getPropertyClass(final String propertyName) {
@@ -302,11 +282,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Create a {@link BeanMetadata} with given bean class
    *
-   * @param beanClass
-   *         target bean class cannot be simple class
-   *
+   * @param beanClass target bean class cannot be simple class
    * @return {@link BeanMetadata}
-   *
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata ofClass(Class<?> beanClass) {
@@ -316,11 +293,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Create a {@link BeanMetadata} with given bean class
    *
-   * @param object
-   *         target bean cannot be simple object
-   *
+   * @param object target bean cannot be simple object
    * @return {@link BeanMetadata}
-   *
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata ofObject(Object object) {
@@ -345,6 +319,10 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    */
   static class BeanPropertiesMappings extends Mappings<BeanPropertiesHolder, BeanMetadata> {
     private static final BeanPropertiesMappings beanPropertiesMappings = new BeanPropertiesMappings();
+
+    BeanPropertiesMappings() {
+      super(new ConcurrentReferenceHashMap<>());
+    }
 
     static BeanPropertiesHolder computeProperties(Class<?> beanClass, BeanMetadata metadata) {
       return beanPropertiesMappings.get(beanClass, metadata);
