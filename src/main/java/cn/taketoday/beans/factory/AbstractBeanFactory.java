@@ -1447,9 +1447,19 @@ public abstract class AbstractBeanFactory
 
   @Override
   public String toString() {
-    return new StringBuilder(ObjectUtils.toHexString(this))
-            .append(": defining beans [")
-            .append(StringUtils.collectionToString(getBeanDefinitionNames()))
-            .append("]").toString();
+    // ObjectUtils.toHexString(this)
+    StringBuilder sb = new StringBuilder(ObjectUtils.identityToString(this));
+    sb.append(": defining beans [");
+    sb.append(StringUtils.collectionToString(getBeanDefinitionNames()));
+    sb.append("]; ");
+    BeanFactory parent = getParentBeanFactory();
+    if (parent == null) {
+      sb.append("root of factory hierarchy");
+    }
+    else {
+      sb.append("parent: ").append(ObjectUtils.identityToString(parent));
+    }
+    return sb.toString();
   }
+
 }

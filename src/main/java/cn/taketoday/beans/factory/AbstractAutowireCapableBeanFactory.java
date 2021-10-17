@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -41,7 +42,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T createBean(final Class<T> beanClass, final boolean cacheBeanDef) {
+  public <T> T createBean(Class<T> beanClass, boolean cacheBeanDef) {
     BeanDefinition defToUse;
     if (cacheBeanDef) {
       if ((defToUse = getBeanDefinition(beanClass)) == null) {
@@ -60,9 +61,9 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected abstract void registerBeanDefinition(BeanDefinition def);
 
   @Override
-  public void autowireBean(final Object existingBean) {
-    final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
+  public void autowireBean(Object existingBean) {
+    Class<Object> userClass = ClassUtils.getUserClass(existingBean);
+    BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
     if (log.isDebugEnabled()) {
       log.debug("Autowiring bean named: [{}].", prototypeDef.getName());
     }
@@ -74,9 +75,19 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public void autowireBeanProperties(final Object existingBean) {
-    final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
+  public Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException {
+    return null;
+  }
+
+  @Override
+  public Object configureBean(Object existingBean, String beanName) throws BeansException {
+    return null;
+  }
+
+  @Override
+  public void autowireBeanProperties(Object existingBean) {
+    Class<Object> userClass = ClassUtils.getUserClass(existingBean);
+    BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
     if (log.isDebugEnabled()) {
       log.debug("Autowiring bean properties named: [{}].", prototypeDef.getName());
     }
@@ -90,19 +101,19 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object initializeBean(final Object existingBean, final String beanName) {
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
+  public Object initializeBean(Object existingBean, String beanName) {
+    BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     return initializeBean(existingBean, prototypeDef);
   }
 
   @Override
   public Object applyBeanPostProcessorsBeforeInitialization(
-          final Object existingBean, final String beanName
+          Object existingBean, String beanName
   ) {
     Object ret = existingBean;
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
+    BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     // before properties
-    for (final BeanPostProcessor processor : getPostProcessors()) {
+    for (BeanPostProcessor processor : getPostProcessors()) {
       try {
         ret = processor.postProcessBeforeInitialization(ret, prototypeDef);
       }
@@ -116,12 +127,12 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public Object applyBeanPostProcessorsAfterInitialization(
-          final Object existingBean, final String beanName
+          Object existingBean, String beanName
   ) {
     Object ret = existingBean;
-    final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
+    BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     // after properties
-    for (final BeanPostProcessor processor : getPostProcessors()) {
+    for (BeanPostProcessor processor : getPostProcessors()) {
       try {
         ret = processor.postProcessAfterInitialization(ret, prototypeDef);
       }
@@ -138,7 +149,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     destroyBean(existingBean, getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)));
   }
 
-  private BeanDefinition getPrototypeBeanDefinition(final Object existingBean, final String beanName) {
+  private BeanDefinition getPrototypeBeanDefinition(Object existingBean, String beanName) {
     return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
   }
 

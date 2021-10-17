@@ -20,7 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Assert;

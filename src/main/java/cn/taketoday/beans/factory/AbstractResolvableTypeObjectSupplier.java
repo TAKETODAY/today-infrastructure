@@ -36,10 +36,11 @@ abstract class AbstractResolvableTypeObjectSupplier<T> implements ObjectSupplier
   protected final boolean includeNoneRegistered;
   protected final boolean includeNonSingletons;
 
-  AbstractResolvableTypeObjectSupplier(ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+  AbstractResolvableTypeObjectSupplier(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
     this.requiredType = requiredType;
-    this.includeNoneRegistered = includeNoneRegistered;
     this.includeNonSingletons = includeNonSingletons;
+    this.includeNoneRegistered = includeNoneRegistered;
   }
 
   @Override
