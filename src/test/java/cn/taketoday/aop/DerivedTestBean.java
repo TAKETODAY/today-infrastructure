@@ -23,7 +23,7 @@ package cn.taketoday.aop;
 import java.io.Serializable;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.beans.factory.BeanNameAware;
 
 /**
  * @author TODAY 2021/9/11 17:22

@@ -32,7 +32,6 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Value;
-import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
@@ -128,6 +127,7 @@ class AutowireCapableBeanFactoryTests {
   @Test
   void testAutowireBean() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
+      context.refresh();
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
       CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
@@ -150,7 +150,7 @@ class AutowireCapableBeanFactoryTests {
   @Test
   void testAutowireBeanProperties() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-
+      context.refresh();
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
       CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
@@ -201,7 +201,7 @@ class AutowireCapableBeanFactoryTests {
     String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-
+      context.refresh();
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
       CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);

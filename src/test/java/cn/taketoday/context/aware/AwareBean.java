@@ -20,6 +20,8 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Singleton;

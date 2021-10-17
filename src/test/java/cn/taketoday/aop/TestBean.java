@@ -21,8 +21,8 @@
 package cn.taketoday.aop;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanNameAware;
 
 public class TestBean implements ITestBean, BeanNameAware, BeanFactoryAware, IOther, Comparable<Object> {
   private int age;

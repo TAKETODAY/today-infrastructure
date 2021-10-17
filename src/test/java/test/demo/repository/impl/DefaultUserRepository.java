@@ -27,7 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.lang.Prototype;
-import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import test.demo.config.User;

@@ -60,6 +60,7 @@ class BeanDefinitionBuilderTests {
       beanDefinition.setInitMethods((Method[]) null);
       beanDefinition.setScope(null);
       beanDefinition.setPropertyValues(null);
+      beanDefinition.setName(null);
 
       try {
         beanDefinition.validate();

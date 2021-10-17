@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.util.List;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolvingContext;
@@ -58,6 +59,19 @@ class ObjectSupplierTests {
 
   }
 
+  @ToString
+  static class ResolvableTypeTEST {
+
+    @Autowired
+    ObjectSupplier<List<Bean>> beanObjectSupplier;
+
+    ResolvableTypeTEST(
+            ObjectSupplier<List<Bean>> beanObjectSupplier, Supplier<List<Bean>> supplier) {
+
+    }
+
+  }
+
   @Test
   public void testProperty() throws Throwable {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
@@ -74,9 +88,9 @@ class ObjectSupplierTests {
   }
 
   @Test
-  public void testParameter() {
-
+  public void parameter() {
     Constructor<TEST> constructor = BeanUtils.getConstructor(TEST.class);
+    assertThat(constructor).isNotNull();
     Parameter[] parameters = constructor.getParameters();
 
     ObjectSupplierArgumentsResolver parameterResolver = new ObjectSupplierArgumentsResolver();
@@ -86,23 +100,20 @@ class ObjectSupplierTests {
               new ArgumentsResolvingContext(constructor, context, null);
 
       context.register(Bean.class);
+      context.refresh();
 
-      ObjectSupplier<?> supplier = (ObjectSupplier<?>) parameterResolver.resolveArgument(parameters[0], resolvingContext);
-
-      ObjectSupplier<?> supplier1 = (ObjectSupplier<?>) parameterResolver.resolveArgument(parameters[1], resolvingContext);
+      ObjectSupplier<?> supplier = parameterResolver.resolveArgument(parameters[0], resolvingContext);
+      ObjectSupplier<?> supplier1 = parameterResolver.resolveArgument(parameters[1], resolvingContext);
       Bean bean = context.getBean(Bean.class);
 
-      assertThat(bean)
-              .isEqualTo(supplier.get())
-              .isNotNull()
-      ;
+      assertThat(supplier).isNotNull();
+      assertThat(supplier1).isNotNull();
 
-      assertThat(bean)
-              .isEqualTo(supplier1.get())
-              .isNotNull()
-      ;
+      assertThat(bean).isEqualTo(supplier.get()).isNotNull();
+      assertThat(bean).isEqualTo(supplier1.get()).isNotNull();
 
-      assertThat(supplier1).isEqualTo(supplier);
+      assertThat(supplier1).isNotEqualTo(supplier);
+      assertThat(supplier1).isEqualTo(parameterResolver.resolveArgument(parameters[1], resolvingContext));
 
     }
   }
