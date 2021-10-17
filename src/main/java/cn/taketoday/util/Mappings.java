@@ -21,13 +21,14 @@
 package cn.taketoday.util;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author TODAY 2021/1/27 23:02
  * @since 3.0
  */
 public class Mappings<V, T> {
-  private final HashMap<Object, V> mapping;
+  private final Map<Object, V> mapping;
   /** default mapping function */
   private volatile Function<V> mappingFunction;
 
@@ -40,10 +41,9 @@ public class Mappings<V, T> {
   }
 
   /**
-   * @param mapping
-   *         allows to define your own map implementation
+   * @param mapping allows to define your own map implementation
    */
-  public Mappings(HashMap<Object, V> mapping) {
+  public Mappings(Map<Object, V> mapping) {
     this.mapping = mapping;
   }
 
@@ -52,10 +52,9 @@ public class Mappings<V, T> {
   }
 
   /**
-   * @param mapping
-   *         allows to define your own map implementation
+   * @param mapping allows to define your own map implementation
    */
-  public Mappings(HashMap<Object, V> mapping, Function<V> mappingFunction) {
+  public Mappings(Map<Object, V> mapping, Function<V> mappingFunction) {
     this.mapping = mapping;
     this.mappingFunction = mappingFunction;
   }
@@ -68,17 +67,13 @@ public class Mappings<V, T> {
    * High performance way
    * </p>
    *
-   * @param key
-   *         key with which the specified value is to be associated
-   * @param param
-   *         createValue's param
-   *
+   * @param key key with which the specified value is to be associated
+   * @param param createValue's param
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
-   *
    * @see #createValue(Object, T)
    */
-  public final V get(final Object key, final T param) {
+  public final V get(Object key, T param) {
     V value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
@@ -97,13 +92,11 @@ public class Mappings<V, T> {
    * to {@code null}), attempts to compute its value using the given mapping
    * function and enters it into this map unless {@code null}.
    *
-   * @param key
-   *         key with which the specified value is to be associated
-   *
+   * @param key key with which the specified value is to be associated
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  public final V get(final Object key) {
+  public final V get(Object key) {
     return get(key, (Function<V>) null);
   }
 
@@ -112,15 +105,12 @@ public class Mappings<V, T> {
    * to {@code null}), attempts to compute its value using the given mapping
    * function and enters it into this map unless {@code null}.
    *
-   * @param key
-   *         key with which the specified value is to be associated
-   * @param mappingFunction
-   *         the function to compute a value, can be null, if its null use default mappingFunction
-   *
+   * @param key key with which the specified value is to be associated
+   * @param mappingFunction the function to compute a value, can be null, if its null use default mappingFunction
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  public final V get(final Object key, Function<V> mappingFunction) {
+  public final V get(Object key, Function<V> mappingFunction) {
     V value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
@@ -139,16 +129,16 @@ public class Mappings<V, T> {
     return value;
   }
 
-  protected V createValue(final Object key, final T param) {
+  protected V createValue(Object key, T param) {
     return null;
   }
 
   synchronized
-  public void setMappingFunction(final Function<V> mappingFunction) {
+  public void setMappingFunction(Function<V> mappingFunction) {
     this.mappingFunction = mappingFunction;
   }
 
-  public V put(final Object key, final V value) {
+  public V put(Object key, V value) {
     synchronized(mapping) {
       return mapping.put(key, value);
     }
@@ -160,7 +150,7 @@ public class Mappings<V, T> {
     }
   }
 
-  public V remove(final Object key) {
+  public V remove(Object key) {
     synchronized(mapping) {
       return mapping.remove(key);
     }
@@ -172,9 +162,7 @@ public class Mappings<V, T> {
     /**
      * Applies this function to the given argument.
      *
-     * @param t
-     *         the function argument
-     *
+     * @param t the function argument
      * @return the function result
      */
     R apply(Object t);
