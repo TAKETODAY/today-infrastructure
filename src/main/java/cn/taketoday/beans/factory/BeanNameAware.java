@@ -1,5 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
@@ -15,21 +15,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.aware;
-
-import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.core.env.Environment;
+package cn.taketoday.beans.factory;
 
 /**
- * Interface to be implemented by any bean that wishes to be notified
- * of the {@link Environment} that it runs in.
+ * Bean name Injection
  *
- * @author TODAY 2018-11-14 21:06
+ * @author TODAY <br>
+ * 2018-07-17 21:35:14
  */
-public interface EnvironmentAware extends Aware {
+public interface BeanNameAware extends Aware {
 
-  void setEnvironment(Environment environment);
+  void setBeanName(String name);
 
 }

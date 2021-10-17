@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.aware;
 
+import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 
 /**

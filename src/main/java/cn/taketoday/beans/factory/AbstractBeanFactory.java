@@ -497,6 +497,7 @@ public abstract class AbstractBeanFactory
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", def.getName());
     }
+    invokeAwareMethods(bean, def);
     Object ret = bean;
     // before properties
     for (BeanPostProcessor processor : postProcessors) {
@@ -523,6 +524,21 @@ public abstract class AbstractBeanFactory
       }
     }
     return ret;
+  }
+
+  private void invokeAwareMethods(Object bean, BeanDefinition def) {
+    if (bean instanceof Aware) {
+      if (bean instanceof BeanNameAware) {
+        ((BeanNameAware) bean).setBeanName(def.getName());
+      }
+      if (bean instanceof BeanClassLoaderAware) {
+        // FIXME
+        ((BeanClassLoaderAware) bean).setBeanClassLoader(bean.getClass().getClassLoader());
+      }
+      if (bean instanceof BeanFactoryAware) {
+        ((BeanFactoryAware) bean).setBeanFactory(this);
+      }
+    }
   }
 
   /**

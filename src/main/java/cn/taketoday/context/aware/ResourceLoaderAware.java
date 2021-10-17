@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.aware;
 
+import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
