@@ -50,7 +50,7 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
   @Nullable
   @Override
   public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
-    for (PropertyValueResolver propertyValueResolver : getResolvers()) {
+    for (PropertyValueResolver propertyValueResolver : getResolvers(context)) {
       PropertySetter propertySetter = propertyValueResolver.resolveProperty(context, field);
       if (propertySetter != null) {
         return propertySetter;
@@ -102,9 +102,7 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
   /**
    * Add {@link PropertyValueResolver} to {@link #propertyResolvers}
    *
-   * @param resolvers
-   *         {@link PropertyValueResolver} object
-   *
+   * @param resolvers {@link PropertyValueResolver} object
    * @since 3.0
    */
   public void addResolvers(final PropertyValueResolver... resolvers) {
