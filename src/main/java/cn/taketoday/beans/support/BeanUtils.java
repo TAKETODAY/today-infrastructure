@@ -20,6 +20,9 @@
 
 package cn.taketoday.beans.support;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
@@ -32,9 +35,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * @author TODAY 2021/8/22 21:51
  * @since 4.0
@@ -44,13 +44,9 @@ public abstract class BeanUtils {
   /**
    * Get instance with bean class use default {@link Constructor}
    *
-   * @param beanClass
-   *         bean class
-   *
+   * @param beanClass bean class
    * @return the instance of target class
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
+   * @throws BeanInstantiationException if any reflective operation exception occurred
    * @see ApplicationContextHolder#getLastStartupContext()
    * @since 2.1.2
    */
@@ -69,13 +65,9 @@ public abstract class BeanUtils {
   /**
    * Get instance with bean class
    *
-   * @param beanClassName
-   *         bean class name string
-   *
+   * @param beanClassName bean class name string
    * @return the instance of target class
-   *
-   * @throws ClassNotFoundException
-   *         If the class was not found
+   * @throws ClassNotFoundException If the class was not found
    * @see #obtainConstructor(Class)
    * @since 2.1.2
    */
@@ -87,15 +79,10 @@ public abstract class BeanUtils {
   /**
    * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
-   * @param beanClass
-   *         target bean class
-   * @param beanFactory
-   *         bean factory
-   *
+   * @param beanClass target bean class
+   * @param beanFactory bean factory
    * @return bean class 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
+   * @throws BeanInstantiationException if any reflective operation exception occurred
    * @see #obtainConstructor(Class)
    */
   public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) {
@@ -105,15 +92,10 @@ public abstract class BeanUtils {
   /**
    * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
-   * @param beanClass
-   *         target bean class
-   * @param providedArgs
-   *         User provided arguments
-   *
+   * @param beanClass target bean class
+   * @param providedArgs User provided arguments
    * @return bean class 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
+   * @throws BeanInstantiationException if any reflective operation exception occurred
    * @see #obtainConstructor(Class)
    */
   public static <T> T newInstance(
@@ -130,15 +112,10 @@ public abstract class BeanUtils {
   /**
    * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
-   * @param beanClass
-   *         target bean class
-   * @param providedArgs
-   *         User provided arguments
-   *
+   * @param beanClass target bean class
+   * @param providedArgs User provided arguments
    * @return bean class 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
+   * @throws BeanInstantiationException if any reflective operation exception occurred
    * @see #obtainConstructor(Class)
    * @since 4.0
    */
@@ -152,8 +129,7 @@ public abstract class BeanUtils {
   }
 
   /**
-   * @throws BeanInstantiationException
-   *         cannot instantiate a bean
+   * @throws BeanInstantiationException cannot instantiate a bean
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -164,15 +140,10 @@ public abstract class BeanUtils {
   /**
    * use Constructor to create bean instance
    *
-   * @param constructor
-   *         java reflect Constructor
-   * @param parameter
-   *         initargs
-   * @param <T>
-   *         target bean type
-   *
+   * @param constructor java reflect Constructor
+   * @param parameter initargs
+   * @param <T> target bean type
    * @return instance create from constructor
-   *
    * @see Constructor#newInstance(Object...)
    */
   public static <T> T newInstance(Constructor<T> constructor, @Nullable Object[] parameter) {
@@ -202,15 +173,10 @@ public abstract class BeanUtils {
    * no suitable {@link Constructor} will throw an exception
    * <p>
    *
-   * @param <T>
-   *         Target type
-   * @param beanClass
-   *         target bean class
-   *
+   * @param <T> Target type
+   * @param beanClass target bean class
    * @return Suitable constructor
-   *
-   * @throws ConstructorNotFoundException
-   *         If there is no suitable constructor
+   * @throws ConstructorNotFoundException If there is no suitable constructor
    * @since 2.1.7
    */
   public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
@@ -230,14 +196,10 @@ public abstract class BeanUtils {
    * no suitable {@link Constructor} will throw an exception
    * <p>
    *
-   * @param <T>
-   *         Target type
-   * @param beanClass
-   *         target bean class
-   *
+   * @param <T> Target type
+   * @param beanClass target bean class
    * @return Suitable constructor If there isn't a suitable {@link Constructor}
    * returns null
-   *
    * @since 2.1.7
    */
   @Nullable
