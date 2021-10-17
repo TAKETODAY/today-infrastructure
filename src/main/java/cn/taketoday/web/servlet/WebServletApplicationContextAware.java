@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.servlet;
 
-import cn.taketoday.context.aware.Aware;
+import cn.taketoday.beans.factory.Aware;
 
 /**
  * @author TODAY <br>

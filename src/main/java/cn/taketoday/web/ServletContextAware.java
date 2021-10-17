@@ -21,7 +21,7 @@ package cn.taketoday.web;
 
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.aware.Aware;
+import cn.taketoday.beans.factory.Aware;
 
 /**
  * @author Today <br>
