@@ -20,6 +20,17 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -56,18 +67,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -120,20 +119,19 @@ public class BeanDefinitionReader {
   // import
 
   public void register(Class<?>... beans) {
+
     Assert.notNull(beans, "Cannot import null beans");
 
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
     for (Class<?> bean : beans) {
-      BeanDefinition def = BeanDefinitionBuilder.defaults(bean);
+      String beanName = createBeanName(bean);
+      builder.beanClass(bean)
+              .name(beanName);
+
+      BeanDefinition def =  builder.build();
       importAnnotated(def);
       register(def);
       loadConfigurationBeans(def); // scan config bean
-    }
-  }
-
-  public void importBeans(Set<BeanDefinition> defs) {
-
-    for (BeanDefinition def : defs) {
-      importAnnotated(def);
     }
   }
 
@@ -151,9 +149,7 @@ public class BeanDefinitionReader {
   /**
    * Select import
    *
-   * @param annotated
-   *         Target {@link BeanDefinition}
-   *
+   * @param annotated Target {@link BeanDefinition}
    * @since 2.1.7
    */
   protected void doImport(BeanDefinition annotated, Class<?> importClass) {
@@ -185,25 +181,9 @@ public class BeanDefinitionReader {
   }
 
   /**
-   * Resolve bean from a class which annotated with @{@link Configuration}
-   */
-  public void loadConfigurationBeans() {
-    log.debug("Loading Configuration Beans");
-
-    for (Map.Entry<String, BeanDefinition> entry : obtainRegistry().getBeanDefinitions().entrySet()) {
-      if (entry.getValue().isAnnotationPresent(Configuration.class)) {
-        // @Configuration bean
-        loadConfigurationBeans(entry.getValue());
-      }
-    }
-  }
-
-  /**
    * Load {@link Configuration} beans from input bean class
    *
-   * @param declaringDef
-   *         current {@link Configuration} bean
-   *
+   * @param declaringDef current {@link Configuration} bean
    * @since 2.1.7
    */
   protected void loadConfigurationBeans(BeanDefinition declaringDef) {
@@ -244,10 +224,8 @@ public class BeanDefinitionReader {
   /**
    * Create {@link Configuration} bean definition, and register it
    *
-   * @param method
-   *         factory method
-   * @param components
-   *         {@link AnnotationAttributes}
+   * @param method factory method
+   * @param components {@link AnnotationAttributes}
    */
   protected void registerConfigurationBean(
           BeanDefinition declaringDef, Method method, AnnotationAttributes[] components
@@ -270,8 +248,7 @@ public class BeanDefinitionReader {
   /**
    * Load missing beans, default beans
    *
-   * @param candidates
-   *         candidate class set
+   * @param candidates candidate class set
    */
   public void loadMissingBean(Collection<Class<?>> candidates) {
     log.debug("Loading lost beans");
@@ -296,13 +273,9 @@ public class BeanDefinitionReader {
   /**
    * Is a context missed bean?
    *
-   * @param missingBean
-   *         The {@link Annotation} declared on the class or a method
-   * @param annotated
-   *         Missed bean class or method
-   *
+   * @param missingBean The {@link Annotation} declared on the class or a method
+   * @param annotated Missed bean class or method
    * @return If the bean is missed in context
-   *
    * @since 3.0
    */
   private boolean isMissedBean(AnnotationAttributes missingBean, AnnotatedElement annotated) {
@@ -351,7 +324,7 @@ public class BeanDefinitionReader {
         }
         else {
           log.info("@MissingBean -> '{}' cannot pass the condition " +
-                  "or contains its bean definition, dont register to the map", beanClass);
+                           "or contains its bean definition, dont register to the map", beanClass);
         }
       }
       else {
@@ -372,9 +345,7 @@ public class BeanDefinitionReader {
    * Create {@link ImportSelector} ,or {@link BeanDefinitionImporter},
    * {@link ApplicationListener} object
    *
-   * @param target
-   *         Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
-   *
+   * @param target Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
    * @return {@link ImportSelector} object
    */
   protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
@@ -399,11 +370,8 @@ public class BeanDefinitionReader {
    * sub-classes can overriding this method to provide a strategy to create bean name
    * </p>
    *
-   * @param type
-   *         type
-   *
+   * @param type type
    * @return bean name
-   *
    * @see ClassUtils#getShortName(Class)
    */
   protected String createBeanName(Class<?> type) {
@@ -454,11 +422,8 @@ public class BeanDefinitionReader {
    * Register a bean with the bean instance
    * <p>
    *
-   * @param obj
-   *         bean instance
-   *
-   * @throws BeanDefinitionStoreException
-   *         If can't store a bean
+   * @param obj bean instance
+   * @throws BeanDefinitionStoreException If can't store a bean
    */
   public void registerBean(Object obj) {
     registerBean(createBeanName(obj.getClass()), obj);
@@ -473,13 +438,9 @@ public class BeanDefinitionReader {
   /**
    * Register a bean with the given name and bean instance
    *
-   * @param name
-   *         bean name (must not be null)
-   * @param obj
-   *         bean instance (must not be null)
-   *
-   * @throws BeanDefinitionStoreException
-   *         If can't store a bean
+   * @param name bean name (must not be null)
+   * @param obj bean instance (must not be null)
+   * @throws BeanDefinitionStoreException If can't store a bean
    */
   public void registerBean(String name, Object obj) {
     Assert.notNull(name, "bean-name must not be null");
@@ -503,13 +464,9 @@ public class BeanDefinitionReader {
    * default register as singleton
    * </p>
    *
-   * @param clazz
-   *         bean class
-   * @param supplier
-   *         bean instance supplier
-   *
-   * @throws BeanDefinitionStoreException
-   *         If can't store a bean
+   * @param clazz bean class
+   * @param supplier bean instance supplier
+   * @throws BeanDefinitionStoreException If can't store a bean
    * @see #enableConditionEvaluation
    * @since 4.0
    */
@@ -520,15 +477,10 @@ public class BeanDefinitionReader {
   /**
    * Register a bean with the given type and instance supplier
    *
-   * @param clazz
-   *         bean class
-   * @param supplier
-   *         bean instance supplier
-   * @param prototype
-   *         register as prototype?
-   *
-   * @throws BeanDefinitionStoreException
-   *         If can't store a bean
+   * @param clazz bean class
+   * @param supplier bean instance supplier
+   * @param prototype register as prototype?
+   * @throws BeanDefinitionStoreException If can't store a bean
    * @see #enableConditionEvaluation
    * @since 4.0
    */
@@ -544,17 +496,11 @@ public class BeanDefinitionReader {
    * register beans with given {@link Component} metadata.
    * <p>
    *
-   * @param clazz
-   *         bean class
-   * @param supplier
-   *         bean instance supplier
-   * @param prototype
-   *         register as prototype?
-   * @param ignoreAnnotation
-   *         ignore {@link Component} scanning
-   *
-   * @throws BeanDefinitionStoreException
-   *         If BeanDefinition could not be store
+   * @param clazz bean class
+   * @param supplier bean instance supplier
+   * @param prototype register as prototype?
+   * @param ignoreAnnotation ignore {@link Component} scanning
+   * @throws BeanDefinitionStoreException If BeanDefinition could not be store
    * @see #enableConditionEvaluation
    * @since 4.0
    */
@@ -619,13 +565,9 @@ public class BeanDefinitionReader {
    * register as singleton or prototype defined in your supplier
    * </p>
    *
-   * @param name
-   *         bean name
-   * @param supplier
-   *         bean instance supplier
-   *
-   * @throws BeanDefinitionStoreException
-   *         If can't store a bean
+   * @param name bean name
+   * @param supplier bean instance supplier
+   * @throws BeanDefinitionStoreException If can't store a bean
    * @since 4.0
    */
   public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
@@ -646,15 +588,10 @@ public class BeanDefinitionReader {
    * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
    * empty destroy method.
    *
-   * @param name
-   *         Bean name
-   * @param beanClass
-   *         Bean class
-   *
+   * @param name Bean name
+   * @param beanClass Bean class
    * @return returns a new BeanDefinition
-   *
-   * @throws BeanDefinitionStoreException
-   *         If BeanDefinition could not be store
+   * @throws BeanDefinitionStoreException If BeanDefinition could not be store
    * @since 4.0
    */
   public List<BeanDefinition> load(String name, Class<?> beanClass) {
@@ -722,8 +659,7 @@ public class BeanDefinitionReader {
   /**
    * clear exist customizers and set
    *
-   * @param customizers
-   *         new customizers
+   * @param customizers new customizers
    */
   public void setCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
     if (ObjectUtils.isNotEmpty(customizers)) {
@@ -740,8 +676,7 @@ public class BeanDefinitionReader {
   /**
    * set customizers
    *
-   * @param customizers
-   *         new customizers
+   * @param customizers new customizers
    */
   public void setCustomizers(@Nullable List<BeanDefinitionCustomizer> customizers) {
     this.customizers = customizers;
@@ -754,9 +689,7 @@ public class BeanDefinitionReader {
   /**
    * set the flag to enable condition-evaluation
    *
-   * @param enableConditionEvaluation
-   *         enableConditionEvaluation flag
-   *
+   * @param enableConditionEvaluation enableConditionEvaluation flag
    * @see ConditionEvaluator
    * @see cn.taketoday.context.Condition
    * @see Conditional
@@ -793,8 +726,7 @@ public class BeanDefinitionReader {
   // private
 
   /**
-   * @param annotated
-   *         should AnnotatedElement skip register to registry?
+   * @param annotated should AnnotatedElement skip register to registry?
    */
   protected boolean shouldSkip(AnnotatedElement annotated) {
     return enableConditionEvaluation && !conditionEvaluator().passCondition(annotated);
