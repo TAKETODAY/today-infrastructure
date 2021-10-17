@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.core.ClassEmitter;
 import cn.taketoday.core.bytecode.core.ClassGenerator;
@@ -39,7 +40,6 @@ import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
-import static cn.taketoday.core.bytecode.Opcodes.ALOAD;
 import static cn.taketoday.core.bytecode.Opcodes.INVOKESTATIC;
 
 /**
@@ -47,7 +47,6 @@ import static cn.taketoday.core.bytecode.Opcodes.INVOKESTATIC;
  * 2020/9/11 16:32
  */
 public abstract class GeneratorSupport<T extends Accessor> {
-
   static final Type GENERATOR_SUPPORT_TYPE = Type.fromClass(GeneratorSupport.class);
   static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
@@ -69,14 +68,14 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
   };
 
-  protected GeneratorSupport(final Class<?> targetClass) {
+  protected GeneratorSupport(Class<?> targetClass) {
     Assert.notNull(targetClass, "targetClass must not be null");
     this.targetClass = targetClass;
   }
 
   @SuppressWarnings("unchecked")
   public T create() {
-    final Object cacheKey = cacheKey();
+    Object cacheKey = cacheKey();
     return (T) mappings.get(cacheKey, this);
   }
 
@@ -97,15 +96,14 @@ public abstract class GeneratorSupport<T extends Accessor> {
   }
 
   /**
-   * @throws Exception
-   *         cannot generate class
+   * @throws Exception cannot generate class
    * @see ReflectionUtils#invokeConstructor(Constructor, Object[])
    */
   private T createInternal() throws Exception {
     if (cannotAccess()) {
       return fallbackInstance();
     }
-    final Class<T> accessorClass = generateIfNecessary(getClassLoader());
+    Class<T> accessorClass = generateIfNecessary(getClassLoader());
     return newInstance(accessorClass);
   }
 
@@ -124,7 +122,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
     catch (ClassNotFoundException ignored) {
     }
-    final byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
+    byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
     return ReflectionUtils.defineClass(
             getClassName(), bytes, classLoader, ReflectionUtils.getProtectionDomain(targetClass));
   }
@@ -163,9 +161,9 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   protected abstract void appendClassName(StringBuilder builder);
 
-  protected void buildClassNameSuffix(final StringBuilder builder, final Executable target) {
+  protected void buildClassNameSuffix(StringBuilder builder, Executable target) {
     if (target.getParameterCount() != 0) {
-      for (final Class<?> parameterType : target.getParameterTypes()) {
+      for (Class<?> parameterType : target.getParameterTypes()) {
         builder.append('$');
         if (parameterType.isArray()) {
           builder.append("A$");
@@ -190,26 +188,26 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return 2;
   }
 
-  protected void prepareParameters(final CodeEmitter codeEmitter, Executable targetExecutable) {
+  protected void prepareParameters(CodeEmitter codeEmitter, Executable targetExecutable) {
 
     if (targetExecutable.getParameterCount() == 0) {
       return;
     }
 
-    final Class<?>[] parameterTypes = targetExecutable.getParameterTypes();
-    final int argsIndex = getArgsIndex();
+    Class<?>[] parameterTypes = targetExecutable.getParameterTypes();
+    int argsIndex = getArgsIndex();
     for (int i = 0; i < parameterTypes.length; i++) {
-      codeEmitter.visitVarInsn(ALOAD, argsIndex);
+      codeEmitter.visitVarInsn(Opcodes.ALOAD, argsIndex);
       codeEmitter.aaload(i);
 
       Class<?> parameterClass = parameterTypes[i];
-      final Type parameterType = Type.fromClass(parameterClass);
+      Type parameterType = Type.fromClass(parameterClass);
       if (parameterClass.isPrimitive()) {
-        final Type boxedType = parameterType.getBoxedType(); // java.lang.Long ...
+        Type boxedType = parameterType.getBoxedType(); // java.lang.Long ...
         codeEmitter.checkCast(boxedType);
 
         // use "convert" method
-        final String descriptor = boxedType.getDescriptor();
+        String descriptor = boxedType.getDescriptor();
         codeEmitter.visitMethodInsn(
                 INVOKESTATIC, GENERATOR_SUPPORT_TYPE_INTERNAL_NAME,
                 "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
@@ -221,7 +219,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
   }
 
   protected ClassEmitter beginClass(ClassVisitor v) {
-    final ClassEmitter ce = new ClassEmitter(v);
+    ClassEmitter ce = new ClassEmitter(v);
     ce.beginClass(ACC_PUBLIC | ACC_FINAL, getClassName().replace('.', '/'), getSuperType(), getInterfaces());
     generateConstructor(ce);
     return ce;
@@ -242,7 +240,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return DEFAULT_SUPER;
   }
 
-  public void setClassLoader(final ClassLoader classLoader) {
+  public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 

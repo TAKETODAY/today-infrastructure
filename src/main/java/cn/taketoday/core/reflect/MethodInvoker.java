@@ -24,8 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -46,7 +44,7 @@ import cn.taketoday.util.ReflectionUtils;
 public abstract class MethodInvoker implements MethodAccessor, Invoker {
   private final Method method;
 
-  public MethodInvoker(final Method method) {
+  public MethodInvoker(Method method) {
     Assert.notNull(method, "method must not be null");
     this.method = method;
   }
@@ -77,19 +75,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * underlying method return type is void, the invocation returns
    * null.
    *
-   * @param obj
-   *         the object the underlying method is invoked from
-   * @param args
-   *         the arguments used for the method call
-   *
+   * @param obj the object the underlying method is invoked from
+   * @param args the arguments used for the method call
    * @return the result of dispatching the method represented by
    * this object on {@code obj} with parameters
    * {@code args}
-   *
-   * @throws NullPointerException
-   *         if the specified object is null and the method is an instance method.
-   * @throws ExceptionInInitializerError
-   *         if the initialization provoked by this method fails.
+   * @throws NullPointerException if the specified object is null and the method is an instance method.
+   * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
   @Override
   public abstract Object invoke(Object obj, Object[] args);
@@ -102,9 +94,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   /**
    * Create a {@link MethodInvoker}
    *
-   * @param executable
-   *         Target Method to invoke
-   *
+   * @param executable Target Method to invoke
    * @return {@link MethodInvoker} sub object
    */
   public static MethodInvoker fromMethod(Method executable) {
@@ -115,13 +105,9 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   /**
    * Create a {@link MethodInvoker}
    *
-   * @param executable
-   *         Target Method to invoke
-   * @param targetClass
-   *         most specific target class
-   *
+   * @param executable Target Method to invoke
+   * @param targetClass most specific target class
    * @return {@link MethodInvoker} sub object
-   *
    * @since 3.0
    */
   public static MethodInvoker fromMethod(Method executable, Class<?> targetClass) {
@@ -132,20 +118,14 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   /**
    * Create a {@link MethodInvoker}
    *
-   * @param beanClass
-   *         Bean Class
-   * @param name
-   *         Target method to invoke
-   * @param parameters
-   *         Target parameters classes
-   *
+   * @param beanClass Bean Class
+   * @param name Target method to invoke
+   * @param parameters Target parameters classes
    * @return {@link MethodInvoker} sub object
-   *
-   * @throws ReflectionException
-   *         Thrown when a particular method cannot be found.
+   * @throws ReflectionException Thrown when a particular method cannot be found.
    */
   public static MethodInvoker fromMethod(
-          final Class<?> beanClass, final String name, final Class<?>... parameters) {
+          Class<?> beanClass, String name, Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
       return new MethodInvokerGenerator(targetMethod, beanClass).create();
@@ -167,29 +147,19 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   public static class MethodInvokerGenerator
           extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
 
-    private final Method targetMethod;
-
     private static final String superType = "Lcn/taketoday/core/reflect/MethodInvoker;";
     private static final String[] interfaces = { "Lcn/taketoday/core/reflect/Invoker;" };
-
-    private static final MethodInfo invokeInfo;
+    private static final MethodInfo invokeInfo = MethodInfo.from(
+            ReflectionUtils.getMethod(MethodInvoker.class, "invoke", Object.class, Object[].class));
 
     /** @since 3.0.2 */
     private static final MethodSignature SIG_CONSTRUCTOR
             = new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Method;)V");
 
-    static {
-      try {
-        invokeInfo = MethodInfo.from(MethodInvoker.class.getDeclaredMethod("invoke", Object.class, Object[].class));
-      }
-      catch (NoSuchMethodException | SecurityException e) {
-        throw new ApplicationContextException(e);
-      }
-    }
+    private final Method targetMethod;
 
     /**
-     * @throws NullPointerException
-     *         method maybe null
+     * @throws NullPointerException method maybe null
      */
     public MethodInvokerGenerator(Method method) {
       super(method.getDeclaringClass());
@@ -197,8 +167,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     /**
-     * @throws NullPointerException
-     *         method maybe null
+     * @throws NullPointerException method maybe null
      */
     public MethodInvokerGenerator(Method method, Class<?> targetClass) {
       super(targetClass);
@@ -207,21 +176,20 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     public void generateClass(ClassVisitor v) {
-      final Method target = this.targetMethod;
-      final ClassEmitter classEmitter = beginClass(v);
+      ClassEmitter classEmitter = beginClass(v);
 
-      final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
-      if (!Modifier.isStatic(target.getModifiers())) {
+      CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+      if (!Modifier.isStatic(targetMethod.getModifiers())) {
         codeEmitter.visitVarInsn(Opcodes.ALOAD, 1);
         codeEmitter.checkCast(Type.fromClass(targetClass));
         // codeEmitter.dup();
       }
 
-      prepareParameters(codeEmitter, target);
+      prepareParameters(codeEmitter, targetMethod);
 
-      final MethodInfo methodInfo = MethodInfo.from(target);
+      MethodInfo methodInfo = MethodInfo.from(targetMethod);
       codeEmitter.invoke(methodInfo);
-      codeEmitter.valueOf(Type.fromClass(target.getReturnType()));
+      codeEmitter.valueOf(Type.fromClass(targetMethod.getReturnType()));
 
       codeEmitter.returnValue();
       codeEmitter.end_method();
@@ -243,14 +211,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     /**
-     * @throws NoSuchMethodException
-     *         handle in fallback {@link #fallback(Exception)}
+     * @throws NoSuchMethodException handle in fallback {@link #fallback(Exception)}
      * @since 3.0.2
      */
     @Override
     protected MethodInvoker newInstance(Class<MethodInvoker> accessorClass) throws NoSuchMethodException {
-      final Constructor<MethodInvoker> constructor = accessorClass.getDeclaredConstructor(Method.class);
-      return BeanUtils.newInstance(constructor, new Object[] { targetMethod });
+      Constructor<MethodInvoker> constructor = accessorClass.getDeclaredConstructor(Method.class);
+      return ReflectionUtils.invokeConstructor(constructor, new Object[] { targetMethod });
     }
 
     @Override
@@ -316,7 +283,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
         return true;
       if (!(o instanceof MethodInvokerCacheKey))
         return false;
-      final MethodInvokerCacheKey that = (MethodInvokerCacheKey) o;
+      MethodInvokerCacheKey that = (MethodInvokerCacheKey) o;
       return Objects.equals(targetMethod, that.targetMethod) && Objects.equals(targetClass, that.targetClass);
     }
 
