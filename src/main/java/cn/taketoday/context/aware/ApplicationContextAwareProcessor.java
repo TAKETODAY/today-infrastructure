@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.aware;
 
+import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
@@ -69,17 +70,6 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
   }
 
   private void awareInternal(Object bean, BeanDefinition def) {
-
-    if (bean instanceof BeanNameAware) {
-      ((BeanNameAware) bean).setBeanName(def.getName());
-    }
-    if (bean instanceof BeanFactoryAware) {
-      ((BeanFactoryAware) bean).setBeanFactory(context.getBeanFactory());
-    }
-    if (bean instanceof BeanClassLoaderAware) {
-      ((BeanClassLoaderAware) bean).setBeanClassLoader(bean.getClass().getClassLoader());
-    }
-
     if (bean instanceof EnvironmentAware) {
       ((EnvironmentAware) bean).setEnvironment(context.getEnvironment());
     }
