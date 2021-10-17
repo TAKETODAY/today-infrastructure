@@ -23,7 +23,6 @@ package cn.taketoday.util;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
@@ -37,11 +36,8 @@ import cn.taketoday.lang.Assert;
  * cached values and a {@code ConcurrentLinkedQueue} for ordering the keys and
  * choosing the least recently used key when the cache is at full capacity.
  *
- * @param <K>
- *         the type of the key used for cache retrieval
- * @param <V>
- *         the type of the cached values
- *
+ * @param <K> the type of the key used for cache retrieval
+ * @param <V> the type of the cached values
  * @author Brian Clozel
  * @author Juergen Hoeller
  * @author TODAY 2021/9/11 12:47
@@ -61,11 +57,9 @@ public class ConcurrentLruCache<K, V> {
   /**
    * Create a new cache instance with the given limit and generator function.
    *
-   * @param maxSize
-   *         the maximum number of entries in the cache
-   *         (0 indicates no caching, always generating a new value)
-   * @param generator
-   *         a function to generate a new value for a given key
+   * @param maxSize the maximum number of entries in the cache
+   * (0 indicates no caching, always generating a new value)
+   * @param generator a function to generate a new value for a given key
    */
   public ConcurrentLruCache(int maxSize, Function<K, V> generator) {
     Assert.isTrue(maxSize >= 0, "LRU max size should be positive");
@@ -73,7 +67,7 @@ public class ConcurrentLruCache<K, V> {
     this.maxSize = maxSize;
     this.generator = generator;
 
-    ReadWriteLock lock = new ReentrantReadWriteLock();
+    ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     this.readLock = lock.readLock();
     this.writeLock = lock.writeLock();
   }
@@ -82,9 +76,7 @@ public class ConcurrentLruCache<K, V> {
    * Retrieve an entry from the cache, potentially triggering generation
    * of the value.
    *
-   * @param key
-   *         the key to retrieve the entry for
-   *
+   * @param key the key to retrieve the entry for
    * @return the cached or newly generated value
    */
   public V get(K key) {
@@ -144,9 +136,7 @@ public class ConcurrentLruCache<K, V> {
   /**
    * Determine whether the given key is present in this cache.
    *
-   * @param key
-   *         the key to check for
-   *
+   * @param key the key to check for
    * @return {@code true} if the key is present,
    * {@code false} if there was no matching key
    */
@@ -157,9 +147,7 @@ public class ConcurrentLruCache<K, V> {
   /**
    * Immediately remove the given key and any associated value.
    *
-   * @param key
-   *         the key to evict the entry for
-   *
+   * @param key the key to evict the entry for
    * @return {@code true} if the key was present before,
    * {@code false} if there was no matching key
    */
