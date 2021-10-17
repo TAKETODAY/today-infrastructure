@@ -428,12 +428,12 @@ public abstract class AbstractApplicationContext
       // Prepare BeanFactory
       prepareBeanFactory();
 
+      postProcessBeanFactory();
+
       // handle dependency : register bean dependencies definition
       handleDependency();
 
       registerApplicationListeners();
-
-      postProcessBeanFactory();
 
       // Initialization singletons that has already in context
       // Initialize other special beans in specific context subclasses.
@@ -891,14 +891,21 @@ public abstract class AbstractApplicationContext
 
   // Object
 
+  /**
+   * Return information about this context.
+   */
   @Override
   public String toString() {
-    return new StringBuilder(ObjectUtils.toHexString(this))
-            .append(": state: [")
+    StringBuilder sb = new StringBuilder(getApplicationName());
+    sb.append(": state: [")
             .append(state)
             .append("], on startup date: ")
-            .append(formatStartupDate())
-            .toString();
+            .append(formatStartupDate());
+    ApplicationContext parent = getParent();
+    if (parent != null) {
+      sb.append(", parent: ").append(parent.getApplicationName());
+    }
+    return sb.toString();
   }
 
   public String formatStartupDate() {
