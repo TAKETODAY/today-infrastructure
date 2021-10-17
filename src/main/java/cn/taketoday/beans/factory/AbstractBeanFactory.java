@@ -349,6 +349,10 @@ public abstract class AbstractBeanFactory
     return def.newInstance(this);
   }
 
+  protected Object createBeanInstance(BeanDefinition def, @Nullable Object[] args) {
+    return def.newInstance(this, args);
+  }
+
   /**
    * Apply property values.
    *
@@ -485,12 +489,21 @@ public abstract class AbstractBeanFactory
   }
 
   /**
-   * Initializing bean, with given bean instance and bean definition
+   * Initialize the given bean instance, applying factory callbacks
+   * as well as init methods and bean post processors.
+   * <p>Called from {@link #createBean} for traditionally defined beans,
+   * and from {@link #initializeBean} for existing bean instances.
    *
-   * @param bean Bean instance
+   * @param bean the new bean instance we may need to initialize
    * @param def Bean definition
-   * @return A initialized object, never be null
+   * @return the initialized bean instance
    * @throws BeanInitializingException If any {@link Exception} occurred when initialize bean
+   * @see BeanNameAware
+   * @see BeanClassLoaderAware
+   * @see BeanFactoryAware
+   * @see #applyBeanPostProcessorsBeforeInitialization
+   * @see #invokeInitMethods
+   * @see #applyBeanPostProcessorsAfterInitialization
    */
   @Override
   public Object initializeBean(Object bean, BeanDefinition def) {

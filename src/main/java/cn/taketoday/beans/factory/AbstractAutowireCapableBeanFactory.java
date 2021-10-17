@@ -75,7 +75,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException {
+  public Object autowire(Class<?> beanClass) throws BeansException {
     return null;
   }
 

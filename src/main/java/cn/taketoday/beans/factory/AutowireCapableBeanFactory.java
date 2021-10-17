@@ -43,8 +43,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * <p>
    * Note: This is intended for creating a fresh instance, populating annotated
    * fields and methods as well as applying all standard bean initialization
-   * callbacks. It does <i>not</i> imply traditional by-name or by-type autowiring
-   * of properties; use {@link #createBean(Class, boolean)} for those purposes.
+   * callbacks.
    *
    * @param beanClass the class of the bean to create
    * @return the new bean instance
@@ -55,16 +54,12 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   }
 
   /**
-   * Fully create a new bean instance of the given class with the specified
-   * autowire strategy. All constants defined in this interface are supported
-   * here.
+   * Fully create a new bean instance of the given class
    * <p>
    * Performs full initialization of the bean, including all applicable
    * {@link BeanPostProcessor BeanPostProcessors}.
    *
-   * @param beanClass the class of the bean to create whether to perform a dependency
-   * check for objects (not applicable to autowiring a constructor,
-   * thus ignored there)
+   * @param beanClass the class of the bean to create
    * @param cacheBeanDef cache bean definition
    * @return the new bean instance
    * @throws BeansException if instantiation or wiring failed
@@ -73,11 +68,9 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
   /**
    * Populate the given bean instance through applying after-instantiation callbacks
-   * and bean property post-processing (e.g. for annotation-driven injection).
+   *
    * <p>Note: This is essentially intended for (re-)populating annotated fields and
-   * methods, either for new instances or for deserialized instances. It does
-   * <i>not</i> imply traditional by-name or by-type autowiring of properties;
-   * use {@link #autowireBeanProperties} for those purposes.
+   * methods, either for new instances or for deserialized instances.
    *
    * @param existingBean the existing bean instance
    * @throws BeansException if wiring failed
@@ -85,8 +78,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   void autowireBean(Object existingBean) throws BeansException;
 
   /**
-   * Instantiate a new bean instance of the given class with the specified autowire
-   * strategy. All constants defined in this interface are supported here.
+   * Instantiate a new bean instance of the given class . All constants defined
+   * in this interface are supported here.
    * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
    * before-instantiation callbacks (e.g. for annotation-driven injection).
    * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
@@ -96,17 +89,13 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * callbacks are applied, if applicable to the construction of the instance.
    *
    * @param beanClass the class of the bean to instantiate
-   * @param autowireMode by name or type, using the constants in this interface
-   * @param dependencyCheck whether to perform a dependency check for object
-   * references in the bean instance (not applicable to autowiring a constructor,
-   * thus ignored there)
    * @return the new bean instance
    * @throws BeansException if instantiation or wiring failed
    * @see #initializeBean
    * @see #applyBeanPostProcessorsBeforeInitialization
    * @see #applyBeanPostProcessorsAfterInitialization
    */
-  Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
+  Object autowire(Class<?> beanClass) throws BeansException;
 
   /**
    * Configure the given raw bean: autowiring bean properties, applying
