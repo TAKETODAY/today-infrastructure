@@ -1414,7 +1414,7 @@ public abstract class ReflectionUtils {
     }
   }
 
-  public static Object invokeConstructor(Constructor<?> constructor, Object[] args) {
+  public static <T> T invokeConstructor(Constructor<T> constructor, Object[] args) {
     try {
       return constructor.newInstance(args);
     }
