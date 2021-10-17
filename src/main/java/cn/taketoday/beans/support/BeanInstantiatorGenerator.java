@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.ClassEmitter;
@@ -36,10 +37,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
-import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
-
 /**
+ * {@link BeanInstantiator} bytecode Generator
+ *
  * @author TODAY 2020/9/11 16:51
  */
 public class BeanInstantiatorGenerator
@@ -47,7 +47,7 @@ public class BeanInstantiatorGenerator
 
   private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
   private static final MethodInfo newInstanceInfo = MethodInfo.from(
-          ReflectionUtils.findMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
+          ReflectionUtils.getMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
 
   private final Constructor<?> targetConstructor;
 
@@ -71,14 +71,15 @@ public class BeanInstantiatorGenerator
    */
   @Override
   public void generateClass(ClassVisitor visitor) {
-    final ClassEmitter classEmitter = beginClass(visitor);
-//    final Method constructor = Method.fromConstructor(targetConstructor);
+    ClassEmitter classEmitter = beginClass(visitor);
+//    Method constructor = Method.fromConstructor(targetConstructor);
 //    GeneratorAdapter generator = new GeneratorAdapter(ACC_PUBLIC | ACC_FINAL, constructor, null, null, visitor);
 //    generator.loadThis();
 
-    final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, newInstanceInfo, ACC_PUBLIC | ACC_FINAL);
+    CodeEmitter codeEmitter = EmitUtils.beginMethod(
+            classEmitter, newInstanceInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 
-    final Type type = Type.fromClass(targetClass);
+    Type type = Type.fromClass(targetClass);
     codeEmitter.newInstance(type);
     codeEmitter.dup();
 
