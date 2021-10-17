@@ -20,15 +20,15 @@
 
 package cn.taketoday.context.annotation.autowire;
 
+import java.lang.reflect.Parameter;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
-
-import java.lang.reflect.Parameter;
-import java.util.function.Supplier;
 
 /**
  * for {@link ObjectSupplier} ArgumentsResolverStrategy
@@ -39,7 +39,7 @@ public class ObjectSupplierArgumentsResolver implements ArgumentsResolvingStrate
 
   @Nullable
   @Override
-  public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+  public ObjectSupplier<?> resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
     BeanFactory beanFactory = resolvingContext.getBeanFactory();
     if (beanFactory != null) {
       Class<?> type = parameter.getType();
