@@ -49,11 +49,10 @@ public class ObjectSupplierPropertyResolver
 
   @Override
   protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
-    final ResolvableType resolvableType = ResolvableType.fromField(field);
+    ResolvableType resolvableType = ResolvableType.fromField(field);
     if (resolvableType.hasGenerics()) {
-      final ResolvableType generic = resolvableType.getGeneric(0);
-      final Class<?> aClass = generic.toClass();
-      return new ObjectSupplierPropertySetter(field, aClass);
+      ResolvableType generic = resolvableType.getGeneric(0);
+      return new ObjectSupplierPropertySetter(field, generic);
     }
     // Usage error
     throw new PropertyValueException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
@@ -67,16 +66,16 @@ public class ObjectSupplierPropertyResolver
   static class ObjectSupplierPropertySetter
           extends AbstractPropertySetter implements PropertySetter {
 
-    final Class<?> target;
+    final ResolvableType generic;
 
-    public ObjectSupplierPropertySetter(Field field, Class<?> target) {
+    public ObjectSupplierPropertySetter(Field field, ResolvableType generic) {
       super(field);
-      this.target = target;
+      this.generic = generic;
     }
 
     @Override
     protected Object resolveValue(AbstractBeanFactory beanFactory) {
-      return beanFactory.getObjectSupplier(target);
+      return beanFactory.getObjectSupplier(generic);
     }
 
     @Override
@@ -87,19 +86,19 @@ public class ObjectSupplierPropertyResolver
         return false;
       if (!super.equals(o))
         return false;
-      final ObjectSupplierPropertySetter that = (ObjectSupplierPropertySetter) o;
-      return Objects.equals(target, that.target);
+      ObjectSupplierPropertySetter that = (ObjectSupplierPropertySetter) o;
+      return Objects.equals(generic, that.generic);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(super.hashCode(), target);
+      return Objects.hash(super.hashCode(), generic);
     }
 
     @Override
     public String toString() {
       return "ObjectSupplierPropertyValue{" +
-              "target=" + target +
+              "generic=" + generic +
               '}';
     }
   }
