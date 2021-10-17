@@ -1,0 +1,3 @@
+[[StrategiesDetector]]
+
+= StrategiesDetector

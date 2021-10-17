@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.aware.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.lang.Assert;
