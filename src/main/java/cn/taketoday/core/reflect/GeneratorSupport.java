@@ -23,8 +23,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 
-import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
@@ -101,9 +99,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
   /**
    * @throws Exception
    *         cannot generate class
-   * @throws BeanInstantiationException
-   *         cannot create a {@link Accessor}
-   * @see BeanUtils#newInstance(Constructor, Object[])
+   * @see ReflectionUtils#invokeConstructor(Constructor, Object[])
    */
   private T createInternal() throws Exception {
     if (cannotAccess()) {
@@ -117,8 +113,8 @@ public abstract class GeneratorSupport<T extends Accessor> {
    * @since 3.0.2
    */
   protected T newInstance(Class<T> accessorClass) throws Exception {
-    final Constructor<T> constructor = BeanUtils.obtainConstructor(accessorClass);
-    return BeanUtils.newInstance(constructor, null);
+    Constructor<T> constructor = ReflectionUtils.getConstructor(accessorClass);
+    return ReflectionUtils.invokeConstructor(constructor, null);
   }
 
   @SuppressWarnings("unchecked")
