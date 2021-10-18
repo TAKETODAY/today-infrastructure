@@ -996,8 +996,10 @@ public abstract class AbstractBeanFactory
         @Override
         public T get() { return getIfAvailable(); }
 
+        @Override
         public Stream<T> orderedStream() { return stream(); }
 
+        @Override
         public Stream<T> stream() { return Stream.of(targetSingleton); }
       }
       return new SingletonObjectSupplier();

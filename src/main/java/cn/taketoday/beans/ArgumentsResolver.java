@@ -107,6 +107,7 @@ public class ArgumentsResolver {
    * @return Parameter list objects
    * @since 3.0
    */
+  @Nullable
   public Object[] resolve(
           Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
     Assert.notNull(executable, "Executable must not be null");
