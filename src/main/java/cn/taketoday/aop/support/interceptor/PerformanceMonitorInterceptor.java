@@ -50,9 +50,7 @@ public class PerformanceMonitorInterceptor extends AbstractMonitoringInterceptor
    * Create a new PerformanceMonitorInterceptor with a dynamic or static logger,
    * according to the given flag.
    *
-   * @param useDynamicLogger
-   *         whether to use a dynamic logger or a static logger
-   *
+   * @param useDynamicLogger whether to use a dynamic logger or a static logger
    * @see #setUseDynamicLogger
    */
   public PerformanceMonitorInterceptor(boolean useDynamicLogger) {

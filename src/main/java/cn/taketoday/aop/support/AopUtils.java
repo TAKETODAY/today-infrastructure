@@ -96,9 +96,7 @@ public abstract class AopUtils {
    * <p>This method additionally checks if the given object is an instance
    * of {@link StandardProxy}.
    *
-   * @param object
-   *         the object to check
-   *
+   * @param object the object to check
    * @see #isJdkDynamicProxy
    * @see #isCglibProxy
    */
@@ -113,9 +111,7 @@ public abstract class AopUtils {
    * {@link Proxy#isProxyClass(Class)} by additionally checking if the
    * given object is an instance of {@link StandardProxy}.
    *
-   * @param object
-   *         the object to check
-   *
+   * @param object the object to check
    * @see java.lang.reflect.Proxy#isProxyClass
    */
   public static boolean isJdkDynamicProxy(Object object) {
@@ -125,8 +121,7 @@ public abstract class AopUtils {
   /**
    * Check whether the given object is a CGLIB proxy.
    *
-   * @param object
-   *         the object to check
+   * @param object the object to check
    */
   public static boolean isCglibProxy(Object object) {
     return (object instanceof StandardProxy &&
@@ -137,12 +132,9 @@ public abstract class AopUtils {
    * Determine the target class of the given bean instance which might be an AOP proxy.
    * <p>Returns the target class for an AOP proxy or the plain class otherwise.
    *
-   * @param candidate
-   *         the instance to check (might be an AOP proxy)
-   *
+   * @param candidate the instance to check (might be an AOP proxy)
    * @return the target class (or the plain class of the given object as fallback;
    * never {@code null})
-   *
    * @see TargetClassAware#getTargetClass()
    * @see AopProxyUtils#ultimateTargetClass(Object)
    */
@@ -162,12 +154,9 @@ public abstract class AopUtils {
    * Determine the target class of the given invocation.
    * <p>Returns the target class for an AOP proxy or the plain class otherwise.
    *
-   * @param invocation
-   *         the instance to check
-   *
+   * @param invocation the instance to check
    * @return the target class (or the plain class of the given object as fallback;
    * never {@code null})
-   *
    * @see TargetClassAware#getTargetClass()
    */
   public static Class<?> getTargetClass(MethodInvocation invocation) {
@@ -192,15 +181,11 @@ public abstract class AopUtils {
    * this method resolves Java 5 bridge methods in order to retrieve attributes
    * from the <i>original</i> method definition.
    *
-   * @param method
-   *         the method to be invoked, which may come from an interface
-   * @param targetClass
-   *         the target class for the current invocation.
-   *         May be {@code null} or may not even implement the method.
-   *
+   * @param method the method to be invoked, which may come from an interface
+   * @param targetClass the target class for the current invocation.
+   * May be {@code null} or may not even implement the method.
    * @return the specific target method, or the original method if the
    * {@code targetClass} doesn't implement it or is {@code null}
-   *
    * @see cn.taketoday.util.ReflectionUtils#getMostSpecificMethod
    * @since 4.0
    */
@@ -216,11 +201,8 @@ public abstract class AopUtils {
    * <p>This is an important test as it can be used to optimize
    * out a pointcut for a class.
    *
-   * @param pc
-   *         the static or dynamic pointcut to check
-   * @param targetClass
-   *         the class to test
-   *
+   * @param pc the static or dynamic pointcut to check
+   * @param targetClass the class to test
    * @return whether the pointcut can apply on any method
    */
   public static boolean canApply(Pointcut pc, Class<?> targetClass) {
@@ -232,14 +214,10 @@ public abstract class AopUtils {
    * <p>This is an important test as it can be used to optimize
    * out a pointcut for a class.
    *
-   * @param pc
-   *         the static or dynamic pointcut to check
-   * @param targetClass
-   *         the class to test
-   * @param hasIntroductions
-   *         whether or not the advisor chain
-   *         for this bean includes any introductions
-   *
+   * @param pc the static or dynamic pointcut to check
+   * @param targetClass the class to test
+   * @param hasIntroductions whether or not the advisor chain
+   * for this bean includes any introductions
    * @return whether the pointcut can apply on any method
    */
   public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
@@ -284,11 +262,8 @@ public abstract class AopUtils {
    * This is an important test as it can be used to optimize
    * out a advisor for a class.
    *
-   * @param advisor
-   *         the advisor to check
-   * @param targetClass
-   *         class we're testing
-   *
+   * @param advisor the advisor to check
+   * @param targetClass class we're testing
    * @return whether the pointcut can apply on any method
    */
   public static boolean canApply(Advisor advisor, Class<?> targetClass) {
@@ -300,14 +275,10 @@ public abstract class AopUtils {
    * <p>This is an important test as it can be used to optimize out a advisor for a class.
    * This version also takes into account introductions (for IntroductionAwareMethodMatchers).
    *
-   * @param advisor
-   *         the advisor to check
-   * @param targetClass
-   *         class we're testing
-   * @param hasIntroductions
-   *         whether or not the advisor chain for this bean includes
-   *         any introductions
-   *
+   * @param advisor the advisor to check
+   * @param targetClass class we're testing
+   * @param hasIntroductions whether or not the advisor chain for this bean includes
+   * any introductions
    * @return whether the pointcut can apply on any method
    */
   public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
@@ -328,11 +299,8 @@ public abstract class AopUtils {
    * Determine the sublist of the {@code candidateAdvisors} list
    * that is applicable to the given class.
    *
-   * @param candidateAdvisors
-   *         the Advisors to evaluate
-   * @param clazz
-   *         the target class
-   *
+   * @param candidateAdvisors the Advisors to evaluate
+   * @param clazz the target class
    * @return sublist of Advisors that can apply to an object of the given class
    * (may be the incoming List as-is)
    */
@@ -362,19 +330,12 @@ public abstract class AopUtils {
   /**
    * Invoke the given target via reflection, as part of an AOP method invocation.
    *
-   * @param target
-   *         the target object
-   * @param method
-   *         the method to invoke
-   * @param args
-   *         the arguments for the method
-   *
+   * @param target the target object
+   * @param method the method to invoke
+   * @param args the arguments for the method
    * @return the invocation result, if any
-   *
-   * @throws Throwable
-   *         if thrown by the target method
-   * @throws AopInvocationException
-   *         in case of a reflection error
+   * @throws Throwable if thrown by the target method
+   * @throws AopInvocationException in case of a reflection error
    */
   public static Object invokeJoinpointUsingReflection(Object target, Method method, Object[] args)
           throws Throwable {
@@ -528,14 +489,10 @@ public abstract class AopUtils {
   /**
    * Create an {@link AopProxy} for the given AOP configuration.
    *
-   * @param config
-   *         the AOP configuration in the form of an
-   *         AdvisedSupport object
-   *
+   * @param config the AOP configuration in the form of an
+   * AdvisedSupport object
    * @return the corresponding AOP proxy
-   *
-   * @throws AopConfigException
-   *         if the configuration is invalid
+   * @throws AopConfigException if the configuration is invalid
    */
   public static AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
     if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
@@ -574,8 +531,7 @@ public abstract class AopUtils {
   /**
    * Add {@link AdvisorAdapter} to {@link #advisorAdapters} and sort them
    *
-   * @param adapters
-   *         new AdvisorAdapters
+   * @param adapters new AdvisorAdapters
    */
   public static void addAdvisorAdapters(@Nullable AdvisorAdapter... adapters) {
     if (ObjectUtils.isNotEmpty(adapters)) {

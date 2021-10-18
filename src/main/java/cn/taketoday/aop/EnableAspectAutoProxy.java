@@ -66,8 +66,7 @@ class AutoProxyConfiguration implements BeanDefinitionImporter {
   /**
    * ProxyCreator Bean
    *
-   * @param sourceCreators
-   *         Custom {@link TargetSourceCreator}s
+   * @param sourceCreators Custom {@link TargetSourceCreator}s
    */
   @MissingBean(type = ProxyCreator.class)
   static AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {

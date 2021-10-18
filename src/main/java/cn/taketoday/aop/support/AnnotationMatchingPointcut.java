@@ -48,8 +48,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
   /**
    * Create a new AnnotationMatchingPointcut for the given annotation type.
    *
-   * @param classAnnotationType
-   *         the annotation type to look for at the class level
+   * @param classAnnotationType the annotation type to look for at the class level
    */
   public AnnotationMatchingPointcut(Class<? extends Annotation> classAnnotationType) {
     this(classAnnotationType, false);
@@ -58,12 +57,9 @@ public class AnnotationMatchingPointcut implements Pointcut {
   /**
    * Create a new AnnotationMatchingPointcut for the given annotation type.
    *
-   * @param classAnnotationType
-   *         the annotation type to look for at the class level
-   * @param checkInherited
-   *         whether to also check the superclasses and interfaces
-   *         as well as meta-annotations for the annotation type
-   *
+   * @param classAnnotationType the annotation type to look for at the class level
+   * @param checkInherited whether to also check the superclasses and interfaces
+   * as well as meta-annotations for the annotation type
    * @see AnnotationClassFilter#AnnotationClassFilter(Class, boolean)
    */
   public AnnotationMatchingPointcut(Class<? extends Annotation> classAnnotationType, boolean checkInherited) {
@@ -74,12 +70,10 @@ public class AnnotationMatchingPointcut implements Pointcut {
   /**
    * Create a new AnnotationMatchingPointcut for the given annotation types.
    *
-   * @param classAnnotationType
-   *         the annotation type to look for at the class level
-   *         (can be {@code null})
-   * @param methodAnnotationType
-   *         the annotation type to look for at the method level
-   *         (can be {@code null})
+   * @param classAnnotationType the annotation type to look for at the class level
+   * (can be {@code null})
+   * @param methodAnnotationType the annotation type to look for at the method level
+   * (can be {@code null})
    */
   public AnnotationMatchingPointcut(Class<? extends Annotation> classAnnotationType,
                                     Class<? extends Annotation> methodAnnotationType) {
@@ -89,16 +83,12 @@ public class AnnotationMatchingPointcut implements Pointcut {
   /**
    * Create a new AnnotationMatchingPointcut for the given annotation types.
    *
-   * @param classAnnotationType
-   *         the annotation type to look for at the class level
-   *         (can be {@code null})
-   * @param methodAnnotationType
-   *         the annotation type to look for at the method level
-   *         (can be {@code null})
-   * @param checkInherited
-   *         whether to also check the superclasses and interfaces
-   *         as well as meta-annotations for the annotation type
-   *
+   * @param classAnnotationType the annotation type to look for at the class level
+   * (can be {@code null})
+   * @param methodAnnotationType the annotation type to look for at the method level
+   * (can be {@code null})
+   * @param checkInherited whether to also check the superclasses and interfaces
+   * as well as meta-annotations for the annotation type
    * @see AnnotationClassFilter#AnnotationClassFilter(Class, boolean)
    * @see AnnotationMethodMatcher#AnnotationMethodMatcher(Class, boolean)
    */
@@ -160,9 +150,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * Factory method for an AnnotationMatchingPointcut that matches
    * for the specified annotation at the class level.
    *
-   * @param annotationType
-   *         the annotation type to look for at the class level
-   *
+   * @param annotationType the annotation type to look for at the class level
    * @return the corresponding AnnotationMatchingPointcut
    */
   public static AnnotationMatchingPointcut forClassAnnotation(Class<? extends Annotation> annotationType) {
@@ -174,9 +162,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * Factory method for an AnnotationMatchingPointcut that matches
    * for the specified annotation at the method level.
    *
-   * @param annotationType
-   *         the annotation type to look for at the method level
-   *
+   * @param annotationType the annotation type to look for at the method level
    * @return the corresponding AnnotationMatchingPointcut
    */
   public static AnnotationMatchingPointcut forMethodAnnotation(Class<? extends Annotation> annotationType) {

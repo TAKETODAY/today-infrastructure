@@ -48,12 +48,9 @@ public abstract class AopProxyUtils {
   /**
    * Obtain the singleton target object behind the given proxy, if any.
    *
-   * @param candidate
-   *         the (potential) proxy to check
-   *
+   * @param candidate the (potential) proxy to check
    * @return the singleton target object managed in a {@link SingletonTargetSource},
    * or {@code null} in any other case (not a proxy, not an existing singleton target)
-   *
    * @see Advised#getTargetSource()
    * @see SingletonTargetSource#getTarget()
    */
@@ -72,12 +69,9 @@ public abstract class AopProxyUtils {
    * not only a top-level proxy but any number of nested proxies as well &mdash;
    * as long as possible without side effects, that is, just for singleton targets.
    *
-   * @param candidate
-   *         the instance to check (might be an AOP proxy)
-   *
+   * @param candidate the instance to check (might be an AOP proxy)
    * @return the ultimate target class (or the plain class of the given
    * object as fallback; never {@code null})
-   *
    * @see TargetClassAware#getTargetClass()
    * @see Advised#getTargetSource()
    */
@@ -101,11 +95,8 @@ public abstract class AopProxyUtils {
    * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
    * {@link StandardProxy} marker interface.
    *
-   * @param advised
-   *         the proxy config
-   *
+   * @param advised the proxy config
    * @return the complete set of interfaces to proxy
-   *
    * @see StandardProxy
    * @see Advised
    * @since 3.0
@@ -120,13 +111,9 @@ public abstract class AopProxyUtils {
    * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
    * {@link StandardProxy} marker interface.
    *
-   * @param advised
-   *         the proxy config
-   * @param decoratingProxy
-   *         whether to expose the {@link DecoratingProxy} interface
-   *
+   * @param advised the proxy config
+   * @param decoratingProxy whether to expose the {@link DecoratingProxy} interface
    * @return the complete set of interfaces to proxy
-   *
    * @see StandardProxy
    * @see Advised
    * @see DecoratingProxy
@@ -179,12 +166,9 @@ public abstract class AopProxyUtils {
    * Extract the user-specified interfaces that the given proxy implements,
    * i.e. all non-Advised interfaces that the proxy implements.
    *
-   * @param proxy
-   *         the proxy to analyze (usually a JDK dynamic proxy)
-   *
+   * @param proxy the proxy to analyze (usually a JDK dynamic proxy)
    * @return all user-specified interfaces that the proxy implements,
    * in the original order (never {@code null} or empty)
-   *
    * @see Advised
    */
   public static Class<?>[] proxiedUserInterfaces(Object proxy) {

@@ -99,12 +99,9 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
   /**
    * Construct a new JdkDynamicAopProxy for the given AOP configuration.
    *
-   * @param config
-   *         the AOP configuration as AdvisedSupport object
-   *
-   * @throws AopConfigException
-   *         if the config is invalid. We try to throw an informative
-   *         exception in this case, rather than let a mysterious failure happen later.
+   * @param config the AOP configuration as AdvisedSupport object
+   * @throws AopConfigException if the config is invalid. We try to throw an informative
+   * exception in this case, rather than let a mysterious failure happen later.
    */
   public JdkDynamicAopProxy(AdvisedSupport config) {
     Assert.notNull(config, "AdvisedSupport must not be null");
@@ -133,8 +130,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
    * Finds any {@link #equals} or {@link #hashCode} method that may be defined
    * on the supplied set of interfaces.
    *
-   * @param proxiedInterfaces
-   *         the interfaces to introspect
+   * @param proxiedInterfaces the interfaces to introspect
    */
   void findDefinedEqualsAndHashCodeMethods(Class<?>[] proxiedInterfaces) {
     for (Class<?> proxiedInterface : proxiedInterfaces) {

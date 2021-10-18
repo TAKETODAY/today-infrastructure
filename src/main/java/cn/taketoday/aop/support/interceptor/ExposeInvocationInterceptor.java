@@ -69,10 +69,8 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Ord
    * Return the AOP Alliance MethodInvocation object associated with the current invocation.
    *
    * @return the invocation object associated with the current invocation
-   *
-   * @throws IllegalStateException
-   *         if there is no AOP invocation in progress,
-   *         or if the ExposeInvocationInterceptor was not added to this interceptor chain
+   * @throws IllegalStateException if there is no AOP invocation in progress,
+   * or if the ExposeInvocationInterceptor was not added to this interceptor chain
    */
   public static MethodInvocation currentInvocation() throws IllegalStateException {
     MethodInvocation mi = invocation.get();

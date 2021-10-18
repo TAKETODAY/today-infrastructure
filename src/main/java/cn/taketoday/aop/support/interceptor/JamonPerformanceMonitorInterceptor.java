@@ -61,9 +61,7 @@ public class JamonPerformanceMonitorInterceptor extends AbstractMonitoringInterc
    * Create a new JamonPerformanceMonitorInterceptor with a dynamic or static logger,
    * according to the given flag.
    *
-   * @param useDynamicLogger
-   *         whether to use a dynamic logger or a static logger
-   *
+   * @param useDynamicLogger whether to use a dynamic logger or a static logger
    * @see #setUseDynamicLogger
    */
   public JamonPerformanceMonitorInterceptor(boolean useDynamicLogger) {
@@ -74,12 +72,9 @@ public class JamonPerformanceMonitorInterceptor extends AbstractMonitoringInterc
    * Create a new JamonPerformanceMonitorInterceptor with a dynamic or static logger,
    * according to the given flag.
    *
-   * @param useDynamicLogger
-   *         whether to use a dynamic logger or a static logger
-   * @param trackAllInvocations
-   *         whether to track all invocations that go through
-   *         this interceptor, or just invocations with trace logging enabled
-   *
+   * @param useDynamicLogger whether to use a dynamic logger or a static logger
+   * @param trackAllInvocations whether to track all invocations that go through
+   * this interceptor, or just invocations with trace logging enabled
    * @see #setUseDynamicLogger
    */
   public JamonPerformanceMonitorInterceptor(boolean useDynamicLogger, boolean trackAllInvocations) {

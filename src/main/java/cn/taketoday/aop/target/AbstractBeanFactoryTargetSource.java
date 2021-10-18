@@ -86,10 +86,8 @@ public abstract class AbstractBeanFactoryTargetSource
    * be obtained from the factory, resulting in the same behavior as provided by
    * {@link SingletonTargetSource}.
    *
-   * @param targetBeanName
-   *         name of the target bean in the BeanFactory that owns this
-   *         interceptor
-   *
+   * @param targetBeanName name of the target bean in the BeanFactory that owns this
+   * interceptor
    * @see SingletonTargetSource
    */
   public void setTargetBeanName(String targetBeanName) {
@@ -146,10 +144,8 @@ public abstract class AbstractBeanFactoryTargetSource
    * be obtained from the factory, resulting in the same behavior as provided by
    * {@link SingletonTargetSource}.
    *
-   * @param targetBeanDefinition
-   *         name of the target bean in the BeanFactory that owns this
-   *         interceptor
-   *
+   * @param targetBeanDefinition name of the target bean in the BeanFactory that owns this
+   * interceptor
    * @see SingletonTargetSource
    */
   public void setTargetBeanDefinition(BeanDefinition targetBeanDefinition) {
@@ -203,8 +199,7 @@ public abstract class AbstractBeanFactoryTargetSource
    * Copy configuration from the other AbstractBeanFactoryBasedTargetSource
    * object. Subclasses should override this if they wish to expose it.
    *
-   * @param other
-   *         object to copy configuration from
+   * @param other object to copy configuration from
    */
   protected void copyFrom(AbstractBeanFactoryTargetSource other) {
     this.targetClass = other.targetClass;

@@ -51,10 +51,8 @@ public class BeanFactoryRefreshableTargetSource extends AbstractRefreshableTarge
    * <p>Note that the passed-in BeanFactory should have an appropriate
    * bean definition set up for the given bean name.
    *
-   * @param beanFactory
-   *         the BeanFactory to fetch beans from
-   * @param beanName
-   *         the name of the target bean
+   * @param beanFactory the BeanFactory to fetch beans from
+   * @param beanName the name of the target bean
    */
   public BeanFactoryRefreshableTargetSource(BeanFactory beanFactory, String beanName) {
     Assert.notNull(beanName, "Bean name is required");

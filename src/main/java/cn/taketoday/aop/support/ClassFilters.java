@@ -43,11 +43,8 @@ public abstract class ClassFilters {
   /**
    * Match all classes that <i>either</i> (or both) of the given ClassFilters matches.
    *
-   * @param cf1
-   *         the first ClassFilter
-   * @param cf2
-   *         the second ClassFilter
-   *
+   * @param cf1 the first ClassFilter
+   * @param cf2 the second ClassFilter
    * @return a distinct ClassFilter that matches all classes that either
    * of the given ClassFilter matches
    */
@@ -60,9 +57,7 @@ public abstract class ClassFilters {
   /**
    * Match all classes that <i>either</i> (or all) of the given ClassFilters matches.
    *
-   * @param classFilters
-   *         the ClassFilters to match
-   *
+   * @param classFilters the ClassFilters to match
    * @return a distinct ClassFilter that matches all classes that either
    * of the given ClassFilter matches
    */
@@ -74,11 +69,8 @@ public abstract class ClassFilters {
   /**
    * Match all classes that <i>both</i> of the given ClassFilters match.
    *
-   * @param cf1
-   *         the first ClassFilter
-   * @param cf2
-   *         the second ClassFilter
-   *
+   * @param cf1 the first ClassFilter
+   * @param cf2 the second ClassFilter
    * @return a distinct ClassFilter that matches all classes that both
    * of the given ClassFilter match
    */
@@ -91,9 +83,7 @@ public abstract class ClassFilters {
   /**
    * Match all classes that <i>all</i> of the given ClassFilters match.
    *
-   * @param classFilters
-   *         the ClassFilters to match
-   *
+   * @param classFilters the ClassFilters to match
    * @return a distinct ClassFilter that matches all classes that both
    * of the given ClassFilter match
    */

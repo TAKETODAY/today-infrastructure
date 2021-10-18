@@ -61,11 +61,8 @@ public interface MethodMatcher {
   /**
    * Checking whether the given method matches.
    *
-   * @param method
-   *         the candidate method
-   * @param targetClass
-   *         the target class
-   *
+   * @param method the candidate method
+   * @param targetClass the target class
    * @return whether or not this method matches on application startup.
    */
   boolean matches(Method method, Class<?> targetClass);
@@ -92,12 +89,9 @@ public interface MethodMatcher {
    * returns {@code true}. Invoked immediately before potential running of the
    * advice, after any advice earlier in the advice chain has run.
    *
-   * @param invocation
-   *         runtime invocation contains the candidate method
-   *         and target class, arguments to the method
-   *
+   * @param invocation runtime invocation contains the candidate method
+   * and target class, arguments to the method
    * @return whether there's a runtime match
-   *
    * @see MethodMatcher#matches(Method, Class)
    */
   boolean matches(MethodInvocation invocation);

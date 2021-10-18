@@ -57,8 +57,7 @@ public class DefaultPointcutAdvisor
    * Create a DefaultPointcutAdvisor that matches all methods.
    * <p>{@code Pointcut.TRUE} will be used as Pointcut.
    *
-   * @param advice
-   *         the Advice to use
+   * @param advice the Advice to use
    */
   public DefaultPointcutAdvisor(Advice advice) {
     this(Pointcut.TRUE, advice);
@@ -67,10 +66,8 @@ public class DefaultPointcutAdvisor
   /**
    * Create a DefaultPointcutAdvisor, specifying Pointcut and Advice.
    *
-   * @param pointcut
-   *         the Pointcut targeting the Advice
-   * @param advice
-   *         the Advice to run when Pointcut matches
+   * @param pointcut the Pointcut targeting the Advice
+   * @param advice the Advice to run when Pointcut matches
    */
   public DefaultPointcutAdvisor(Pointcut pointcut, Advice advice) {
     this.pointcut = pointcut;

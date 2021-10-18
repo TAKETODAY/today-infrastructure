@@ -52,13 +52,10 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   /**
    * Create a new AopProxy for the given AOP configuration.
    *
-   * @param config
-   *         the AOP configuration as AdvisedSupport object
-   *
-   * @throws AopConfigException
-   *         if the config is invalid. We try to throw an informative
-   *         exception in this case, rather than let a mysterious failure
-   *         happen later.
+   * @param config the AOP configuration as AdvisedSupport object
+   * @throws AopConfigException if the config is invalid. We try to throw an informative
+   * exception in this case, rather than let a mysterious failure
+   * happen later.
    */
   public AbstractSubclassesAopProxy(AdvisedSupport config) {
     Assert.notNull(config, "AdvisedSupport must not be null");
@@ -71,10 +68,8 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   /**
    * Set constructor arguments to use for creating the proxy.
    *
-   * @param constructorArgs
-   *         the constructor argument values
-   * @param constructorArgTypes
-   *         the constructor argument types
+   * @param constructorArgs the constructor argument values
+   * @param constructorArgTypes the constructor argument types
    */
   public void setConstructorArguments(Object[] constructorArgs, Class<?>[] constructorArgTypes) {
     if (constructorArgs == null || constructorArgTypes == null) {

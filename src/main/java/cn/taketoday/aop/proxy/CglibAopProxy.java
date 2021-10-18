@@ -101,13 +101,10 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   /**
    * Create a new CglibAopProxy for the given AOP configuration.
    *
-   * @param config
-   *         the AOP configuration as AdvisedSupport object
-   *
-   * @throws AopConfigException
-   *         if the config is invalid. We try to throw an informative
-   *         exception in this case, rather than let a mysterious failure
-   *         happen later.
+   * @param config the AOP configuration as AdvisedSupport object
+   * @throws AopConfigException if the config is invalid. We try to throw an informative
+   * exception in this case, rather than let a mysterious failure
+   * happen later.
    */
   public CglibAopProxy(AdvisedSupport config) {
     super(config);

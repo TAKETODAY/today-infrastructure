@@ -141,11 +141,8 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * {@code MethodInvocation}, otherwise the {@code Log} will be the
    * default static logger.
    *
-   * @param invocation
-   *         the {@code MethodInvocation} being traced
-   *
+   * @param invocation the {@code MethodInvocation} being traced
    * @return the {@code Log} instance to use
-   *
    * @see #setUseDynamicLogger
    */
   protected Logger getLoggerForInvocation(MethodInvocation invocation) {
@@ -162,11 +159,8 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
   /**
    * Determine the class to use for logging purposes.
    *
-   * @param target
-   *         the target object to introspect
-   *
+   * @param target the target object to introspect
    * @return the target class for the given object
-   *
    * @see #setHideProxyClassNames
    */
   protected Class<?> getClassForLogging(Object target) {
@@ -180,11 +174,8 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * instance is enabled. Subclasses can override this to apply the
    * interceptor in other cases as well.
    *
-   * @param invocation
-   *         the {@code MethodInvocation} being traced
-   * @param logger
-   *         the {@code Logger} instance to check
-   *
+   * @param invocation the {@code MethodInvocation} being traced
+   * @param logger the {@code Logger} instance to check
    * @see #invokeUnderTrace
    * @see #isLogEnabled
    */
@@ -197,8 +188,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * <p>Default is {@code true} when the "trace" level is enabled.
    * Subclasses can override this to change the level under which 'tracing' occurs.
    *
-   * @param logger
-   *         the {@code Log} instance to check
+   * @param logger the {@code Log} instance to check
    */
   protected boolean isLogEnabled(Logger logger) {
     return logger.isTraceEnabled();
@@ -249,14 +239,10 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * the default behavior, and may delegate to {@code writeToLog} for actual
    * messages to be written.
    *
-   * @param logger
-   *         the {@code Log} to write trace messages to
-   *
+   * @param logger the {@code Log} to write trace messages to
    * @return the result of the call to {@code MethodInvocation.proceed()}
-   *
-   * @throws Throwable
-   *         if the call to {@code MethodInvocation.proceed()}
-   *         encountered any errors
+   * @throws Throwable if the call to {@code MethodInvocation.proceed()}
+   * encountered any errors
    * @see #isLogEnabled
    * @see #writeToLog(Logger, String)
    * @see #writeToLog(Logger, String, Throwable)

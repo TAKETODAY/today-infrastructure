@@ -50,9 +50,7 @@ public class SimpleTraceInterceptor extends AbstractTraceInterceptor {
    * Create a new SimpleTraceInterceptor with dynamic or static logger,
    * according to the given flag.
    *
-   * @param useDynamicLogger
-   *         whether to use a dynamic logger or a static logger
-   *
+   * @param useDynamicLogger whether to use a dynamic logger or a static logger
    * @see #setUseDynamicLogger
    */
   public SimpleTraceInterceptor(boolean useDynamicLogger) {
@@ -77,9 +75,7 @@ public class SimpleTraceInterceptor extends AbstractTraceInterceptor {
   /**
    * Return a description for the given method invocation.
    *
-   * @param invocation
-   *         the invocation to describe
-   *
+   * @param invocation the invocation to describe
    * @return the description
    */
   protected String getInvocationDescription(MethodInvocation invocation) {

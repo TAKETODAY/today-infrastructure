@@ -50,8 +50,7 @@ public class SingletonTargetSource implements TargetSource, Serializable {
   /**
    * Create a new SingletonTargetSource for the given target.
    *
-   * @param target
-   *         the target object
+   * @param target the target object
    */
   public SingletonTargetSource(Object target) {
     Assert.notNull(target, "Target object must not be null");

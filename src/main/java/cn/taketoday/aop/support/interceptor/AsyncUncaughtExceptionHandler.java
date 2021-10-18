@@ -39,12 +39,9 @@ public interface AsyncUncaughtExceptionHandler {
   /**
    * Handle the given uncaught exception thrown from an asynchronous method.
    *
-   * @param ex
-   *         the exception thrown from the asynchronous method
-   * @param method
-   *         the asynchronous method
-   * @param params
-   *         the parameters used to invoked the method
+   * @param ex the exception thrown from the asynchronous method
+   * @param method the asynchronous method
+   * @param params the parameters used to invoked the method
    */
   void handleUncaughtException(Throwable ex, Method method, Object... params);
 

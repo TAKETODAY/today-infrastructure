@@ -42,9 +42,7 @@ public interface TargetSourceCreator {
   /**
    * Create a special TargetSource for the given bean, if any.
    *
-   * @param def
-   *         BeanDefinition
-   *
+   * @param def BeanDefinition
    * @return a special TargetSource or {@code null} if this TargetSourceCreator isn't
    * interested in the particular bean
    */

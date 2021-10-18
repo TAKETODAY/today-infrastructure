@@ -56,10 +56,8 @@ public class DefaultIntroductionAdvisor
   /**
    * Create a DefaultIntroductionAdvisor for the given advice.
    *
-   * @param advice
-   *         the Advice to apply (may implement the
-   *         {@link IntroductionInfo} interface)
-   *
+   * @param advice the Advice to apply (may implement the
+   * {@link IntroductionInfo} interface)
    * @see #addInterface
    */
   public DefaultIntroductionAdvisor(Advice advice) {
@@ -69,11 +67,9 @@ public class DefaultIntroductionAdvisor
   /**
    * Create a DefaultIntroductionAdvisor for the given advice.
    *
-   * @param advice
-   *         the Advice to apply
-   * @param introductionInfo
-   *         the IntroductionInfo that describes
-   *         the interface to introduce (may be {@code null})
+   * @param advice the Advice to apply
+   * @param introductionInfo the IntroductionInfo that describes
+   * the interface to introduce (may be {@code null})
    */
   public DefaultIntroductionAdvisor(Advice advice, IntroductionInfo introductionInfo) {
     Assert.notNull(advice, "Advice must not be null");
@@ -92,10 +88,8 @@ public class DefaultIntroductionAdvisor
   /**
    * Create a DefaultIntroductionAdvisor for the given advice.
    *
-   * @param advice
-   *         the Advice to apply
-   * @param ifc
-   *         the interface to introduce
+   * @param advice the Advice to apply
+   * @param ifc the interface to introduce
    */
   public DefaultIntroductionAdvisor(DynamicIntroductionAdvice advice, Class<?> ifc) {
     Assert.notNull(advice, "Advice must not be null");
@@ -106,8 +100,7 @@ public class DefaultIntroductionAdvisor
   /**
    * Add the specified interface to the list of interfaces to introduce.
    *
-   * @param ifc
-   *         the interface to introduce
+   * @param ifc the interface to introduce
    */
   public void addInterface(Class<?> ifc) {
     Assert.notNull(ifc, "Interface must not be null");

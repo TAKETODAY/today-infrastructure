@@ -90,8 +90,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
   /**
    * Add the given AdvisedSupportListener to this proxy configuration.
    *
-   * @param listener
-   *         the listener to register
+   * @param listener the listener to register
    */
   public void addListener(AdvisedSupportListener listener) {
     Assert.notNull(listener, "AdvisedSupportListener must not be null");
@@ -101,8 +100,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
   /**
    * Remove the given AdvisedSupportListener from this proxy configuration.
    *
-   * @param listener
-   *         the listener to deregister
+   * @param listener the listener to deregister
    */
   public void removeListener(AdvisedSupportListener listener) {
     Assert.notNull(listener, "AdvisedSupportListener must not be null");

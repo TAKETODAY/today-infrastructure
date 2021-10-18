@@ -45,8 +45,7 @@ public class AnnotationClassFilter implements ClassFilter {
   /**
    * Create a new AnnotationClassFilter for the given annotation type.
    *
-   * @param annotationType
-   *         the annotation type to look for
+   * @param annotationType the annotation type to look for
    */
   public AnnotationClassFilter(Class<? extends Annotation> annotationType) {
     this(annotationType, false);
@@ -55,13 +54,11 @@ public class AnnotationClassFilter implements ClassFilter {
   /**
    * Create a new AnnotationClassFilter for the given annotation type.
    *
-   * @param annotationType
-   *         the annotation type to look for
-   * @param checkInherited
-   *         whether to also check the superclasses and
-   *         interfaces as well as meta-annotations for the annotation type
-   *         (i.e. whether to use {@link ClassUtils#isAnnotationPresent(AnnotatedElement, Class)}
-   *         semantics instead of standard Java {@link Class#isAnnotationPresent})
+   * @param annotationType the annotation type to look for
+   * @param checkInherited whether to also check the superclasses and
+   * interfaces as well as meta-annotations for the annotation type
+   * (i.e. whether to use {@link ClassUtils#isAnnotationPresent(AnnotatedElement, Class)}
+   * semantics instead of standard Java {@link Class#isAnnotationPresent})
    */
   public AnnotationClassFilter(Class<? extends Annotation> annotationType, boolean checkInherited) {
     Assert.notNull(annotationType, "Annotation type must not be null");

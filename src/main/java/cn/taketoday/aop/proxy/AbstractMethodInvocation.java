@@ -52,9 +52,7 @@ public abstract class AbstractMethodInvocation
    * </p>
    *
    * @return see the children interfaces' proceed definition.
-   *
-   * @throws Throwable
-   *         if the join-point throws an exception.
+   * @throws Throwable if the join-point throws an exception.
    * @see cn.taketoday.aop.proxy.CglibAopProxy.CglibMethodInvocation
    * @see DefaultMethodInvocation
    * @see StandardMethodInvocation
@@ -89,8 +87,7 @@ public abstract class AbstractMethodInvocation
    * {@link #hasInterceptor()} must returns{@code true}
    * </p>
    *
-   * @throws Throwable
-   *         if the interceptors or the target-object throws an exception.
+   * @throws Throwable if the interceptors or the target-object throws an exception.
    * @see #hasInterceptor()
    */
   protected abstract Object executeInterceptor() throws Throwable;

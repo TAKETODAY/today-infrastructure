@@ -55,8 +55,7 @@ public abstract class StaticMethodMatcherPointcutAdvisor
   /**
    * Create a new StaticMethodMatcherPointcutAdvisor for the given advice.
    *
-   * @param advice
-   *         the Advice to use
+   * @param advice the Advice to use
    */
   public StaticMethodMatcherPointcutAdvisor(Advice advice) {
     Assert.notNull(advice, "Advice must not be null");
