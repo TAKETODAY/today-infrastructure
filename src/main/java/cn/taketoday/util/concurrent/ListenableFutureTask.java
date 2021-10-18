@@ -30,9 +30,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Extension of {@link FutureTask} that implements {@link ListenableFuture}.
  *
- * @param <T>
- *         the result type returned by this Future's {@code get} method
- *
+ * @param <T> the result type returned by this Future's {@code get} method
  * @author Arjen Poutsma
  * @since 4.0
  */
@@ -44,8 +42,7 @@ public class ListenableFutureTask<T> extends FutureTask<T> implements Listenable
    * Create a new {@code ListenableFutureTask} that will, upon running,
    * execute the given {@link Callable}.
    *
-   * @param callable
-   *         the callable task
+   * @param callable the callable task
    */
   public ListenableFutureTask(Callable<T> callable) {
     super(callable);
@@ -56,10 +53,8 @@ public class ListenableFutureTask<T> extends FutureTask<T> implements Listenable
    * execute the given {@link Runnable}, and arrange that {@link #get()}
    * will return the given result on successful completion.
    *
-   * @param runnable
-   *         the runnable task
-   * @param result
-   *         the result to return on successful completion
+   * @param runnable the runnable task
+   * @param result the result to return on successful completion
    */
   public ListenableFutureTask(Runnable runnable, @Nullable T result) {
     super(runnable, result);

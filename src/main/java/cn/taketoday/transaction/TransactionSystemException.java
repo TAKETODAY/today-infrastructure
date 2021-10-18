@@ -46,12 +46,9 @@ public class TransactionSystemException extends TransactionException {
    * exception, preserving the original exception despite the overriding
    * TransactionSystemException.
    *
-   * @param ex
-   *         the application exception
-   *
-   * @throws IllegalStateException
-   *         if this TransactionSystemException already holds an application
-   *         exception
+   * @param ex the application exception
+   * @throws IllegalStateException if this TransactionSystemException already holds an application
+   * exception
    */
   public void initApplicationException(Throwable ex) {
     Assert.notNull(ex, "Application exception must not be null");

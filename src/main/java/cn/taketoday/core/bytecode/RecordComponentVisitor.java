@@ -44,9 +44,8 @@ public abstract class RecordComponentVisitor {
   /**
    * Constructs a new {@link RecordComponentVisitor}.
    *
-   * @param recordComponentVisitor
-   *         the record component visitor to which this visitor must delegate
-   *         method calls. May be null.
+   * @param recordComponentVisitor the record component visitor to which this visitor must delegate
+   * method calls. May be null.
    */
   public RecordComponentVisitor(final RecordComponentVisitor recordComponentVisitor) {
     this.delegate = recordComponentVisitor;
@@ -64,11 +63,8 @@ public abstract class RecordComponentVisitor {
   /**
    * Visits an annotation of the record component.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
@@ -82,20 +78,15 @@ public abstract class RecordComponentVisitor {
   /**
    * Visits an annotation on a type in the record component signature.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
-   *         TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
-   *         {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
+   * TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
+   * {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
@@ -110,8 +101,7 @@ public abstract class RecordComponentVisitor {
   /**
    * Visits a non standard attribute of the record component.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
     if (delegate != null) {

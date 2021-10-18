@@ -66,10 +66,8 @@ public abstract class AbstractUrlHandlerRegistry extends MappedHandlerRegistry {
   }
 
   /**
-   * @param lookupPath
-   *         使用 url path 作Key
-   * @param context
-   *         Current request context
+   * @param lookupPath 使用 url path 作Key
+   * @param context Current request context
    */
   @Override
   protected Object handlerNotFound(final String lookupPath, final RequestContext context) {

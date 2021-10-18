@@ -51,11 +51,8 @@ public interface SingletonBeanRegistry {
    * implementation should synchronize singleton access; it will have to do
    * this anyway if it supports a BeanFactory's lazy initialization of singletons.
    *
-   * @param name
-   *         the name of the bean
-   * @param singletonObject
-   *         the existing singleton object
-   *
+   * @param name the name of the bean
+   * @param singletonObject the existing singleton object
    * @see cn.taketoday.beans.InitializingBean#afterPropertiesSet
    * @see cn.taketoday.beans.DisposableBean#destroy
    * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#registerBeanDefinition
@@ -69,9 +66,7 @@ public interface SingletonBeanRegistry {
    * ,default is use {@link cn.taketoday.util.ClassUtils#getShortName(Class)}
    * </p>
    *
-   * @param bean
-   *         bean instance
-   *
+   * @param bean bean instance
    * @see cn.taketoday.util.ClassUtils#getShortName(Class)
    * @since 2.1.2
    */
@@ -92,9 +87,7 @@ public interface SingletonBeanRegistry {
    * (see {@link #registerSingleton}). Can also be used to access a singleton
    * defined by a bean definition that already been created, in a raw fashion.
    *
-   * @param name
-   *         the name of the bean to look for
-   *
+   * @param name the name of the bean to look for
    * @return the registered singleton object, or {@code null} if none found
    */
   @Nullable
@@ -104,12 +97,9 @@ public interface SingletonBeanRegistry {
    * Return the (raw) singleton object registered under the given name,
    * creating and registering a new one if none registered yet.
    *
-   * @param beanName
-   *         the name of the bean
-   * @param singletonSupplier
-   *         the ObjectFactory to lazily create the singleton
-   *         with, if necessary
-   *
+   * @param beanName the name of the bean
+   * @param singletonSupplier the ObjectFactory to lazily create the singleton
+   * with, if necessary
    * @return the registered singleton object
    */
   <T> T getSingleton(String beanName, Supplier<T> singletonSupplier);
@@ -117,11 +107,8 @@ public interface SingletonBeanRegistry {
   /**
    * Get singleton objects
    *
-   * @param requiredType
-   *         required type
-   * @param <T>
-   *         required type
-   *
+   * @param requiredType required type
+   * @param <T> required type
    * @return singleton object
    */
   <T> T getSingleton(Class<T> requiredType);
@@ -129,17 +116,14 @@ public interface SingletonBeanRegistry {
   /**
    * remove a singleton with given name
    *
-   * @param name
-   *         bean name
+   * @param name bean name
    */
   void removeSingleton(String name);
 
   /**
    * contains instance with given name?
    *
-   * @param name
-   *         bean name
-   *
+   * @param name bean name
    * @return if contains singleton
    */
   boolean containsSingleton(String name);
@@ -153,7 +137,6 @@ public interface SingletonBeanRegistry {
    * singletons defined by a bean definition that have already been created.
    *
    * @return the number of singleton beans
-   *
    * @see #registerSingleton
    * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#getBeanDefinitionCount
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionCount
@@ -170,7 +153,6 @@ public interface SingletonBeanRegistry {
    * defined by a bean definition have already been created.
    *
    * @return the list of names as a String array (never {@code null})
-   *
    * @see #registerSingleton
    * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#getBeanDefinitionNames
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionNames

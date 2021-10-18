@@ -39,8 +39,7 @@ public class SignatureReader {
   /**
    * Constructs a {@link SignatureReader} for the given signature.
    *
-   * @param signature
-   *         A <i>JavaTypeSignature</i>, <i>ClassSignature</i> or <i>MethodSignature</i>.
+   * @param signature A <i>JavaTypeSignature</i>, <i>ClassSignature</i> or <i>MethodSignature</i>.
    */
   public SignatureReader(final String signature) {
     this.signatureValue = signature;
@@ -54,8 +53,7 @@ public class SignatureReader {
    * method) or a <i>MethodSignature</i> (such as the <code>signature</code> parameter of the {@link
    * ClassVisitor#visitMethod} method).
    *
-   * @param signatureVisitor
-   *         the visitor that must visit this signature.
+   * @param signatureVisitor the visitor that must visit this signature.
    */
   public void accept(final SignatureVisitor signatureVisitor) {
     String signature = this.signatureValue;
@@ -134,8 +132,7 @@ public class SignatureReader {
    * ClassVisitor#visitField} or {@link
    * MethodVisitor#visitLocalVariable} methods.
    *
-   * @param signatureVisitor
-   *         the visitor that must visit this signature.
+   * @param signatureVisitor the visitor that must visit this signature.
    */
   public void acceptType(final SignatureVisitor signatureVisitor) {
     parseType(signatureValue, 0, signatureVisitor);
@@ -144,13 +141,9 @@ public class SignatureReader {
   /**
    * Parses a JavaTypeSignature and makes the given visitor visit it.
    *
-   * @param signature
-   *         a string containing the signature that must be parsed.
-   * @param startOffset
-   *         index of the first character of the signature to parsed.
-   * @param signatureVisitor
-   *         the visitor that must visit this signature.
-   *
+   * @param signature a string containing the signature that must be parsed.
+   * @param startOffset index of the first character of the signature to parsed.
+   * @param signatureVisitor the visitor that must visit this signature.
    * @return the index of the first character after the parsed signature.
    */
   private static int parseType(

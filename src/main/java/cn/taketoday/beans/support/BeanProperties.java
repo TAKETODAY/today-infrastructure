@@ -42,10 +42,8 @@ public class BeanProperties {
    * from each other, as long as the properties match. Any bean properties that the
    * source bean exposes but the target bean does not will silently be ignored.
    *
-   * @param source
-   *         source object
-   * @param destination
-   *         destination object
+   * @param source source object
+   * @param destination destination object
    */
   public static void copy(Object source, Object destination) {
     Assert.notNull(source, "source object must not be null");
@@ -61,10 +59,8 @@ public class BeanProperties {
    * from each other, as long as the properties match. Any bean properties that the
    * source bean exposes but the target bean does not will silently be ignored.
    *
-   * @param source
-   *         the source bean
-   * @param ignoreProperties
-   *         array of property names to ignore
+   * @param source the source bean
+   * @param ignoreProperties array of property names to ignore
    */
   public static void copy(Object source, Object destination, @Nullable String... ignoreProperties) {
     Assert.notNull(source, "source object must not be null");
@@ -80,11 +76,8 @@ public class BeanProperties {
    * from each other, as long as the properties match. Any bean properties that the
    * source bean exposes but the target bean does not will silently be ignored.
    *
-   * @param source
-   *         source object
-   * @param destination
-   *         destination class
-   *
+   * @param source source object
+   * @param destination destination class
    * @return returns a destination type object
    */
   @SuppressWarnings("unchecked")
@@ -182,16 +175,11 @@ public class BeanProperties {
    * default is ignoreUnknownProperty
    * </p>
    *
-   * @param bean
-   *         JavaBean whose properties are being populated
-   * @param properties
-   *         Map keyed by property name, with the
-   *         corresponding (String or String[]) value(s) to be set
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
-   * @throws InvalidPropertyValueException
-   *         Invalid property value
+   * @param bean JavaBean whose properties are being populated
+   * @param properties Map keyed by property name, with the
+   * corresponding (String or String[]) value(s) to be set
+   * @throws NoSuchPropertyException If no such property
+   * @throws InvalidPropertyValueException Invalid property value
    */
   public static void populate(Object bean, Map<String, Object> properties) {
     populate(bean, properties, true);
@@ -213,18 +201,12 @@ public class BeanProperties {
    * class is available, the standard method name conversion ("set" plus
    * the capitalized name of the property in question) is used.</p>
    *
-   * @param bean
-   *         JavaBean whose properties are being populated
-   * @param properties
-   *         Map keyed by property name, with the
-   *         corresponding (String or String[]) value(s) to be set
-   * @param ignoreUnknownProperty
-   *         {@link BeanPropertyAccessor#ignoreUnknownProperty}
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
-   * @throws InvalidPropertyValueException
-   *         Invalid property value
+   * @param bean JavaBean whose properties are being populated
+   * @param properties Map keyed by property name, with the
+   * corresponding (String or String[]) value(s) to be set
+   * @param ignoreUnknownProperty {@link BeanPropertyAccessor#ignoreUnknownProperty}
+   * @throws NoSuchPropertyException If no such property
+   * @throws InvalidPropertyValueException Invalid property value
    * @see BeanPropertyAccessor
    */
   public static void populate(

@@ -55,8 +55,7 @@ public class EncodedResource implements InputStreamSource {
    * Create a new {@code EncodedResource} for the given {@code Resource}, not
    * specifying an explicit encoding or {@code Charset}.
    *
-   * @param resource
-   *         the {@code Resource} to hold (never {@code null})
+   * @param resource the {@code Resource} to hold (never {@code null})
    */
   public EncodedResource(Resource resource) {
     this(resource, null, null);
@@ -66,10 +65,8 @@ public class EncodedResource implements InputStreamSource {
    * Create a new {@code EncodedResource} for the given {@code Resource}, using
    * the specified {@code encoding}.
    *
-   * @param resource
-   *         the {@code Resource} to hold (never {@code null})
-   * @param encoding
-   *         the encoding to use for reading from the resource
+   * @param resource the {@code Resource} to hold (never {@code null})
+   * @param encoding the encoding to use for reading from the resource
    */
   public EncodedResource(Resource resource, String encoding) {
     this(resource, encoding, null);
@@ -79,10 +76,8 @@ public class EncodedResource implements InputStreamSource {
    * Create a new {@code EncodedResource} for the given {@code Resource}, using
    * the specified {@code Charset}.
    *
-   * @param resource
-   *         the {@code Resource} to hold (never {@code null})
-   * @param charset
-   *         the {@code Charset} to use for reading from the resource
+   * @param resource the {@code Resource} to hold (never {@code null})
+   * @param charset the {@code Charset} to use for reading from the resource
    */
   public EncodedResource(Resource resource, Charset charset) {
     this(resource, null, charset);
@@ -137,8 +132,7 @@ public class EncodedResource implements InputStreamSource {
    * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding} (if
    * any).
    *
-   * @throws IOException
-   *         if opening the Reader failed
+   * @throws IOException if opening the Reader failed
    * @see #requiresReader()
    * @see #getInputStream()
    */
@@ -159,8 +153,7 @@ public class EncodedResource implements InputStreamSource {
    * specified {@link #getCharset() Charset} or {@linkplain #getEncoding()
    * encoding}.
    *
-   * @throws IOException
-   *         if opening the InputStream failed
+   * @throws IOException if opening the InputStream failed
    * @see #requiresReader()
    * @see #getReader()
    */

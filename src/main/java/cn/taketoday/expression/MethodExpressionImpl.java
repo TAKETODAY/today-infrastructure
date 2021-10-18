@@ -118,7 +118,6 @@ public final class MethodExpressionImpl extends MethodExpression {
    * </p>
    *
    * @return The original expression String.
-   *
    * @see cn.taketoday.expression.Expression#getExpressionString()
    */
   public String getExpressionString() {
@@ -129,24 +128,17 @@ public final class MethodExpressionImpl extends MethodExpression {
    * Evaluates the expression relative to the provided context, and returns
    * information about the actual referenced method.
    *
-   * @param context
-   *         The context of this evaluation
-   *
+   * @param context The context of this evaluation
    * @return an instance of <code>MethodInfo</code> containing information about
    * the method the expression evaluated to.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code> or the base object is
-   *         <code>null</code> on the last resolution.
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws MethodNotFoundException
-   *         if no suitable method can be found.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code> or the base object is
+   * <code>null</code> on the last resolution.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws MethodNotFoundException if no suitable method can be found.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available.
    * @see cn.taketoday.expression.MethodExpression#getMethodInfo(cn.taketoday.expression.ExpressionContext)
    */
   public MethodInfo getMethodInfo(ExpressionContext context) {
@@ -174,7 +166,6 @@ public final class MethodExpressionImpl extends MethodExpression {
    * </p>
    *
    * @return The hash code for this <code>Expression</code>.
-   *
    * @see #equals
    * @see java.util.Hashtable
    * @see java.lang.Object#hashCode()
@@ -188,30 +179,22 @@ public final class MethodExpressionImpl extends MethodExpression {
    * that was found using the supplied parameters, and returns the result of the
    * method invocation.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param params
-   *         The parameters to pass to the method, or <code>null</code> if no
-   *         parameters.
-   *
+   * @param context The context of this evaluation.
+   * @param params The parameters to pass to the method, or <code>null</code> if no
+   * parameters.
    * @return the result of the method invocation (<code>null</code> if the method
    * has a <code>void</code> return type).
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code> or the base object is
-   *         <code>null</code> on the last resolution.
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws MethodNotFoundException
-   *         if no suitable method can be found.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available. If the exception thrown
-   *         is an <code>InvocationTargetException</code>, extract its
-   *         <code>cause</code> and pass it to the <code>ELException</code>
-   *         constructor.
+   * @throws NullPointerException if context is <code>null</code> or the base object is
+   * <code>null</code> on the last resolution.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws MethodNotFoundException if no suitable method can be found.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available. If the exception thrown
+   * is an <code>InvocationTargetException</code>, extract its
+   * <code>cause</code> and pass it to the <code>ELException</code>
+   * constructor.
    * @see MethodExpression#invoke(ExpressionContext, Object[])
    */
   public Object invoke(final ExpressionContext context, Object[] params) {
@@ -258,12 +241,9 @@ public final class MethodExpressionImpl extends MethodExpression {
    * <code>fn2:foo</code> to the same method.
    * </p>
    *
-   * @param obj
-   *         the <code>Object</code> to test for equality.
-   *
+   * @param obj the <code>Object</code> to test for equality.
    * @return <code>true</code> if <code>obj</code> equals this
    * <code>Expression</code>; <code>false</code> otherwise.
-   *
    * @see java.util.Hashtable
    * @see java.lang.Object#equals(java.lang.Object)
    */

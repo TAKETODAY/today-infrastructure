@@ -46,16 +46,11 @@ public class ChunkedInputStream extends LimitedInputStream {
    * a headers container to which the stream's trailing headers will be
    * added.
    *
-   * @param in
-   *         the underlying "chunked"-encoded input stream
-   * @param headers
-   *         the headers container to which the stream's trailing
-   *         headers will be added, or null if they are to be discarded
-   * @param config
-   *         light http config
-   *
-   * @throws NullPointerException
-   *         if the given stream is null
+   * @param in the underlying "chunked"-encoded input stream
+   * @param headers the headers container to which the stream's trailing
+   * headers will be added, or null if they are to be discarded
+   * @param config light http config
+   * @throws NullPointerException if the given stream is null
    */
   public ChunkedInputStream(InputStream in, HttpHeaders headers, LightHttpConfig config) {
     super(in, 0, true);
@@ -79,9 +74,7 @@ public class ChunkedInputStream extends LimitedInputStream {
    *
    * @return the length of the chunk, or -1 if the end of stream
    * has been reached
-   *
-   * @throws IOException
-   *         if an IO error occurs or the stream is corrupt
+   * @throws IOException if an IO error occurs or the stream is corrupt
    */
   protected long initChunk() throws IOException {
     if (limit == 0) { // finished previous chunk
@@ -104,13 +97,9 @@ public class ChunkedInputStream extends LimitedInputStream {
   /**
    * Parses a chunk-size line.
    *
-   * @param line
-   *         the chunk-size line to parse
-   *
+   * @param line the chunk-size line to parse
    * @return the chunk size
-   *
-   * @throws IllegalArgumentException
-   *         if the chunk-size line is invalid
+   * @throws IllegalArgumentException if the chunk-size line is invalid
    */
   protected static long parseChunkSize(String line) throws IllegalArgumentException {
     int pos = line.indexOf(';');

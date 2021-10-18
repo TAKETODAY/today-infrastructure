@@ -29,8 +29,7 @@ public interface ConfigurableWebServer extends WebServer {
   /**
    * perform {@link WebServer} initialization
    *
-   * @param contextInitializers
-   *         {@link WebApplicationInitializer}
+   * @param contextInitializers {@link WebApplicationInitializer}
    */
   void initialize(WebApplicationInitializer... contextInitializers);
 

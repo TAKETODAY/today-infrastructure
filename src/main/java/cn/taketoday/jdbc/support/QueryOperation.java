@@ -40,15 +40,10 @@ public interface QueryOperation {
    * static query with a PreparedStatement, use the overloaded {@code query}
    * method with {@code null} as argument array.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rse
-   *         object that will extract all rows of results
-   *
+   * @param sql SQL query to execute
+   * @param rse object that will extract all rows of results
    * @return an arbitrary result object, as returned by the ResultSetExtractor
-   *
-   * @throws SQLException
-   *         if there is any problem executing the query
+   * @throws SQLException if there is any problem executing the query
    * @see #query(String, Object[], ResultSetExtractor)
    */
   default <T> T query(String sql, ResultSetExtractor<T> rse) throws SQLException {
@@ -60,20 +55,14 @@ public interface QueryOperation {
    * arguments to bind to the query, reading the ResultSet with a
    * ResultSetExtractor.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rse
-   *         object that will extract results
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL query to execute
+   * @param rse object that will extract results
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return an arbitrary result object, as returned by the ResultSetExtractor
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    */
   default <T> T query(String sql, ResultSetExtractor<T> rse, Object... args) throws SQLException {
     return query(sql, args, rse);
@@ -84,20 +73,14 @@ public interface QueryOperation {
    * arguments to bind to the query, reading the ResultSet with a
    * ResultSetExtractor.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rse
-   *         object that will extract results
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL query to execute
+   * @param rse object that will extract results
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return an arbitrary result object, as returned by the ResultSetExtractor
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    */
   <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws SQLException;
 
@@ -109,13 +92,9 @@ public interface QueryOperation {
    * static query with a PreparedStatement, use the overloaded {@code query}
    * method with {@code null} as argument array.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rch
-   *         object that will extract results, one row at a time
-   *
-   * @throws SQLException
-   *         if there is any problem executing the query
+   * @param sql SQL query to execute
+   * @param rch object that will extract results, one row at a time
+   * @throws SQLException if there is any problem executing the query
    * @see #query(String, Object[], ResultSetHandler)
    */
   default void query(String sql, ResultSetHandler rch) throws SQLException {
@@ -127,18 +106,13 @@ public interface QueryOperation {
    * arguments to bind to the query, reading the ResultSet on a per-row basis with
    * a RowCallbackHandler.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rch
-   *         object that will extract results, one row at a time
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @param sql SQL query to execute
+   * @param rch object that will extract results, one row at a time
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
+   * @throws SQLException if the query fails
    */
   default void query(String sql, ResultSetHandler rch, Object... args) throws SQLException {
     query(sql, args, rch);
@@ -149,18 +123,13 @@ public interface QueryOperation {
    * arguments to bind to the query, reading the ResultSet on a per-row basis with
    * a RowCallbackHandler.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rch
-   *         object that will extract results, one row at a time
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @param sql SQL query to execute
+   * @param rch object that will extract results, one row at a time
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
+   * @throws SQLException if the query fails
    */
   void query(String sql, Object[] args, ResultSetHandler rch) throws SQLException;
 
@@ -176,16 +145,11 @@ public interface QueryOperation {
    * is expected to be a single row/single column query; the returned result will
    * be directly mapped to the corresponding object type.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param requiredType
-   *         the type that the result object is expected to match
-   *
+   * @param sql SQL query to execute
+   * @param requiredType the type that the result object is expected to match
    * @return the result object of the required type, or {@code null} in case of
    * SQL NULL
-   *
-   * @throws SQLException
-   *         if there is any problem executing the query
+   * @throws SQLException if there is any problem executing the query
    * @see #query(String, Class, Object[])
    */
   default <T> T query(String sql, Class<T> requiredType) throws SQLException {
@@ -199,21 +163,15 @@ public interface QueryOperation {
    * The query is expected to be a single row/single column query; the returned
    * result will be directly mapped to the corresponding object type.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param requiredType
-   *         the type that the result object is expected to match
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL query to execute
+   * @param requiredType the type that the result object is expected to match
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return the result object of the required type, or {@code null} in case of
    * SQL NULL
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #query(String, Class)
    */
   default <T> T query(String sql, Class<T> requiredType, Object... args) throws SQLException {
@@ -227,21 +185,15 @@ public interface QueryOperation {
    * The query is expected to be a single row/single column query; the returned
    * result will be directly mapped to the corresponding object type.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param requiredType
-   *         the type that the result object is expected to match
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL query to execute
+   * @param requiredType the type that the result object is expected to match
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return the result object of the required type, or {@code null} in case of
    * SQL NULL
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #query(String, Class)
    */
   <T> T query(String sql, Object[] args, Class<T> requiredType) throws SQLException;
@@ -257,15 +209,10 @@ public interface QueryOperation {
    * static query with a PreparedStatement, use the overloaded {@code query}
    * method with {@code null} as argument array.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rowMapper
-   *         object that will map one object per row
-   *
+   * @param sql SQL query to execute
+   * @param rowMapper object that will map one object per row
    * @return the result List, containing mapped objects
-   *
-   * @throws SQLException
-   *         if there is any problem executing the query
+   * @throws SQLException if there is any problem executing the query
    * @see #queryList(String, Object[], RowMapper)
    */
   default <T> List<T> queryList(String sql, RowMapper<T> rowMapper) throws SQLException {
@@ -277,20 +224,14 @@ public interface QueryOperation {
    * arguments to bind to the query, mapping each row to a Java object via a
    * RowMapper.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rowMapper
-   *         object that will map one object per row
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL query to execute
+   * @param rowMapper object that will map one object per row
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return the result List, containing mapped objects
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    */
   default <T> List<T> queryList(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
     return queryList(sql, args, rowMapper);
@@ -301,20 +242,14 @@ public interface QueryOperation {
    * arguments to bind to the query, mapping each row to a Java object via a
    * RowMapper.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param rowMapper
-   *         object that will map one object per row
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL query to execute
+   * @param rowMapper object that will map one object per row
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return the result List, containing mapped objects
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    */
   <T> List<T> queryList(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException;
 
@@ -324,15 +259,10 @@ public interface QueryOperation {
    * The results will be mapped to a List (one entry for each row) of result
    * objects, each of them matching the specified element type.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param elementType
-   *         the required type of element in the result list
-   *
+   * @param sql SQL query to execute
+   * @param elementType the required type of element in the result list
    * @return a List of objects that match the specified element type
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #queryList(String, Object[], Class)
    */
   default <T> List<T> queryList(String sql, Class<T> elementType) throws SQLException {
@@ -346,18 +276,12 @@ public interface QueryOperation {
    * The results will be mapped to a List (one entry for each row) of result
    * objects, each of them matching the specified element type.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param elementType
-   *         the required type of element in the result list
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type);
-   *
+   * @param sql SQL query to execute
+   * @param elementType the required type of element in the result list
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type);
    * @return a List of objects that match the specified element type
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #queryList(String, Class)
    */
   default <T> List<T> queryList(String sql, Class<T> elementType, Object... args) throws SQLException {
@@ -371,18 +295,12 @@ public interface QueryOperation {
    * The results will be mapped to a List (one entry for each row) of result
    * objects, each of them matching the specified element type.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param elementType
-   *         the required type of element in the result list
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type);
-   *
+   * @param sql SQL query to execute
+   * @param elementType the required type of element in the result list
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type);
    * @return a List of objects that match the specified element type
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #queryList(String, Class)
    */
   <T> List<T> queryList(String sql, Object[] args, Class<T> elementType) throws SQLException;
@@ -395,13 +313,9 @@ public interface QueryOperation {
    * entry for each column, using the column name as the key). Each element in the
    * list will be of the form returned by this interface's queryMap() methods.
    *
-   * @param sql
-   *         SQL query to execute
-   *
+   * @param sql SQL query to execute
    * @return a List that contains a Map per row
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #queryList(String, Object[])
    */
   default List<Map<String, Object>> queryList(String sql) throws SQLException {
@@ -416,16 +330,11 @@ public interface QueryOperation {
    * entry for each column, using the column name as the key). Each element in the
    * list will be of the form returned by this interface's queryMap() methods.
    *
-   * @param sql
-   *         SQL query to execute
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type);
-   *
+   * @param sql SQL query to execute
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type);
    * @return a List that contains a Map per row
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #queryList(String)
    */
   List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException;
@@ -444,14 +353,10 @@ public interface QueryOperation {
    * The query is expected to be a single row query; the result row will be mapped
    * to a Map (one entry for each column, using the column name as the key).
    *
-   * @param sql
-   *         SQL query to execute
-   *
+   * @param sql SQL query to execute
    * @return the result Map (one entry for each column, using the column name as
    * the key)
-   *
-   * @throws SQLException
-   *         if there is any problem executing the query
+   * @throws SQLException if there is any problem executing the query
    * @see #queryMap(String, Object[])
    */
   default Map<String, Object> queryMap(String sql) throws SQLException {
@@ -467,17 +372,12 @@ public interface QueryOperation {
    * The query is expected to be a single row query; the result row will be mapped
    * to a Map (one entry for each column, using the column name as the key).
    *
-   * @param sql
-   *         SQL query to execute
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type);
-   *
+   * @param sql SQL query to execute
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type);
    * @return the result Map (one entry for each column, using the column name as
    * the key)
-   *
-   * @throws SQLException
-   *         if the query fails
+   * @throws SQLException if the query fails
    * @see #queryMap(String)
    */
   Map<String, Object> queryMap(String sql, Object[] args) throws SQLException;

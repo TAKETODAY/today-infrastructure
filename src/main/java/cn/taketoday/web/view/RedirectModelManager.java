@@ -34,18 +34,15 @@ public interface RedirectModelManager {
   /**
    * Get RedirectModel if exist
    *
-   * @param context
-   *         Current request context
+   * @param context Current request context
    */
   RedirectModel getModel(RequestContext context);
 
   /**
    * Set a {@link RedirectModel} to current request context
    *
-   * @param context
-   *         current request context
-   * @param redirectModel
-   *         value
+   * @param context current request context
+   * @param redirectModel value
    */
   void applyModel(RequestContext context, RedirectModel redirectModel);
 

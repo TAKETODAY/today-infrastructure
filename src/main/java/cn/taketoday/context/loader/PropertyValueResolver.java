@@ -36,11 +36,8 @@ public interface PropertyValueResolver {
   /**
    * Resolve {@link PropertySetter}.
    *
-   * @param context
-   *         resolving context
-   * @param field
-   *         bean's field
-   *
+   * @param context resolving context
+   * @param field bean's field
    * @return property value
    */
   @Nullable

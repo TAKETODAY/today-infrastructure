@@ -32,13 +32,9 @@ public interface RequestHandler {
   /**
    * Handle request
    *
-   * @param context
-   *         Current request context
-   *
+   * @param context Current request context
    * @return Result to be handled with {@link ReturnValueHandler}
-   *
-   * @throws Throwable
-   *         If any exception occurred
+   * @throws Throwable If any exception occurred
    */
   Object handleRequest(RequestContext context) throws Throwable;
 

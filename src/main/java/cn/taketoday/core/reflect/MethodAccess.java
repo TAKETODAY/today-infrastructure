@@ -48,13 +48,9 @@ public abstract class MethodAccess {
    * invoke the method with less overhead. If more than one method matches (i.e.
    * they differ by return type only), one is chosen arbitrarily.
    *
-   * @param name
-   *         the method name
-   * @param parameterTypes
-   *         the parameter array
-   *
+   * @param name the method name
+   * @param parameterTypes the parameter array
    * @return the index, or <code>-1</code> if none is found.
-   *
    * @see #invoke(int, Object, Object[])
    */
   public abstract int getIndex(String name, Class[] parameterTypes);
@@ -63,11 +59,8 @@ public abstract class MethodAccess {
    * Return the index of the matching constructor. The index may be used later to
    * create a new instance with less overhead.
    *
-   * @param parameterTypes
-   *         the parameter array
-   *
+   * @param parameterTypes the parameter array
    * @return the constructor index, or <code>-1</code> if none is found.
-   *
    * @see #newInstance(int, Object[])
    */
   public abstract int getIndex(Class[] parameterTypes);
@@ -75,15 +68,10 @@ public abstract class MethodAccess {
   /**
    * Invoke the method with the specified index.
    *
-   * @param index
-   *         the method index
-   * @param obj
-   *         the object the underlying method is invoked from
-   * @param args
-   *         the arguments used for the method call
-   *
-   * @throws java.lang.reflect.InvocationTargetException
-   *         if the underlying method throws an exception
+   * @param index the method index
+   * @param obj the object the underlying method is invoked from
+   * @param args the arguments used for the method call
+   * @throws java.lang.reflect.InvocationTargetException if the underlying method throws an exception
    * @see getIndex(name, Class[])
    */
   public abstract Object invoke(int index, Object obj, Object[] args) throws InvocationTargetException;
@@ -91,13 +79,9 @@ public abstract class MethodAccess {
   /**
    * Create a new instance using the specified constructor index and arguments.
    *
-   * @param index
-   *         the constructor index
-   * @param args
-   *         the arguments passed to the constructor
-   *
-   * @throws java.lang.reflect.InvocationTargetException
-   *         if the constructor throws an exception
+   * @param index the constructor index
+   * @param args the arguments passed to the constructor
+   * @throws java.lang.reflect.InvocationTargetException if the constructor throws an exception
    * @see getIndex(Class[])
    */
   public abstract Object newInstance(int index, Object[] args) throws InvocationTargetException;

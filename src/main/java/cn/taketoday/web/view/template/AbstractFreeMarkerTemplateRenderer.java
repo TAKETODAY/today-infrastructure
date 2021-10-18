@@ -19,6 +19,12 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
@@ -45,12 +51,6 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.Version;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * Abstract FreeMarker template-renderer
@@ -145,9 +145,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   /**
    * Create Model Attributes.
    *
-   * @param context
-   *         Current request context
-   *
+   * @param context Current request context
    * @return {@link TemplateHashModel}
    */
   protected abstract TemplateHashModel createModel(RequestContext context);
@@ -181,26 +179,22 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * might use in subclasses to perform a specific action before the template is
    * processed.
    *
-   * @param context
-   *         The HTTP response. The HTTP headers are already initialized here,
-   *         such as the {@code contentType} and the
-   *         {@code responseCharacterEncoding} are already set, but you can do
-   *         the final adjustments here. The response {@link Writer} isn't
-   *         created yet, so changing HTTP headers and buffering parameters
-   *         works.
-   * @param template
-   *         The template that will get executed
-   * @param model
-   *         The data model that will be passed to the template. By default
-   *         this will be an
-   *         {@link freemarker.ext.servlet.AllHttpScopesHashModel} (which is a
-   *         {@link freemarker.template.SimpleHash} subclass). Thus, you can
-   *         add new variables to the data-model with the
-   *         {@link freemarker.template.SimpleHash#put(String, Object)}
-   *         subclass) method. However, to adjust the data-model, overriding
-   *         {@link #createModel(RequestContext)} is probably a more
-   *         appropriate place.
-   *
+   * @param context The HTTP response. The HTTP headers are already initialized here,
+   * such as the {@code contentType} and the
+   * {@code responseCharacterEncoding} are already set, but you can do
+   * the final adjustments here. The response {@link Writer} isn't
+   * created yet, so changing HTTP headers and buffering parameters
+   * works.
+   * @param template The template that will get executed
+   * @param model The data model that will be passed to the template. By default
+   * this will be an
+   * {@link freemarker.ext.servlet.AllHttpScopesHashModel} (which is a
+   * {@link freemarker.template.SimpleHash} subclass). Thus, you can
+   * add new variables to the data-model with the
+   * {@link freemarker.template.SimpleHash#put(String, Object)}
+   * subclass) method. However, to adjust the data-model, overriding
+   * {@link #createModel(RequestContext)} is probably a more
+   * appropriate place.
    * @return true to process the template, false to suppress template processing.
    */
   protected boolean preTemplateProcess(
@@ -216,11 +210,9 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * information from the {@link Environment} after the execution. It also allows
    * you to capture exceptions throw by the template.
    *
-   * @param env
-   *         The {@link Environment} object already set up to execute the
-   *         template. You only have to call {@link Environment#process()} and
-   *         the output will be produced by the template.
-   *
+   * @param env The {@link Environment} object already set up to execute the
+   * template. You only have to call {@link Environment#process()} and
+   * the output will be produced by the template.
    * @since 2.3.7
    */
   protected void processEnvironment(
@@ -235,13 +227,9 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * processed. It will be invoked even if the template processing throws an
    * exception. By default does nothing.
    *
-   * @param context
-   *         the actual HTTP request context
-   * @param template
-   *         the template that was executed
-   * @param data
-   *         the data that was passed to the template
-   *
+   * @param context the actual HTTP request context
+   * @param template the template that was executed
+   * @param data the data that was passed to the template
    * @since 2.3.7
    */
   protected void postTemplateProcess(

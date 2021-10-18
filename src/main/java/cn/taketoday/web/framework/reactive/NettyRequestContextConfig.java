@@ -132,7 +132,6 @@ public class NettyRequestContextConfig {
 
   /**
    * @return response body initial capacity
-   *
    * @see io.netty.buffer.Unpooled#buffer(int)
    */
   public int getBodyInitialSize() {
@@ -140,9 +139,7 @@ public class NettyRequestContextConfig {
   }
 
   /**
-   * @param bodyInitialSize
-   *         response body initial capacity
-   *
+   * @param bodyInitialSize response body initial capacity
    * @see io.netty.buffer.Unpooled#buffer(int)
    */
   public void setBodyInitialSize(int bodyInitialSize) {

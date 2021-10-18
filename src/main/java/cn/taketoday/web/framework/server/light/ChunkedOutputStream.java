@@ -45,12 +45,9 @@ public class ChunkedOutputStream extends FilterOutputStream {
   /**
    * Constructs a ChunkedOutputStream with the given underlying stream.
    *
-   * @param out
-   *         the underlying output stream to which the chunked stream
-   *         is written
-   *
-   * @throws NullPointerException
-   *         if the given stream is null
+   * @param out the underlying output stream to which the chunked stream
+   * is written
+   * @throws NullPointerException if the given stream is null
    */
   public ChunkedOutputStream(OutputStream out) {
     super(out);
@@ -61,14 +58,10 @@ public class ChunkedOutputStream extends FilterOutputStream {
   /**
    * Initializes a new chunk with the given size.
    *
-   * @param size
-   *         the chunk size (must be positive)
-   *
-   * @throws IllegalArgumentException
-   *         if size is negative
-   * @throws IOException
-   *         if an IO error occurs, or the stream has
-   *         already been ended
+   * @param size the chunk size (must be positive)
+   * @throws IllegalArgumentException if size is negative
+   * @throws IOException if an IO error occurs, or the stream has
+   * already been ended
    */
   protected void initChunk(long size) throws IOException {
     if (size < 0)
@@ -86,11 +79,8 @@ public class ChunkedOutputStream extends FilterOutputStream {
   /**
    * Writes the trailing chunk which marks the end of the stream.
    *
-   * @param headers
-   *         the (optional) trailing headers to write, or null
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param headers the (optional) trailing headers to write, or null
+   * @throws IOException if an error occurs
    */
   public void writeTrailingChunk(HttpHeaders headers) throws IOException {
     initChunk(0); // zero-sized chunk marks the end of the stream
@@ -105,11 +95,8 @@ public class ChunkedOutputStream extends FilterOutputStream {
    * Writes a chunk containing the given byte. This method initializes
    * a new chunk of size 1, and then writes the byte as the chunk data.
    *
-   * @param b
-   *         the byte to write as a chunk
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param b the byte to write as a chunk
+   * @throws IOException if an error occurs
    */
   @Override
   public void write(int b) throws IOException {
@@ -120,18 +107,12 @@ public class ChunkedOutputStream extends FilterOutputStream {
    * Writes a chunk containing the given bytes. This method initializes
    * a new chunk of the given size, and then writes the chunk data.
    *
-   * @param b
-   *         an array containing the bytes to write
-   * @param off
-   *         the offset within the array where the data starts
-   * @param len
-   *         the length of the data in bytes
-   *
-   * @throws IOException
-   *         if an error occurs
-   * @throws IndexOutOfBoundsException
-   *         if the given offset or length
-   *         are outside the bounds of the given array
+   * @param b an array containing the bytes to write
+   * @param off the offset within the array where the data starts
+   * @param len the length of the data in bytes
+   * @throws IOException if an error occurs
+   * @throws IndexOutOfBoundsException if the given offset or length
+   * are outside the bounds of the given array
    */
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
@@ -143,8 +124,7 @@ public class ChunkedOutputStream extends FilterOutputStream {
   /**
    * Writes the trailing chunk if necessary, and closes the underlying stream.
    *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    */
   @Override
   public void close() throws IOException {

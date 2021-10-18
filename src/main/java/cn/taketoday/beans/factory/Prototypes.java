@@ -55,15 +55,10 @@ public final class Prototypes {
    * will inject a proxy instance to get prototype
    * instance from every single method call.
    *
-   * @param refType
-   *         Reference bean class
-   * @param def
-   *         Target {@link BeanDefinition}
-   * @param factory
-   *         {@link AbstractBeanFactory}
-   * @param proxyTargetClass
-   *         If true use cglib
-   *
+   * @param refType Reference bean class
+   * @param def Target {@link BeanDefinition}
+   * @param factory {@link AbstractBeanFactory}
+   * @param proxyTargetClass If true use cglib
    * @return Target prototype object
    */
   public static Object newProxyInstance(

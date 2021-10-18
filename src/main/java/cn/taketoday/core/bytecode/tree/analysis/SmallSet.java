@@ -63,8 +63,7 @@ final class SmallSet<T> extends AbstractSet<T> {
   /**
    * Constructs a set with exactly one element.
    *
-   * @param element
-   *         the unique set element.
+   * @param element the unique set element.
    */
   SmallSet(final T element) {
     this.element1 = element;
@@ -74,10 +73,8 @@ final class SmallSet<T> extends AbstractSet<T> {
   /**
    * Constructs a new {@link SmallSet}.
    *
-   * @param element1
-   *         see {@link #element1}.
-   * @param element2
-   *         see {@link #element2}.
+   * @param element1 see {@link #element1}.
+   * @param element2 see {@link #element2}.
    */
   private SmallSet(final T element1, final T element2) {
     this.element1 = element1;
@@ -113,9 +110,7 @@ final class SmallSet<T> extends AbstractSet<T> {
   /**
    * Returns the union of this set and of the given set.
    *
-   * @param otherSet
-   *         another small set.
-   *
+   * @param otherSet another small set.
    * @return the union of this set and of otherSet.
    */
   Set<T> union(final SmallSet<T> otherSet) {

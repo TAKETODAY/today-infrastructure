@@ -158,11 +158,8 @@ final class ObjectToObjectConverter implements TypeConverter {
    * type, assuming setting by reflection. Considers primitive wrapper
    * classes as assignable to the corresponding primitive types.
    *
-   * @param lhsType
-   *         the target type
-   * @param rhsType
-   *         the value type that should be assigned to the target type
-   *
+   * @param lhsType the target type
+   * @param rhsType the value type that should be assigned to the target type
    * @return if the target type is assignable from the value type
    */
   private static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {

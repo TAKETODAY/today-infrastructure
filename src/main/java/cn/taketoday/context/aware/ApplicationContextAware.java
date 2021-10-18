@@ -34,8 +34,7 @@ public interface ApplicationContextAware extends Aware {
    * Set the ApplicationContext that this object runs in.Normally this call will
    * be used to initialize the object.
    *
-   * @param context
-   *         ApplicationContext
+   * @param context ApplicationContext
    */
   void setApplicationContext(ApplicationContext context);
 

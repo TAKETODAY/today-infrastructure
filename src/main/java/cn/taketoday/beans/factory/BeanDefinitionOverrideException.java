@@ -41,12 +41,9 @@ public class BeanDefinitionOverrideException extends BeanDefinitionStoreExceptio
   /**
    * Create a new BeanDefinitionOverrideException for the given new and existing definition.
    *
-   * @param beanName
-   *         the name of the bean
-   * @param beanDefinition
-   *         the newly registered bean definition
-   * @param existingDefinition
-   *         the existing bean definition for the same name
+   * @param beanName the name of the bean
+   * @param beanDefinition the newly registered bean definition
+   * @param existingDefinition the existing bean definition for the same name
    */
   public BeanDefinitionOverrideException(
           String beanName, BeanDefinition beanDefinition, BeanDefinition existingDefinition) {

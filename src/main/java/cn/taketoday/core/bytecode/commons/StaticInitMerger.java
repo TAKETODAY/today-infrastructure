@@ -55,11 +55,9 @@ public class StaticInitMerger extends ClassVisitor {
   /**
    * Constructs a new {@link StaticInitMerger}.
    *
-   * @param prefix
-   *         the prefix to use to rename the existing &lt;clinit&gt; methods.
-   * @param classVisitor
-   *         the class visitor to which this visitor must delegate method calls. May be
-   *         null.
+   * @param prefix the prefix to use to rename the existing &lt;clinit&gt; methods.
+   * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
+   * null.
    */
   public StaticInitMerger(final String prefix, final ClassVisitor classVisitor) {
     super(classVisitor);

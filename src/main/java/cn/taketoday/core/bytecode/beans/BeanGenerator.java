@@ -57,8 +57,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
    * Set the class which the generated class will extend. The class must not be
    * declared as final, and must have a non-private no-argument constructor.
    *
-   * @param superclass
-   *         class to extend, or null to extend Object
+   * @param superclass class to extend, or null to extend Object
    */
   public void setSuperclass(Class<?> superclass) {
     if (superclass != null && superclass.equals(Object.class)) {

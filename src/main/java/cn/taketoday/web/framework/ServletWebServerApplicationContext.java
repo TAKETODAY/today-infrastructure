@@ -54,8 +54,7 @@ public class ServletWebServerApplicationContext
   /**
    * Construct with given {@link ConfigurableEnvironment}
    *
-   * @param env
-   *         {@link ConfigurableEnvironment} instance
+   * @param env {@link ConfigurableEnvironment} instance
    */
   public ServletWebServerApplicationContext(ConfigurableEnvironment env) {
     this(env, null);
@@ -87,8 +86,7 @@ public class ServletWebServerApplicationContext
   /**
    * Apply startup class
    *
-   * @param startupClass
-   *         Startup class such as Application or XXXApplication
+   * @param startupClass Startup class such as Application or XXXApplication
    */
   public void setStartupClass(Class<?> startupClass) {
     this.startupClass = startupClass;

@@ -54,8 +54,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
    * Create a new TaskExecutorAdapter,
    * using the given JDK concurrent executor.
    *
-   * @param concurrentExecutor
-   *         the JDK concurrent executor to delegate to
+   * @param concurrentExecutor the JDK concurrent executor to delegate to
    */
   public TaskExecutorAdapter(Executor concurrentExecutor) {
     Assert.notNull(concurrentExecutor, "Executor must not be null");
@@ -167,15 +166,10 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
    * Actually execute the given {@code Runnable} (which may be a user-supplied task
    * or a wrapper around a user-supplied task) with the given executor.
    *
-   * @param concurrentExecutor
-   *         the underlying JDK concurrent executor to delegate to
-   * @param taskDecorator
-   *         the specified decorator to be applied, if any
-   * @param runnable
-   *         the runnable to execute
-   *
-   * @throws RejectedExecutionException
-   *         if the given runnable cannot be accepted
+   * @param concurrentExecutor the underlying JDK concurrent executor to delegate to
+   * @param taskDecorator the specified decorator to be applied, if any
+   * @param runnable the runnable to execute
+   * @throws RejectedExecutionException if the given runnable cannot be accepted
    */
   protected void doExecute(
           Executor concurrentExecutor, @Nullable TaskDecorator taskDecorator, Runnable runnable)

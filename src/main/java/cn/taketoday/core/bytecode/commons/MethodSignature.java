@@ -75,10 +75,8 @@ public class MethodSignature {
   /**
    * Constructs a new {@link MethodSignature}.
    *
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor.
    */
   public MethodSignature(final String name, final String descriptor) {
     this.name = name;
@@ -88,13 +86,9 @@ public class MethodSignature {
   /**
    * Constructs a new {@link MethodSignature}.
    *
-   * @param name
-   *         the method's name.
-   * @param returnType
-   *         the method's return type.
-   * @param argumentTypes
-   *         the method's argument types.
-   *
+   * @param name the method's name.
+   * @param returnType the method's return type.
+   * @param argumentTypes the method's argument types.
    * @since 4.0
    */
   public MethodSignature(final Type returnType, final String name, final Type... argumentTypes) {
@@ -104,9 +98,7 @@ public class MethodSignature {
   /**
    * Creates a new {@link MethodSignature}.
    *
-   * @param method
-   *         a java.lang.reflect method descriptor
-   *
+   * @param method a java.lang.reflect method descriptor
    * @return a {@link MethodSignature} corresponding to the given Java method declaration.
    */
   public static MethodSignature from(final Method method) {
@@ -116,9 +108,7 @@ public class MethodSignature {
   /**
    * Creates a new {@link MethodSignature}.
    *
-   * @param constructor
-   *         a java.lang.reflect constructor descriptor
-   *
+   * @param constructor a java.lang.reflect constructor descriptor
    * @return a {@link MethodSignature} corresponding to the given Java constructor declaration.
    */
   public static MethodSignature from(final Constructor<?> constructor) {
@@ -140,11 +130,8 @@ public class MethodSignature {
   }
 
   /**
-   * @param parameterTypes
-   *         a Java parameterTypes name.
-   *
+   * @param parameterTypes a Java parameterTypes name.
    * @return Constructor Signature
-   *
    * @see #CONSTRUCTOR_NAME
    * @since 4.0
    */
@@ -154,11 +141,8 @@ public class MethodSignature {
   }
 
   /**
-   * @param parameterTypes
-   *         a Java parameterTypes.
-   *
+   * @param parameterTypes a Java parameterTypes.
    * @return Constructor Signature
-   *
    * @see #CONSTRUCTOR_NAME
    * @since 4.0
    */
@@ -173,16 +157,12 @@ public class MethodSignature {
   /**
    * Returns a {@link MethodSignature} corresponding to the given Java method declaration.
    *
-   * @param method
-   *         a Java method declaration, without argument names, of the form "returnType name
-   *         (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
-   *         "float", "java.util.List", ...). Classes of the java.lang package can be specified by their
-   *         unqualified name; all other classes names must be fully qualified.
-   *
+   * @param method a Java method declaration, without argument names, of the form "returnType name
+   * (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
+   * "float", "java.util.List", ...). Classes of the java.lang package can be specified by their
+   * unqualified name; all other classes names must be fully qualified.
    * @return a {@link MethodSignature} corresponding to the given Java method declaration.
-   *
-   * @throws IllegalArgumentException
-   *         if <code>method</code> could not get parsed.
+   * @throws IllegalArgumentException if <code>method</code> could not get parsed.
    */
   public static MethodSignature from(final String method) {
     return from(method, false);
@@ -191,21 +171,16 @@ public class MethodSignature {
   /**
    * Returns a {@link MethodSignature} corresponding to the given Java method declaration.
    *
-   * @param method
-   *         a Java method declaration, without argument names, of the form "returnType name
-   *         (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
-   *         "float", "java.util.List", ...). Classes of the java.lang package may be specified by their
-   *         unqualified name, depending on the defaultPackage argument; all other classes names must be
-   *         fully qualified.
-   * @param defaultPackage
-   *         true if unqualified class names belong to the default package, or false
-   *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
-   *         option is true, or "java.lang.Object" otherwise.
-   *
+   * @param method a Java method declaration, without argument names, of the form "returnType name
+   * (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
+   * "float", "java.util.List", ...). Classes of the java.lang package may be specified by their
+   * unqualified name, depending on the defaultPackage argument; all other classes names must be
+   * fully qualified.
+   * @param defaultPackage true if unqualified class names belong to the default package, or false
+   * if they correspond to java.lang classes. For instance "Object" means "Object" if this
+   * option is true, or "java.lang.Object" otherwise.
    * @return a {@link MethodSignature} corresponding to the given Java method declaration.
-   *
-   * @throws IllegalArgumentException
-   *         if <code>method</code> could not get parsed.
+   * @throws IllegalArgumentException if <code>method</code> could not get parsed.
    */
   public static MethodSignature from(final String method, final boolean defaultPackage) {
     final int spaceIndex = method.indexOf(' ');

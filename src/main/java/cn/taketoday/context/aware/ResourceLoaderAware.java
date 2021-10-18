@@ -75,9 +75,7 @@ public interface ResourceLoaderAware extends Aware {
    * like InitializingBean's {@code afterPropertiesSet} or a custom init-method.
    * Invoked before ApplicationContextAware's {@code setApplicationContext}.
    *
-   * @param resourceLoader
-   *         the ResourceLoader object to be used by this object
-   *
+   * @param resourceLoader the ResourceLoader object to be used by this object
    * @see PatternResourceLoader
    * @see cn.taketoday.core.io.PathMatchingPatternResourceLoader#getPatternResourceLoader
    */

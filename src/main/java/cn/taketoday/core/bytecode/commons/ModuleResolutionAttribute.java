@@ -72,10 +72,9 @@ public final class ModuleResolutionAttribute extends Attribute {
   /**
    * Constructs a new {@link ModuleResolutionAttribute}.
    *
-   * @param resolution
-   *         the resolution state of the module. Must be one of {@link
-   *         #RESOLUTION_WARN_DEPRECATED}, {@link #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link
-   *         #RESOLUTION_WARN_INCUBATING}.
+   * @param resolution the resolution state of the module. Must be one of {@link
+   * #RESOLUTION_WARN_DEPRECATED}, {@link #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link
+   * #RESOLUTION_WARN_INCUBATING}.
    */
   public ModuleResolutionAttribute(final int resolution) {
     super("ModuleResolution");

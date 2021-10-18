@@ -31,27 +31,18 @@ public interface TypeHandler<T> {
   /**
    * Gets the result.
    *
-   * @param rs
-   *         the rs
-   * @param columnName
-   *         Colunm name, when configuration <code>useColumnLabel</code> is <code>false</code>
-   *
+   * @param rs the rs
+   * @param columnName Colunm name, when configuration <code>useColumnLabel</code> is <code>false</code>
    * @return the result
-   *
-   * @throws SQLException
-   *         the SQL exception
+   * @throws SQLException the SQL exception
    */
   T getResult(ResultSet rs, String columnName) throws SQLException;
 
   /**
-   * @param rs
-   *         ResultSet
-   * @param columnIndex
-   *         the first column is 1, the second is 2, ...
-   *
-   * @throws SQLException
-   *         if a database access error occurs or this method is
-   *         called on a closed result set
+   * @param rs ResultSet
+   * @param columnIndex the first column is 1, the second is 2, ...
+   * @throws SQLException if a database access error occurs or this method is
+   * called on a closed result set
    */
   T getResult(ResultSet rs, int columnIndex) throws SQLException;
 

@@ -35,9 +35,7 @@ public interface UpdateOperation {
    * Issue a single SQL update operation (such as an insert, update or delete
    * statement).
    *
-   * @param sql
-   *         static SQL to execute
-   *
+   * @param sql static SQL to execute
    * @return the number of rows affected @ if there is any problem.
    */
   int update(String sql) throws SQLException;
@@ -46,14 +44,11 @@ public interface UpdateOperation {
    * Issue a single SQL update operation (such as an insert, update or delete
    * statement) via a prepared statement, binding the given arguments.
    *
-   * @param sql
-   *         SQL containing bind parameters
-   * @param args
-   *         arguments to bind to the query (leaving it to the
-   *         PreparedStatement to guess the corresponding SQL type); may also
-   *         contain {@link SqlParameterValue} objects which indicate not only
-   *         the argument value but also the SQL type and optionally the scale
-   *
+   * @param sql SQL containing bind parameters
+   * @param args arguments to bind to the query (leaving it to the
+   * PreparedStatement to guess the corresponding SQL type); may also
+   * contain {@link SqlParameterValue} objects which indicate not only
+   * the argument value but also the SQL type and optionally the scale
    * @return the number of rows affected @ if there is any problem issuing the
    * update
    */
@@ -65,9 +60,7 @@ public interface UpdateOperation {
    * Will fall back to separate updates on a single Statement if the JDBC driver
    * does not support batch updates.
    *
-   * @param sql
-   *         defining an array of SQL statements that will be executed.
-   *
+   * @param sql defining an array of SQL statements that will be executed.
    * @return an array of the number of rows affected by each statement @ if there
    * is any problem executing the batch
    */
@@ -77,12 +70,9 @@ public interface UpdateOperation {
    * Execute a batch using the supplied SQL statement with the batch of supplied
    * arguments.
    *
-   * @param sql
-   *         the SQL statement to execute
-   * @param batchArgs
-   *         the List of Object arrays containing the batch of arguments for
-   *         the query
-   *
+   * @param sql the SQL statement to execute
+   * @param batchArgs the List of Object arrays containing the batch of arguments for
+   * the query
    * @return an array containing the numbers of rows affected by each update in
    * the batch
    */

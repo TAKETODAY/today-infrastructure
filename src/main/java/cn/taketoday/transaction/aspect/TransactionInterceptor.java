@@ -19,6 +19,13 @@
  */
 package cn.taketoday.transaction.aspect;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -42,12 +49,6 @@ import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.Transactional;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author TODAY <br>
@@ -79,9 +80,8 @@ public class TransactionInterceptor implements MethodInterceptor {
    * intended for code that wants to set the current transaction rollback-only but
    * not throw an application exception.
    *
-   * @throws NoTransactionException
-   *         if the transaction info cannot be found, because the method was
-   *         invoked outside an AOP invocation context
+   * @throws NoTransactionException if the transaction info cannot be found, because the method was
+   * invoked outside an AOP invocation context
    */
   public static TransactionStatus currentTransactionStatus() throws NoTransactionException {
     TransactionStatus metaData = TRANSACTION.get();
@@ -136,8 +136,7 @@ public class TransactionInterceptor implements MethodInterceptor {
    * Handle a throwable, completing the transaction. We may commit or roll back,
    * depending on the configuration.
    *
-   * @param ex
-   *         throwable encountered
+   * @param ex throwable encountered
    */
   static void completeTransactionAfterThrowing(final TransactionDefinition def,
                                                final TransactionStatus transactionStatus,

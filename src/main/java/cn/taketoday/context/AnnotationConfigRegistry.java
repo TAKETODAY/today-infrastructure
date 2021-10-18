@@ -39,10 +39,8 @@ public interface AnnotationConfigRegistry {
    * Load {@link cn.taketoday.context.annotation.Import} beans from input components classes
    * <p>
    *
-   * @param components
-   *         one or more component classes,
-   *         e.g. {@link Configuration @Configuration} classes
-   *
+   * @param components one or more component classes,
+   * e.g. {@link Configuration @Configuration} classes
    * @since 3.0
    */
   void register(Class<?>... components);
@@ -52,8 +50,7 @@ public interface AnnotationConfigRegistry {
   /**
    * Perform a scan within the specified base packages.
    *
-   * @param basePackages
-   *         the packages to scan for component classes
+   * @param basePackages the packages to scan for component classes
    */
   void scan(String... basePackages);
 

@@ -38,10 +38,8 @@ public class CaffeineCache extends AbstractMappingFunctionCache {
    * Create a {@link CaffeineCache} instance with the specified name and the given
    * internal {@link Cache} to use.
    *
-   * @param name
-   *         the name of the cache
-   * @param caffeine
-   *         Caffeine Cache instance
+   * @param name the name of the cache
+   * @param caffeine Caffeine Cache instance
    */
   public CaffeineCache(String name, Cache<Object, Object> caffeine) {
     Assert.notNull(name, "Name must not be null");

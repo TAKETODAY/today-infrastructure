@@ -96,12 +96,9 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
    * the specified configuration. {@link #TomcatServerContainer(ServletContext)}
    * must be called before calling this method.
    *
-   * @param sec
-   *         The configuration to use when creating endpoint instances
-   *
-   * @throws DeploymentException
-   *         if the endpoint cannot be published as
-   *         requested
+   * @param sec The configuration to use when creating endpoint instances
+   * @throws DeploymentException if the endpoint cannot be published as
+   * requested
    */
   @Override
   public void addEndpoint(ServerEndpointConfig sec) throws DeploymentException {
@@ -202,8 +199,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
    * for publishing plain old java objects (POJOs) that have been annotated as
    * WebSocket endpoints.
    *
-   * @param pojo
-   *         The annotated POJO
+   * @param pojo The annotated POJO
    */
   @Override
   public void addEndpoint(Class<?> pojo) throws DeploymentException {

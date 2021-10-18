@@ -84,9 +84,7 @@ public class DateUtils {
   /**
    * {@link TemporalAccessor}转{@link LocalDate}，使用默认时区
    *
-   * @param temporalAccessor
-   *         {@link TemporalAccessor}
-   *
+   * @param temporalAccessor {@link TemporalAccessor}
    * @return {@link LocalDate}
    */
   public static LocalDate ofDate(TemporalAccessor temporalAccessor) {
@@ -108,11 +106,8 @@ public class DateUtils {
   /**
    * 安全获取时间的某个属性，属性不存在返回0
    *
-   * @param temporalAccessor
-   *         需要获取的时间对象
-   * @param field
-   *         需要获取的属性
-   *
+   * @param temporalAccessor 需要获取的时间对象
+   * @param field 需要获取的属性
    * @return 时间的值，如果无法获取则默认为 0
    */
   public static int get(TemporalAccessor temporalAccessor, TemporalField field) {
@@ -126,11 +121,8 @@ public class DateUtils {
   /**
    * 格式化日期时间为指定格式
    *
-   * @param time
-   *         {@link TemporalAccessor}
-   * @param formatter
-   *         日期格式化器，预定义的格式见：{@link DateTimeFormatter}
-   *
+   * @param time {@link TemporalAccessor}
+   * @param formatter 日期格式化器，预定义的格式见：{@link DateTimeFormatter}
    * @return 格式化后的字符串
    */
   public static String format(TemporalAccessor time, DateTimeFormatter formatter) {
@@ -161,11 +153,8 @@ public class DateUtils {
   /**
    * 格式化日期时间为指定格式
    *
-   * @param time
-   *         {@link TemporalAccessor}
-   * @param format
-   *         日期格式
-   *
+   * @param time {@link TemporalAccessor}
+   * @param format 日期格式
    * @return 格式化后的字符串
    */
   public static String format(TemporalAccessor time, String format) {
@@ -182,9 +171,7 @@ public class DateUtils {
   /**
    * {@link TemporalAccessor}转换为 时间戳（从1970-01-01T00:00:00Z开始的毫秒数）
    *
-   * @param temporalAccessor
-   *         Date对象
-   *
+   * @param temporalAccessor Date对象
    * @return {@link Instant}对象
    */
   public static long toEpochMilli(TemporalAccessor temporalAccessor) {
@@ -195,9 +182,7 @@ public class DateUtils {
   /**
    * {@link TemporalAccessor}转换为 {@link Instant}对象
    *
-   * @param temporalAccessor
-   *         Date对象
-   *
+   * @param temporalAccessor Date对象
    * @return {@link Instant}对象
    */
   public static Instant toInstant(TemporalAccessor temporalAccessor) {

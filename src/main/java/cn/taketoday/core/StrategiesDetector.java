@@ -139,9 +139,7 @@ public class StrategiesDetector {
   /**
    * Retrieve the flag for the given property key.
    *
-   * @param strategyKey
-   *         the property key
-   *
+   * @param strategyKey the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise
    */
@@ -155,9 +153,7 @@ public class StrategiesDetector {
    * If there isn't a key returns defaultFlag
    * </p>
    *
-   * @param strategyKey
-   *         the property key
-   *
+   * @param strategyKey the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise ,If there isn't a key returns defaultFlag
    */
@@ -172,11 +168,8 @@ public class StrategiesDetector {
    * strategies must be instance-of given strategy class
    * use default {@link #beanFactory}
    *
-   * @param strategyClass
-   *         strategy class
-   * @param <T>
-   *         target type
-   *
+   * @param strategyClass strategy class
+   * @param <T> target type
    * @return returns none repeatable strategies by given class
    */
   public <T> List<T> getStrategies(Class<T> strategyClass) {
@@ -189,13 +182,9 @@ public class StrategiesDetector {
    * strategies must be an instance of given strategy class
    * </p>
    *
-   * @param strategyClass
-   *         strategy class
-   * @param beanFactory
-   *         bean factory (supports constructor parameters injection)
-   * @param <T>
-   *         target type
-   *
+   * @param strategyClass strategy class
+   * @param beanFactory bean factory (supports constructor parameters injection)
+   * @param <T> target type
    * @return returns none repeatable strategies by given class
    */
   @SuppressWarnings("unchecked")
@@ -253,10 +242,8 @@ public class StrategiesDetector {
   /**
    * consume by strategy key
    *
-   * @param strategyKey
-   *         key
-   * @param consumer
-   *         string consumer
+   * @param strategyKey key
+   * @param consumer string consumer
    */
   public void consumeStrategies(String strategyKey, Consumer<String> consumer) {
     Collection<String> strategies = getStrategies(strategyKey);
@@ -302,9 +289,7 @@ public class StrategiesDetector {
    * use default factory
    * </p>
    *
-   * @param strategyKey
-   *         key
-   *
+   * @param strategyKey key
    * @return list of objects
    */
   public List getObjects(String strategyKey) {
@@ -314,11 +299,8 @@ public class StrategiesDetector {
   /**
    * get objects by key
    *
-   * @param strategyKey
-   *         key
-   * @param beanFactory
-   *         bean factory (supports constructor parameters injection)
-   *
+   * @param strategyKey key
+   * @param beanFactory bean factory (supports constructor parameters injection)
    * @return list of objects
    */
   public List getObjects(String strategyKey, @Nullable BeanFactory beanFactory) {
@@ -334,13 +316,9 @@ public class StrategiesDetector {
   /**
    * get collection of strategies
    *
-   * @param strategyKey
-   *         key
-   * @param converter
-   *         converter to convert string to T
-   * @param <T>
-   *         return type
-   *
+   * @param strategyKey key
+   * @param converter converter to convert string to T
+   * @param <T> return type
    * @return collection of strategies
    */
   public <T> List<T> getStrategies(String strategyKey, Converter<String, T> converter) {
@@ -365,9 +343,7 @@ public class StrategiesDetector {
    * filter repeat strategies
    * </p>
    *
-   * @param strategyKey
-   *         key
-   *
+   * @param strategyKey key
    * @return list of strategies
    */
   public Collection<String> getStrategies(String strategyKey) {
@@ -375,8 +351,7 @@ public class StrategiesDetector {
   }
 
   /**
-   * @param filterRepeat
-   *         filter repeat strategies
+   * @param filterRepeat filter repeat strategies
    */
   public Collection<String> getStrategies(String strategyKey, boolean filterRepeat) {
     Assert.notNull(strategyKey, "strategy-key must not be null");

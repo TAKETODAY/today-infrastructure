@@ -74,8 +74,7 @@ public class SimpleExceptionHandler
   /**
    * record exception log occurred in target request handler
    *
-   * @param target
-   *         Throwable occurred in target request handler
+   * @param target Throwable occurred in target request handler
    */
   protected void logCatchThrowable(Throwable target) {
     if (log.isDebugEnabled()) {
@@ -86,10 +85,8 @@ public class SimpleExceptionHandler
   /**
    * record log when an exception occurred in this exception handler
    *
-   * @param target
-   *         Throwable that occurred in request handler
-   * @param handlerException
-   *         Throwable occurred in this exception handler
+   * @param target Throwable that occurred in request handler
+   * @param handlerException Throwable occurred in this exception handler
    */
   protected void logResultedInException(Throwable target, Throwable handlerException) {
     log.error("Handling of [{}] resulted in Exception: [{}]",
@@ -100,15 +97,10 @@ public class SimpleExceptionHandler
   /**
    * Resolve {@link ResourceRequestHandler} exception
    *
-   * @param ex
-   *         Target {@link Throwable}
-   * @param context
-   *         Current request context
-   * @param handler
-   *         {@link ResourceRequestHandler}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
+   * @param ex Target {@link Throwable}
+   * @param context Current request context
+   * @param handler {@link ResourceRequestHandler}
+   * @throws Throwable If any {@link Exception} occurred
    */
   protected Object handleResourceHandlerInternal(
           Throwable ex, RequestContext context, ResourceRequestHandler handler) throws Throwable {
@@ -118,15 +110,10 @@ public class SimpleExceptionHandler
   /**
    * Resolve {@link ViewController} exception
    *
-   * @param ex
-   *         Target {@link Throwable}
-   * @param context
-   *         Current request context
-   * @param viewController
-   *         {@link ViewController}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
+   * @param ex Target {@link Throwable}
+   * @param context Current request context
+   * @param viewController {@link ViewController}
+   * @throws Throwable If any {@link Exception} occurred
    */
   protected Object handleViewControllerInternal(
           Throwable ex, RequestContext context, ViewController viewController) throws Throwable {
@@ -136,15 +123,10 @@ public class SimpleExceptionHandler
   /**
    * Resolve {@link HandlerMethod} exception
    *
-   * @param ex
-   *         Target {@link Throwable}
-   * @param context
-   *         Current request context
-   * @param handlerMethod
-   *         {@link HandlerMethod}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
+   * @param ex Target {@link Throwable}
+   * @param context Current request context
+   * @param handlerMethod {@link HandlerMethod}
+   * @throws Throwable If any {@link Exception} occurred
    */
   protected Object handleHandlerMethodInternal(
           Throwable ex, RequestContext context, HandlerMethod handlerMethod) throws Throwable//
@@ -169,10 +151,8 @@ public class SimpleExceptionHandler
   /**
    * Write error message to request context, default is write json
    *
-   * @param ex
-   *         Throwable that occurred in request handler
-   * @param context
-   *         current request context
+   * @param ex Throwable that occurred in request handler
+   * @param context current request context
    */
   protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
     context.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -193,9 +173,7 @@ public class SimpleExceptionHandler
    * Get error http status value, if target throwable is {@link HttpStatusCapable}
    * its return from {@link HttpStatusCapable#getHttpStatus()}
    *
-   * @param ex
-   *         Throwable that occurred in request handler
-   *
+   * @param ex Throwable that occurred in request handler
    * @return Http status code
    */
   public int getErrorStatusValue(Throwable ex) {
@@ -209,10 +187,8 @@ public class SimpleExceptionHandler
   /**
    * resolve view exception
    *
-   * @param ex
-   *         Target {@link Exception}
-   * @param context
-   *         Current request context
+   * @param ex Target {@link Exception}
+   * @param context Current request context
    */
   public Object handleExceptionInternal(
           Throwable ex, RequestContext context) throws IOException {

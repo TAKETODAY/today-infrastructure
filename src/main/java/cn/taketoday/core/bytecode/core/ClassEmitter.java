@@ -150,8 +150,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   /**
-   * @param name
-   *         class full name
+   * @param name class full name
    */
   public void beginClass(final int version,
                          final int access,

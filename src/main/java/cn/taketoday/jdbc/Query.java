@@ -312,8 +312,7 @@ public final class Query implements AutoCloseable {
    * If the values array is empty, <code>null</code> will be set to the array
    * parameter: <code>SELECT * FROM user WHERE id IN(NULL)</code>
    *
-   * @throws IllegalArgumentException
-   *         if values parameter is null
+   * @throws IllegalArgumentException if values parameter is null
    */
   public Query addParameters(final String name, final Object... values) {
     addParameter(name, new ArrayParameterBinder(values));
@@ -324,9 +323,7 @@ public final class Query implements AutoCloseable {
   /**
    * add map of parameters
    *
-   * @param parameters
-   *         map of parameters
-   *
+   * @param parameters map of parameters
    * @see #addParameter(String, Object)
    */
   public Query addParameters(final Map<String, Object> parameters) {
@@ -387,11 +384,8 @@ public final class Query implements AutoCloseable {
 
   /**
    * @return PreparedStatement
-   *
-   * @throws ParameterBindFailedException
-   *         parameter bind failed
-   * @throws ArrayParameterBindFailedException
-   *         array parameter bind failed
+   * @throws ParameterBindFailedException parameter bind failed
+   * @throws ArrayParameterBindFailedException array parameter bind failed
    */
   private PreparedStatement buildPreparedStatement(final boolean allowArrayParameters) {
     HashMap<String, QueryParameter> queryParameters = getQueryParameters();
@@ -507,9 +501,7 @@ public final class Query implements AutoCloseable {
    * memory issues. You MUST call {@link ResultSetIterable#close()} when
    * you are done iterating.
    *
-   * @param returnType
-   *         type of each row
-   *
+   * @param returnType type of each row
    * @return iterable results
    */
   public <T> ResultSetIterable<T> fetchIterable(final Class<T> returnType) {
@@ -529,9 +521,7 @@ public final class Query implements AutoCloseable {
    * memory issues. You MUST call {@link ResultSetIterable#close()} when
    * you are done iterating.
    *
-   * @param factory
-   *         factory to provide ResultSetHandler
-   *
+   * @param factory factory to provide ResultSetHandler
    * @return iterable results
    */
   public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandlerFactory<T> factory) {
@@ -550,9 +540,7 @@ public final class Query implements AutoCloseable {
    * memory issues. You MUST call {@link ResultSetIterable#close()} when
    * you are done iterating.
    *
-   * @param handler
-   *         ResultSetHandler
-   *
+   * @param handler ResultSetHandler
    * @return iterable results
    */
   public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandler<T> handler) {
@@ -569,9 +557,7 @@ public final class Query implements AutoCloseable {
   /**
    * Read a collection of T.
    *
-   * @param returnType
-   *         returnType
-   *
+   * @param returnType returnType
    * @return iterable results
    */
   public <T> List<T> fetch(Class<T> returnType) {
@@ -753,8 +739,7 @@ public final class Query implements AutoCloseable {
    * fetchGeneratedKeys is set, then previously generated keys will be lost after
    * a batch is executed.
    *
-   * @throws IllegalArgumentException
-   *         Thrown if the value is negative.
+   * @throws IllegalArgumentException Thrown if the value is negative.
    */
   public Query setMaxBatchRecords(int maxBatchRecords) {
     if (maxBatchRecords < 0) {

@@ -91,8 +91,7 @@ public class ExpressionManager {
    * BeanNameResolver and add it to the list of ELResolvers. Once registered, the
    * BeanNameResolver cannot be removed.
    *
-   * @param bnr
-   *         The BeanNameResolver to be registered.
+   * @param bnr The BeanNameResolver to be registered.
    */
   public void addBeanNameResolver(BeanNameResolver bnr) {
     getContext().addResolver(new BeanNameExpressionResolver(bnr));
@@ -104,10 +103,8 @@ public class ExpressionManager {
    * ELResolvers. The list of the ELResolvers added this way are ordered
    * chronologically.
    *
-   * @param elr
-   *         The ELResolver to be added to the list of ELResolvers in
-   *         ELContext.
-   *
+   * @param elr The ELResolver to be added to the list of ELResolvers in
+   * ELContext.
    * @see StandardExpressionContext#addResolver(ExpressionResolver)
    */
   public void addResolver(ExpressionResolver elr) {
@@ -117,12 +114,9 @@ public class ExpressionManager {
   /**
    * Maps a static method to an EL function.
    *
-   * @param prefix
-   *         The namespace of the functions, can be "".
-   * @param function
-   *         The name of the function.
-   * @param meth
-   *         The static method to be invoked when the function is used.
+   * @param prefix The namespace of the functions, can be "".
+   * @param function The name of the function.
+   * @param meth The static method to be invoked when the function is used.
    */
   public void mapFunction(String prefix, String function, Method meth) {
     getContext().getFunctionMapper().mapFunction(prefix, function, meth);
@@ -133,10 +127,8 @@ public class ExpressionManager {
    * to the same variable. The assignment for the variable is removed if the
    * expression is <code>null</code>.
    *
-   * @param variable
-   *         The variable name
-   * @param expression
-   *         The ValueExpression to be assigned to the variable.
+   * @param variable The variable name
+   * @param expression The ValueExpression to be assigned to the variable.
    */
   public void setVariable(String variable, ValueExpression expression) {
     getContext().getVariableMapper().setVariable(variable, expression);
@@ -146,11 +138,8 @@ public class ExpressionManager {
    * Import a static field or method. The class of the static member must be
    * loadable from the classloader, at class resolution time.
    *
-   * @param staticMemberName
-   *         The full class name of the class to be imported
-   *
-   * @throws ExpressionException
-   *         if the name is not a full class name.
+   * @param staticMemberName The full class name of the class to be imported
+   * @throws ExpressionException if the name is not a full class name.
    */
   public void importStatic(String staticMemberName) throws ExpressionException {
     getContext().getImportHandler().importStatic(staticMemberName);
@@ -160,11 +149,8 @@ public class ExpressionManager {
    * Import a class. The imported class must be loadable from the classloader at
    * the expression evaluation time.
    *
-   * @param className
-   *         The full class name of the class to be imported
-   *
-   * @throws ExpressionException
-   *         if the name is not a full class name.
+   * @param className The full class name of the class to be imported
+   * @throws ExpressionException if the name is not a full class name.
    */
   public void importClass(String className) throws ExpressionException {
     getContext().getImportHandler().importClass(className);
@@ -174,11 +160,8 @@ public class ExpressionManager {
    * Import a class. The imported class must be loadable from the classloader at
    * the expression evaluation time.
    *
-   * @param clazz
-   *         The class
-   *
-   * @throws ExpressionException
-   *         if the name is not a full class name.
+   * @param clazz The class
+   * @throws ExpressionException if the name is not a full class name.
    */
   public void importClass(Class<?> clazz) throws ExpressionException {
     getContext().getImportHandler().importClass(clazz.getName());
@@ -189,8 +172,7 @@ public class ExpressionManager {
    * name will be used to construct the full class name, which will then be used
    * to load the class. Inherently, this is less efficient than importing a class.
    *
-   * @param packageName
-   *         The package name to be imported
+   * @param packageName The package name to be imported
    */
   public void importPackage(String packageName) {
     getContext().getImportHandler().importPackage(packageName);
@@ -199,11 +181,9 @@ public class ExpressionManager {
   /**
    * Define a bean in the local bean repository
    *
-   * @param name
-   *         The name of the bean
-   * @param bean
-   *         The bean instance to be defined. If null, the definition of the
-   *         bean is removed.
+   * @param name The name of the bean
+   * @param bean The bean instance to be defined. If null, the definition of the
+   * bean is removed.
    */
   public Object defineBean(String name, Object bean) {
     return getContext().getBeans().put(name, bean);

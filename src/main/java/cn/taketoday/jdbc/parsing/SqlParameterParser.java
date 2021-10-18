@@ -18,11 +18,8 @@ public class SqlParameterParser {
   }
 
   /**
-   * @param statement
-   *         sql to parse
-   * @param paramMap
-   *         QueryParameter mapping
-   *
+   * @param statement sql to parse
+   * @param paramMap QueryParameter mapping
    * @return parsed sql
    */
   public String parse(final String statement, final Map<String, QueryParameter> paramMap) {

@@ -42,26 +42,18 @@ public abstract class ObjectNotationProcessor {
   /**
    * Write message to Writer
    *
-   * @param output
-   *         output writer
-   * @param message
-   *         The message to write
-   *
-   * @throws IOException
-   *         If any input output exception occurred
+   * @param output output writer
+   * @param message The message to write
+   * @throws IOException If any input output exception occurred
    */
   public abstract void write(Writer output, Object message) throws IOException;
 
   /**
    * Write message to output-stream
    *
-   * @param output
-   *         output-stream
-   * @param message
-   *         The message to write
-   *
-   * @throws IOException
-   *         If any input output exception occurred
+   * @param output output-stream
+   * @param message The message to write
+   * @throws IOException If any input output exception occurred
    */
   public void write(OutputStream output, Object message) throws IOException {
     final OutputStreamWriter writer = new OutputStreamWriter(output, charset);
@@ -72,28 +64,20 @@ public abstract class ObjectNotationProcessor {
   /**
    * read a object from given string message
    *
-   * @param message
-   *         string message
-   * @param descriptor
-   *         type descriptor
-   *
-   * @throws IOException
-   *         if underlying input contains invalid content
+   * @param message string message
+   * @param descriptor type descriptor
+   * @throws IOException if underlying input contains invalid content
    */
   public abstract Object read(String message, TypeDescriptor descriptor) throws IOException;
 
   /**
    * read an object from given InputStream
    *
-   * @param source
-   *         source message stream
-   * @param descriptor
-   *         type descriptor
-   *
-   * @throws IOException
-   *         If a low-level I/O problem (missing input, network error) occurs,
-   *         a {@link IOException} will be thrown.
-   *         If a parsing problem occurs (invalid JSON)
+   * @param source source message stream
+   * @param descriptor type descriptor
+   * @throws IOException If a low-level I/O problem (missing input, network error) occurs,
+   * a {@link IOException} will be thrown.
+   * If a parsing problem occurs (invalid JSON)
    */
   public abstract Object read(InputStream source, TypeDescriptor descriptor) throws IOException;
 

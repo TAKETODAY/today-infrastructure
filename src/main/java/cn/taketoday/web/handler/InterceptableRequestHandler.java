@@ -50,13 +50,9 @@ public abstract class InterceptableRequestHandler
   /**
    * perform {@link HandlerInterceptor} on this handler
    *
-   * @param context
-   *         Current request context
-   *
+   * @param context Current request context
    * @return handler's result
-   *
-   * @throws Throwable
-   *         any exception occurred in this request context
+   * @throws Throwable any exception occurred in this request context
    */
   @Override
   public Object handleRequest(final RequestContext context) throws Throwable {
@@ -76,9 +72,7 @@ public abstract class InterceptableRequestHandler
   /**
    * replace interceptors
    *
-   * @param interceptors
-   *         interceptors to add
-   *
+   * @param interceptors interceptors to add
    * @since 3.0.1
    */
   public void setInterceptors(HandlerInterceptor... interceptors) {
@@ -95,11 +89,8 @@ public abstract class InterceptableRequestHandler
   /**
    * add interceptors at end of the {@link #interceptors}
    *
-   * @param interceptors
-   *         interceptors to add
-   *
-   * @throws NullPointerException
-   *         interceptors is null
+   * @param interceptors interceptors to add
+   * @throws NullPointerException interceptors is null
    */
   public void addInterceptors(HandlerInterceptor... interceptors) {
     final ArrayList<HandlerInterceptor> objects = new ArrayList<>(interceptors.length);
@@ -111,11 +102,8 @@ public abstract class InterceptableRequestHandler
   /**
    * add interceptors at end of the {@link #interceptors}
    *
-   * @param interceptors
-   *         interceptors to add
-   *
-   * @throws NullPointerException
-   *         interceptors is null
+   * @param interceptors interceptors to add
+   * @throws NullPointerException interceptors is null
    * @since 3.0.1
    */
   public void addInterceptors(List<HandlerInterceptor> interceptors) {

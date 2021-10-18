@@ -77,11 +77,8 @@ final class RequestParameter {
   /**
    * Parsing a string like 'paramName=xxxxx' into a {@link RequestParameter}
    *
-   * @param param
-   *         parameter string
-   *
-   * @throws IllegalArgumentException
-   *         param string is not valid (format error),or param string cannot empty
+   * @param param parameter string
+   * @throws IllegalArgumentException param string is not valid (format error),or param string cannot empty
    */
   static RequestParameter parse(String param) {
     Assert.hasLength(param, "param string cannot empty");

@@ -33,9 +33,8 @@ public class PropertiesPropertyResolver extends MapPropertyResolver {
   /**
    * Create a new resolver against the given Properties.
    *
-   * @param keyValues
-   *         the Map source (without {@code null} values in order to get
-   *         consistent {@link #getProperty} and {@link #containsProperty} behavior)
+   * @param keyValues the Map source (without {@code null} values in order to get
+   * consistent {@link #getProperty} and {@link #containsProperty} behavior)
    */
   public PropertiesPropertyResolver(@Nullable Properties keyValues) {
     super(keyValues);

@@ -149,8 +149,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Constructs a new {@link CheckClassAdapter}.
    *
-   * @param classVisitor
-   *         the class visitor to which this adapter must delegate calls.
+   * @param classVisitor the class visitor to which this adapter must delegate calls.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor) {
     this(classVisitor, true);
@@ -159,14 +158,10 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Constructs a new {@link CheckClassAdapter}.
    *
-   * @param classVisitor
-   *         the class visitor to which this adapter must delegate calls.
-   * @param checkDataFlow
-   *         whether to perform basic data flow checks. This option requires valid
-   *         maxLocals and maxStack values.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @param classVisitor the class visitor to which this adapter must delegate calls.
+   * @param checkDataFlow whether to perform basic data flow checks. This option requires valid
+   * maxLocals and maxStack values.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
     super(classVisitor);
@@ -515,10 +510,8 @@ public class CheckClassAdapter extends ClassVisitor {
    * Checks that the given access flags do not contain invalid flags. This method also checks that
    * mutually incompatible flags are not set simultaneously.
    *
-   * @param access
-   *         the access flags to be checked.
-   * @param possibleAccess
-   *         the valid access flags.
+   * @param access the access flags to be checked.
+   * @param possibleAccess the valid access flags.
    */
   static void checkAccess(final int access, final int possibleAccess) {
     if ((access & ~possibleAccess) != 0) {
@@ -538,12 +531,9 @@ public class CheckClassAdapter extends ClassVisitor {
    * Checks that the given access flags do not contain invalid flags for a method. This method also
    * checks that mutually incompatible flags are not set simultaneously.
    *
-   * @param version
-   *         the class version.
-   * @param access
-   *         the method access flags to be checked.
-   * @param possibleAccess
-   *         the valid access flags.
+   * @param version the class version.
+   * @param access the method access flags to be checked.
+   * @param possibleAccess the valid access flags.
    */
   private static void checkMethodAccess(
           final int version, final int access, final int possibleAccess) {
@@ -557,12 +547,9 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks that the given name is a fully qualified name, using dots.
    *
-   * @param version
-   *         the class version.
-   * @param name
-   *         the name to be checked.
-   * @param source
-   *         the source of 'name' (e.g 'module' for a module name).
+   * @param version the class version.
+   * @param name the name to be checked.
+   * @param source the source of 'name' (e.g 'module' for a module name).
    */
   static void checkFullyQualifiedName(final int version, final String name, final String source) {
     try {
@@ -583,8 +570,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a class signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
+   * @param signature a string containing the signature that must be checked.
    */
   public static void checkClassSignature(final String signature) {
     // From https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1:
@@ -610,8 +596,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a method signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
+   * @param signature a string containing the signature that must be checked.
    */
   public static void checkMethodSignature(final String signature) {
     // From https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1:
@@ -655,8 +640,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a field signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
+   * @param signature a string containing the signature that must be checked.
    */
   public static void checkFieldSignature(final String signature) {
     // From https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1:
@@ -671,11 +655,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks the type parameters of a class or method signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkTypeParameters(final String signature, final int startPos) {
@@ -694,11 +675,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a type parameter of a class or method signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkTypeParameter(final String signature, final int startPos) {
@@ -724,11 +702,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a reference type signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param pos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param pos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkReferenceTypeSignature(final String signature, final int pos) {
@@ -752,11 +727,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a class type signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkClassTypeSignature(final String signature, final int startPos) {
@@ -790,11 +762,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks the type arguments in a class type signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkTypeArguments(final String signature, final int startPos) {
@@ -813,11 +782,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a type argument in a class type signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkTypeArgument(final String signature, final int startPos) {
@@ -842,11 +808,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a type variable signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkTypeVariableSignature(final String signature, final int startPos) {
@@ -862,11 +825,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a Java type signature.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkJavaTypeSignature(final String signature, final int startPos) {
@@ -896,11 +856,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks an identifier.
    *
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param startPos
-   *         index of first character to be checked.
-   *
+   * @param signature a string containing the signature that must be checked.
+   * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkSignatureIdentifier(final String signature, final int startPos) {
@@ -917,13 +874,9 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a single character.
    *
-   * @param c
-   *         a character.
-   * @param signature
-   *         a string containing the signature that must be checked.
-   * @param pos
-   *         index of first character to be checked.
-   *
+   * @param c a character.
+   * @param signature a string containing the signature that must be checked.
+   * @param pos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
   private static int checkChar(final char c, final String signature, final int pos) {
@@ -936,11 +889,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Returns the string character at the given index, or 0.
    *
-   * @param string
-   *         a string.
-   * @param pos
-   *         an index in 'string'.
-   *
+   * @param string a string.
+   * @param pos an index in 'string'.
    * @return the character at the given index, or 0 if there is no such character.
    */
   private static char getChar(final String string, final int pos) {
@@ -950,8 +900,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks the reference to a type in a type annotation.
    *
-   * @param typeRef
-   *         a reference to an annotated type.
+   * @param typeRef a reference to an annotated type.
    */
   static void checkTypeRef(final int typeRef) {
     int mask = 0;
@@ -998,9 +947,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Returns the package name of an internal name.
    *
-   * @param name
-   *         an internal name.
-   *
+   * @param name an internal name.
    * @return the package name or "" if there is no package.
    */
   private static String packageName(final String name) {
@@ -1020,11 +967,8 @@ public class CheckClassAdapter extends ClassVisitor {
    *
    * <p>Usage: CheckClassAdapter &lt;binary class name or class file name&gt;
    *
-   * @param args
-   *         the command line arguments.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IO exception occurs.
+   * @param args the command line arguments.
+   * @throws IOException if the class cannot be found, or if an IO exception occurs.
    */
   public static void main(final String[] args) throws IOException {
     main(args, new PrintWriter(System.err, true));
@@ -1033,13 +977,9 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks the given class.
    *
-   * @param args
-   *         the command line arguments.
-   * @param logger
-   *         where to log errors.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IO exception occurs.
+   * @param args the command line arguments.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IO exception occurs.
    */
   static void main(final String[] args, final PrintWriter logger) throws IOException {
     if (args.length != 1) {
@@ -1064,12 +1004,9 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks the given class.
    *
-   * @param classReader
-   *         the class to be checked.
-   * @param printResults
-   *         whether to print the results of the bytecode verification.
-   * @param printWriter
-   *         where the results (or the stack trace in case of error) must be printed.
+   * @param classReader the class to be checked.
+   * @param printResults whether to print the results of the bytecode verification.
+   * @param printWriter where the results (or the stack trace in case of error) must be printed.
    */
   public static void verify(
           final ClassReader classReader, final boolean printResults, final PrintWriter printWriter) {
@@ -1079,15 +1016,11 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks the given class.
    *
-   * @param classReader
-   *         the class to be checked.
-   * @param loader
-   *         a <code>ClassLoader</code> which will be used to load referenced classes. May be
-   *         {@literal null}.
-   * @param printResults
-   *         whether to print the results of the bytecode verification.
-   * @param printWriter
-   *         where the results (or the stack trace in case of error) must be printed.
+   * @param classReader the class to be checked.
+   * @param loader a <code>ClassLoader</code> which will be used to load referenced classes. May be
+   * {@literal null}.
+   * @param printResults whether to print the results of the bytecode verification.
+   * @param printWriter where the results (or the stack trace in case of error) must be printed.
    */
   public static void verify(
           final ClassReader classReader,

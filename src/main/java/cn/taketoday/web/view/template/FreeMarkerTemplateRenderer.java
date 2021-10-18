@@ -99,9 +99,7 @@ public class FreeMarkerTemplateRenderer
   /**
    * Create Model Attributes.
    *
-   * @param context
-   *         Current request context
-   *
+   * @param context Current request context
    * @return {@link TemplateHashModel}
    */
   @Override
@@ -153,7 +151,6 @@ public class FreeMarkerTemplateRenderer
    * {@link TaglibFactory#DEFAULT_META_INF_TLD_SOURCES}.
    *
    * @return A {@link List} of {@link MetaInfTldSource}-s; not {@code null}.
-   *
    * @since 2.3.7
    */
   @SuppressWarnings("rawtypes")
@@ -166,7 +163,6 @@ public class FreeMarkerTemplateRenderer
    * {@link TaglibFactory#DEFAULT_CLASSPATH_TLDS}.
    *
    * @return A {@link List} of {@link String}-s; not {@code null}.
-   *
    * @since 2.3.7
    */
   @SuppressWarnings("rawtypes")

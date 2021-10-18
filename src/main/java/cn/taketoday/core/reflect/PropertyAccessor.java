@@ -43,9 +43,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   /**
    * PropertyAccessor
    *
-   * @param field
-   *         Field
-   *
+   * @param field Field
    * @return PropertyAccessor
    */
   public static PropertyAccessor fromField(final Field field) {
@@ -106,8 +104,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   }
 
   /**
-   * @throws NoSuchPropertyException
-   *         No property in target class
+   * @throws NoSuchPropertyException No property in target class
    */
   public static PropertyAccessor from(Class<?> targetClass, String name) {
     Field field = ReflectionUtils.findField(targetClass, name);
@@ -120,11 +117,8 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   /**
    * getter setter is exists in a bean or pojo, use fast invoke tech {@link MethodInvoker}
    *
-   * @param writeMethod
-   *         setter method
-   * @param readMethod
-   *         getter method
-   *
+   * @param writeMethod setter method
+   * @param readMethod getter method
    * @return PropertyAccessor
    */
   public static PropertyAccessor fromMethod(Method writeMethod, Method readMethod) {
@@ -136,11 +130,8 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   /**
    * use GetterMethod and SetterMethod tech to access property
    *
-   * @param writeMethod
-   *         setter method
-   * @param readMethod
-   *         getter method
-   *
+   * @param writeMethod setter method
+   * @param readMethod getter method
    * @return PropertyAccessor
    */
   public static PropertyAccessor fromMethod(GetterMethod readMethod, SetterMethod writeMethod) {
@@ -152,11 +143,8 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   /**
    * use java reflect {@link Field} tech
    *
-   * @param field
-   *         Field
-   *
+   * @param field Field
    * @return Reflective PropertyAccessor
-   *
    * @see Field#get(Object)
    * @see Field#set(Object, Object)
    * @see ReflectionUtils#getField(Field, Object)
@@ -169,11 +157,8 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   /**
    * use java reflect {@link Field} tech
    *
-   * @param field
-   *         Field
-   *
+   * @param field Field
    * @return Reflective PropertyAccessor
-   *
    * @see Field#get(Object)
    * @see Field#set(Object, Object)
    * @see ReflectionUtils#getField(Field, Object)

@@ -224,9 +224,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   /**
    * If a handler has already exits in this registry
    *
-   * @param requestPath
-   *         handler key
-   *
+   * @param requestPath handler key
    * @return a exits Handler
    */
   private Object getExistMappingInfo(String requestPath) {

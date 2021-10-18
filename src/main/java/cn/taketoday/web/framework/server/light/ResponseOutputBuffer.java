@@ -54,11 +54,8 @@ public class ResponseOutputBuffer extends OutputStream {
    * Creates a new byte array output stream, with a buffer capacity of
    * the specified size, in bytes.
    *
-   * @param size
-   *         the initial size.
-   *
-   * @throws IllegalArgumentException
-   *         if size is negative.
+   * @param size the initial size.
+   * @throws IllegalArgumentException if size is negative.
    */
   public ResponseOutputBuffer(int size) {
     if (size < 0) {
@@ -81,13 +78,10 @@ public class ResponseOutputBuffer extends OutputStream {
    * at least the number of elements specified by the minimum
    * capacity argument.
    *
-   * @param minCapacity
-   *         the desired minimum capacity
-   *
-   * @throws OutOfMemoryError
-   *         if {@code minCapacity < 0}.  This is
-   *         interpreted as a request for the unsatisfiably large capacity
-   *         {@code (long) Integer.MAX_VALUE + (minCapacity - Integer.MAX_VALUE)}.
+   * @param minCapacity the desired minimum capacity
+   * @throws OutOfMemoryError if {@code minCapacity < 0}.  This is
+   * interpreted as a request for the unsatisfiably large capacity
+   * {@code (long) Integer.MAX_VALUE + (minCapacity - Integer.MAX_VALUE)}.
    */
   private void ensureCapacity(int minCapacity) {
     // overflow-conscious code
@@ -107,8 +101,7 @@ public class ResponseOutputBuffer extends OutputStream {
    * Increases the capacity to ensure that it can hold at least the
    * number of elements specified by the minimum capacity argument.
    *
-   * @param minCapacity
-   *         the desired minimum capacity
+   * @param minCapacity the desired minimum capacity
    */
   private void grow(int minCapacity) {
     // overflow-conscious code
@@ -130,8 +123,7 @@ public class ResponseOutputBuffer extends OutputStream {
   /**
    * Writes the specified byte to this byte array output stream.
    *
-   * @param b
-   *         the byte to be written.
+   * @param b the byte to be written.
    */
   @Override
   public void write(int b) {
@@ -144,12 +136,9 @@ public class ResponseOutputBuffer extends OutputStream {
    * Writes <code>len</code> bytes from the specified byte array
    * starting at offset <code>off</code> to this byte array output stream.
    *
-   * @param b
-   *         the data.
-   * @param off
-   *         the start offset in the data.
-   * @param len
-   *         the number of bytes to write.
+   * @param b the data.
+   * @param off the start offset in the data.
+   * @param len the number of bytes to write.
    */
   @Override
   public void write(byte[] b, int off, int len) {
@@ -167,11 +156,8 @@ public class ResponseOutputBuffer extends OutputStream {
    * the specified output stream argument, as if by calling the output
    * stream's write method using <code>out.write(buf, 0, count)</code>.
    *
-   * @param out
-   *         the output stream to which to write the data.
-   *
-   * @throws IOException
-   *         if an I/O error occurs.
+   * @param out the output stream to which to write the data.
+   * @throws IOException if an I/O error occurs.
    */
   public void writeTo(OutputStream out) throws IOException {
     out.write(buf, 0, count);
@@ -195,7 +181,6 @@ public class ResponseOutputBuffer extends OutputStream {
    * have been copied into it.
    *
    * @return the current contents of this output stream, as a byte array.
-   *
    * @see java.io.ByteArrayOutputStream#size()
    */
   public byte[] toByteArray() {
@@ -207,7 +192,6 @@ public class ResponseOutputBuffer extends OutputStream {
    *
    * @return the value of the <code>count</code> field, which is the number
    * of valid bytes in this output stream.
-   *
    * @see java.io.ByteArrayOutputStream#count
    */
   public int size() {
@@ -244,9 +228,7 @@ public class ResponseOutputBuffer extends OutputStream {
    * java.nio.charset.CharsetDecoder} class should be used when more control
    * over the decoding process is required.
    *
-   * @param charset
-   *         {@link java.nio.charset.Charset charset}
-   *
+   * @param charset {@link java.nio.charset.Charset charset}
    * @return String decoded from the buffer's contents.
    */
   public String toString(Charset charset) {

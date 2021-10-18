@@ -61,9 +61,7 @@ import cn.taketoday.util.MediaType;
  *
  * From Spring
  *
- * @param <T>
- *         the body type
- *
+ * @param <T> the body type
  * @author Arjen Poutsma
  * @author Brian Clozel
  * @author TODAY 2020/12/6 17:06
@@ -77,8 +75,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Create a new {@code ResponseEntity} with the given status code, and no body nor headers.
    *
-   * @param status
-   *         the status code
+   * @param status the status code
    */
   public ResponseEntity(HttpStatus status) {
     this(null, null, status);
@@ -87,10 +84,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Create a new {@code ResponseEntity} with the given body and status code, and no headers.
    *
-   * @param body
-   *         the entity body
-   * @param status
-   *         the status code
+   * @param body the entity body
+   * @param status the status code
    */
   public ResponseEntity(T body, HttpStatus status) {
     this(body, null, status);
@@ -99,10 +94,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Create a new {@code HttpEntity} with the given headers and status code, and no body.
    *
-   * @param headers
-   *         the entity headers
-   * @param status
-   *         the status code
+   * @param headers the entity headers
+   * @param status the status code
    */
   public ResponseEntity(MultiValueMap<String, String> headers, HttpStatus status) {
     this(null, headers, status);
@@ -111,12 +104,9 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Create a new {@code HttpEntity} with the given body, headers, and status code.
    *
-   * @param body
-   *         the entity body
-   * @param headers
-   *         the entity headers
-   * @param status
-   *         the status code
+   * @param body the entity body
+   * @param headers the entity headers
+   * @param status the status code
    */
   public ResponseEntity(@Nullable T body, MultiValueMap<String, String> headers, HttpStatus status) {
     super(body, headers);
@@ -128,12 +118,9 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * Create a new {@code HttpEntity} with the given body, headers, and status code.
    * Just used behind the nested builder API.
    *
-   * @param body
-   *         the entity body
-   * @param headers
-   *         the entity headers
-   * @param status
-   *         the status code (as {@code HttpStatus} or as {@code Integer} value)
+   * @param body the entity body
+   * @param headers the entity headers
+   * @param status the status code (as {@code HttpStatus} or as {@code Integer} value)
    */
   private ResponseEntity(T body, MultiValueMap<String, String> headers, Object status) {
     super(body, headers);
@@ -211,9 +198,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Create a builder with the given status.
    *
-   * @param status
-   *         the response status
-   *
+   * @param status the response status
    * @return the created builder
    */
   public static BodyBuilder status(HttpStatus status) {
@@ -224,9 +209,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Create a builder with the given status.
    *
-   * @param status
-   *         the response status
-   *
+   * @param status the response status
    * @return the created builder
    */
   public static BodyBuilder status(int status) {
@@ -269,9 +252,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * Create a new builder with a {@linkplain HttpStatus#CREATED CREATED} status
    * and a location header set to the given URI.
    *
-   * @param location
-   *         the location URI
-   *
+   * @param location the location URI
    * @return the created builder
    */
   public static BodyBuilder created(URI location) {
@@ -327,21 +308,16 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   /**
    * Defines a builder that adds headers to the response entity.
    *
-   * @param <B>
-   *         the builder subclass
+   * @param <B> the builder subclass
    */
   public interface HeadersBuilder<B extends HeadersBuilder<B>> {
 
     /**
      * Add the given, single header value under the given name.
      *
-     * @param headerName
-     *         the header name
-     * @param headerValues
-     *         the header value(s)
-     *
+     * @param headerName the header name
+     * @param headerValues the header value(s)
      * @return this builder
-     *
      * @see HttpHeaders#add(String, String)
      */
     B header(String headerName, String... headerValues);
@@ -349,11 +325,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     /**
      * Copy the given headers into the entity's headers map.
      *
-     * @param headers
-     *         the existing HttpHeaders to copy from
-     *
+     * @param headers the existing HttpHeaders to copy from
      * @return this builder
-     *
      * @see HttpHeaders#add(String, String)
      */
     B headers(HttpHeaders headers);
@@ -365,9 +338,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
-     * @param headersConsumer
-     *         a function that consumes the {@code HttpHeaders}
-     *
+     * @param headersConsumer a function that consumes the {@code HttpHeaders}
      * @return this builder
      */
     B headers(Consumer<HttpHeaders> headersConsumer);
@@ -376,11 +347,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * Set the set of allowed {@link jodd.net.HttpMethod HTTP methods}, as specified
      * by the {@code Allow} header.
      *
-     * @param allowedMethods
-     *         the allowed methods
-     *
+     * @param allowedMethods the allowed methods
      * @return this builder
-     *
      * @see HttpHeaders#setAllow(Set)
      */
     B allow(HttpMethod... allowedMethods);
@@ -388,11 +356,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     /**
      * Set the entity tag of the body, as specified by the {@code ETag} header.
      *
-     * @param etag
-     *         the new entity tag
-     *
+     * @param etag the new entity tag
      * @return this builder
-     *
      * @see HttpHeaders#setETag(String)
      */
     B eTag(String etag);
@@ -401,11 +366,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * Set the time the resource was last changed, as specified by the
      * {@code Last-Modified} header.
      *
-     * @param lastModified
-     *         the last modified date
-     *
+     * @param lastModified the last modified date
      * @return this builder
-     *
      * @see HttpHeaders#setLastModified(ZonedDateTime)
      */
     B lastModified(ZonedDateTime lastModified);
@@ -414,11 +376,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * Set the time the resource was last changed, as specified by the
      * {@code Last-Modified} header.
      *
-     * @param lastModified
-     *         the last modified date
-     *
+     * @param lastModified the last modified date
      * @return this builder
-     *
      * @see HttpHeaders#setLastModified(Instant)
      */
     B lastModified(Instant lastModified);
@@ -429,11 +388,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * <p>The date should be specified as the number of milliseconds since
      * January 1, 1970 GMT.
      *
-     * @param lastModified
-     *         the last modified date
-     *
+     * @param lastModified the last modified date
      * @return this builder
-     *
      * @see HttpHeaders#setLastModified(long)
      */
     B lastModified(long lastModified);
@@ -441,11 +397,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     /**
      * Set the location of a resource, as specified by the {@code Location} header.
      *
-     * @param location
-     *         the location
-     *
+     * @param location the location
      * @return this builder
-     *
      * @see HttpHeaders#setLocation(URI)
      */
     B location(URI location);
@@ -456,11 +409,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * <p>A {@code CacheControl} instance can be built like
      * {@code CacheControl.maxAge(3600).cachePublic().noTransform()}.
      *
-     * @param cacheControl
-     *         a builder for cache-related HTTP response headers
-     *
+     * @param cacheControl a builder for cache-related HTTP response headers
      * @return this builder
-     *
      * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.2">RFC-7234 Section 5.2</a>
      */
     B cacheControl(CacheControl cacheControl);
@@ -472,8 +422,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * given request headers. The configured request header names are added only
      * if not already present in the response "Vary" header.
      *
-     * @param requestHeaders
-     *         request header names
+     * @param requestHeaders request header names
      */
     B varyBy(String... requestHeaders);
 
@@ -481,7 +430,6 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * Build the response entity with no body.
      *
      * @return the response entity
-     *
      * @see BodyBuilder#body(Object)
      */
     <T> ResponseEntity<T> build();
@@ -496,11 +444,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * Set the length of the body in bytes, as specified by the
      * {@code Content-Length} header.
      *
-     * @param contentLength
-     *         the content length
-     *
+     * @param contentLength the content length
      * @return this builder
-     *
      * @see HttpHeaders#setContentLength(long)
      */
     BodyBuilder contentLength(long contentLength);
@@ -509,11 +454,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * Set the {@linkplain MediaType media type} of the body, as specified by the
      * {@code Content-Type} header.
      *
-     * @param contentType
-     *         the content type
-     *
+     * @param contentType the content type
      * @return this builder
-     *
      * @see HttpHeaders#setContentType(MediaType)
      */
     BodyBuilder contentType(MediaType contentType);
@@ -521,11 +463,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     /**
      * Set the body of the response entity and returns it.
      *
-     * @param <T>
-     *         the type of the body
-     * @param body
-     *         the body of the response entity
-     *
+     * @param <T> the type of the body
+     * @param body the body of the response entity
      * @return the built response entity
      */
     <T> ResponseEntity<T> body(T body);

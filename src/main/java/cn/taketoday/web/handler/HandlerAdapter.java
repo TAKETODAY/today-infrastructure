@@ -82,9 +82,7 @@ public interface HandlerAdapter {
    * return (handler instanceof MyHandler);
    * }
    *
-   * @param handler
-   *         handler object to check
-   *
+   * @param handler handler object to check
    * @return whether support or not this object can use the given handler
    */
   boolean supports(Object handler);
@@ -93,18 +91,13 @@ public interface HandlerAdapter {
    * Use the given handler to handle this request. The workflow that is required
    * may vary widely.
    *
-   * @param context
-   *         current HTTP request context
-   * @param handler
-   *         handler to use. This object must have previously been passed to
-   *         the {@code supports} method of this interface, which must have
-   *         returned {@code true}.
-   *
+   * @param context current HTTP request context
+   * @param handler handler to use. This object must have previously been passed to
+   * the {@code supports} method of this interface, which must have
+   * returned {@code true}.
    * @return an object with the name of the view and the required model data, or
    * {@code null} if the request has been handled directly
-   *
-   * @throws Throwable
-   *         in case of errors
+   * @throws Throwable in case of errors
    * @see #NONE_RETURN_VALUE
    */
   Object handle(RequestContext context, Object handler) throws Throwable;

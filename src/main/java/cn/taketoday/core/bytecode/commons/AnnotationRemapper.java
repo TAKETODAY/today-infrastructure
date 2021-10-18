@@ -49,12 +49,9 @@ public class AnnotationRemapper extends AnnotationVisitor {
   /**
    * Constructs a new {@link AnnotationRemapper}.
    *
-   * @param descriptor
-   *         the descriptor of the visited annotation. May be {@literal null}.
-   * @param annotationVisitor
-   *         the annotation visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited annotation.
+   * @param descriptor the descriptor of the visited annotation. May be {@literal null}.
+   * @param annotationVisitor the annotation visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited annotation.
    */
   public AnnotationRemapper(
           final String descriptor,
@@ -106,11 +103,8 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param descriptor
-   *         the descriptor of the visited annotation.
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
+   * @param descriptor the descriptor of the visited annotation.
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   protected AnnotationVisitor createAnnotationRemapper(
@@ -122,9 +116,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * Maps an annotation attribute name with the remapper. Returns the original name unchanged if the
    * internal name of the annotation is {@literal null}.
    *
-   * @param name
-   *         the name of the annotation attribute.
-   *
+   * @param name the name of the annotation attribute.
    * @return the new name of the annotation attribute.
    */
   private String mapAnnotationAttributeName(final String name) {

@@ -35,20 +35,15 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
   /**
    * Create a new DefaultTransactionStatus instance.
    *
-   * @param transaction
-   *         underlying transaction object that can hold state for the internal
-   *         transaction implementation
-   * @param newTransaction
-   *         if the transaction is new, else participating in an existing
-   *         transaction
-   * @param newSynchronization
-   *         if a new transaction synchronization has been opened for the given
-   *         transaction
-   * @param readOnly
-   *         whether the transaction is read-only
-   * @param suspendedResources
-   *         a holder for resources that have been suspended for this
-   *         transaction, if any
+   * @param transaction underlying transaction object that can hold state for the internal
+   * transaction implementation
+   * @param newTransaction if the transaction is new, else participating in an existing
+   * transaction
+   * @param newSynchronization if a new transaction synchronization has been opened for the given
+   * transaction
+   * @param readOnly whether the transaction is read-only
+   * @param suspendedResources a holder for resources that have been suspended for this
+   * transaction, if any
    */
   public DefaultTransactionStatus(Object transaction, boolean newTransaction, //
                                   boolean newSynchronization, boolean readOnly, Object suspendedResources) //

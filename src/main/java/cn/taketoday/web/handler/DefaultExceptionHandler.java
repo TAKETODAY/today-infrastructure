@@ -84,15 +84,10 @@ public class DefaultExceptionHandler
   /**
    * Handle Exception use {@link ThrowableHandlerMethod}
    *
-   * @param context
-   *         current request
-   * @param exHandler
-   *         ThrowableHandlerMethod
-   *
+   * @param context current request
+   * @param exHandler ThrowableHandlerMethod
    * @return handler return value
-   *
-   * @throws Throwable
-   *         occurred in exHandler
+   * @throws Throwable occurred in exHandler
    */
   protected Object handleException(RequestContext context, ThrowableHandlerMethod exHandler)
           throws Throwable {
@@ -103,9 +98,7 @@ public class DefaultExceptionHandler
   /**
    * Looking for exception handler mapping
    *
-   * @param ex
-   *         Target {@link Exception}
-   *
+   * @param ex Target {@link Exception}
    * @return Mapped {@link Exception} handler mapping
    */
   protected ThrowableHandlerMethod lookupExceptionHandler(Throwable ex) {
@@ -132,8 +125,7 @@ public class DefaultExceptionHandler
   /**
    * Set if handler is inheritable ?
    *
-   * @param inheritable
-   *         is inheritable
+   * @param inheritable is inheritable
    */
   public void setInheritable(boolean inheritable) {
     this.inheritable = inheritable;
@@ -175,9 +167,7 @@ public class DefaultExceptionHandler
   }
 
   /**
-   * @param method
-   *         target handler method
-   *
+   * @param method target handler method
    * @return Throwable class array
    */
   @SuppressWarnings("unchecked")

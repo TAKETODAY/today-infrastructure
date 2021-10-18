@@ -31,8 +31,7 @@ public interface ApplicationListener<E> extends EventListener {
   /**
    * On event
    *
-   * @param event
-   *         event instance
+   * @param event event instance
    */
   void onApplicationEvent(E event);
 

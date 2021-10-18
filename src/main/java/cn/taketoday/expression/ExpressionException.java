@@ -42,8 +42,7 @@ public class ExpressionException extends NestedRuntimeException {
   /**
    * Creates an <code>ELException</code> with the provided detail message.
    *
-   * @param pMessage
-   *         the detail message
+   * @param pMessage the detail message
    */
   public ExpressionException(String pMessage) {
     super(pMessage);
@@ -54,8 +53,7 @@ public class ExpressionException extends NestedRuntimeException {
   /**
    * Creates an <code>ELException</code> with the given cause.
    *
-   * @param pRootCause
-   *         the originating cause of this exception
+   * @param pRootCause the originating cause of this exception
    */
   public ExpressionException(Throwable pRootCause) {
     super(pRootCause);
@@ -66,10 +64,8 @@ public class ExpressionException extends NestedRuntimeException {
   /**
    * Creates an ELException with the given detail message and root cause.
    *
-   * @param pMessage
-   *         the detail message
-   * @param pRootCause
-   *         the originating cause of this exception
+   * @param pMessage the detail message
+   * @param pRootCause the originating cause of this exception
    */
   public ExpressionException(String pMessage, Throwable pRootCause) {
     super(pMessage, pRootCause);

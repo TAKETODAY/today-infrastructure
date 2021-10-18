@@ -85,8 +85,7 @@ public class StopWatch {
    * to distinguish between them.
    * <p>Does not start any task.
    *
-   * @param id
-   *         identifier for this stop watch
+   * @param id identifier for this stop watch
    */
   public StopWatch(String id) {
     this.id = id;
@@ -96,7 +95,6 @@ public class StopWatch {
    * Get the ID of this {@code StopWatch}, as specified on construction.
    *
    * @return the ID (empty String by default)
-   *
    * @see #StopWatch(String)
    */
   public String getId() {
@@ -131,9 +129,7 @@ public class StopWatch {
    * <p>The results are undefined if {@link #stop()} or timing methods are
    * called without invoking this method first.
    *
-   * @param taskName
-   *         the name of the task to start
-   *
+   * @param taskName the name of the task to start
    * @see #start()
    * @see #stop()
    */

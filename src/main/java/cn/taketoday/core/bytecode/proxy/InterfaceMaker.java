@@ -51,10 +51,8 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
   /**
    * Add a method signature to the interface.
    *
-   * @param sig
-   *         the method signature to add to the interface
-   * @param exceptions
-   *         an array of exception types to declare for the method
+   * @param sig the method signature to add to the interface
+   * @param exceptions an array of exception types to declare for the method
    */
   public void add(MethodSignature sig, Type[] exceptions) {
     signatures.put(sig, exceptions);
@@ -64,8 +62,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    * Add a method signature to the interface. The method modifiers are ignored,
    * since interface methods are by definition abstract and public.
    *
-   * @param method
-   *         the method to add to the interface
+   * @param method the method to add to the interface
    */
   public void add(Method method) {
     add(MethodSignature.from(method), Type.getExceptionTypes(method));
@@ -76,8 +73,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    * are included, except for methods declared in the base Object class (e.g.
    * <code>getClass</code>, <code>equals</code>, <code>hashCode</code>).
    *
-   * @param clazz
-   *         the class containing the methods to add to the interface
+   * @param clazz the class containing the methods to add to the interface
    */
   public void add(Class<?> clazz) {
 

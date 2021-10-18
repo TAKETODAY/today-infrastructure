@@ -69,8 +69,7 @@ public class HttpResponse implements Closeable {
   /**
    * Constructs a Response whose output is written to the given stream.
    *
-   * @param out
-   *         the stream to which the response is written
+   * @param out the stream to which the response is written
    */
   protected HttpResponse(OutputStream out) {
     this.out = out;
@@ -79,8 +78,7 @@ public class HttpResponse implements Closeable {
   /**
    * Sets whether this response's body is discarded or sent.
    *
-   * @param discardBody
-   *         specifies whether the body is discarded or not
+   * @param discardBody specifies whether the body is discarded or not
    */
   public void setDiscardBody(boolean discardBody) {
     this.discardBody = discardBody;
@@ -90,8 +88,7 @@ public class HttpResponse implements Closeable {
    * Sets the request which is used in determining the capabilities
    * supported by the client (e.g. compression, encoding, etc.)
    *
-   * @param req
-   *         the request
+   * @param req the request
    */
   public void setClientCapabilities(HttpRequest req) {
     this.req = req;
@@ -138,11 +135,8 @@ public class HttpResponse implements Closeable {
    * If the response has a body, the Content-Length/Transfer-Encoding
    * and Content-Type headers must be set before sending the headers.
    *
-   * @param status
-   *         the response status
-   *
-   * @throws IOException
-   *         if an error occurs or headers were already sent
+   * @param status the response status
+   * @throws IOException if an error occurs or headers were already sent
    * @see HttpStatus
    */
   public void send(final HttpStatus status) throws IOException {
@@ -156,13 +150,9 @@ public class HttpResponse implements Closeable {
    * text/html, and so the text must contain valid (and properly
    * {@link Utils#escapeHTML escaped}) HTML.
    *
-   * @param status
-   *         the response status
-   * @param text
-   *         the text body (sent as text/html)
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param status the response status
+   * @param text the text body (sent as text/html)
+   * @throws IOException if an error occurs
    * @see HttpStatus
    */
   public void send(final HttpStatus status, final String text) throws IOException {
@@ -182,11 +172,8 @@ public class HttpResponse implements Closeable {
   /**
    * Sends an error response with the given status and default body.
    *
-   * @param status
-   *         the response status
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param status the response status
+   * @throws IOException if an error occurs
    */
   public void sendError(final HttpStatus status) throws IOException {
     sendError(status, null);
@@ -198,13 +185,9 @@ public class HttpResponse implements Closeable {
    * as well as the message, which is escaped using the
    * {@link Utils#escapeHTML escape} method.
    *
-   * @param status
-   *         the response status
-   * @param text
-   *         the text body (sent as text/html), can be {@code null}
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param status the response status
+   * @param text the text body (sent as text/html), can be {@code null}
+   * @throws IOException if an error occurs
    */
   public void sendError(final HttpStatus status, final String text) throws IOException {
     final StringBuilder builder = new StringBuilder(100);
@@ -226,14 +209,10 @@ public class HttpResponse implements Closeable {
   /**
    * Sends a 301 or 302 response, redirecting the client to the given URL.
    *
-   * @param url
-   *         the absolute URL to which the client is redirected
-   * @param permanent
-   *         specifies whether a permanent (301) or
-   *         temporary (302) redirect status is sent
-   *
-   * @throws IOException
-   *         if an IO error occurs or url is malformed
+   * @param url the absolute URL to which the client is redirected
+   * @param permanent specifies whether a permanent (301) or
+   * temporary (302) redirect status is sent
+   * @throws IOException if an IO error occurs or url is malformed
    */
   public void redirect(String url, final boolean permanent) throws IOException {
     try {
@@ -263,9 +242,7 @@ public class HttpResponse implements Closeable {
    *
    * @return an output stream into which the response body can be written,
    * or null if the body should not be written (e.g. it is discarded)
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    */
   public OutputStream getBody() throws IOException {
     if (encoders[0] != null || discardBody)
@@ -300,8 +277,7 @@ public class HttpResponse implements Closeable {
   /**
    * Closes this response and flushes all output.
    *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    */
   public void close() throws IOException {
     final OutputStream encoder = encoders[0];
@@ -355,15 +331,10 @@ public class HttpResponse implements Closeable {
    *                        [ message-body ]          ; Section 7.2
    * </pre>
    *
-   * @param status
-   *         for Status-Line
-   * @param headers
-   *         for response-header
-   * @param responseBody
-   *         for message-body
-   *
-   * @throws IOException
-   *         if an I/O error occurs.
+   * @param status for Status-Line
+   * @param headers for response-header
+   * @param responseBody for message-body
+   * @throws IOException if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
   public final void write(HttpStatus status, HttpHeaders headers, ResponseOutputBuffer responseBody) throws IOException {
@@ -419,8 +390,7 @@ public class HttpResponse implements Closeable {
    * Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
    * </p>
    *
-   * @throws IOException
-   *         if an I/O error occurs.
+   * @throws IOException if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
   static void writeStatusLine(final OutputStream output, final HttpStatus status) throws IOException {
@@ -456,8 +426,7 @@ public class HttpResponse implements Closeable {
    * recognize them to be response-header fields. Unrecognized header
    * fields are treated as entity-header fields.
    *
-   * @throws IOException
-   *         if an I/O error occurs.
+   * @throws IOException if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
   static void writeHttpHeaders(HttpHeaders headers, final OutputStream output) throws IOException {

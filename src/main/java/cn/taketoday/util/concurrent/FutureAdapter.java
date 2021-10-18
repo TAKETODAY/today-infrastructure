@@ -29,11 +29,8 @@ import cn.taketoday.lang.Nullable;
  * parameterized over T. All methods are delegated to the adaptee, where {@link #get()}
  * and {@link #get(long, TimeUnit)} call {@link #adapt(Object)} on the adaptee's result.
  *
- * @param <T>
- *         the type of this {@code Future}
- * @param <S>
- *         the type of the adaptee's {@code Future}
- *
+ * @param <T> the type of this {@code Future}
+ * @param <S> the type of the adaptee's {@code Future}
  * @author Arjen Poutsma
  * @since 4.0
  */
@@ -51,8 +48,7 @@ public abstract class FutureAdapter<T, S> implements Future<T> {
   /**
    * Constructs a new {@code FutureAdapter} with the given adaptee.
    *
-   * @param adaptee
-   *         the future to delegate to
+   * @param adaptee the future to delegate to
    */
   protected FutureAdapter(Future<S> adaptee) {
     Assert.notNull(adaptee, "Delegate must not be null");
@@ -94,7 +90,8 @@ public abstract class FutureAdapter<T, S> implements Future<T> {
   }
 
   @SuppressWarnings("unchecked")
-  @Nullable final T adaptInternal(S adapteeResult) throws ExecutionException {
+  @Nullable
+  final T adaptInternal(S adapteeResult) throws ExecutionException {
     synchronized(this.mutex) {
       switch (this.state) {
         case SUCCESS:

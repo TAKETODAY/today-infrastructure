@@ -81,22 +81,14 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
   /**
    * Constructs a new {@link JSRInlinerAdapter}.
    *
-   * @param methodVisitor
-   *         the method visitor to send the resulting inlined method code to, or <code>
-   *         null</code>.
-   * @param access
-   *         the method's access flags.
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor.
-   * @param signature
-   *         the method's signature. May be {@literal null}.
-   * @param exceptions
-   *         the internal names of the method's exception classes. May be {@literal null}.
-   *
-   * @throws IllegalStateException
-   *         if a subclass calls this constructor.
+   * @param methodVisitor the method visitor to send the resulting inlined method code to, or <code>
+   * null</code>.
+   * @param access the method's access flags.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor.
+   * @param signature the method's signature. May be {@literal null}.
+   * @param exceptions the internal names of the method's exception classes. May be {@literal null}.
+   * @throws IllegalStateException if a subclass calls this constructor.
    */
   public JSRInlinerAdapter(
           final MethodVisitor methodVisitor,
@@ -149,14 +141,11 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * For this the control flow graph is visited with a depth first search (this includes the normal
    * control flow and the exception handlers).
    *
-   * @param startInsnIndex
-   *         the index of the first instruction of the subroutine.
-   * @param subroutineInsns
-   *         where the indices of the instructions of the subroutine must be stored.
-   * @param visitedInsns
-   *         the indices of the instructions that have been visited so far (including in
-   *         previous calls to this method). This bitset is updated by this method each time a new
-   *         instruction is visited. It is used to make sure each instruction is visited at most once.
+   * @param startInsnIndex the index of the first instruction of the subroutine.
+   * @param subroutineInsns where the indices of the instructions of the subroutine must be stored.
+   * @param visitedInsns the indices of the instructions that have been visited so far (including in
+   * previous calls to this method). This bitset is updated by this method each time a new
+   * instruction is visited. It is used to make sure each instruction is visited at most once.
    */
   private void findSubroutineInsns(
           final int startInsnIndex, final BitSet subroutineInsns, final BitSet visitedInsns) {
@@ -201,14 +190,11 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * instruction nor any exception handler. For this the control flow graph is visited with a depth
    * first search.
    *
-   * @param insnIndex
-   *         the index of an instruction of the subroutine.
-   * @param subroutineInsns
-   *         where the indices of the instructions of the subroutine must be stored.
-   * @param visitedInsns
-   *         the indices of the instructions that have been visited so far (including in
-   *         previous calls to this method). This bitset is updated by this method each time a new
-   *         instruction is visited. It is used to make sure each instruction is visited at most once.
+   * @param insnIndex the index of an instruction of the subroutine.
+   * @param subroutineInsns where the indices of the instructions of the subroutine must be stored.
+   * @param visitedInsns the indices of the instructions that have been visited so far (including in
+   * previous calls to this method). This bitset is updated by this method each time a new
+   * instruction is visited. It is used to make sure each instruction is visited at most once.
    */
   private void findReachableInsns(
           final int insnIndex, final BitSet subroutineInsns, final BitSet visitedInsns) {
@@ -307,18 +293,13 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * instantiations that are invoked by this one to the <code>worklist</code>, and new try/catch
    * blocks to <code>newTryCatchBlocks</code>.
    *
-   * @param instantiation
-   *         the instantiation that must be performed.
-   * @param worklist
-   *         list of the instantiations that remain to be done.
-   * @param newInstructions
-   *         the instruction list to which the instantiated code must be appended.
-   * @param newTryCatchBlocks
-   *         the exception handler list to which the instantiated handlers must be
-   *         appended.
-   * @param newLocalVariables
-   *         the local variables list to which the instantiated local variables
-   *         must be appended.
+   * @param instantiation the instantiation that must be performed.
+   * @param worklist list of the instantiations that remain to be done.
+   * @param newInstructions the instruction list to which the instantiated code must be appended.
+   * @param newTryCatchBlocks the exception handler list to which the instantiated handlers must be
+   * appended.
+   * @param newLocalVariables the local variables list to which the instantiated local variables
+   * must be appended.
    */
   private void emitInstantiation(
           final Instantiation instantiation,
@@ -501,9 +482,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * In this case, the owner is the oldest instantiation which owns the instruction in question
      * (parent instantiations are older than their children).
      *
-     * @param insnIndex
-     *         the index of an instruction in the original code.
-     *
+     * @param insnIndex the index of an instruction in the original code.
      * @return the "owner" of a particular instruction relative to this instantiation.
      */
     Instantiation findOwner(final int insnIndex) {
@@ -529,9 +508,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * Returns the clone of the given original label that is appropriate for use in a jump
      * instruction.
      *
-     * @param labelNode
-     *         a label of the original code.
-     *
+     * @param labelNode a label of the original code.
      * @return a clone of the given label for use in a jump instruction in the inlined code.
      */
     LabelNode getClonedLabelForJumpInsn(final LabelNode labelNode) {
@@ -544,9 +521,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * Returns the clone of the given original label that is appropriate for use by a try/catch
      * block or a variable annotation.
      *
-     * @param labelNode
-     *         a label of the original code.
-     *
+     * @param labelNode a label of the original code.
      * @return a clone of the given label for use by a try/catch block or a variable annotation in
      * the inlined code.
      */

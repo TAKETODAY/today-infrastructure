@@ -61,8 +61,7 @@ public class WebServletInitializer<T extends Servlet>
    * Configure registration settings. Subclasses can override this method to
    * perform additional configuration if required.
    *
-   * @param registration
-   *         the registration
+   * @param registration the registration
    */
   @Override
   protected void configureRegistration(Dynamic registration) {

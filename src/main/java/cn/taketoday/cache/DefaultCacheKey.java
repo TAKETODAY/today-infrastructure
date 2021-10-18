@@ -39,8 +39,7 @@ public class DefaultCacheKey implements Serializable {
   /**
    * Create a new {@link DefaultCacheKey} instance.
    *
-   * @param params
-   *         the method parameters
+   * @param params the method parameters
    */
   public DefaultCacheKey(Object[] params) {
     if (params == null) {

@@ -46,11 +46,8 @@ public class NumberConverter
   }
 
   /**
-   * @param targetType
-   *         target class
-   * @param sourceType
-   *         source object never be null
-   *
+   * @param targetType target class
+   * @param sourceType source object never be null
    * @since 4.0
    */
   @Override

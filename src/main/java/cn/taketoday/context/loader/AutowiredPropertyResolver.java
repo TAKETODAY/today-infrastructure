@@ -95,9 +95,7 @@ public class AutowiredPropertyResolver
   /**
    * Create bean name by type
    *
-   * @param targetClass
-   *         target property class
-   *
+   * @param targetClass target property class
    * @return a bean name none null
    */
   protected String byType(PropertyResolvingContext resolvingContext, Class<?> targetClass) {
@@ -117,11 +115,8 @@ public class AutowiredPropertyResolver
   /**
    * Find bean name in the {@link BeanFactory}
    *
-   * @param applicationContext
-   *         factory
-   * @param propertyClass
-   *         property class
-   *
+   * @param applicationContext factory
+   * @param propertyClass property class
    * @return a name found in {@link BeanFactory} if not found will returns null
    */
   protected String findName(ApplicationContext applicationContext, Class<?> propertyClass) {

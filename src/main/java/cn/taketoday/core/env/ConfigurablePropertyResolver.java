@@ -105,9 +105,8 @@ public interface ConfigurablePropertyResolver extends PropertyResolver {
    * {@link #setRequiredProperties} is present and resolves to a
    * non-{@code null} value.
    *
-   * @throws MissingRequiredPropertiesException
-   *         if any of the required
-   *         properties are not resolvable.
+   * @throws MissingRequiredPropertiesException if any of the required
+   * properties are not resolvable.
    */
   void validateRequiredProperties() throws MissingRequiredPropertiesException;
 

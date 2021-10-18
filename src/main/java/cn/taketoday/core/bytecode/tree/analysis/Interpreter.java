@@ -40,9 +40,7 @@ import cn.taketoday.core.bytecode.tree.TryCatchBlockNode;
  * with various semantic interpreters, without needing to duplicate the code to simulate the
  * transfer of values.
  *
- * @param <V>
- *         type of the Value used for the analysis.
- *
+ * @param <V> type of the Value used for the analysis.
  * @author Eric Bruneton
  */
 public abstract class Interpreter<V extends Value> {
@@ -64,10 +62,8 @@ public abstract class Interpreter<V extends Value> {
    * Interpreter#newExceptionValue(TryCatchBlockNode, Frame, Type)} to distinguish different types
    * of new value.
    *
-   * @param type
-   *         a primitive or reference type, or {@literal null} to represent an uninitialized
-   *         value.
-   *
+   * @param type a primitive or reference type, or {@literal null} to represent an uninitialized
+   * value.
    * @return a value that represents the given type. The size of the returned value must be equal to
    * the size of the given type.
    */
@@ -79,13 +75,9 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>By default, calls <code>newValue(type)</code>.
    *
-   * @param isInstanceMethod
-   *         {@literal true} if the method is non-static.
-   * @param local
-   *         the local variable index.
-   * @param type
-   *         a primitive or reference type.
-   *
+   * @param isInstanceMethod {@literal true} if the method is non-static.
+   * @param local the local variable index.
+   * @param type a primitive or reference type.
    * @return a value that represents the given type. The size of the returned value must be equal to
    * the size of the given type.
    */
@@ -99,9 +91,7 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>By default, calls <code>newValue(type)</code>.
    *
-   * @param type
-   *         a primitive or reference type.
-   *
+   * @param type a primitive or reference type.
    * @return a value that represents the given type. The size of the returned value must be equal to
    * the size of the given type.
    */
@@ -116,9 +106,7 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>By default, calls <code>newValue(null)</code>.
    *
-   * @param local
-   *         the local variable index.
-   *
+   * @param local the local variable index.
    * @return a value representing an uninitialized value. The size of the returned value must be
    * equal to 1.
    */
@@ -132,13 +120,9 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>By default, calls <code>newValue(exceptionType)</code>.
    *
-   * @param tryCatchBlockNode
-   *         the exception handler.
-   * @param handlerFrame
-   *         the exception handler frame.
-   * @param exceptionType
-   *         the exception type handled by this handler.
-   *
+   * @param tryCatchBlockNode the exception handler.
+   * @param handlerFrame the exception handler frame.
+   * @param exceptionType the exception type handled by this handler.
    * @return a value that represents the given {@code exceptionType}. The size of the returned value
    * must be equal to 1.
    */
@@ -157,13 +141,9 @@ public abstract class Interpreter<V extends Value> {
    * LCONST_0, LCONST_1, FCONST_0, FCONST_1, FCONST_2, DCONST_0, DCONST_1, BIPUSH, SIPUSH, LDC, JSR,
    * GETSTATIC, NEW
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   *
+   * @param insn the bytecode instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V newOperation(AbstractInsnNode insn) throws AnalyzerException;
 
@@ -174,16 +154,11 @@ public abstract class Interpreter<V extends Value> {
    * <p>ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE, DUP, DUP_X1,
    * DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   * @param value
-   *         the value that must be moved by the instruction.
-   *
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value the value that must be moved by the instruction.
    * @return the result of the interpretation of the given instruction. The returned value must be
    * {@code equal} to the given value.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V copyOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
 
@@ -196,15 +171,10 @@ public abstract class Interpreter<V extends Value> {
    * FRETURN, DRETURN, ARETURN, PUTSTATIC, GETFIELD, NEWARRAY, ANEWARRAY, ARRAYLENGTH, ATHROW,
    * CHECKCAST, INSTANCEOF, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   * @param value
-   *         the argument of the instruction to be interpreted.
-   *
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value the argument of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V unaryOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
 
@@ -218,17 +188,11 @@ public abstract class Interpreter<V extends Value> {
    * DCMPL, DCMPG, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ,
    * IF_ACMPNE, PUTFIELD
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   * @param value1
-   *         the first argument of the instruction to be interpreted.
-   * @param value2
-   *         the second argument of the instruction to be interpreted.
-   *
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value1 the first argument of the instruction to be interpreted.
+   * @param value2 the second argument of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V binaryOperation(AbstractInsnNode insn, V value1, V value2)
           throws AnalyzerException;
@@ -239,19 +203,12 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   * @param value1
-   *         the first argument of the instruction to be interpreted.
-   * @param value2
-   *         the second argument of the instruction to be interpreted.
-   * @param value3
-   *         the third argument of the instruction to be interpreted.
-   *
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value1 the first argument of the instruction to be interpreted.
+   * @param value2 the second argument of the instruction to be interpreted.
+   * @param value3 the third argument of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V ternaryOperation(AbstractInsnNode insn, V value1, V value2, V value3)
           throws AnalyzerException;
@@ -263,15 +220,10 @@ public abstract class Interpreter<V extends Value> {
    * <p>INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC, INVOKEINTERFACE, MULTIANEWARRAY and
    * INVOKEDYNAMIC
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   * @param values
-   *         the arguments of the instruction to be interpreted.
-   *
+   * @param insn the bytecode instruction to be interpreted.
+   * @param values the arguments of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V naryOperation(AbstractInsnNode insn, List<? extends V> values)
           throws AnalyzerException;
@@ -281,15 +233,10 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>IRETURN, LRETURN, FRETURN, DRETURN, ARETURN
    *
-   * @param insn
-   *         the bytecode instruction to be interpreted.
-   * @param value
-   *         the argument of the instruction to be interpreted.
-   * @param expected
-   *         the expected return type of the analyzed method.
-   *
-   * @throws AnalyzerException
-   *         if an error occurred during the interpretation.
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value the argument of the instruction to be interpreted.
+   * @param expected the expected return type of the analyzed method.
+   * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract void returnOperation(AbstractInsnNode insn, V value, V expected)
           throws AnalyzerException;
@@ -300,11 +247,8 @@ public abstract class Interpreter<V extends Value> {
    * two types. If the two values are integer intervals, the merged value must be an interval that
    * contains the previous ones. Likewise for other types of values).
    *
-   * @param value1
-   *         a value.
-   * @param value2
-   *         another value.
-   *
+   * @param value1 a value.
+   * @param value2 another value.
    * @return the merged value. If the merged value is equal to {@code value1}, this method
    * <i>must</i> return {@code value1}.
    */

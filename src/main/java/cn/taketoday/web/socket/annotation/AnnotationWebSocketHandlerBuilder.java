@@ -96,9 +96,7 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   /**
    * set support Partial Message
    *
-   * @param supportPartialMessage
-   *         supportPartialMessage?
-   *
+   * @param supportPartialMessage supportPartialMessage?
    * @see Message#isLast()
    * @see WebSocketHandler#supportPartialMessage()
    */

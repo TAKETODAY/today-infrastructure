@@ -314,8 +314,7 @@ public class TomcatServer extends AbstractServletWebServer {
   /**
    * Configure {@link Connector}
    *
-   * @param connector
-   *         Connector
+   * @param connector Connector
    */
   protected void configureConnector(Connector connector) {
     connector.setPort(getPort());
@@ -453,8 +452,7 @@ public class TomcatServer extends AbstractServletWebServer {
   /**
    * Configure the Tomcat {@link Context}.
    *
-   * @param context
-   *         the Tomcat context
+   * @param context the Tomcat context
    */
   protected void configureTomcatContext(Context context) {
 

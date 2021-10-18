@@ -19,14 +19,14 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Simple {@link BeanFactoryPostProcessor} implementation that registers custom
@@ -70,10 +70,8 @@ public class CustomScopeConfigurer
   /**
    * Add the given scope to this configurer's map of scopes.
    *
-   * @param scopeName
-   *         the name of the scope
-   * @param scope
-   *         the scope implementation
+   * @param scopeName the name of the scope
+   * @param scope the scope implementation
    */
   public void addScope(String scopeName, Scope scope) {
     if (this.scopes == null) {

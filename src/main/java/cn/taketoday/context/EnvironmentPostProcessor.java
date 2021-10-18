@@ -46,10 +46,8 @@ public interface EnvironmentPostProcessor {
   /**
    * Post-process the given {@code environment}.
    *
-   * @param environment
-   *         the environment to post-process
-   * @param context
-   *         the application-context to which the environment belongs
+   * @param environment the environment to post-process
+   * @param context the application-context to which the environment belongs
    */
   void postProcessEnvironment(
           ConfigurableEnvironment environment, ConfigurableApplicationContext context) throws IOException;

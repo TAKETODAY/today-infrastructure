@@ -54,13 +54,9 @@ public enum DataUnit {
   /**
    * Return the {@link DataUnit} matching the specified {@code suffix}.
    *
-   * @param suffix
-   *         one of the standard suffix
-   *
+   * @param suffix one of the standard suffix
    * @return the {@link DataUnit} matching the specified {@code suffix}
-   *
-   * @throws IllegalArgumentException
-   *         if the suffix does not match any of this enum's constants
+   * @throws IllegalArgumentException if the suffix does not match any of this enum's constants
    */
   public static DataUnit fromSuffix(String suffix) {
     for (DataUnit candidate : values()) {

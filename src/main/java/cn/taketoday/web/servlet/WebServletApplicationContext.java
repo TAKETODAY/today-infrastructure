@@ -32,8 +32,7 @@ public interface WebServletApplicationContext extends WebApplicationContext {
   /**
    * Set ServletContext
    *
-   * @param servletContext
-   *         Target {@link ServletContext} object
+   * @param servletContext Target {@link ServletContext} object
    */
   void setServletContext(ServletContext servletContext);
 

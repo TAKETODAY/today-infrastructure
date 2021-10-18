@@ -103,9 +103,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   /**
    * invoke constructor with given arguments
    *
-   * @param args
-   *         arguments objects
-   *
+   * @param args arguments objects
    * @return new object
    */
   public Object newInstance(@Nullable final Object[] args) {
@@ -150,8 +148,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   }
 
   /**
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
+   * @throws PropertyReadOnlyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public final void setValue(final Object obj, Object value) {
@@ -172,8 +169,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   }
 
   /**
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
+   * @throws PropertyReadOnlyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    * @since 3.0.2
    */
@@ -448,8 +444,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   }
 
   /**
-   * @throws NoSuchPropertyException
-   *         No property in target class
+   * @throws NoSuchPropertyException No property in target class
    */
   public static BeanProperty valueOf(Class<?> targetClass, String name) {
     final Field field = ReflectionUtils.findField(targetClass, name);

@@ -45,8 +45,7 @@ public abstract class Logger {
   /**
    * Log a message at the TRACE level.
    *
-   * @param msg
-   *         the message string to be logged
+   * @param msg the message string to be logged
    */
   public void trace(String msg) {
     logInternal(Level.TRACE, msg);
@@ -61,10 +60,8 @@ public abstract class Logger {
    * the TRACE level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg
-   *         the argument
+   * @param format the format string
+   * @param arg the argument
    */
   public void trace(String format, Object arg) {
     logInternal(Level.TRACE, format, new Object[] { arg });
@@ -79,12 +76,9 @@ public abstract class Logger {
    * the TRACE level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg1
-   *         the first argument
-   * @param arg2
-   *         the second argument
+   * @param format the format string
+   * @param arg1 the first argument
+   * @param arg2 the second argument
    */
   public void trace(String format, Object arg1, Object arg2) {
     logInternal(Level.TRACE, format, new Object[] { arg1, arg2 });
@@ -103,10 +97,8 @@ public abstract class Logger {
    * two} arguments exist solely in order to avoid this hidden cost.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arguments
-   *         a list of 3 or more arguments
+   * @param format the format string
+   * @param arguments a list of 3 or more arguments
    */
   public void trace(String format, Object... arguments) {
     logInternal(Level.TRACE, format, arguments);
@@ -115,10 +107,8 @@ public abstract class Logger {
   /**
    * Log an exception (throwable) at the TRACE level with an accompanying message.
    *
-   * @param msg
-   *         the message accompanying the exception
-   * @param t
-   *         the exception (throwable) to log
+   * @param msg the message accompanying the exception
+   * @param t the exception (throwable) to log
    */
   public void trace(String msg, Throwable t) {
     logInternal(Level.TRACE, msg, t);
@@ -134,8 +124,7 @@ public abstract class Logger {
   /**
    * Log a message at the DEBUG level.
    *
-   * @param msg
-   *         the message string to be logged
+   * @param msg the message string to be logged
    */
   public void debug(String msg) {
     logInternal(Level.DEBUG, msg);
@@ -150,10 +139,8 @@ public abstract class Logger {
    * the DEBUG level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg
-   *         the argument
+   * @param format the format string
+   * @param arg the argument
    */
   public void debug(String format, Object arg) {
     logInternal(Level.DEBUG, format, new Object[] { arg });
@@ -168,12 +155,9 @@ public abstract class Logger {
    * the DEBUG level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg1
-   *         the first argument
-   * @param arg2
-   *         the second argument
+   * @param format the format string
+   * @param arg1 the first argument
+   * @param arg2 the second argument
    */
   public void debug(String format, Object arg1, Object arg2) {
     logInternal(Level.DEBUG, format, new Object[] { arg1, arg2 });
@@ -192,10 +176,8 @@ public abstract class Logger {
    * two} arguments exist solely in order to avoid this hidden cost.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arguments
-   *         a list of 3 or more arguments
+   * @param format the format string
+   * @param arguments a list of 3 or more arguments
    */
   public void debug(String format, Object... arguments) {
     logInternal(Level.DEBUG, format, arguments);
@@ -204,10 +186,8 @@ public abstract class Logger {
   /**
    * Log an exception (throwable) at the DEBUG level with an accompanying message.
    *
-   * @param msg
-   *         the message accompanying the exception
-   * @param t
-   *         the exception (throwable) to log
+   * @param msg the message accompanying the exception
+   * @param t the exception (throwable) to log
    */
   public void debug(String msg, Throwable t) {
     logInternal(Level.DEBUG, msg);
@@ -223,8 +203,7 @@ public abstract class Logger {
   /**
    * Log a message at the INFO level.
    *
-   * @param msg
-   *         the message string to be logged
+   * @param msg the message string to be logged
    */
   public void info(String msg) {
     logInternal(Level.INFO, msg);
@@ -239,10 +218,8 @@ public abstract class Logger {
    * the INFO level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg
-   *         the argument
+   * @param format the format string
+   * @param arg the argument
    */
   public void info(String format, Object arg) {
     logInternal(Level.INFO, format, new Object[] { arg });
@@ -257,12 +234,9 @@ public abstract class Logger {
    * the INFO level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg1
-   *         the first argument
-   * @param arg2
-   *         the second argument
+   * @param format the format string
+   * @param arg1 the first argument
+   * @param arg2 the second argument
    */
   public void info(String format, Object arg1, Object arg2) {
     logInternal(Level.INFO, format, new Object[] { arg1, arg2 });
@@ -281,10 +255,8 @@ public abstract class Logger {
    * two} arguments exist solely in order to avoid this hidden cost.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arguments
-   *         a list of 3 or more arguments
+   * @param format the format string
+   * @param arguments a list of 3 or more arguments
    */
   public void info(String format, Object... arguments) {
     logInternal(Level.INFO, format, arguments);
@@ -293,10 +265,8 @@ public abstract class Logger {
   /**
    * Log an exception (throwable) at the INFO level with an accompanying message.
    *
-   * @param msg
-   *         the message accompanying the exception
-   * @param t
-   *         the exception (throwable) to log
+   * @param msg the message accompanying the exception
+   * @param t the exception (throwable) to log
    */
   public void info(String msg, Throwable t) {
     logInternal(Level.INFO, msg, t);
@@ -312,8 +282,7 @@ public abstract class Logger {
   /**
    * Log a message at the WARN level.
    *
-   * @param msg
-   *         the message string to be logged
+   * @param msg the message string to be logged
    */
   public void warn(String msg) {
     logInternal(Level.WARN, msg);
@@ -328,10 +297,8 @@ public abstract class Logger {
    * the WARN level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg
-   *         the argument
+   * @param format the format string
+   * @param arg the argument
    */
   public void warn(String format, Object arg) {
     logInternal(Level.WARN, format, new Object[] { arg });
@@ -350,10 +317,8 @@ public abstract class Logger {
    * two} arguments exist solely in order to avoid this hidden cost.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arguments
-   *         a list of 3 or more arguments
+   * @param format the format string
+   * @param arguments a list of 3 or more arguments
    */
   public void warn(String format, Object... arguments) {
     logInternal(Level.WARN, format, arguments);
@@ -368,12 +333,9 @@ public abstract class Logger {
    * the WARN level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg1
-   *         the first argument
-   * @param arg2
-   *         the second argument
+   * @param format the format string
+   * @param arg1 the first argument
+   * @param arg2 the second argument
    */
   public void warn(String format, Object arg1, Object arg2) {
     logInternal(Level.WARN, format, new Object[] { arg1, arg2 });
@@ -382,10 +344,8 @@ public abstract class Logger {
   /**
    * Log an exception (throwable) at the WARN level with an accompanying message.
    *
-   * @param msg
-   *         the message accompanying the exception
-   * @param t
-   *         the exception (throwable) to log
+   * @param msg the message accompanying the exception
+   * @param t the exception (throwable) to log
    */
   public void warn(String msg, Throwable t) {
     logInternal(Level.WARN, msg, t);
@@ -401,8 +361,7 @@ public abstract class Logger {
   /**
    * Log a message at the ERROR level.
    *
-   * @param msg
-   *         the message string to be logged
+   * @param msg the message string to be logged
    */
   public void error(String msg) {
     logInternal(Level.ERROR, msg);
@@ -417,10 +376,8 @@ public abstract class Logger {
    * the ERROR level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg
-   *         the argument
+   * @param format the format string
+   * @param arg the argument
    */
   public void error(String format, Object arg) {
     logInternal(Level.ERROR, format, new Object[] { arg });
@@ -435,12 +392,9 @@ public abstract class Logger {
    * the ERROR level.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arg1
-   *         the first argument
-   * @param arg2
-   *         the second argument
+   * @param format the format string
+   * @param arg1 the first argument
+   * @param arg2 the second argument
    */
   public void error(String format, Object arg1, Object arg2) {
     logInternal(Level.ERROR, format, new Object[] { arg1, arg2 });
@@ -459,10 +413,8 @@ public abstract class Logger {
    * two} arguments exist solely in order to avoid this hidden cost.
    * </p>
    *
-   * @param format
-   *         the format string
-   * @param arguments
-   *         a list of 3 or more arguments
+   * @param format the format string
+   * @param arguments a list of 3 or more arguments
    */
   public void error(String format, Object... arguments) {
     logInternal(Level.ERROR, format, arguments);
@@ -471,10 +423,8 @@ public abstract class Logger {
   /**
    * Log an exception (throwable) at the ERROR level with an accompanying message.
    *
-   * @param msg
-   *         the message accompanying the exception
-   * @param t
-   *         the exception (throwable) to log
+   * @param msg the message accompanying the exception
+   * @param t the exception (throwable) to log
    */
   public void error(String msg, Throwable t) {
     logInternal(Level.ERROR, msg, t);

@@ -71,8 +71,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   /**
    * Constructor
    *
-   * @param beanNameResolver
-   *         The {@link BeanNameResolver} that resolves a bean name.
+   * @param beanNameResolver The {@link BeanNameResolver} that resolves a bean name.
    */
   public BeanNameExpressionResolver(BeanNameResolver beanNameResolver) {
     this.beanNameResolver = beanNameResolver;
@@ -91,23 +90,16 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    * should ignore the return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         <code>null</code>
-   * @param property
-   *         The name of the bean.
-   *
+   * @param context The context of this evaluation.
+   * @param base <code>null</code>
+   * @param property The name of the bean.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the value
    * of the bean with the given name. Otherwise, undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
@@ -134,23 +126,15 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    * this method is called, the caller can safely assume no value has been set.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         <code>null</code>
-   * @param property
-   *         The name of the bean
-   * @param value
-   *         The value to set the bean with the given name to.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws PropertyNotWritableException
-   *         if the BeanNameResolver does not allow the bean to be modified.
-   * @throws ExpressionException
-   *         if an exception was thrown while attempting to set the bean with
-   *         the given name. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @param context The context of this evaluation.
+   * @param base <code>null</code>
+   * @param property The name of the bean
+   * @param value The value to set the bean with the given name to.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws PropertyNotWritableException if the BeanNameResolver does not allow the bean to be modified.
+   * @throws ExpressionException if an exception was thrown while attempting to set the bean with
+   * the given name. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @Override
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
@@ -177,23 +161,16 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    * safely assume no value has been set.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         <code>null</code>
-   * @param property
-   *         The name of the bean.
-   *
+   * @param context The context of this evaluation.
+   * @param base <code>null</code>
+   * @param property The name of the bean.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the type of
    * the bean with the given name. Otherwise, undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
@@ -217,24 +194,17 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    * safely assume no value has been set.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         <code>null</code>
-   * @param property
-   *         The name of the bean.
-   *
+   * @param context The context of this evaluation.
+   * @param base <code>null</code>
+   * @param property The name of the bean.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>true</code> if the property is read-only or <code>false</code>
    * if not; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {

@@ -30,9 +30,7 @@ import java.util.concurrent.TimeoutException;
  * Adapts a {@link CompletableFuture} or {@link CompletionStage} into a
  * {@link ListenableFuture}.
  *
- * @param <T>
- *         the result type returned by this Future's {@code get} method
- *
+ * @param <T> the result type returned by this Future's {@code get} method
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
  * @author TODAY

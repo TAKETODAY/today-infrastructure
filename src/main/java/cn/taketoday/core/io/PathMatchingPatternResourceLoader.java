@@ -204,9 +204,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Create a new PathMatchingResourcePatternResolver.
    * <p>ClassLoader access will happen via the thread context class loader.
    *
-   * @param resourceLoader
-   *         the ResourceLoader to load root directories and
-   *         actual resources with
+   * @param resourceLoader the ResourceLoader to load root directories and
+   * actual resources with
    */
   public PathMatchingPatternResourceLoader(ResourceLoader resourceLoader) {
     Assert.notNull(resourceLoader, "ResourceLoader must not be null");
@@ -216,11 +215,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   /**
    * Create a new PathMatchingResourcePatternResolver with a DefaultResourceLoader.
    *
-   * @param classLoader
-   *         the ClassLoader to load classpath resources with,
-   *         or {@code null} for using the thread context class loader
-   *         at the time of actual resource access
-   *
+   * @param classLoader the ClassLoader to load classpath resources with,
+   * or {@code null} for using the thread context class loader
+   * at the time of actual resource access
    * @see DefaultResourceLoader
    */
   public PathMatchingPatternResourceLoader(@Nullable ClassLoader classLoader) {
@@ -292,13 +289,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Find all class location resources with the given location via the
    * ClassLoader. Delegates to {@link #doFindAllClassPathResources(String)}.
    *
-   * @param location
-   *         the absolute path within the classpath
-   *
+   * @param location the absolute path within the classpath
    * @return the result as Resource array
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    * @see java.lang.ClassLoader#getResources
    * @see #convertClassLoaderURL
    */
@@ -321,9 +314,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Find all class location resources with the given path via the ClassLoader.
    * Called by {@link #findAllClassPathResources(String)}.
    *
-   * @param path
-   *         the absolute path within the classpath (never a leading slash)
-   *
+   * @param path the absolute path within the classpath (never a leading slash)
    * @return a mutable Set of matching Resource instances
    */
   protected Set<Resource> doFindAllClassPathResources(String path) throws IOException {
@@ -347,11 +338,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * <p>
    * The default implementation simply creates a {@link UrlBasedResource} instance.
    *
-   * @param url
-   *         a URL as returned from the ClassLoader
-   *
+   * @param url a URL as returned from the ClassLoader
    * @return the corresponding Resource object
-   *
    * @see java.lang.ClassLoader#getResources
    * @see Resource
    */
@@ -364,10 +352,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * to the given set of resources in the form of pointers to the root of the jar
    * file content.
    *
-   * @param classLoader
-   *         the ClassLoader to search (including its ancestors)
-   * @param result
-   *         the set of resources to add jar roots to
+   * @param classLoader the ClassLoader to search (including its ancestors)
+   * @param result the set of resources to add jar roots to
    */
   protected void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result) {
     if (classLoader instanceof URLClassLoader) {
@@ -415,8 +401,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * and add them to the given set of resources in the form of pointers to the
    * root of the jar file content.
    *
-   * @param result
-   *         the set of resources to add jar roots to
+   * @param result the set of resources to add jar roots to
    */
   protected void addClassPathManifestEntries(Set<Resource> result) {
 
@@ -464,11 +449,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Check whether the given file path has a duplicate but differently structured
    * entry in the existing result, i.e. with or without a leading slash.
    *
-   * @param filePath
-   *         the file path (with or without a leading slash)
-   * @param result
-   *         the current result
-   *
+   * @param filePath the file path (with or without a leading slash)
+   * @param result the current result
    * @return {@code true} if there is a duplicate (i.e. to ignore the given file
    * path), {@code false} to proceed with adding a corresponding resource
    * to the current result
@@ -498,13 +480,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * PathMatcher. Supports resources in jar files and zip files and in the file
    * system.
    *
-   * @param locationPattern
-   *         the location pattern to match
-   *
+   * @param locationPattern the location pattern to match
    * @return the result as Resource array
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    * @see #doFindPathMatchingJarResources
    * @see #doFindPathMatchingFileResources
    * @see PathMatcher
@@ -548,11 +526,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * <p>
    * Will return "/WEB-INF/" for the pattern "/WEB-INF/*.xml", for example.
    *
-   * @param location
-   *         the location to check
-   *
+   * @param location the location to check
    * @return the part of the location that denotes the root directory
-   *
    * @see #retrieveMatchingFiles
    */
   protected String determineRootDir(String location) {
@@ -571,15 +546,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Find all resources in jar files that match the given location pattern via the
    * Ant-style PathMatcher.
    *
-   * @param rootDirResource
-   *         the root directory as Resource
-   * @param subPattern
-   *         the sub pattern to match (below the root directory)
-   *
+   * @param rootDirResource the root directory as Resource
+   * @param subPattern the sub pattern to match (below the root directory)
    * @return a mutable Set of matching Resource instances
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    * @see java.net.JarURLConnection
    * @see PathMatcher
    */
@@ -633,15 +603,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Find all resources in the file system that match the given location pattern
    * via the Ant-style PathMatcher.
    *
-   * @param rootDirResource
-   *         the root directory as Resource
-   * @param subPattern
-   *         the sub pattern to match (below the root directory)
-   *
+   * @param rootDirResource the root directory as Resource
+   * @param subPattern the sub pattern to match (below the root directory)
    * @return a mutable Set of matching Resource instances
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    * @see #retrieveMatchingFiles
    * @see PathMatcher
    */
@@ -666,15 +631,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Find all resources in the file system that match the given location pattern
    * via the Ant-style PathMatcher.
    *
-   * @param rootDir
-   *         the root directory in the file system
-   * @param subPattern
-   *         the sub pattern to match (below the root directory)
-   *
+   * @param rootDir the root directory in the file system
+   * @param subPattern the sub pattern to match (below the root directory)
    * @return a mutable Set of matching Resource instances
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    * @see #retrieveMatchingFiles
    * @see PathMatcher
    */
@@ -694,15 +654,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Retrieve files that match the given path pattern, checking the given
    * directory and its subdirectories.
    *
-   * @param rootDir
-   *         the directory to start from
-   * @param pattern
-   *         the pattern to match against, relative to the root directory
-   *
+   * @param rootDir the directory to start from
+   * @param pattern the pattern to match against, relative to the root directory
    * @return a mutable Set of matching Resource instances
-   *
-   * @throws IOException
-   *         if directory contents could not be retrieved
+   * @throws IOException if directory contents could not be retrieved
    */
   protected Set<File> retrieveMatchingFiles(File rootDir, String pattern) throws IOException {
     if (!rootDir.exists()) {
@@ -729,7 +684,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
 
-    if(!StringUtils.matchesFirst(pattern, '/')) {
+    if (!StringUtils.matchesFirst(pattern, '/')) {
       fullPattern += '/';
     }
     fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
@@ -743,15 +698,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Recursively retrieve files that match the given pattern, adding them to the
    * given result list.
    *
-   * @param fullPattern
-   *         the pattern to match against, with prepended root directory path
-   * @param dir
-   *         the current directory
-   * @param result
-   *         the Set of matching File instances to add to
-   *
-   * @throws IOException
-   *         if directory contents could not be retrieved
+   * @param fullPattern the pattern to match against, with prepended root directory path
+   * @param dir the current directory
+   * @param result the Set of matching File instances to add to
+   * @throws IOException if directory contents could not be retrieved
    */
   protected void doRetrieveMatchingFiles(String fullPattern, File dir, Set<File> result) throws IOException {
     if (log.isTraceEnabled()) {
@@ -779,11 +729,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   /**
    * Determine a sorted list of files in the given directory.
    *
-   * @param dir
-   *         the directory to introspect
-   *
+   * @param dir the directory to introspect
    * @return the sorted list of files (by default in alphabetical order)
-   *
    * @see File#listFiles()
    */
   protected File[] listDirectory(File dir) {

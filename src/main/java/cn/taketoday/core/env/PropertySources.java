@@ -80,8 +80,7 @@ public class PropertySources implements Iterable<PropertySource<?>> {
   /**
    * Return whether a property source with the given name is contained.
    *
-   * @param name
-   *         the {@linkplain PropertySource#getName() name of the property source} to find
+   * @param name the {@linkplain PropertySource#getName() name of the property source} to find
    */
   public boolean contains(String name) {
     for (PropertySource<?> propertySource : this.propertySourceList) {
@@ -95,8 +94,7 @@ public class PropertySources implements Iterable<PropertySource<?>> {
   /**
    * Return the property source with the given name, {@code null} if not found.
    *
-   * @param name
-   *         the {@linkplain PropertySource#getName() name of the property source} to find
+   * @param name the {@linkplain PropertySource#getName() name of the property source} to find
    */
   @Nullable
   public PropertySource<?> get(String name) {
@@ -164,8 +162,7 @@ public class PropertySources implements Iterable<PropertySource<?>> {
   /**
    * Remove and return the property source with the given name, {@code null} if not found.
    *
-   * @param name
-   *         the name of the property source to find and remove
+   * @param name the name of the property source to find and remove
    */
   @Nullable
   public PropertySource<?> remove(String name) {
@@ -178,13 +175,9 @@ public class PropertySources implements Iterable<PropertySource<?>> {
   /**
    * Replace the property source with the given name with the given property source object.
    *
-   * @param name
-   *         the name of the property source to find and replace
-   * @param propertySource
-   *         the replacement property source
-   *
-   * @throws IllegalArgumentException
-   *         if no property source with the given name is present
+   * @param name the name of the property source to find and replace
+   * @param propertySource the replacement property source
+   * @throws IllegalArgumentException if no property source with the given name is present
    * @see #contains
    */
   public void replace(String name, PropertySource<?> propertySource) {
@@ -236,11 +229,8 @@ public class PropertySources implements Iterable<PropertySource<?>> {
   /**
    * Assert that the named property source is present and return its index.
    *
-   * @param name
-   *         {@linkplain PropertySource#getName() name of the property source} to find
-   *
-   * @throws IllegalArgumentException
-   *         if the named property source is not present
+   * @param name {@linkplain PropertySource#getName() name of the property source} to find
+   * @throws IllegalArgumentException if the named property source is not present
    */
   private int assertPresentAndGetIndex(String name) {
     int index = this.propertySourceList.indexOf(PropertySource.named(name));

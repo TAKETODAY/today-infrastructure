@@ -568,20 +568,13 @@ final class MethodWriter extends MethodVisitor {
   /**
    * Constructs a new {@link MethodWriter}.
    *
-   * @param symbolTable
-   *         where the constants used in this AnnotationWriter must be stored.
-   * @param access
-   *         the method's access flags (see {@link Opcodes}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param signature
-   *         the method's signature. May be {@literal null}.
-   * @param exceptions
-   *         the internal names of the method's exceptions. May be {@literal null}.
-   * @param compute
-   *         indicates what must be computed (see #compute).
+   * @param symbolTable where the constants used in this AnnotationWriter must be stored.
+   * @param access the method's access flags (see {@link Opcodes}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param signature the method's signature. May be {@literal null}.
+   * @param exceptions the internal names of the method's exceptions. May be {@literal null}.
+   * @param compute indicates what must be computed (see #compute).
    */
   MethodWriter(
           final SymbolTable symbolTable,
@@ -1827,10 +1820,8 @@ final class MethodWriter extends MethodVisitor {
   /**
    * Adds a successor to {@link #currentBasicBlock} in the control flow graph.
    *
-   * @param info
-   *         information about the control flow edge to be added.
-   * @param successor
-   *         the successor block to be added to the current basic block.
+   * @param info information about the control flow edge to be added.
+   * @param successor the successor block to be added to the current basic block.
    */
   private void addSuccessorToCurrentBasicBlock(final int info, final Label successor) {
     currentBasicBlock.outgoingEdges = new Edge(info, successor, currentBasicBlock.outgoingEdges);
@@ -1866,13 +1857,9 @@ final class MethodWriter extends MethodVisitor {
   /**
    * Starts the visit of a new stack map frame, stored in {@link #currentFrame}.
    *
-   * @param offset
-   *         the bytecode offset of the instruction to which the frame corresponds.
-   * @param numLocal
-   *         the number of local variables in the frame.
-   * @param numStack
-   *         the number of stack elements in the frame.
-   *
+   * @param offset the bytecode offset of the instruction to which the frame corresponds.
+   * @param numLocal the number of local variables in the frame.
+   * @param numStack the number of stack elements in the frame.
    * @return the index of the next element to be written in this frame.
    */
   int visitFrameStart(final int offset, final int numLocal, final int numStack) {
@@ -1889,10 +1876,8 @@ final class MethodWriter extends MethodVisitor {
   /**
    * Sets an abstract type in {@link #currentFrame}.
    *
-   * @param frameIndex
-   *         the index of the element to be set in {@link #currentFrame}.
-   * @param abstractType
-   *         an abstract type.
+   * @param frameIndex the index of the element to be set in {@link #currentFrame}.
+   * @param abstractType an abstract type.
    */
   void visitAbstractType(final int frameIndex, final int abstractType) {
     currentFrame[frameIndex] = abstractType;
@@ -2013,10 +1998,8 @@ final class MethodWriter extends MethodVisitor {
    * Puts some abstract types of {@link #currentFrame} in {@link #stackMapTableEntries} , using the
    * JVMS verification_type_info format used in StackMapTable attributes.
    *
-   * @param start
-   *         index of the first type in {@link #currentFrame} to write.
-   * @param end
-   *         index of last type in {@link #currentFrame} to write (exclusive).
+   * @param start index of the first type in {@link #currentFrame} to write.
+   * @param end index of last type in {@link #currentFrame} to write (exclusive).
    */
   private void putAbstractTypes(final int start, final int end) {
     for (int i = start; i < end; ++i) {
@@ -2028,12 +2011,11 @@ final class MethodWriter extends MethodVisitor {
    * Puts the given public API frame element type in {@link #stackMapTableEntries} , using the JVMS
    * verification_type_info format used in StackMapTable attributes.
    *
-   * @param type
-   *         a frame element type described using the same format as in {@link
-   *         MethodVisitor#visitFrame}, i.e. either {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
-   *         Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL}, or
-   *         {@link Opcodes#UNINITIALIZED_THIS}, or the internal name of a class, or a Label designating
-   *         a NEW instruction (for uninitialized types).
+   * @param type a frame element type described using the same format as in {@link
+   * MethodVisitor#visitFrame}, i.e. either {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
+   * Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL}, or
+   * {@link Opcodes#UNINITIALIZED_THIS}, or the internal name of a class, or a Label designating
+   * a NEW instruction (for uninitialized types).
    */
   private void putFrameType(final Object type) {
     if (type instanceof Integer) {
@@ -2063,24 +2045,17 @@ final class MethodWriter extends MethodVisitor {
    * constructor arguments (at most a Signature, an Exception, a Deprecated and a Synthetic
    * attribute) are the same as the corresponding attributes in the given method.
    *
-   * @param source
-   *         the source ClassReader from which the attributes of this method might be copied.
-   * @param hasSyntheticAttribute
-   *         whether the method_info JVMS structure from which the attributes
-   *         of this method might be copied contains a Synthetic attribute.
-   * @param hasDeprecatedAttribute
-   *         whether the method_info JVMS structure from which the attributes
-   *         of this method might be copied contains a Deprecated attribute.
-   * @param descriptorIndex
-   *         the descriptor_index field of the method_info JVMS structure from which
-   *         the attributes of this method might be copied.
-   * @param signatureIndex
-   *         the constant pool index contained in the Signature attribute of the
-   *         method_info JVMS structure from which the attributes of this method might be copied, or 0.
-   * @param exceptionsOffset
-   *         the offset in 'source.b' of the Exceptions attribute of the method_info
-   *         JVMS structure from which the attributes of this method might be copied, or 0.
-   *
+   * @param source the source ClassReader from which the attributes of this method might be copied.
+   * @param hasSyntheticAttribute whether the method_info JVMS structure from which the attributes
+   * of this method might be copied contains a Synthetic attribute.
+   * @param hasDeprecatedAttribute whether the method_info JVMS structure from which the attributes
+   * of this method might be copied contains a Deprecated attribute.
+   * @param descriptorIndex the descriptor_index field of the method_info JVMS structure from which
+   * the attributes of this method might be copied.
+   * @param signatureIndex the constant pool index contained in the Signature attribute of the
+   * method_info JVMS structure from which the attributes of this method might be copied, or 0.
+   * @param exceptionsOffset the offset in 'source.b' of the Exceptions attribute of the method_info
+   * JVMS structure from which the attributes of this method might be copied, or 0.
    * @return whether the attributes of this method can be copied from the attributes of the
    * method_info JVMS structure in 'source.b', between 'methodInfoOffset' and 'methodInfoOffset'
    * + 'methodInfoLength'.
@@ -2128,12 +2103,10 @@ final class MethodWriter extends MethodVisitor {
   /**
    * Sets the source from which the attributes of this method will be copied.
    *
-   * @param methodInfoOffset
-   *         the offset in 'symbolTable.getSource()' of the method_info JVMS
-   *         structure from which the attributes of this method will be copied.
-   * @param methodInfoLength
-   *         the length in 'symbolTable.getSource()' of the method_info JVMS
-   *         structure from which the attributes of this method will be copied.
+   * @param methodInfoOffset the offset in 'symbolTable.getSource()' of the method_info JVMS
+   * structure from which the attributes of this method will be copied.
+   * @param methodInfoLength the length in 'symbolTable.getSource()' of the method_info JVMS
+   * structure from which the attributes of this method will be copied.
    */
   void setMethodAttributesSource(final int methodInfoOffset, final int methodInfoLength) {
     // Don't copy the attributes yet, instead store their location in the source class reader so
@@ -2252,8 +2225,7 @@ final class MethodWriter extends MethodVisitor {
    * Puts the content of the method_info JVMS structure generated by this MethodWriter into the
    * given ByteVector.
    *
-   * @param output
-   *         where the method_info structure must be put.
+   * @param output where the method_info structure must be put.
    */
   void putMethodInfo(final ByteVector output) {
     boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
@@ -2462,8 +2434,7 @@ final class MethodWriter extends MethodVisitor {
   /**
    * Collects the attributes of this method into the given set of attribute prototypes.
    *
-   * @param attributePrototypes
-   *         a set of attribute prototypes.
+   * @param attributePrototypes a set of attribute prototypes.
    */
   final void collectAttributePrototypes(final Attribute.Set attributePrototypes) {
     attributePrototypes.addAttributes(firstAttribute);

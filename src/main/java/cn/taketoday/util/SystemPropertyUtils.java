@@ -44,13 +44,9 @@ public abstract class SystemPropertyUtils {
    * Resolve {@code ${...}} placeholders in the given text, replacing them with
    * corresponding system property values.
    *
-   * @param text
-   *         the String to resolve
-   *
+   * @param text the String to resolve
    * @return the resolved String
-   *
-   * @throws IllegalArgumentException
-   *         if there is an unresolvable placeholder
+   * @throws IllegalArgumentException if there is an unresolvable placeholder
    * @see PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
    * @see PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
    */
@@ -63,15 +59,10 @@ public abstract class SystemPropertyUtils {
    * corresponding system property values. Unresolvable placeholders with no default
    * value are ignored and passed through unchanged if the flag is set to {@code true}.
    *
-   * @param text
-   *         the String to resolve
-   * @param ignoreUnresolvablePlaceholders
-   *         whether unresolved placeholders are to be ignored
-   *
+   * @param text the String to resolve
+   * @param ignoreUnresolvablePlaceholders whether unresolved placeholders are to be ignored
    * @return the resolved String
-   *
-   * @throws IllegalArgumentException
-   *         if there is an unresolvable placeholder
+   * @throws IllegalArgumentException if there is an unresolvable placeholder
    * @see PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
    * @see PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
    * and the "ignoreUnresolvablePlaceholders" flag is {@code false}

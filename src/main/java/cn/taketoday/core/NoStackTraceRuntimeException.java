@@ -32,8 +32,7 @@ public class NoStackTraceRuntimeException extends NestedRuntimeException {
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message.
    *
-   * @param msg
-   *         the detail message
+   * @param msg the detail message
    */
   public NoStackTraceRuntimeException(String msg) {
     super(msg);
@@ -42,8 +41,7 @@ public class NoStackTraceRuntimeException extends NestedRuntimeException {
   /**
    * Construct a {@code NestedRuntimeException} with the specified nested exception.
    *
-   * @param cause
-   *         the nested exception
+   * @param cause the nested exception
    */
   public NoStackTraceRuntimeException(Throwable cause) {
     super(cause);
@@ -53,10 +51,8 @@ public class NoStackTraceRuntimeException extends NestedRuntimeException {
    * Construct a {@code NestedRuntimeException} with the specified detail message
    * and nested exception.
    *
-   * @param msg
-   *         the detail message
-   * @param cause
-   *         the nested exception
+   * @param msg the detail message
+   * @param cause the nested exception
    */
   public NoStackTraceRuntimeException(String msg, Throwable cause) {
     super(msg, cause);

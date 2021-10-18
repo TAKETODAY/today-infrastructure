@@ -86,8 +86,7 @@ public class FastByteArrayOutputStream extends OutputStream {
    * Create a new <code>FastByteArrayOutputStream</code>
    * with the specified initial capacity.
    *
-   * @param initialBlockSize
-   *         the initial buffer size in bytes
+   * @param initialBlockSize the initial buffer size in bytes
    */
   public FastByteArrayOutputStream(int initialBlockSize) {
     Assert.isTrue(initialBlockSize > 0, "Initial block size must be greater than 0");
@@ -192,7 +191,6 @@ public class FastByteArrayOutputStream extends OutputStream {
    * Callers should not modify the returned buffer.
    *
    * @return the current contents of this output stream, as a byte array.
-   *
    * @see #size()
    * @see #toByteArray()
    */
@@ -212,7 +210,6 @@ public class FastByteArrayOutputStream extends OutputStream {
    * have been copied into it.</p>
    *
    * @return the current contents of this output stream, as a byte array.
-   *
    * @see #size()
    * @see #toByteArrayUnsafe()
    */
@@ -249,8 +246,7 @@ public class FastByteArrayOutputStream extends OutputStream {
   /**
    * Write the buffers content to the given OutputStream.
    *
-   * @param out
-   *         the OutputStream to write to
+   * @param out the OutputStream to write to
    */
   public void writeTo(OutputStream out) throws IOException {
     Iterator<byte[]> it = this.buffers.iterator();
@@ -268,12 +264,9 @@ public class FastByteArrayOutputStream extends OutputStream {
   /**
    * Resize the internal buffer size to a specified capacity.
    *
-   * @param targetCapacity
-   *         the desired size of the buffer
-   *
-   * @throws IllegalArgumentException
-   *         if the given capacity is smaller than
-   *         the actual size of the content stored in the buffer already
+   * @param targetCapacity the desired size of the buffer
+   * @throws IllegalArgumentException if the given capacity is smaller than
+   * the actual size of the content stored in the buffer already
    * @see FastByteArrayOutputStream#size()
    */
   public void resize(final int targetCapacity) {
@@ -489,8 +482,7 @@ public class FastByteArrayOutputStream extends OutputStream {
     /**
      * Update the message digest with the remaining bytes in this stream.
      *
-     * @param messageDigest
-     *         the message digest to update
+     * @param messageDigest the message digest to update
      */
     @Override
     public void updateMessageDigest(MessageDigest messageDigest) {
@@ -501,10 +493,8 @@ public class FastByteArrayOutputStream extends OutputStream {
      * Update the message digest with the next len bytes in this stream.
      * Avoids creating new byte arrays and use internal buffers for performance.
      *
-     * @param messageDigest
-     *         the message digest to update
-     * @param len
-     *         how many bytes to read from this stream and use to update the message digest
+     * @param messageDigest the message digest to update
+     * @param len how many bytes to read from this stream and use to update the message digest
      */
     @Override
     public void updateMessageDigest(MessageDigest messageDigest, int len) {
@@ -553,11 +543,8 @@ public class FastByteArrayOutputStream extends OutputStream {
      * <p>Using this method is more optimized since it avoids creating new
      * byte arrays for each call.
      *
-     * @param messageDigest
-     *         the message digest to update
-     *
-     * @throws IOException
-     *         when propagated from {@link #read()}
+     * @param messageDigest the message digest to update
+     * @throws IOException when propagated from {@link #read()}
      */
     public void updateMessageDigest(MessageDigest messageDigest) throws IOException {
       int data;
@@ -571,13 +558,9 @@ public class FastByteArrayOutputStream extends OutputStream {
      * <p>Using this method is more optimized since it avoids creating new
      * byte arrays for each call.
      *
-     * @param messageDigest
-     *         the message digest to update
-     * @param len
-     *         how many bytes to read from this stream and use to update the message digest
-     *
-     * @throws IOException
-     *         when propagated from {@link #read()}
+     * @param messageDigest the message digest to update
+     * @param len how many bytes to read from this stream and use to update the message digest
+     * @throws IOException when propagated from {@link #read()}
      */
     public void updateMessageDigest(MessageDigest messageDigest, int len) throws IOException {
       int data;

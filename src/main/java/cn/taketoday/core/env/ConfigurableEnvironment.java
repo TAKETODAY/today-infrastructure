@@ -77,8 +77,7 @@ public interface ConfigurableEnvironment extends Environment, ConfigurableProper
    * with zero arguments to clear the current set of active profiles. Use
    * {@link #addActiveProfile} to add a profile while preserving the existing set.
    *
-   * @throws IllegalArgumentException
-   *         if any profile is null, empty or whitespace-only
+   * @throws IllegalArgumentException if any profile is null, empty or whitespace-only
    * @see #addActiveProfile
    * @see #setDefaultProfiles
    * @see cn.taketoday.context.annotation.Profile
@@ -89,8 +88,7 @@ public interface ConfigurableEnvironment extends Environment, ConfigurableProper
   /**
    * Add a profile to the current set of active profiles.
    *
-   * @throws IllegalArgumentException
-   *         if the profile is null, empty or whitespace-only
+   * @throws IllegalArgumentException if the profile is null, empty or whitespace-only
    * @see #setActiveProfiles
    */
   void addActiveProfile(String profile);
@@ -99,8 +97,7 @@ public interface ConfigurableEnvironment extends Environment, ConfigurableProper
    * Specify the set of profiles to be made active by default if no other profiles
    * are explicitly made active through {@link #setActiveProfiles}.
    *
-   * @throws IllegalArgumentException
-   *         if any profile is null, empty or whitespace-only
+   * @throws IllegalArgumentException if any profile is null, empty or whitespace-only
    * @see AbstractEnvironment#KEY_DEFAULT_PROFILES
    */
   void setDefaultProfiles(String... profiles);
@@ -156,9 +153,7 @@ public interface ConfigurableEnvironment extends Environment, ConfigurableProper
    * reflected in the child. Therefore, care should be taken to configure parent
    * property sources and profile information prior to calling {@code merge}.
    *
-   * @param parent
-   *         the environment to merge with
-   *
+   * @param parent the environment to merge with
    * @see cn.taketoday.context.AbstractApplicationContext#setParent
    */
   void merge(ConfigurableEnvironment parent);

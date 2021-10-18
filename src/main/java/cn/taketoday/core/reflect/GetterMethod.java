@@ -36,9 +36,7 @@ public interface GetterMethod {
   /**
    * Get property from <code>obj</code>
    *
-   * @param obj
-   *         Target object
-   *
+   * @param obj Target object
    * @return Property
    */
   Object get(Object obj);
@@ -55,9 +53,7 @@ public interface GetterMethod {
    * new GetterMethod from java reflect property
    * if the setter method not exist use Reflective tech
    *
-   * @param field
-   *         given java reflect property
-   *
+   * @param field given java reflect property
    * @return GetterMethod
    */
   static GetterMethod fromField(final Field field) {
@@ -71,11 +67,8 @@ public interface GetterMethod {
   /**
    * use fast invoke tech {@link MethodInvoker}
    *
-   * @param method
-   *         java reflect {@link Method}
-   *
+   * @param method java reflect {@link Method}
    * @return GetterMethod
-   *
    * @see MethodInvoker#fromMethod(Method)
    */
   static GetterMethod fromMethod(final Method method) {
@@ -86,11 +79,8 @@ public interface GetterMethod {
   /**
    * use fast invoke tech {@link MethodInvoker}
    *
-   * @param invoker
-   *         fast MethodInvoker
-   *
+   * @param invoker fast MethodInvoker
    * @return GetterMethod
-   *
    * @see MethodInvoker#fromMethod(Method)
    */
   static GetterMethod fromMethod(final MethodInvoker invoker) {
@@ -100,11 +90,8 @@ public interface GetterMethod {
   /**
    * use java reflect {@link Field} tech
    *
-   * @param field
-   *         Field
-   *
+   * @param field Field
    * @return Reflective GetterMethod
-   *
    * @see Field#get(Object)
    * @see ReflectionUtils#getField(Field, Object)
    */

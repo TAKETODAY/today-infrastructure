@@ -54,8 +54,7 @@ public class MapArgumentsResolver
    * 有 Props 就注入Properties
    * </p>
    *
-   * @param parameter
-   *         Target method {@link Parameter}
+   * @param parameter Target method {@link Parameter}
    */
   @Override
   protected Object resolveInternal(

@@ -76,13 +76,9 @@ public class JdbcOperations {
    * Creates a new instance of the JdbcOperations class.
    * Internally this constructor will create a GenericConnectionSource
    *
-   * @param url
-   *         JDBC database url
-   * @param user
-   *         database username
-   * @param pass
-   *         database password
-   *
+   * @param url JDBC database url
+   * @param user database username
+   * @param pass database password
    * @see cn.taketoday.jdbc.support.GenericConnectionSource
    */
   public JdbcOperations(String url, String user, String pass) {
@@ -93,8 +89,7 @@ public class JdbcOperations {
    * Creates a new instance of the JdbcOperations class, which uses the given DataSource to
    * acquire connections to the database.
    *
-   * @param dataSource
-   *         The DataSource JdbcOperations uses to acquire connections to the database.
+   * @param dataSource The DataSource JdbcOperations uses to acquire connections to the database.
    */
   public JdbcOperations(DataSource dataSource) {
     this(ConnectionSource.fromDataSource(dataSource));
@@ -148,8 +143,7 @@ public class JdbcOperations {
    * Sets the {@link ConnectionSource} that JdbcOperations uses internally to acquire
    * database connections.
    *
-   * @param connectionSource
-   *         the ConnectionSource instance to use
+   * @param connectionSource the ConnectionSource instance to use
    */
   public void setConnectionSource(ConnectionSource connectionSource) {
     this.connectionSource = connectionSource;
@@ -170,9 +164,8 @@ public class JdbcOperations {
   /**
    * Sets the default column mappings Map.
    *
-   * @param defaultColumnMappings
-   *         A {@link Map} instance JdbcOperations uses internally to map between column
-   *         names and property names.
+   * @param defaultColumnMappings A {@link Map} instance JdbcOperations uses internally to map between column
+   * names and property names.
    */
   public void setDefaultColumnMappings(Map<String, String> defaultColumnMappings) {
     this.defaultColumnMappings = defaultColumnMappings;
@@ -236,12 +229,9 @@ public class JdbcOperations {
    * </pre>
    * </p>
    *
-   * @param query
-   *         the sql query string
-   * @param returnGeneratedKeys
-   *         boolean value indicating if the database should return any
-   *         generated keys.
-   *
+   * @param query the sql query string
+   * @param returnGeneratedKeys boolean value indicating if the database should return any
+   * generated keys.
    * @return the {@link Query} instance
    */
   public Query createQuery(String query, boolean returnGeneratedKeys) {
@@ -261,9 +251,7 @@ public class JdbcOperations {
    *     }
    *  </pre>
    *
-   * @param query
-   *         the sql query string
-   *
+   * @param query the sql query string
    * @return the {@link Query} instance
    */
   public Query createQuery(String query) {
@@ -285,9 +273,7 @@ public class JdbcOperations {
    * Opens a connection to the database
    *
    * @return instance of the {@link JdbcConnection} class.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(boolean autoClose) {
     return new JdbcConnection(this, connectionSource, autoClose);
@@ -296,9 +282,7 @@ public class JdbcOperations {
   /**
    * Opens a connection to the database
    *
-   * @param connection
-   *         the {@link Connection}
-   *
+   * @param connection the {@link Connection}
    * @return instance of the {@link JdbcConnection} class.
    */
   public JdbcConnection open(Connection connection) {
@@ -308,14 +292,10 @@ public class JdbcOperations {
   /**
    * Opens a connection to the database
    *
-   * @param connectionSource
-   *         the {@link ConnectionSource} implementation substitution, that
-   *         will be used instead of one from {@link JdbcOperations} instance.
-   *
+   * @param connectionSource the {@link ConnectionSource} implementation substitution, that
+   * will be used instead of one from {@link JdbcOperations} instance.
    * @return instance of the {@link JdbcConnection} class.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(ConnectionSource connectionSource) {
     return new JdbcConnection(this, connectionSource, false);
@@ -326,8 +306,7 @@ public class JdbcOperations {
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public <V> V withConnection(ResultStatementRunnable<V> runnable, Object argument) {
     try (JdbcConnection connection = open()) {
@@ -343,8 +322,7 @@ public class JdbcOperations {
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public <V> V withConnection(ResultStatementRunnable<V> runnable) {
     return withConnection(runnable, null);
@@ -355,8 +333,7 @@ public class JdbcOperations {
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public void withConnection(StatementRunnable runnable) {
     withConnection(runnable, null);
@@ -367,8 +344,7 @@ public class JdbcOperations {
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public void withConnection(StatementRunnable runnable, Object argument) {
     try (JdbcConnection connection = open()) {
@@ -387,14 +363,10 @@ public class JdbcOperations {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param isolationLevel
-   *         the isolation level of the transaction
-   *
+   * @param isolationLevel the isolation level of the transaction
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
     return beginTransaction(getConnectionSource(), isolationLevel);
@@ -408,17 +380,12 @@ public class JdbcOperations {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param source
-   *         the {@link ConnectionSource} implementation substitution, that
-   *         will be used instead of one from {@link JdbcOperations} instance.
-   * @param isolationLevel
-   *         the isolation level of the transaction
-   *
+   * @param source the {@link ConnectionSource} implementation substitution, that
+   * will be used instead of one from {@link JdbcOperations} instance.
+   * @param isolationLevel the isolation level of the transaction
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(ConnectionSource source, int isolationLevel) {
     JdbcConnection connection = new JdbcConnection(this, source, false);
@@ -452,9 +419,7 @@ public class JdbcOperations {
    *
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction() {
     return beginTransaction(Connection.TRANSACTION_READ_COMMITTED);
@@ -469,15 +434,11 @@ public class JdbcOperations {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param source
-   *         the {@link ConnectionSource} implementation substitution, that
-   *         will be used instead of one from {@link JdbcOperations} instance.
-   *
+   * @param source the {@link ConnectionSource} implementation substitution, that
+   * will be used instead of one from {@link JdbcOperations} instance.
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(ConnectionSource source) {
     return beginTransaction(source, Connection.TRANSACTION_READ_COMMITTED);
@@ -492,9 +453,7 @@ public class JdbcOperations {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param connection
-   *         the {@link Connection}
-   *
+   * @param connection the {@link Connection}
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    */
@@ -516,11 +475,8 @@ public class JdbcOperations {
    * The isolation level of the transaction will be set to
    * {@link Connection#TRANSACTION_READ_COMMITTED}
    *
-   * @param runnable
-   *         The {@link StatementRunnable} instance.
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @param runnable The {@link StatementRunnable} instance.
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public void runInTransaction(StatementRunnable runnable) {
     runInTransaction(runnable, null);
@@ -540,14 +496,10 @@ public class JdbcOperations {
    * The isolation level of the transaction will be set to
    * {@link Connection#TRANSACTION_READ_COMMITTED}
    *
-   * @param runnable
-   *         The {@link StatementRunnable} instance.
-   * @param argument
-   *         An argument which will be forwarded to the
-   *         {@link StatementRunnable#run(JdbcConnection, Object) run} method
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @param runnable The {@link StatementRunnable} instance.
+   * @param argument An argument which will be forwarded to the
+   * {@link StatementRunnable#run(JdbcConnection, Object) run} method
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public void runInTransaction(StatementRunnable runnable, Object argument) {
     runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
@@ -564,16 +516,11 @@ public class JdbcOperations {
    * {@link StatementRunnable#run(JdbcConnection, Object) run} method, the transaction
    * will automatically be rolled back.
    *
-   * @param runnable
-   *         The {@link StatementRunnable} instance.
-   * @param argument
-   *         An argument which will be forwarded to the
-   *         {@link StatementRunnable#run(JdbcConnection, Object) run} method
-   * @param isolationLevel
-   *         The isolation level of the transaction
-   *
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @param runnable The {@link StatementRunnable} instance.
+   * @param argument An argument which will be forwarded to the
+   * {@link StatementRunnable#run(JdbcConnection, Object) run} method
+   * @param isolationLevel The isolation level of the transaction
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public void runInTransaction(StatementRunnable runnable, Object argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);
@@ -590,24 +537,21 @@ public class JdbcOperations {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public <V> V runInTransaction(ResultStatementRunnable<V> runnable) {
     return runInTransaction(runnable, null);
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument) {
     return runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);

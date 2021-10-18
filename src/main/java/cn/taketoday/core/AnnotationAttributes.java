@@ -199,11 +199,8 @@ public class AnnotationAttributes
   /**
    * Get the value of attribute name and cast to target type
    *
-   * @param attributeName
-   *         The attribute name
-   * @param expectedType
-   *         target type
-   *
+   * @param attributeName The attribute name
+   * @param expectedType target type
    * @return T
    */
   @SuppressWarnings({ "unchecked" })
@@ -468,8 +465,7 @@ public class AnnotationAttributes
   /**
    * remove an attribute by given name
    *
-   * @param name
-   *         attribute-name
+   * @param name attribute-name
    */
   @Override
   public Object remove(Object name) {

@@ -37,9 +37,7 @@ import cn.taketoday.lang.Assert;
  * From spring
  * </p>
  *
- * @param <T>
- *         the type of results supplied by this supplier
- *
+ * @param <T> the type of results supplied by this supplier
  * @author Juergen Hoeller
  * @author TODAY 2021/3/25 11:38
  * @since 3.0
@@ -54,10 +52,8 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * Build a {@code SingletonSupplier} with the given singleton instance
    * and a default supplier for the case when the instance is {@code null}.
    *
-   * @param instance
-   *         the singleton instance (potentially {@code null})
-   * @param defaultSupplier
-   *         the default supplier as a fallback
+   * @param instance the singleton instance (potentially {@code null})
+   * @param defaultSupplier the default supplier as a fallback
    */
   public SingletonSupplier(T instance, Supplier<? extends T> defaultSupplier) {
     this.instanceSupplier = null;
@@ -69,10 +65,8 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * Build a {@code SingletonSupplier} with the given instance supplier
    * and a default supplier for the case when the instance is {@code null}.
    *
-   * @param instanceSupplier
-   *         the immediate instance supplier
-   * @param defaultSupplier
-   *         the default supplier as a fallback
+   * @param instanceSupplier the immediate instance supplier
+   * @param defaultSupplier the default supplier as a fallback
    */
   public SingletonSupplier(Supplier<? extends T> instanceSupplier, Supplier<? extends T> defaultSupplier) {
     this.defaultSupplier = defaultSupplier;
@@ -119,9 +113,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * Obtain the shared singleton instance for this supplier.
    *
    * @return the singleton instance (never {@code null})
-   *
-   * @throws IllegalStateException
-   *         in case of no instance
+   * @throws IllegalStateException in case of no instance
    */
   public T obtain() {
     T instance = get();
@@ -132,9 +124,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
   /**
    * Build a {@code SingletonSupplier} with the given singleton instance.
    *
-   * @param instance
-   *         the singleton instance (never {@code null})
-   *
+   * @param instance the singleton instance (never {@code null})
    * @return the singleton supplier (never {@code null})
    */
   public static <T> SingletonSupplier<T> of(T instance) {
@@ -144,9 +134,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
   /**
    * Build a {@code SingletonSupplier} with the given singleton instance.
    *
-   * @param instance
-   *         the singleton instance (potentially {@code null})
-   *
+   * @param instance the singleton instance (potentially {@code null})
    * @return the singleton supplier, or {@code null} if the instance was {@code null}
    */
 
@@ -157,9 +145,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
   /**
    * Build a {@code SingletonSupplier} with the given supplier.
    *
-   * @param supplier
-   *         the instance supplier (never {@code null})
-   *
+   * @param supplier the instance supplier (never {@code null})
    * @return the singleton supplier (never {@code null})
    */
   public static <T> SingletonSupplier<T> of(Supplier<T> supplier) {
@@ -169,9 +155,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
   /**
    * Build a {@code SingletonSupplier} with the given supplier.
    *
-   * @param supplier
-   *         the instance supplier (potentially {@code null})
-   *
+   * @param supplier the instance supplier (potentially {@code null})
    * @return the singleton supplier, or {@code null} if the instance supplier was {@code null}
    */
 

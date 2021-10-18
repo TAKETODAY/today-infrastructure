@@ -73,11 +73,8 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
 
   /**
    * @return Collection object
-   *
-   * @throws ParameterIndexExceededException
-   *         {@code valueIndex} exceed {@link #maxValueIndex}
-   * @throws ParameterFormatException
-   *         {@code valueIndex} number format error
+   * @throws ParameterIndexExceededException {@code valueIndex} exceed {@link #maxValueIndex}
+   * @throws ParameterFormatException {@code valueIndex} number format error
    * @see #createCollection(MultiValueMap, MethodParameter)
    */
   @Override

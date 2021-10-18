@@ -81,8 +81,7 @@ public class RenderedImageReturnValueHandler
   /**
    * set the response content-type
    *
-   * @param contentType
-   *         response content-type
+   * @param contentType response content-type
    */
   public void setContentType(String contentType) {
     Assert.notNull(contentType, "contentType must not be null");
@@ -92,8 +91,7 @@ public class RenderedImageReturnValueHandler
   /**
    * set the response content-type
    *
-   * @param contentType
-   *         response content-type
+   * @param contentType response content-type
    */
   public void setContentType(MediaType contentType) {
     Assert.notNull(contentType, "contentType must not be null");

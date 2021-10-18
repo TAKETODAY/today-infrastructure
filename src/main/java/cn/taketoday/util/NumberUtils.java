@@ -33,15 +33,10 @@ public abstract class NumberUtils {
   /**
    * parse text to target number
    *
-   * @param text
-   *         source text
-   * @param targetClass
-   *         target number class
-   *
+   * @param text source text
+   * @param targetClass target number class
    * @return Number object
-   *
-   * @throws ConversionException
-   *         Can't convert text to targetClass
+   * @throws ConversionException Can't convert text to targetClass
    */
   public static Object parseDigit(String text, Class<?> targetClass) {
 
@@ -78,8 +73,7 @@ public abstract class NumberUtils {
   /**
    * Is a number?
    *
-   * @param targetClass
-   *         the target class
+   * @param targetClass the target class
    */
   public static boolean isNumber(Class<?> targetClass) {
     return Number.class.isAssignableFrom(targetClass) //

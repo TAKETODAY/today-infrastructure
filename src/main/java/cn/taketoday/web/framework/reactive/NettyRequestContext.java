@@ -19,6 +19,19 @@
  */
 package cn.taketoday.web.framework.reactive;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpCookie;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Supplier;
+
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Constant;
@@ -52,19 +65,6 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpCookie;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Supplier;
 
 /**
  * @author TODAY 2019-07-04 21:24
@@ -471,12 +471,11 @@ public class NettyRequestContext extends RequestContext {
     return response;
   }
 
-
   public HttpHeaders originalResponseHeaders() {
     if (originalResponseHeaders == null) {
       this.originalResponseHeaders = config.isSingleFieldHeaders()
-              ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
-              : new CombinedHttpHeaders(config.isValidateHeaders());
+                                     ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
+                                     : new CombinedHttpHeaders(config.isValidateHeaders());
     }
     return originalResponseHeaders;
   }

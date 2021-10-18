@@ -67,9 +67,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Find a suitable handler to handle this HTTP request
    *
-   * @param context
-   *         Current HTTP request context
-   *
+   * @param context Current HTTP request context
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
    */
@@ -81,13 +79,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Find a {@link HandlerAdapter} for input handler
    *
-   * @param handler
-   *         HTTP handler
-   *
+   * @param handler HTTP handler
    * @return A {@link HandlerAdapter}
-   *
-   * @throws HandlerAdapterNotFoundException
-   *         If there isn't a {@link HandlerAdapter} for target handler
+   * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
    */
   private HandlerAdapter lookupHandlerAdapter(final Object handler) {
     if (handler instanceof HandlerAdapter) {
@@ -107,16 +101,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Find {@link ReturnValueHandler} for handler and handler execution result
    *
-   * @param handler
-   *         HTTP handler
-   * @param returnValue
-   *         Handler execution result
-   *
+   * @param handler HTTP handler
+   * @param returnValue Handler execution result
    * @return {@link ReturnValueHandler}
-   *
-   * @throws ReturnValueHandlerNotFoundException
-   *         If there isn't a {@link ReturnValueHandler} for target handler and
-   *         handler execution result
+   * @throws ReturnValueHandlerNotFoundException If there isn't a {@link ReturnValueHandler} for target handler and
+   * handler execution result
    */
   public ReturnValueHandler lookupReturnValueHandler(Object handler, @Nullable Object returnValue) {
     if (handler instanceof ReturnValueHandler) {
@@ -135,11 +124,8 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Handle HTTP request
    *
-   * @param context
-   *         Current HTTP request context
-   *
-   * @throws Throwable
-   *         If {@link Throwable} cannot handle
+   * @param context Current HTTP request context
+   * @throws Throwable If {@link Throwable} cannot handle
    */
   public void handle(final RequestContext context) throws Throwable {
     handle(lookupHandler(context), context);
@@ -148,13 +134,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Handle HTTP request
    *
-   * @param handler
-   *         HTTP handler
-   * @param context
-   *         Current HTTP request context
-   *
-   * @throws Throwable
-   *         If {@link Throwable} cannot handle
+   * @param handler HTTP handler
+   * @param context Current HTTP request context
+   * @throws Throwable If {@link Throwable} cannot handle
    */
   public void handle(@Nullable final Object handler, final RequestContext context) throws Throwable {
     try {
@@ -176,20 +158,13 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Handle {@link Exception} occurred in target handler
    *
-   * @param handler
-   *         HTTP handler
-   * @param exception
-   *         {@link Throwable} occurred in target handler
-   * @param context
-   *         Current HTTP request context
-   *
-   * @throws Throwable
-   *         If {@link Throwable} occurred in
-   *         {@link HandlerExceptionHandler} cannot handled
-   * @throws ReturnValueHandlerNotFoundException
-   *         not found ReturnValueHandler
-   * @throws IOException
-   *         throws when write data to response
+   * @param handler HTTP handler
+   * @param exception {@link Throwable} occurred in target handler
+   * @param context Current HTTP request context
+   * @throws Throwable If {@link Throwable} occurred in
+   * {@link HandlerExceptionHandler} cannot handled
+   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
+   * @throws IOException throws when write data to response
    */
   public void handleException(final Object handler,
                               final Throwable exception,
@@ -230,8 +205,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Log internal
    *
-   * @param msg
-   *         Log message
+   * @param msg Log message
    */
   protected void log(final String msg) {
     log.info(msg);

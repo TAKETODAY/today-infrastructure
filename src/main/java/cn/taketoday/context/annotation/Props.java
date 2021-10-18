@@ -40,7 +40,6 @@ public @interface Props {
    * Properties 文件名
    *
    * @return Properties file name
-   *
    * @see PropsReader
    */
   String[] value() default {};

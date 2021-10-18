@@ -50,7 +50,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Remove bean with the given bean class
    *
    * @param beanClass bean type
-   *
    * @since 4.0
    */
   void removeBean(Class<?> beanClass);
@@ -61,7 +60,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * and logged instead of propagated to the caller of this method.
    *
    * @param name the bean name
-   *
    * @since 2.1.0
    */
   void destroyBean(String name);
@@ -82,7 +80,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    *
    * @param beanInstance Bean instance
    * @param def Bean definition
-   *
    * @since 3.0
    */
   void destroyBean(Object beanInstance, BeanDefinition def);
@@ -91,7 +88,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * initialize bean with given name
    *
    * @param name bean name
-   *
    * @since 1.2.0
    */
   void initialize(String name);
@@ -100,9 +96,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * initialize bean definition
    *
    * @param beanDefinition bean definition
-   *
    * @return initialized object
-   *
    * @since 2.0.0
    */
   Object initialize(BeanDefinition beanDefinition);
@@ -126,7 +120,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Add a {@link BeanPostProcessor}
    *
    * @param beanPostProcessor bean post processor instance
-   *
    * @since 2.1.2
    */
   void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
@@ -135,7 +128,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Remove a {@link BeanPostProcessor}
    *
    * @param beanPostProcessor bean post processor instance
-   *
    * @since 2.1.2
    */
   void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
@@ -162,7 +154,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    *
    * @param name scope name
    * @param scope The backing Scope implementation
-   *
    * @since 2.1.7
    */
   void registerScope(String name, Scope scope);
@@ -174,7 +165,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * instead of propagated to the caller of this method.
    *
    * @param beanName the name of the scoped bean
-   *
    * @since 2.1.7
    */
   void destroyScopedBean(String beanName);
@@ -185,7 +175,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * a constructor if it isn't available at the time of factory instantiation.
    *
    * @param parentBeanFactory the parent BeanFactory
-   *
    * @throws IllegalStateException if this factory is already associated with
    * a parent BeanFactory
    * @see #getParentBeanFactory()
@@ -209,7 +198,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @param autowiredValue the corresponding autowired value. This may also be an
    * implementation of the {@link java.util.function.Supplier} interface,
    * which allows for lazy resolution of the actual target value.
-   *
    * @since 4.0
    */
   void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);

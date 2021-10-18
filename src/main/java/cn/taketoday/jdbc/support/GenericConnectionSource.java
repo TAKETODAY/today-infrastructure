@@ -81,15 +81,12 @@ final class GenericConnectionSource implements ConnectionSource {
    * property once.
    *
    * @return a Connection to the URL
-   *
-   * @throws SQLException
-   *         if a database access error occurs or the url is
-   *         {@code null}
-   * @throws SQLTimeoutException
-   *         when the driver has determined that the
-   *         timeout value specified by the {@code setLoginTimeout} method
-   *         has been exceeded and has at least tried to cancel the
-   *         current database connection attempt
+   * @throws SQLException if a database access error occurs or the url is
+   * {@code null}
+   * @throws SQLTimeoutException when the driver has determined that the
+   * timeout value specified by the {@code setLoginTimeout} method
+   * has been exceeded and has at least tried to cancel the
+   * current database connection attempt
    */
   @Override
   public Connection getConnection() throws SQLException {

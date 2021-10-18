@@ -20,18 +20,18 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.ObjectUtils;
-
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -134,8 +134,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   /**
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
+   * @throws PropertyReadOnlyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   @Override
@@ -144,10 +143,8 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   /**
-   * @throws NoSuchPropertyException
-   *         If no such property
-   * @throws PropertyReadOnlyException
-   *         If this property is read only and 'ignoreReadOnly' is false
+   * @throws NoSuchPropertyException If no such property
+   * @throws PropertyReadOnlyException If this property is read only and 'ignoreReadOnly' is false
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public Object put(Object target, String key, Object value) {
@@ -242,9 +239,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   /**
    * Get the type of a property.
    *
-   * @param name
-   *         the name of the JavaBean property
-   *
+   * @param name the name of the JavaBean property
    * @return the type of the property, or null if the property does not exist
    */
   public Class<?> getPropertyType(String name) {
@@ -259,9 +254,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    * Create a new <code>BeanMapping</code> instance using the specified bean. This is
    * faster than using the {@link #ofObject(Object)} static method.
    *
-   * @param bean
-   *         the JavaBean underlying the map
-   *
+   * @param bean the JavaBean underlying the map
    * @return a new <code>BeanMapping</code> instance
    */
   public BeanMapping<T> newInstance(T bean) {

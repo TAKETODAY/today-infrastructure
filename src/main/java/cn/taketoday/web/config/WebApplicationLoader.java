@@ -137,10 +137,8 @@ public class WebApplicationLoader
   /**
    * Configure {@link HandlerAdapter}
    *
-   * @param adapters
-   *         {@link HandlerAdapter}s
-   * @param mvcConfiguration
-   *         {@link WebMvcConfiguration}
+   * @param adapters {@link HandlerAdapter}s
+   * @param mvcConfiguration {@link WebMvcConfiguration}
    */
   protected void configureHandlerAdapter(
           List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
@@ -205,8 +203,7 @@ public class WebApplicationLoader
   /**
    * configure HandlerExceptionHandler
    *
-   * @param handlers
-   *         handlers in application-context {@link #obtainApplicationContext()}
+   * @param handlers handlers in application-context {@link #obtainApplicationContext()}
    */
   protected void configureExceptionHandler(
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
@@ -256,10 +253,8 @@ public class WebApplicationLoader
   /**
    * Configure {@link TypeConverter} to resolve convert request parameters
    *
-   * @param typeConverters
-   *         Type converters
-   * @param mvcConfiguration
-   *         All {@link WebMvcConfiguration} object
+   * @param typeConverters Type converters
+   * @param mvcConfiguration All {@link WebMvcConfiguration} object
    */
   protected void configureConversionService(
           List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
@@ -274,10 +269,8 @@ public class WebApplicationLoader
   /**
    * Configure {@link ReturnValueHandler} to resolve handler method result
    *
-   * @param handlers
-   *         {@link ReturnValueHandler} registry
-   * @param mvcConfiguration
-   *         All {@link WebMvcConfiguration} object
+   * @param handlers {@link ReturnValueHandler} registry
+   * @param mvcConfiguration All {@link WebMvcConfiguration} object
    */
   protected void configureResultHandler(List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
     DispatcherHandler obtainDispatcher = obtainDispatcher();
@@ -308,10 +301,8 @@ public class WebApplicationLoader
   /**
    * Configure {@link ParameterResolvingStrategy}s to resolve handler method arguments
    *
-   * @param customizedStrategies
-   *         Resolvers registry
-   * @param mvcConfiguration
-   *         All {@link WebMvcConfiguration} object
+   * @param customizedStrategies Resolvers registry
+   * @param mvcConfiguration All {@link WebMvcConfiguration} object
    */
   protected void configureParameterResolving(
           List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
@@ -333,8 +324,7 @@ public class WebApplicationLoader
   /**
    * Configure {@link ResourceHandlerRegistry}
    *
-   * @param mvcConfiguration
-   *         All {@link WebMvcConfiguration} object
+   * @param mvcConfiguration All {@link WebMvcConfiguration} object
    */
   protected void configureResourceHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     ResourceHandlerRegistry registry = context.getBean(ResourceHandlerRegistry.class);
@@ -362,11 +352,8 @@ public class WebApplicationLoader
   /**
    * Invoke all {@link WebApplicationInitializer}s
    *
-   * @param context
-   *         {@link ApplicationContext} object
-   *
-   * @throws Throwable
-   *         If any initialize exception occurred
+   * @param context {@link ApplicationContext} object
+   * @throws Throwable If any initialize exception occurred
    */
   protected void initializerStartup(WebApplicationContext context,
                                     WebMvcConfiguration mvcConfiguration) throws Throwable //
@@ -382,10 +369,8 @@ public class WebApplicationLoader
   /**
    * Configure {@link WebApplicationInitializer}
    *
-   * @param initializers
-   *         {@link WebApplicationInitializer}s
-   * @param config
-   *         {@link CompositeWebMvcConfiguration}
+   * @param initializers {@link WebApplicationInitializer}s
+   * @param config {@link CompositeWebMvcConfiguration}
    */
   protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
     config.configureInitializer(initializers);
@@ -395,8 +380,7 @@ public class WebApplicationLoader
   /**
    * Get {@link WebMvcConfiguration}
    *
-   * @param applicationContext
-   *         {@link ApplicationContext} object
+   * @param applicationContext {@link ApplicationContext} object
    */
   protected WebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
     return new CompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
@@ -405,8 +389,7 @@ public class WebApplicationLoader
   /**
    * Initialize framework.
    *
-   * @throws Throwable
-   *         if any Throwable occurred
+   * @throws Throwable if any Throwable occurred
    */
   protected ViewControllerHandlerRegistry configViewControllerHandlerRegistry(
           ViewControllerHandlerRegistry registry) throws Throwable {

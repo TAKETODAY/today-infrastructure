@@ -113,8 +113,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
   /**
    * Create a savepoint and hold it for the transaction.
    *
-   * @throws TransactionException
-   *         if the underlying transaction does not support savepoints
+   * @throws TransactionException if the underlying transaction does not support savepoints
    */
   public void createAndHoldSavepoint() throws TransactionException {
     setSavepoint(getSavepointManager().createSavepoint());

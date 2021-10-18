@@ -59,8 +59,7 @@ public class MultipartIterator {
   /**
    * Creates a new MultipartIterator from the given request.
    *
-   * @param req
-   *         the multipart/form-data request
+   * @param req the multipart/form-data request
    */
   public MultipartIterator(final HttpRequest req) {
     final HttpHeaders headers = req.getHeaders();
@@ -88,10 +87,8 @@ public class MultipartIterator {
   }
 
   /**
-   * @throws cn.taketoday.web.resolver.NotMultipartRequestException
-   *         if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartParsingException
-   *         multipart parse failed
+   * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
+   * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
    */
   public RequestPart obtainNext(LightHttpConfig config, MultipartConfiguration multipartConfig) throws IOException {
     hasNext = false;

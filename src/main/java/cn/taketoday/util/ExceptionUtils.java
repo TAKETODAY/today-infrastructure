@@ -31,9 +31,7 @@ public abstract class ExceptionUtils {
   /**
    * Unwrap
    *
-   * @param ex
-   *         target {@link Throwable}
-   *
+   * @param ex target {@link Throwable}
    * @return unwrapped {@link Throwable}
    */
   public static Throwable unwrapThrowable(Throwable ex) {
@@ -54,13 +52,9 @@ public abstract class ExceptionUtils {
   /**
    * Build a message for the given base message and root cause.
    *
-   * @param message
-   *         the base message
-   * @param cause
-   *         the root cause
-   *
+   * @param message the base message
+   * @param cause the root cause
    * @return the full exception message
-   *
    * @since 3.0
    */
   public static String buildMessage(String message, Throwable cause) {
@@ -78,11 +72,8 @@ public abstract class ExceptionUtils {
   /**
    * Retrieve the innermost cause of the given exception, if any.
    *
-   * @param original
-   *         the original exception to introspect
-   *
+   * @param original the original exception to introspect
    * @return the innermost exception, or {@code null} if none
-   *
    * @since 3.0
    */
   public static Throwable getRootCause(Throwable original) {
@@ -104,11 +95,8 @@ public abstract class ExceptionUtils {
    * <p>Differs from {@link #getRootCause} in that it falls back
    * to the original exception if there is no root cause.
    *
-   * @param original
-   *         the original exception to introspect
-   *
+   * @param original the original exception to introspect
    * @return the most specific cause (never {@code null})
-   *
    * @since 3.0
    */
   public static Throwable getMostSpecificCause(Throwable original) {
@@ -136,11 +124,8 @@ public abstract class ExceptionUtils {
    * statement and similar problems. This method won't of course return an actual {@code RuntimeException} -
    * it never returns, it always throws the provided exception.
    *
-   * @param t
-   *         The throwable to throw without requiring you to catch its type.
-   *
+   * @param t The throwable to throw without requiring you to catch its type.
    * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws an exception!
-   *
    * @since 4.0
    */
   public static RuntimeException sneakyThrow(Throwable t) {

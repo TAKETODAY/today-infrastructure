@@ -74,8 +74,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws PersistenceException
-   *         Could not acquire a connection from connection-source
+   * @throws PersistenceException Could not acquire a connection from connection-source
    * @see ConnectionSource#getConnection()
    */
   public Query createQuery(String queryText) {
@@ -84,8 +83,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws PersistenceException
-   *         Could not acquire a connection from connection-source
+   * @throws PersistenceException Could not acquire a connection from connection-source
    * @see ConnectionSource#getConnection()
    */
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
@@ -94,8 +92,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws PersistenceException
-   *         Could not acquire a connection from connection-source
+   * @throws PersistenceException Could not acquire a connection from connection-source
    * @see ConnectionSource#getConnection()
    */
   public Query createQuery(String queryText, String... columnNames) {
@@ -104,8 +101,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see ConnectionSource#getConnection()
    */
   private void createConnectionIfNecessary() {
@@ -136,11 +132,10 @@ public final class JdbcConnection implements Closeable {
    * by this <code>Connection</code> object. This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @throws PersistenceException
-   *         if a database access error occurs,
-   *         this method is called while participating in a distributed transaction,
-   *         this method is called on a closed connection or this
-   *         <code>Connection</code> object is in auto-commit mode
+   * @throws PersistenceException if a database access error occurs,
+   * this method is called while participating in a distributed transaction,
+   * this method is called on a closed connection or this
+   * <code>Connection</code> object is in auto-commit mode
    */
   public JdbcOperations rollback() {
     rollback(true);
@@ -153,11 +148,10 @@ public final class JdbcConnection implements Closeable {
    * by this <code>Connection</code> object. This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @throws PersistenceException
-   *         if a database access error occurs,
-   *         this method is called while participating in a distributed transaction,
-   *         this method is called on a closed connection or this
-   *         <code>Connection</code> object is in auto-commit mode
+   * @throws PersistenceException if a database access error occurs,
+   * this method is called while participating in a distributed transaction,
+   * this method is called on a closed connection or this
+   * <code>Connection</code> object is in auto-commit mode
    */
   public JdbcConnection rollback(boolean closeConnection) {
     try {
@@ -181,11 +175,10 @@ public final class JdbcConnection implements Closeable {
    * This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @throws PersistenceException
-   *         if a database access error occurs,
-   *         this method is called while participating in a distributed transaction,
-   *         if this method is called on a closed connection or this
-   *         <code>Connection</code> object is in auto-commit mode
+   * @throws PersistenceException if a database access error occurs,
+   * this method is called while participating in a distributed transaction,
+   * if this method is called on a closed connection or this
+   * <code>Connection</code> object is in auto-commit mode
    */
   public JdbcOperations commit() {
     commit(true);
@@ -199,14 +192,11 @@ public final class JdbcConnection implements Closeable {
    * This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @param closeConnection
-   *         close connection
-   *
-   * @throws PersistenceException
-   *         if a database access error occurs,
-   *         this method is called while participating in a distributed transaction,
-   *         if this method is called on a closed connection or this
-   *         <code>Connection</code> object is in auto-commit mode
+   * @param closeConnection close connection
+   * @throws PersistenceException if a database access error occurs,
+   * this method is called while participating in a distributed transaction,
+   * if this method is called on a closed connection or this
+   * <code>Connection</code> object is in auto-commit mode
    */
   public JdbcConnection commit(boolean closeConnection) {
     try {
@@ -281,20 +271,16 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws GeneratedKeysConversionException
-   *         Generated Keys conversion failed
-   * @throws IllegalArgumentException
-   *         If conversionService is null
+   * @throws GeneratedKeysConversionException Generated Keys conversion failed
+   * @throws IllegalArgumentException If conversionService is null
    */
   public <V> V getKey(final Class<V> returnType) {
     return getKey(returnType, operations.getConversionService());
   }
 
   /**
-   * @throws GeneratedKeysConversionException
-   *         Generated Keys conversion failed
-   * @throws IllegalArgumentException
-   *         If conversionService is null
+   * @throws GeneratedKeysConversionException Generated Keys conversion failed
+   * @throws IllegalArgumentException If conversionService is null
    */
   public <V> V getKey(final Class<V> returnType, final ConversionService conversionService) {
     Assert.notNull(conversionService, "conversionService must not be null");
@@ -318,10 +304,8 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws GeneratedKeysConversionException
-   *         cannot converting value from database
-   * @throws IllegalArgumentException
-   *         If conversionService is null
+   * @throws GeneratedKeysConversionException cannot converting value from database
+   * @throws IllegalArgumentException If conversionService is null
    */
   @Nullable
   public <V> List<V> getKeys(Class<V> returnType) {
@@ -329,10 +313,8 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws GeneratedKeysConversionException
-   *         cannot converting value from database
-   * @throws IllegalArgumentException
-   *         If conversionService is null
+   * @throws GeneratedKeysConversionException cannot converting value from database
+   * @throws IllegalArgumentException If conversionService is null
    */
   @Nullable
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
@@ -421,8 +403,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException
-   *         Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   private void createConnection() {
     try {

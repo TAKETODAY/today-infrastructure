@@ -53,14 +53,10 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * as well as to factory-method definitions in which case the returned bean type
    * will be passed in here.
    *
-   * @param def
-   *         the BeanDefinition of the bean to be instantiated
-   *
+   * @param def the BeanDefinition of the bean to be instantiated
    * @return the bean object to expose instead of a default instance of the target bean,
    * or {@code null} to proceed with default instantiation
-   *
-   * @throws BeansException
-   *         in case of errors
+   * @throws BeansException in case of errors
    * @see BeanDefinition#getBeanClass()
    */
   default Object postProcessBeforeInstantiation(BeanDefinition def) {

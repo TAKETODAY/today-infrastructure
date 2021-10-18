@@ -49,9 +49,7 @@ import cn.taketoday.core.bytecode.tree.VarInsnNode;
  * A semantic bytecode analyzer. <i>This class does not fully check that JSR and RET instructions
  * are valid.</i>
  *
- * @param <V>
- *         type of the Value used for the analysis.
- *
+ * @param <V> type of the Value used for the analysis.
  * @author Eric Bruneton
  */
 public class Analyzer<V extends Value> implements Opcodes {
@@ -86,8 +84,7 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Constructs a new {@link Analyzer}.
    *
-   * @param interpreter
-   *         the interpreter to use to symbolically interpret the bytecode instructions.
+   * @param interpreter the interpreter to use to symbolically interpret the bytecode instructions.
    */
   public Analyzer(final Interpreter<V> interpreter) {
     this.interpreter = interpreter;
@@ -96,19 +93,14 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Analyzes the given method.
    *
-   * @param owner
-   *         the internal name of the class to which 'method' belongs.
-   * @param method
-   *         the method to be analyzed. The maxStack and maxLocals fields must have correct
-   *         values.
-   *
+   * @param owner the internal name of the class to which 'method' belongs.
+   * @param method the method to be analyzed. The maxStack and maxLocals fields must have correct
+   * values.
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
    * method. The size of the returned array is equal to the number of instructions (and labels)
    * of the method. A given frame is {@literal null} if and only if the corresponding
    * instruction cannot be reached (dead code).
-   *
-   * @throws AnalyzerException
-   *         if a problem occurs during the analysis.
+   * @throws AnalyzerException if a problem occurs during the analysis.
    */
   @SuppressWarnings("unchecked")
   public Frame<V>[] analyze(final String owner, final MethodNode method) throws AnalyzerException {
@@ -327,18 +319,13 @@ public class Analyzer<V extends Value> implements Opcodes {
    * Analyzes the given method and computes and sets its maximum stack size and maximum number of
    * local variables.
    *
-   * @param owner
-   *         the internal name of the class to which 'method' belongs.
-   * @param method
-   *         the method to be analyzed.
-   *
+   * @param owner the internal name of the class to which 'method' belongs.
+   * @param method the method to be analyzed.
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
    * method. The size of the returned array is equal to the number of instructions (and labels)
    * of the method. A given frame is {@literal null} if and only if the corresponding
    * instruction cannot be reached (dead code).
-   *
-   * @throws AnalyzerException
-   *         if a problem occurs during the analysis.
+   * @throws AnalyzerException if a problem occurs during the analysis.
    */
   public Frame<V>[] analyzeAndComputeMaxs(final String owner, final MethodNode method)
           throws AnalyzerException {
@@ -352,9 +339,7 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Computes and returns the maximum number of local variables used in the given method.
    *
-   * @param method
-   *         a method.
-   *
+   * @param method a method.
    * @return the maximum number of local variables used in the given method.
    */
   private static int computeMaxLocals(final MethodNode method) {
@@ -382,9 +367,7 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Computes and returns the maximum stack size of a method, given its stack map frames.
    *
-   * @param frames
-   *         the stack map frames of a method.
-   *
+   * @param frames the stack map frames of a method.
    * @return the maximum stack size of the given method.
    */
   private static int computeMaxStack(final Frame<?>[] frames) {
@@ -407,15 +390,10 @@ public class Analyzer<V extends Value> implements Opcodes {
    * encountered instruction. Jumps to nested subroutines are <i>not</i> followed: instead, the
    * corresponding instructions are put in the given list.
    *
-   * @param insnIndex
-   *         an instruction index.
-   * @param subroutine
-   *         a subroutine.
-   * @param jsrInsns
-   *         where the jsr instructions for nested subroutines must be put.
-   *
-   * @throws AnalyzerException
-   *         if the control flow graph can fall off the end of the code.
+   * @param insnIndex an instruction index.
+   * @param subroutine a subroutine.
+   * @param jsrInsns where the jsr instructions for nested subroutines must be put.
+   * @throws AnalyzerException if the control flow graph can fall off the end of the code.
    */
   private void findSubroutine(
           final int insnIndex, final Subroutine subroutine, final List<AbstractInsnNode> jsrInsns)
@@ -494,11 +472,8 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Computes the initial execution stack frame of the given method.
    *
-   * @param owner
-   *         the internal name of the class to which 'method' belongs.
-   * @param method
-   *         the method to be analyzed.
-   *
+   * @param owner the internal name of the class to which 'method' belongs.
+   * @param method the method to be analyzed.
    * @return the initial execution stack frame of the 'method'.
    */
   private Frame<V> computeInitialFrame(final String owner, final MethodNode method) {
@@ -545,9 +520,7 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Returns the exception handlers for the given instruction.
    *
-   * @param insnIndex
-   *         the index of an instruction of the last analyzed method.
-   *
+   * @param insnIndex the index of an instruction of the last analyzed method.
    * @return a list of {@link TryCatchBlockNode} objects.
    */
   public List<TryCatchBlockNode> getHandlers(final int insnIndex) {
@@ -558,13 +531,9 @@ public class Analyzer<V extends Value> implements Opcodes {
    * Initializes this analyzer. This method is called just before the execution of control flow
    * analysis loop in #analyze. The default implementation of this method does nothing.
    *
-   * @param owner
-   *         the internal name of the class to which the method belongs.
-   * @param method
-   *         the method to be analyzed.
-   *
-   * @throws AnalyzerException
-   *         if a problem occurs.
+   * @param owner the internal name of the class to which the method belongs.
+   * @param method the method to be analyzed.
+   * @throws AnalyzerException if a problem occurs.
    */
   protected void init(final String owner, final MethodNode method) throws AnalyzerException {
     // Nothing to do.
@@ -573,11 +542,8 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Constructs a new frame with the given size.
    *
-   * @param numLocals
-   *         the maximum number of local variables of the frame.
-   * @param numStack
-   *         the maximum stack size of the frame.
-   *
+   * @param numLocals the maximum number of local variables of the frame.
+   * @param numStack the maximum stack size of the frame.
    * @return the created frame.
    */
   protected Frame<V> newFrame(final int numLocals, final int numStack) {
@@ -587,9 +553,7 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Constructs a copy of the given frame.
    *
-   * @param frame
-   *         a frame.
-   *
+   * @param frame a frame.
    * @return the created frame.
    */
   protected Frame<V> newFrame(final Frame<? extends V> frame) {
@@ -601,10 +565,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * can be overridden in order to construct the control flow graph of a method (this method is
    * called by the {@link #analyze} method during its visit of the method's code).
    *
-   * @param insnIndex
-   *         an instruction index.
-   * @param successorIndex
-   *         index of a successor instruction.
+   * @param insnIndex an instruction index.
+   * @param successorIndex index of a successor instruction.
    */
   protected void newControlFlowEdge(final int insnIndex, final int successorIndex) {
     // Nothing to do.
@@ -616,11 +578,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * control flow graph of a method (this method is called by the {@link #analyze} method during its
    * visit of the method's code).
    *
-   * @param insnIndex
-   *         an instruction index.
-   * @param successorIndex
-   *         index of a successor instruction.
-   *
+   * @param insnIndex an instruction index.
+   * @param successorIndex index of a successor instruction.
    * @return true if this edge must be considered in the data flow analysis performed by this
    * analyzer, or false otherwise. The default implementation of this method always returns
    * true.
@@ -635,11 +594,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * can be overridden in order to construct the control flow graph of a method (this method is
    * called by the {@link #analyze} method during its visit of the method's code).
    *
-   * @param insnIndex
-   *         an instruction index.
-   * @param tryCatchBlock
-   *         TryCatchBlockNode corresponding to this edge.
-   *
+   * @param insnIndex an instruction index.
+   * @param tryCatchBlock TryCatchBlockNode corresponding to this edge.
    * @return true if this edge must be considered in the data flow analysis performed by this
    * analyzer, or false otherwise. The default implementation of this method delegates to {@link
    * #newControlFlowExceptionEdge(int, int)}.
@@ -657,15 +613,10 @@ public class Analyzer<V extends Value> implements Opcodes {
    * this merge, the instruction index is added to the list of instructions to process (if it is not
    * already the case).
    *
-   * @param insnIndex
-   *         an instruction index.
-   * @param frame
-   *         a frame. This frame is left unchanged by this method.
-   * @param subroutine
-   *         a subroutine. This subroutine is left unchanged by this method.
-   *
-   * @throws AnalyzerException
-   *         if the frames have incompatible sizes.
+   * @param insnIndex an instruction index.
+   * @param frame a frame. This frame is left unchanged by this method.
+   * @param subroutine a subroutine. This subroutine is left unchanged by this method.
+   * @throws AnalyzerException if the frames have incompatible sizes.
    */
   private void merge(final int insnIndex, final Frame<V> frame, final Subroutine subroutine)
           throws AnalyzerException {
@@ -702,23 +653,16 @@ public class Analyzer<V extends Value> implements Opcodes {
    * index changes as a result of this merge, the instruction index is added to the list of
    * instructions to process (if it is not already the case).
    *
-   * @param insnIndex
-   *         the index of an instruction immediately following a jsr instruction.
-   * @param frameBeforeJsr
-   *         the execution stack frame before the jsr instruction. This frame is
-   *         merged into 'frameAfterRet'.
-   * @param frameAfterRet
-   *         the execution stack frame after a ret instruction of the subroutine. This
-   *         frame is merged into the frame at 'insnIndex' (after it has itself been merge with
-   *         'frameBeforeJsr').
-   * @param subroutineBeforeJsr
-   *         if the jsr is itself part of a subroutine (case of nested
-   *         subroutine), the subroutine it belongs to.
-   * @param localsUsed
-   *         the local variables read or written in the subroutine.
-   *
-   * @throws AnalyzerException
-   *         if the frames have incompatible sizes.
+   * @param insnIndex the index of an instruction immediately following a jsr instruction.
+   * @param frameBeforeJsr the execution stack frame before the jsr instruction. This frame is
+   * merged into 'frameAfterRet'.
+   * @param frameAfterRet the execution stack frame after a ret instruction of the subroutine. This
+   * frame is merged into the frame at 'insnIndex' (after it has itself been merge with
+   * 'frameBeforeJsr').
+   * @param subroutineBeforeJsr if the jsr is itself part of a subroutine (case of nested
+   * subroutine), the subroutine it belongs to.
+   * @param localsUsed the local variables read or written in the subroutine.
+   * @throws AnalyzerException if the frames have incompatible sizes.
    */
   private void merge(
           final int insnIndex,

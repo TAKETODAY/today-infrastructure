@@ -90,10 +90,8 @@ public abstract class EmitUtils {
    * of the specified type. For each element in the array, puts the element on the
    * stack and triggers the callback.
    *
-   * @param type
-   *         the type of the array (type.isArray() must be true)
-   * @param callback
-   *         the callback triggered for each element
+   * @param type the type of the array (type.isArray() must be true)
+   * @param callback the callback triggered for each element
    */
   public static void processArray(GeneratorAdapter e, Type type, ProcessArrayCallback callback) {
     Type componentType = type.getComponentType();
@@ -125,10 +123,8 @@ public abstract class EmitUtils {
    * For each pair of elements in the arrays, puts the pair on the stack and
    * triggers the callback.
    *
-   * @param type
-   *         the type of the arrays (type.isArray() must be true)
-   * @param callback
-   *         the callback triggered for each pair of elements
+   * @param type the type of the arrays (type.isArray() must be true)
+   * @param callback the callback triggered for each pair of elements
    */
   public static void processArrays(CodeEmitter e, Type type, ProcessArrayCallback callback) {
     Type componentType = type.getComponentType();
@@ -564,10 +560,8 @@ public abstract class EmitUtils {
    * null, or both are null, both are popped off and execution branches to the
    * respective label.
    *
-   * @param oneNull
-   *         label to branch to if only one of the objects is null
-   * @param bothNull
-   *         label to branch to if both of the objects are null
+   * @param oneNull label to branch to if only one of the objects is null
+   * @param bothNull label to branch to if both of the objects are null
    */
   private static void nullcmp(CodeEmitter e, Label oneNull, Label bothNull) {
     e.dup2();

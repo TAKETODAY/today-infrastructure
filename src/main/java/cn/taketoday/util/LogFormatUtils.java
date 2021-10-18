@@ -40,11 +40,8 @@ public abstract class LogFormatUtils {
    * {@link CharSequence}, and possibly truncating at 100 if limitLength is
    * set to true.
    *
-   * @param value
-   *         the value to format
-   * @param limitLength
-   *         whether to truncate large formatted values (over 100)
-   *
+   * @param value the value to format
+   * @param limitLength whether to truncate large formatted values (over 100)
    * @return the formatted value
    */
   public static String formatValue(Object value, boolean limitLength) {
@@ -81,11 +78,9 @@ public abstract class LogFormatUtils {
    * }
    * </pre>
    *
-   * @param logger
-   *         the logger to use to log the message
-   * @param messageFactory
-   *         function that accepts a boolean set to the value
-   *         of {@link Logger#isTraceEnabled()}
+   * @param logger the logger to use to log the message
+   * @param messageFactory function that accepts a boolean set to the value
+   * of {@link Logger#isTraceEnabled()}
    */
   public static void traceDebug(Logger logger, Function<Boolean, String> messageFactory) {
     if (logger.isDebugEnabled()) {

@@ -30,15 +30,10 @@ import cn.taketoday.web.handler.MethodParameter;
 public abstract class AbstractParameterResolver implements ParameterResolvingStrategy {
 
   /**
-   * @param context
-   *         Current request Context
-   * @param parameter
-   *         parameter
-   *
+   * @param context Current request Context
+   * @param parameter parameter
    * @return parameter value
-   *
-   * @throws MissingParameterException
-   *         parameter cannot be resolved
+   * @throws MissingParameterException parameter cannot be resolved
    */
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
@@ -59,8 +54,7 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
   /**
    * subclasses can perform type conversion
    *
-   * @param original
-   *         original value
+   * @param original original value
    */
   protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
     return original;

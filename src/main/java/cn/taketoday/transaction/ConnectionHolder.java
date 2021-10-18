@@ -64,8 +64,7 @@ public class ConnectionHolder extends AbstractResourceHolder {
    * Return whether JDBC 3.0 Savepoints are supported. Caches the flag for the
    * lifetime of this ConnectionHolder.
    *
-   * @throws SQLException
-   *         if thrown by the JDBC driver
+   * @throws SQLException if thrown by the JDBC driver
    */
   public boolean supportsSavepoints() throws SQLException {
     if (this.savepointsSupported == null) {
@@ -79,9 +78,7 @@ public class ConnectionHolder extends AbstractResourceHolder {
    * savepoint names that are unique for the Connection.
    *
    * @return the new Savepoint
-   *
-   * @throws SQLException
-   *         if thrown by the JDBC driver
+   * @throws SQLException if thrown by the JDBC driver
    */
   public Savepoint createSavepoint() throws SQLException {
     this.savepointCounter++;

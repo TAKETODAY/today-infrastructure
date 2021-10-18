@@ -42,8 +42,7 @@ public abstract class BeansException extends NestedRuntimeException {
   /**
    * Construct a {@code BeansException} with the specified root cause.
    *
-   * @param cause
-   *         the nested exception
+   * @param cause the nested exception
    */
   public BeansException(Throwable cause) {
     super(cause);
@@ -52,8 +51,7 @@ public abstract class BeansException extends NestedRuntimeException {
   /**
    * Create a new BeansException with the specified message.
    *
-   * @param msg
-   *         the detail message
+   * @param msg the detail message
    */
   public BeansException(String msg) {
     super(msg);
@@ -63,10 +61,8 @@ public abstract class BeansException extends NestedRuntimeException {
    * Create a new BeansException with the specified message
    * and root cause.
    *
-   * @param msg
-   *         the detail message
-   * @param cause
-   *         the root cause
+   * @param msg the detail message
+   * @param cause the root cause
    */
   public BeansException(String msg, Throwable cause) {
     super(msg, cause);

@@ -19,13 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -54,6 +47,13 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -549,9 +549,7 @@ public abstract class HttpHeaders
   /**
    * Get the list of header values for the given header name, if any.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return the list of header values, or an empty list
    */
   public List<String> getOrEmpty(String headerName) {
@@ -606,8 +604,7 @@ public abstract class HttpHeaders
    * list of supported locales you can pass the returned list to
    * {@link Locale#filter(List, Collection)}.
    *
-   * @throws IllegalArgumentException
-   *         if the value cannot be converted to a language range
+   * @throws IllegalArgumentException if the value cannot be converted to a language range
    */
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
@@ -619,8 +616,8 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguageAsLocales(List<Locale> locales) {
     setAcceptLanguage(locales.stream()
-            .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
-            .collect(Collectors.toList()));
+                              .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
+                              .collect(Collectors.toList()));
   }
 
   /**
@@ -628,9 +625,7 @@ public abstract class HttpHeaders
    * {@link java.util.Locale.LanguageRange} to a {@link Locale}.
    *
    * @return the locales or an empty list
-   *
-   * @throws IllegalArgumentException
-   *         if the value cannot be converted to a locale
+   * @throws IllegalArgumentException if the value cannot be converted to a locale
    */
   public List<Locale> getAcceptLanguageAsLocales() {
     List<Locale.LanguageRange> ranges = getAcceptLanguage();
@@ -883,11 +878,8 @@ public abstract class HttpHeaders
    * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to
    * Basic Authentication
    *
-   * @param encodedCredentials
-   *         the encoded credentials
-   *
-   * @throws IllegalArgumentException
-   *         if supplied credentials string is {@code null} or blank
+   * @param encodedCredentials the encoded credentials
+   * @throws IllegalArgumentException if supplied credentials string is {@code null} or blank
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
   public void setBasicAuth(String encodedCredentials) {
@@ -903,14 +895,10 @@ public abstract class HttpHeaders
    * <p>Note that this method only supports characters in the
    * {@link StandardCharsets#ISO_8859_1 ISO-8859-1} character set.
    *
-   * @param username
-   *         the username
-   * @param password
-   *         the password
-   *
-   * @throws IllegalArgumentException
-   *         if either {@code user} or
-   *         {@code password} contain characters that cannot be encoded to ISO-8859-1
+   * @param username the username
+   * @param password the password
+   * @throws IllegalArgumentException if either {@code user} or
+   * {@code password} contain characters that cannot be encoded to ISO-8859-1
    * @see #setBasicAuth(String)
    * @see #setBasicAuth(String, String, Charset)
    * @see #encodeBasicAuth(String, String, Charset)
@@ -924,17 +912,12 @@ public abstract class HttpHeaders
    * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to
    * Basic Authentication based on the given username and password.
    *
-   * @param username
-   *         the username
-   * @param password
-   *         the password
-   * @param charset
-   *         the charset to use to convert the credentials into an octet
-   *         sequence. Defaults to {@linkplain StandardCharsets#ISO_8859_1 ISO-8859-1}.
-   *
-   * @throws IllegalArgumentException
-   *         if {@code username} or {@code password}
-   *         contains characters that cannot be encoded to the given charset
+   * @param username the username
+   * @param password the password
+   * @param charset the charset to use to convert the credentials into an octet
+   * sequence. Defaults to {@linkplain StandardCharsets#ISO_8859_1 ISO-8859-1}.
+   * @throws IllegalArgumentException if {@code username} or {@code password}
+   * contains characters that cannot be encoded to the given charset
    * @see #setBasicAuth(String)
    * @see #setBasicAuth(String, String)
    * @see #encodeBasicAuth(String, String, Charset)
@@ -948,9 +931,7 @@ public abstract class HttpHeaders
    * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to the
    * given Bearer token.
    *
-   * @param token
-   *         the Base64 encoded token
-   *
+   * @param token the Base64 encoded token
    * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750</a>
    */
   public void setBearerAuth(String token) {
@@ -1010,11 +991,8 @@ public abstract class HttpHeaders
    * Resource for each part, and then pass that to the
    * {@code RestTemplate} or {@code WebClient}.
    *
-   * @param name
-   *         the control name
-   * @param filename
-   *         the filename (may be {@code null})
-   *
+   * @param name the control name
+   * @param filename the filename (may be {@code null})
    * @see #getContentDisposition()
    */
   public void setContentDispositionFormData(String name, String filename) {
@@ -1053,8 +1031,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-            ? ContentDisposition.parse(contentDisposition)
-            : ContentDisposition.empty();
+           ? ContentDisposition.parse(contentDisposition)
+           : ContentDisposition.empty();
   }
 
   /**
@@ -1168,8 +1146,7 @@ public abstract class HttpHeaders
    * The date is returned as the number of milliseconds since January 1, 1970 GMT.
    * Returns -1 when the date is unknown.
    *
-   * @throws IllegalArgumentException
-   *         if the value cannot be converted to a date
+   * @throws IllegalArgumentException if the value cannot be converted to a date
    */
   public long getDate() {
     return getFirstDate(DATE);
@@ -1276,8 +1253,8 @@ public abstract class HttpHeaders
     String host = null;
     int port = 0;
     int separator = StringUtils.matchesFirst(value, '[')
-            ? value.indexOf(':', value.indexOf(']'))
-            : value.lastIndexOf(':');
+                    ? value.indexOf(':', value.indexOf(']'))
+                    : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);
@@ -1523,8 +1500,7 @@ public abstract class HttpHeaders
    * is subject to content negotiation and variances based on the value of those
    * request headers.
    *
-   * @param requestHeaders
-   *         the request header names
+   * @param requestHeaders the request header names
    */
   public void setVary(List<String> requestHeaders) {
     set(VARY, StringUtils.collectionToString(requestHeaders, ", "));
@@ -1535,8 +1511,7 @@ public abstract class HttpHeaders
    * is subject to content negotiation and variances based on the value of those
    * request headers.
    *
-   * @param requestHeaders
-   *         the request header names
+   * @param requestHeaders the request header names
    */
   public void setVary(String... requestHeaders) {
     set(VARY, StringUtils.arrayToString(requestHeaders, ", "));
@@ -1583,11 +1558,8 @@ public abstract class HttpHeaders
    * if there is no value, or raise {@link IllegalArgumentException} if the value
    * cannot be parsed as a date.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return the parsed date header, or -1 if none
-   *
    * @see #getFirstZonedDateTime(String)
    */
   public long getFirstDate(String headerName) {
@@ -1600,15 +1572,11 @@ public abstract class HttpHeaders
    * {@code rejectInvalid=false}), or raise {@link IllegalArgumentException} if
    * the value cannot be parsed as a date.
    *
-   * @param headerName
-   *         the header name
-   * @param rejectInvalid
-   *         whether to reject invalid values with an
-   *         {@link IllegalArgumentException} ({@code true}) or rather return
-   *         -1 in that case ({@code false})
-   *
+   * @param headerName the header name
+   * @param rejectInvalid whether to reject invalid values with an
+   * {@link IllegalArgumentException} ({@code true}) or rather return
+   * -1 in that case ({@code false})
    * @return the parsed date header, or -1 if none (or invalid)
-   *
    * @see #getFirstZonedDateTime(String, boolean)
    */
   public long getFirstDate(String headerName, boolean rejectInvalid) {
@@ -1621,9 +1589,7 @@ public abstract class HttpHeaders
    * {@code null} if there is no value, or raise {@link IllegalArgumentException}
    * if the value cannot be parsed as a date.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return the parsed date header, or {@code null} if none
    */
   @Nullable
@@ -1637,13 +1603,10 @@ public abstract class HttpHeaders
    * {@code rejectInvalid=false}), or raise {@link IllegalArgumentException} if
    * the value cannot be parsed as a date.
    *
-   * @param headerName
-   *         the header name
-   * @param rejectInvalid
-   *         whether to reject invalid values with an
-   *         {@link IllegalArgumentException} ({@code true}) or rather return
-   *         {@code null} in that case ({@code false})
-   *
+   * @param headerName the header name
+   * @param rejectInvalid whether to reject invalid values with an
+   * {@link IllegalArgumentException} ({@code true}) or rather return
+   * {@code null} in that case ({@code false})
    * @return the parsed date header, or {@code null} if none (or invalid)
    */
   @Nullable
@@ -1683,9 +1646,7 @@ public abstract class HttpHeaders
    * Return all values of a given header name, even if this header is set multiple
    * times.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return all associated values
    */
   public List<String> getValuesAsList(String headerName) {
@@ -1721,9 +1682,7 @@ public abstract class HttpHeaders
   /**
    * Retrieve a combined result from the field values of the ETag header.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return the combined result
    */
   public List<String> getETagValuesAsList(String headerName) {
@@ -1754,9 +1713,7 @@ public abstract class HttpHeaders
   /**
    * Retrieve a combined result from the field values of multi-valued headers.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return the combined result
    */
   @Nullable
@@ -1772,10 +1729,8 @@ public abstract class HttpHeaders
   /**
    * Set the given header value, or remove the header if {@code null}.
    *
-   * @param headerName
-   *         the header name
-   * @param headerValue
-   *         the header value, or {@code null} for none
+   * @param headerName the header name
+   * @param headerValue the header value, or {@code null} for none
    */
   public void setOrRemove(String headerName, String headerValue) {
     if (headerValue != null) {
@@ -1791,9 +1746,7 @@ public abstract class HttpHeaders
   /**
    * Return the first header value for the given header name, if any.
    *
-   * @param headerName
-   *         the header name
-   *
+   * @param headerName the header name
    * @return the first header value, or {@code null} if none
    */
   @Nullable
@@ -1803,13 +1756,9 @@ public abstract class HttpHeaders
   /**
    * Add the given, single header value under the given name.
    *
-   * @param headerName
-   *         the header name
-   * @param headerValue
-   *         the header value
-   *
-   * @throws UnsupportedOperationException
-   *         if adding headers is not supported
+   * @param headerName the header name
+   * @param headerValue the header value
+   * @throws UnsupportedOperationException if adding headers is not supported
    * @see #addAll(String, List)
    * @see #set(String, String)
    */
@@ -1863,9 +1812,7 @@ public abstract class HttpHeaders
    * contain comma-separated values, can become confusing with regular
    * {@link Map} formatting that also uses commas between entries.
    *
-   * @param headers
-   *         the headers to format
-   *
+   * @param headers the headers to format
    * @return the headers to a String
    */
   public static String formatHeaders(MultiValueMap<String, String> headers) {
@@ -1873,8 +1820,8 @@ public abstract class HttpHeaders
             .map(entry -> {
               List<String> values = entry.getValue();
               return entry.getKey() + ":" + (values.size() == 1 ?
-                      "\"" + values.get(0) + "\"" :
-                      values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                                             "\"" + values.get(0) + "\"" :
+                                             values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }
@@ -1884,17 +1831,12 @@ public abstract class HttpHeaders
    * <p>The encoded credentials returned by this method can be supplied to
    * {@link #setBasicAuth(String)} to set the Basic Authentication header.
    *
-   * @param username
-   *         the username
-   * @param password
-   *         the password
-   * @param charset
-   *         the charset to use to convert the credentials into an octet
-   *         sequence. Defaults to {@linkplain StandardCharsets#ISO_8859_1 ISO-8859-1}.
-   *
-   * @throws IllegalArgumentException
-   *         if {@code username} or {@code password}
-   *         contains characters that cannot be encoded to the given charset
+   * @param username the username
+   * @param password the password
+   * @param charset the charset to use to convert the credentials into an octet
+   * sequence. Defaults to {@linkplain StandardCharsets#ISO_8859_1 ISO-8859-1}.
+   * @throws IllegalArgumentException if {@code username} or {@code password}
+   * contains characters that cannot be encoded to the given charset
    * @see #setBasicAuth(String)
    * @see #setBasicAuth(String, String)
    * @see #setBasicAuth(String, String, Charset)

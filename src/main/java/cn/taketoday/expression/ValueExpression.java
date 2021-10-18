@@ -82,20 +82,14 @@ public abstract class ValueExpression extends Expression {
    * <code>ExpressionFactory</code> when this expression was created.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   *
+   * @param context The context of this evaluation.
    * @return The result of the expression evaluation.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available.
    */
   public abstract Object getValue(ExpressionContext context);
 
@@ -103,23 +97,16 @@ public abstract class ValueExpression extends Expression {
    * Evaluates the expression relative to the provided context, and sets the
    * result to the provided value.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param value
-   *         The new value to be set.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws PropertyNotWritableException
-   *         if the final variable or property resolution failed because the
-   *         specified variable or property is not writable.
-   * @throws ExpressionException
-   *         if an exception was thrown while attempting to set the property
-   *         or variable. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @param context The context of this evaluation.
+   * @param value The new value to be set.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws PropertyNotWritableException if the final variable or property resolution failed because the
+   * specified variable or property is not writable.
+   * @throws ExpressionException if an exception was thrown while attempting to set the property
+   * or variable. The thrown exception must be included as the cause
+   * property of this exception, if available.
    */
   public abstract void setValue(ExpressionContext context, Object value);
 
@@ -127,22 +114,16 @@ public abstract class ValueExpression extends Expression {
    * Evaluates the expression relative to the provided context, and returns
    * <code>true</code> if a call to {@link #setValue} will always fail.
    *
-   * @param context
-   *         The context of this evaluation.
-   *
+   * @param context The context of this evaluation.
    * @return <code>true</code> if the expression is read-only or
    * <code>false</code> if not.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available. * @throws
-   *         NullPointerException if context is <code>null</code>
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available. * @throws
+   * NullPointerException if context is <code>null</code>
    */
   public abstract boolean isReadOnly(ExpressionContext context);
 
@@ -160,20 +141,14 @@ public abstract class ValueExpression extends Expression {
    * the specified array element.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   *
+   * @param context The context of this evaluation.
    * @return the most general acceptable type; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available.
    */
   public abstract Class<?> getType(ExpressionContext context);
 
@@ -190,16 +165,13 @@ public abstract class ValueExpression extends Expression {
   /**
    * Returns a {@link ValueReference} for this expression instance.
    *
-   * @param context
-   *         the context of this evaluation
-   *
+   * @param context the context of this evaluation
    * @return the <code>ValueReference</code> for this
    * <code>ValueExpression</code>, or <code>null</code> if this
    * <code>ValueExpression</code> is not a reference to a base (null or
    * non-null) and a property. If the base is null, and the property is a
    * EL variable, return the <code>ValueReference</code> for the
    * <code>ValueExpression</code> associated with this EL variable.
-   *
    * @since EL 2.2
    */
   public ValueReference getValueReference(ExpressionContext context) {

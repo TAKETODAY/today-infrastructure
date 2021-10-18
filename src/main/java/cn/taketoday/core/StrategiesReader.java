@@ -46,9 +46,7 @@ public abstract class StrategiesReader {
   /**
    * read a key multi-value map
    *
-   * @param strategiesLocation
-   *         file location
-   *
+   * @param strategiesLocation file location
    * @return a key multi-value map
    */
   public MultiValueMap<String, String> read(String strategiesLocation) {
@@ -60,12 +58,9 @@ public abstract class StrategiesReader {
   /**
    * read a key multi-value map
    *
-   * @param strategiesLocation
-   *         file location supports multiple files:
-   *         <p> classpath*:META-INF/today.strategies,classpath*:META-INF/my.strategies
-   *
-   * @throws ConfigurationException
-   *         strategiesLocation load failed
+   * @param strategiesLocation file location supports multiple files:
+   * <p> classpath*:META-INF/today.strategies,classpath*:META-INF/my.strategies
+   * @throws ConfigurationException strategiesLocation load failed
    */
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
     Assert.notNull(strategiesLocation, "file-location must not be null");
@@ -113,8 +108,7 @@ public abstract class StrategiesReader {
   /**
    * set ResourceLoader to load strategies files
    *
-   * @param resourceLoader
-   *         new ResourceLoader cannot be {@code null}
+   * @param resourceLoader new ResourceLoader cannot be {@code null}
    */
   public void setResourceLoader(ResourceLoader resourceLoader) {
     Assert.notNull(resourceLoader, "resourceLoader must not be null");

@@ -75,12 +75,9 @@ public class ImportHandler {
   /**
    * Import a static field or method.
    *
-   * @param name
-   *         The static member name, including the full class name, to be
-   *         imported
-   *
-   * @throws ExpressionException
-   *         if the name does not include a ".".
+   * @param name The static member name, including the full class name, to be
+   * imported
+   * @throws ExpressionException if the name does not include a ".".
    */
   public void importStatic(String name) throws ExpressionException {
     int i = name.lastIndexOf('.');
@@ -95,11 +92,8 @@ public class ImportHandler {
   /**
    * Import a class.
    *
-   * @param name
-   *         The full class name of the class to be imported
-   *
-   * @throws ExpressionException
-   *         if the name does not include a ".".
+   * @param name The full class name of the class to be imported
+   * @throws ExpressionException if the name does not include a ".".
    */
   public void importClass(String name) throws ExpressionException {
     int i = name.lastIndexOf('.');
@@ -113,8 +107,7 @@ public class ImportHandler {
   /**
    * Import all the classes in a package.
    *
-   * @param packageName
-   *         The package name to be imported
+   * @param packageName The package name to be imported
    */
   public void importPackage(String packageName) {
     packages.add(packageName);
@@ -123,15 +116,11 @@ public class ImportHandler {
   /**
    * Resolve a class name.
    *
-   * @param name
-   *         The name of the class (without package name) to be resolved.
-   *
+   * @param name The name of the class (without package name) to be resolved.
    * @return If the class has been imported previously, with {@link #importClass}
    * or {@link #importPackage}, then its Class instance. Otherwise
    * <code>null</code>.
-   *
-   * @throws ExpressionException
-   *         if the class is abstract or is an interface, or not public.
+   * @throws ExpressionException if the class is abstract or is an interface, or not public.
    */
   public Class<?> resolveClass(String name) {
     final Map<String, String> classNameMap = this.classNameMap;
@@ -154,17 +143,13 @@ public class ImportHandler {
   /**
    * Resolve a static field or method name.
    *
-   * @param name
-   *         The name of the member(without package and class name) to be
-   *         resolved.
-   *
+   * @param name The name of the member(without package and class name) to be
+   * resolved.
    * @return If the field or method has been imported previously, with
    * {@link #importStatic}, then the class object representing the class
    * that declares the static field or method. Otherwise
    * <code>null</code>.
-   *
-   * @throws ExpressionException
-   *         if the class is not public, or is abstract or is an interface.
+   * @throws ExpressionException if the class is not public, or is abstract or is an interface.
    */
   public Class<?> resolveStatic(String name) {
     String className = staticNameMap.get(name);

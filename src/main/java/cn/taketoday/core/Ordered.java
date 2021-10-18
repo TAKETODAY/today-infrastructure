@@ -68,7 +68,6 @@ public interface Ordered {
    * affected objects.
    *
    * @return the order value
-   *
    * @see #HIGHEST_PRECEDENCE
    * @see #LOWEST_PRECEDENCE
    */

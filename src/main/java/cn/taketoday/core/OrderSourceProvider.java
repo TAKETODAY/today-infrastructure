@@ -38,9 +38,7 @@ public interface OrderSourceProvider {
    * <p>If the returned object does not indicate any order, the comparator
    * will fall back to checking the original object.
    *
-   * @param obj
-   *         the object to find an order source for
-   *
+   * @param obj the object to find an order source for
    * @return the order source for that object, or {@code null} if none found
    */
   @Nullable

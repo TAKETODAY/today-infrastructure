@@ -43,8 +43,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
   /**
    * Create a new {@code CompositePropertySource}.
    *
-   * @param name
-   *         the name of the property source
+   * @param name the name of the property source
    */
   public CompositePropertySource(String name) {
     super(name);
@@ -90,8 +89,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
   /**
    * Add the given {@link PropertySource} to the end of the chain.
    *
-   * @param propertySource
-   *         the PropertySource to add
+   * @param propertySource the PropertySource to add
    */
   public void addPropertySource(PropertySource<?> propertySource) {
     this.propertySources.add(propertySource);
@@ -100,8 +98,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
   /**
    * Add the given {@link PropertySource} to the start of the chain.
    *
-   * @param propertySource
-   *         the PropertySource to add
+   * @param propertySource the PropertySource to add
    */
   public void addFirstPropertySource(PropertySource<?> propertySource) {
     ArrayList<PropertySource<?>> existing = new ArrayList<>(this.propertySources);

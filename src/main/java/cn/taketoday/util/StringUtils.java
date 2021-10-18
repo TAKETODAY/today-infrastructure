@@ -115,9 +115,7 @@ public abstract class StringUtils {
   /**
    * Split with {@link Constant#SPLIT_REGEXP}
    *
-   * @param source
-   *         source string
-   *
+   * @param source source string
    * @return if source is null this will returns
    * {@link Constant#EMPTY_STRING_ARRAY}
    */
@@ -132,12 +130,9 @@ public abstract class StringUtils {
   /**
    * Split with {@link Constant#SPLIT_REGEXP}
    *
-   * @param source
-   *         source string
-   *
+   * @param source source string
    * @return if source is null this will returns
    * {@link Collections#emptyList()}
-   *
    * @see Collections#emptyList()
    * @since 4.0
    */
@@ -178,11 +173,8 @@ public abstract class StringUtils {
    * Split a {@code String} at the first occurrence of the delimiter.
    * Does not include the delimiter in the result.
    *
-   * @param toSplit
-   *         the string to split (potentially {@code null} or empty)
-   * @param delimiter
-   *         to split the string up with (potentially {@code null} or empty)
-   *
+   * @param toSplit the string to split (potentially {@code null} or empty)
+   * @param delimiter to split the string up with (potentially {@code null} or empty)
    * @return a two element array with index 0 being before the delimiter, and
    * index 1 being after the delimiter (neither element includes the delimiter);
    * or {@code null} if the delimiter wasn't found in the given input {@code String}
@@ -215,16 +207,11 @@ public abstract class StringUtils {
    * UTF-8 should be used. Not doing so may introduce
    * incompatibilities.</em>
    *
-   * @param s
-   *         the {@code String} to decode
-   *
+   * @param s the {@code String} to decode
    * @return the newly decoded {@code String}
-   *
-   * @throws NullPointerException
-   *         if {@code s} or {@code charset} is {@code null}
-   * @throws IllegalArgumentException
-   *         if the implementation encounters illegal
-   *         characters
+   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}
+   * @throws IllegalArgumentException if the implementation encounters illegal
+   * characters
    * @implNote This implementation will throw an {@link java.lang.IllegalArgumentException}
    * when illegal strings are encountered.
    * @since 3.0
@@ -246,18 +233,12 @@ public abstract class StringUtils {
    * UTF-8 should be used. Not doing so may introduce
    * incompatibilities.</em>
    *
-   * @param s
-   *         the {@code String} to decode
-   * @param charset
-   *         the given charset
-   *
+   * @param s the {@code String} to decode
+   * @param charset the given charset
    * @return the newly decoded {@code String}
-   *
-   * @throws NullPointerException
-   *         if {@code s} or {@code charset} is {@code null}
-   * @throws IllegalArgumentException
-   *         if the implementation encounters illegal
-   *         characters
+   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}
+   * @throws IllegalArgumentException if the implementation encounters illegal
+   * characters
    * @implNote This implementation will throw an {@link java.lang.IllegalArgumentException}
    * when illegal strings are encountered.
    * @since 3.0
@@ -342,13 +323,9 @@ public abstract class StringUtils {
    * World Wide Web Consortium Recommendation</a> states that
    * UTF-8 should be used. Not doing so may introduce incompatibilities.</em>
    *
-   * @param s
-   *         {@code String} to be translated.
-   *
+   * @param s {@code String} to be translated.
    * @return the translated {@code String}.
-   *
-   * @throws NullPointerException
-   *         if {@code s} or {@code charset} is {@code null}.
+   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}.
    */
   public static String encodeURL(String s) {
     return encodeURL(s, Constant.DEFAULT_CHARSET);
@@ -365,15 +342,10 @@ public abstract class StringUtils {
    * World Wide Web Consortium Recommendation</a> states that
    * UTF-8 should be used. Not doing so may introduce incompatibilities.</em>
    *
-   * @param s
-   *         {@code String} to be translated.
-   * @param charset
-   *         the given charset
-   *
+   * @param s {@code String} to be translated.
+   * @param charset the given charset
    * @return the translated {@code String}.
-   *
-   * @throws NullPointerException
-   *         if {@code s} or {@code charset} is {@code null}.
+   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}.
    * @since 3.0
    */
   public static String encodeURL(String s, Charset charset) {
@@ -456,14 +428,10 @@ public abstract class StringUtils {
    * tokens. A delimiter is always a single character; for multi-character
    * delimiters, consider using {@link #delimitedListToStringArray}.
    *
-   * @param str
-   *         the {@code String} to tokenize (potentially {@code null} or empty)
-   * @param delimiters
-   *         the delimiter characters, assembled as a {@code String}
-   *         (each of the characters is individually considered as a delimiter)
-   *
+   * @param str the {@code String} to tokenize (potentially {@code null} or empty)
+   * @param delimiters the delimiter characters, assembled as a {@code String}
+   * (each of the characters is individually considered as a delimiter)
    * @return an array of the tokens
-   *
    * @see java.util.StringTokenizer
    * @see String#trim()
    * @see #delimitedListToStringArray
@@ -481,20 +449,14 @@ public abstract class StringUtils {
    * tokens. A delimiter is always a single character; for multi-character
    * delimiters, consider using {@link #delimitedListToStringArray}.
    *
-   * @param str
-   *         the {@code String} to tokenize (potentially {@code null} or empty)
-   * @param delimiters
-   *         the delimiter characters, assembled as a {@code String}
-   *         (each of the characters is individually considered as a delimiter)
-   * @param trimTokens
-   *         trim the tokens via {@link String#trim()}
-   * @param ignoreEmptyTokens
-   *         omit empty tokens from the result array
-   *         (only applies to tokens that are empty after trimming; StringTokenizer
-   *         will not consider subsequent delimiters as token in the first place).
-   *
+   * @param str the {@code String} to tokenize (potentially {@code null} or empty)
+   * @param delimiters the delimiter characters, assembled as a {@code String}
+   * (each of the characters is individually considered as a delimiter)
+   * @param trimTokens trim the tokens via {@link String#trim()}
+   * @param ignoreEmptyTokens omit empty tokens from the result array
+   * (only applies to tokens that are empty after trimming; StringTokenizer
+   * will not consider subsequent delimiters as token in the first place).
    * @return an array of the tokens
-   *
    * @see java.util.StringTokenizer
    * @see String#trim()
    * @see #delimitedListToStringArray
@@ -523,12 +485,9 @@ public abstract class StringUtils {
    * Copy the given {@link Collection} into a {@code String} array.
    * <p>The {@code Collection} must contain {@code String} elements only.
    *
-   * @param collection
-   *         the {@code Collection} to copy
-   *         (potentially {@code null} or empty)
-   *
+   * @param collection the {@code Collection} to copy
+   * (potentially {@code null} or empty)
    * @return the resulting {@code String} array
-   *
    * @since 4.0
    */
   public static String[] toStringArray(@Nullable Collection<String> collection) {
@@ -542,12 +501,9 @@ public abstract class StringUtils {
    * Copy the given {@link Enumeration} into a {@code String} array.
    * <p>The {@code Enumeration} must contain {@code String} elements only.
    *
-   * @param enumeration
-   *         the {@code Enumeration} to copy
-   *         (potentially {@code null} or empty)
-   *
+   * @param enumeration the {@code Enumeration} to copy
+   * (potentially {@code null} or empty)
    * @return the resulting {@code String} array
-   *
    * @since 4.0
    */
   public static String[] toStringArray(@Nullable Enumeration<String> enumeration) {
@@ -561,13 +517,9 @@ public abstract class StringUtils {
    * returning a new array consisting of the input array contents plus
    * the given {@code String}.
    *
-   * @param array
-   *         the array to append to (can be {@code null})
-   * @param str
-   *         the {@code String} to append
-   *
+   * @param array the array to append to (can be {@code null})
+   * @param str the {@code String} to append
    * @return the new array (never {@code null})
-   *
    * @since 4.0
    */
   public static String[] addStringToArray(@Nullable String[] array, String str) {
@@ -584,9 +536,7 @@ public abstract class StringUtils {
   /**
    * Sort the given {@code String} array if necessary.
    *
-   * @param array
-   *         the original array (potentially empty)
-   *
+   * @param array the original array (potentially empty)
    * @since 4.0
    */
   public static void sortArray(String[] array) {
@@ -599,11 +549,8 @@ public abstract class StringUtils {
    * Trim the elements of the given {@code String} array, calling
    * {@code String.trim()} on each non-null element.
    *
-   * @param array
-   *         the original {@code String} array (potentially empty)
-   *
+   * @param array the original {@code String} array (potentially empty)
    * @return the resulting array (of the same size) with trimmed elements
-   *
    * @since 4.0
    */
   public static String[] trimArrayElements(String[] array) {
@@ -622,11 +569,8 @@ public abstract class StringUtils {
   /**
    * Remove duplicate strings from the given array.
    *
-   * @param array
-   *         the {@code String} array (potentially empty)
-   *
+   * @param array the {@code String} array (potentially empty)
    * @return an array without duplicates, in natural sort order
-   *
    * @since 4.0
    */
   public static String[] removeDuplicateStrings(String[] array) {
@@ -642,8 +586,7 @@ public abstract class StringUtils {
   /**
    * Use default delimiter:',' append array to a string
    *
-   * @param array
-   *         Input array object
+   * @param array Input array object
    */
   public static String arrayToString(Object[] array) {
     return arrayToString(array, ",");
@@ -652,10 +595,8 @@ public abstract class StringUtils {
   /**
    * Array to string
    *
-   * @param array
-   *         Input array object
-   * @param delimiter
-   *         Delimiter string
+   * @param array Input array object
+   * @param delimiter Delimiter string
    */
   public static String arrayToString(final Object[] array, final String delimiter) {
     if (array == null) {
@@ -679,9 +620,7 @@ public abstract class StringUtils {
   /**
    * {@link Collection} to string
    *
-   * @param collection
-   *         Input {@link Collection} object
-   *
+   * @param collection Input {@link Collection} object
    * @since 2.1.7
    */
   public static <T> String collectionToString(final Collection<T> collection) {
@@ -691,11 +630,8 @@ public abstract class StringUtils {
   /**
    * {@link Collection} to string
    *
-   * @param coll
-   *         Input {@link Collection} object
-   * @param delimiter
-   *         Delimiter string
-   *
+   * @param coll Input {@link Collection} object
+   * @param delimiter Delimiter string
    * @since 2.1.7
    */
   public static <T> String collectionToString(final Collection<T> coll, final String delimiter) {
@@ -737,9 +673,7 @@ public abstract class StringUtils {
    * The result is convenient for path comparison. For other uses, notice that
    * Windows separators ("\") are replaced by simple slashes.
    *
-   * @param path
-   *         the original path
-   *
+   * @param path the original path
    * @return the normalized path
    */
   public static String cleanPath(String path) {
@@ -822,11 +756,8 @@ else */
   /**
    * Compare two paths after normalization of them.
    *
-   * @param path1
-   *         first path for comparison
-   * @param path2
-   *         second path for comparison
-   *
+   * @param path1 first path for comparison
+   * @param path2 second path for comparison
    * @return whether the two paths are equivalent after normalization
    */
   public static boolean pathEquals(String path1, String path2) {
@@ -841,8 +772,7 @@ else */
    * /users   -> /users
    * </pre>
    *
-   * @param url
-   *         Input url
+   * @param url Input url
    */
   public static String formatURL(String url) {
     if (StringUtils.isEmpty(url)) {
@@ -859,13 +789,9 @@ else */
   /**
    * Append line to {@link StringBuilder}
    *
-   * @param reader
-   *         String line read from {@link BufferedReader}
-   * @param builder
-   *         The {@link StringBuilder} append to
-   *
-   * @throws IOException
-   *         If an I/O error occurs
+   * @param reader String line read from {@link BufferedReader}
+   * @param builder The {@link StringBuilder} append to
+   * @throws IOException If an I/O error occurs
    */
   public static void appendLine(
           final BufferedReader reader, final StringBuilder builder) throws IOException {
@@ -878,13 +804,9 @@ else */
   /**
    * Replace all occurrences of a substring within a string with another string.
    *
-   * @param inString
-   *         {@code String} to examine
-   * @param oldPattern
-   *         {@code String} to replace
-   * @param newPattern
-   *         {@code String} to insert
-   *
+   * @param inString {@code String} to examine
+   * @param oldPattern {@code String} to replace
+   * @param newPattern {@code String} to insert
    * @return a {@code String} with the replacements
    */
   public static String replace(String inString, String oldPattern, @Nullable String newPattern) {
@@ -919,9 +841,7 @@ else */
    * Capitalize a {@code String}, changing the first letter to upper case as per
    * {@link Character#toUpperCase(char)}. No other letters are changed.
    *
-   * @param str
-   *         the {@code String} to capitalize
-   *
+   * @param str the {@code String} to capitalize
    * @return the capitalized {@code String}
    */
   public static String capitalize(String str) {
@@ -932,9 +852,7 @@ else */
    * Uncapitalize a {@code String}, changing the first letter to lower case as per
    * {@link Character#toLowerCase(char)}. No other letters are changed.
    *
-   * @param str
-   *         the {@code String} to uncapitalize
-   *
+   * @param str the {@code String} to uncapitalize
    * @return the uncapitalized {@code String}
    */
   public static String uncapitalize(String str) {
@@ -959,12 +877,9 @@ else */
   /**
    * Delete any character in a given {@code String}.
    *
-   * @param inString
-   *         the original {@code String}
-   * @param charsToDelete
-   *         a set of characters to delete. E.g. "az\n" will delete 'a's, 'z's
-   *         and new lines.
-   *
+   * @param inString the original {@code String}
+   * @param charsToDelete a set of characters to delete. E.g. "az\n" will delete 'a's, 'z's
+   * and new lines.
    * @return the resulting {@code String}
    */
   public static String deleteAny(final String inString, @Nullable final String charsToDelete) {
@@ -988,9 +903,7 @@ else */
    * Convert a comma delimited list (e.g., a row from a CSV file) into an
    * array of strings.
    *
-   * @param str
-   *         the input {@code String} (potentially {@code null} or empty)
-   *
+   * @param str the input {@code String} (potentially {@code null} or empty)
    * @return an array of strings, or the empty array in case of empty input
    */
   @NonNull
@@ -1007,14 +920,10 @@ else */
    * of potential delimiter characters, in contrast to
    * {@link #tokenizeToStringArray}.
    *
-   * @param str
-   *         the input {@code String} (potentially {@code null} or empty)
-   * @param delimiter
-   *         the delimiter between elements (this is a single delimiter, rather
-   *         than a bunch individual delimiter characters)
-   *
+   * @param str the input {@code String} (potentially {@code null} or empty)
+   * @param delimiter the delimiter between elements (this is a single delimiter, rather
+   * than a bunch individual delimiter characters)
    * @return an array of the tokens in the list
-   *
    * @see #tokenizeToStringArray
    */
   @NonNull
@@ -1031,18 +940,13 @@ else */
    * of potential delimiter characters, in contrast to
    * {@link #tokenizeToStringArray}.
    *
-   * @param str
-   *         the input {@code String} (potentially {@code null} or empty)
-   * @param delimiter
-   *         the delimiter between elements (this is a single delimiter, rather
-   *         than a bunch individual delimiter characters)
-   * @param charsToDelete
-   *         a set of characters to delete; useful for deleting unwanted line
-   *         breaks: e.g. "\r\n\f" will delete all new lines and line feeds in
-   *         a {@code String}
-   *
+   * @param str the input {@code String} (potentially {@code null} or empty)
+   * @param delimiter the delimiter between elements (this is a single delimiter, rather
+   * than a bunch individual delimiter characters)
+   * @param charsToDelete a set of characters to delete; useful for deleting unwanted line
+   * breaks: e.g. "\r\n\f" will delete all new lines and line feeds in
+   * a {@code String}
    * @return an array of the tokens in the list
-   *
    * @see #tokenizeToStringArray
    */
   @NonNull
@@ -1084,11 +988,8 @@ else */
    * <p>
    * The order of elements in the original arrays is preserved.
    *
-   * @param array1
-   *         the first array (can be {@code null})
-   * @param array2
-   *         the second array (can be {@code null})
-   *
+   * @param array1 the first array (can be {@code null})
+   * @param array2 the second array (can be {@code null})
    * @return the new array ({@code null} if both given arrays were {@code null})
    */
   public static String[] concatenateStringArrays(String[] array1, String[] array2) {
@@ -1120,12 +1021,9 @@ else */
    * StringUtils.hasText(" 12345 ") = true
    * </pre>
    *
-   * @param str
-   *         the {@code CharSequence} to check (may be {@code null})
-   *
+   * @param str the {@code CharSequence} to check (may be {@code null})
    * @return {@code true} if the {@code CharSequence} is not {@code null}, its
    * length is greater than 0, and it does not contain whitespace only
-   *
    * @see Character#isWhitespace
    */
   public static boolean hasText(@Nullable CharSequence str) {
@@ -1138,12 +1036,9 @@ else */
    * {@code String} is not {@code null}, its length is greater than 0,
    * and it contains at least one non-whitespace character.
    *
-   * @param str
-   *         the {@code String} to check (may be {@code null})
-   *
+   * @param str the {@code String} to check (may be {@code null})
    * @return {@code true} if the {@code String} is not {@code null}, its
    * length is greater than 0, and it does not contain whitespace only
-   *
    * @see #hasText(CharSequence)
    * @see #isNotEmpty(CharSequence)
    * @see Character#isWhitespace
@@ -1166,9 +1061,7 @@ else */
    * Extract the filename from the given Java resource path, e.g.
    * {@code "mypath/myfile.txt" -> "myfile.txt"}.
    *
-   * @param path
-   *         the file path (may be {@code null})
-   *
+   * @param path the file path (may be {@code null})
    * @return the extracted filename, or {@code null} if none
    */
   public static String getFilename(String path) {
@@ -1183,9 +1076,7 @@ else */
    * Extract the filename extension from the given Java resource path, e.g.
    * "mypath/myfile.txt" -> "txt".
    *
-   * @param path
-   *         the file path (may be {@code null})
-   *
+   * @param path the file path (may be {@code null})
    * @return the extracted filename extension, or {@code null} if none
    */
   public static String getFilenameExtension(String path) {
@@ -1210,9 +1101,7 @@ else */
    * Strip the filename extension from the given Java resource path,
    * e.g. "mypath/myfile.txt" -> "mypath/myfile".
    *
-   * @param path
-   *         the file path
-   *
+   * @param path the file path
    * @return the path with stripped filename extension
    */
   public static String stripFilenameExtension(String path) {
@@ -1236,11 +1125,8 @@ else */
    * pattern styles: "xxx*", "*xxx", "*xxx*" and "xxx*yyy" matches (with an
    * arbitrary number of pattern parts), as well as direct equality.
    *
-   * @param pattern
-   *         the pattern to match against
-   * @param str
-   *         the String to match
-   *
+   * @param pattern the pattern to match against
+   * @param str the String to match
    * @return whether the String matches the given pattern
    */
   public static boolean simpleMatch(String pattern, String str) {
@@ -1285,11 +1171,8 @@ else */
    * pattern styles: "xxx*", "*xxx", "*xxx*" and "xxx*yyy" matches (with an
    * arbitrary number of pattern parts), as well as direct equality.
    *
-   * @param patterns
-   *         the patterns to match against
-   * @param str
-   *         the String to match
-   *
+   * @param patterns the patterns to match against
+   * @param str the String to match
    * @return whether the String matches any of the given patterns
    */
   public static boolean simpleMatch(@Nullable String[] patterns, String str) {
@@ -1335,12 +1218,9 @@ else */
   /**
    * Check whether the given {@code CharSequence} contains any whitespace characters.
    *
-   * @param str
-   *         the {@code CharSequence} to check (may be {@code null})
-   *
+   * @param str the {@code CharSequence} to check (may be {@code null})
    * @return {@code true} if the {@code CharSequence} is not empty and
    * contains at least 1 whitespace character
-   *
    * @see Character#isWhitespace
    * @since 3.0
    */
@@ -1361,12 +1241,9 @@ else */
   /**
    * Check whether the given {@code String} contains any whitespace characters.
    *
-   * @param str
-   *         the {@code String} to check (may be {@code null})
-   *
+   * @param str the {@code String} to check (may be {@code null})
    * @return {@code true} if the {@code String} is not empty and
    * contains at least 1 whitespace character
-   *
    * @see #containsWhitespace(CharSequence)
    * @since 3.0
    */
@@ -1377,11 +1254,8 @@ else */
   /**
    * Trim leading and trailing whitespace from the given {@code String}.
    *
-   * @param str
-   *         the {@code String} to check
-   *
+   * @param str the {@code String} to check
    * @return the trimmed {@code String}
-   *
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
@@ -1408,11 +1282,8 @@ else */
    * Trim <i>all</i> whitespace from the given {@code String}:
    * leading, trailing, and in between characters.
    *
-   * @param str
-   *         the {@code String} to check
-   *
+   * @param str the {@code String} to check
    * @return the trimmed {@code String}
-   *
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
@@ -1435,11 +1306,8 @@ else */
   /**
    * Trim leading whitespace from the given {@code String}.
    *
-   * @param str
-   *         the {@code String} to check
-   *
+   * @param str the {@code String} to check
    * @return the trimmed {@code String}
-   *
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
@@ -1459,11 +1327,8 @@ else */
   /**
    * Trim trailing whitespace from the given {@code String}.
    *
-   * @param str
-   *         the {@code String} to check
-   *
+   * @param str the {@code String} to check
    * @return the trimmed {@code String}
-   *
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
@@ -1482,13 +1347,9 @@ else */
   /**
    * Trim all occurrences of the supplied leading character from the given {@code String}.
    *
-   * @param str
-   *         the {@code String} to check
-   * @param leadingCharacter
-   *         the leading character to be trimmed
-   *
+   * @param str the {@code String} to check
+   * @param leadingCharacter the leading character to be trimmed
    * @return the trimmed {@code String}
-   *
    * @since 3.0
    */
   public static String trimLeadingCharacter(String str, char leadingCharacter) {
@@ -1507,13 +1368,9 @@ else */
   /**
    * Trim all occurrences of the supplied trailing character from the given {@code String}.
    *
-   * @param str
-   *         the {@code String} to check
-   * @param trailingCharacter
-   *         the trailing character to be trimmed
-   *
+   * @param str the {@code String} to check
+   * @param trailingCharacter the trailing character to be trimmed
    * @return the trimmed {@code String}
-   *
    * @since 3.0
    */
   public static String trimTrailingCharacter(String str, char trailingCharacter) {
@@ -1532,11 +1389,8 @@ else */
    * Test if the given {@code String} starts with the specified prefix,
    * ignoring upper/lower case.
    *
-   * @param str
-   *         the {@code String} to check
-   * @param prefix
-   *         the prefix to look for
-   *
+   * @param str the {@code String} to check
+   * @param prefix the prefix to look for
    * @see java.lang.String#startsWith
    * @since 4.0
    */
@@ -1551,11 +1405,8 @@ else */
    * Test if the given {@code String} ends with the specified suffix,
    * ignoring upper/lower case.
    *
-   * @param str
-   *         the {@code String} to check
-   * @param suffix
-   *         the suffix to look for
-   *
+   * @param str the {@code String} to check
+   * @param suffix the suffix to look for
    * @see java.lang.String#endsWith
    * @since 4.0
    */
@@ -1570,12 +1421,9 @@ else */
    * Test whether the given string matches the given substring
    * at the given index.
    *
-   * @param str
-   *         the original string (or StringBuilder)
-   * @param index
-   *         the index in the original string to start matching against
-   * @param substring
-   *         the substring to match at the given index
+   * @param str the original string (or StringBuilder)
+   * @param index the index in the original string to start matching against
+   * @param substring the substring to match at the given index
    */
   public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
     int substringLength = substring.length();
@@ -1593,11 +1441,8 @@ else */
   /**
    * Test if the given {@code String} matches the given single character.
    *
-   * @param str
-   *         the {@code String} to check
-   * @param singleCharacter
-   *         the character to compare to
-   *
+   * @param str the {@code String} to check
+   * @param singleCharacter the character to compare to
    * @since 3.0
    */
   public static boolean matchesCharacter(String str, char singleCharacter) {
@@ -1607,13 +1452,9 @@ else */
   /**
    * Test if the given {@code String} matches the given index to single character.
    *
-   * @param str
-   *         given string
-   * @param idx
-   *         str's index to match
-   * @param charToMatch
-   *         char To Match
-   *
+   * @param str given string
+   * @param idx str's index to match
+   * @param charToMatch char To Match
    * @since 4.0
    */
   public static boolean matchesCharacter(@Nullable String str, int idx, char charToMatch) {
@@ -1626,11 +1467,8 @@ else */
   /**
    * Test if the first given {@code String} matches the given single character.
    *
-   * @param str
-   *         given string
-   * @param charToMatch
-   *         char To Match
-   *
+   * @param str given string
+   * @param charToMatch char To Match
    * @since 4.0
    */
   public static boolean matchesFirst(@Nullable String str, char charToMatch) {
@@ -1640,11 +1478,8 @@ else */
   /**
    * Test if the last given {@code String} matches the given single character.
    *
-   * @param str
-   *         given string
-   * @param charToMatch
-   *         char To Match
-   *
+   * @param str given string
+   * @param charToMatch char To Match
    * @since 4.0
    */
   public static boolean matchesEnd(@Nullable String str, char charToMatch) {
@@ -1657,16 +1492,12 @@ else */
    * Parse the given {@code String} value into a {@link Locale}, accepting
    * the {@link Locale#toString} format as well as BCP 47 language tags.
    *
-   * @param localeValue
-   *         the locale value: following either {@code Locale's}
-   *         {@code toString()} format ("en", "en_UK", etc), also accepting spaces as
-   *         separators (as an alternative to underscores), or BCP 47 (e.g. "en-UK")
-   *         as specified by {@link Locale#forLanguageTag} on Java 7+
-   *
+   * @param localeValue the locale value: following either {@code Locale's}
+   * {@code toString()} format ("en", "en_UK", etc), also accepting spaces as
+   * separators (as an alternative to underscores), or BCP 47 (e.g. "en-UK")
+   * as specified by {@link Locale#forLanguageTag} on Java 7+
    * @return a corresponding {@code Locale} instance, or {@code null} if none
-   *
-   * @throws IllegalArgumentException
-   *         in case of an invalid locale specification
+   * @throws IllegalArgumentException in case of an invalid locale specification
    * @see #parseLocaleString
    * @see Locale#forLanguageTag
    * @since 3.0
@@ -1692,15 +1523,11 @@ else */
    * <p><b>Note: This delegate does not accept the BCP 47 language tag format.
    * Please use {@link #parseLocale} for lenient parsing of both formats.</b>
    *
-   * @param localeString
-   *         the locale {@code String}: following {@code Locale's}
-   *         {@code toString()} format ("en", "en_UK", etc), also accepting spaces as
-   *         separators (as an alternative to underscores)
-   *
+   * @param localeString the locale {@code String}: following {@code Locale's}
+   * {@code toString()} format ("en", "en_UK", etc), also accepting spaces as
+   * separators (as an alternative to underscores)
    * @return a corresponding {@code Locale} instance, or {@code null} if none
-   *
-   * @throws IllegalArgumentException
-   *         in case of an invalid locale specification
+   * @throws IllegalArgumentException in case of an invalid locale specification
    * @since 3.0
    */
   public static Locale parseLocaleString(String localeString) {
@@ -1751,14 +1578,10 @@ else */
   /**
    * Parse the given {@code timeZoneString} value into a {@link TimeZone}.
    *
-   * @param timeZoneString
-   *         the time zone {@code String}, following {@link TimeZone#getTimeZone(String)}
-   *         but throwing {@link IllegalArgumentException} in case of an invalid time zone specification
-   *
+   * @param timeZoneString the time zone {@code String}, following {@link TimeZone#getTimeZone(String)}
+   * but throwing {@link IllegalArgumentException} in case of an invalid time zone specification
    * @return a corresponding {@link TimeZone} instance
-   *
-   * @throws IllegalArgumentException
-   *         in case of an invalid time zone specification
+   * @throws IllegalArgumentException in case of an invalid time zone specification
    */
   public static TimeZone parseTimeZoneString(String timeZoneString) {
     TimeZone timeZone = TimeZone.getTimeZone(timeZoneString);
@@ -1773,11 +1596,8 @@ else */
    * Convert a name in camelCase to an underscored name in lower case. Any upper
    * case letters are converted to lower case with a preceding underscore.
    *
-   * @param name
-   *         the original name
-   *
+   * @param name the original name
    * @return the converted name
-   *
    * @since 4.0
    */
   public static String camelCaseToUnderscore(String name) {
@@ -1802,12 +1622,9 @@ else */
    * Takes a string formatted like: 'my_string_variable' and returns it as:
    * 'myStringVariable'
    *
-   * @param underscore
-   *         a string formatted like: 'my_string_variable'
-   *
+   * @param underscore a string formatted like: 'my_string_variable'
    * @return Takes a string formatted like: 'my_string_variable' and returns it as:
    * 'myStringVariable'
-   *
    * @since 4.0
    */
   public static String underscoreToCamelCase(String underscore) {

@@ -91,17 +91,11 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   }
 
   /**
-   * @param context
-   *         Current HTTP request context
-   * @param handler
-   *         Target HTTP handler
-   * @param returnValue
-   *         Handler execution result
-   *
-   * @throws ReturnValueHandlerNotFoundException
-   *         not found ReturnValueHandler
-   * @throws IOException
-   *         throws when write data to response
+   * @param context Current HTTP request context
+   * @param handler Target HTTP handler
+   * @param returnValue Handler execution result
+   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
+   * @throws IOException throws when write data to response
    */
   @Override
   public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {
@@ -113,17 +107,11 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   /**
    * select a handler and handle return-value with selected handler
    *
-   * @param context
-   *         current request context
-   * @param handler
-   *         web request handler
-   * @param returnValue
-   *         handler execution result
-   *
+   * @param context current request context
+   * @param handler web request handler
+   * @param returnValue handler execution result
    * @return selected handler or which handler handled this result(return-value)
-   *
-   * @throws IOException
-   *         throws when write data to response
+   * @throws IOException throws when write data to response
    */
   public final ReturnValueHandler handleSelectively(
           RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws IOException {

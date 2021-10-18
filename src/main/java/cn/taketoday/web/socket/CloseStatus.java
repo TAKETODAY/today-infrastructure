@@ -166,8 +166,7 @@ public final class CloseStatus {
   /**
    * Create a new {@link CloseStatus} instance.
    *
-   * @param code
-   *         the status code
+   * @param code the status code
    */
   public CloseStatus(int code) {
     this(code, null);
@@ -176,10 +175,8 @@ public final class CloseStatus {
   /**
    * Create a new {@link CloseStatus} instance.
    *
-   * @param code
-   *         the status code
-   * @param reason
-   *         the reason
+   * @param code the status code
+   * @param reason the reason
    */
   public CloseStatus(int code, String reason) {
     Assert.isTrue((code >= 1000 && code < 5000), "Invalid status code");
@@ -204,9 +201,7 @@ public final class CloseStatus {
   /**
    * Create a new {@link CloseStatus} from this one with the specified reason.
    *
-   * @param reason
-   *         the reason
-   *
+   * @param reason the reason
    * @return a new {@link CloseStatus} instance
    */
   public CloseStatus withReason(String reason) {

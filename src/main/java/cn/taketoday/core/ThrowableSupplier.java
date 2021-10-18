@@ -23,10 +23,8 @@ package cn.taketoday.core;
  * A throwable supplier is a functional interface which consists on a single get
  * function which is able to throw an exception.
  *
- * @param <T>
- *         type of return value
- * @param <E>
- *         type of exception
+ * @param <T> type of return value
+ * @param <E> type of exception
  */
 @FunctionalInterface
 public interface ThrowableSupplier<T, E extends Throwable> {

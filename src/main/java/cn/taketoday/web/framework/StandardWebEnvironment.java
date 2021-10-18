@@ -42,9 +42,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
   /**
    * Add command-line arguments
    *
-   * @param propertySources
-   *         propertySources add to
-   *
+   * @param propertySources propertySources add to
    * @since 4.0
    */
   @Override

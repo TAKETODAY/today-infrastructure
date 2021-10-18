@@ -47,8 +47,8 @@ public class WebApplication {
 
   public WebApplication(Class<?> startupClass, String... args) {
     context = ClassUtils.isPresent(Constant.ENV_SERVLET)
-            ? new ServletWebServerApplicationContext(startupClass, args)
-            : new StandardWebServerApplicationContext(startupClass, args);
+              ? new ServletWebServerApplicationContext(startupClass, args)
+              : new StandardWebServerApplicationContext(startupClass, args);
   }
 
   public WebApplication(WebServerApplicationContext context) {
@@ -83,7 +83,6 @@ public class WebApplication {
    * Startup Web Application
    *
    * @param args Startup arguments
-   *
    * @return {@link WebServerApplicationContext}
    */
   public WebServerApplicationContext run(String... args) {
@@ -113,7 +112,7 @@ public class WebApplication {
       webServer.start();
 
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-              System.currentTimeMillis() - context.getStartupDate()//
+               System.currentTimeMillis() - context.getStartupDate()//
       );
       return context;
     }

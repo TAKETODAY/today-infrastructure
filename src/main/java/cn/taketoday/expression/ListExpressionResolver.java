@@ -62,9 +62,8 @@ public class ListExpressionResolver extends ExpressionResolver {
    * Creates a new <code>ListELResolver</code> whose read-only status is
    * determined by the given parameter.
    *
-   * @param isReadOnly
-   *         <code>true</code> if this resolver cannot modify lists;
-   *         <code>false</code> otherwise.
+   * @param isReadOnly <code>true</code> if this resolver cannot modify lists;
+   * <code>false</code> otherwise.
    */
   public ListExpressionResolver(boolean isReadOnly) {
     this.isReadOnly = isReadOnly;
@@ -88,28 +87,20 @@ public class ListExpressionResolver extends ExpressionResolver {
    * object as an element.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The list to analyze. Only bases of type <code>List</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The index of the element in the list to return the acceptable type
-   *         for. Will be coerced into an integer, but otherwise ignored by
-   *         this resolver.
-   *
+   * @param context The context of this evaluation.
+   * @param base The list to analyze. Only bases of type <code>List</code> are
+   * handled by this resolver.
+   * @param property The index of the element in the list to return the acceptable type
+   * for. Will be coerced into an integer, but otherwise ignored by
+   * this resolver.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the most
    * general acceptable type; otherwise undefined.
-   *
-   * @throws PropertyNotFoundException
-   *         if the given index is out of bounds for this list.
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws PropertyNotFoundException if the given index is out of bounds for this list.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
     if (base instanceof List) {
@@ -138,28 +129,20 @@ public class ListExpressionResolver extends ExpressionResolver {
    * return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The list to be analyzed. Only bases of type <code>List</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The index of the value to be returned. Will be coerced into an
-   *         integer.
-   *
+   * @param context The context of this evaluation.
+   * @param base The list to be analyzed. Only bases of type <code>List</code> are
+   * handled by this resolver.
+   * @param property The index of the value to be returned. Will be coerced into an
+   * integer.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the value
    * at the given index or <code>null</code> if the index was out of
    * bounds. Otherwise, undefined.
-   *
-   * @throws IllegalArgumentException
-   *         if the property could not be coerced into an integer.
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws IllegalArgumentException if the property could not be coerced into an integer.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
     if (base instanceof List) {
@@ -203,36 +186,25 @@ public class ListExpressionResolver extends ExpressionResolver {
    * if it matches the runtime type of the base object as a workaround.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The list to be modified. Only bases of type <code>List</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The index of the value to be set. Will be coerced into an integer.
-   * @param val
-   *         The value to be set at the given index.
-   *
-   * @throws ClassCastException
-   *         if the class of the specified element prevents it from being
-   *         added to this list.
-   * @throws NullPointerException
-   *         if context is <code>null</code>, or if the value is
-   *         <code>null</code> and this <code>List</code> does not support
-   *         <code>null</code> elements.
-   * @throws IllegalArgumentException
-   *         if the property could not be coerced into an integer, or if some
-   *         aspect of the specified element prevents it from being added to
-   *         this list.
-   * @throws PropertyNotWritableException
-   *         if this resolver was constructed in read-only mode, or if the set
-   *         operation is not supported by the underlying list.
-   * @throws PropertyNotFoundException
-   *         if the given index is out of bounds for this list.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @param context The context of this evaluation.
+   * @param base The list to be modified. Only bases of type <code>List</code> are
+   * handled by this resolver.
+   * @param property The index of the value to be set. Will be coerced into an integer.
+   * @param val The value to be set at the given index.
+   * @throws ClassCastException if the class of the specified element prevents it from being
+   * added to this list.
+   * @throws NullPointerException if context is <code>null</code>, or if the value is
+   * <code>null</code> and this <code>List</code> does not support
+   * <code>null</code> elements.
+   * @throws IllegalArgumentException if the property could not be coerced into an integer, or if some
+   * aspect of the specified element prevents it from being added to
+   * this list.
+   * @throws PropertyNotWritableException if this resolver was constructed in read-only mode, or if the set
+   * operation is not supported by the underlying list.
+   * @throws PropertyNotFoundException if the given index is out of bounds for this list.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
@@ -286,30 +258,22 @@ public class ListExpressionResolver extends ExpressionResolver {
    * type of the base object as a workaround.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The list to analyze. Only bases of type <code>List</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The index of the element in the list to return the acceptable type
-   *         for. Will be coerced into an integer, but otherwise ignored by
-   *         this resolver.
-   *
+   * @param context The context of this evaluation.
+   * @param base The list to analyze. Only bases of type <code>List</code> are
+   * handled by this resolver.
+   * @param property The index of the element in the list to return the acceptable type
+   * for. Will be coerced into an integer, but otherwise ignored by
+   * this resolver.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>true</code> if calling the <code>setValue</code> method will
    * always fail or <code>false</code> if it is possible that such a call
    * may succeed; otherwise undefined.
-   *
-   * @throws PropertyNotFoundException
-   *         if the given index is out of bounds for this list.
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws PropertyNotFoundException if the given index is out of bounds for this list.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
     if (base instanceof List) {

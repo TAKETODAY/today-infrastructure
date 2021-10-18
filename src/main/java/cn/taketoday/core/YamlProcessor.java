@@ -136,10 +136,8 @@ public class YamlProcessor {
    * If an unsupported type is encountered, an {@link IllegalStateException}
    * will be thrown when the corresponding YAML node is processed.
    *
-   * @param supportedTypes
-   *         the supported types, or an empty array to clear the
-   *         supported types
-   *
+   * @param supportedTypes the supported types, or an empty array to clear the
+   * supported types
    * @see #createYaml()
    */
   public void setSupportedTypes(Class<?>... supportedTypes) {
@@ -162,9 +160,7 @@ public class YamlProcessor {
    * Depending on the {@link #setResolutionMethod(ResolutionMethod)} not all of the
    * documents will be parsed.
    *
-   * @param callback
-   *         a callback to delegate to once matching documents are found
-   *
+   * @param callback a callback to delegate to once matching documents are found
    * @see #createYaml()
    */
   protected void process(MatchCallback callback) {
@@ -293,9 +289,7 @@ public class YamlProcessor {
    * source. When called with the Map from a {@link MatchCallback} the result will
    * contain the same values as the {@link MatchCallback} Properties.
    *
-   * @param source
-   *         the source map
-   *
+   * @param source the source map
    * @return a flattened map
    */
   protected final Map<String, Object> getFlattenedMap(Map<String, Object> source) {
@@ -374,12 +368,10 @@ public class YamlProcessor {
     /**
      * Process the given representation of the parsing results.
      *
-     * @param properties
-     *         the properties to process (as a flattened
-     *         representation with indexed keys in case of a collection or map)
-     * @param map
-     *         the result map (preserving the original value structure
-     *         in the YAML document)
+     * @param properties the properties to process (as a flattened
+     * representation with indexed keys in case of a collection or map)
+     * @param map the result map (preserving the original value structure
+     * in the YAML document)
      */
     void process(Properties properties, Map<String, Object> map);
   }
@@ -393,9 +385,7 @@ public class YamlProcessor {
     /**
      * Test if the given properties match.
      *
-     * @param properties
-     *         the properties to test
-     *
+     * @param properties the properties to test
      * @return the status of the match
      */
     MatchStatus matches(Properties properties);

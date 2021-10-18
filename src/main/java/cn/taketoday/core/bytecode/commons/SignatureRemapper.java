@@ -48,10 +48,8 @@ public class SignatureRemapper extends SignatureVisitor {
   /**
    * Constructs a new {@link SignatureRemapper}.
    *
-   * @param signatureVisitor
-   *         the signature visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited signature.
+   * @param signatureVisitor the signature visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited signature.
    */
   public SignatureRemapper(final SignatureVisitor signatureVisitor, final Remapper remapper) {
     this.signatureVisitor = signatureVisitor;

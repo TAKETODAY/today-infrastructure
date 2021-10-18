@@ -109,9 +109,7 @@ public abstract class AbstractCacheManager implements CacheManager {
    * method, with no creation of further cache regions at runtime that you do not
    * call {@link #setDynamicCreation(boolean)}.
    *
-   * @param configMap
-   *         Map of {@link CacheConfig}
-   *
+   * @param configMap Map of {@link CacheConfig}
    * @see #setDynamicCreation(boolean)
    * @since 3.0
    */
@@ -125,9 +123,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Add {@link CacheConfig}
    *
-   * @param config
-   *         {@link CacheConfig}
-   *
+   * @param config {@link CacheConfig}
    * @since 3.0
    */
   public void addCacheConfig(CacheConfig config) {
@@ -137,11 +133,8 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Add {@link CacheConfig} with given name
    *
-   * @param name
-   *         {@link Cache} name
-   * @param config
-   *         {@link CacheConfig}
-   *
+   * @param name {@link Cache} name
+   * @param config {@link CacheConfig}
    * @since 3.0
    */
   public void addCacheConfig(String name, CacheConfig config) {
@@ -154,9 +147,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Register cache
    *
-   * @param cache
-   *         {@link Cache}
-   *
+   * @param cache {@link Cache}
    * @since 3.0
    */
   public void registerCustomCache(Cache cache) {
@@ -166,11 +157,8 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Register cache to configMap
    *
-   * @param name
-   *         the cache name
-   * @param cache
-   *         {@link Cache}
-   *
+   * @param name the cache name
+   * @param cache {@link Cache}
    * @since 3.0
    */
   public void registerCustomCache(String name, Cache cache) {
@@ -180,11 +168,8 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Create a new Cache instance for the specified cache name.
    *
-   * @param name
-   *         the name of the cache
-   *
+   * @param name the name of the cache
    * @return the {@link Cache}
-   *
    * @since 3.0
    */
   protected Cache createCache(String name) {
@@ -194,11 +179,8 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Create a new Cache instance for the specified cache name.
    *
-   * @param name
-   *         the name of the cache
-   * @param cacheConfig
-   *         {@link CacheConfig}
-   *
+   * @param name the name of the cache
+   * @param cacheConfig {@link CacheConfig}
    * @return the {@link Cache}
    */
   protected Cache createCache(String name, CacheConfig cacheConfig) {
@@ -208,12 +190,9 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Decorate the given Cache object if necessary.
    *
-   * @param cache
-   *         the Cache object to be added to this CacheManager
-   *
+   * @param cache the Cache object to be added to this CacheManager
    * @return the decorated Cache object to be used instead, or simply the
    * passed-in Cache object by default
-   *
    * @since 3.0
    */
   protected Cache decorateCache(Cache cache) {
@@ -223,11 +202,8 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Sub classes
    *
-   * @param name
-   *         the name of the cache
-   * @param cacheConfig
-   *         {@link CacheConfig}
-   *
+   * @param name the name of the cache
+   * @param cacheConfig {@link CacheConfig}
    * @return the {@link Cache}
    */
   protected abstract Cache doCreate(String name, CacheConfig cacheConfig);
@@ -257,7 +233,6 @@ public abstract class AbstractCacheManager implements CacheManager {
    * is dynamic creation feature enabled
    *
    * @return Is dynamic creation feature enabled
-   *
    * @since 3.0
    */
   public boolean isDynamicCreation() {
@@ -269,9 +244,7 @@ public abstract class AbstractCacheManager implements CacheManager {
    * <p>
    * When {@link #cacheMap} returns null, create new one
    *
-   * @param dynamicCreation
-   *         Enable dynamic creation
-   *
+   * @param dynamicCreation Enable dynamic creation
    * @see #getCache(String)
    * @see #getCache(String, CacheConfig)
    * @since 3.0
@@ -294,8 +267,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Refresh cache with given name in a startup time or runtime
    *
-   * @param name
-   *         cache name
+   * @param name cache name
    */
   public void refreshCache(String name, CacheConfig config) {
     registerCustomCache(name, createCache(name, config));
@@ -308,11 +280,8 @@ public abstract class AbstractCacheManager implements CacheManager {
   /**
    * Get {@link CacheConfig} with given name
    *
-   * @param name
-   *         name of {@link Cache}
-   *
+   * @param name name of {@link Cache}
    * @return {@link CacheConfig}
-   *
    * @since 3.0
    */
   public final CacheConfig getCacheConfig(final String name) {

@@ -16,13 +16,13 @@
 
 package cn.taketoday.core.env;
 
+import java.util.Objects;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
-
-import java.util.Objects;
 
 /**
  * Abstract base class representing a source of name/value property pairs. The underlying
@@ -43,9 +43,7 @@ import java.util.Objects;
  * objects when in collection contexts. See operations in {@link PropertySources}
  * as well as the {@link #named(String)} and {@link #toString()} methods for details.
  *
- * @param <T>
- *         the source type
- *
+ * @param <T> the source type
  * @author Chris Beams
  * @see PropertyResolver
  * @see PropertySourcesPropertyResolver
@@ -62,10 +60,8 @@ public abstract class PropertySource<T> {
   /**
    * Create a new {@code PropertySource} with the given name and source object.
    *
-   * @param name
-   *         the associated name
-   * @param source
-   *         the source object
+   * @param name the associated name
+   * @param source the source object
    */
   public PropertySource(String name, T source) {
     Assert.hasText(name, "Property source name must contain at least one character");
@@ -105,8 +101,7 @@ public abstract class PropertySource<T> {
    * from {@link #getProperty(String)}. Subclasses may wish to implement
    * a more efficient algorithm if possible.
    *
-   * @param name
-   *         the property name to find
+   * @param name the property name to find
    */
   public boolean containsProperty(String name) {
     return getProperty(name) != null;
@@ -116,9 +111,7 @@ public abstract class PropertySource<T> {
    * Return the value associated with the given name,
    * or {@code null} if not found.
    *
-   * @param name
-   *         the property to find
-   *
+   * @param name the property to find
    * @see PropertyResolver#getRequiredProperty(String)
    */
   @Nullable
@@ -184,8 +177,7 @@ public abstract class PropertySource<T> {
    * if any methods other than {@code equals(Object)}, {@code hashCode()}, and {@code toString()}
    * are called.
    *
-   * @param name
-   *         the name of the comparison {@code PropertySource} to be created and returned.
+   * @param name the name of the comparison {@code PropertySource} to be created and returned.
    */
   public static PropertySource<?> named(String name) {
     return new ComparisonPropertySource(name);

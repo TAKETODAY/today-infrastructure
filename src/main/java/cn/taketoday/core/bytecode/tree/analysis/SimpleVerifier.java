@@ -64,12 +64,9 @@ public class SimpleVerifier extends BasicVerifier {
   /**
    * Constructs a new {@link SimpleVerifier} to verify a specific class.
    *
-   * @param currentClass
-   *         the type of the class to be verified.
-   * @param currentSuperClass
-   *         the type of the super class of the class to be verified.
-   * @param isInterface
-   *         whether the class to be verifier is an interface.
+   * @param currentClass the type of the class to be verified.
+   * @param currentSuperClass the type of the super class of the class to be verified.
+   * @param isInterface whether the class to be verifier is an interface.
    */
   public SimpleVerifier(
           final Type currentClass, final Type currentSuperClass, final boolean isInterface) {
@@ -80,15 +77,11 @@ public class SimpleVerifier extends BasicVerifier {
    * Constructs a new {@link SimpleVerifier} to verify a specific class. This class will not be
    * loaded into the JVM since it may be incorrect.
    *
-   * @param currentClass
-   *         the type of the class to be verified.
-   * @param currentSuperClass
-   *         the type of the super class of the class to be verified.
-   * @param currentClassInterfaces
-   *         the types of the interfaces directly implemented by the class to
-   *         be verified.
-   * @param isInterface
-   *         whether the class to be verifier is an interface.
+   * @param currentClass the type of the class to be verified.
+   * @param currentSuperClass the type of the super class of the class to be verified.
+   * @param currentClassInterfaces the types of the interfaces directly implemented by the class to
+   * be verified.
+   * @param isInterface whether the class to be verifier is an interface.
    */
   public SimpleVerifier(
           final Type currentClass,
@@ -104,8 +97,7 @@ public class SimpleVerifier extends BasicVerifier {
   /**
    * Sets the <code>ClassLoader</code> to be used in {@link #getClass}.
    *
-   * @param loader
-   *         the <code>ClassLoader</code> to use.
+   * @param loader the <code>ClassLoader</code> to use.
    */
   public void setClassLoader(final ClassLoader loader) {
     this.loader = loader;
@@ -271,9 +263,7 @@ public class SimpleVerifier extends BasicVerifier {
    * implementation of this method loads the class and uses the reflection API to return its result
    * (unless the given type corresponds to the class being verified).
    *
-   * @param type
-   *         a type.
-   *
+   * @param type a type.
    * @return whether 'type' corresponds to an interface.
    */
   protected boolean isInterface(final Type type) {
@@ -288,9 +278,7 @@ public class SimpleVerifier extends BasicVerifier {
    * of this method loads the class and uses the reflection API to return its result (unless the
    * given type corresponds to the class being verified).
    *
-   * @param type
-   *         a type.
-   *
+   * @param type a type.
    * @return the type corresponding to the super class of 'type'.
    */
   protected Type getSuperClass(final Type type) {
@@ -308,11 +296,8 @@ public class SimpleVerifier extends BasicVerifier {
    * result (unless the result can be computed from the class being verified, and the types of its
    * super classes and implemented interfaces).
    *
-   * @param type1
-   *         a type.
-   * @param type2
-   *         another type.
-   *
+   * @param type1 a type.
+   * @param type2 another type.
    * @return whether the class corresponding to 'type1' is either the same as, or is a superclass or
    * superinterface of the class corresponding to 'type2'.
    */
@@ -352,9 +337,7 @@ public class SimpleVerifier extends BasicVerifier {
    * specified with {@link #setClassLoader}, or with the class loader of this class if no class
    * loader was specified.
    *
-   * @param type
-   *         a type.
-   *
+   * @param type a type.
    * @return the class corresponding to 'type'.
    */
   protected Class<?> getClass(final Type type) {

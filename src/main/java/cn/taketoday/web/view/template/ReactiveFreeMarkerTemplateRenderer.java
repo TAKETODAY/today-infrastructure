@@ -54,9 +54,7 @@ public class ReactiveFreeMarkerTemplateRenderer extends AbstractFreeMarkerTempla
   /**
    * Create Model Attributes.
    *
-   * @param context
-   *         Current request context
-   *
+   * @param context Current request context
    * @return {@link TemplateHashModel}
    */
   protected TemplateHashModel createModel(RequestContext context) {

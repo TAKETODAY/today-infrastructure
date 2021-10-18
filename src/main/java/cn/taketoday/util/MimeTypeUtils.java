@@ -143,13 +143,9 @@ public abstract class MimeTypeUtils {
    * Parse the given String into a single {@code MimeType}. Recently parsed
    * {@code MimeType} are cached for further retrieval.
    *
-   * @param mimeType
-   *         the string to parse
-   *
+   * @param mimeType the string to parse
    * @return the mime type
-   *
-   * @throws InvalidMimeTypeException
-   *         if the string cannot be parsed
+   * @throws InvalidMimeTypeException if the string cannot be parsed
    */
   public static MimeType parseMimeType(String mimeType) {
     if (StringUtils.isEmpty(mimeType)) {
@@ -229,13 +225,9 @@ public abstract class MimeTypeUtils {
   /**
    * Parse the comma-separated string into a list of {@code MimeType} objects.
    *
-   * @param mimeTypes
-   *         the string to parse
-   *
+   * @param mimeTypes the string to parse
    * @return the list of mime types
-   *
-   * @throws InvalidMimeTypeException
-   *         if the string cannot be parsed
+   * @throws InvalidMimeTypeException if the string cannot be parsed
    */
   public static List<MimeType> parseMimeTypes(String mimeTypes) {
     if (StringUtils.isEmpty(mimeTypes)) {
@@ -258,9 +250,7 @@ public abstract class MimeTypeUtils {
    * {@code List<String>}. Unlike simple tokenization by ",", this method takes
    * into account quoted parameters.
    *
-   * @param mimeTypes
-   *         the string to tokenize
-   *
+   * @param mimeTypes the string to tokenize
    * @return the list of tokens
    */
   public static List<String> tokenize(String mimeTypes) {
@@ -296,13 +286,9 @@ public abstract class MimeTypeUtils {
   /**
    * Return a string representation of the given list of {@code MimeType} objects.
    *
-   * @param mimeTypes
-   *         the string to parse
-   *
+   * @param mimeTypes the string to parse
    * @return the list of mime types
-   *
-   * @throws IllegalArgumentException
-   *         if the String cannot be parsed
+   * @throws IllegalArgumentException if the String cannot be parsed
    */
   public static String toString(Collection<? extends MimeType> mimeTypes) {
     StringBuilder builder = new StringBuilder();
@@ -342,9 +328,7 @@ public abstract class MimeTypeUtils {
    * <blockquote>audio/basic == text/html</blockquote> <blockquote>audio/basic ==
    * audio/wave</blockquote>
    *
-   * @param mimeTypes
-   *         the list of mime types to be sorted
-   *
+   * @param mimeTypes the list of mime types to be sorted
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1:
    * Semantics and Content, section 5.3.2</a>
    */

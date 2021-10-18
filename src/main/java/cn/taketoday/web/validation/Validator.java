@@ -30,9 +30,7 @@ public interface Validator {
   /**
    * supports input object?
    *
-   * @param obj
-   *         input object
-   *
+   * @param obj input object
    * @since 3.0
    */
   boolean supports(Object obj);
@@ -40,11 +38,9 @@ public interface Validator {
   /**
    * Validates all constraints on {@code object}.
    *
-   * @param object
-   *         object to validate
-   * @param errors
-   *         a set of the constraint violations caused by this validation; will be
-   *         null if no error occurs
+   * @param object object to validate
+   * @param errors a set of the constraint violations caused by this validation; will be
+   * null if no error occurs
    */
   void validate(Object object, Errors errors);
 

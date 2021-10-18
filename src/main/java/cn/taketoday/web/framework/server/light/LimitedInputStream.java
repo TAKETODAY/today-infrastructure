@@ -42,20 +42,15 @@ public class LimitedInputStream extends FilterInputStream {
    * Constructs a LimitedInputStream with the given underlying
    * input stream and limit.
    *
-   * @param in
-   *         the underlying input stream
-   * @param limit
-   *         the maximum number of bytes that may be consumed from
-   *         the underlying stream before this stream ends. If zero or
-   *         negative, this stream will be at its end from initialization.
-   * @param prematureEndException
-   *         specifies the stream's behavior when
-   *         the underlying stream end is reached before the limit is
-   *         reached: if true, an exception is thrown, otherwise this
-   *         stream reaches its end as well (i.e. read() returns -1)
-   *
-   * @throws NullPointerException
-   *         if the given stream is null
+   * @param in the underlying input stream
+   * @param limit the maximum number of bytes that may be consumed from
+   * the underlying stream before this stream ends. If zero or
+   * negative, this stream will be at its end from initialization.
+   * @param prematureEndException specifies the stream's behavior when
+   * the underlying stream end is reached before the limit is
+   * reached: if true, an exception is thrown, otherwise this
+   * stream reaches its end as well (i.e. read() returns -1)
+   * @throws NullPointerException if the given stream is null
    */
   public LimitedInputStream(InputStream in, long limit, boolean prematureEndException) {
     super(in);

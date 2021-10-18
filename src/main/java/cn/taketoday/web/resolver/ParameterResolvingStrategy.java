@@ -46,15 +46,10 @@ public interface ParameterResolvingStrategy {
   /**
    * Resolve parameter
    *
-   * @param context
-   *         Current request context
-   * @param parameter
-   *         parameter
-   *
+   * @param context Current request context
+   * @param parameter parameter
    * @return method parameter instance
-   *
-   * @throws Throwable
-   *         if any {@link Exception} occurred
+   * @throws Throwable if any {@link Exception} occurred
    * @see MethodParameterResolvingException
    */
   @Nullable

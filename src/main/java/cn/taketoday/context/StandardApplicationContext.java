@@ -50,8 +50,7 @@ public class StandardApplicationContext
   /**
    * Construct with {@link StandardBeanFactory}
    *
-   * @param beanFactory
-   *         {@link StandardBeanFactory} instance
+   * @param beanFactory {@link StandardBeanFactory} instance
    */
   public StandardApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
@@ -60,9 +59,7 @@ public class StandardApplicationContext
   /**
    * Create a new StandardApplicationContext with the given parent.
    *
-   * @param parent
-   *         the parent application context
-   *
+   * @param parent the parent application context
    * @see #registerBeanDefinition(String, BeanDefinition)
    * @see #refresh()
    */
@@ -73,11 +70,8 @@ public class StandardApplicationContext
   /**
    * Create a new DefaultApplicationContext with the given StandardBeanFactory.
    *
-   * @param beanFactory
-   *         the StandardBeanFactory instance to use for this context
-   * @param parent
-   *         the parent application context
-   *
+   * @param beanFactory the StandardBeanFactory instance to use for this context
+   * @param parent the parent application context
    * @see #registerBeanDefinition(String, BeanDefinition)
    * @see #refresh()
    */
@@ -89,8 +83,7 @@ public class StandardApplicationContext
   /**
    * Set given properties location
    *
-   * @param propertiesLocation
-   *         a file or a di rectory to scan
+   * @param propertiesLocation a file or a di rectory to scan
    */
   public StandardApplicationContext(String propertiesLocation) {
     setPropertiesLocation(propertiesLocation);
@@ -99,10 +92,8 @@ public class StandardApplicationContext
   /**
    * Start with given class set
    *
-   * @param components
-   *         one or more component classes,
-   *         e.g. {@link cn.taketoday.lang.Configuration @Configuration} classes
-   *
+   * @param components one or more component classes,
+   * e.g. {@link cn.taketoday.lang.Configuration @Configuration} classes
    * @see #refresh()
    * @see #register(Class[])
    */
@@ -114,11 +105,8 @@ public class StandardApplicationContext
   /**
    * Start context with given properties location and base scan packages
    *
-   * @param propertiesLocation
-   *         a file or a directory contains
-   * @param locations
-   *         scan classes from packages
-   *
+   * @param propertiesLocation a file or a directory contains
+   * @param locations scan classes from packages
    * @see #refresh()
    */
   public StandardApplicationContext(String propertiesLocation, String... locations) {

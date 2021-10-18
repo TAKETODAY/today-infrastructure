@@ -53,16 +53,12 @@ public class MethodInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link MethodInsnNode}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be constructed. This opcode must be
-   *         INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   * @param owner
-   *         the internal name of the method's owner class (see {@link
-   *         Type#getInternalName()}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
+   * @param opcode the opcode of the type instruction to be constructed. This opcode must be
+   * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+   * @param owner the internal name of the method's owner class (see {@link
+   * Type#getInternalName()}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
    */
   public MethodInsnNode(
           final int opcode, final String owner, final String name, final String descriptor) {
@@ -72,18 +68,13 @@ public class MethodInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link MethodInsnNode}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be constructed. This opcode must be
-   *         INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   * @param owner
-   *         the internal name of the method's owner class (see {@link
-   *         Type#getInternalName()}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param isInterface
-   *         if the method's owner class is an interface.
+   * @param opcode the opcode of the type instruction to be constructed. This opcode must be
+   * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+   * @param owner the internal name of the method's owner class (see {@link
+   * Type#getInternalName()}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param isInterface if the method's owner class is an interface.
    */
   public MethodInsnNode(
           final int opcode,
@@ -101,9 +92,8 @@ public class MethodInsnNode extends AbstractInsnNode {
   /**
    * Sets the opcode of this instruction.
    *
-   * @param opcode
-   *         the new instruction opcode. This opcode must be INVOKEVIRTUAL, INVOKESPECIAL,
-   *         INVOKESTATIC or INVOKEINTERFACE.
+   * @param opcode the new instruction opcode. This opcode must be INVOKEVIRTUAL, INVOKESPECIAL,
+   * INVOKESTATIC or INVOKEINTERFACE.
    */
   public void setOpcode(final int opcode) {
     this.opcode = opcode;

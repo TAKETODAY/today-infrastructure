@@ -46,13 +46,12 @@ public class LdcInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link LdcInsnNode}.
    *
-   * @param value
-   *         the constant to be loaded on the stack. This parameter mist be a non null {@link
-   *         Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link
-   *         Type} of OBJECT or ARRAY sort for {@code .class} constants, for classes whose version is
-   *         49, a {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle
-   *         constants, for classes whose version is 51 or a {@link ConstantDynamic} for a constant
-   *         dynamic for classes whose version is 55.
+   * @param value the constant to be loaded on the stack. This parameter mist be a non null {@link
+   * Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link
+   * Type} of OBJECT or ARRAY sort for {@code .class} constants, for classes whose version is
+   * 49, a {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle
+   * constants, for classes whose version is 51 or a {@link ConstantDynamic} for a constant
+   * dynamic for classes whose version is 55.
    */
   public LdcInsnNode(final Object value) {
     super(Opcodes.LDC);

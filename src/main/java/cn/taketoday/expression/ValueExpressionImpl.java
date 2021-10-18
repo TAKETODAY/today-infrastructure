@@ -127,7 +127,6 @@ public final class ValueExpressionImpl extends ValueExpression {
    * @return the <code>expectedType</code> passed to the
    * <code>ExpressionFactory.createValueExpression</code> method that
    * created this <code>ValueExpression</code>.
-   *
    * @see cn.taketoday.expression.Expression#getExpressionString()
    */
   @Override

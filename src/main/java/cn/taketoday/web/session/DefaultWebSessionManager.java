@@ -74,10 +74,8 @@ public class DefaultWebSessionManager implements WebSessionManager {
    * default is create a {@link DefaultSession},
    * subclasses can override this to customize {@link WebSession} implementation
    *
-   * @param token
-   *         session ID
-   * @param sessionStorage
-   *         {@link WebSessionStorage}
+   * @param token session ID
+   * @param sessionStorage {@link WebSessionStorage}
    */
   protected WebSession createSessionInternal(final String token, final WebSessionStorage sessionStorage) {
     return new DefaultSession(token, sessionStorage);

@@ -20,16 +20,16 @@
 
 package cn.taketoday.util;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * Utility class for working with Strings that have placeholder values in them.
@@ -86,10 +86,8 @@ public class PropertyPlaceholderHandler {
    * Creates a new {@code PropertyPlaceholderHandler} that uses the supplied prefix and suffix.
    * Unresolvable placeholders are ignored.
    *
-   * @param placeholderPrefix
-   *         the prefix that denotes the start of a placeholder
-   * @param placeholderSuffix
-   *         the suffix that denotes the end of a placeholder
+   * @param placeholderPrefix the prefix that denotes the start of a placeholder
+   * @param placeholderSuffix the suffix that denotes the end of a placeholder
    */
   public PropertyPlaceholderHandler(String placeholderPrefix, String placeholderSuffix) {
     this(placeholderPrefix, placeholderSuffix, null, true);
@@ -98,16 +96,12 @@ public class PropertyPlaceholderHandler {
   /**
    * Creates a new {@code PropertyPlaceholderHandler} that uses the supplied prefix and suffix.
    *
-   * @param placeholderPrefix
-   *         the prefix that denotes the start of a placeholder
-   * @param placeholderSuffix
-   *         the suffix that denotes the end of a placeholder
-   * @param valueSeparator
-   *         the separating character between the placeholder variable
-   *         and the associated default value, if any
-   * @param ignoreUnresolvablePlaceholders
-   *         indicates whether unresolvable placeholders should
-   *         be ignored ({@code true}) or cause an exception ({@code false})
+   * @param placeholderPrefix the prefix that denotes the start of a placeholder
+   * @param placeholderSuffix the suffix that denotes the end of a placeholder
+   * @param valueSeparator the separating character between the placeholder variable
+   * and the associated default value, if any
+   * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should
+   * be ignored ({@code true}) or cause an exception ({@code false})
    */
   public PropertyPlaceholderHandler(
           String placeholderPrefix, String placeholderSuffix,
@@ -134,11 +128,8 @@ public class PropertyPlaceholderHandler {
    * Replaces all placeholders of format {@code ${name}} with the corresponding
    * property from the supplied {@link Properties}.
    *
-   * @param value
-   *         the value containing the placeholders to be replaced
-   * @param properties
-   *         the {@code Properties} to use for replacement
-   *
+   * @param value the value containing the placeholders to be replaced
+   * @param properties the {@code Properties} to use for replacement
    * @return the supplied value with placeholders replaced inline
    */
   public String replacePlaceholders(String value, final Properties properties) {
@@ -150,11 +141,8 @@ public class PropertyPlaceholderHandler {
    * Replaces all placeholders of format {@code ${name}} with the value returned
    * from the supplied {@link PlaceholderResolver}.
    *
-   * @param value
-   *         the value containing the placeholders to be replaced
-   * @param placeholderResolver
-   *         the {@code PlaceholderResolver} to use for replacement
-   *
+   * @param value the value containing the placeholders to be replaced
+   * @param placeholderResolver the {@code PlaceholderResolver} to use for replacement
    * @return the supplied value with placeholders replaced inline
    */
   public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {

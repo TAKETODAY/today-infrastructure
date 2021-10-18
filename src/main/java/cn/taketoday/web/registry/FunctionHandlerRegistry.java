@@ -166,13 +166,9 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
   /**
    * Map a handler to the given URL path (or pattern)
    *
-   * @param method
-   *         Target HTTP request method
-   * @param pathPattern
-   *         Target path pattern
-   * @param handler
-   *         Handler object
-   *
+   * @param method Target HTTP request method
+   * @param pathPattern Target path pattern
+   * @param handler Handler object
    * @return This {@link FunctionHandlerRegistry}
    */
   public FunctionHandlerRegistry register(HttpMethod method, String pathPattern, Object handler) {

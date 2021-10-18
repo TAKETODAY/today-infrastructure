@@ -51,19 +51,13 @@ public interface Invoker {
    * underlying method return type is void, the invocation returns
    * null.
    *
-   * @param obj
-   *         the object the underlying method is invoked from
-   * @param args
-   *         the arguments used for the method call
-   *
+   * @param obj the object the underlying method is invoked from
+   * @param args the arguments used for the method call
    * @return the result of dispatching the method represented by
    * this object on {@code obj} with parameters
    * {@code args}
-   *
-   * @throws NullPointerException
-   *         if the specified object is null and the method is an instance method.
-   * @throws ExceptionInInitializerError
-   *         if the initialization provoked by this method fails.
+   * @throws NullPointerException if the specified object is null and the method is an instance method.
+   * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
   Object invoke(Object obj, Object[] args);
 }

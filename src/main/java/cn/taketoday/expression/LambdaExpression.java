@@ -87,12 +87,9 @@ public class LambdaExpression {
   /**
    * Creates a new LambdaExpression.
    *
-   * @param formalParameters
-   *         The list of String representing the formal parameters.
-   * @param expression
-   *         The <code>ValueExpression</code> representing the body.
-   * @param context
-   *         {@link EvaluationContext}
+   * @param formalParameters The list of String representing the formal parameters.
+   * @param expression The <code>ValueExpression</code> representing the body.
+   * @param context {@link EvaluationContext}
    */
   public LambdaExpression(List<String> formalParameters, ValueExpression expression, ExpressionContext context) {
     this.formalParameters = formalParameters;
@@ -116,20 +113,14 @@ public class LambdaExpression {
    * evaluation.
    * </p>
    *
-   * @param elContext
-   *         The ELContext used for the evaluation of the expression The
-   *         ELContext set by {@link #setELContext} is ignored.
-   * @param args
-   *         The arguments to invoke the Lambda expression. For calls with no
-   *         arguments, an empty array must be provided. A Lambda argument can
-   *         be <code>null</code>.
-   *
+   * @param elContext The ELContext used for the evaluation of the expression The
+   * ELContext set by {@link #setELContext} is ignored.
+   * @param args The arguments to invoke the Lambda expression. For calls with no
+   * arguments, an empty array must be provided. A Lambda argument can
+   * be <code>null</code>.
    * @return The result of invoking the Lambda expression
-   *
-   * @throws ExpressionException
-   *         if not enough arguments are provided
-   * @throws NullPointerException
-   *         is elContext is null
+   * @throws ExpressionException if not enough arguments are provided
+   * @throws NullPointerException is elContext is null
    */
   public Object invoke(ExpressionContext elContext, Object... args) throws ExpressionException {
     int i = 0;
@@ -177,15 +168,11 @@ public class LambdaExpression {
    * The ELContext set by {@link LambdaExpression#setELContext} is used in the
    * evaluation of the lambda Expression.
    *
-   * @param args
-   *         The arguments to invoke the Lambda expression. For calls with no
-   *         arguments, an empty array must be provided. A Lambda argument can
-   *         be <code>null</code>.
-   *
+   * @param args The arguments to invoke the Lambda expression. For calls with no
+   * arguments, an empty array must be provided. A Lambda argument can
+   * be <code>null</code>.
    * @return The result of invoking the Lambda expression
-   *
-   * @throws ExpressionException
-   *         if not enough arguments are provided
+   * @throws ExpressionException if not enough arguments are provided
    */
   public Object invoke(Object... args) {
     return invoke(this.context, args);

@@ -33,8 +33,7 @@ public interface ConverterRegistry {
   /**
    * Add {@link TypeConverter}s
    *
-   * @param converters
-   *         {@link TypeConverter} object
+   * @param converters {@link TypeConverter} object
    */
   void addConverters(TypeConverter... converters);
 
@@ -43,8 +42,7 @@ public interface ConverterRegistry {
   /**
    * Add a list of {@link TypeConverter}
    *
-   * @param converters
-   *         {@link TypeConverter} object
+   * @param converters {@link TypeConverter} object
    */
   void addConverters(List<TypeConverter> converters);
 

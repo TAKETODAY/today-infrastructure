@@ -30,8 +30,7 @@ public interface InitializingBean {
   /**
    * After bean instance properties set.
    *
-   * @throws Exception
-   *         in case of errors
+   * @throws Exception in case of errors
    */
   void afterPropertiesSet() throws Exception;
 

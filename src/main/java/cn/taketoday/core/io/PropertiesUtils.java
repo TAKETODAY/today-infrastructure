@@ -67,9 +67,7 @@ public abstract class PropertiesUtils {
   /**
    * Check properties file name
    *
-   * @param fileName
-   *         Input file name
-   *
+   * @param fileName Input file name
    * @return checked properties file name
    */
   public static String checkPropertiesName(String fileName) {
@@ -80,13 +78,9 @@ public abstract class PropertiesUtils {
    * Fill the given properties from the given EncodedResource,
    * potentially defining a specific encoding for the properties file.
    *
-   * @param props
-   *         the Properties instance to load into
-   * @param resource
-   *         the resource to load from
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @param props the Properties instance to load into
+   * @param resource the resource to load from
+   * @throws IOException in case of I/O errors
    */
   public static void fillProperties(
           Properties props, EncodedResource resource) throws IOException {
@@ -121,13 +115,9 @@ public abstract class PropertiesUtils {
   /**
    * Load properties from the given resource location
    *
-   * @param resource
-   *         the resource to load from
-   *
+   * @param resource the resource to load from
    * @return the populated Properties instance
-   *
-   * @throws IOException
-   *         if loading failed
+   * @throws IOException if loading failed
    * @see #fillProperties(java.util.Properties, Resource)
    */
   public static Properties loadProperties(String resource) throws IOException {
@@ -138,13 +128,9 @@ public abstract class PropertiesUtils {
   /**
    * Load properties from the given resource (in ISO-8859-1 encoding).
    *
-   * @param resource
-   *         the resource to load from
-   *
+   * @param resource the resource to load from
    * @return the populated Properties instance
-   *
-   * @throws IOException
-   *         if loading failed
+   * @throws IOException if loading failed
    * @see #fillProperties(java.util.Properties, Resource)
    */
   public static Properties loadProperties(Resource resource) throws IOException {
@@ -156,13 +142,9 @@ public abstract class PropertiesUtils {
   /**
    * Fill the given properties from the given resource (in ISO-8859-1 encoding).
    *
-   * @param props
-   *         the Properties instance to fill
-   * @param resource
-   *         the resource to load from
-   *
-   * @throws IOException
-   *         if loading failed
+   * @param props the Properties instance to fill
+   * @param resource the resource to load from
+   * @throws IOException if loading failed
    */
   public static void fillProperties(Properties props, Resource resource) throws IOException {
     try (InputStream is = resource.getInputStream()) {
@@ -189,13 +171,9 @@ public abstract class PropertiesUtils {
    * <p>Merges properties if more than one resource of the same name
    * found in the class path.
    *
-   * @param resourceName
-   *         the name of the class path resource
-   *
+   * @param resourceName the name of the class path resource
    * @return the populated Properties instance
-   *
-   * @throws IOException
-   *         if loading failed
+   * @throws IOException if loading failed
    */
   public static Properties loadAllProperties(String resourceName) throws IOException {
     return loadAllProperties(resourceName, null);
@@ -207,16 +185,11 @@ public abstract class PropertiesUtils {
    * <p>Merges properties if more than one resource of the same name
    * found in the class path.
    *
-   * @param resourceName
-   *         the name of the class path resource
-   * @param classLoader
-   *         the ClassLoader to use for loading
-   *         (or {@code null} to use the default class loader)
-   *
+   * @param resourceName the name of the class path resource
+   * @param classLoader the ClassLoader to use for loading
+   * (or {@code null} to use the default class loader)
    * @return the populated Properties instance
-   *
-   * @throws IOException
-   *         if loading failed
+   * @throws IOException if loading failed
    */
   public static Properties loadAllProperties(String resourceName, @Nullable ClassLoader classLoader) throws IOException {
     Assert.notNull(resourceName, "Resource name must not be null");

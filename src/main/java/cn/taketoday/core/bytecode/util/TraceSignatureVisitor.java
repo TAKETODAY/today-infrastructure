@@ -99,8 +99,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   /**
    * Constructs a new {@link TraceSignatureVisitor}.
    *
-   * @param accessFlags
-   *         for class type signatures, the access flags of the class.
+   * @param accessFlags for class type signatures, the access flags of the class.
    */
   public TraceSignatureVisitor(final int accessFlags) {
     this.isInterface = (accessFlags & Opcodes.ACC_INTERFACE) != 0;

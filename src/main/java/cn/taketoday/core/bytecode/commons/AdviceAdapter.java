@@ -99,14 +99,10 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   /**
    * Constructs a new {@link AdviceAdapter}.
    *
-   * @param methodVisitor
-   *         the method visitor to which this adapter delegates calls.
-   * @param access
-   *         the method's access flags (see {@link Opcodes}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type Type}).
+   * @param methodVisitor the method visitor to which this adapter delegates calls.
+   * @param access the method's access flags (see {@link Opcodes}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type Type}).
    */
   protected AdviceAdapter(
           final MethodVisitor methodVisitor,
@@ -661,10 +657,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
    * }
    * </pre>
    *
-   * @param opcode
-   *         one of {@link Opcodes#RETURN}, {@link Opcodes#IRETURN}, {@link Opcodes#FRETURN},
-   *         {@link Opcodes#ARETURN}, {@link Opcodes#LRETURN}, {@link Opcodes#DRETURN} or {@link
-   *         Opcodes#ATHROW}.
+   * @param opcode one of {@link Opcodes#RETURN}, {@link Opcodes#IRETURN}, {@link Opcodes#FRETURN},
+   * {@link Opcodes#ARETURN}, {@link Opcodes#LRETURN}, {@link Opcodes#DRETURN} or {@link
+   * Opcodes#ATHROW}.
    */
   protected void onMethodExit(final int opcode) { }
 }

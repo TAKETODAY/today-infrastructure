@@ -64,11 +64,8 @@ public interface ResourceLoader {
    * Note that a Resource handle does not imply an existing resource; you need to
    * invoke {@link Resource#exists} to check for existence.
    *
-   * @param location
-   *         the resource location
-   *
+   * @param location the resource location
    * @return a corresponding Resource handle (never {@code null})
-   *
    * @see #CLASSPATH_URL_PREFIX
    * @see Resource#exists()
    * @see Resource#getInputStream()
@@ -83,7 +80,6 @@ public interface ResourceLoader {
    *
    * @return the {@code ClassLoader}
    * (only {@code null} if even the system {@code ClassLoader} isn't accessible)
-   *
    * @see cn.taketoday.util.ClassUtils#getDefaultClassLoader()
    * @see cn.taketoday.util.ClassUtils#forName(String, ClassLoader)
    */

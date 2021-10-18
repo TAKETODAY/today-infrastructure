@@ -102,8 +102,7 @@ public class Textifier extends Printer {
   /**
    * Constructs a new {@link Textifier}.
    *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public Textifier() { }
 
@@ -112,11 +111,8 @@ public class Textifier extends Printer {
    *
    * <p>Usage: Textifier [-nodebug] &lt;binary class name or class file name &gt;
    *
-   * @param args
-   *         the command line arguments.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IOException occurs.
+   * @param args the command line arguments.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   public static void main(final String[] args) throws IOException {
     main(args, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
@@ -127,15 +123,10 @@ public class Textifier extends Printer {
    *
    * <p>Usage: Textifier [-nodebug] &lt;binary class name or class file name &gt;
    *
-   * @param args
-   *         the command line arguments.
-   * @param output
-   *         where to print the result.
-   * @param logger
-   *         where to log errors.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IOException occurs.
+   * @param args the command line arguments.
+   * @param output where to print the result.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
           throws IOException {
@@ -1267,11 +1258,8 @@ public class Textifier extends Printer {
   /**
    * Prints a disassembled view of the given annotation.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values.
    */
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
@@ -1288,17 +1276,12 @@ public class Textifier extends Printer {
   /**
    * Prints a disassembled view of the given type annotation.
    *
-   * @param typeRef
-   *         a reference to the annotated type. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values.
    */
   public Textifier visitTypeAnnotation(
@@ -1321,8 +1304,7 @@ public class Textifier extends Printer {
   /**
    * Prints a disassembled view of the given attribute.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
     StringBuilder stringBuilder = this.stringBuilder;
@@ -1350,8 +1332,7 @@ public class Textifier extends Printer {
   /**
    * Appends a string representation of the given access flags to {@link #stringBuilder}.
    *
-   * @param accessFlags
-   *         some access flags.
+   * @param accessFlags some access flags.
    */
   private void appendAccess(final int accessFlags) {
     StringBuilder stringBuilder = this.stringBuilder;
@@ -1399,8 +1380,7 @@ public class Textifier extends Printer {
   /**
    * Appends the hexadecimal value of the given access flags to {@link #stringBuilder}.
    *
-   * @param accessFlags
-   *         some access flags.
+   * @param accessFlags some access flags.
    */
   private void appendRawAccess(final int accessFlags) {
     stringBuilder
@@ -1412,12 +1392,10 @@ public class Textifier extends Printer {
   /**
    * Appends an internal name, a type descriptor or a type signature to {@link #stringBuilder}.
    *
-   * @param type
-   *         the type of 'value'. Must be one of {@link #INTERNAL_NAME}, {@link
-   *         #FIELD_DESCRIPTOR}, {@link #FIELD_SIGNATURE}, {@link #METHOD_DESCRIPTOR}, {@link
-   *         #METHOD_SIGNATURE}, {@link #CLASS_SIGNATURE} or {@link #HANDLE_DESCRIPTOR}.
-   * @param value
-   *         an internal name, type descriptor or a type signature. May be {@literal null}.
+   * @param type the type of 'value'. Must be one of {@link #INTERNAL_NAME}, {@link
+   * #FIELD_DESCRIPTOR}, {@link #FIELD_SIGNATURE}, {@link #METHOD_DESCRIPTOR}, {@link
+   * #METHOD_SIGNATURE}, {@link #CLASS_SIGNATURE} or {@link #HANDLE_DESCRIPTOR}.
+   * @param value an internal name, type descriptor or a type signature. May be {@literal null}.
    */
   protected void appendDescriptor(final int type, final String value) {
     if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE || type == METHOD_SIGNATURE) {
@@ -1433,10 +1411,8 @@ public class Textifier extends Printer {
   /**
    * Appends the Java generic type declaration corresponding to the given signature.
    *
-   * @param name
-   *         a class, field or method name.
-   * @param signature
-   *         a class, field or method signature.
+   * @param name a class, field or method name.
+   * @param signature a class, field or method signature.
    */
   private void appendJavaDeclaration(final String name, final String signature) {
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(access);
@@ -1459,8 +1435,7 @@ public class Textifier extends Printer {
    * Appends the name of the given label to {@link #stringBuilder}. Constructs a new label name if
    * the given label does not yet have one.
    *
-   * @param label
-   *         a label.
+   * @param label a label.
    */
   protected void appendLabel(final Label label) {
     if (labelNames == null) {
@@ -1477,8 +1452,7 @@ public class Textifier extends Printer {
   /**
    * Appends a string representation of the given handle to {@link #stringBuilder}.
    *
-   * @param handle
-   *         a handle.
+   * @param handle a handle.
    */
   protected void appendHandle(final Handle handle) {
     int tag = handle.getTag();
@@ -1541,9 +1515,8 @@ public class Textifier extends Printer {
   /**
    * Appends a comma to {@link #stringBuilder} if the given number is strictly positive.
    *
-   * @param numValues
-   *         a number of 'values visited so far', for instance the number of annotation
-   *         values visited so far in an annotation visitor.
+   * @param numValues a number of 'values visited so far', for instance the number of annotation
+   * values visited so far in an annotation visitor.
    */
   private void maybeAppendComma(final int numValues) {
     if (numValues > 0) {
@@ -1554,8 +1527,7 @@ public class Textifier extends Printer {
   /**
    * Appends a string representation of the given type reference to {@link #stringBuilder}.
    *
-   * @param typeRef
-   *         a type reference. See {@link TypeReference}.
+   * @param typeRef a type reference. See {@link TypeReference}.
    */
   private void appendTypeReference(final int typeRef) {
     TypeReference typeReference = new TypeReference(typeRef);
@@ -1654,11 +1626,9 @@ public class Textifier extends Printer {
   /**
    * Appends the given stack map frame types to {@link #stringBuilder}.
    *
-   * @param numTypes
-   *         the number of stack map frame types in 'frameTypes'.
-   * @param frameTypes
-   *         an array of stack map frame types, in the format described in {@link
-   *         MethodVisitor#visitFrame}.
+   * @param numTypes the number of stack map frame types in 'frameTypes'.
+   * @param frameTypes an array of stack map frame types, in the format described in {@link
+   * MethodVisitor#visitFrame}.
    */
   private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
     final StringBuilder stringBuilder = this.stringBuilder;
@@ -1687,9 +1657,7 @@ public class Textifier extends Printer {
   /**
    * Creates and adds to {@link #text} a new {@link Textifier}, followed by the given string.
    *
-   * @param endText
-   *         the text to add to {@link #text} after the textifier. May be {@literal null}.
-   *
+   * @param endText the text to add to {@link #text} after the textifier. May be {@literal null}.
    * @return the newly created {@link Textifier}.
    */
   private Textifier addNewTextifier(final String endText) {

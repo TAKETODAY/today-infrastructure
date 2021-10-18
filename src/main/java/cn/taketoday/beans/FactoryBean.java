@@ -53,7 +53,6 @@ public interface FactoryBean<T> {
    * Get the bean class
    *
    * @return bean class
-   *
    * @since 2.1.2
    */
   Class<T> getBeanClass();

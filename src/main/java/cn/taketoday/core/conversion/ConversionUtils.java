@@ -38,11 +38,8 @@ public abstract class ConversionUtils {
   /**
    * Get Target {@link TypeConverter}
    *
-   * @param source
-   *         input source
-   * @param targetClass
-   *         convert to target class
-   *
+   * @param source input source
+   * @param targetClass convert to target class
    * @return TypeConverter
    */
   public static TypeConverter getConverter(Object source, Class<?> targetClass) {
@@ -52,11 +49,8 @@ public abstract class ConversionUtils {
   /**
    * Convert source to target type
    *
-   * @param source
-   *         value
-   * @param targetClass
-   *         targetClass
-   *
+   * @param source value
+   * @param targetClass targetClass
    * @return converted object
    */
   public static Object convert(final Object source, final Class<?> targetClass) {
@@ -64,15 +58,10 @@ public abstract class ConversionUtils {
   }
 
   /**
-   * @param <T>
-   *         Target type
-   * @param targetClass
-   *         Target type
-   * @param source
-   *         Source object
-   *
+   * @param <T> Target type
+   * @param targetClass Target type
+   * @param source Source object
    * @return converted object
-   *
    * @since 2.1.7
    */
   @SuppressWarnings("unchecked")
@@ -91,8 +80,7 @@ public abstract class ConversionUtils {
   /**
    * Convert a string to {@link Duration}
    *
-   * @param value
-   *         Input string
+   * @param value Input string
    */
   public static Duration parseDuration(String value) {
     Assert.notNull(value, "Input string must not be null");
@@ -125,9 +113,7 @@ public abstract class ConversionUtils {
   /**
    * Add {@link TypeConverter} to {@link DefaultConversionService#converters}
    *
-   * @param converters
-   *         {@link TypeConverter} object
-   *
+   * @param converters {@link TypeConverter} object
    * @since 2.1.6
    */
   public static void addConverter(TypeConverter... converters) {
@@ -137,9 +123,7 @@ public abstract class ConversionUtils {
   /**
    * Add a list of {@link TypeConverter} to {@link DefaultConversionService#converters}
    *
-   * @param converters
-   *         {@link TypeConverter} object
-   *
+   * @param converters {@link TypeConverter} object
    * @since 2.1.6
    */
   public static void addConverter(List<TypeConverter> converters) {

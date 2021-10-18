@@ -40,9 +40,7 @@ public interface PropertyResolver {
    * Return the property value associated with the given key,
    * or {@code null} if the key cannot be resolved.
    *
-   * @param key
-   *         the property name to resolve
-   *
+   * @param key the property name to resolve
    * @see #getProperty(String, String)
    * @see #getProperty(String, Class)
    * @see #getRequiredProperty(String)
@@ -54,11 +52,8 @@ public interface PropertyResolver {
    * Return the property value associated with the given key, or
    * {@code defaultValue} if the key cannot be resolved.
    *
-   * @param key
-   *         the property name to resolve
-   * @param defaultValue
-   *         the default value to return if no value is found
-   *
+   * @param key the property name to resolve
+   * @param defaultValue the default value to return if no value is found
    * @see #getRequiredProperty(String)
    * @see #getProperty(String, Class)
    */
@@ -68,11 +63,8 @@ public interface PropertyResolver {
    * Return the property value associated with the given key,
    * or {@code null} if the key cannot be resolved.
    *
-   * @param key
-   *         the property name to resolve
-   * @param targetType
-   *         the expected type of the property value
-   *
+   * @param key the property name to resolve
+   * @param targetType the expected type of the property value
    * @see #getRequiredProperty(String, Class)
    */
   @Nullable
@@ -82,13 +74,9 @@ public interface PropertyResolver {
    * Return the property value associated with the given key,
    * or {@code defaultValue} if the key cannot be resolved.
    *
-   * @param key
-   *         the property name to resolve
-   * @param targetType
-   *         the expected type of the property value
-   * @param defaultValue
-   *         the default value to return if no value is found
-   *
+   * @param key the property name to resolve
+   * @param targetType the expected type of the property value
+   * @param defaultValue the default value to return if no value is found
    * @see #getRequiredProperty(String, Class)
    */
   <T> T getProperty(String key, Class<T> targetType, T defaultValue);
@@ -96,8 +84,7 @@ public interface PropertyResolver {
   /**
    * Return the property value associated with the given key (never {@code null}).
    *
-   * @throws IllegalStateException
-   *         if the key cannot be resolved
+   * @throws IllegalStateException if the key cannot be resolved
    * @see #getRequiredProperty(String, Class)
    */
   String getRequiredProperty(String key) throws IllegalStateException;
@@ -106,17 +93,14 @@ public interface PropertyResolver {
    * Return the property value associated with the given key, converted to the given
    * targetType (never {@code null}).
    *
-   * @throws IllegalStateException
-   *         if the given key cannot be resolved
+   * @throws IllegalStateException if the given key cannot be resolved
    */
   <T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException;
 
   /**
    * Retrieve the flag for the given property key.
    *
-   * @param key
-   *         the property key
-   *
+   * @param key the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise
    */
@@ -130,9 +114,7 @@ public interface PropertyResolver {
    * If there isn't a key returns defaultFlag
    * </p>
    *
-   * @param key
-   *         the property key
-   *
+   * @param key the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise ,If there isn't a key returns defaultFlag
    */
@@ -146,13 +128,9 @@ public interface PropertyResolver {
    * property values as resolved by {@link #getProperty}. Unresolvable placeholders with
    * no default value are ignored and passed through unchanged.
    *
-   * @param text
-   *         the String to resolve
-   *
+   * @param text the String to resolve
    * @return the resolved String (never {@code null})
-   *
-   * @throws IllegalArgumentException
-   *         if given text is {@code null}
+   * @throws IllegalArgumentException if given text is {@code null}
    * @see #resolveRequiredPlaceholders
    */
   String resolvePlaceholders(String text);
@@ -163,10 +141,8 @@ public interface PropertyResolver {
    * no default value will cause an IllegalArgumentException to be thrown.
    *
    * @return the resolved String (never {@code null})
-   *
-   * @throws IllegalArgumentException
-   *         if given text is {@code null}
-   *         or if any placeholders are unresolvable
+   * @throws IllegalArgumentException if given text is {@code null}
+   * or if any placeholders are unresolvable
    */
   String resolveRequiredPlaceholders(String text) throws IllegalArgumentException;
 

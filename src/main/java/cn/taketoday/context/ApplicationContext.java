@@ -55,7 +55,6 @@ public interface ApplicationContext
    * Get AbstractBeanFactory
    *
    * @return A bean factory
-   *
    * @since 3.0
    */
   BeanFactory getBeanFactory();
@@ -63,8 +62,7 @@ public interface ApplicationContext
   /**
    * unwrap bean-factory to {@code requiredType}
    *
-   * @throws IllegalArgumentException
-   *         not a requiredType
+   * @throws IllegalArgumentException not a requiredType
    * @see #getBeanFactory()
    * @since 4.0
    */
@@ -74,8 +72,7 @@ public interface ApplicationContext
   /**
    * unwrap this ApplicationContext to {@code requiredType}
    *
-   * @throws IllegalArgumentException
-   *         not a requiredType
+   * @throws IllegalArgumentException not a requiredType
    * @since 4.0
    */
   @NonNull
@@ -105,7 +102,6 @@ public interface ApplicationContext
    * Get context's state
    *
    * @return context's state
-   *
    * @since 2.1.5
    */
   State getState();
@@ -114,7 +110,6 @@ public interface ApplicationContext
    * Return the unique id of this application context.
    *
    * @return the unique id of the context, or {@code null} if none
-   *
    * @since 4.0
    */
   @Nullable
@@ -124,7 +119,6 @@ public interface ApplicationContext
    * Return a name for the deployed application that this context belongs to.
    *
    * @return a name for the deployed application, or the empty String by default
-   *
    * @since 4.0
    */
   String getApplicationName();
@@ -134,7 +128,6 @@ public interface ApplicationContext
    * and this is the root of the context hierarchy.
    *
    * @return the parent context, or {@code null} if there is no parent
-   *
    * @since 4.0
    */
   @Nullable
@@ -155,12 +148,10 @@ public interface ApplicationContext
    * all application context implementations will be required to comply.
    *
    * @return the AutowireCapableBeanFactory for this context
-   *
-   * @throws IllegalStateException
-   *         if the context does not support the
-   *         {@link AutowireCapableBeanFactory} interface, or does not hold an
-   *         autowire-capable bean factory yet (e.g. if {@code refresh()} has
-   *         never been called), or if the context has been closed already
+   * @throws IllegalStateException if the context does not support the
+   * {@link AutowireCapableBeanFactory} interface, or does not hold an
+   * autowire-capable bean factory yet (e.g. if {@code refresh()} has
+   * never been called), or if the context has been closed already
    * @see ConfigurableApplicationContext#refresh()
    * @see ConfigurableApplicationContext#getBeanFactory()
    */
@@ -168,7 +159,6 @@ public interface ApplicationContext
 
   /**
    * @return ExpressionEvaluator of this context
-   *
    * @since 4.0
    */
   ExpressionEvaluator getExpressionEvaluator();

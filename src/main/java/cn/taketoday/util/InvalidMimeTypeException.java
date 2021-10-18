@@ -36,10 +36,8 @@ public class InvalidMimeTypeException extends IllegalArgumentException {
   /**
    * Create a new InvalidContentTypeException for the given content type.
    *
-   * @param mimeType
-   *         the offending media type
-   * @param message
-   *         a detail message indicating the invalid part
+   * @param mimeType the offending media type
+   * @param message a detail message indicating the invalid part
    */
   public InvalidMimeTypeException(String mimeType, String message) {
     super("Invalid mime type \"" + mimeType + "\": " + message);

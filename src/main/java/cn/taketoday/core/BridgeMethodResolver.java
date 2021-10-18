@@ -61,9 +61,7 @@ public abstract class BridgeMethodResolver {
    * In such a case, the supplied {@link Method} instance is returned directly to the caller.
    * Callers are <strong>not</strong> required to check for bridging before calling this method.
    *
-   * @param bridgeMethod
-   *         the method to introspect
-   *
+   * @param bridgeMethod the method to introspect
    * @return the original method (either the bridged method or the passed-in method
    * if no more specific one could be found)
    */
@@ -108,11 +106,8 @@ public abstract class BridgeMethodResolver {
   /**
    * Searches for the bridged method in the given candidates.
    *
-   * @param candidateMethods
-   *         the List of candidate Methods
-   * @param bridgeMethod
-   *         the bridge method
-   *
+   * @param candidateMethods the List of candidate Methods
+   * @param bridgeMethod the bridge method
    * @return the bridged method, or {@code null} if none found
    */
   @Nullable
@@ -181,8 +176,7 @@ public abstract class BridgeMethodResolver {
    * Searches for the generic {@link Method} declaration whose erased signature
    * matches that of the supplied bridge method.
    *
-   * @throws IllegalStateException
-   *         if the generic declaration cannot be found
+   * @throws IllegalStateException if the generic declaration cannot be found
    */
   @Nullable
   private static Method findGenericDeclaration(Method bridgeMethod) {

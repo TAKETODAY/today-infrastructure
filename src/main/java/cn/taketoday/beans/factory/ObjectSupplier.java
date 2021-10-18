@@ -44,9 +44,7 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    * lines of {@link BeanFactory#getBean(String)}.
    *
    * @return an instance of the bean
-   *
-   * @throws BeansException
-   *         in case of creation errors
+   * @throws BeansException in case of creation errors
    */
   @Override
   default T get() throws BeansException {
@@ -62,9 +60,7 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    * managed by this factory.
    *
    * @return an instance of the bean, or {@code null} if not available
-   *
-   * @throws BeansException
-   *         in case of creation errors
+   * @throws BeansException in case of creation errors
    * @see #get()
    */
   T getIfAvailable() throws BeansException;
@@ -73,15 +69,11 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    * Return an instance (possibly shared or independent) of the object
    * managed by this factory.
    *
-   * @param defaultSupplier
-   *         a callback for supplying a default object
-   *         if none is present in the factory
-   *
+   * @param defaultSupplier a callback for supplying a default object
+   * if none is present in the factory
    * @return an instance of the bean, or the supplied default object
    * if no such bean is available
-   *
-   * @throws BeansException
-   *         in case of creation errors
+   * @throws BeansException in case of creation errors
    * @see #getIfAvailable()
    */
   default T getIfAvailable(Supplier<T> defaultSupplier) throws BeansException {
@@ -93,12 +85,9 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    * Consume an instance (possibly shared or independent) of the object
    * managed by this factory, if available.
    *
-   * @param dependencyConsumer
-   *         a callback for processing the target object
-   *         if available (not called otherwise)
-   *
-   * @throws BeansException
-   *         in case of creation errors
+   * @param dependencyConsumer a callback for processing the target object
+   * if available (not called otherwise)
+   * @throws BeansException in case of creation errors
    * @see #getIfAvailable()
    */
   default void ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {

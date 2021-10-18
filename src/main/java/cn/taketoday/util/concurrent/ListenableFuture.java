@@ -30,9 +30,7 @@ import java.util.concurrent.Future;
  *
  * <p>Inspired by {@code com.google.common.util.concurrent.ListenableFuture}.
  *
- * @param <T>
- *         the result type returned by this Future's {@code get} method
- *
+ * @param <T> the result type returned by this Future's {@code get} method
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
@@ -43,18 +41,15 @@ public interface ListenableFuture<T> extends Future<T> {
   /**
    * Register the given {@code ListenableFutureCallback}.
    *
-   * @param callback
-   *         the callback to register
+   * @param callback the callback to register
    */
   void addCallback(ListenableFutureCallback<? super T> callback);
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
    *
-   * @param successCallback
-   *         the success callback
-   * @param failureCallback
-   *         the failure callback
+   * @param successCallback the success callback
+   * @param failureCallback the failure callback
    */
   void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback);
 

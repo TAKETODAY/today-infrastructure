@@ -266,14 +266,12 @@ final class TomcatRemoteEndpointImplServer extends WsRemoteEndpointImplBase {
   }
 
   /**
-   * @param t
-   *         The throwable associated with any error that
-   *         occurred
-   * @param useDispatch
-   *         Should {@link SendHandler#onResult(SendResult)} be
-   *         called from a new thread, keeping in mind the
-   *         requirements of
-   *         {@link javax.websocket.RemoteEndpoint.Async}
+   * @param t The throwable associated with any error that
+   * occurred
+   * @param useDispatch Should {@link SendHandler#onResult(SendResult)} be
+   * called from a new thread, keeping in mind the
+   * requirements of
+   * {@link javax.websocket.RemoteEndpoint.Async}
    */
   private void clearHandler(Throwable t, boolean useDispatch) {
     // Setting the result marks this (partial) message as

@@ -35,9 +35,7 @@ public interface CallbackFilter {
   /**
    * Map a method to a callback.
    *
-   * @param method
-   *         the intercepted method
-   *
+   * @param method the intercepted method
    * @return the index into the array of callbacks (as specified by
    * {@link Enhancer#setCallbacks}) to use for the method,
    */

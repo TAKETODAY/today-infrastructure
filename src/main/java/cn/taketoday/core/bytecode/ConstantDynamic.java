@@ -46,15 +46,11 @@ public final class ConstantDynamic {
   /**
    * Constructs a new {@link ConstantDynamic}.
    *
-   * @param name
-   *         the constant name (can be arbitrary).
-   * @param descriptor
-   *         the constant type (must be a field descriptor).
-   * @param bootstrapMethod
-   *         the bootstrap method to use to compute the constant value at runtime.
-   * @param bootstrapMethodArguments
-   *         the arguments to pass to the bootstrap method, in order to
-   *         compute the constant value at runtime.
+   * @param name the constant name (can be arbitrary).
+   * @param descriptor the constant type (must be a field descriptor).
+   * @param bootstrapMethod the bootstrap method to use to compute the constant value at runtime.
+   * @param bootstrapMethodArguments the arguments to pass to the bootstrap method, in order to
+   * compute the constant value at runtime.
    */
   public ConstantDynamic(
           final String name,
@@ -109,10 +105,8 @@ public final class ConstantDynamic {
    * Returns an argument passed to the bootstrap method, in order to compute the value of this
    * constant.
    *
-   * @param index
-   *         an argument index, between 0 and {@link #getBootstrapMethodArgumentCount()}
-   *         (exclusive).
-   *
+   * @param index an argument index, between 0 and {@link #getBootstrapMethodArgumentCount()}
+   * (exclusive).
    * @return the argument passed to the bootstrap method, with the given index.
    */
   public Object getBootstrapMethodArgument(final int index) {

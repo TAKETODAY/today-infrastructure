@@ -51,20 +51,15 @@ public final class Handle {
   /**
    * Constructs a new field or method handle.
    *
-   * @param tag
-   *         the kind of field or method designated by this Handle. Must be {@link
-   *         Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD}, {@link
-   *         Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
-   *         {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or {@link
-   *         Opcodes#H_INVOKEINTERFACE}.
-   * @param owner
-   *         the internal name of the class that owns the field or method designated by this
-   *         handle.
-   * @param name
-   *         the name of the field or method designated by this handle.
-   * @param descriptor
-   *         the descriptor of the field or method designated by this handle.
-   *
+   * @param tag the kind of field or method designated by this Handle. Must be {@link
+   * Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD}, {@link
+   * Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
+   * {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or {@link
+   * Opcodes#H_INVOKEINTERFACE}.
+   * @param owner the internal name of the class that owns the field or method designated by this
+   * handle.
+   * @param name the name of the field or method designated by this handle.
+   * @param descriptor the descriptor of the field or method designated by this handle.
    * @deprecated this constructor has been superseded by {@link #Handle(int, String, String, String,
    * boolean)}.
    */
@@ -76,21 +71,16 @@ public final class Handle {
   /**
    * Constructs a new field or method handle.
    *
-   * @param tag
-   *         the kind of field or method designated by this Handle. Must be {@link
-   *         Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD}, {@link
-   *         Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
-   *         {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or {@link
-   *         Opcodes#H_INVOKEINTERFACE}.
-   * @param owner
-   *         the internal name of the class that owns the field or method designated by this
-   *         handle.
-   * @param name
-   *         the name of the field or method designated by this handle.
-   * @param descriptor
-   *         the descriptor of the field or method designated by this handle.
-   * @param isInterface
-   *         whether the owner is an interface or not.
+   * @param tag the kind of field or method designated by this Handle. Must be {@link
+   * Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD}, {@link
+   * Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
+   * {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or {@link
+   * Opcodes#H_INVOKEINTERFACE}.
+   * @param owner the internal name of the class that owns the field or method designated by this
+   * handle.
+   * @param name the name of the field or method designated by this handle.
+   * @param descriptor the descriptor of the field or method designated by this handle.
+   * @param isInterface whether the owner is an interface or not.
    */
   public Handle(
           final int tag,

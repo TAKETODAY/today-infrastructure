@@ -89,11 +89,8 @@ public abstract class AbstractCacheInterceptor
   /**
    * Prepare {@link Cache} name
    *
-   * @param method
-   *         Target method
-   * @param cacheName
-   *         {@link CacheConfig#cacheName()}
-   *
+   * @param method Target method
+   * @param cacheName {@link CacheConfig#cacheName()}
    * @return A not empty cache name
    */
   protected String prepareCacheName(Method method, String cacheName) {
@@ -111,15 +108,10 @@ public abstract class AbstractCacheInterceptor
   /**
    * Obtain a Target method's {@link Cache} object
    *
-   * @param method
-   *         Target method
-   * @param cacheConfig
-   *         {@link CacheConfig}
-   *
+   * @param method Target method
+   * @param cacheConfig {@link CacheConfig}
    * @return {@link Cache}
-   *
-   * @throws NoSuchCacheException
-   *         If there isn't a {@link Cache}
+   * @throws NoSuchCacheException If there isn't a {@link Cache}
    */
   protected Cache obtainCache(Method method, CacheConfig cacheConfig) {
     String name = prepareCacheName(method, cacheConfig.cacheName());
@@ -211,13 +203,9 @@ public abstract class AbstractCacheInterceptor
     /**
      * Create a key for the target method
      *
-     * @param key
-     *         Key expression
-     * @param ctx
-     *         Cache el ctx
-     * @param invocation
-     *         Target Method Invocation
-     *
+     * @param key Key expression
+     * @param ctx Cache el ctx
+     * @param invocation Target Method Invocation
      * @return Cache key
      */
     static Object createKey(String key,
@@ -232,11 +220,8 @@ public abstract class AbstractCacheInterceptor
     /**
      * Test condition Expression
      *
-     * @param condition
-     *         condition expression
-     * @param context
-     *         Cache EL Context
-     *
+     * @param condition condition expression
+     * @param context Cache EL Context
      * @return returns If pass the condition
      */
     static boolean isConditionPassing(String condition, CacheExpressionContext context) {
@@ -248,12 +233,9 @@ public abstract class AbstractCacheInterceptor
     /**
      * Test unless Expression
      *
-     * @param unless
-     *         unless express
-     * @param result
-     *         method return value
-     * @param context
-     *         Cache el context
+     * @param unless unless express
+     * @param result method return value
+     * @param context Cache el context
      */
     static boolean allowPutCache(String unless, Object result, CacheExpressionContext context) {
 
@@ -267,10 +249,8 @@ public abstract class AbstractCacheInterceptor
     /**
      * Prepare parameter names
      *
-     * @param beans
-     *         The mapping
-     * @param arguments
-     *         Target {@link Method} parameters
+     * @param beans The mapping
+     * @param arguments Target {@link Method} parameters
      */
     static void prepareParameterNames(MethodKey methodKey,
                                       Object[] arguments,

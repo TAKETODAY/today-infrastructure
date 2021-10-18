@@ -64,9 +64,7 @@ public class OrderComparator implements Comparator<Object> {
   /**
    * Build an adapted order comparator with the given source provider.
    *
-   * @param sourceProvider
-   *         the order source provider to use
-   *
+   * @param sourceProvider the order source provider to use
    * @return the adapted comparator
    */
   public <T> Comparator<T> withSourceProvider(OrderSourceProvider sourceProvider) {
@@ -99,9 +97,7 @@ public class OrderComparator implements Comparator<Object> {
    * <p>The default implementation checks against the given {@link OrderSourceProvider}
    * using {@link #findOrder} and falls back to a regular {@link #getOrder(Object)} call.
    *
-   * @param obj
-   *         the object to check
-   *
+   * @param obj the object to check
    * @return the order value, or {@code Ordered.LOWEST_PRECEDENCE} as fallback
    */
   private int getOrder(@Nullable Object obj, @Nullable OrderSourceProvider sourceProvider) {
@@ -130,9 +126,7 @@ public class OrderComparator implements Comparator<Object> {
    * <p>The default implementation checks against the {@link Ordered} interface
    * through delegating to {@link #findOrder}. Can be overridden in subclasses.
    *
-   * @param obj
-   *         the object to check
-   *
+   * @param obj the object to check
    * @return the order value, or {@code Ordered.LOWEST_PRECEDENCE} as fallback
    */
   protected int getOrder(@Nullable Object obj) {
@@ -150,9 +144,7 @@ public class OrderComparator implements Comparator<Object> {
    * <p>The default implementation checks against the {@link Ordered} interface.
    * Can be overridden in subclasses.
    *
-   * @param obj
-   *         the object to check
-   *
+   * @param obj the object to check
    * @return the order value, or {@code null} if none found
    */
   @Nullable
@@ -168,9 +160,7 @@ public class OrderComparator implements Comparator<Object> {
    * A priority indicates that it may be used for selecting one object over
    * another, in addition to serving for ordering purposes in a list/array.
    *
-   * @param obj
-   *         the object to check
-   *
+   * @param obj the object to check
    * @return the priority value, or {@code null} if none
    */
   @Nullable
@@ -183,9 +173,7 @@ public class OrderComparator implements Comparator<Object> {
    * <p>Optimized to skip sorting for lists with size 0 or 1,
    * in order to avoid unnecessary array extraction.
    *
-   * @param list
-   *         the List to sort
-   *
+   * @param list the List to sort
    * @see java.util.List#sort(java.util.Comparator)
    */
   public static void sort(List<?> list) {
@@ -199,9 +187,7 @@ public class OrderComparator implements Comparator<Object> {
    * <p>Optimized to skip sorting for lists with size 0 or 1,
    * in order to avoid unnecessary array extraction.
    *
-   * @param array
-   *         the array to sort
-   *
+   * @param array the array to sort
    * @see java.util.Arrays#sort(Object[], java.util.Comparator)
    */
   public static void sort(Object[] array) {
@@ -216,9 +202,7 @@ public class OrderComparator implements Comparator<Object> {
    * <p>Optimized to skip sorting for lists with size 0 or 1,
    * in order to avoid unnecessary array extraction.
    *
-   * @param value
-   *         the array or List to sort
-   *
+   * @param value the array or List to sort
    * @see java.util.Arrays#sort(Object[], java.util.Comparator)
    */
   public static void sortIfNecessary(Object value) {

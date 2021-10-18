@@ -70,11 +70,8 @@ public abstract class WebUtils {
   /**
    * Resolves the content type of the file.
    *
-   * @param filename
-   *         name of file or path
-   *
+   * @param filename name of file or path
    * @return file content type
-   *
    * @since 2.3.7
    */
   @Nullable
@@ -122,13 +119,9 @@ public abstract class WebUtils {
   /**
    * Download file to client.
    *
-   * @param context
-   *         Current request context
-   * @param download
-   *         {@link Resource} to download
-   * @param bufferSize
-   *         Download buffer size
-   *
+   * @param context Current request context
+   * @param download {@link Resource} to download
+   * @param bufferSize Download buffer size
    * @since 2.1.x
    */
   public static void downloadFile(
@@ -326,9 +319,7 @@ public abstract class WebUtils {
   /**
    * Parse Parameters
    *
-   * @param s
-   *         decoded {@link String}
-   *
+   * @param s decoded {@link String}
    * @return Map of list parameters
    */
   public static MultiValueMap<String, String> parseParameters(String s) {
@@ -356,11 +347,8 @@ public abstract class WebUtils {
    * keys {@code "q1"} and {@code "q2"} with values {@code ["a","b"]} and
    * {@code ["a","b","c"]} respectively.
    *
-   * @param matrixVariables
-   *         the unparsed matrix variables string
-   *
+   * @param matrixVariables the unparsed matrix variables string
    * @return a map with matrix variable names and values (never {@code null})
-   *
    * @since 3.0
    */
   public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {

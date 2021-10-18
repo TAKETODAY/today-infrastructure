@@ -55,12 +55,9 @@ final class Subroutine {
   /**
    * Constructs a new {@link Subroutine}.
    *
-   * @param start
-   *         the start of this subroutine.
-   * @param maxLocals
-   *         the local variables that are read or written by this subroutine.
-   * @param caller
-   *         a JSR instruction that jump to this subroutine.
+   * @param start the start of this subroutine.
+   * @param maxLocals the local variables that are read or written by this subroutine.
+   * @param caller a JSR instruction that jump to this subroutine.
    */
   Subroutine(final LabelNode start, final int maxLocals, final JumpInsnNode caller) {
     this.start = start;
@@ -72,8 +69,7 @@ final class Subroutine {
   /**
    * Constructs a copy of the given {@link Subroutine}.
    *
-   * @param subroutine
-   *         the subroutine to copy.
+   * @param subroutine the subroutine to copy.
    */
   Subroutine(final Subroutine subroutine) {
     this.start = subroutine.start;
@@ -86,9 +82,7 @@ final class Subroutine {
    * given subroutine are marked as read or written by this one, and the callers of the given
    * subroutine are added as callers of this one (if both have the same start).
    *
-   * @param subroutine
-   *         another subroutine. This subroutine is left unchanged by this method.
-   *
+   * @param subroutine another subroutine. This subroutine is left unchanged by this method.
    * @return whether this subroutine has been modified by this method.
    */
   public boolean merge(final Subroutine subroutine) {

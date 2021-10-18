@@ -33,11 +33,8 @@ public interface TypeConverter {
    * whether this {@link TypeConverter} supports to convert source object to
    * target class object
    *
-   * @param targetType
-   *         target class
-   * @param sourceType
-   *         source object never be null
-   *
+   * @param targetType target class
+   * @param sourceType source object never be null
    * @return whether this {@link TypeConverter} supports to convert source object
    * to target class object
    */
@@ -46,15 +43,10 @@ public interface TypeConverter {
   /**
    * Convert source object to target object
    *
-   * @param targetType
-   *         target type
-   * @param source
-   *         source object never be null
-   *
+   * @param targetType target type
+   * @param source source object never be null
    * @return a converted object
-   *
-   * @throws ConversionException
-   *         if can't convert to target object
+   * @throws ConversionException if can't convert to target object
    */
   Object convert(TypeDescriptor targetType, Object source);
 

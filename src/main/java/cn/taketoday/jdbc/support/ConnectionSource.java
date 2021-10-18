@@ -25,9 +25,7 @@ public interface ConnectionSource {
    * calls. This is useful to make {@link JdbcConnection} work with
    * externally managed transactions
    *
-   * @param connection
-   *         connection to wrap
-   *
+   * @param connection connection to wrap
    * @return a connection wrapper that represent a nested connection
    */
   static ConnectionSource join(final Connection connection) {
@@ -60,16 +58,12 @@ public interface ConnectionSource {
    * For maximum portability, an application should only specify a
    * property once.
    *
-   * @param url
-   *         a database url of the form
-   *         <code> jdbc:<em>subprotocol</em>:<em>subname</em></code>
-   * @param info
-   *         a list of arbitrary string tag/value pairs as
-   *         connection arguments; normally at least a "user" and
-   *         "password" property should be included
-   *
+   * @param url a database url of the form
+   * <code> jdbc:<em>subprotocol</em>:<em>subname</em></code>
+   * @param info a list of arbitrary string tag/value pairs as
+   * connection arguments; normally at least a "user" and
+   * "password" property should be included
    * @return GenericConnectionSource
-   *
    * @see java.sql.DriverManager#getConnection(String, Properties)
    */
   static ConnectionSource from(String url, Properties info) {
@@ -87,15 +81,10 @@ public interface ConnectionSource {
    * For maximum portability, an application should only specify a
    * property once.
    *
-   * @param url
-   *         JDBC database url
-   * @param user
-   *         database username
-   * @param password
-   *         database password
-   *
+   * @param url JDBC database url
+   * @param user database username
+   * @param password database password
    * @return GenericConnectionSource
-   *
    * @see java.sql.DriverManager#getConnection(String, Properties)
    */
   static ConnectionSource from(String url, String user, String password) {

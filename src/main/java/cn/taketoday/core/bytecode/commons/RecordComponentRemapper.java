@@ -46,10 +46,8 @@ public class RecordComponentRemapper extends RecordComponentVisitor {
   /**
    * Constructs a new {@link RecordComponentRemapper}.
    *
-   * @param recordComponentVisitor
-   *         the record component visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited record component.
+   * @param recordComponentVisitor the record component visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited record component.
    */
   public RecordComponentRemapper(
           final RecordComponentVisitor recordComponentVisitor, final Remapper remapper) {
@@ -76,11 +74,8 @@ public class RecordComponentRemapper extends RecordComponentVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param descriptor
-   *         the descriptor sof the visited annotation.
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
+   * @param descriptor the descriptor sof the visited annotation.
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   @Nullable

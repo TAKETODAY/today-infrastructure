@@ -590,13 +590,9 @@ public enum HttpStatus {
   /**
    * Return the enum constant of this type with the specified numeric value.
    *
-   * @param statusCode
-   *         the numeric value of the enum to be returned
-   *
+   * @param statusCode the numeric value of the enum to be returned
    * @return the enum constant with the specified numeric value
-   *
-   * @throws IllegalArgumentException
-   *         if this enum has no constant for the specified numeric value
+   * @throws IllegalArgumentException if this enum has no constant for the specified numeric value
    */
   public static HttpStatus valueOf(int statusCode) {
     HttpStatus status = resolve(statusCode);
@@ -609,9 +605,7 @@ public enum HttpStatus {
   /**
    * Resolve the given status code to an {@code HttpStatus}, if possible.
    *
-   * @param statusCode
-   *         the HTTP status code (potentially non-standard)
-   *
+   * @param statusCode the HTTP status code (potentially non-standard)
    * @return the corresponding {@code HttpStatus}, or {@code null} if not found
    */
   public static HttpStatus resolve(int statusCode) {
@@ -651,13 +645,9 @@ public enum HttpStatus {
     /**
      * Return the enum constant of this type with the corresponding series.
      *
-     * @param status
-     *         a standard HTTP status enum value
-     *
+     * @param status a standard HTTP status enum value
      * @return the enum constant of this type with the corresponding series
-     *
-     * @throws IllegalArgumentException
-     *         if this enum has no corresponding constant
+     * @throws IllegalArgumentException if this enum has no corresponding constant
      */
     public static Series valueOf(HttpStatus status) {
       return valueOf(status.value);
@@ -666,13 +656,9 @@ public enum HttpStatus {
     /**
      * Return the enum constant of this type with the corresponding series.
      *
-     * @param statusCode
-     *         the HTTP status code (potentially non-standard)
-     *
+     * @param statusCode the HTTP status code (potentially non-standard)
      * @return the enum constant of this type with the corresponding series
-     *
-     * @throws IllegalArgumentException
-     *         if this enum has no corresponding constant
+     * @throws IllegalArgumentException if this enum has no corresponding constant
      */
     public static Series valueOf(int statusCode) {
       Series series = resolve(statusCode);
@@ -685,9 +671,7 @@ public enum HttpStatus {
     /**
      * Resolve the given status code to an {@code HttpStatus.Series}, if possible.
      *
-     * @param statusCode
-     *         the HTTP status code (potentially non-standard)
-     *
+     * @param statusCode the HTTP status code (potentially non-standard)
      * @return the corresponding {@code Series}, or {@code null} if not found
      */
     public static Series resolve(int statusCode) {

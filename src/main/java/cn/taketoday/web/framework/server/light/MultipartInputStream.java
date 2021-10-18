@@ -52,16 +52,11 @@ public class MultipartInputStream extends FilterInputStream {
   /**
    * Constructs a MultipartInputStream with the given underlying stream.
    *
-   * @param in
-   *         the underlying multipart stream
-   * @param boundary
-   *         the multipart boundary
-   *
-   * @throws NullPointerException
-   *         if the given stream or boundary is null
-   * @throws IllegalArgumentException
-   *         if the given boundary's size is not
-   *         between 1 and 70
+   * @param in the underlying multipart stream
+   * @param boundary the multipart boundary
+   * @throws NullPointerException if the given stream or boundary is null
+   * @throws IllegalArgumentException if the given boundary's size is not
+   * between 1 and 70
    */
   protected MultipartInputStream(InputStream in, byte[] boundary) {
     super(in);
@@ -116,9 +111,7 @@ public class MultipartInputStream extends FilterInputStream {
    * and data read after this method returns false is the epilogue.
    *
    * @return true if successful, or false if there are no more parts
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    */
   public boolean nextPart() throws IOException {
     while (skip(buf.length) != 0)
@@ -138,9 +131,7 @@ public class MultipartInputStream extends FilterInputStream {
    *
    * @return true if there is available data for the current part,
    * or false if the current part's end has been reached
-   *
-   * @throws IOException
-   *         if an error occurs or the input format is invalid
+   * @throws IOException if an error occurs or the input format is invalid
    */
   private boolean fill() throws IOException {
     // check if we already have more available data
@@ -182,8 +173,7 @@ public class MultipartInputStream extends FilterInputStream {
    * Finds the first (potential) boundary within the buffer's remaining data.
    * Updates tail, length and state fields accordingly.
    *
-   * @throws IOException
-   *         if an error occurs or the input format is invalid
+   * @throws IOException if an error occurs or the input format is invalid
    */
   protected void findBoundary() throws IOException {
     // see RFC2046#5.1.1 for boundary syntax

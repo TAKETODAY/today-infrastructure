@@ -158,9 +158,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * <code>WeakHashMap</code>, to allow the generated classes to be removed when
    * the associated loader is garbage collected.
    *
-   * @param classLoader
-   *         the loader to generate the new class with, or null to use the
-   *         default
+   * @param classLoader the loader to generate the new class with, or null to use the
+   * default
    */
   public AbstractClassGenerator setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
@@ -170,9 +169,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   /**
    * Override the default naming policy.
    *
-   * @param namingPolicy
-   *         the custom policy, or null to use the default
-   *
+   * @param namingPolicy the custom policy, or null to use the default
    * @see DefaultNamingPolicy
    */
   public AbstractClassGenerator setNamingPolicy(NamingPolicy namingPolicy) {

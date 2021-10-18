@@ -67,9 +67,7 @@ public class DefaultJavaxValidator implements Validator {
   /**
    * Build an error object
    *
-   * @param violation
-   *         ConstraintViolation
-   *
+   * @param violation ConstraintViolation
    * @return A {@link ObjectError}
    */
   protected ObjectError buildError(final ConstraintViolation<Object> violation) {

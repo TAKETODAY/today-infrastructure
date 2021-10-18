@@ -36,9 +36,7 @@ public interface HandlerRegistry {
    * <b>NOTE</b> : cannot throws any exception
    * </p>
    *
-   * @param context
-   *         Current request context
-   *
+   * @param context Current request context
    * @return Target handler. If returns {@code null} indicates no handler
    */
   @Nullable

@@ -57,24 +57,21 @@ public interface WebApplicationConfiguration {
   /**
    * Configure {@link WebServer}
    *
-   * @param webServer
-   *         {@link WebServer} instance
+   * @param webServer {@link WebServer} instance
    */
   default void configureWebServer(AbstractWebServer webServer) { }
 
   /**
    * Configure {@link ErrorPage}s
    *
-   * @param errorPages
-   *         a set of {@link ErrorPage}s
+   * @param errorPages a set of {@link ErrorPage}s
    */
   default void configureErrorPages(Set<ErrorPage> errorPages) { }
 
   /**
    * Configure {@link MimeMappings}
    *
-   * @param mimeMappings
-   *         {@link MimeMappings}
+   * @param mimeMappings {@link MimeMappings}
    */
   default void configureMimeMappings(MimeMappings mimeMappings) { }
 

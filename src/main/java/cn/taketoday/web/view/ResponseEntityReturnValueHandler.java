@@ -60,17 +60,11 @@ public class ResponseEntityReturnValueHandler
   /**
    * write ResponseEntity meta-data to response
    *
-   * @param context
-   *         Current HTTP request context
-   * @param handler
-   *         Target HTTP handler
-   * @param returnValue
-   *         Handler execution result
-   *
-   * @throws ReturnValueHandlerNotFoundException
-   *         not found ReturnValueHandler
-   * @throws IOException
-   *         throws when write data to response
+   * @param context Current HTTP request context
+   * @param handler Target HTTP handler
+   * @param returnValue Handler execution result
+   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
+   * @throws IOException throws when write data to response
    */
   @Override
   public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {

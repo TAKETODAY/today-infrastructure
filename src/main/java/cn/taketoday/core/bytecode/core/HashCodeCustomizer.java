@@ -12,10 +12,8 @@ public interface HashCodeCustomizer extends KeyFactoryCustomizer {
   /**
    * Customizes calculation of hashcode
    *
-   * @param e
-   *         code emitter
-   * @param type
-   *         parameter type
+   * @param e code emitter
+   * @param type parameter type
    */
   boolean customize(GeneratorAdapter e, Type type);
 }

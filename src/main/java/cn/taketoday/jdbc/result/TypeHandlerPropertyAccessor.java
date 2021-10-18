@@ -54,13 +54,9 @@ public final class TypeHandlerPropertyAccessor extends JdbcPropertyAccessor {
    * Obtain from {@link TypeHandler}, if it fails, use the default acquisition method
    * </p>
    *
-   * @param resultSet
-   *         Target result set
-   *
+   * @param resultSet Target result set
    * @return data object
-   *
-   * @throws SQLException
-   *         If {@link ResultSet#getObject(int)} failed
+   * @throws SQLException If {@link ResultSet#getObject(int)} failed
    */
   private Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
     try {

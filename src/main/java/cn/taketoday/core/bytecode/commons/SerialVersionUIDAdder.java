@@ -145,11 +145,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   /**
    * Constructs a new {@link SerialVersionUIDAdder}.
    *
-   * @param classVisitor
-   *         a {@link ClassVisitor} to which this visitor will delegate calls.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @param classVisitor a {@link ClassVisitor} to which this visitor will delegate calls.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public SerialVersionUIDAdder(final ClassVisitor classVisitor) {
     super(classVisitor);
@@ -309,8 +306,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   /**
    * Adds a final static serialVersionUID field to the class, with the given value.
    *
-   * @param svuid
-   *         the serialVersionUID field value.
+   * @param svuid the serialVersionUID field value.
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected void addSVUID(final long svuid) {
@@ -326,9 +322,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    * Computes and returns the value of SVUID.
    *
    * @return the serial version UID.
-   *
-   * @throws IOException
-   *         if an I/O error occurs.
+   * @throws IOException if an I/O error occurs.
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected long computeSVUID() throws IOException {
@@ -411,9 +405,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   /**
    * Returns the SHA-1 message digest of the given value.
    *
-   * @param value
-   *         the value whose SHA message digest must be computed.
-   *
+   * @param value the value whose SHA message digest must be computed.
    * @return the SHA-1 message digest of the given value.
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
@@ -429,15 +421,10 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   /**
    * Sorts the items in the collection and writes it to the given output stream.
    *
-   * @param itemCollection
-   *         a collection of items.
-   * @param dataOutputStream
-   *         where the items must be written.
-   * @param dotted
-   *         whether package names must use dots, instead of slashes.
-   *
-   * @throws IOException
-   *         if an error occurs.
+   * @param itemCollection a collection of items.
+   * @param dataOutputStream where the items must be written.
+   * @param dotted whether package names must use dots, instead of slashes.
+   * @throws IOException if an error occurs.
    */
   private static void writeItems(
           final Collection<Item> itemCollection,

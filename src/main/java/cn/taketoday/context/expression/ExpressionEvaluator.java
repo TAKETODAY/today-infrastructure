@@ -98,8 +98,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    * Create a ExpressionEvaluator with ApplicationContext
    * use Environment as variablesResolver
    *
-   * @param context
-   *         ApplicationContext must not be null
+   * @param context ApplicationContext must not be null
    */
   public ExpressionEvaluator(@NonNull ApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");

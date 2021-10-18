@@ -55,13 +55,9 @@ public abstract class MessageBodyConverter {
   /**
    * Write message to client
    *
-   * @param context
-   *         Current request context
-   * @param message
-   *         The message write to client
-   *
-   * @throws IOException
-   *         If any input output exception occurred
+   * @param context Current request context
+   * @param message The message write to client
+   * @throws IOException If any input output exception occurred
    */
   public void write(RequestContext context, Object message) throws IOException {
     if (message != null) {
@@ -101,26 +97,18 @@ public abstract class MessageBodyConverter {
   /**
    * Read The request body and convert it to Target object
    *
-   * @param context
-   *         Current request context
-   * @param parameter
-   *         Handler method parameter
-   *
+   * @param context Current request context
+   * @param parameter Handler method parameter
    * @return The handler method parameter object
-   *
-   * @throws IOException
-   *         If any input output exception occurred
+   * @throws IOException If any input output exception occurred
    */
   public abstract Object read(RequestContext context, MethodParameter parameter) throws IOException;
 
   /**
    * read a object from given string message
    *
-   * @param message
-   *         string message
-   *
-   * @throws IOException
-   *         if underlying input contains invalid content
+   * @param message string message
+   * @throws IOException if underlying input contains invalid content
    */
   public abstract Object read(String message, MethodParameter parameter) throws IOException;
 

@@ -65,10 +65,8 @@ public class CacheExpressionContext extends ExpressionContext {
   /**
    * Add a bean to this context
    *
-   * @param name
-   *         bean name
-   * @param bean
-   *         bean instance
+   * @param name bean name
+   * @param bean bean instance
    */
   public void putBean(final String name, final Object bean) {
     beans.put(name, bean);

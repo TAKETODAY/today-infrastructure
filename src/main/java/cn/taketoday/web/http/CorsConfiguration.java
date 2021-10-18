@@ -19,13 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.annotation.CrossOrigin;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +30,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * A container for CORS configuration along with methods to check against the
@@ -122,7 +119,7 @@ public class CorsConfiguration {
    */
   public void setAllowedOrigins(@Nullable List<String> origins) {
     this.allowedOrigins = (origins == null ? null :
-            origins.stream().filter(Objects::nonNull).map(this::trimTrailingSlash).collect(Collectors.toList()));
+                           origins.stream().filter(Objects::nonNull).map(this::trimTrailingSlash).collect(Collectors.toList()));
   }
 
   private String trimTrailingSlash(String origin) {
@@ -540,9 +537,7 @@ public class CorsConfiguration {
   /**
    * Check the origin of the request against the configured allowed origins.
    *
-   * @param requestOrigin
-   *         the origin to check
-   *
+   * @param requestOrigin the origin to check
    * @return the origin to use for the response, or {@code null} which means the
    * request origin is not allowed
    */
@@ -583,8 +578,7 @@ public class CorsConfiguration {
    * value {@code "*"} since in that case the "Access-Control-Allow-Origin"
    * cannot be set to {@code "*"}.
    *
-   * @throws IllegalArgumentException
-   *         if the validation fails
+   * @throws IllegalArgumentException if the validation fails
    * @since 3.0
    */
   public void validateAllowCredentials() {
@@ -604,9 +598,7 @@ public class CorsConfiguration {
    * {@code Access-Control-Request-Headers} of a pre-flight request) against the
    * configured allowed headers.
    *
-   * @param requestHeaders
-   *         the request headers to check
-   *
+   * @param requestHeaders the request headers to check
    * @return the list of allowed headers to list in the response of a pre-flight
    * request, or {@code null} if none of the supplied request headers is
    * allowed
@@ -648,9 +640,7 @@ public class CorsConfiguration {
    * {@code Access-Control-Request-Method} header on a pre-flight request) against
    * the configured allowed methods.
    *
-   * @param method
-   *         the HTTP request method to check
-   *
+   * @param method the HTTP request method to check
    * @return the list of HTTP methods to list in the response of a pre-flight
    * request, or {@code null} if the supplied {@code requestMethod} is not
    * allowed

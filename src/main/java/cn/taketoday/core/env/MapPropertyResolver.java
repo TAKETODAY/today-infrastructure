@@ -48,9 +48,8 @@ public class MapPropertyResolver
   /**
    * Create a new resolver against the given Map.
    *
-   * @param keyValues
-   *         the Map source (without {@code null} values in order to get
-   *         consistent {@link #getProperty} and {@link #containsProperty} behavior)
+   * @param keyValues the Map source (without {@code null} values in order to get
+   * consistent {@link #getProperty} and {@link #containsProperty} behavior)
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public MapPropertyResolver(@Nullable Map keyValues) {
@@ -94,10 +93,8 @@ public class MapPropertyResolver
    * sensitive settings. Subclasses may override this method to change the log
    * level and/or log message, including the property's value if desired.
    *
-   * @param key
-   *         the key found
-   * @param value
-   *         the corresponding value
+   * @param key the key found
+   * @param value the corresponding value
    */
   protected void logKeyFound(String key, Object value) {
     if (log.isDebugEnabled()) {

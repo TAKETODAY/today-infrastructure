@@ -33,9 +33,7 @@ public interface MetadataResolver<M, C> {
   /**
    * Resolve the given String value, for example parsing placeholders.
    *
-   * @param context
-   *         the resolving context
-   *
+   * @param context the resolving context
    * @return the resolved value (maybe {@code null}
    */
   @Nullable

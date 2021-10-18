@@ -53,8 +53,7 @@ final class AnnotationMappingInfo implements Ordered {
   private final HandlerMethod handler;
 
   /**
-   * @throws InvalidMediaTypeException
-   *         if the media type (consumes) value cannot be parsed
+   * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(String[] value, String[] produces, String[] consumes,
                         String[] params, HttpMethod[] method, HandlerMethod handler) {
@@ -86,8 +85,7 @@ final class AnnotationMappingInfo implements Ordered {
   }
 
   /**
-   * @throws InvalidMediaTypeException
-   *         if the media type (consumes) value cannot be parsed
+   * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(ActionMapping mapping, HandlerMethod handler) {
     this(mapping.value(), mapping.produces(), mapping.consumes(),
@@ -95,8 +93,7 @@ final class AnnotationMappingInfo implements Ordered {
   }
 
   /**
-   * @throws InvalidMediaTypeException
-   *         if the media type (consumes) value cannot be parsed
+   * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
     this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),

@@ -25,11 +25,8 @@ package cn.taketoday.web.registry;
 public interface HandlerCustomizer {
 
   /**
-   * @param handlerKey
-   *         key of this handler
-   * @param handler
-   *         http handler
-   *
+   * @param handlerKey key of this handler
+   * @param handler http handler
    * @return a modified handler
    */
   Object customize(String handlerKey, Object handler);

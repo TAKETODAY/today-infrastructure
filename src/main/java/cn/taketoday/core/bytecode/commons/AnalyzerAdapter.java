@@ -102,20 +102,13 @@ public class AnalyzerAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link AnalyzerAdapter}.
    *
-   * @param owner
-   *         the owner's class name.
-   * @param access
-   *         the method's access flags (see {@link Opcodes}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param methodVisitor
-   *         the method visitor to which this adapter delegates calls. May be {@literal
-   *         null}.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @param owner the owner's class name.
+   * @param access the method's access flags (see {@link Opcodes}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
+   * null}.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public AnalyzerAdapter(
           final String owner,

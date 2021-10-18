@@ -115,11 +115,8 @@ public final class MessageFormatter {
    * will return the string "Hi there.".
    * <p>
    *
-   * @param messagePattern
-   *         The message pattern which will be parsed and formatted
-   * @param arg
-   *         The argument to be substituted in place of the formatting anchor
-   *
+   * @param messagePattern The message pattern which will be parsed and formatted
+   * @param arg The argument to be substituted in place of the formatting anchor
    * @return The formatted message
    */
   public static String format(String messagePattern, Object arg) {

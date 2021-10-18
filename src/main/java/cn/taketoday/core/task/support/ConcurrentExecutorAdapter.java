@@ -43,8 +43,7 @@ public class ConcurrentExecutorAdapter implements Executor {
   /**
    * Create a new ConcurrentExecutorAdapter for the given TaskExecutor.
    *
-   * @param taskExecutor
-   *         the TaskExecutor to wrap
+   * @param taskExecutor the TaskExecutor to wrap
    */
   public ConcurrentExecutorAdapter(TaskExecutor taskExecutor) {
     Assert.notNull(taskExecutor, "TaskExecutor must not be null");

@@ -32,10 +32,8 @@ public interface WebResourceResolver {
   /**
    * Resolve {@link WebResource}
    *
-   * @param mappingMetaData
-   *         Contains requestPath, pathPattern, {@link cn.taketoday.core.PathMatcher},
-   *         {@link ResourceMapping}
-   *
+   * @param mappingMetaData Contains requestPath, pathPattern, {@link cn.taketoday.core.PathMatcher},
+   * {@link ResourceMapping}
    * @return {@link WebResource}
    */
   WebResource resolveResource(ResourceMatchResult mappingMetaData);

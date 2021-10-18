@@ -40,17 +40,14 @@ public interface InputStreamSource {
    * Get the content of the resource as input stream.
    *
    * @return input stream of {@link Resource} content
-   *
-   * @throws IOException
-   *         If an input exception occurs
+   * @throws IOException If an input exception occurs
    */
   InputStream getInputStream() throws IOException;
 
   /**
    * Get {@link Reader}
    *
-   * @throws IOException
-   *         If an input exception occurs
+   * @throws IOException If an input exception occurs
    */
   default Reader getReader() throws IOException {
     return getReader(Constant.DEFAULT_ENCODING);
@@ -59,11 +56,8 @@ public interface InputStreamSource {
   /**
    * Get {@link Reader}
    *
-   * @param encoding
-   *         Charset string
-   *
-   * @throws IOException
-   *         If an input exception occurs
+   * @param encoding Charset string
+   * @throws IOException If an input exception occurs
    */
   default Reader getReader(String encoding) throws IOException {
     return new InputStreamReader(getInputStream(), encoding);
@@ -79,11 +73,8 @@ public interface InputStreamSource {
    *
    * @return the byte channel for the underlying resource (must not be
    * {@code null})
-   *
-   * @throws java.io.FileNotFoundException
-   *         if the underlying resource doesn't exist
-   * @throws IOException
-   *         if the content channel could not be opened
+   * @throws java.io.FileNotFoundException if the underlying resource doesn't exist
+   * @throws IOException if the content channel could not be opened
    * @see #getInputStream()
    */
   default ReadableByteChannel readableChannel() throws IOException {

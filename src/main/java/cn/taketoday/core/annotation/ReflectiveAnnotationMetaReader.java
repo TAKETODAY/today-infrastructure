@@ -64,13 +64,9 @@ public class ReflectiveAnnotationMetaReader extends AnnotationMetaReader {
   /**
    * Get target {@link AnnotationAttributes} on input annotation
    *
-   * @param target
-   *         The annotation class
-   * @param annotation
-   *         The annotation instance
-   *
+   * @param target The annotation class
+   * @param annotation The annotation instance
    * @return {@link AnnotationAttributes} list never be null.
-   *
    * @since 2.1.7
    */
   public <T extends Annotation> List<AnnotationAttributes> getAttributes(
@@ -119,15 +115,10 @@ public class ReflectiveAnnotationMetaReader extends AnnotationMetaReader {
   /**
    * Use recursive to find the All target {@link AnnotationAttributes} instance
    *
-   * @param targetType
-   *         Target {@link Annotation} class to find
-   * @param source
-   *         {@link Annotation} source
-   * @param attributes
-   *         All suitable {@link AnnotationAttributes}
-   * @param ignoreAnnotation
-   *         Ignore {@link Annotation}s
-   *
+   * @param targetType Target {@link Annotation} class to find
+   * @param source {@link Annotation} source
+   * @param attributes All suitable {@link AnnotationAttributes}
+   * @param ignoreAnnotation Ignore {@link Annotation}s
    * @since 2.1.7
    */
   <T extends Annotation> void findTargetAttributes(

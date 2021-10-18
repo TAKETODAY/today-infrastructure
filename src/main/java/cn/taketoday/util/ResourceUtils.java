@@ -85,13 +85,9 @@ public abstract class ResourceUtils {
    * Overlapping resource entries that point to the same physical resource should
    * be avoided, as far as possible. The result should have set semantics.
    *
-   * @param pathPattern
-   *         The location pattern to resolve
-   *
+   * @param pathPattern The location pattern to resolve
    * @return the corresponding Resource objects
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static Resource[] getResources(String pathPattern) throws IOException {
     return getResources(pathPattern, null);
@@ -103,15 +99,10 @@ public abstract class ResourceUtils {
    * Overlapping resource entries that point to the same physical resource should
    * be avoided, as far as possible. The result should have set semantics.
    *
-   * @param pathPattern
-   *         The location pattern to resolve
-   * @param classLoader
-   *         The {@link ClassLoader} to search (including its ancestors)
-   *
+   * @param pathPattern The location pattern to resolve
+   * @param classLoader The {@link ClassLoader} to search (including its ancestors)
    * @return the corresponding Resource objects
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static Resource[] getResources(String pathPattern, @Nullable ClassLoader classLoader) throws IOException {
     return new PathMatchingPatternResourceLoader(classLoader).getResources(pathPattern);
@@ -120,8 +111,7 @@ public abstract class ResourceUtils {
   /**
    * Get {@link Resource} with given location
    *
-   * @param location
-   *         resource location
+   * @param location resource location
    */
   public static Resource getResource(final String location) {
 
@@ -147,12 +137,9 @@ public abstract class ResourceUtils {
    * Does not check whether the URL actually exists; simply returns the URL that
    * the given location would correspond to.
    *
-   * @param location
-   *         Url location
-   *
-   * @throws MalformedURLException
-   *         if no protocol is specified, or an unknown protocol is found, or
-   *         {@code spec} is {@code null}.
+   * @param location Url location
+   * @throws MalformedURLException if no protocol is specified, or an unknown protocol is found, or
+   * {@code spec} is {@code null}.
    */
   public static URL toURL(String location) throws MalformedURLException {
     return new URL(location);
@@ -172,9 +159,7 @@ public abstract class ResourceUtils {
   /**
    * Get {@link Resource} from a file
    *
-   * @param file
-   *         source
-   *
+   * @param file source
    * @return a {@link FileBasedResource}
    */
   public static Resource getResource(final File file) {
@@ -216,9 +201,7 @@ public abstract class ResourceUtils {
    * Determine whether the given URL points to a resource in the file system, i.e.
    * has protocol "file", "vfsfile" or "vfs".
    *
-   * @param url
-   *         the URL to check
-   *
+   * @param url the URL to check
    * @return whether the URL has been identified as a file system URL
    */
   public static boolean isFileURL(final URL url) {
@@ -230,9 +213,7 @@ public abstract class ResourceUtils {
    * Determine whether the given URL points to a resource in a jar file. i.e. has
    * protocol "jar", "war, ""zip", "vfszip" or "wsjar".
    *
-   * @param url
-   *         the URL to check
-   *
+   * @param url the URL to check
    * @return whether the URL has been identified as a JAR URL
    */
   public static boolean isJarURL(final URL url) {
@@ -248,9 +229,7 @@ public abstract class ResourceUtils {
    * Determine whether the given URL points to a jar file itself, that is, has
    * protocol "file" and ends with the ".jar" extension.
    *
-   * @param url
-   *         the URL to check
-   *
+   * @param url the URL to check
    * @return whether the URL has been identified as a JAR file URL
    */
   public static boolean isJarFileURL(final URL url) {
@@ -262,13 +241,9 @@ public abstract class ResourceUtils {
    * Extract the URL for the actual jar file from the given URL (which may point
    * to a resource in a jar file or to a jar file itself).
    *
-   * @param jarUrl
-   *         the original URL
-   *
+   * @param jarUrl the original URL
    * @return the URL for the actual jar file
-   *
-   * @throws MalformedURLException
-   *         if no valid jar file URL could be extracted
+   * @throws MalformedURLException if no valid jar file URL could be extracted
    */
   public static URL extractJarFileURL(final URL jarUrl) throws MalformedURLException {
     String urlFile = jarUrl.getFile();
@@ -297,8 +272,7 @@ public abstract class ResourceUtils {
    * connection, preferring {@code false} but leaving the flag at {@code true} for
    * JNLP based resources.
    *
-   * @param con
-   *         the URLConnection to set the flag on
+   * @param con the URLConnection to set the flag on
    */
   public static void useCachesIfNecessary(final URLConnection con) {
     con.setUseCaches(con.getClass().getSimpleName().startsWith("JNLP"));
@@ -308,13 +282,9 @@ public abstract class ResourceUtils {
    * Create a URI instance for the given URL, replacing spaces with "%20" URI
    * encoding first.
    *
-   * @param url
-   *         the URL to convert into a URI instance
-   *
+   * @param url the URL to convert into a URI instance
    * @return the URI instance
-   *
-   * @throws URISyntaxException
-   *         if the URL wasn't a valid URI
+   * @throws URISyntaxException if the URL wasn't a valid URI
    * @see java.net.URL#toURI()
    */
   public static URI toURI(final URL url) throws URISyntaxException {
@@ -325,13 +295,9 @@ public abstract class ResourceUtils {
    * Create a URI instance for the given location String, replacing spaces with
    * "%20" URI encoding first.
    *
-   * @param location
-   *         the location String to convert into a URI instance
-   *
+   * @param location the location String to convert into a URI instance
    * @return the URI instance
-   *
-   * @throws URISyntaxException
-   *         if the location wasn't a valid URI
+   * @throws URISyntaxException if the location wasn't a valid URI
    */
   public static URI toURI(final String location) throws URISyntaxException {
     return new URI(StringUtils.replace(location, " ", "%20"));
@@ -341,11 +307,8 @@ public abstract class ResourceUtils {
    * Return whether the given resource location is a URL: either a special
    * "classpath" pseudo URL or a standard URL.
    *
-   * @param resourceLocation
-   *         the location String to check
-   *
+   * @param resourceLocation the location String to check
    * @return whether the location qualifies as a URL
-   *
    * @see ResourceLoader#CLASSPATH_URL_PREFIX
    * @see java.net.URL
    */
@@ -372,13 +335,9 @@ public abstract class ResourceUtils {
    * In the case of a jar file nested within a war file, this will return a URL to
    * the war file since that is the one resolvable in the file system.
    *
-   * @param jarUrl
-   *         the original URL
-   *
+   * @param jarUrl the original URL
    * @return the URL for the actual jar file
-   *
-   * @throws MalformedURLException
-   *         if no valid jar file URL could be extracted
+   * @throws MalformedURLException if no valid jar file URL could be extracted
    * @see #extractJarFileURL(URL)
    */
   public static URL extractArchiveURL(URL jarUrl) throws MalformedURLException {
@@ -404,13 +363,9 @@ public abstract class ResourceUtils {
   /**
    * Get a {@link InputStream} from given resource string
    *
-   * @param resourceLocation
-   *         Target resource string
-   *
+   * @param resourceLocation Target resource string
    * @return A {@link InputStream}
-   *
-   * @throws IOException
-   *         If any IO {@link Exception} occurred
+   * @throws IOException If any IO {@link Exception} occurred
    * @since 4.0
    */
   public static InputStream getResourceAsStream(final String resourceLocation) throws IOException {

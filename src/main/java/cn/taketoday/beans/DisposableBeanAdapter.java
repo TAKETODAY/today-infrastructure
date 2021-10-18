@@ -45,11 +45,8 @@ public class DisposableBeanAdapter implements DisposableBean {
   /**
    * Destroy bean instance
    *
-   * @param obj
-   *         Bean instance
-   *
-   * @throws Exception
-   *         When destroy a bean
+   * @param obj Bean instance
+   * @throws Exception When destroy a bean
    */
   public static void destroyBean(final Object obj) throws Exception {
     destroyBean(obj, null);
@@ -58,11 +55,8 @@ public class DisposableBeanAdapter implements DisposableBean {
   /**
    * Destroy bean instance
    *
-   * @param obj
-   *         Bean instance
-   *
-   * @throws Exception
-   *         When destroy a bean
+   * @param obj Bean instance
+   * @throws Exception When destroy a bean
    */
   public static void destroyBean(final Object obj, final BeanDefinition def) throws Exception {
     destroyBean(obj, def, null);
@@ -71,11 +65,8 @@ public class DisposableBeanAdapter implements DisposableBean {
   /**
    * Destroy bean instance
    *
-   * @param obj
-   *         Bean instance
-   *
-   * @throws Exception
-   *         When destroy a bean
+   * @param obj Bean instance
+   * @throws Exception When destroy a bean
    */
   public static void destroyBean(final Object obj,
                                  final BeanDefinition def,

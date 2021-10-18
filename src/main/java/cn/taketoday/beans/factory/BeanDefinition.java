@@ -65,13 +65,9 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Get a property
    *
-   * @param name
-   *         The name of property
-   *
+   * @param name The name of property
    * @return Property value object
-   *
-   * @throws NoSuchPropertyException
-   *         If there is no property with given name
+   * @throws NoSuchPropertyException If there is no property with given name
    */
   PropertySetter getPropertyValue(String name) throws NoSuchPropertyException;
 
@@ -88,7 +84,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *
    * @return If the bean is a {@link Prototype
    * Prototype}.
-   *
    * @since 2.17
    */
   boolean isPrototype();
@@ -149,7 +144,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * if it is from abstract class.
    *
    * @return if it is from abstract class
-   *
    * @see #getChild()
    */
   boolean isAbstract();
@@ -166,8 +160,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Add PropertyValue to list.
    *
-   * @param propertySetters
-   *         {@link PropertySetter} object
+   * @param propertySetters {@link PropertySetter} object
    */
   void addPropertySetter(PropertySetter... propertySetters);
 
@@ -181,17 +174,14 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Add a collection of {@link PropertySetter}s
    *
-   * @param propertySetters
-   *         The {@link Collection} of {@link PropertySetter}s
+   * @param propertySetters The {@link Collection} of {@link PropertySetter}s
    */
   void addPropertySetter(Collection<PropertySetter> propertySetters);
 
   /**
    * Apply bean If its initialized
    *
-   * @param initialized
-   *         The state of bean
-   *
+   * @param initialized The state of bean
    * @return The {@link BeanDefinition}
    */
   BeanDefinition setInitialized(boolean initialized);
@@ -199,9 +189,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Apply bean' name
    *
-   * @param name
-   *         The bean's name
-   *
+   * @param name The bean's name
    * @return The {@link BeanDefinition}
    */
   BeanDefinition setName(String name);
@@ -209,11 +197,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Apply bean' scope
    *
-   * @param scope
-   *         The scope of the bean
-   *
+   * @param scope The scope of the bean
    * @return The {@link BeanDefinition}
-   *
    * @see Scope#PROTOTYPE
    * @see Scope#SINGLETON
    */
@@ -222,9 +207,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Apply bean' initialize {@link Method}s
    *
-   * @param initMethods
-   *         The array of the bean's initialize {@link Method}s
-   *
+   * @param initMethods The array of the bean's initialize {@link Method}s
    * @return The {@link BeanDefinition}
    */
   @Deprecated
@@ -233,9 +216,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Apply bean' destroy {@link Method}s
    *
-   * @param destroyMethods
-   *         The array of the bean's destroy {@link Method}s
-   *
+   * @param destroyMethods The array of the bean's destroy {@link Method}s
    * @return The {@link BeanDefinition}
    */
   BeanDefinition setDestroyMethods(String... destroyMethods);
@@ -243,9 +224,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Apply bean' {@link PropertySetter}s
    *
-   * @param propertySetters
-   *         The array of the bean's {@link PropertySetter}s
-   *
+   * @param propertySetters The array of the bean's {@link PropertySetter}s
    * @return The {@link BeanDefinition}
    */
   BeanDefinition setPropertyValues(PropertySetter... propertySetters);
@@ -253,9 +232,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Indicates that If the bean is a {@link FactoryBean}.
    *
-   * @param factoryBean
-   *         If its a {@link FactoryBean}
-   *
+   * @param factoryBean If its a {@link FactoryBean}
    * @return The {@link BeanDefinition}
    */
   BeanDefinition setFactoryBean(boolean factoryBean);
@@ -263,11 +240,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * If An {@link Annotation} present on this bean
    *
-   * @param annotation
-   *         target {@link Annotation}
-   *
+   * @param annotation target {@link Annotation}
    * @return If An {@link Annotation} present on this bean
-   *
    * @since 2.1.7
    */
   @Override
@@ -278,7 +252,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *
    * @return Child implementation bean, returns {@code null} indicates that this
    * {@link BeanDefinition} is not abstract
-   *
    * @since 2.1.7
    */
   @Nullable
@@ -287,11 +260,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * new bean instance
    *
-   * @param factory
-   *         input bean factory
-   *
+   * @param factory input bean factory
    * @return new bean instance
-   *
    * @since 3.0
    */
   Object newInstance(BeanFactory factory);
@@ -299,13 +269,9 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * new bean instance
    *
-   * @param factory
-   *         input bean factory
-   * @param args
-   *         arguments to use when creating a corresponding instance
-   *
+   * @param factory input bean factory
+   * @param args arguments to use when creating a corresponding instance
    * @return new bean instance
-   *
    * @since 3.0
    */
   Object newInstance(BeanFactory factory, Object... args);
@@ -335,11 +301,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Set a bean instance supplier
    *
-   * @param supplier
-   *         bean instance supplier (can be null)
-   * @param <T>
-   *         target bean type
-   *
+   * @param supplier bean instance supplier (can be null)
+   * @param <T> target bean type
    * @since 4.0
    */
   <T> void setSupplier(Supplier<T> supplier);
@@ -347,8 +310,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Validate bean definition
    *
-   * @throws BeanDefinitionValidationException
-   *         invalid {@link BeanDefinition}
+   * @throws BeanDefinitionValidationException invalid {@link BeanDefinition}
    * @since 4.0
    */
   default void validate() throws BeanDefinitionValidationException {

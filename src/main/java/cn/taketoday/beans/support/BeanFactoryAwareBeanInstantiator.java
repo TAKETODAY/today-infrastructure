@@ -20,13 +20,13 @@
 
 package cn.taketoday.beans.support;
 
+import java.lang.reflect.Constructor;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-
-import java.lang.reflect.Constructor;
 
 /**
  * provide Bean Constructor Arguments resolving
@@ -55,15 +55,10 @@ public class BeanFactoryAwareBeanInstantiator {
   /**
    * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
-   * @param beanClass
-   *         target bean class
-   * @param providedArgs
-   *         User provided arguments
-   *
+   * @param beanClass target bean class
+   * @param providedArgs User provided arguments
    * @return bean class 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
+   * @throws BeanInstantiationException if any reflective operation exception occurred
    * @see BeanUtils#obtainConstructor(Class)
    * @since 4.0
    */

@@ -107,12 +107,10 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   /**
    * Constructs a new {@link CheckSignatureAdapter}.
    *
-   * @param type
-   *         the type of signature to be checked. See {@link #CLASS_SIGNATURE}, {@link
-   *         #METHOD_SIGNATURE} and {@link #TYPE_SIGNATURE}.
-   * @param signatureVisitor
-   *         the visitor to which this adapter must delegate calls. May be {@literal
-   *         null}.
+   * @param type the type of signature to be checked. See {@link #CLASS_SIGNATURE}, {@link
+   * #METHOD_SIGNATURE} and {@link #TYPE_SIGNATURE}.
+   * @param signatureVisitor the visitor to which this adapter must delegate calls. May be {@literal
+   * null}.
    */
   public CheckSignatureAdapter(final int type, final SignatureVisitor signatureVisitor) {
     this.type = type;

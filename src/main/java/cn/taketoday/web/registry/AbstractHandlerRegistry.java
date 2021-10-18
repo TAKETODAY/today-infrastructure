@@ -47,11 +47,8 @@ public abstract class AbstractHandlerRegistry
    * Look up a handler for the given request, falling back to the default
    * handler if no specific one is found.
    *
-   * @param context
-   *         current HTTP request context
-   *
+   * @param context current HTTP request context
    * @return the corresponding handler instance, or the default handler
-   *
    * @see #lookupInternal
    */
   @Override

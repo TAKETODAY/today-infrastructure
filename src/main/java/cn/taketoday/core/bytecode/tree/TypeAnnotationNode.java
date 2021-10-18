@@ -42,17 +42,12 @@ public class TypeAnnotationNode extends AnnotationNode {
   /**
    * Constructs a new {@link AnnotationNode}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public TypeAnnotationNode(final int typeRef, final TypePath typePath, final String descriptor) {
     super(descriptor);

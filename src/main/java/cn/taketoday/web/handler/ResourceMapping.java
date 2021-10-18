@@ -99,9 +99,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   /**
    * Sets the size of used buffers.
    *
-   * @param bufferSize
-   *         size of buffer
-   *
+   * @param bufferSize size of buffer
    * @return {@code this}
    */
   public ResourceMapping bufferSize(int bufferSize) {
@@ -115,11 +113,8 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   /**
    * Sets the default expiration date for the resources.
    *
-   * @param count
-   *         count
-   * @param unit
-   *         time unit
-   *
+   * @param count count
+   * @param unit time unit
    * @return {@code this}
    */
   public ResourceMapping expires(long count, TimeUnit unit) {
@@ -135,9 +130,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * Applies the given cache control as header to the response. If the
    * CacheControl is empty, no Cache-Control header is applied to the response.
    *
-   * @param cacheControl
-   *         cache control
-   *
+   * @param cacheControl cache control
    * @return {@code this}
    */
   public ResourceMapping cacheControl(CacheControl cacheControl) {
@@ -149,11 +142,8 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   /**
    * Add pathPatterns to this mapping
    *
-   * @param pathPatterns
-   *         Path patterns
-   *
+   * @param pathPatterns Path patterns
    * @return {@link ResourceMapping}
-   *
    * @see ResourceMapping#setPathPatterns(String...)
    */
   public ResourceMapping addPathPatterns(String... pathPatterns) {
@@ -169,11 +159,8 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   /**
    * Set pathPatterns to this mapping
    *
-   * @param pathPatterns
-   *         Path patterns
-   *
+   * @param pathPatterns Path patterns
    * @return {@link ResourceMapping}
-   *
    * @see ResourceMapping#addPathPatterns(String...)
    */
   public ResourceMapping setPathPatterns(String... pathPatterns) {

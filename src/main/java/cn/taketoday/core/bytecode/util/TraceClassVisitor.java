@@ -86,8 +86,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   /**
    * Constructs a new {@link TraceClassVisitor}.
    *
-   * @param printWriter
-   *         the print writer to be used to print the class. May be {@literal null}.
+   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(final PrintWriter printWriter) {
     this(null, printWriter);
@@ -96,10 +95,8 @@ public final class TraceClassVisitor extends ClassVisitor {
   /**
    * Constructs a new {@link TraceClassVisitor}.
    *
-   * @param classVisitor
-   *         the class visitor to which to delegate calls. May be {@literal null}.
-   * @param printWriter
-   *         the print writer to be used to print the class. May be {@literal null}.
+   * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
+   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(final ClassVisitor classVisitor, final PrintWriter printWriter) {
     this(classVisitor, new Textifier(), printWriter);
@@ -108,12 +105,9 @@ public final class TraceClassVisitor extends ClassVisitor {
   /**
    * Constructs a new {@link TraceClassVisitor}.
    *
-   * @param classVisitor
-   *         the class visitor to which to delegate calls. May be {@literal null}.
-   * @param printer
-   *         the printer to convert the visited class into text.
-   * @param printWriter
-   *         the print writer to be used to print the class. May be {@literal null}.
+   * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
+   * @param printer the printer to convert the visited class into text.
+   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(
           final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {

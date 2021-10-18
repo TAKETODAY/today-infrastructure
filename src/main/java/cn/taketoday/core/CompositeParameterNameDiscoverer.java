@@ -43,8 +43,7 @@ public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer {
   /**
    * add ParameterNameDiscoverer
    *
-   * @param discoverer
-   *         ParameterNameDiscoverers
+   * @param discoverer ParameterNameDiscoverers
    */
   public void addDiscoverer(@Nullable ParameterNameDiscoverer... discoverer) {
     CollectionUtils.addAll(discoverers, discoverer);

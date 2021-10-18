@@ -93,13 +93,9 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   /**
    * Handling resource result to client
    *
-   * @param context
-   *         Current request context
-   * @param resource
-   *         {@link Resource}
-   *
-   * @throws IOException
-   *         If an input or output exception occurs
+   * @param context Current request context
+   * @param resource {@link Resource}
+   * @throws IOException If an input or output exception occurs
    */
   protected void handleResult(final RequestContext context, final WebResource resource) throws IOException {
     final String contentType = getContentType(resource);
@@ -144,13 +140,9 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   /**
    * Write compressed {@link Resource} to the client
    *
-   * @param resource
-   *         {@link Resource}
-   * @param requestContext
-   *         Current request context
-   *
-   * @throws IOException
-   *         If any IO exception occurred
+   * @param resource {@link Resource}
+   * @param requestContext Current request context
+   * @throws IOException If any IO exception occurred
    */
   protected void writeCompressed(final Resource resource,
                                  final RequestContext requestContext, //
@@ -178,13 +170,9 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   /**
    * Write compressed {@link Resource} to the client
    *
-   * @param resource
-   *         {@link Resource}
-   * @param context
-   *         Current request context
-   *
-   * @throws IOException
-   *         If any IO exception occurred
+   * @param resource {@link Resource}
+   * @param context Current request context
+   * @throws IOException If any IO exception occurred
    */
   protected void write(final Resource resource,
                        final RequestContext context,

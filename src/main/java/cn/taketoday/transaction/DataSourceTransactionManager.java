@@ -63,9 +63,7 @@ public class DataSourceTransactionManager
    * Obtain the DataSource for actual use.
    *
    * @return the DataSource (never {@code null})
-   *
-   * @throws NullPointerException
-   *         in case of no DataSource set
+   * @throws NullPointerException in case of no DataSource set
    */
   protected DataSource obtainDataSource() {
     final DataSource dataSource = getDataSource();
@@ -310,13 +308,9 @@ public class DataSourceTransactionManager
    * and may work with other databases as well. If you'd like to adapt this
    * Statement, override this method accordingly.
    *
-   * @param con
-   *         the transactional JDBC Connection
-   * @param definition
-   *         the current transaction definition
-   *
-   * @throws SQLException
-   *         if thrown by JDBC API
+   * @param con the transactional JDBC Connection
+   * @param definition the current transaction definition
+   * @throws SQLException if thrown by JDBC API
    * @see #setEnforceReadOnly
    */
   protected void prepareTransactionalConnection(

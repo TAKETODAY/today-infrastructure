@@ -146,10 +146,8 @@ public class LightRequestContext extends RequestContext {
   /**
    * map list MultipartFile
    *
-   * @throws cn.taketoday.web.resolver.NotMultipartRequestException
-   *         if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartParsingException
-   *         multipart parse failed
+   * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
+   * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
    */
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {

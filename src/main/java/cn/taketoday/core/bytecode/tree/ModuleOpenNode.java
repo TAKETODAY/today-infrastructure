@@ -48,14 +48,11 @@ public class ModuleOpenNode {
   /**
    * Constructs a new {@link ModuleOpenNode}.
    *
-   * @param packaze
-   *         the internal name of the opened package.
-   * @param access
-   *         the access flag of the opened package, valid values are among {@code
-   *         ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param modules
-   *         the fully qualified names (using dots) of the modules that can use deep
-   *         reflection to the classes of the open package, or {@literal null}.
+   * @param packaze the internal name of the opened package.
+   * @param access the access flag of the opened package, valid values are among {@code
+   * ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param modules the fully qualified names (using dots) of the modules that can use deep
+   * reflection to the classes of the open package, or {@literal null}.
    */
   public ModuleOpenNode(final String packaze, final int access, final List<String> modules) {
     this.packaze = packaze;
@@ -66,8 +63,7 @@ public class ModuleOpenNode {
   /**
    * Makes the given module visitor visit this opened package.
    *
-   * @param moduleVisitor
-   *         a module visitor.
+   * @param moduleVisitor a module visitor.
    */
   public void accept(final ModuleVisitor moduleVisitor) {
     moduleVisitor.visitOpen(

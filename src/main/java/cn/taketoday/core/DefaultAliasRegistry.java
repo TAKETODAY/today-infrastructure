@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -93,10 +92,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
   /**
    * Determine whether the given name has the given alias registered.
    *
-   * @param name
-   *         the name to check
-   * @param alias
-   *         the alias to look for
+   * @param name the name to check
+   * @param alias the alias to look for
    */
   public boolean hasAlias(String name, String alias) {
     String registeredName = this.aliasMap.get(alias);
@@ -136,10 +133,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
   /**
    * Transitively retrieve all aliases for the given name.
    *
-   * @param name
-   *         the target name to find aliases for
-   * @param result
-   *         the resulting aliases list
+   * @param name the target name to find aliases for
+   * @param result the resulting aliases list
    */
   private void retrieveAliases(String name, List<String> result) {
     for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
@@ -158,8 +153,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
    * <p>The value resolver may for example resolve placeholders
    * in target bean names and even in alias names.
    *
-   * @param valueResolver
-   *         the StringValueResolver to apply
+   * @param valueResolver the StringValueResolver to apply
    */
   public void resolveAliases(StringValueResolver valueResolver) {
     Assert.notNull(valueResolver, "StringValueResolver must not be null");
@@ -203,11 +197,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
    * in the other direction already, catching a circular reference upfront
    * and throwing a corresponding IllegalStateException.
    *
-   * @param name
-   *         the candidate name
-   * @param alias
-   *         the candidate alias
-   *
+   * @param name the candidate name
+   * @param alias the candidate alias
    * @see #registerAlias
    * @see #hasAlias
    */
@@ -223,9 +214,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
   /**
    * Determine the raw name, resolving aliases to canonical names.
    *
-   * @param name
-   *         the user-specified name
-   *
+   * @param name the user-specified name
    * @return the transformed name
    */
   public String canonicalName(String name) {

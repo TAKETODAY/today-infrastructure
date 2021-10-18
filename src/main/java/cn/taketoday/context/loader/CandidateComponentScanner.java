@@ -141,9 +141,7 @@ public class CandidateComponentScanner {
   /**
    * Find class by annotation.
    *
-   * @param annotationClass
-   *         annotation class
-   *
+   * @param annotationClass annotation class
    * @return the set of class
    */
   public Set<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
@@ -153,9 +151,7 @@ public class CandidateComponentScanner {
   /**
    * Get all child classes in class path
    *
-   * @param superClass
-   *         super class or a interface class
-   *
+   * @param superClass super class or a interface class
    * @return a {@link Collection} of impl class
    */
   public Set<Class<?>> getImplementationClasses(Class<?> superClass) {
@@ -165,11 +161,8 @@ public class CandidateComponentScanner {
   /**
    * Get all child classes in class path filter with package name
    *
-   * @param superClass
-   *         super class or a interface class
-   * @param packageName
-   *         package name
-   *
+   * @param superClass super class or a interface class
+   * @param packageName package name
    * @return a {@link Collection} of impl class
    */
   public Set<Class<?>> getImplementationClasses(Class<?> superClass, String packageName) {
@@ -189,9 +182,7 @@ public class CandidateComponentScanner {
   /**
    * Get {@link Collection} of class under the packages
    *
-   * @param packages
-   *         package name
-   *
+   * @param packages package name
    * @return a {@link Collection} of class under the packages
    */
   public Set<Class<?>> getClasses(String... packages) {
@@ -209,9 +200,7 @@ public class CandidateComponentScanner {
   /**
    * Scan class with given package.
    *
-   * @param packages
-   *         The packages to scan
-   *
+   * @param packages The packages to scan
    * @return Class set
    */
   public Set<Class<?>> scan(String... packages) {
@@ -246,9 +235,7 @@ public class CandidateComponentScanner {
   /**
    * Scan classes to classes set
    *
-   * @param packageName
-   *         Package name
-   *
+   * @param packageName Package name
    * @return candidates class
    */
   public Set<Class<?>> scan(String packageName) {
@@ -272,13 +259,9 @@ public class CandidateComponentScanner {
   /**
    * Scan class in a {@link Resource}
    *
-   * @param resource
-   *         {@link Resource} in class maybe a jar file or class directory
-   * @param packageName
-   *         if {@link Resource} is a directory will use this packageName
-   *
-   * @throws IOException
-   *         if the resource is not available
+   * @param resource {@link Resource} in class maybe a jar file or class directory
+   * @param packageName if {@link Resource} is a directory will use this packageName
+   * @throws IOException if the resource is not available
    * @since 2.1.6
    */
   protected void scan(Resource resource, String packageName) throws IOException {
@@ -349,8 +332,7 @@ public class CandidateComponentScanner {
   /**
    * Load classes from a {@link JarEntry}
    *
-   * @param jarEntry
-   *         The entry of jar
+   * @param jarEntry The entry of jar
    */
   public void loadClassFromJarEntry(JarEntry jarEntry, String packageName) {
 
@@ -380,8 +362,7 @@ public class CandidateComponentScanner {
    * </p>
    * Note: don't need packageName
    *
-   * @throws IOException
-   *         if the resource is not available
+   * @throws IOException if the resource is not available
    */
   protected void findInDirectory(Resource directory) throws IOException {
 

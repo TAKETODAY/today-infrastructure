@@ -154,9 +154,8 @@ public interface Environment extends PropertyResolver {
    * For example, {@code env.acceptsProfiles("p1", "!p2")} will return {@code true} if
    * profile 'p1' is active or 'p2' is not active.
    *
-   * @throws IllegalArgumentException
-   *         if called with zero arguments
-   *         or if any profile is {@code null}, empty, or whitespace only
+   * @throws IllegalArgumentException if called with zero arguments
+   * or if any profile is {@code null}, empty, or whitespace only
    * @see #getActiveProfiles
    * @see #getDefaultProfiles
    * @see #acceptsProfiles(Profiles)

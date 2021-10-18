@@ -19,6 +19,18 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -40,18 +52,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -288,7 +288,6 @@ public class DefaultBeanDefinition
 
   /**
    * @param propertySetters collection of PropertySetter
-   *
    * @since 4.0
    */
   public void setPropertyValues(@Nullable Collection<PropertySetter> propertySetters) {
@@ -363,7 +362,6 @@ public class DefaultBeanDefinition
    * Apply the child bean name
    *
    * @param childDef Child BeanDefinition
-   *
    * @return {@link DefaultBeanDefinition}
    */
   public DefaultBeanDefinition setChild(BeanDefinition childDef) {
@@ -426,7 +424,6 @@ public class DefaultBeanDefinition
   /**
    * @param factory input bean factory
    * @param args arguments to use when creating a corresponding instance
-   *
    * @since 3.0
    */
   @Override
@@ -468,7 +465,6 @@ public class DefaultBeanDefinition
    * eagerly instantiated on startup. Only applicable to a singleton bean.
    *
    * @return whether to apply lazy-init semantics ({@code false} by default)
-   *
    * @since 3.0
    */
   @Override
@@ -481,7 +477,6 @@ public class DefaultBeanDefinition
    * eagerly instantiated on startup. Only applicable to a singleton bean.
    *
    * @return the lazy-init flag if explicitly set, or {@code null} otherwise
-   *
    * @since 3.0
    */
   public Boolean getLazyInit() {

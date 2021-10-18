@@ -40,11 +40,11 @@
 
 package cn.taketoday.expression;
 
-import cn.taketoday.expression.lang.LocalBeanNameResolver;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.taketoday.expression.lang.LocalBeanNameResolver;
 
 /**
  * A standard ELContext suitable for use in a stand alone environment. This
@@ -86,8 +86,7 @@ public class StandardExpressionContext extends ExpressionContext {
    * </ol>
    * </p>
    *
-   * @param factory
-   *         The ExpressionFactory
+   * @param factory The ExpressionFactory
    */
   public StandardExpressionContext(ExpressionFactory factory) {
 
@@ -121,8 +120,7 @@ public class StandardExpressionContext extends ExpressionContext {
   /**
    * Construct a StandardELContext from another ELContext.
    *
-   * @param context
-   *         The ELContext that acts as a delegate in most cases
+   * @param context The ELContext that acts as a delegate in most cases
    */
   public StandardExpressionContext(ExpressionContext context) {
     this.delegate = context;
@@ -170,8 +168,7 @@ public class StandardExpressionContext extends ExpressionContext {
    * will be accessed in the order they are added. A custom ELResolver added to
    * the context cannot be removed.
    *
-   * @param cELResolver
-   *         The new ELResolver to be added to the context
+   * @param cELResolver The new ELResolver to be added to the context
    */
   public void addResolver(ExpressionResolver cELResolver) {
     customResolvers.add(cELResolver);
@@ -189,11 +186,9 @@ public class StandardExpressionContext extends ExpressionContext {
   /**
    * Define a bean in the local bean repository
    *
-   * @param name
-   *         The name of the bean
-   * @param bean
-   *         The bean instance to be defined. If null, the definition of the
-   *         bean is removed.
+   * @param name The name of the bean
+   * @param bean The bean instance to be defined. If null, the definition of the
+   * bean is removed.
    */
   public Object defineBean(String name, Object bean) {
     return beans.put(name, bean);

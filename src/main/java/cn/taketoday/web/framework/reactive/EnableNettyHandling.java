@@ -105,8 +105,7 @@ final class NettyConfig implements AnnotationImportSelector<EnableNettyHandling>
   /**
    * Framework Channel Initializer
    *
-   * @param channelHandler
-   *         ChannelInboundHandler
+   * @param channelHandler ChannelInboundHandler
    */
   @MissingBean
   NettyServerInitializer nettyServerInitializer(ReactiveChannelHandler channelHandler) {

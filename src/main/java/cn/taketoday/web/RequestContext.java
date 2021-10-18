@@ -19,6 +19,21 @@
  */
 package cn.taketoday.web;
 
+import java.io.BufferedReader;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.HttpCookie;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
@@ -39,21 +54,6 @@ import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.ModelAttributes;
 
-import java.io.BufferedReader;
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.HttpCookie;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
 /**
@@ -64,7 +64,7 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  */
 public abstract class RequestContext implements InputStreamSource, OutputStreamSource, Model, Flushable {
 
-  public static final HttpCookie[] EMPTY_COOKIES = { };
+  public static final HttpCookie[] EMPTY_COOKIES = {};
 
   protected String contextPath;
   protected Object requestBody;
@@ -108,7 +108,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @return a <code>String</code> containing the name
    * of the scheme used to make this request
-   *
    * @since 3.0.1
    */
   public abstract String getScheme();
@@ -220,10 +219,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * method returns <code>null</code> if no target cookie were sent.
    *
    * @param name Cookie name
-   *
    * @return a {@link HttpCookie} object the client sent with this request. This
    * method returns <code>null</code> if no target cookie were sent.
-   *
    * @since 2.3.7
    */
   @Nullable
@@ -312,10 +309,8 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @param name a <code>String</code> containing the name of the parameter whose
    * value is requested
-   *
    * @return an array of <code>String</code> objects containing the parameter's
    * values
-   *
    * @see #getParameters()
    */
   @Nullable
@@ -349,9 +344,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * or {@link #getReader} can interfere with the execution of this method.
    *
    * @param name a <code>String</code> specifying the name of the parameter
-   *
    * @return a <code>String</code> representing the single value of the parameter
-   *
    * @see #getParameters(String)
    */
   @Nullable
@@ -403,7 +396,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * both.
    *
    * @return a {@link InputStream} object containing the body of the request
-   *
    * @throws IllegalStateException For Servlet Environment if the {@link #getReader} method has
    * already been called for this request
    * @throws IOException if an input or output exception occurred
@@ -425,7 +417,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * {@link #getInputStream} may be called to read the body, not both.
    *
    * @return a <code>BufferedReader</code> containing the body of the request
-   *
    * @throws IllegalStateException For Servlet Environment if {@link #getInputStream} method has
    * been called on this request
    * @throws IOException if an input or output exception occurred
@@ -460,7 +451,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * template method for different MultipartFile parsing strategy
    *
    * @return map list {@link MultipartFile}
-   *
    * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
    * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
    */
@@ -479,7 +469,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * Get request HTTP headers
    *
    * @return request read only HTTP header ,never be {@code null}
-   *
    * @since 3.0
    */
   public HttpHeaders requestHeaders() {
@@ -537,7 +526,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * response has already had its status code and headers written.
    *
    * @return a boolean indicating if the response has been committed
-   *
    * @see #reset
    */
   public abstract boolean isCommitted();
@@ -579,7 +567,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * considered to be committed and should not be written to.
    *
    * @param location the redirect location URL
-   *
    * @throws IOException If an input or output exception occurs
    * @throws IllegalStateException If the response was committed or if a partial URL is given and
    * cannot be converted into a valid URL
@@ -642,7 +629,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * considered to be committed and should not be written to.
    *
    * @param sc the error status code
-   *
    * @throws IOException If an input or output exception occurs
    * @throws IllegalStateException If the response was committed before this method call
    */
@@ -675,7 +661,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @param sc the error status code
    * @param msg the descriptive message
-   *
    * @throws IOException If an input or output exception occurs
    * @throws IllegalStateException If the response was committed
    */
@@ -691,7 +676,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * both, except when {@link #reset} has been called.
    *
    * @return a {@link OutputStream} for writing binary data
-   *
    * @throws IllegalStateException For Servlet Environment if the <code>getWriter</code> method
    * has been called on this response
    * @throws IOException if an input or output exception occurred
@@ -720,7 +704,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    *
    * @return a <code>PrintWriter</code> object that can return character data to
    * the client
-   *
    * @throws IOException if an input or output exception occurred
    * @throws IllegalStateException For Servlet Environment if the <code>getOutputStream</code>
    * method has already been called for this response object
@@ -806,7 +789,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
 
   /**
    * @param requestClass wrapped request class
-   *
    * @return returns {@code null} indicated that not a requestClass
    */
   @Nullable
@@ -819,7 +801,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
 
   /**
    * @param responseClass wrapped response class
-   *
    * @return returns {@code null} indicated that not a responseClass
    */
   @Nullable
@@ -854,7 +835,6 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * set current {@link PathVariable}s
    *
    * @param variables {@link PathVariable}s
-   *
    * @return input variables
    */
   public String[] pathVariables(String[] variables) {

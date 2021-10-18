@@ -27,8 +27,7 @@ public interface ApplicationEventPublisher {
   /**
    * Publish event
    *
-   * @param event
-   *         Any Event object
+   * @param event Any Event object
    */
   void publishEvent(Object event);
 
@@ -37,11 +36,8 @@ public interface ApplicationEventPublisher {
    * such as context refresh and context shutdown.
    * <p>
    *
-   * @param listener
-   *         the {@link ApplicationListener}
-   *
-   * @throws IllegalArgumentException
-   *         if listener is null
+   * @param listener the {@link ApplicationListener}
+   * @throws IllegalArgumentException if listener is null
    * @since 2.1.6
    */
   void addApplicationListener(ApplicationListener<?> listener);

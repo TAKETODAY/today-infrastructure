@@ -55,11 +55,9 @@ public class MutableMapPropertySource extends MapPropertySource {
   /**
    * Create a new {@code MapPropertySource} with the given name and {@code Map}.
    *
-   * @param name
-   *         the associated name
-   * @param source
-   *         the Map source (without {@code null} values in order to get
-   *         consistent {@link #getProperty} and {@link #containsProperty} behavior)
+   * @param name the associated name
+   * @param source the Map source (without {@code null} values in order to get
+   * consistent {@link #getProperty} and {@link #containsProperty} behavior)
    */
   public MutableMapPropertySource(String name, Map<String, Object> source) {
     super(name, source);
@@ -77,8 +75,7 @@ public class MutableMapPropertySource extends MapPropertySource {
    * Create a new {@code MockPropertySource} with the given name that will
    * maintain its own internal {@link Properties} instance.
    *
-   * @param name
-   *         the {@linkplain #getName() name} of the property source
+   * @param name the {@linkplain #getName() name} of the property source
    */
   public MutableMapPropertySource(String name) {
     this(name, new LinkedHashMap<>());
@@ -88,8 +85,7 @@ public class MutableMapPropertySource extends MapPropertySource {
    * Create a new {@code MockPropertySource} named {@value #MUTABLE_MAP_PROPERTY_SOURCE_NAME}
    * and backed by the given {@link Properties} object.
    *
-   * @param map
-   *         the map to use
+   * @param map the map to use
    */
   public MutableMapPropertySource(Map<String, Object> map) {
     this(MUTABLE_MAP_PROPERTY_SOURCE_NAME, map);

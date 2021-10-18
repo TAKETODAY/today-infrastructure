@@ -45,13 +45,9 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * callback will only apply to beans which the container fully manages the
    * lifecycle for. This is usually the case for singletons and scoped beans.
    *
-   * @param bean
-   *         the bean instance to be destroyed
-   * @param def
-   *         the BeanDefinition of the bean , BeanDefinition may be null
-   *
-   * @throws ApplicationContextException
-   *         in case of errors
+   * @param bean the bean instance to be destroyed
+   * @param def the BeanDefinition of the bean , BeanDefinition may be null
+   * @throws ApplicationContextException in case of errors
    * @see DisposableBean#destroy()
    */
   void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ApplicationContextException;
@@ -64,9 +60,7 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * {@code DestructionAwareBeanPostProcessor} does not provide a concrete
    * implementation of this method, IOC silently assumes {@code true} as well.
    *
-   * @param bean
-   *         the bean instance to check
-   *
+   * @param bean the bean instance to check
    * @return {@code true} if {@link #postProcessBeforeDestruction} is supposed to
    * be called for this bean instance eventually, or {@code false} if not
    * needed

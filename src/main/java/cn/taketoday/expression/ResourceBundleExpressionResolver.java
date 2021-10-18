@@ -62,14 +62,10 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
    * return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The ResourceBundle to analyze.
-   * @param property
-   *         The name of the property to analyze. Will be coerced to a
-   *         <code>String</code>.
-   *
+   * @param context The context of this evaluation.
+   * @param base The ResourceBundle to analyze.
+   * @param property The name of the property to analyze. Will be coerced to a
+   * <code>String</code>.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>null</code> if property is <code>null</code>; otherwise the
@@ -77,13 +73,10 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
    * <code>String</code>) from the <code>ResourceBundle</code>. If no
    * object for the given key can be found, then the <code>String</code>
    * "???" + key + "???".
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
 
@@ -113,19 +106,13 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
    * return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The ResourceBundle to analyze.
-   * @param property
-   *         The name of the property to analyze.
-   *
+   * @param context The context of this evaluation.
+   * @param base The ResourceBundle to analyze.
+   * @param property The name of the property to analyze.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>null</code>; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
+   * @throws NullPointerException if context is <code>null</code>
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
@@ -139,20 +126,13 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
    * If the base object is a ResourceBundle, throw a
    * {@link PropertyNotWritableException}.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The ResourceBundle to be modified. Only bases that are of type
-   *         ResourceBundle are handled.
-   * @param property
-   *         The String property to use.
-   * @param value
-   *         The value to be set.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotWritableException
-   *         Always thrown if base is an instance of ReasourceBundle.
+   * @param context The context of this evaluation.
+   * @param base The ResourceBundle to be modified. Only bases that are of type
+   * ResourceBundle are handled.
+   * @param property The String property to use.
+   * @param value The value to be set.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotWritableException Always thrown if base is an instance of ReasourceBundle.
    */
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
 
@@ -166,20 +146,14 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
    * If the base object is not null and an instanceof {@link ResourceBundle},
    * return <code>true</code>.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The ResourceBundle to be modified. Only bases that are of type
-   *         ResourceBundle are handled.
-   * @param property
-   *         The String property to use.
-   *
+   * @param context The context of this evaluation.
+   * @param base The ResourceBundle to be modified. Only bases that are of type
+   * ResourceBundle are handled.
+   * @param property The String property to use.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>true</code>; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
+   * @throws NullPointerException if context is <code>null</code>
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
     if (base instanceof ResourceBundle) {

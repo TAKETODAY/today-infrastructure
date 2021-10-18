@@ -48,8 +48,7 @@ public final class ModuleTargetAttribute extends Attribute {
   /**
    * Constructs a new {@link ModuleTargetAttribute}.
    *
-   * @param platform
-   *         the name of the platform on which the module can run.
+   * @param platform the name of the platform on which the module can run.
    */
   public ModuleTargetAttribute(final String platform) {
     super("ModuleTarget");

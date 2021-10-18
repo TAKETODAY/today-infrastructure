@@ -272,8 +272,7 @@ public class ClassNode extends ClassVisitor {
   /**
    * Makes the given class visitor visit this class.
    *
-   * @param classVisitor
-   *         a class visitor.
+   * @param classVisitor a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
     // Visit the header.

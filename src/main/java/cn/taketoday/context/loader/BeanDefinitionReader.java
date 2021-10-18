@@ -128,7 +128,7 @@ public class BeanDefinitionReader {
       builder.beanClass(bean)
               .name(beanName);
 
-      BeanDefinition def =  builder.build();
+      BeanDefinition def = builder.build();
       importAnnotated(def);
       register(def);
       loadConfigurationBeans(def); // scan config bean

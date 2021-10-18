@@ -68,13 +68,10 @@ public class ModuleNode extends ModuleVisitor {
   /**
    * Constructs a {@link ModuleNode}.
    *
-   * @param name
-   *         the fully qualified name (using dots) of the module.
-   * @param access
-   *         the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
-   *         ACC_MANDATED}.
-   * @param version
-   *         the module version, or {@literal null}.
+   * @param name the fully qualified name (using dots) of the module.
+   * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * ACC_MANDATED}.
+   * @param version the module version, or {@literal null}.
    */
   public ModuleNode(final String name, final int access, final String version) {
     this.name = name;
@@ -87,23 +84,15 @@ public class ModuleNode extends ModuleVisitor {
   /**
    * Constructs a {@link ModuleNode}.
    *
-   * @param name
-   *         the fully qualified name (using dots) of the module.
-   * @param access
-   *         the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
-   *         ACC_MANDATED}.
-   * @param version
-   *         the module version, or {@literal null}.
-   * @param requires
-   *         The dependencies of this module. May be {@literal null}.
-   * @param exports
-   *         The packages exported by this module. May be {@literal null}.
-   * @param opens
-   *         The packages opened by this module. May be {@literal null}.
-   * @param uses
-   *         The internal names of the services used by this module. May be {@literal null}.
-   * @param provides
-   *         The services provided by this module. May be {@literal null}.
+   * @param name the fully qualified name (using dots) of the module.
+   * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * ACC_MANDATED}.
+   * @param version the module version, or {@literal null}.
+   * @param requires The dependencies of this module. May be {@literal null}.
+   * @param exports The packages exported by this module. May be {@literal null}.
+   * @param opens The packages opened by this module. May be {@literal null}.
+   * @param uses The internal names of the services used by this module. May be {@literal null}.
+   * @param provides The services provided by this module. May be {@literal null}.
    */
   public ModuleNode(
           final String name,
@@ -185,8 +174,7 @@ public class ModuleNode extends ModuleVisitor {
   /**
    * Makes the given class visitor visit this module.
    *
-   * @param classVisitor
-   *         a class visitor.
+   * @param classVisitor a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
     ModuleVisitor moduleVisitor = classVisitor.visitModule(name, access, version);

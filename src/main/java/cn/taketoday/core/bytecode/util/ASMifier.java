@@ -118,8 +118,7 @@ public class ASMifier extends Printer {
   /**
    * Constructs a new {@link ASMifier}.
    *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ASMifier() {
     this("classWriter", 0);
@@ -128,10 +127,8 @@ public class ASMifier extends Printer {
   /**
    * Constructs a new {@link ASMifier}.
    *
-   * @param visitorVariableName
-   *         the name of the visitor variable in the produced code.
-   * @param annotationVisitorId
-   *         identifier of the annotation visitor variable in the produced code.
+   * @param visitorVariableName the name of the visitor variable in the produced code.
+   * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    */
   protected ASMifier(final String visitorVariableName, final int annotationVisitorId) {
     this.name = visitorVariableName;
@@ -143,11 +140,8 @@ public class ASMifier extends Printer {
    *
    * <p>Usage: ASMifier [-nodebug] &lt;binary class name or class file name&gt;
    *
-   * @param args
-   *         the command line arguments.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IOException occurs.
+   * @param args the command line arguments.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   public static void main(final String[] args) throws IOException {
     main(args, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
@@ -158,15 +152,10 @@ public class ASMifier extends Printer {
    *
    * <p>Usage: ASMifier [-nodebug] &lt;binary class name or class file name&gt;
    *
-   * @param args
-   *         the command line arguments.
-   * @param output
-   *         where to print the result.
-   * @param logger
-   *         where to log errors.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IOException occurs.
+   * @param args the command line arguments.
+   * @param output where to print the result.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
           throws IOException {
@@ -1177,11 +1166,8 @@ public class ASMifier extends Printer {
   /**
    * Visits a class, field or method annotation.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
@@ -1204,18 +1190,13 @@ public class ASMifier extends Printer {
   /**
    * Visits a class, field or method type annotation.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#FIELD}. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#FIELD}. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitTypeAnnotation(
@@ -1226,20 +1207,14 @@ public class ASMifier extends Printer {
   /**
    * Visits a class, field, method, instruction or try catch block type annotation.
    *
-   * @param method
-   *         the name of the visit method for this type of annotation.
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#FIELD}. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param method the name of the visit method for this type of annotation.
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#FIELD}. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitTypeAnnotation(
@@ -1277,8 +1252,7 @@ public class ASMifier extends Printer {
   /**
    * Visit a class, field or method attribute.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
     StringBuilder stringBuilder = this.stringBuilder;
@@ -1311,11 +1285,8 @@ public class ASMifier extends Printer {
   /**
    * Constructs a new {@link ASMifier}.
    *
-   * @param visitorVariableName
-   *         the name of the visitor variable in the produced code.
-   * @param annotationVisitorId
-   *         identifier of the annotation visitor variable in the produced code.
-   *
+   * @param visitorVariableName the name of the visitor variable in the produced code.
+   * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    * @return a new {@link ASMifier}.
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
@@ -1327,8 +1298,7 @@ public class ASMifier extends Printer {
   /**
    * Appends a string representation of the given access flags to {@link #stringBuilder}.
    *
-   * @param accessFlags
-   *         some access flags.
+   * @param accessFlags some access flags.
    */
   private void appendAccessFlags(final int accessFlags) {
     StringBuilder stringBuilder = this.stringBuilder;
@@ -1501,10 +1471,9 @@ public class ASMifier extends Printer {
   /**
    * Appends a string representation of the given constant to {@link #stringBuilder}.
    *
-   * @param value
-   *         a {@link String}, {@link Type}, {@link Handle}, {@link Byte}, {@link Short},
-   *         {@link Character}, {@link Integer}, {@link Float}, {@link Long} or {@link Double} object,
-   *         or an array of primitive values. May be {@literal null}.
+   * @param value a {@link String}, {@link Type}, {@link Handle}, {@link Byte}, {@link Short},
+   * {@link Character}, {@link Integer}, {@link Float}, {@link Long} or {@link Double} object,
+   * or an array of primitive values. May be {@literal null}.
    */
   protected void appendConstant(final Object value) {
     StringBuilder stringBuilder = this.stringBuilder;
@@ -1640,11 +1609,9 @@ public class ASMifier extends Printer {
   /**
    * Calls {@link #declareLabel} for each label in the given stack map frame types.
    *
-   * @param numTypes
-   *         the number of stack map frame types in 'frameTypes'.
-   * @param frameTypes
-   *         an array of stack map frame types, in the format described in {@link
-   *         MethodVisitor#visitFrame}.
+   * @param numTypes the number of stack map frame types in 'frameTypes'.
+   * @param frameTypes an array of stack map frame types, in the format described in {@link
+   * MethodVisitor#visitFrame}.
    */
   private void declareFrameTypes(final int numTypes, final Object[] frameTypes) {
     for (int i = 0; i < numTypes; ++i) {
@@ -1657,11 +1624,9 @@ public class ASMifier extends Printer {
   /**
    * Appends the given stack map frame types to {@link #stringBuilder}.
    *
-   * @param numTypes
-   *         the number of stack map frame types in 'frameTypes'.
-   * @param frameTypes
-   *         an array of stack map frame types, in the format described in {@link
-   *         MethodVisitor#visitFrame}.
+   * @param numTypes the number of stack map frame types in 'frameTypes'.
+   * @param frameTypes an array of stack map frame types, in the format described in {@link
+   * MethodVisitor#visitFrame}.
    */
   private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
     for (int i = 0; i < numTypes; ++i) {
@@ -1685,8 +1650,7 @@ public class ASMifier extends Printer {
    * form "Label labelXXX = new Label();". Does nothing if the given label has already been
    * declared.
    *
-   * @param label
-   *         a label.
+   * @param label a label.
    */
   protected void declareLabel(final Label label) {
     if (labelNames == null) {
@@ -1705,8 +1669,7 @@ public class ASMifier extends Printer {
    * already have a name. One way to ensure this is to always call {@link #declareLabel} before
    * calling this method.
    *
-   * @param label
-   *         a label.
+   * @param label a label.
    */
   protected void appendLabel(final Label label) {
     stringBuilder.append(labelNames.get(label));

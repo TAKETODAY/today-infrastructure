@@ -42,8 +42,7 @@ public interface ApplicationEventPublisherAware extends Aware {
    * callback like InitializingBean's afterPropertiesSet or a custom init-method.
    * Invoked before ApplicationContextAware's setApplicationContext.
    *
-   * @param applicationEventPublisher
-   *         event publisher to be used by this object
+   * @param applicationEventPublisher event publisher to be used by this object
    */
   void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher);
 

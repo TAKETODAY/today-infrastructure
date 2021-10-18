@@ -63,13 +63,9 @@ public abstract class ExpressionUtils {
   protected static final Long ZERO = 0L;
 
   /**
-   * @param obj0
-   *         First object to be compared
-   * @param obj1
-   *         Second object to be compared
-   *
+   * @param obj0 First object to be compared
+   * @param obj1 Second object to be compared
    * @return The result (an int with values -1, 0, or 1) of the comparison
-   *
    * @throws ExpressionException
    */
   @SuppressWarnings("unchecked")
@@ -111,13 +107,9 @@ public abstract class ExpressionUtils {
   }
 
   /**
-   * @param obj0
-   *         Fisrt object to be compared
-   * @param obj1
-   *         Second object to be compared
-   *
+   * @param obj0 Fisrt object to be compared
+   * @param obj1 Second object to be compared
    * @return true if the objects compared equal
-   *
    * @throws ExpressionException
    */
   public static boolean equals(final Object obj0, final Object obj1) throws ExpressionException {
@@ -157,9 +149,7 @@ public abstract class ExpressionUtils {
   }
 
   /**
-   * @param obj
-   *         Object to be coerced
-   *
+   * @param obj Object to be coerced
    * @return The result of coercion
    */
   public static Boolean coerceToBoolean(final Object obj) throws IllegalArgumentException {
@@ -323,9 +313,7 @@ public abstract class ExpressionUtils {
   }
 
   /**
-   * @param obj
-   *         Object to be coerced
-   *
+   * @param obj Object to be coerced
    * @return The result of coercion
    */
   public static String coerceToString(final Object obj) {

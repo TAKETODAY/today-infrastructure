@@ -21,8 +21,8 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 
 /**
  * @author TODAY 2021/10/3 21:58

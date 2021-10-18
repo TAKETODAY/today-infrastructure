@@ -31,8 +31,7 @@ public class TextMessage extends AbstractMessage<String> {
   /**
    * Create a new text WebSocket message from the given CharSequence payload.
    *
-   * @param payload
-   *         the non-null payload
+   * @param payload the non-null payload
    */
   public TextMessage(String payload) {
     super(payload);
@@ -42,8 +41,7 @@ public class TextMessage extends AbstractMessage<String> {
    * Create a new text WebSocket message from the given byte[]. It is assumed
    * the byte array can be encoded into an UTF-8 String.
    *
-   * @param payload
-   *         the non-null payload
+   * @param payload the non-null payload
    */
   public TextMessage(byte[] payload) {
     super(new String(payload, StandardCharsets.UTF_8));
@@ -55,10 +53,8 @@ public class TextMessage extends AbstractMessage<String> {
    * to {@code false} the message is sent as partial content and more partial
    * messages will be expected until the boolean flag is set to {@code true}.
    *
-   * @param payload
-   *         the non-null payload
-   * @param isLast
-   *         whether this the last part of a series of partial messages
+   * @param payload the non-null payload
+   * @param isLast whether this the last part of a series of partial messages
    */
   public TextMessage(CharSequence payload, boolean isLast) {
     super(payload.toString(), isLast);
