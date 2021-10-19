@@ -20,14 +20,14 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
-import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 /**
  * Instantiates an object, WITHOUT calling it's constructor, using internal
@@ -44,24 +44,18 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0
  */
 public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
-  private static final Class<?> ReflectionFactoryClass;
+  private static final Object reflectionFactory;
   private static final Method newConstructorForSerialization;
   private static final Constructor<Object> javaLangObjectConstructor;
-  private static final Object reflectionFactory;
 
   static {
-    try {
-      ReflectionFactoryClass = Class.forName("sun.reflect.ReflectionFactory");
-    }
-    catch (ClassNotFoundException e) {
-      throw new BeanInstantiationException("ReflectionFactory not found", e);
-    }
-
+    Class<?> reflectionFactoryClass = ClassUtils.resolveClassName(
+            "sun.reflect.ReflectionFactory", null);
     javaLangObjectConstructor = ReflectionUtils.getConstructor(Object.class);
     newConstructorForSerialization = ReflectionUtils.getMethod(
-            ReflectionFactoryClass, "newConstructorForSerialization", Class.class, Constructor.class);
+            reflectionFactoryClass, "newConstructorForSerialization", Class.class, Constructor.class);
 
-    Method getReflectionFactory = ReflectionUtils.getMethod(ReflectionFactoryClass, "getReflectionFactory");
+    Method getReflectionFactory = ReflectionUtils.getMethod(reflectionFactoryClass, "getReflectionFactory");
     reflectionFactory = ReflectionUtils.invokeMethod(getReflectionFactory, null);
   }
 
