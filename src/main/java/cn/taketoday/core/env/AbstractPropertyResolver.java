@@ -28,7 +28,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
-import cn.taketoday.util.SystemPropertyUtils;
 
 /**
  * Abstract base class for resolving properties against any underlying source.
@@ -261,11 +260,8 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
   /**
    * Convert the given value to the specified target type, if necessary.
    *
-   * @param value
-   *         the original property value
-   * @param targetType
-   *         the specified target type for property retrieval
-   *
+   * @param value the original property value
+   * @param targetType the specified target type for property retrieval
    * @return the converted value, or the original value if no conversion
    * is necessary
    */
@@ -291,9 +287,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * Retrieve the specified property as a raw String,
    * i.e. without resolution of nested placeholders.
    *
-   * @param key
-   *         the property name to resolve
-   *
+   * @param key the property name to resolve
    * @return the property value or {@code null} if none found
    */
   @Nullable

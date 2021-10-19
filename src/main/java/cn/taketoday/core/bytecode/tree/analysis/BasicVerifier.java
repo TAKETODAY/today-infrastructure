@@ -409,9 +409,7 @@ public class BasicVerifier extends BasicInterpreter {
   /**
    * Returns whether the given value corresponds to an array reference.
    *
-   * @param value
-   *         a value.
-   *
+   * @param value a value.
    * @return whether 'value' corresponds to an array reference.
    */
   protected boolean isArrayValue(final BasicValue value) {
@@ -421,13 +419,9 @@ public class BasicVerifier extends BasicInterpreter {
   /**
    * Returns the value corresponding to the type of the elements of the given array reference value.
    *
-   * @param objectArrayValue
-   *         a value corresponding to array of object (or array) references.
-   *
+   * @param objectArrayValue a value corresponding to array of object (or array) references.
    * @return the value corresponding to the type of the elements of 'objectArrayValue'.
-   *
-   * @throws AnalyzerException
-   *         if objectArrayValue does not correspond to an array type.
+   * @throws AnalyzerException if objectArrayValue does not correspond to an array type.
    */
   protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
     return BasicValue.REFERENCE_VALUE;
@@ -437,11 +431,8 @@ public class BasicVerifier extends BasicInterpreter {
    * Returns whether the type corresponding to the first argument is a subtype of the type
    * corresponding to the second argument.
    *
-   * @param value
-   *         a value.
-   * @param expected
-   *         another value.
-   *
+   * @param value a value.
+   * @param expected another value.
    * @return whether the type corresponding to 'value' is a subtype of the type corresponding to
    * 'expected'.
    */

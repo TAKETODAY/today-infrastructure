@@ -51,11 +51,8 @@ public abstract class UndertowCompressionUtils {
   /**
    * Optionally wrap the given {@link HttpHandler} for HTTP compression support.
    *
-   * @param compression
-   *         the HTTP compression configuration
-   * @param httpHandler
-   *         the HTTP handler to wrap
-   *
+   * @param compression the HTTP compression configuration
+   * @param httpHandler the HTTP handler to wrap
    * @return the wrapped HTTP handler if compression is enabled, or the handler
    * itself
    */

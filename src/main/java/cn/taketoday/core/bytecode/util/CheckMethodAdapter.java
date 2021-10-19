@@ -338,8 +338,7 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link CheckMethodAdapter} object.
    *
-   * @param methodvisitor
-   *         the method visitor to which this adapter must delegate calls.
+   * @param methodvisitor the method visitor to which this adapter must delegate calls.
    */
   public CheckMethodAdapter(final MethodVisitor methodvisitor) {
     this(methodvisitor, new HashMap<>());
@@ -348,14 +347,10 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link CheckMethodAdapter} object.
    *
-   * @param methodVisitor
-   *         the method visitor to which this adapter must delegate calls.
-   * @param labelInsnIndices
-   *         the index of the instruction designated by each visited label so far
-   *         (in other methods). This map is updated with the labels from the visited method.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @param methodVisitor the method visitor to which this adapter must delegate calls.
+   * @param labelInsnIndices the index of the instruction designated by each visited label so far
+   * (in other methods). This map is updated with the labels from the visited method.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckMethodAdapter(
           final MethodVisitor methodVisitor,
@@ -369,17 +364,12 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link CheckMethodAdapter} object.
    *
-   * @param access
-   *         the method's access flags.
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param methodVisitor
-   *         the method visitor to which this adapter must delegate calls.
-   * @param labelInsnIndices
-   *         the index of the instruction designated by each visited label so far
-   *         (in other methods). This map is updated with the labels from the visited method.
+   * @param access the method's access flags.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param methodVisitor the method visitor to which this adapter must delegate calls.
+   * @param labelInsnIndices the index of the instruction designated by each visited label so far
+   * (in other methods). This map is updated with the labels from the visited method.
    */
   public CheckMethodAdapter(
           final int access,
@@ -1006,8 +996,7 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks a stack frame value.
    *
-   * @param value
-   *         the value to be checked.
+   * @param value the value to be checked.
    */
   private void checkFrameValue(final Object value) {
     if (value == Opcodes.TOP
@@ -1033,10 +1022,8 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the method to visit the given opcode is equal to the given method.
    *
-   * @param opcode
-   *         the opcode to be checked.
-   * @param method
-   *         the expected visit method.
+   * @param opcode the opcode to be checked.
+   * @param method the expected visit method.
    */
   private static void checkOpcodeMethod(final int opcode, final Method method) {
     if (opcode < Opcodes.NOP || opcode > Opcodes.IFNONNULL || OPCODE_METHODS[opcode] != method) {
@@ -1047,10 +1034,8 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given value is a signed byte.
    *
-   * @param value
-   *         the value to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param value the value to be checked.
+   * @param message the message to use in case of error.
    */
   private static void checkSignedByte(final int value, final String message) {
     if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
@@ -1061,10 +1046,8 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given value is a signed short.
    *
-   * @param value
-   *         the value to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param value the value to be checked.
+   * @param message the message to use in case of error.
    */
   private static void checkSignedShort(final int value, final String message) {
     if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
@@ -1075,10 +1058,8 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given value is an unsigned short.
    *
-   * @param value
-   *         the value to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param value the value to be checked.
+   * @param message the message to use in case of error.
    */
   private static void checkUnsignedShort(final int value, final String message) {
     if (value < 0 || value > 65535) {
@@ -1090,8 +1071,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * Checks that the given value is an {@link Integer}, {@link Float}, {@link Long}, {@link Double}
    * or {@link String} value.
    *
-   * @param value
-   *         the value to be checked.
+   * @param value the value to be checked.
    */
   static void checkConstant(final Object value) {
     if (!(value instanceof Integer)
@@ -1106,8 +1086,7 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given value is a valid operand for the LDC instruction.
    *
-   * @param value
-   *         the value to be checked.
+   * @param value the value to be checked.
    */
   private void checkLdcConstant(final Object value) {
     if (value instanceof Type) {
@@ -1164,12 +1143,9 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid unqualified name.
    *
-   * @param version
-   *         the class version.
-   * @param name
-   *         the string to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param version the class version.
+   * @param name the string to be checked.
+   * @param message the message to use in case of error.
    */
   static void checkUnqualifiedName(final int version, final String name, final String message) {
     checkIdentifier(version, name, 0, -1, message);
@@ -1178,17 +1154,12 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given substring is a valid Java identifier.
    *
-   * @param version
-   *         the class version.
-   * @param name
-   *         the string to be checked.
-   * @param startPos
-   *         the index of the first character of the identifier (inclusive).
-   * @param endPos
-   *         the index of the last character of the identifier (exclusive). -1 is equivalent
-   *         to {@code name.length()} if name is not {@literal null}.
-   * @param message
-   *         the message to use in case of error.
+   * @param version the class version.
+   * @param name the string to be checked.
+   * @param startPos the index of the first character of the identifier (inclusive).
+   * @param endPos the index of the last character of the identifier (exclusive). -1 is equivalent
+   * to {@code name.length()} if name is not {@literal null}.
+   * @param message the message to use in case of error.
    */
   static void checkIdentifier(
           final int version,
@@ -1222,12 +1193,9 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid Java identifier.
    *
-   * @param version
-   *         the class version.
-   * @param name
-   *         the string to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param version the class version.
+   * @param name the string to be checked.
+   * @param message the message to use in case of error.
    */
   static void checkMethodIdentifier(final int version, final String name, final String message) {
     if (name == null || name.length() == 0) {
@@ -1258,12 +1226,9 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid internal class name or array type descriptor.
    *
-   * @param version
-   *         the class version.
-   * @param name
-   *         the string to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param version the class version.
+   * @param name the string to be checked.
+   * @param message the message to use in case of error.
    */
   static void checkInternalName(final int version, final String name, final String message) {
     if (name == null || name.length() == 0) {
@@ -1280,12 +1245,9 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid internal class name.
    *
-   * @param version
-   *         the class version.
-   * @param name
-   *         the string to be checked.
-   * @param message
-   *         the message to use in case of error.
+   * @param version the class version.
+   * @param name the string to be checked.
+   * @param message the message to use in case of error.
    */
   private static void checkInternalClassName(
           final int version, final String name, final String message) {
@@ -1307,12 +1269,9 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid type descriptor.
    *
-   * @param version
-   *         the class version.
-   * @param descriptor
-   *         the string to be checked.
-   * @param canBeVoid
-   *         {@literal true} if {@code V} can be considered valid.
+   * @param version the class version.
+   * @param descriptor the string to be checked.
+   * @param canBeVoid {@literal true} if {@code V} can be considered valid.
    */
   static void checkDescriptor(final int version, final String descriptor, final boolean canBeVoid) {
     int endPos = checkDescriptor(version, descriptor, 0, canBeVoid);
@@ -1324,15 +1283,10 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that a the given substring is a valid type descriptor.
    *
-   * @param version
-   *         the class version.
-   * @param descriptor
-   *         the string to be checked.
-   * @param startPos
-   *         the index of the first character of the type descriptor (inclusive).
-   * @param canBeVoid
-   *         whether {@code V} can be considered valid.
-   *
+   * @param version the class version.
+   * @param descriptor the string to be checked.
+   * @param startPos the index of the first character of the type descriptor (inclusive).
+   * @param canBeVoid whether {@code V} can be considered valid.
    * @return the index of the last character of the type descriptor, plus one.
    */
   private static int checkDescriptor(
@@ -1388,10 +1342,8 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid method descriptor.
    *
-   * @param version
-   *         the class version.
-   * @param descriptor
-   *         the string to be checked.
+   * @param version the class version.
+   * @param descriptor the string to be checked.
    */
   static void checkMethodDescriptor(final int version, final String descriptor) {
     if (descriptor == null || descriptor.length() == 0) {
@@ -1420,12 +1372,9 @@ public class CheckMethodAdapter extends MethodVisitor {
    * Checks that the given label is not null. This method can also check that the label has been
    * visited.
    *
-   * @param label
-   *         the label to be checked.
-   * @param checkVisited
-   *         whether to check that the label has been visited.
-   * @param message
-   *         the message to use in case of error.
+   * @param label the label to be checked.
+   * @param checkVisited whether to check that the label has been visited.
+   * @param message the message to use in case of error.
    */
   private void checkLabel(final Label label, final boolean checkVisited, final String message) {
     if (label == null) {

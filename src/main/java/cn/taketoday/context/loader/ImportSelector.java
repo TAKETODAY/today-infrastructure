@@ -40,13 +40,9 @@ public interface ImportSelector {
    * Select and return the full names of which class(es) should be imported based
    * on the importing @{@link Configuration} BeanDefinition.
    *
-   * @param annotatedMetadata
-   *         Target {@link BeanDefinition}
-   * @param registry
-   *         BeanDefinitionRegistry
-   *
+   * @param annotatedMetadata Target {@link BeanDefinition}
+   * @param registry BeanDefinitionRegistry
    * @return import classes Never be null
-   *
    * @see BeanDefinitionRegistry#isBeanNameInUse(String)
    */
   @Nullable

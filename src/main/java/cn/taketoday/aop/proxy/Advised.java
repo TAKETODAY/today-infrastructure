@@ -66,8 +66,7 @@ public interface Advised extends TargetClassAware {
   /**
    * Determine whether the given interface is proxied.
    *
-   * @param intf
-   *         the interface to check
+   * @param intf the interface to check
    */
   boolean isInterfaceProxied(Class<?> intf);
 
@@ -75,8 +74,7 @@ public interface Advised extends TargetClassAware {
    * Change the {@code TargetSource} used by this {@code Advised} object.
    * <p>Only works if the configuration isn't {@linkplain #isFrozen frozen}.
    *
-   * @param targetSource
-   *         new TargetSource to use
+   * @param targetSource new TargetSource to use
    */
   void setTargetSource(TargetSource targetSource);
 
@@ -144,33 +142,24 @@ public interface Advised extends TargetClassAware {
    * in which new interfaces will be available when a proxy is next obtained
    * from the relevant factory.
    *
-   * @param advisor
-   *         the advisor to add to the end of the chain
-   *
-   * @throws AopConfigException
-   *         in case of invalid advice
+   * @param advisor the advisor to add to the end of the chain
+   * @throws AopConfigException in case of invalid advice
    */
   void addAdvisor(Advisor advisor) throws AopConfigException;
 
   /**
    * Add an Advisor at the specified position in the chain.
    *
-   * @param advisor
-   *         the advisor to add at the specified position in the chain
-   * @param pos
-   *         position in chain (0 is head). Must be valid.
-   *
-   * @throws AopConfigException
-   *         in case of invalid advice
+   * @param advisor the advisor to add at the specified position in the chain
+   * @param pos position in chain (0 is head). Must be valid.
+   * @throws AopConfigException in case of invalid advice
    */
   void addAdvisor(int pos, Advisor advisor) throws AopConfigException;
 
   /**
    * Remove the given advisor.
    *
-   * @param advisor
-   *         the advisor to remove
-   *
+   * @param advisor the advisor to remove
    * @return {@code true} if the advisor was removed; {@code false}
    * if the advisor was not found and hence could not be removed
    */
@@ -179,11 +168,8 @@ public interface Advised extends TargetClassAware {
   /**
    * Remove the advisor at the given index.
    *
-   * @param index
-   *         the index of advisor to remove
-   *
-   * @throws AopConfigException
-   *         if the index is invalid
+   * @param index the index of advisor to remove
+   * @throws AopConfigException if the index is invalid
    */
   void removeAdvisor(int index) throws AopConfigException;
 
@@ -192,9 +178,7 @@ public interface Advised extends TargetClassAware {
    * or -1 if no such advisor applies to this proxy.
    * <p>The return value of this method can be used to index into the advisors array.
    *
-   * @param advisor
-   *         the advisor to search for
-   *
+   * @param advisor the advisor to search for
    * @return index from 0 of this advisor, or -1 if there's no such advisor
    */
   int indexOf(Advisor advisor);
@@ -206,16 +190,11 @@ public interface Advised extends TargetClassAware {
    * to be re-obtained or the old interfaces won't be supported and the new interface
    * won't be implemented.
    *
-   * @param a
-   *         the advisor to replace
-   * @param b
-   *         the advisor to replace it with
-   *
+   * @param a the advisor to replace
+   * @param b the advisor to replace it with
    * @return whether it was replaced. If the advisor wasn't found in the
    * list of advisors, this method returns {@code false} and does nothing.
-   *
-   * @throws AopConfigException
-   *         in case of invalid advice
+   * @throws AopConfigException in case of invalid advice
    */
   boolean replaceAdvisor(Advisor a, Advisor b) throws AopConfigException;
 
@@ -227,11 +206,8 @@ public interface Advised extends TargetClassAware {
    * even to the {@code toString()} method! Use appropriate advice implementations
    * or specify appropriate pointcuts to apply to a narrower set of methods.
    *
-   * @param advice
-   *         the advice to add to the tail of the chain
-   *
-   * @throws AopConfigException
-   *         in case of invalid advice
+   * @param advice the advice to add to the tail of the chain
+   * @throws AopConfigException in case of invalid advice
    * @see #addAdvice(int, Advice)
    * @see DefaultPointcutAdvisor
    */
@@ -246,22 +222,16 @@ public interface Advised extends TargetClassAware {
    * even to the {@code toString()} method! Use appropriate advice implementations
    * or specify appropriate pointcuts to apply to a narrower set of methods.
    *
-   * @param pos
-   *         index from 0 (head)
-   * @param advice
-   *         the advice to add at the specified position in the advice chain
-   *
-   * @throws AopConfigException
-   *         in case of invalid advice
+   * @param pos index from 0 (head)
+   * @param advice the advice to add at the specified position in the advice chain
+   * @throws AopConfigException in case of invalid advice
    */
   void addAdvice(int pos, Advice advice) throws AopConfigException;
 
   /**
    * Remove the Advisor containing the given advice.
    *
-   * @param advice
-   *         the advice to remove
-   *
+   * @param advice the advice to remove
    * @return {@code true} of the advice was found and removed;
    * {@code false} if there was no such advice
    */
@@ -273,9 +243,7 @@ public interface Advised extends TargetClassAware {
    * <p>The return value of this method can be used to index into
    * the advisors array.
    *
-   * @param advice
-   *         the AOP Alliance advice to search for
-   *
+   * @param advice the AOP Alliance advice to search for
    * @return index from 0 of this advice, or -1 if there's no such advice
    */
   int indexOf(Advice advice);

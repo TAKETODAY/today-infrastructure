@@ -48,8 +48,7 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
   /**
    * Create a new AnnotationClassFilter for the given annotation type.
    *
-   * @param annotationType
-   *         the annotation type to look for
+   * @param annotationType the annotation type to look for
    */
   public AnnotationMethodMatcher(Class<? extends Annotation> annotationType) {
     this(annotationType, false);
@@ -58,13 +57,11 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
   /**
    * Create a new AnnotationClassFilter for the given annotation type.
    *
-   * @param annotationType
-   *         the annotation type to look for
-   * @param checkInherited
-   *         whether to also check the superclasses and
-   *         interfaces as well as meta-annotations for the annotation type
-   *         (i.e. whether to use {@link AnnotationUtils#isPresent(AnnotatedElement, Class)}
-   *         semantics instead of standard Java {@link Method#isAnnotationPresent})
+   * @param annotationType the annotation type to look for
+   * @param checkInherited whether to also check the superclasses and
+   * interfaces as well as meta-annotations for the annotation type
+   * (i.e. whether to use {@link AnnotationUtils#isPresent(AnnotatedElement, Class)}
+   * semantics instead of standard Java {@link Method#isAnnotationPresent})
    */
   public AnnotationMethodMatcher(Class<? extends Annotation> annotationType, boolean checkInherited) {
     Assert.notNull(annotationType, "Annotation type must not be null");

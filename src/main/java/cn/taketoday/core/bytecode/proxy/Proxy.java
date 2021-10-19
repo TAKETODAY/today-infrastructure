@@ -101,21 +101,15 @@ public class Proxy implements Serializable {
    * {@code Proxy.newProxyInstance} throws {@code IllegalArgumentException} for
    * the same reasons that {@code Proxy.getProxyClass} does.
    *
-   * @param loader
-   *         the class loader to define the proxy class
-   * @param interfaces
-   *         the list of interfaces for the proxy class to implement
-   * @param h
-   *         the invocation handler to dispatch method invocations to
-   *
+   * @param loader the class loader to define the proxy class
+   * @param interfaces the list of interfaces for the proxy class to implement
+   * @param h the invocation handler to dispatch method invocations to
    * @return a proxy instance with the specified invocation handler of a proxy
    * class that is defined by the specified class loader and that
    * implements the specified interfaces
-   *
-   * @throws NullPointerException
-   *         if the {@code interfaces} array argument or any of its elements
-   *         are {@code null}, or if the invocation handler, {@code h}, is
-   *         {@code null}
+   * @throws NullPointerException if the {@code interfaces} array argument or any of its elements
+   * are {@code null}, or if the invocation handler, {@code h}, is
+   * {@code null}
    */
   public static Object newProxyInstance(
           final ClassLoader loader, final Class<?>[] interfaces, final InvocationHandler h) {

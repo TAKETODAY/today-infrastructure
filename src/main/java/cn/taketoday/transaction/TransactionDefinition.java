@@ -96,9 +96,7 @@ public interface TransactionDefinition {
   /**
    * Should we roll back on the given exception?
    *
-   * @param ex
-   *         the exception to evaluate
-   *
+   * @param ex the exception to evaluate
    * @return whether to perform a rollback or not
    */
   boolean rollbackOn(Throwable ex);

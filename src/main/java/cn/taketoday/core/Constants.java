@@ -63,11 +63,8 @@ public class Constants {
    * All <b>public</b> static final variables will be exposed, whatever their
    * type.
    *
-   * @param clazz
-   *         the class to analyze
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code clazz} is {@code null}
+   * @param clazz the class to analyze
+   * @throws IllegalArgumentException if the supplied {@code clazz} is {@code null}
    */
   public Constants(Class<?> clazz) {
     Assert.notNull(clazz, "class must not be null");
@@ -115,14 +112,10 @@ public class Constants {
   /**
    * Return a constant value cast to a Number.
    *
-   * @param code
-   *         the name of the field (never {@code null})
-   *
+   * @param code the name of the field (never {@code null})
    * @return the Number value
-   *
-   * @throws ConstantException
-   *         if the field name wasn't found or if the type wasn't compatible
-   *         with Number
+   * @throws ConstantException if the field name wasn't found or if the type wasn't compatible
+   * with Number
    * @see #asObject
    */
   public Number asNumber(String code) throws ConstantException {
@@ -136,14 +129,10 @@ public class Constants {
   /**
    * Return a constant value as a String.
    *
-   * @param code
-   *         the name of the field (never {@code null})
-   *
+   * @param code the name of the field (never {@code null})
    * @return the String value Works even if it's not a string (invokes
    * {@code toString()}).
-   *
-   * @throws ConstantException
-   *         if the field name wasn't found
+   * @throws ConstantException if the field name wasn't found
    * @see #asObject
    */
   public String asString(String code) throws ConstantException {
@@ -155,13 +144,9 @@ public class Constants {
    * appropriate value if it's the name of a constant field in the class that
    * we're analysing.
    *
-   * @param code
-   *         the name of the field (never {@code null})
-   *
+   * @param code the name of the field (never {@code null})
    * @return the Object value
-   *
-   * @throws ConstantException
-   *         if there's no such field
+   * @throws ConstantException if there's no such field
    */
   public Object asObject(String code) throws ConstantException {
     String codeToUse = code.toUpperCase(Locale.ENGLISH);
@@ -180,9 +165,7 @@ public class Constants {
    * supplied {@code namePrefix} will be uppercased (in a locale-insensitive
    * fashion) prior to the main logic of this method kicking in.
    *
-   * @param namePrefix
-   *         prefix of the constant names to search (may be {@code null})
-   *
+   * @param namePrefix prefix of the constant names to search (may be {@code null})
    * @return the set of constant names
    */
   public Set<String> getNames(String namePrefix) {
@@ -199,11 +182,8 @@ public class Constants {
   /**
    * Return all names of the group of constants for the given bean property name.
    *
-   * @param propertyName
-   *         the name of the bean property
-   *
+   * @param propertyName the name of the bean property
    * @return the set of values
-   *
    * @see #propertyToConstantNamePrefix
    */
   public Set<String> getNamesForProperty(String propertyName) {
@@ -218,9 +198,7 @@ public class Constants {
    * supplied {@code nameSuffix} will be uppercased (in a locale-insensitive
    * fashion) prior to the main logic of this method kicking in.
    *
-   * @param nameSuffix
-   *         suffix of the constant names to search (may be {@code null})
-   *
+   * @param nameSuffix suffix of the constant names to search (may be {@code null})
    * @return the set of constant names
    */
   public Set<String> getNamesForSuffix(String nameSuffix) {
@@ -242,9 +220,7 @@ public class Constants {
    * supplied {@code namePrefix} will be uppercased (in a locale-insensitive
    * fashion) prior to the main logic of this method kicking in.
    *
-   * @param namePrefix
-   *         prefix of the constant names to search (may be {@code null})
-   *
+   * @param namePrefix prefix of the constant names to search (may be {@code null})
    * @return the set of values
    */
   public Set<Object> getValues(String namePrefix) {
@@ -261,11 +237,8 @@ public class Constants {
   /**
    * Return all values of the group of constants for the given bean property name.
    *
-   * @param propertyName
-   *         the name of the bean property
-   *
+   * @param propertyName the name of the bean property
    * @return the set of values
-   *
    * @see #propertyToConstantNamePrefix
    */
   public Set<Object> getValuesForProperty(String propertyName) {
@@ -280,9 +253,7 @@ public class Constants {
    * supplied {@code nameSuffix} will be uppercased (in a locale-insensitive
    * fashion) prior to the main logic of this method kicking in.
    *
-   * @param nameSuffix
-   *         suffix of the constant names to search (may be {@code null})
-   *
+   * @param nameSuffix suffix of the constant names to search (may be {@code null})
    * @return the set of values
    */
   public Set<Object> getValuesForSuffix(String nameSuffix) {
@@ -301,15 +272,10 @@ public class Constants {
    * <p>
    * Will return the first match.
    *
-   * @param value
-   *         constant value to look up
-   * @param namePrefix
-   *         prefix of the constant names to search (may be {@code null})
-   *
+   * @param value constant value to look up
+   * @param namePrefix prefix of the constant names to search (may be {@code null})
    * @return the name of the constant field
-   *
-   * @throws ConstantException
-   *         if the value wasn't found
+   * @throws ConstantException if the value wasn't found
    */
   public String toCode(Object value, String namePrefix) throws ConstantException {
     String prefixToUse = (namePrefix != null ? namePrefix.trim().toUpperCase(Locale.ENGLISH) : "");
@@ -325,15 +291,10 @@ public class Constants {
    * Look up the given value within the group of constants for the given bean
    * property name. Will return the first match.
    *
-   * @param value
-   *         constant value to look up
-   * @param propertyName
-   *         the name of the bean property
-   *
+   * @param value constant value to look up
+   * @param propertyName the name of the bean property
    * @return the name of the constant field
-   *
-   * @throws ConstantException
-   *         if the value wasn't found
+   * @throws ConstantException if the value wasn't found
    * @see #propertyToConstantNamePrefix
    */
   public String toCodeForProperty(Object value, String propertyName) throws ConstantException {
@@ -345,15 +306,10 @@ public class Constants {
    * <p>
    * Will return the first match.
    *
-   * @param value
-   *         constant value to look up
-   * @param nameSuffix
-   *         suffix of the constant names to search (may be {@code null})
-   *
+   * @param value constant value to look up
+   * @param nameSuffix suffix of the constant names to search (may be {@code null})
    * @return the name of the constant field
-   *
-   * @throws ConstantException
-   *         if the value wasn't found
+   * @throws ConstantException if the value wasn't found
    */
   public String toCodeForSuffix(Object value, String nameSuffix) throws ConstantException {
     String suffixToUse = (nameSuffix != null ? nameSuffix.trim().toUpperCase(Locale.ENGLISH) : "");
@@ -376,11 +332,8 @@ public class Constants {
    * Example: "ImageSize" -> "_IMAGE_SIZE".<br>
    * Example: "IMAGESIZE" -> "_I_M_A_G_E_S_I_Z_E"
    *
-   * @param propertyName
-   *         the name of the bean property
-   *
+   * @param propertyName the name of the bean property
    * @return the corresponding constant name prefix
-   *
    * @see #getValuesForProperty
    * @see #toCodeForProperty
    */
@@ -409,12 +362,9 @@ public class Constants {
     /**
      * Thrown when an invalid constant name is requested.
      *
-     * @param className
-     *         name of the class containing the constant definitions
-     * @param field
-     *         invalid constant name
-     * @param message
-     *         description of the problem
+     * @param className name of the class containing the constant definitions
+     * @param field invalid constant name
+     * @param message description of the problem
      */
     public ConstantException(String className, String field, String message) {
       super("Field '" + field + "' " + message + " in class [" + className + "]");
@@ -423,12 +373,9 @@ public class Constants {
     /**
      * Thrown when an invalid constant value is looked up.
      *
-     * @param className
-     *         name of the class containing the constant definitions
-     * @param namePrefix
-     *         prefix of the searched constant names
-     * @param value
-     *         the looked up constant value
+     * @param className name of the class containing the constant definitions
+     * @param namePrefix prefix of the searched constant names
+     * @param value the looked up constant value
      */
     public ConstantException(String className, String namePrefix, Object value) {
       super("No '" + namePrefix + "' field with value '" + value + "' found in class [" + className + "]");

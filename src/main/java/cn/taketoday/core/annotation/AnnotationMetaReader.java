@@ -81,15 +81,10 @@ public abstract class AnnotationMetaReader {
   /**
    * Get the array of {@link Annotation} instance
    *
-   * @param element
-   *         annotated element
-   * @param annotationClass
-   *         target annotation class
-   * @param implClass
-   *         impl class
-   *
+   * @param element annotated element
+   * @param annotationClass target annotation class
+   * @param implClass impl class
    * @return the array of {@link Annotation} instance
-   *
    * @since 2.1.1
    */
   @Nullable
@@ -125,14 +120,10 @@ public abstract class AnnotationMetaReader {
   /**
    * Get the array of {@link Annotation} instance
    *
-   * @param element
-   *         annotated element
-   * @param targetClass
-   *         target annotation class
-   *
+   * @param element annotated element
+   * @param targetClass target annotation class
    * @return the array of {@link Annotation} instance. If returns null
    * it indicates that no targetClass Annotations
-   *
    * @since 2.1.1
    */
   @Nullable
@@ -165,15 +156,10 @@ public abstract class AnnotationMetaReader {
   /**
    * Get Annotation by reflect
    *
-   * @param element
-   *         The annotated element
-   * @param annotationClass
-   *         The annotation class
-   * @param implClass
-   *         The implementation class
-   *
+   * @param element The annotated element
+   * @param annotationClass The annotation class
+   * @param implClass The implementation class
    * @return the {@link Collection} of {@link Annotation} instance
-   *
    * @since 2.0.x
    */
   public <A extends Annotation> List<A> getAnnotation(
@@ -187,17 +173,11 @@ public abstract class AnnotationMetaReader {
   /**
    * Inject {@link AnnotationAttributes} by reflect
    *
-   * @param source
-   *         Element attributes
-   * @param annotationClass
-   *         Annotated class
-   * @param instance
-   *         target instance
-   *
+   * @param source Element attributes
+   * @param annotationClass Annotated class
+   * @param instance target instance
    * @return target instance
-   *
-   * @throws ReflectionException
-   *         if BeanProperty not found
+   * @throws ReflectionException if BeanProperty not found
    * @since 2.1.5
    */
   public <A> A injectAttributes(final AnnotationAttributes source,
@@ -231,11 +211,8 @@ public abstract class AnnotationMetaReader {
   /**
    * Get Annotation Attributes from an annotation instance
    *
-   * @param annotation
-   *         annotation instance
-   *
+   * @param annotation annotation instance
    * @return {@link AnnotationAttributes}
-   *
    * @since 2.1.1
    */
   public AnnotationAttributes getAttributes(final Annotation annotation) {
@@ -245,13 +222,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get Annotation Attributes from an annotation instance
    *
-   * @param annotationType
-   *         Input annotation type
-   * @param annotation
-   *         Input annotation
-   *
+   * @param annotationType Input annotation type
+   * @param annotation Input annotation
    * @return {@link AnnotationAttributes} key-value
-   *
    * @since 2.1.7
    */
   @NonNull
@@ -268,13 +241,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get Annotation by proxy
    *
-   * @param annotatedElement
-   *         The annotated element
-   * @param annotationClass
-   *         The annotation class
-   *
+   * @param annotatedElement The annotated element
+   * @param annotationClass The annotation class
    * @return the {@link Collection} of {@link Annotation} instance
-   *
    * @since 2.1.1
    */
   @NonNull
@@ -288,15 +257,10 @@ public abstract class AnnotationMetaReader {
   /**
    * Get First Annotation
    *
-   * @param element
-   *         The annotated element
-   * @param annotationClass
-   *         The annotation class
-   * @param implClass
-   *         the annotation' subclass
-   *
+   * @param element The annotated element
+   * @param annotationClass The annotation class
+   * @param implClass the annotation' subclass
    * @return the {@link Collection} of {@link Annotation} instance
-   *
    * @since 2.1.7
    */
   @Nullable
@@ -312,13 +276,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get First Annotation
    *
-   * @param annotated
-   *         The annotated element object
-   * @param annotationClass
-   *         The annotation class
-   *
+   * @param annotated The annotated element object
+   * @param annotationClass The annotation class
    * @return The target {@link Annotation} instance
-   *
    * @since 2.1.7
    */
   @Nullable
@@ -331,13 +291,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get First Annotation
    *
-   * @param annotatedElement
-   *         The annotated element
-   * @param annotationClass
-   *         The annotation class
-   *
+   * @param annotatedElement The annotated element
+   * @param annotationClass The annotation class
    * @return The target {@link Annotation} instance. If annotatedElement is null returns null
-   *
    * @since 2.1.7
    */
   @Nullable
@@ -350,13 +306,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get Annotation by proxy
    *
-   * @param annotationClass
-   *         The annotation class
-   * @param attributes
-   *         The annotation attributes key-value
-   *
+   * @param annotationClass The annotation class
+   * @param attributes The annotation attributes key-value
    * @return the target {@link Annotation} instance
-   *
    * @since 2.1.1
    */
   @NonNull
@@ -368,13 +320,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get attributes the 'key-value' of annotations
    *
-   * @param element
-   *         The annotated element
-   * @param annotationClass
-   *         The annotation class
-   *
+   * @param element The annotated element
+   * @param annotationClass The annotation class
    * @return a set of {@link AnnotationAttributes}
-   *
    * @since 2.1.1
    */
   @NonNull
@@ -387,13 +335,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get attributes the 'key-value' of annotations
    *
-   * @param element
-   *         The annotated element
-   * @param annotationClass
-   *         The annotation class
-   *
+   * @param element The annotated element
+   * @param annotationClass The annotation class
    * @return First of the {@link AnnotationAttributes} on the element
-   *
    * @since 2.1.7
    */
   @Nullable
@@ -407,13 +351,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Get attributes the 'key-value' of annotations
    *
-   * @param element
-   *         The annotated element
-   * @param targetClass
-   *         The annotation class
-   *
+   * @param element The annotated element
+   * @param targetClass The annotation class
    * @return a set of {@link AnnotationAttributes} never be null
-   *
    * @since 2.1.1
    */
   @NonNull
@@ -430,7 +370,6 @@ public abstract class AnnotationMetaReader {
    * Get attributes the 'key-value' of annotations
    *
    * @return an array of {@link AnnotationAttributes} never be null
-   *
    * @since 2.1.7
    */
   public <T extends Annotation> AnnotationAttributes[] getAttributesArray(
@@ -520,13 +459,9 @@ public abstract class AnnotationMetaReader {
   /**
    * Whether a {@link Annotation} present on {@link AnnotatedElement}
    *
-   * @param <A>
-   *         {@link Annotation} type
-   * @param element
-   *         Target {@link AnnotatedElement}
-   * @param annType
-   *         Target annotation type
-   *
+   * @param <A> {@link Annotation} type
+   * @param element Target {@link AnnotatedElement}
+   * @param annType Target annotation type
    * @return Whether it's present
    */
   public <A extends Annotation> boolean isPresent(final AnnotatedElement element, final Class<A> annType) {

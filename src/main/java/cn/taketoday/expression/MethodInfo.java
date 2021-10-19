@@ -32,12 +32,9 @@ public class MethodInfo {
   /**
    * Creates a new instance of <code>MethodInfo</code> with the given information.
    *
-   * @param name
-   *         The name of the method
-   * @param returnType
-   *         The return type of the method
-   * @param paramTypes
-   *         The types of each of the method's parameters
+   * @param name The name of the method
+   * @param returnType The return type of the method
+   * @param paramTypes The types of each of the method's parameters
    */
   public MethodInfo(String name, Class<?> returnType, Class<?>[] paramTypes) {
     this.name = name;

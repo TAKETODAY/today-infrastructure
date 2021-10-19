@@ -114,10 +114,8 @@ public class NettyServerInitializer
    * Set the maximum length of the aggregated content.
    * If the length of the aggregated content exceeds this value,
    *
-   * @param maxContentLength
-   *         the maximum length of the aggregated content.
-   *         If the length of the aggregated content exceeds this value,
-   *
+   * @param maxContentLength the maximum length of the aggregated content.
+   * If the length of the aggregated content exceeds this value,
    * @see HttpObjectAggregator#maxContentLength
    */
   public void setMaxContentLength(int maxContentLength) {

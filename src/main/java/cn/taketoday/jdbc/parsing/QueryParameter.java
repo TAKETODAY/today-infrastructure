@@ -46,11 +46,8 @@ public final class QueryParameter {
   /**
    * set value to given statement
    *
-   * @param statement
-   *         statement
-   *
-   * @throws SQLException
-   *         any parameter setting error
+   * @param statement statement
+   * @throws SQLException any parameter setting error
    */
   public void setTo(final PreparedStatement statement) throws SQLException {
     if (setter != null) {

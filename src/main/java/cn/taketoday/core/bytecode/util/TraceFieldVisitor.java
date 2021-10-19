@@ -38,8 +38,7 @@ public final class TraceFieldVisitor extends FieldVisitor {
   /**
    * Constructs a new {@link TraceFieldVisitor}.
    *
-   * @param printer
-   *         the printer to convert the visited field into text.
+   * @param printer the printer to convert the visited field into text.
    */
   public TraceFieldVisitor(final Printer printer) {
     this(null, printer);
@@ -48,10 +47,8 @@ public final class TraceFieldVisitor extends FieldVisitor {
   /**
    * Constructs a new {@link TraceFieldVisitor}.
    *
-   * @param fieldVisitor
-   *         the field visitor to which to delegate calls. May be {@literal null}.
-   * @param printer
-   *         the printer to convert the visited field into text.
+   * @param fieldVisitor the field visitor to which to delegate calls. May be {@literal null}.
+   * @param printer the printer to convert the visited field into text.
    */
   public TraceFieldVisitor(final FieldVisitor fieldVisitor, final Printer printer) {
     super(fieldVisitor);

@@ -231,8 +231,7 @@ class Frame {
   /**
    * Constructs a new Frame.
    *
-   * @param owner
-   *         the basic block to which these input and output stack map frames correspond.
+   * @param owner the basic block to which these input and output stack map frames correspond.
    */
   Frame(final Label owner) {
     this.owner = owner;
@@ -244,8 +243,7 @@ class Frame {
    * <p>WARNING: after this method is called the two frames share the same data structures. It is
    * recommended to discard the given frame to avoid unexpected side effects.
    *
-   * @param frame
-   *         The new frame value.
+   * @param frame The new frame value.
    */
   final void copyFrom(final Frame frame) {
     inputLocals = frame.inputLocals;
@@ -265,15 +263,12 @@ class Frame {
   /**
    * Returns the abstract type corresponding to the given public API frame element type.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param type
-   *         a frame element type described using the same format as in {@link
-   *         MethodVisitor#visitFrame}, i.e. either {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
-   *         Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL}, or
-   *         {@link Opcodes#UNINITIALIZED_THIS}, or the internal name of a class, or a Label designating
-   *         a NEW instruction (for uninitialized types).
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param type a frame element type described using the same format as in {@link
+   * MethodVisitor#visitFrame}, i.e. either {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
+   * Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL}, or
+   * {@link Opcodes#UNINITIALIZED_THIS}, or the internal name of a class, or a Label designating
+   * a NEW instruction (for uninitialized types).
    * @return the abstract type corresponding to the given frame element type.
    */
   static int getAbstractTypeFromApiFormat(final SymbolTable symbolTable, final Object type) {
@@ -293,12 +288,9 @@ class Frame {
   /**
    * Returns the abstract type corresponding to the internal name of a class.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param internalName
-   *         the internal name of a class. This must <i>not</i> be an array type
-   *         descriptor.
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param internalName the internal name of a class. This must <i>not</i> be an array type
+   * descriptor.
    * @return the abstract type value corresponding to the given internal name.
    */
   static int getAbstractTypeFromInternalName(
@@ -309,13 +301,9 @@ class Frame {
   /**
    * Returns the abstract type corresponding to the given type descriptor.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param buffer
-   *         a string ending with a type descriptor.
-   * @param offset
-   *         the start offset of the type descriptor in buffer.
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param buffer a string ending with a type descriptor.
+   * @param offset the start offset of the type descriptor in buffer.
    * @return the abstract type corresponding to the given type descriptor.
    */
   private static int getAbstractTypeFromDescriptor(
@@ -392,14 +380,10 @@ class Frame {
    * first frame of a method, which is implicit (i.e. not stored explicitly in the StackMapTable
    * attribute).
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param access
-   *         the method's access flags.
-   * @param descriptor
-   *         the method descriptor.
-   * @param maxLocals
-   *         the maximum number of local variables of the method.
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param access the method's access flags.
+   * @param descriptor the method descriptor.
+   * @param maxLocals the maximum number of local variables of the method.
    */
   final void setInputFrameFromDescriptor(
           final SymbolTable symbolTable,
@@ -434,18 +418,13 @@ class Frame {
   /**
    * Sets the input frame from the given public API frame description.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param numLocal
-   *         the number of local variables.
-   * @param local
-   *         the local variable types, described using the same format as in {@link
-   *         MethodVisitor#visitFrame}.
-   * @param numStack
-   *         the number of operand stack elements.
-   * @param stack
-   *         the operand stack types, described using the same format as in {@link
-   *         MethodVisitor#visitFrame}.
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param numLocal the number of local variables.
+   * @param local the local variable types, described using the same format as in {@link
+   * MethodVisitor#visitFrame}.
+   * @param numStack the number of operand stack elements.
+   * @param stack the operand stack types, described using the same format as in {@link
+   * MethodVisitor#visitFrame}.
    */
   final void setInputFrameFromApiFormat(
           final SymbolTable symbolTable,
@@ -492,9 +471,7 @@ class Frame {
   /**
    * Returns the abstract type stored at the given local variable index in the output frame.
    *
-   * @param localIndex
-   *         the index of the local variable whose value must be returned.
-   *
+   * @param localIndex the index of the local variable whose value must be returned.
    * @return the abstract type stored at the given local variable index in the output frame.
    */
   private int getLocal(final int localIndex) {
@@ -517,10 +494,8 @@ class Frame {
   /**
    * Replaces the abstract type stored at the given local variable index in the output frame.
    *
-   * @param localIndex
-   *         the index of the output frame local variable that must be set.
-   * @param abstractType
-   *         the value that must be set.
+   * @param localIndex the index of the output frame local variable that must be set.
+   * @param abstractType the value that must be set.
    */
   private void setLocal(final int localIndex, final int abstractType) {
     // Create and/or resize the output local variables array if necessary.
@@ -540,8 +515,7 @@ class Frame {
   /**
    * Pushes the given abstract type on the output frame stack.
    *
-   * @param abstractType
-   *         an abstract type.
+   * @param abstractType an abstract type.
    */
   private void push(final int abstractType) {
     // Create and/or resize the output stack array if necessary.
@@ -567,10 +541,8 @@ class Frame {
   /**
    * Pushes the abstract type corresponding to the given descriptor on the output frame stack.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param descriptor
-   *         a type or method descriptor (in which case its return type is pushed).
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param descriptor a type or method descriptor (in which case its return type is pushed).
    */
   private void push(final SymbolTable symbolTable, final String descriptor) {
     int typeDescriptorOffset =
@@ -602,8 +574,7 @@ class Frame {
   /**
    * Pops the given number of abstract types from the output frame stack.
    *
-   * @param elements
-   *         the number of abstract types that must be popped.
+   * @param elements the number of abstract types that must be popped.
    */
   private void pop(final int elements) {
     if (outputStackTop >= elements) {
@@ -620,8 +591,7 @@ class Frame {
   /**
    * Pops as many abstract types from the output frame stack as described by the given descriptor.
    *
-   * @param descriptor
-   *         a type or method descriptor (in which case its argument types are popped).
+   * @param descriptor a type or method descriptor (in which case its argument types are popped).
    */
   private void pop(final String descriptor) {
     char firstDescriptorChar = descriptor.charAt(0);
@@ -644,8 +614,7 @@ class Frame {
    * Adds an abstract type to the list of types on which a constructor is invoked in the basic
    * block.
    *
-   * @param abstractType
-   *         an abstract type on a which a constructor is invoked.
+   * @param abstractType an abstract type on a which a constructor is invoked.
    */
   private void addInitializedType(final int abstractType) {
     // Create and/or resize the initializations array if necessary.
@@ -666,11 +635,8 @@ class Frame {
   /**
    * Returns the "initialized" abstract type corresponding to the given abstract type.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param abstractType
-   *         an abstract type.
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param abstractType an abstract type.
    * @return the REFERENCE_KIND abstract type corresponding to abstractType if it is
    * UNINITIALIZED_THIS or an UNINITIALIZED_KIND abstract type for one of the types on which a
    * constructor is invoked in the basic block. Otherwise returns abstractType.
@@ -710,14 +676,10 @@ class Frame {
   /**
    * Simulates the action of the given instruction on the output stack frame.
    *
-   * @param opcode
-   *         the opcode of the instruction.
-   * @param arg
-   *         the numeric operand of the instruction, if any.
-   * @param argSymbol
-   *         the Symbol operand of the instruction, if any.
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
+   * @param opcode the opcode of the instruction.
+   * @param arg the numeric operand of the instruction, if any.
+   * @param argSymbol the Symbol operand of the instruction, if any.
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
    */
   void execute(
           final int opcode, final int arg, final Symbol argSymbol, final SymbolTable symbolTable) {
@@ -1160,12 +1122,9 @@ class Frame {
   /**
    * Computes the concrete output type corresponding to a given abstract output type.
    *
-   * @param abstractOutputType
-   *         an abstract output type.
-   * @param numStack
-   *         the size of the input stack, used to resolve abstract output types of
-   *         STACK_KIND kind.
-   *
+   * @param abstractOutputType an abstract output type.
+   * @param numStack the size of the input stack, used to resolve abstract output types of
+   * STACK_KIND kind.
    * @return the concrete output type corresponding to 'abstractOutputType'.
    */
   private int getConcreteOutputType(final int abstractOutputType, final int numStack) {
@@ -1203,15 +1162,11 @@ class Frame {
    * {@link Frame}. Returns {@literal true} if the given frame has been changed by this operation
    * (the input and output frames of this {@link Frame} are never changed).
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param dstFrame
-   *         the {@link Frame} whose input frame must be updated. This should be the frame
-   *         of a successor, in the control flow graph, of the basic block corresponding to this frame.
-   * @param catchTypeIndex
-   *         if 'frame' corresponds to an exception handler basic block, the type
-   *         table index of the caught exception type, otherwise 0.
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param dstFrame the {@link Frame} whose input frame must be updated. This should be the frame
+   * of a successor, in the control flow graph, of the basic block corresponding to this frame.
+   * @param catchTypeIndex if 'frame' corresponds to an exception handler basic block, the type
+   * table index of the caught exception type, otherwise 0.
    * @return {@literal true} if the input frame of 'frame' has been changed by this operation.
    */
   final boolean merge(
@@ -1307,19 +1262,14 @@ class Frame {
    * Merges the type at the given index in the given abstract type array with the given type.
    * Returns {@literal true} if the type array has been modified by this operation.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param sourceType
-   *         the abstract type with which the abstract type array element must be merged.
-   *         This type should be of {@link #CONSTANT_KIND}, {@link #REFERENCE_KIND} or {@link
-   *         #UNINITIALIZED_KIND} kind, with positive or {@literal null} array dimensions.
-   * @param dstTypes
-   *         an array of abstract types. These types should be of {@link #CONSTANT_KIND},
-   *         {@link #REFERENCE_KIND} or {@link #UNINITIALIZED_KIND} kind, with positive or {@literal
-   *         null} array dimensions.
-   * @param dstIndex
-   *         the index of the type that must be merged in dstTypes.
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param sourceType the abstract type with which the abstract type array element must be merged.
+   * This type should be of {@link #CONSTANT_KIND}, {@link #REFERENCE_KIND} or {@link
+   * #UNINITIALIZED_KIND} kind, with positive or {@literal null} array dimensions.
+   * @param dstTypes an array of abstract types. These types should be of {@link #CONSTANT_KIND},
+   * {@link #REFERENCE_KIND} or {@link #UNINITIALIZED_KIND} kind, with positive or {@literal
+   * null} array dimensions.
+   * @param dstIndex the index of the type that must be merged in dstTypes.
    * @return {@literal true} if the type array has been modified by this operation.
    */
   private static boolean merge(
@@ -1415,9 +1365,8 @@ class Frame {
    * done with the {@link MethodWriter#visitFrameStart}, {@link MethodWriter#visitAbstractType} and
    * {@link MethodWriter#visitFrameEnd} methods.
    *
-   * @param methodWriter
-   *         the {@link MethodWriter} that should visit the input frame of this {@link
-   *         Frame}.
+   * @param methodWriter the {@link MethodWriter} that should visit the input frame of this {@link
+   * Frame}.
    */
   final void accept(final MethodWriter methodWriter) {
     // Compute the number of locals, ignoring TOP types that are just after a LONG or a DOUBLE, and
@@ -1467,14 +1416,10 @@ class Frame {
    * Put the given abstract type in the given ByteVector, using the JVMS verification_type_info
    * format used in StackMapTable attributes.
    *
-   * @param symbolTable
-   *         the type table to use to lookup and store type {@link Symbol}.
-   * @param abstractType
-   *         an abstract type, restricted to {@link Frame#CONSTANT_KIND}, {@link
-   *         Frame#REFERENCE_KIND} or {@link Frame#UNINITIALIZED_KIND} types.
-   * @param output
-   *         where the abstract type must be put.
-   *
+   * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
+   * @param abstractType an abstract type, restricted to {@link Frame#CONSTANT_KIND}, {@link
+   * Frame#REFERENCE_KIND} or {@link Frame#UNINITIALIZED_KIND} types.
+   * @param output where the abstract type must be put.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4">JVMS
    * 4.7.4</a>
    */

@@ -40,11 +40,11 @@
 
 package cn.taketoday.expression;
 
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ClassUtils;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import cn.taketoday.lang.Constant;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * <p>
@@ -133,9 +133,7 @@ public class ExpressionProcessor {
   /**
    * Evaluates an EL expression.
    *
-   * @param expression
-   *         The EL expression to be evaluated.
-   *
+   * @param expression The EL expression to be evaluated.
    * @return The result of the expression evaluation.
    */
   public Object eval(String expression) {
@@ -145,12 +143,9 @@ public class ExpressionProcessor {
   /**
    * Evaluates an EL expression, and coerces the result to the specified type.
    *
-   * @param expression
-   *         The EL expression to be evaluated.
-   * @param expectedType
-   *         Specifies the type that the resultant evaluation will be coerced
-   *         to.
-   *
+   * @param expression The EL expression to be evaluated.
+   * @param expectedType Specifies the type that the resultant evaluation will be coerced
+   * to.
    * @return The result of the expression evaluation.
    */
   public <T> T getValue(String expression, Class<T> expectedType) {
@@ -169,21 +164,15 @@ public class ExpressionProcessor {
    * to the last property resolution, and the resultant (base, property) pair is
    * set to the provided value.
    *
-   * @param expression
-   *         The target expression
-   * @param value
-   *         The new value to set.
-   *
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws PropertyNotWritableException
-   *         if the final variable or property resolution failed because the
-   *         specified variable or property is not writable.
-   * @throws ExpressionException
-   *         if an exception was thrown while attempting to set the property
-   *         or variable. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @param expression The target expression
+   * @param value The new value to set.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws PropertyNotWritableException if the final variable or property resolution failed because the
+   * specified variable or property is not writable.
+   * @throws ExpressionException if an exception was thrown while attempting to set the property
+   * or variable. The thrown exception must be included as the cause
+   * property of this exception, if available.
    */
   public void setValue(String expression, Object value) {
     StandardExpressionContext elContext = elManager.getContext();
@@ -198,10 +187,8 @@ public class ExpressionProcessor {
    * will be replaced. If the expression is <code>null</code>, the variable will
    * be removed.
    *
-   * @param var
-   *         The name of the variable.
-   * @param expression
-   *         The EL expression to be assigned to the variable.
+   * @param var The name of the variable.
+   * @param expression The EL expression to be assigned to the variable.
    */
   public void setVariable(String var, String expression) {
     elManager.setVariable(var, factory.createValueExpression(elManager.getContext(), bracket(expression), Object.class));
@@ -210,29 +197,21 @@ public class ExpressionProcessor {
   /**
    * Define an EL function in the local function mapper.
    *
-   * @param prefix
-   *         The namespace for the function or "" for no namesapce.
-   * @param function
-   *         The name of the function. If empty (""), the method name is used
-   *         as the function name.
-   * @param className
-   *         The full Java class name that implements the function.
-   * @param method
-   *         The name (specified without parenthesis) or the signature (as in
-   *         the Java Language Spec) of the static method that implements the
-   *         function. If the name (e.g. "sum") is given, the first declared
-   *         method in class that matches the name is selected. If the
-   *         signature (e.g. "int sum(int, int)" ) is given, then the declared
-   *         method with the signature is selected.
-   *
-   * @throws NullPointerException
-   *         if any of the arguments is null.
-   * @throws ClassNotFoundException
-   *         if the specified class does not exists.
-   * @throws NoSuchMethodException
-   *         if the method (with or without the signature) is not a declared
-   *         method of the class, or if the method signature is not valid, or
-   *         if the method is not a static method.
+   * @param prefix The namespace for the function or "" for no namesapce.
+   * @param function The name of the function. If empty (""), the method name is used
+   * as the function name.
+   * @param className The full Java class name that implements the function.
+   * @param method The name (specified without parenthesis) or the signature (as in
+   * the Java Language Spec) of the static method that implements the
+   * function. If the name (e.g. "sum") is given, the first declared
+   * method in class that matches the name is selected. If the
+   * signature (e.g. "int sum(int, int)" ) is given, then the declared
+   * method with the signature is selected.
+   * @throws NullPointerException if any of the arguments is null.
+   * @throws ClassNotFoundException if the specified class does not exists.
+   * @throws NoSuchMethodException if the method (with or without the signature) is not a declared
+   * method of the class, or if the method signature is not valid, or
+   * if the method is not a static method.
    */
   public void defineFunction(String prefix, String function, String className, String method)
           throws ClassNotFoundException, NoSuchMethodException //
@@ -293,19 +272,13 @@ public class ExpressionProcessor {
   /**
    * Define an EL function in the local function mapper.
    *
-   * @param prefix
-   *         The namespace for the function or "" for no namesapce.
-   * @param function
-   *         The name of the function. If empty (""), the method name is used
-   *         as the function name.
-   * @param method
-   *         The <code>java.lang.reflect.Method</code> instance of the method
-   *         that implements the function.
-   *
-   * @throws NullPointerException
-   *         if any of the arguments is null.
-   * @throws NoSuchMethodException
-   *         if the method is not a static method
+   * @param prefix The namespace for the function or "" for no namesapce.
+   * @param function The name of the function. If empty (""), the method name is used
+   * as the function name.
+   * @param method The <code>java.lang.reflect.Method</code> instance of the method
+   * that implements the function.
+   * @throws NullPointerException if any of the arguments is null.
+   * @throws NoSuchMethodException if the method is not a static method
    */
   public void defineFunction(String prefix, String function, Method method)
           throws NoSuchMethodException //
@@ -326,11 +299,9 @@ public class ExpressionProcessor {
    * Define a bean in a local bean repository, hiding other beans of the same
    * name.
    *
-   * @param name
-   *         The name of the bean
-   * @param bean
-   *         The bean instance to be defined. If <code>null</code>, the name
-   *         will be removed from the local bean repository.
+   * @param name The name of the bean
+   * @param bean The bean instance to be defined. If <code>null</code>, the name
+   * will be removed from the local bean repository.
    */
   public void defineBean(String name, Object bean) {
     elManager.defineBean(name, bean);

@@ -38,8 +38,7 @@ public class MethodNotFoundException extends ExpressionException {
    * Creates a <code>MethodNotFoundException</code> with the provided detail
    * message.
    *
-   * @param message
-   *         the detail message
+   * @param message the detail message
    */
   public MethodNotFoundException(String message) {
     super(message);
@@ -48,8 +47,7 @@ public class MethodNotFoundException extends ExpressionException {
   /**
    * Creates a <code>MethodNotFoundException</code> with the given root cause.
    *
-   * @param exception
-   *         the originating cause of this exception
+   * @param exception the originating cause of this exception
    */
   public MethodNotFoundException(Throwable exception) {
     super(exception);
@@ -59,10 +57,8 @@ public class MethodNotFoundException extends ExpressionException {
    * Creates a <code>MethodNotFoundException</code> with the given detail message
    * and root cause.
    *
-   * @param pMessage
-   *         the detail message
-   * @param pRootCause
-   *         the originating cause of this exception
+   * @param pMessage the detail message
+   * @param pRootCause the originating cause of this exception
    */
   public MethodNotFoundException(String pMessage, Throwable pRootCause) {
     super(pMessage, pRootCause);

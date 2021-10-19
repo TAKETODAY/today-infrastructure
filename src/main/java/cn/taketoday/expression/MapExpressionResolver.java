@@ -61,9 +61,8 @@ public class MapExpressionResolver extends ExpressionResolver {
    * Creates a new <code>MapELResolver</code> whose read-only status is determined
    * by the given parameter.
    *
-   * @param isReadOnly
-   *         <code>true</code> if this resolver cannot modify maps;
-   *         <code>false</code> otherwise.
+   * @param isReadOnly <code>true</code> if this resolver cannot modify maps;
+   * <code>false</code> otherwise.
    */
   public MapExpressionResolver(boolean isReadOnly) {
     this.isReadOnly = isReadOnly;
@@ -86,25 +85,18 @@ public class MapExpressionResolver extends ExpressionResolver {
    * object as the value for a given key.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The map to analyze. Only bases of type <code>Map</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The key to return the acceptable type for. Ignored by this
-   *         resolver.
-   *
+   * @param context The context of this evaluation.
+   * @param base The map to analyze. Only bases of type <code>Map</code> are
+   * handled by this resolver.
+   * @param property The key to return the acceptable type for. Ignored by this
+   * resolver.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the most
    * general acceptable type; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
     if (base instanceof Map) {
@@ -132,30 +124,22 @@ public class MapExpressionResolver extends ExpressionResolver {
    * that the <code>Map</code> explicitly maps the key to <code>null</code>.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The map to be analyzed. Only bases of type <code>Map</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The key whose associated value is to be returned.
-   *
+   * @param context The context of this evaluation.
+   * @param base The map to be analyzed. Only bases of type <code>Map</code> are
+   * handled by this resolver.
+   * @param property The key whose associated value is to be returned.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the value
    * associated with the given key or <code>null</code> if the key was not
    * found. Otherwise, undefined.
-   *
-   * @throws ClassCastException
-   *         if the key is of an inappropriate type for this map (optionally
-   *         thrown by the underlying <code>Map</code>).
-   * @throws NullPointerException
-   *         if context is <code>null</code>, or if the key is null and this
-   *         map does not permit null keys (the latter is optionally thrown by
-   *         the underlying <code>Map</code>).
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws ClassCastException if the key is of an inappropriate type for this map (optionally
+   * thrown by the underlying <code>Map</code>).
+   * @throws NullPointerException if context is <code>null</code>, or if the key is null and this
+   * map does not permit null keys (the latter is optionally thrown by
+   * the underlying <code>Map</code>).
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @SuppressWarnings("rawtypes")
   public Object getValue(ExpressionContext context, Object base, Object property) {
@@ -194,33 +178,23 @@ public class MapExpressionResolver extends ExpressionResolver {
    * if it matches the runtime type of the base object as a workaround.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The map to be modified. Only bases of type <code>Map</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The key with which the specified value is to be associated.
-   * @param val
-   *         The value to be associated with the specified key.
-   *
-   * @throws ClassCastException
-   *         if the class of the specified key or value prevents it from being
-   *         stored in this map.
-   * @throws NullPointerException
-   *         if context is <code>null</code>, or if this map does not permit
-   *         <code>null</code> keys or values, and the specified key or value
-   *         is <code>null</code>.
-   * @throws IllegalArgumentException
-   *         if some aspect of this key or value prevents it from being stored
-   *         in this map.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
-   * @throws PropertyNotWritableException
-   *         if this resolver was constructed in read-only mode, or if the put
-   *         operation is not supported by the underlying map.
+   * @param context The context of this evaluation.
+   * @param base The map to be modified. Only bases of type <code>Map</code> are
+   * handled by this resolver.
+   * @param property The key with which the specified value is to be associated.
+   * @param val The value to be associated with the specified key.
+   * @throws ClassCastException if the class of the specified key or value prevents it from being
+   * stored in this map.
+   * @throws NullPointerException if context is <code>null</code>, or if this map does not permit
+   * <code>null</code> keys or values, and the specified key or value
+   * is <code>null</code>.
+   * @throws IllegalArgumentException if some aspect of this key or value prevents it from being stored
+   * in this map.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
+   * @throws PropertyNotWritableException if this resolver was constructed in read-only mode, or if the put
+   * operation is not supported by the underlying map.
    */
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
@@ -266,27 +240,20 @@ public class MapExpressionResolver extends ExpressionResolver {
    * type of the base object as a workaround.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The map to analyze. Only bases of type <code>Map</code> are
-   *         handled by this resolver.
-   * @param property
-   *         The key to return the read-only status for. Ignored by this
-   *         resolver.
-   *
+   * @param context The context of this evaluation.
+   * @param base The map to analyze. Only bases of type <code>Map</code> are
+   * handled by this resolver.
+   * @param property The key to return the read-only status for. Ignored by this
+   * resolver.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>true</code> if calling the <code>setValue</code> method will
    * always fail or <code>false</code> if it is possible that such a call
    * may succeed; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   @SuppressWarnings("rawtypes")
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {

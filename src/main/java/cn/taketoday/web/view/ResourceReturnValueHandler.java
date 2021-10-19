@@ -73,9 +73,7 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Return
   /**
    * Download file to client.
    *
-   * @param resource
-   *         {@link Resource} to download
-   *
+   * @param resource {@link Resource} to download
    * @since 2.1.x
    */
   public void downloadFile(Resource resource, RequestContext context) throws IOException {
@@ -85,9 +83,7 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Return
   /**
    * Download file to client.
    *
-   * @param file
-   *         {@link Resource} to download
-   *
+   * @param file {@link Resource} to download
    * @since 2.1.x
    */
   public void downloadFile(File file, RequestContext context) throws IOException {

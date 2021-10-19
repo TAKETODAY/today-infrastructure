@@ -45,13 +45,10 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link LookupSwitchInsnNode}.
    *
-   * @param dflt
-   *         beginning of the default handler block.
-   * @param keys
-   *         the values of the keys.
-   * @param labels
-   *         beginnings of the handler blocks. {@code labels[i]} is the beginning of the
-   *         handler block for the {@code keys[i]} key.
+   * @param dflt beginning of the default handler block.
+   * @param keys the values of the keys.
+   * @param labels beginnings of the handler blocks. {@code labels[i]} is the beginning of the
+   * handler block for the {@code keys[i]} key.
    */
   public LookupSwitchInsnNode(final LabelNode dflt, final int[] keys, final LabelNode[] labels) {
     super(Opcodes.LOOKUPSWITCH);

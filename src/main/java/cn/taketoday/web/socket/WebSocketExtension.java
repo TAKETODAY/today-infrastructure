@@ -52,10 +52,8 @@ public class WebSocketExtension {
   }
 
   /**
-   * @param name
-   *         the name of the extension parameter.
-   * @param value
-   *         the value of the extension parameter.
+   * @param name the name of the extension parameter.
+   * @param value the value of the extension parameter.
    */
   public void addParameter(String name, String value) {
     parameters.put(name, value);

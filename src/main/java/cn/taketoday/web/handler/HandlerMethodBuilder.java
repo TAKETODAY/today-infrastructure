@@ -52,8 +52,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   /**
    * this application must have ParameterResolvers bean
    *
-   * @param context
-   *         Application context or bean factory
+   * @param context Application context or bean factory
    */
   public HandlerMethodBuilder(ApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");

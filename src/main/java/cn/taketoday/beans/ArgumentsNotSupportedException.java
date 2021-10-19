@@ -32,8 +32,7 @@ public class ArgumentsNotSupportedException extends BeansException {
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message.
    *
-   * @param msg
-   *         the detail message
+   * @param msg the detail message
    */
   public ArgumentsNotSupportedException(String msg) {
     super(msg);
@@ -42,8 +41,7 @@ public class ArgumentsNotSupportedException extends BeansException {
   /**
    * Construct a {@code NestedRuntimeException} with the specified nested exception.
    *
-   * @param cause
-   *         the nested exception
+   * @param cause the nested exception
    */
   public ArgumentsNotSupportedException(Throwable cause) {
     super(cause);
@@ -53,10 +51,8 @@ public class ArgumentsNotSupportedException extends BeansException {
    * Construct a {@code NestedRuntimeException} with the specified detail message
    * and nested exception.
    *
-   * @param msg
-   *         the detail message
-   * @param cause
-   *         the nested exception
+   * @param msg the detail message
+   * @param cause the nested exception
    */
   public ArgumentsNotSupportedException(String msg, Throwable cause) {
     super(msg, cause);

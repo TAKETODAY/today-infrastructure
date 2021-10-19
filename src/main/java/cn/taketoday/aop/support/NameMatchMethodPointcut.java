@@ -77,9 +77,7 @@ public class NameMatchMethodPointcut
    * <p><b>NB:</b> This method does not work after the proxy is in
    * use, as advice chains will be cached.
    *
-   * @param name
-   *         the name of the additional method that will match
-   *
+   * @param name the name of the additional method that will match
    * @return this pointcut to allow for multiple additions in one line
    */
   public NameMatchMethodPointcut addMethodName(String name) {
@@ -103,13 +101,9 @@ public class NameMatchMethodPointcut
    * <p>The default implementation checks for "xxx*", "*xxx" and "*xxx*" matches,
    * as well as direct equality. Can be overridden in subclasses.
    *
-   * @param methodName
-   *         the method name of the class
-   * @param mappedName
-   *         the name in the descriptor
-   *
+   * @param methodName the method name of the class
+   * @param mappedName the name in the descriptor
    * @return if the names match
-   *
    * @see StringUtils#simpleMatch(String, String)
    */
   protected boolean isMatch(String methodName, String mappedName) {

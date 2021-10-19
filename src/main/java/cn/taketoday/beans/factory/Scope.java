@@ -43,16 +43,11 @@ public interface Scope {
    * This is the central operation of a Scope, and the only operation that is
    * absolutely required.
    *
-   * @param def
-   *         the name of the object to retrieve
-   * @param objectFactory
-   *         the {@link ScopeObjectFactory} to use to create the scoped object
-   *         if it is not present in the underlying storage mechanism
-   *
+   * @param def the name of the object to retrieve
+   * @param objectFactory the {@link ScopeObjectFactory} to use to create the scoped object
+   * if it is not present in the underlying storage mechanism
    * @return the desired object (never {@code null})
-   *
-   * @throws IllegalStateException
-   *         if the underlying scope is not currently active
+   * @throws IllegalStateException if the underlying scope is not currently active
    */
   Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
 

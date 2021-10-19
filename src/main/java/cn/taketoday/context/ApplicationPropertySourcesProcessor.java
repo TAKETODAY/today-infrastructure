@@ -88,11 +88,8 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * Load properties from {@link Resource}
    *
-   * @param propertiesResource
-   *         {@link Resource}
-   *
-   * @throws IOException
-   *         When access to the resource if any {@link IOException} occurred
+   * @param propertiesResource {@link Resource}
+   * @throws IOException When access to the resource if any {@link IOException} occurred
    */
   protected void loadProperties(Resource propertiesResource) throws IOException {
     if (isYamlProperties(propertiesResource.getName())) {
@@ -130,8 +127,7 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * Is yaml?
    *
-   * @param propertiesLocation
-   *         location
+   * @param propertiesLocation location
    */
   private boolean isYamlProperties(String propertiesLocation) {
     return propertiesLocation.endsWith(".yaml") || propertiesLocation.endsWith(".yml");
@@ -174,11 +170,8 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * subclasses load other files
    *
-   * @param locations
-   *         loaded file locations
-   *
-   * @throws IOException
-   *         if any io exception occurred when loading properties files
+   * @param locations loaded file locations
+   * @throws IOException if any io exception occurred when loading properties files
    */
   protected void postLoadingProperties(Set<String> locations) throws IOException {
     // load properties from starter class annotated @PropertiesSource
@@ -187,11 +180,8 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * load default properties files
    *
-   * @param locations
-   *         loaded files
-   *
-   * @throws IOException
-   *         If load error
+   * @param locations loaded files
+   * @throws IOException If load error
    */
   protected void loadDefaultResources(Set<String> locations) throws IOException {
     String[] defaultLocations = new String[] {
@@ -212,11 +202,8 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * Replace the properties from current active profiles
    *
-   * @param locations
-   *         loaded properties locations
-   *
-   * @throws IOException
-   *         When access to the resource if any {@link IOException} occurred
+   * @param locations loaded properties locations
+   * @throws IOException When access to the resource if any {@link IOException} occurred
    */
   protected void replaceProperties(Set<String> locations) throws IOException {
     // replace
@@ -252,11 +239,8 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * Do load
    *
-   * @param directory
-   *         base dir
-   *
-   * @throws IOException
-   *         if the resource is not available
+   * @param directory base dir
+   * @throws IOException if the resource is not available
    */
   private void doLoadFromDirectory(Resource directory, ResourceFilter propertiesFileFilter) throws IOException {
     Resource[] listResources = directory.list(propertiesFileFilter);
@@ -270,11 +254,8 @@ public class ApplicationPropertySourcesProcessor {
   }
 
   /**
-   * @param resource
-   *         Resource to load
-   *
-   * @throws IOException
-   *         if the resource is not available
+   * @param resource Resource to load
+   * @throws IOException if the resource is not available
    */
   private void doLoad(Resource resource) throws IOException {
     if (log.isInfoEnabled()) {

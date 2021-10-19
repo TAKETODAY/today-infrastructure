@@ -32,13 +32,9 @@ public interface TemplateRenderer {
   /**
    * Resolve template view.
    *
-   * @param templateName
-   *         template name
-   * @param context
-   *         current request context
-   *
-   * @throws IOException
-   *         If any {@link IOException} occurred
+   * @param templateName template name
+   * @param context current request context
+   * @throws IOException If any {@link IOException} occurred
    */
   void render(String templateName, RequestContext context) throws IOException;
 

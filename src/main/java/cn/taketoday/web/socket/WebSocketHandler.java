@@ -67,8 +67,7 @@ public abstract class WebSocketHandler {
    * Developers must implement this method to be notified when a new conversation has
    * just begun.
    *
-   * @param session
-   *         the session that has just been activated.
+   * @param session the session that has just been activated.
    */
   public void onOpen(WebSocketSession session) {
     // no-op
@@ -77,8 +76,7 @@ public abstract class WebSocketHandler {
   /**
    * Called when the message has been fully received.
    *
-   * @param message
-   *         the message data.
+   * @param message the message data.
    */
   public void handleMessage(WebSocketSession session, Message<?> message) {
     if (message instanceof TextMessage) {
@@ -114,10 +112,8 @@ public abstract class WebSocketHandler {
    * messages from this call as the underlying
    * connection will not be able to send them at this stage.
    *
-   * @param session
-   *         the session about to be closed.
-   * @param status
-   *         the reason the session was closed.
+   * @param session the session about to be closed.
+   * @param status the reason the session was closed.
    */
   public void onClose(WebSocketSession session, CloseStatus status) {
     // no-op
@@ -130,10 +126,8 @@ public abstract class WebSocketHandler {
    * message is too big to handle, or that the incoming message could
    * not be encoded.
    *
-   * @param session
-   *         the session in use when the error occurs.
-   * @param throwable
-   *         the throwable representing the problem.
+   * @param session the session in use when the error occurs.
+   * @param throwable the throwable representing the problem.
    */
   public void onError(WebSocketSession session, Throwable throwable) {
     // no-op

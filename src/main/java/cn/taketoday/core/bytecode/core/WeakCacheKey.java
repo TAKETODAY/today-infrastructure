@@ -10,8 +10,7 @@ import java.lang.ref.WeakReference;
  * <p>
  * This an internal class, thus it might disappear in future cglib releases.
  *
- * @param <T>
- *         type of the reference
+ * @param <T> type of the reference
  */
 @SuppressWarnings({ "rawtypes" })
 public class WeakCacheKey<T> extends WeakReference<T> {

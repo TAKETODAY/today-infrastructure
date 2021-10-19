@@ -291,23 +291,17 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * Replace the placeholders in the given message with the supplied values,
    * or values derived from those supplied.
    *
-   * @param message
-   *         the message template containing the placeholders to be replaced
-   * @param methodInvocation
-   *         the {@code MethodInvocation} being logged.
-   *         Used to derive values for all placeholders except {@code $[exception]}
-   *         and {@code $[returnValue]}.
-   * @param returnValue
-   *         any value returned by the invocation.
-   *         Used to replace the {@code $[returnValue]} placeholder. May be {@code null}.
-   * @param throwable
-   *         any {@code Throwable} raised during the invocation.
-   *         The value of {@code Throwable.toString()} is replaced for the
-   *         {@code $[exception]} placeholder. May be {@code null}.
-   * @param invocationTime
-   *         the value to write in place of the
-   *         {@code $[invocationTime]} placeholder
-   *
+   * @param message the message template containing the placeholders to be replaced
+   * @param methodInvocation the {@code MethodInvocation} being logged.
+   * Used to derive values for all placeholders except {@code $[exception]}
+   * and {@code $[returnValue]}.
+   * @param returnValue any value returned by the invocation.
+   * Used to replace the {@code $[returnValue]} placeholder. May be {@code null}.
+   * @param throwable any {@code Throwable} raised during the invocation.
+   * The value of {@code Throwable.toString()} is replaced for the
+   * {@code $[exception]} placeholder. May be {@code null}.
+   * @param invocationTime the value to write in place of the
+   * {@code $[invocationTime]} placeholder
    * @return the formatted output to write to the log
    */
   protected String replacePlaceholders(String message, MethodInvocation methodInvocation,
@@ -362,14 +356,10 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * to the supplied {@code StringBuffer}. Correctly handles
    * {@code null} and {@code void} results.
    *
-   * @param methodInvocation
-   *         the {@code MethodInvocation} that returned the value
-   * @param matcher
-   *         the {@code Matcher} containing the matched placeholder
-   * @param output
-   *         the {@code StringBuffer} to write output to
-   * @param returnValue
-   *         the value returned by the method invocation.
+   * @param methodInvocation the {@code MethodInvocation} that returned the value
+   * @param matcher the {@code Matcher} containing the matched placeholder
+   * @param output the {@code StringBuffer} to write output to
+   * @param returnValue the value returned by the method invocation.
    */
   private void appendReturnValue(
           MethodInvocation methodInvocation, Matcher matcher, StringBuffer output, Object returnValue) {
@@ -388,13 +378,10 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * {@code put(java.lang.String, java.lang.Object)} then the value returned
    * will be {@code String, Object}.
    *
-   * @param methodInvocation
-   *         the {@code MethodInvocation} being logged.
-   *         Arguments will be retrieved from the corresponding {@code Method}.
-   * @param matcher
-   *         the {@code Matcher} containing the state of the output
-   * @param output
-   *         the {@code StringBuffer} containing the output
+   * @param methodInvocation the {@code MethodInvocation} being logged.
+   * Arguments will be retrieved from the corresponding {@code Method}.
+   * @param matcher the {@code Matcher} containing the state of the output
+   * @param output the {@code StringBuffer} containing the output
    */
   private void appendArgumentTypes(MethodInvocation methodInvocation, Matcher matcher, StringBuffer output) {
     Class<?>[] argumentTypes = methodInvocation.getMethod().getParameterTypes();

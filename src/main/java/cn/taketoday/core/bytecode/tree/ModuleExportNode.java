@@ -49,14 +49,11 @@ public class ModuleExportNode {
   /**
    * Constructs a new {@link ModuleExportNode}.
    *
-   * @param packaze
-   *         the internal name of the exported package.
-   * @param access
-   *         the package access flags, one or more of {@code ACC_SYNTHETIC} and {@code
-   *         ACC_MANDATED}.
-   * @param modules
-   *         a list of modules that can access this exported package, specified with fully
-   *         qualified names (using dots).
+   * @param packaze the internal name of the exported package.
+   * @param access the package access flags, one or more of {@code ACC_SYNTHETIC} and {@code
+   * ACC_MANDATED}.
+   * @param modules a list of modules that can access this exported package, specified with fully
+   * qualified names (using dots).
    */
   public ModuleExportNode(final String packaze, final int access, final List<String> modules) {
     this.packaze = packaze;
@@ -67,8 +64,7 @@ public class ModuleExportNode {
   /**
    * Makes the given module visitor visit this export declaration.
    *
-   * @param moduleVisitor
-   *         a module visitor.
+   * @param moduleVisitor a module visitor.
    */
   public void accept(final ModuleVisitor moduleVisitor) {
     moduleVisitor.visitExport(

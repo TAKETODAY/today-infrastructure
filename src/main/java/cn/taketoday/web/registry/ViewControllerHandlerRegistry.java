@@ -120,11 +120,9 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    * Patterns like {@code "/articles/**"} or {@code "/articles/{id:\\w+}"} are
    * allowed. See {@link AntPathMatcher} for more details on the syntax.
    *
-   * @param pathPattern
-   *         Patterns like {@code "/articles/**"} or
-   *         {@code "/articles/{id:\\w+}"} are allowed. See
-   *         {@link AntPathMatcher} for more details on the syntax.
-   *
+   * @param pathPattern Patterns like {@code "/articles/**"} or
+   * {@code "/articles/{id:\\w+}"} are allowed. See
+   * {@link AntPathMatcher} for more details on the syntax.
    * @return {@link ViewController}
    */
   public ViewController addViewController(String pathPattern) {
@@ -140,14 +138,11 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    * Patterns like {@code "/articles/**"} or {@code "/articles/{id:\\w+}"} are
    * allowed. See {@link AntPathMatcher} for more details on the syntax.
    *
-   * @param pathPattern
-   *         Patterns like {@code "/articles/**"} or
-   *         {@code "/articles/{id:\\w+}"} are allowed. See
-   *         {@link AntPathMatcher} for more details on the syntax.
-   * @param resource
-   *         resource location,such as redirect url or view template resource
-   *         <b>Or other type of resource</b>
-   *
+   * @param pathPattern Patterns like {@code "/articles/**"} or
+   * {@code "/articles/{id:\\w+}"} are allowed. See
+   * {@link AntPathMatcher} for more details on the syntax.
+   * @param resource resource location,such as redirect url or view template resource
+   * <b>Or other type of resource</b>
    * @return {@link ViewController}
    */
   public ViewController addViewController(String pathPattern, Object resource) {
@@ -178,9 +173,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   /**
    * configure {@link ViewController}s from a xml file
    *
-   * @param webMvcConfigLocation
-   *         Configuration File location , split-able
-   *
+   * @param webMvcConfigLocation Configuration File location , split-able
    * @see StringUtils#split(String)
    * @see StringUtils#isSplitable(char)
    */
@@ -239,9 +232,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   /**
    * Start configuration
    *
-   * @param controller
-   *         the controller element
-   *
+   * @param controller the controller element
    * @since 2.3.7
    */
   protected void configController(Element controller) {

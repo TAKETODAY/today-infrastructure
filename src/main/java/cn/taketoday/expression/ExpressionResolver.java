@@ -117,28 +117,20 @@ public abstract class ExpressionResolver {
    * should ignore the return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The base object whose property value is to be returned, or
-   *         <code>null</code> to resolve a top-level variable.
-   * @param property
-   *         The property or variable to be resolved.
-   *
+   * @param context The context of this evaluation.
+   * @param base The base object whose property value is to be returned, or
+   * <code>null</code> to resolve a top-level variable.
+   * @param property The property or variable to be resolved.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the result
    * of the variable or property resolution; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws PropertyNotFoundException
-   *         if the given (base, property) pair is handled by this
-   *         <code>ELResolver</code> but the specified variable or property
-   *         does not exist or is not readable.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws PropertyNotFoundException if the given (base, property) pair is handled by this
+   * <code>ELResolver</code> but the specified variable or property
+   * does not exist or is not readable.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public abstract Object getValue(ExpressionContext context, Object base, Object property);
 
@@ -159,34 +151,25 @@ public abstract class ExpressionResolver {
    * classes that extend ELResolver can continue to function.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The bean on which to invoke the method
-   * @param method
-   *         The simple name of the method to invoke. Will be coerced to a
-   *         <code>String</code>.
-   * @param paramTypes
-   *         An array of Class objects identifying the method's formal
-   *         parameter types, in declared order. Use an empty array if the
-   *         method has no parameters. Can be <code>null</code>, in which case
-   *         the method's formal parameter types are assumed to be unknown.
-   * @param params
-   *         The parameters to pass to the method, or <code>null</code> if no
-   *         parameters.
-   *
+   * @param context The context of this evaluation.
+   * @param base The bean on which to invoke the method
+   * @param method The simple name of the method to invoke. Will be coerced to a
+   * <code>String</code>.
+   * @param paramTypes An array of Class objects identifying the method's formal
+   * parameter types, in declared order. Use an empty array if the
+   * method has no parameters. Can be <code>null</code>, in which case
+   * the method's formal parameter types are assumed to be unknown.
+   * @param params The parameters to pass to the method, or <code>null</code> if no
+   * parameters.
    * @return The result of the method invocation (<code>null</code> if the method
    * has a <code>void</code> return type).
-   *
-   * @throws MethodNotFoundException
-   *         if no suitable method can be found.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing (base, method)
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available. If the exception thrown
-   *         is an <code>InvocationTargetException</code>, extract its
-   *         <code>cause</code> and pass it to the <code>ELException</code>
-   *         constructor.
+   * @throws MethodNotFoundException if no suitable method can be found.
+   * @throws ExpressionException if an exception was thrown while performing (base, method)
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available. If the exception thrown
+   * is an <code>InvocationTargetException</code>, extract its
+   * <code>cause</code> and pass it to the <code>ELException</code>
+   * constructor.
    * @since EL 2.2
    */
   public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
@@ -215,26 +198,19 @@ public abstract class ExpressionResolver {
    * element.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The base object whose property value is to be analyzed, or
-   *         <code>null</code> to analyze a top-level variable.
-   * @param property
-   *         The property or variable to return the acceptable type for.
-   *
+   * @param context The context of this evaluation.
+   * @param base The base object whose property value is to be analyzed, or
+   * <code>null</code> to analyze a top-level variable.
+   * @param property The property or variable to return the acceptable type for.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the most
    * general acceptable type; otherwise undefined.
-   *
-   * @throws PropertyNotFoundException
-   *         if the given (base, property) pair is handled by this
-   *         <code>ELResolver</code> but the specified variable or property
-   *         does not exist or is not readable.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws PropertyNotFoundException if the given (base, property) pair is handled by this
+   * <code>ELResolver</code> but the specified variable or property
+   * does not exist or is not readable.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public abstract Class<?> getType(ExpressionContext context, Object base, Object property);
 
@@ -250,30 +226,21 @@ public abstract class ExpressionResolver {
    * safely assume no value has been set.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The base object whose property value is to be set, or
-   *         <code>null</code> to set a top-level variable.
-   * @param property
-   *         The property or variable to be set.
-   * @param value
-   *         The value to set the property or variable to.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws PropertyNotFoundException
-   *         if the given (base, property) pair is handled by this
-   *         <code>ELResolver</code> but the specified variable or property
-   *         does not exist.
-   * @throws PropertyNotWritableException
-   *         if the given (base, property) pair is handled by this
-   *         <code>ELResolver</code> but the specified variable or property is
-   *         not writable.
-   * @throws ExpressionException
-   *         if an exception was thrown while attempting to set the property
-   *         or variable. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @param context The context of this evaluation.
+   * @param base The base object whose property value is to be set, or
+   * <code>null</code> to set a top-level variable.
+   * @param property The property or variable to be set.
+   * @param value The value to set the property or variable to.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws PropertyNotFoundException if the given (base, property) pair is handled by this
+   * <code>ELResolver</code> but the specified variable or property
+   * does not exist.
+   * @throws PropertyNotWritableException if the given (base, property) pair is handled by this
+   * <code>ELResolver</code> but the specified variable or property is
+   * not writable.
+   * @throws ExpressionException if an exception was thrown while attempting to set the property
+   * or variable. The thrown exception must be included as the cause
+   * property of this exception, if available.
    */
   public abstract void setValue(ExpressionContext context, Object base, Object property, Object value);
 
@@ -289,29 +256,21 @@ public abstract class ExpressionResolver {
    * should ignore the return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The base object whose property value is to be analyzed, or
-   *         <code>null</code> to analyze a top-level variable.
-   * @param property
-   *         The property or variable to return the read-only status for.
-   *
+   * @param context The context of this evaluation.
+   * @param base The base object whose property value is to be analyzed, or
+   * <code>null</code> to analyze a top-level variable.
+   * @param property The property or variable to return the read-only status for.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>true</code> if the property is read-only or <code>false</code>
    * if not; otherwise undefined.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws PropertyNotFoundException
-   *         if the given (base, property) pair is handled by this
-   *         <code>ELResolver</code> but the specified variable or property
-   *         does not exist.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws PropertyNotFoundException if the given (base, property) pair is handled by this
+   * <code>ELResolver</code> but the specified variable or property
+   * does not exist.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public abstract boolean isReadOnly(ExpressionContext context, Object base, Object property);
 
@@ -323,15 +282,10 @@ public abstract class ExpressionResolver {
    * conversion.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param obj
-   *         The object to convert.
-   * @param targetType
-   *         The target type for the convertion.
-   *
-   * @throws ExpressionException
-   *         thrown if errors occur.
+   * @param context The context of this evaluation.
+   * @param obj The object to convert.
+   * @param targetType The target type for the convertion.
+   * @throws ExpressionException thrown if errors occur.
    */
   public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType) {
     return null;

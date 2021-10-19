@@ -40,11 +40,8 @@ public interface TransactionCallback<T> {
    * there is a problem rolling back, in which case a TransactionException will be
    * thrown.
    *
-   * @param status
-   *         associated transaction status
-   *
+   * @param status associated transaction status
    * @return a result object, or {@code null}
-   *
    * @see TransactionTemplate#execute
    */
   T doInTransaction(TransactionStatus status);

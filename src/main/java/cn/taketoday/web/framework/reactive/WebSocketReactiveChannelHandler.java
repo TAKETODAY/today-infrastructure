@@ -1,5 +1,8 @@
 package cn.taketoday.web.framework.reactive;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
@@ -18,9 +21,6 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Handle websocket request and http request
@@ -80,7 +80,6 @@ public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
    * Adapt WebSocketFrame to {@link Message}
    *
    * @param frame WebSocketFrame
-   *
    * @return websocket message
    */
   private Message<?> getMessage(WebSocketFrame frame) {

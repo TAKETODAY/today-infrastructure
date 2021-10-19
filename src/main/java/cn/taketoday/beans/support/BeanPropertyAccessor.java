@@ -91,26 +91,17 @@ public class BeanPropertyAccessor {
   /**
    * Get property object with given requiredType
    *
-   * @param propertyPath
-   *         Property path
-   * @param requiredType
-   *         Required type
-   *
+   * @param propertyPath Property path
+   * @param requiredType Required type
    * @return property object with given requiredType
-   *
-   * @throws ArrayIndexOutOfBoundsException
-   *         Thrown to indicate that an array has been accessed with an
-   *         illegal index. The index is either negative or greater than or
-   *         equal to the size of the array.
-   * @throws IllegalArgumentException
-   *         Property path is Illegal
-   * @throws NoSuchPropertyException
-   *         If there is not a property
-   * @throws IndexOutOfBoundsException
-   *         if the index is out of list range
-   *         (<tt>index &lt; 0 || index &gt;= size()</tt>)
-   * @throws InvalidPropertyValueException
-   *         conversion failed
+   * @throws ArrayIndexOutOfBoundsException Thrown to indicate that an array has been accessed with an
+   * illegal index. The index is either negative or greater than or
+   * equal to the size of the array.
+   * @throws IllegalArgumentException Property path is Illegal
+   * @throws NoSuchPropertyException If there is not a property
+   * @throws IndexOutOfBoundsException if the index is out of list range
+   * (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   * @throws InvalidPropertyValueException conversion failed
    * @see #getProperty(String)
    */
   @SuppressWarnings("unchecked")
@@ -121,21 +112,14 @@ public class BeanPropertyAccessor {
   /**
    * Get property object
    *
-   * @param propertyPath
-   *         Property path
-   *
+   * @param propertyPath Property path
    * @return property object
-   *
-   * @throws ArrayIndexOutOfBoundsException
-   *         Thrown to indicate that an array has been accessed with an
-   *         illegal index. The index is either negative or greater than or
-   *         equal to the size of the array.
-   * @throws IllegalArgumentException
-   *         Property path is Illegal
-   * @throws NoSuchPropertyException
-   *         If there is not a property
-   * @throws IndexOutOfBoundsException
-   *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   * @throws ArrayIndexOutOfBoundsException Thrown to indicate that an array has been accessed with an
+   * illegal index. The index is either negative or greater than or
+   * equal to the size of the array.
+   * @throws IllegalArgumentException Property path is Illegal
+   * @throws NoSuchPropertyException If there is not a property
+   * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public Object getProperty(final String propertyPath) {
     return getProperty(getRootObject(), obtainMetadata(), propertyPath);
@@ -144,21 +128,14 @@ public class BeanPropertyAccessor {
   /**
    * Get property object
    *
-   * @param propertyPath
-   *         Property path
-   *
+   * @param propertyPath Property path
    * @return property object
-   *
-   * @throws ArrayIndexOutOfBoundsException
-   *         Thrown to indicate that an array has been accessed with an
-   *         illegal index. The index is either negative or greater than or
-   *         equal to the size of the array.
-   * @throws IllegalArgumentException
-   *         Property path is Illegal
-   * @throws NoSuchPropertyException
-   *         If there is not a property
-   * @throws IndexOutOfBoundsException
-   *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   * @throws ArrayIndexOutOfBoundsException Thrown to indicate that an array has been accessed with an
+   * illegal index. The index is either negative or greater than or
+   * equal to the size of the array.
+   * @throws IllegalArgumentException Property path is Illegal
+   * @throws NoSuchPropertyException If there is not a property
+   * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public static Object getProperty(final Object root, final String propertyPath) {
     return getProperty(root, BeanMetadata.ofObject(root), propertyPath);
@@ -167,21 +144,14 @@ public class BeanPropertyAccessor {
   /**
    * Get property object
    *
-   * @param propertyPath
-   *         Property path
-   *
+   * @param propertyPath Property path
    * @return property object
-   *
-   * @throws ArrayIndexOutOfBoundsException
-   *         Thrown to indicate that an array has been accessed with an
-   *         illegal index. The index is either negative or greater than or
-   *         equal to the size of the array.
-   * @throws IllegalArgumentException
-   *         Property path is Illegal
-   * @throws NoSuchPropertyException
-   *         If there is not a property
-   * @throws IndexOutOfBoundsException
-   *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   * @throws ArrayIndexOutOfBoundsException Thrown to indicate that an array has been accessed with an
+   * illegal index. The index is either negative or greater than or
+   * equal to the size of the array.
+   * @throws IllegalArgumentException Property path is Illegal
+   * @throws NoSuchPropertyException If there is not a property
+   * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public static Object getProperty(
           final Object root, final BeanMetadata metadata, final String propertyPath) {
@@ -254,17 +224,12 @@ public class BeanPropertyAccessor {
    * Get propertyValue[key]
    *
    * @return key-value
-   *
-   * @throws ArrayIndexOutOfBoundsException
-   *         Thrown to indicate that an array has been accessed with an
-   *         illegal index. The index is either negative or greater than or
-   *         equal to the size of the array.
-   * @throws IllegalArgumentException
-   *         Property path is Illegal
-   * @throws NoSuchPropertyException
-   *         If there is not a property
-   * @throws IndexOutOfBoundsException
-   *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   * @throws ArrayIndexOutOfBoundsException Thrown to indicate that an array has been accessed with an
+   * illegal index. The index is either negative or greater than or
+   * equal to the size of the array.
+   * @throws IllegalArgumentException Property path is Illegal
+   * @throws NoSuchPropertyException If there is not a property
+   * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   @SuppressWarnings({ "rawtypes" })
   static Object getKeyedPropertyValue(Object propertyValue, String key) {
@@ -309,15 +274,10 @@ public class BeanPropertyAccessor {
   /**
    * Set value to object's property
    *
-   * @param propertyPath
-   *         Property path to set
-   * @param value
-   *         Property value
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
-   * @throws InvalidPropertyValueException
-   *         Invalid property value
+   * @param propertyPath Property path to set
+   * @param value Property value
+   * @throws NoSuchPropertyException If no such property
+   * @throws InvalidPropertyValueException Invalid property value
    */
   public void setProperty(final String propertyPath, final Object value) {
     setProperty(getRootObject(), obtainMetadata(), propertyPath, value);
@@ -326,17 +286,11 @@ public class BeanPropertyAccessor {
   /**
    * Set value to object's property
    *
-   * @param root
-   *         Root object that apply to
-   * @param propertyPath
-   *         Property path to set
-   * @param value
-   *         Property value
-   *
-   * @throws NoSuchPropertyException
-   *         If no such property
-   * @throws InvalidPropertyValueException
-   *         Invalid property value
+   * @param root Root object that apply to
+   * @param propertyPath Property path to set
+   * @param value Property value
+   * @throws NoSuchPropertyException If no such property
+   * @throws InvalidPropertyValueException Invalid property value
    */
   public void setProperty(final Object root, final String propertyPath, final Object value) {
     setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
@@ -345,21 +299,13 @@ public class BeanPropertyAccessor {
   /**
    * Set value to object's property
    *
-   * @param root
-   *         Root object that apply to
-   * @param metadata
-   *         {@link BeanMetadata}
-   * @param propertyPath
-   *         Property path to set
-   * @param value
-   *         Property value
-   *
-   * @throws PropertyReadOnlyException
-   *         property is read-only
-   * @throws NoSuchPropertyException
-   *         If no such property
-   * @throws InvalidPropertyValueException
-   *         Invalid property value
+   * @param root Root object that apply to
+   * @param metadata {@link BeanMetadata}
+   * @param propertyPath Property path to set
+   * @param value Property value
+   * @throws PropertyReadOnlyException property is read-only
+   * @throws NoSuchPropertyException If no such property
+   * @throws InvalidPropertyValueException Invalid property value
    * @see #ignoreUnknownProperty
    * @see #throwsWhenReadOnly
    */
@@ -559,11 +505,8 @@ public class BeanPropertyAccessor {
   }
 
   /**
-   * @param beanProperty
-   *         property metadata
-   *
-   * @throws InvalidPropertyValueException
-   *         conversion failed
+   * @param beanProperty property metadata
+   * @throws InvalidPropertyValueException conversion failed
    */
   protected Object convertIfNecessary(final Object value, final BeanProperty beanProperty) {
     if (value == null || beanProperty.isInstance(value)) {
@@ -577,8 +520,7 @@ public class BeanPropertyAccessor {
   }
 
   /**
-   * @throws InvalidPropertyValueException
-   *         conversion failed
+   * @throws InvalidPropertyValueException conversion failed
    */
   protected Object convertIfNecessary(final Object value, final Class<?> requiredType) {
     if (value == null || requiredType.isInstance(value)) {
@@ -605,9 +547,7 @@ public class BeanPropertyAccessor {
    * Determine the first nested property separator in the
    * given property path, ignoring dots in keys (like "map[my.key]").
    *
-   * @param propertyPath
-   *         the property path to check
-   *
+   * @param propertyPath the property path to check
    * @return the index of the nested property separator, or -1 if none
    */
   public static int getNestedPropertySeparatorIndex(final String propertyPath) {

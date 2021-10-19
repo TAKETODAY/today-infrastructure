@@ -334,8 +334,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * Return whether the given profile is active, or if active profiles are empty
    * whether the profile should be active by default.
    *
-   * @throws IllegalArgumentException
-   *         per {@link #validateProfile(String)}
+   * @throws IllegalArgumentException per {@link #validateProfile(String)}
    */
   protected boolean isProfileActive(String profile) {
     validateProfile(profile);
@@ -349,9 +348,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * active or default profiles.
    * <p>Subclasses may override to impose further restrictions on profile syntax.
    *
-   * @throws IllegalArgumentException
-   *         if the profile is null, empty, whitespace-only or
-   *         begins with the profile NOT operator (!).
+   * @throws IllegalArgumentException if the profile is null, empty, whitespace-only or
+   * begins with the profile NOT operator (!).
    * @see #acceptsProfiles
    * @see #addActiveProfile
    * @see #setDefaultProfiles

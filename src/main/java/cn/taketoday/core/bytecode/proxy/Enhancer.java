@@ -217,9 +217,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * be called with the appropriate argument instead. A non-interface argument
    * must not be declared as final, and must have an accessible constructor.
    *
-   * @param superclass
-   *         class to extend or interface to implement
-   *
+   * @param superclass class to extend or interface to implement
    * @see #setInterfaces(Class[])
    */
   public Enhancer setSuperclass(Class<?> superclass) {
@@ -240,9 +238,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * Set the interfaces to implement. The <code>Factory</code> interface will
    * always be implemented regardless of what is specified here.
    *
-   * @param interfaces
-   *         array of interfaces to implement, or null
-   *
+   * @param interfaces array of interfaces to implement, or null
    * @see Factory
    */
   public Enhancer setInterfaces(Class<?>... interfaces) {
@@ -255,9 +251,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * particular callback index. New object instances will always use the same
    * mapping, but may use different actual callback objects.
    *
-   * @param filter
-   *         the callback filter to use when generating a new class
-   *
+   * @param filter the callback filter to use when generating a new class
    * @see #setCallbacks
    */
   public Enhancer setCallbackFilter(CallbackFilter filter) {
@@ -269,9 +263,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * Set the single {@link Callback} to use. Ignored if you use
    * {@link #createClass}.
    *
-   * @param callback
-   *         the callback to use for all methods
-   *
+   * @param callback the callback to use for all methods
    * @see #setCallbacks
    */
   public Enhancer setCallback(final Callback callback) {
@@ -284,9 +276,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * You must use a {@link CallbackFilter} to specify the index into this array
    * for each method in the proxied class.
    *
-   * @param callbacks
-   *         the callback array
-   *
+   * @param callbacks the callback array
    * @see #setCallbackFilter
    * @see #setCallback
    */
@@ -305,9 +295,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * necessary to disable the <code>Factory</code> interface to prevent code from
    * changing the underlying callbacks.
    *
-   * @param useFactory
-   *         whether to implement <code>Factory</code>; default is
-   *         <code>true</code>
+   * @param useFactory whether to implement <code>Factory</code>; default is
+   * <code>true</code>
    */
   public Enhancer setUseFactory(boolean useFactory) {
     this.useFactory = useFactory;
@@ -319,8 +308,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * intercepted. The default value is true. Unintercepted methods will call the
    * method of the proxy's base class, if it exists.
    *
-   * @param interceptDuringConstruction
-   *         whether to intercept methods called from the constructor
+   * @param interceptDuringConstruction whether to intercept methods called from the constructor
    */
   public Enhancer setInterceptDuringConstruction(boolean interceptDuringConstruction) {
     this.interceptDuringConstruction = interceptDuringConstruction;
@@ -332,9 +320,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * {@link #setCallback} when calling {@link #createClass}, since it may not be
    * possible to have an array of actual callback instances.
    *
-   * @param callbackType
-   *         the type of callback to use for all methods
-   *
+   * @param callbackType the type of callback to use for all methods
    * @see #setCallbackTypes
    */
   public Enhancer setCallbackType(Class<?> callbackType) {
@@ -349,8 +335,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * {@link CallbackFilter} to specify the index into this array for each method
    * in the proxied class.
    *
-   * @param callbackTypes
-   *         the array of callback types
+   * @param callbackTypes the array of callback types
    */
   public Enhancer setCallbackTypes(Class<?>... callbackTypes) {
     if (ObjectUtils.isEmpty(callbackTypes)) {
@@ -412,11 +397,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * to create a new object instance. Uses the constructor of the superclass
    * matching the <code>argumentTypes</code> parameter, with the given arguments.
    *
-   * @param argumentTypes
-   *         constructor signature
-   * @param arguments
-   *         compatible wrapped arguments to pass to constructor
-   *
+   * @param argumentTypes constructor signature
+   * @param arguments compatible wrapped arguments to pass to constructor
    * @return a new instance
    */
   public Object create(Class<?>[] argumentTypes, Object[] arguments) {
@@ -446,8 +428,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   /**
    * Insert a static serialVersionUID field into the generated class.
    *
-   * @param sUID
-   *         the field value, or null to avoid generating field.
+   * @param sUID the field value, or null to avoid generating field.
    */
   public Enhancer setSerialVersionUID(Long sUID) {
     this.serialVersionUID = sUID;
@@ -528,15 +509,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * is a re-implementation of {@link Enhancer#createUsingReflection(Class)}, with
      * "cache {@link #setThreadCallbacks} and {@link #primaryConstructor}"
      *
-     * @param argumentTypes
-     *         constructor argument types
-     * @param arguments
-     *         constructor arguments
-     * @param callbacks
-     *         callbacks to set for the new instance
-     *
+     * @param argumentTypes constructor argument types
+     * @param arguments constructor arguments
+     * @param callbacks callbacks to set for the new instance
      * @return newly created proxy
-     *
      * @see #createUsingReflection(Class)
      */
     public Object newInstance(Class<?>[] argumentTypes, Object[] arguments, Callback[] callbacks) {
@@ -652,12 +628,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * methods are guaranteed to be non-static, non-final, and non-private. Each
    * method signature will only occur once, even if it occurs in multiple classes.
    *
-   * @param superclass
-   *         the class that will be extended, or null
-   * @param interfaces
-   *         the list of interfaces that will be implemented, or null
-   * @param methods
-   *         the list into which to copy the applicable methods
+   * @param superclass the class that will be extended, or null
+   * @param interfaces the list of interfaces that will be implemented, or null
+   * @param methods the list into which to copy the applicable methods
    */
   public static void getMethods(Class<?> superclass, Class<?>[] interfaces, List<Method> methods) {
     getMethods(superclass, interfaces, methods, null);
@@ -800,13 +773,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * to filter out all private constructors, but subclasses may extend Enhancer to
    * override this behavior.
    *
-   * @param superclass
-   *         the superclass
-   * @param constructors
-   *         the list of all declared constructors from the superclass
-   *
-   * @throws IllegalArgumentException
-   *         if there are no non-private constructors
+   * @param superclass the superclass
+   * @param constructors the list of all declared constructors from the superclass
+   * @throws IllegalArgumentException if there are no non-private constructors
    */
   protected void filterConstructors(Class<?> superclass, List<Constructor> constructors) {
     CollectionUtils.filter(constructors, new VisibilityPredicate(superclass, true));
@@ -822,13 +791,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * lookup and invoke. This method is left intact for backward compatibility
    * reasons: just in case it was ever used.
    *
-   * @param type
-   *         class to instantiate
-   *
+   * @param type class to instantiate
    * @return newly created proxy instance
-   *
-   * @throws Exception
-   *         if something goes wrong
+   * @throws Exception if something goes wrong
    */
   protected Object firstInstance(Class type) throws Exception {
     if (classOnly) {
@@ -904,12 +869,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * <code>null</code> after creating new instances via reflection if memory
    * leakage is a concern.
    *
-   * @param generatedClass
-   *         a class previously created by {@link Enhancer}
-   * @param callbacks
-   *         the array of callbacks to use when instances of the generated
-   *         class are created
-   *
+   * @param generatedClass a class previously created by {@link Enhancer}
+   * @param callbacks the array of callbacks to use when instances of the generated
+   * class are created
    * @see #setUseFactory
    */
   public static void registerCallbacks(Class generatedClass, Callback[] callbacks) {
@@ -922,11 +884,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * callbacks will always override the static callbacks. Static callbacks are
    * never cleared.
    *
-   * @param generatedClass
-   *         a class previously created by {@link Enhancer}
-   * @param callbacks
-   *         the array of callbacks to use when instances of the generated
-   *         class are created
+   * @param generatedClass a class previously created by {@link Enhancer}
+   * @param callbacks the array of callbacks to use when instances of the generated
+   * class are created
    */
   public static void registerStaticCallbacks(Class generatedClass, Callback[] callbacks) {
     setCallbacksHelper(generatedClass, callbacks, SET_STATIC_CALLBACKS_NAME);
@@ -935,9 +895,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   /**
    * Determine if a class was generated using <code>Enhancer</code>.
    *
-   * @param type
-   *         any class
-   *
+   * @param type any class
    * @return whether the class was generated using <code>Enhancer</code>
    */
   public static boolean isEnhanced(Class type) {
@@ -979,9 +937,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * be used on a hot path. This method is used when {@link #setUseCache(boolean)}
    * is set to {@code false}.
    *
-   * @param type
-   *         class to instantiate
-   *
+   * @param type class to instantiate
    * @return newly created instance
    */
   private Object createUsingReflection(Class type) {
@@ -1003,10 +959,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * generated instance, use a new instance of <code>Enhancer</code> instead of
    * this static method.
    *
-   * @param type
-   *         class to extend or interface to implement
-   * @param callback
-   *         the callback to use for all methods
+   * @param type class to extend or interface to implement
+   * @param callback the callback to use for all methods
    */
   public static Object create(Class type, Callback callback) {
     Enhancer e = new Enhancer();
@@ -1020,12 +974,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * generated instance, use a new instance of <code>Enhancer</code> instead of
    * this static method.
    *
-   * @param superclass
-   *         class to extend or interface to implement
-   * @param interfaces
-   *         array of interfaces to implement, or null
-   * @param callback
-   *         the callback to use for all methods
+   * @param superclass class to extend or interface to implement
+   * @param interfaces array of interfaces to implement, or null
+   * @param callback the callback to use for all methods
    */
   public static Object create(Class superclass, Class[] interfaces, Callback callback) {
     Enhancer e = new Enhancer();
@@ -1040,14 +991,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * generated instance, use a new instance of <code>Enhancer</code> instead of
    * this static method.
    *
-   * @param superclass
-   *         class to extend or interface to implement
-   * @param interfaces
-   *         array of interfaces to implement, or null
-   * @param filter
-   *         the callback filter to use when generating a new class
-   * @param callbacks
-   *         callback implementations to use for the enhanced object
+   * @param superclass class to extend or interface to implement
+   * @param interfaces array of interfaces to implement, or null
+   * @param filter the callback filter to use when generating a new class
+   * @param callbacks callback implementations to use for the enhanced object
    */
   public static Object create(
           Class superclass, Class[] interfaces, CallbackFilter filter, Callback[] callbacks) {

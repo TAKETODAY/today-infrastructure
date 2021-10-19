@@ -52,9 +52,7 @@ public class BooleanComparator implements Comparator<Boolean>, Serializable {
    * {@code BooleanComparator.TRUE_LOW} and
    * {@code BooleanComparator.TRUE_HIGH}.
    *
-   * @param trueLow
-   *         whether to treat true as lower or higher than false
-   *
+   * @param trueLow whether to treat true as lower or higher than false
    * @see #TRUE_LOW
    * @see #TRUE_HIGH
    */

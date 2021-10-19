@@ -58,9 +58,8 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * Creates a new <code>ArrayELResolver</code> whose read-only status is
    * determined by the given parameter.
    *
-   * @param isReadOnly
-   *         <code>true</code> if this resolver cannot modify arrays;
-   *         <code>false</code> otherwise.
+   * @param isReadOnly <code>true</code> if this resolver cannot modify arrays;
+   * <code>false</code> otherwise.
    */
   public ArrayExpressionResolver(boolean isReadOnly) {
     this.isReadOnly = isReadOnly;
@@ -84,28 +83,20 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * type of component that can be stored at any given index in the array.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The array to analyze. Only bases that are Java language arrays are
-   *         handled by this resolver.
-   * @param property
-   *         The index of the element in the array to return the acceptable
-   *         type for. Will be coerced into an integer, but otherwise ignored
-   *         by this resolver.
-   *
+   * @param context The context of this evaluation.
+   * @param base The array to analyze. Only bases that are Java language arrays are
+   * handled by this resolver.
+   * @param property The index of the element in the array to return the acceptable
+   * type for. Will be coerced into an integer, but otherwise ignored
+   * by this resolver.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the most
    * general acceptable type; otherwise undefined.
-   *
-   * @throws PropertyNotFoundException
-   *         if the given index is out of bounds for this array.
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws PropertyNotFoundException if the given index is out of bounds for this array.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
@@ -139,28 +130,20 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * return value.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The array to analyze. Only bases that are Java language arrays are
-   *         handled by this resolver.
-   * @param property
-   *         The index of the value to be returned. Will be coerced into an
-   *         integer.
-   *
+   * @param context The context of this evaluation.
+   * @param base The array to analyze. Only bases that are Java language arrays are
+   * handled by this resolver.
+   * @param property The index of the value to be returned. Will be coerced into an
+   * integer.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the value
    * at the given index or <code>null</code> if the index was out of
    * bounds. Otherwise, undefined.
-   *
-   * @throws IllegalArgumentException
-   *         if the property could not be coerced into an integer.
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws IllegalArgumentException if the property could not be coerced into an integer.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
     if (base != null && base.getClass().isArray()) {
@@ -195,33 +178,22 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * throw <code>PropertyNotWritableException</code>.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The array to be modified. Only bases that are Java language arrays
-   *         are handled by this resolver.
-   * @param property
-   *         The index of the value to be set. Will be coerced into an integer.
-   * @param val
-   *         The value to be set at the given index.
-   *
-   * @throws ClassCastException
-   *         if the class of the specified element prevents it from being
-   *         added to this array.
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws IllegalArgumentException
-   *         if the property could not be coerced into an integer, or if some
-   *         aspect of the specified element prevents it from being added to
-   *         this array.
-   * @throws PropertyNotWritableException
-   *         if this resolver was constructed in read-only mode.
-   * @throws PropertyNotFoundException
-   *         if the given index is out of bounds for this array.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @param context The context of this evaluation.
+   * @param base The array to be modified. Only bases that are Java language arrays
+   * are handled by this resolver.
+   * @param property The index of the value to be set. Will be coerced into an integer.
+   * @param val The value to be set at the given index.
+   * @throws ClassCastException if the class of the specified element prevents it from being
+   * added to this array.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws IllegalArgumentException if the property could not be coerced into an integer, or if some
+   * aspect of the specified element prevents it from being added to
+   * this array.
+   * @throws PropertyNotWritableException if this resolver was constructed in read-only mode.
+   * @throws PropertyNotFoundException if the given index is out of bounds for this array.
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
@@ -262,30 +234,22 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * return <code>true</code>. Otherwise, it returns <code>false</code>.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         The array to analyze. Only bases that are a Java language array
-   *         are handled by this resolver.
-   * @param property
-   *         The index of the element in the array to return the acceptable
-   *         type for. Will be coerced into an integer, but otherwise ignored
-   *         by this resolver.
-   *
+   * @param context The context of this evaluation.
+   * @param base The array to analyze. Only bases that are a Java language array
+   * are handled by this resolver.
+   * @param property The index of the element in the array to return the acceptable
+   * type for. Will be coerced into an integer, but otherwise ignored
+   * by this resolver.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then
    * <code>true</code> if calling the <code>setValue</code> method will
    * always fail or <code>false</code> if it is possible that such a call
    * may succeed; otherwise undefined.
-   *
-   * @throws PropertyNotFoundException
-   *         if the given index is out of bounds for this array.
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws ExpressionException
-   *         if an exception was thrown while performing the property or
-   *         variable resolution. The thrown exception must be included as the
-   *         cause property of this exception, if available.
+   * @throws PropertyNotFoundException if the given index is out of bounds for this array.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws ExpressionException if an exception was thrown while performing the property or
+   * variable resolution. The thrown exception must be included as the
+   * cause property of this exception, if available.
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 

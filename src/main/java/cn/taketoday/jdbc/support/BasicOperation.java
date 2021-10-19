@@ -38,9 +38,7 @@ public interface BasicOperation {
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
    *
-   * @param action
-   *         the callback object that specifies the action
-   *
+   * @param action the callback object that specifies the action
    * @return a result object returned by the action, or {@code null} @ if there is
    * any problem
    */
@@ -56,9 +54,7 @@ public interface BasicOperation {
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
    *
-   * @param action
-   *         callback object that specifies the action
-   *
+   * @param action callback object that specifies the action
    * @return a result object returned by the action, or {@code null} @ if there is
    * any problem
    */
@@ -67,8 +63,7 @@ public interface BasicOperation {
   /**
    * Issue a single SQL execute, typically a DDL statement.
    *
-   * @param sql
-   *         static SQL to execute @ if there is any problem
+   * @param sql static SQL to execute @ if there is any problem
    */
   void execute(String sql) throws SQLException;
 
@@ -82,11 +77,8 @@ public interface BasicOperation {
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
    *
-   * @param sql
-   *         SQL to execute
-   * @param action
-   *         callback object that specifies the action
-   *
+   * @param sql SQL to execute
+   * @param action callback object that specifies the action
    * @return a result object returned by the action, or {@code null} @ if there is
    * any problem
    */
@@ -102,11 +94,8 @@ public interface BasicOperation {
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
    *
-   * @param sql
-   *         the SQL call string to execute
-   * @param action
-   *         callback object that specifies the action
-   *
+   * @param sql the SQL call string to execute
+   * @param action callback object that specifies the action
    * @return a result object returned by the action, or {@code null} @ if there is
    * any problem
    */

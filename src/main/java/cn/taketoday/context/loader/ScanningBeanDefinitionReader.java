@@ -82,11 +82,8 @@ public class ScanningBeanDefinitionReader {
   /**
    * Load {@link BeanDefinition}s from input package locations
    *
-   * @param locations
-   *         package locations
-   *
-   * @throws BeanDefinitionStoreException
-   *         If BeanDefinition could not be store
+   * @param locations package locations
+   * @throws BeanDefinitionStoreException If BeanDefinition could not be store
    * @since 4.0
    */
   public void scan(String... locations) throws BeanDefinitionStoreException {
@@ -119,13 +116,9 @@ public class ScanningBeanDefinitionReader {
   /**
    * Scan class in a {@link Resource}
    *
-   * @param resource
-   *         {@link Resource} in class maybe a jar file or class directory
-   * @param packageName
-   *         if {@link Resource} is a directory will use this packageName
-   *
-   * @throws IOException
-   *         if the resource is not available
+   * @param resource {@link Resource} in class maybe a jar file or class directory
+   * @param packageName if {@link Resource} is a directory will use this packageName
+   * @throws IOException if the resource is not available
    * @since 2.1.6
    */
   protected void scan(Resource resource, String packageName) throws IOException {
@@ -168,8 +161,7 @@ public class ScanningBeanDefinitionReader {
   /**
    * Load classes from a {@link JarEntry}
    *
-   * @param jarEntry
-   *         The entry of jar
+   * @param jarEntry The entry of jar
    */
   public void loadClassFromJarEntry(JarEntry jarEntry, String packageName) {
     if (jarEntry.isDirectory()) {
@@ -193,8 +185,7 @@ public class ScanningBeanDefinitionReader {
    * </p>
    * Note: don't need packageName
    *
-   * @throws IOException
-   *         if the resource is not available
+   * @throws IOException if the resource is not available
    */
   protected void findInDirectory(Resource directory) throws IOException {
     if (!directory.exists()) {

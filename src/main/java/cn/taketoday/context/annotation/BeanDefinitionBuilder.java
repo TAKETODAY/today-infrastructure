@@ -203,7 +203,6 @@ public class BeanDefinitionBuilder {
    * set scope 'singleton'
    *
    * @return this
-   *
    * @see Scope#SINGLETON
    */
   public BeanDefinitionBuilder singleton() {
@@ -215,7 +214,6 @@ public class BeanDefinitionBuilder {
    * set scope 'prototype'
    *
    * @return this
-   *
    * @see Scope#PROTOTYPE
    */
   public BeanDefinitionBuilder prototype() {
@@ -236,11 +234,8 @@ public class BeanDefinitionBuilder {
   /**
    * Enable resolving {@link Props}?
    *
-   * @param resolveProps
-   *         resolve {@link Props}
-   *
+   * @param resolveProps resolve {@link Props}
    * @return this
-   *
    * @see Props
    * @see PropsReader
    */
@@ -252,11 +247,8 @@ public class BeanDefinitionBuilder {
   /**
    * Enable resolving init-method
    *
-   * @param computeInitMethod
-   *         compute InitMethod
-   *
+   * @param computeInitMethod compute InitMethod
    * @return this
-   *
    * @see BeanDefinition#getInitMethods()
    * @see #computeInitMethod(Class, String...)
    */
@@ -268,9 +260,7 @@ public class BeanDefinitionBuilder {
   /**
    * Enable resolving autowire property-values
    *
-   * @param autowire
-   *         resolve {@link PropertySetter} ?
-   *
+   * @param autowire resolve {@link PropertySetter} ?
    * @return this
    */
   public BeanDefinitionBuilder resolvePropertyValues(boolean autowire) {
@@ -283,9 +273,7 @@ public class BeanDefinitionBuilder {
   /**
    * apply scope,initMethods,destroyMethods
    *
-   * @param component
-   *         AnnotationAttributes
-   *
+   * @param component AnnotationAttributes
    * @see #scope(String)
    * @see #initMethods(String...)
    * @see #destroyMethods(String...)
@@ -512,9 +500,7 @@ public class BeanDefinitionBuilder {
   /**
    * Process bean's property (field)
    *
-   * @param beanClass
-   *         Bean class
-   *
+   * @param beanClass Bean class
    * @since 3.0
    */
   public LinkedHashSet<PropertySetter> resolvePropertyValue(Class<?> beanClass) {
@@ -534,9 +520,7 @@ public class BeanDefinitionBuilder {
   /**
    * Create property value
    *
-   * @param field
-   *         Property
-   *
+   * @param field Property
    * @return A new {@link PropertySetter}
    */
   @Nullable
@@ -565,11 +549,8 @@ public class BeanDefinitionBuilder {
   /**
    * Find bean names
    *
-   * @param defaultName
-   *         Default bean name
-   * @param names
-   *         Annotation values
-   *
+   * @param defaultName Default bean name
+   * @param names Annotation values
    * @return Bean names
    */
   public static String[] determineName(String defaultName, String... names) {
@@ -586,11 +567,8 @@ public class BeanDefinitionBuilder {
   }
 
   /**
-   * @param beanClass
-   *         Bean class
-   * @param initMethods
-   *         Init Method s
-   *
+   * @param beanClass Bean class
+   * @param initMethods Init Method s
    * @since 2.1.2
    */
   public static Method[] computeInitMethod(Class<?> beanClass, String... initMethods) {
@@ -601,11 +579,8 @@ public class BeanDefinitionBuilder {
    * Add a method which annotated with {@link javax.annotation.PostConstruct}
    * or {@link  Autowired}
    *
-   * @param beanClass
-   *         Bean class
-   * @param initMethods
-   *         Init Method name
-   *
+   * @param beanClass Bean class
+   * @param initMethods Init Method name
    * @see AutowiredPropertyResolver#isInjectable(AnnotatedElement)
    * @since 2.1.7
    */

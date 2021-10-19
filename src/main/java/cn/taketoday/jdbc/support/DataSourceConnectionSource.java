@@ -18,8 +18,7 @@ public final class DataSourceConnectionSource implements ConnectionSource {
    * Creates a ConnectionSource that gets connection from specified
    * {@link DataSource}
    *
-   * @param dataSource
-   *         a DataSource to get connections from
+   * @param dataSource a DataSource to get connections from
    */
   DataSourceConnectionSource(DataSource dataSource) {
     Assert.notNull(dataSource, "DataSource must not be null");
@@ -31,14 +30,11 @@ public final class DataSourceConnectionSource implements ConnectionSource {
    * this {@code DataSource} object represents.
    *
    * @return a connection to the data source
-   *
-   * @throws SQLException
-   *         if a database access error occurs
-   * @throws java.sql.SQLTimeoutException
-   *         when the driver has determined that the
-   *         timeout value specified by the {@code setLoginTimeout} method
-   *         has been exceeded and has at least tried to cancel the
-   *         current database connection attempt
+   * @throws SQLException if a database access error occurs
+   * @throws java.sql.SQLTimeoutException when the driver has determined that the
+   * timeout value specified by the {@code setLoginTimeout} method
+   * has been exceeded and has at least tried to cancel the
+   * current database connection attempt
    */
   @Override
   public Connection getConnection() throws SQLException {

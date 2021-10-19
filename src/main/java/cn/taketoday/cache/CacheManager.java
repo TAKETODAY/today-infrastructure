@@ -32,11 +32,8 @@ public interface CacheManager {
   /**
    * Use default {@link CacheConfig#EMPTY_CACHE_CONFIG}
    *
-   * @param name
-   *         the cache identifier (must not be {@code null})
-   *
+   * @param name the cache identifier (must not be {@code null})
    * @return Target {@link Cache}
-   *
    * @see CacheConfig#EMPTY_CACHE_CONFIG
    */
   default Cache getCache(String name) {
@@ -46,11 +43,8 @@ public interface CacheManager {
   /**
    * Return the cache associated with the given name.
    *
-   * @param name
-   *         the cache identifier (must not be {@code null})
-   * @param cacheConfig
-   *         {@link CacheConfig}
-   *
+   * @param name the cache identifier (must not be {@code null})
+   * @param cacheConfig {@link CacheConfig}
    * @return Target {@link Cache}
    */
   Cache getCache(String name, CacheConfig cacheConfig);

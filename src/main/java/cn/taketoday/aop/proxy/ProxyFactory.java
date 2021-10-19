@@ -45,8 +45,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * Create a new ProxyFactory.
    * <p>Will proxy all interfaces that the given target implements.
    *
-   * @param target
-   *         the target object to be proxied
+   * @param target the target object to be proxied
    */
   public ProxyFactory(Object target) {
     this(target, false);
@@ -62,8 +61,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * Create a new ProxyFactory.
    * <p>No target, only interfaces. Must add interceptors.
    *
-   * @param proxyInterfaces
-   *         the interfaces that the proxy should implement
+   * @param proxyInterfaces the interfaces that the proxy should implement
    */
   public ProxyFactory(Class<?>... proxyInterfaces) {
     setInterfaces(proxyInterfaces);
@@ -75,10 +73,8 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * assuming that the interceptor handles all calls itself rather than
    * delegating to a target, like in the case of remoting proxies.
    *
-   * @param proxyInterface
-   *         the interface that the proxy should implement
-   * @param interceptor
-   *         the interceptor that the proxy should invoke
+   * @param proxyInterface the interface that the proxy should implement
+   * @param interceptor the interceptor that the proxy should invoke
    */
   public ProxyFactory(Class<?> proxyInterface, Interceptor interceptor) {
     addInterface(proxyInterface);
@@ -89,10 +85,8 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * Create a ProxyFactory for the specified {@code TargetSource},
    * making the proxy implement the specified interface.
    *
-   * @param proxyInterface
-   *         the interface that the proxy should implement
-   * @param targetSource
-   *         the TargetSource that the proxy should invoke
+   * @param proxyInterface the interface that the proxy should implement
+   * @param targetSource the TargetSource that the proxy should invoke
    */
   public ProxyFactory(Class<?> proxyInterface, TargetSource targetSource) {
     addInterface(proxyInterface);
@@ -118,10 +112,8 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * or removed interfaces. Can add and remove interceptors.
    * <p>Uses the given class loader (if necessary for proxy creation).
    *
-   * @param classLoader
-   *         the class loader to create the proxy with
-   *         (or {@code null} for the low-level proxy facility's default)
-   *
+   * @param classLoader the class loader to create the proxy with
+   * (or {@code null} for the low-level proxy facility's default)
    * @return the proxy object
    */
   public Object getProxy(ClassLoader classLoader) {
@@ -134,13 +126,9 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * assuming that the interceptor handles all calls itself rather than
    * delegating to a target, like in the case of remoting proxies.
    *
-   * @param proxyInterface
-   *         the interface that the proxy should implement
-   * @param interceptor
-   *         the interceptor that the proxy should invoke
-   *
+   * @param proxyInterface the interface that the proxy should implement
+   * @param interceptor the interceptor that the proxy should invoke
    * @return the proxy object
-   *
    * @see #ProxyFactory(Class, org.aopalliance.intercept.Interceptor)
    */
   @SuppressWarnings("unchecked")
@@ -152,13 +140,9 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * Create a proxy for the specified {@code TargetSource},
    * implementing the specified interface.
    *
-   * @param proxyInterface
-   *         the interface that the proxy should implement
-   * @param targetSource
-   *         the TargetSource that the proxy should invoke
-   *
+   * @param proxyInterface the interface that the proxy should implement
+   * @param targetSource the TargetSource that the proxy should invoke
    * @return the proxy object
-   *
    * @see #ProxyFactory(Class, TargetSource)
    */
   @SuppressWarnings("unchecked")
@@ -170,9 +154,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * Create a proxy for the specified {@code TargetSource} that extends
    * the target class of the {@code TargetSource}.
    *
-   * @param targetSource
-   *         the TargetSource that the proxy should invoke
-   *
+   * @param targetSource the TargetSource that the proxy should invoke
    * @return the proxy object
    */
   public static Object getProxy(TargetSource targetSource) {

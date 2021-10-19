@@ -54,8 +54,7 @@ public class InputStreamResource extends AbstractResource {
   /**
    * Create a new InputStreamResource.
    *
-   * @param inputStream
-   *         the InputStream to use
+   * @param inputStream the InputStream to use
    */
   public InputStreamResource(InputStream inputStream) {
     this(inputStream, "resource loaded through InputStream");
@@ -64,10 +63,8 @@ public class InputStreamResource extends AbstractResource {
   /**
    * Create a new InputStreamResource.
    *
-   * @param inputStream
-   *         the InputStream to use
-   * @param description
-   *         where the InputStream comes from
+   * @param inputStream the InputStream to use
+   * @param description where the InputStream comes from
    */
   public InputStreamResource(InputStream inputStream, String description) {
     Assert.notNull(inputStream, "InputStream must not be null");

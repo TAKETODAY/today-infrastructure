@@ -58,8 +58,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
    * internal interfaces from being visible at the proxy level.
    * <p>Does nothing if the interface is not implemented by the delegate.
    *
-   * @param ifc
-   *         the interface to suppress
+   * @param ifc the interface to suppress
    */
   public void suppressInterface(Class<?> ifc) {
     this.publishedInterfaces.remove(ifc);
@@ -73,9 +72,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
   /**
    * Check whether the specified interfaces is a published introduction interface.
    *
-   * @param ifc
-   *         the interface to check
-   *
+   * @param ifc the interface to check
    * @return whether the interface is part of this introduction
    */
   public boolean implementsInterface(Class<?> ifc) {
@@ -90,8 +87,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
   /**
    * Publish all interfaces that the given delegate implements at the proxy level.
    *
-   * @param delegate
-   *         the delegate object
+   * @param delegate the delegate object
    */
   protected void implementInterfacesOnObject(Object delegate) {
     this.publishedInterfaces.addAll(ClassUtils.getAllInterfacesAsSet(delegate));
@@ -100,9 +96,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
   /**
    * Is this method on an introduced interface?
    *
-   * @param mi
-   *         the method invocation
-   *
+   * @param mi the method invocation
    * @return whether the invoked method is on an introduced interface
    */
   protected final boolean isMethodOnIntroducedInterface(MethodInvocation mi) {

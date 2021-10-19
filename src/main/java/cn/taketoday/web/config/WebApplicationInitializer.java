@@ -31,11 +31,8 @@ public interface WebApplicationInitializer {
   /**
    * Configure the given {@link WebApplicationContext}
    *
-   * @param applicationContext
-   *         the applicationContext to initialize
-   *
-   * @throws Throwable
-   *         if any call {@link Throwable} occurred
+   * @param applicationContext the applicationContext to initialize
+   * @throws Throwable if any call {@link Throwable} occurred
    */
   void onStartup(WebApplicationContext applicationContext) throws Throwable;
 

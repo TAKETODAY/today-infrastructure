@@ -52,9 +52,7 @@ public abstract class AbstractTemplateRenderer
   /**
    * Prepare a template
    *
-   * @param name
-   *         Template name
-   *
+   * @param name Template name
    * @return Returns full path of the template.
    */
   protected String prepareTemplate(String name) {

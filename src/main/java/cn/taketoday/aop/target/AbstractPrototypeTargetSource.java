@@ -61,8 +61,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
   /**
    * Subclasses should call this method to destroy an obsolete prototype instance.
    *
-   * @param target
-   *         the bean instance to destroy
+   * @param target the bean instance to destroy
    */
   protected void destroyPrototypeInstance(Object target) {
     if (logger.isDebugEnabled()) {

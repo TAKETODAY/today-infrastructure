@@ -19,16 +19,16 @@
  */
 package cn.taketoday.web.http;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The default implementation of {@link CorsProcessor}, as defined by the

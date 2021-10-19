@@ -65,8 +65,7 @@ public class DelegatingIntroductionInterceptor
    * Construct a new DelegatingIntroductionInterceptor, providing
    * a delegate that implements the interfaces to be introduced.
    *
-   * @param delegate
-   *         the delegate that implements the introduced interfaces
+   * @param delegate the delegate that implements the introduced interfaces
    */
   public DelegatingIntroductionInterceptor(Object delegate) {
     init(delegate);
@@ -85,8 +84,7 @@ public class DelegatingIntroductionInterceptor
    * Both constructors use this init method, as it is impossible to pass
    * a "this" reference from one constructor to another.
    *
-   * @param delegate
-   *         the delegate object
+   * @param delegate the delegate object
    */
   private void init(Object delegate) {
     Assert.notNull(delegate, "Delegate must not be null");

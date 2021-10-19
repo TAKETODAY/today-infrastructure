@@ -47,8 +47,7 @@ public class PropertySourcesPropertyResolver
   /**
    * Create a new resolver against the given property sources.
    *
-   * @param propertySources
-   *         the set of {@link PropertySource} objects to use
+   * @param propertySources the set of {@link PropertySource} objects to use
    */
   public PropertySourcesPropertyResolver(@Nullable PropertySources propertySources) {
     this.propertySources = propertySources;
@@ -98,12 +97,9 @@ public class PropertySourcesPropertyResolver
    * sensitive settings. Subclasses may override this method to change the log
    * level and/or log message, including the property's value if desired.
    *
-   * @param key
-   *         the key found
-   * @param propertySource
-   *         the {@code PropertySource} that the key has been found in
-   * @param value
-   *         the corresponding value
+   * @param key the key found
+   * @param propertySource the {@code PropertySource} that the key has been found in
+   * @param value the corresponding value
    */
   protected void logKeyFound(String key, PropertySource<?> propertySource, Object value) {
     if (log.isDebugEnabled()) {

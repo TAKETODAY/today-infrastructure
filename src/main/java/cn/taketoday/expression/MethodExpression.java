@@ -62,23 +62,16 @@ public abstract class MethodExpression extends Expression {
    * Evaluates the expression relative to the provided context, and returns
    * information about the actual referenced method.
    *
-   * @param context
-   *         The context of this evaluation
-   *
+   * @param context The context of this evaluation
    * @return an instance of <code>MethodInfo</code> containing information about
    * the method the expression evaluated to.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws MethodNotFoundException
-   *         if no suitable method can be found.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws MethodNotFoundException if no suitable method can be found.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available.
    */
   public abstract MethodInfo getMethodInfo(ExpressionContext context);
 
@@ -97,34 +90,25 @@ public abstract class MethodExpression extends Expression {
    * Any parameters passed to this method is ignored if isLiteralText() or
    * isParmetersProvided() is true.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param params
-   *         The parameters to pass to the method, or <code>null</code> if no
-   *         parameters.
-   *
+   * @param context The context of this evaluation.
+   * @param params The parameters to pass to the method, or <code>null</code> if no
+   * parameters.
    * @return the result of the method invocation (<code>null</code> if the method
    * has a <code>void</code> return type).
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
-   * @throws PropertyNotFoundException
-   *         if one of the property resolutions failed because a specified
-   *         variable or property does not exist or is not readable.
-   * @throws MethodNotFoundException
-   *         if no suitable method can be found.
-   * @throws ExpressionException
-   *         if a String literal is specified and expectedReturnType of the
-   *         MethodExpression is void or if the coercion of the String literal
-   *         to the expectedReturnType yields an error (see Section "1.18 Type
-   *         Conversion").
-   * @throws ExpressionException
-   *         if an exception was thrown while performing property or variable
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available. If the exception thrown
-   *         is an <code>InvocationTargetException</code>, extract its
-   *         <code>cause</code> and pass it to the <code>ELException</code>
-   *         constructor.
+   * @throws NullPointerException if context is <code>null</code>
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws MethodNotFoundException if no suitable method can be found.
+   * @throws ExpressionException if a String literal is specified and expectedReturnType of the
+   * MethodExpression is void or if the coercion of the String literal
+   * to the expectedReturnType yields an error (see Section "1.18 Type
+   * Conversion").
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available. If the exception thrown
+   * is an <code>InvocationTargetException</code>, extract its
+   * <code>cause</code> and pass it to the <code>ELException</code>
+   * constructor.
    */
   public abstract Object invoke(ExpressionContext context, Object[] params);
 
@@ -138,7 +122,6 @@ public abstract class MethodExpression extends Expression {
    *
    * @return <code>true</code> if the MethodExpression was created with
    * parameters, <code>false</code> otherwise.
-   *
    * @since EL 2.2
    */
   public boolean isParametersProvided() {

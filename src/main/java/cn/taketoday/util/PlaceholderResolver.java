@@ -33,9 +33,7 @@ public interface PlaceholderResolver {
   /**
    * Resolve the supplied placeholder name to the replacement value.
    *
-   * @param placeholderName
-   *         the name of the placeholder to resolve
-   *
+   * @param placeholderName the name of the placeholder to resolve
    * @return the replacement value, or {@code null} if no replacement is to be made
    */
   @Nullable

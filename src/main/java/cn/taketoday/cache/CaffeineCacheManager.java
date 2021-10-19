@@ -65,11 +65,8 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    * abstraction (allowing for centralized decoration etc), passing in a freshly
    * built native Caffeine Cache instance.
    *
-   * @param name
-   *         the name of the cache
-   *
+   * @param name the name of the cache
    * @return the {@link CaffeineCache} adapter (or a decorator thereof)
-   *
    * @see #adaptCaffeineCache
    * @see #createNativeCaffeineCache
    */
@@ -104,11 +101,8 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    * {@link #setCacheNames} or dynamically built on demand, still operate with the
    * common settings in the cache manager's configuration.
    *
-   * @param name
-   *         the name of the cache
-   * @param cache
-   *         the custom Caffeine Cache instance to register
-   *
+   * @param name the name of the cache
+   * @param cache the custom Caffeine Cache instance to register
    * @see #adaptCaffeineCache
    */
   public void registerCustomCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
@@ -167,13 +161,9 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    * Adapt the given new native Caffeine Cache instance to {@link Cache}
    * abstraction for the specified cache name.
    *
-   * @param name
-   *         the name of the cache
-   * @param cache
-   *         the native Caffeine Cache instance
-   *
+   * @param name the name of the cache
+   * @param cache the native Caffeine Cache instance
    * @return the CaffeineCache adapter (or a decorator thereof)
-   *
    * @see CaffeineCache
    */
   protected Cache adaptCaffeineCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
@@ -185,7 +175,6 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    * the common Caffeine configuration specified on this cache manager.
    *
    * @return the native Caffeine Cache instance
-   *
    * @see #adaptCaffeineCache
    */
   protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache() {

@@ -58,11 +58,8 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   protected final ExpressionParserState state = new ExpressionParserState();
 
   /**
-   * @param ref
-   *         expression
-   *
-   * @throws ExpressionException
-   *         Failed to parse the expression
+   * @param ref expression
+   * @throws ExpressionException Failed to parse the expression
    */
   public static AstCompositeExpression parse(String ref) {
     try {

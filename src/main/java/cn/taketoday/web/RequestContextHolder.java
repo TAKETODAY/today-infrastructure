@@ -19,16 +19,16 @@
  */
 package cn.taketoday.web;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.HttpCookie;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * Holder class to expose the web request in the form of a thread-bound
@@ -74,9 +74,7 @@ public abstract class RequestContextHolder {
   /**
    * replace {@link RequestThreadLocal}
    *
-   * @param contextHolder
-   *         new {@link RequestThreadLocal} object
-   *
+   * @param contextHolder new {@link RequestThreadLocal} object
    * @since 3.0
    */
   public static void replaceContextHolder(RequestThreadLocal contextHolder) {

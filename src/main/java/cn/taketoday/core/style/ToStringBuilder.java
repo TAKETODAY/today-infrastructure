@@ -51,8 +51,7 @@ public class ToStringBuilder {
   /**
    * Create a ToStringCreator for the given object.
    *
-   * @param obj
-   *         the object to be stringified
+   * @param obj the object to be stringified
    */
   public ToStringBuilder(Object obj) {
     this(obj, (ToStringStyler) null);
@@ -61,10 +60,8 @@ public class ToStringBuilder {
   /**
    * Create a ToStringCreator for the given object, using the provided style.
    *
-   * @param obj
-   *         the object to be stringified
-   * @param styler
-   *         the ValueStyler encapsulating pretty-print instructions
+   * @param obj the object to be stringified
+   * @param styler the ValueStyler encapsulating pretty-print instructions
    */
   public ToStringBuilder(Object obj, @Nullable ValueStyler styler) {
     this(obj, new DefaultToStringStyler(styler != null ? styler : DEFAULT_VALUE_STYLER));
@@ -73,10 +70,8 @@ public class ToStringBuilder {
   /**
    * Create a ToStringCreator for the given object, using the provided style.
    *
-   * @param obj
-   *         the object to be stringified
-   * @param styler
-   *         the ToStringStyler encapsulating pretty-print instructions
+   * @param obj the object to be stringified
+   * @param styler the ToStringStyler encapsulating pretty-print instructions
    */
   public ToStringBuilder(Object obj, @Nullable ToStringStyler styler) {
     Assert.notNull(obj, "The object to be styled must not be null");
@@ -88,11 +83,8 @@ public class ToStringBuilder {
   /**
    * Append a byte field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, byte value) {
@@ -102,11 +94,8 @@ public class ToStringBuilder {
   /**
    * Append a short field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, short value) {
@@ -116,11 +105,8 @@ public class ToStringBuilder {
   /**
    * Append a integer field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, int value) {
@@ -130,11 +116,8 @@ public class ToStringBuilder {
   /**
    * Append a long field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, long value) {
@@ -144,11 +127,8 @@ public class ToStringBuilder {
   /**
    * Append a float field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, float value) {
@@ -158,11 +138,8 @@ public class ToStringBuilder {
   /**
    * Append a double field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, double value) {
@@ -172,11 +149,8 @@ public class ToStringBuilder {
   /**
    * Append a boolean field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, boolean value) {
@@ -186,11 +160,8 @@ public class ToStringBuilder {
   /**
    * Append a field value.
    *
-   * @param fieldName
-   *         the name of the field, usually the member variable name
-   * @param value
-   *         the field value
-   *
+   * @param fieldName the name of the field, usually the member variable name
+   * @param value the field value
    * @return this, to support call-chaining
    */
   public ToStringBuilder append(String fieldName, @Nullable Object value) {
@@ -211,9 +182,7 @@ public class ToStringBuilder {
   /**
    * Append the provided value.
    *
-   * @param value
-   *         the value to append
-   *
+   * @param value the value to append
    * @return this, to support call-chaining.
    */
   public ToStringBuilder append(Object value) {

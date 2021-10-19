@@ -73,11 +73,8 @@ public interface BeanFactoryPostProcessor {
    * have been instantiated yet. This allows for overriding or adding properties
    * even to eager-initializing beans.
    *
-   * @param beanFactory
-   *         the bean factory used by the application context
-   *
-   * @throws BeansException
-   *         in case of errors
+   * @param beanFactory the bean factory used by the application context
+   * @throws BeansException in case of errors
    */
   void postProcessBeanFactory(ConfigurableBeanFactory beanFactory);
 

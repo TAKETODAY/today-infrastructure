@@ -70,10 +70,8 @@ public class ClassRemapper extends ClassVisitor {
   /**
    * Constructs a new {@link ClassRemapper}.
    *
-   * @param classVisitor
-   *         the class visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited class.
+   * @param classVisitor the class visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited class.
    */
   protected ClassRemapper(final ClassVisitor classVisitor, final Remapper remapper) {
     super(classVisitor);
@@ -231,9 +229,7 @@ public class ClassRemapper extends ClassVisitor {
    * Constructs a new remapper for fields. The default implementation of this method returns a new
    * {@link FieldRemapper}.
    *
-   * @param fieldVisitor
-   *         the FieldVisitor the remapper must delegate to.
-   *
+   * @param fieldVisitor the FieldVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   protected FieldVisitor createFieldRemapper(final FieldVisitor fieldVisitor) {
@@ -244,9 +240,7 @@ public class ClassRemapper extends ClassVisitor {
    * Constructs a new remapper for methods. The default implementation of this method returns a new
    * {@link MethodRemapper}.
    *
-   * @param methodVisitor
-   *         the MethodVisitor the remapper must delegate to.
-   *
+   * @param methodVisitor the MethodVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   protected MethodVisitor createMethodRemapper(final MethodVisitor methodVisitor) {
@@ -257,11 +251,8 @@ public class ClassRemapper extends ClassVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param descriptor
-   *         the descriptor of the visited annotation.
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
+   * @param descriptor the descriptor of the visited annotation.
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   protected AnnotationVisitor createAnnotationRemapper(
@@ -273,9 +264,7 @@ public class ClassRemapper extends ClassVisitor {
    * Constructs a new remapper for modules. The default implementation of this method returns a new
    * {@link ModuleRemapper}.
    *
-   * @param moduleVisitor
-   *         the ModuleVisitor the remapper must delegate to.
-   *
+   * @param moduleVisitor the ModuleVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   protected ModuleVisitor createModuleRemapper(final ModuleVisitor moduleVisitor) {
@@ -286,9 +275,7 @@ public class ClassRemapper extends ClassVisitor {
    * Constructs a new remapper for record components. The default implementation of this method
    * returns a new {@link RecordComponentRemapper}.
    *
-   * @param recordComponentVisitor
-   *         the RecordComponentVisitor the remapper must delegate to.
-   *
+   * @param recordComponentVisitor the RecordComponentVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   @Nullable

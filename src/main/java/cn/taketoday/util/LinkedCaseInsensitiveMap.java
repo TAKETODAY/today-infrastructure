@@ -46,9 +46,7 @@ import cn.taketoday.lang.NonNull;
  * <p>
  * Does <i>not</i> support {@code null} keys.
  *
- * @param <V>
- *         the value type
- *
+ * @param <V> the value type
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author TODAY <br>
@@ -84,9 +82,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
    * Create a new LinkedCaseInsensitiveMap that stores case-insensitive keys
    * according to the given Locale (by default in lower case).
    *
-   * @param locale
-   *         the Locale to use for case-insensitive key conversion
-   *
+   * @param locale the Locale to use for case-insensitive key conversion
    * @see #convertKey(String)
    */
   public LinkedCaseInsensitiveMap(Locale locale) {
@@ -98,9 +94,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
    * the given initial capacity and stores case-insensitive keys according to the
    * default Locale (by default in lower case).
    *
-   * @param initialCapacity
-   *         the initial capacity
-   *
+   * @param initialCapacity the initial capacity
    * @see #convertKey(String)
    */
   public LinkedCaseInsensitiveMap(int initialCapacity) {
@@ -112,11 +106,8 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
    * the given initial capacity and stores case-insensitive keys according to the
    * given Locale (by default in lower case).
    *
-   * @param initialCapacity
-   *         the initial capacity
-   * @param locale
-   *         the Locale to use for case-insensitive key conversion
-   *
+   * @param initialCapacity the initial capacity
+   * @param locale the Locale to use for case-insensitive key conversion
    * @see #convertKey(String)
    */
   public LinkedCaseInsensitiveMap(int initialCapacity, Locale locale) {
@@ -316,11 +307,8 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
    * The default implementation converts the key to lower-case according to this
    * Map's Locale.
    *
-   * @param key
-   *         the user-specified key
-   *
+   * @param key the user-specified key
    * @return the key to use for storing
-   *
    * @see String#toLowerCase(Locale)
    */
   protected String convertKey(String key) {
@@ -330,11 +318,8 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
   /**
    * Determine whether this map should remove the given eldest entry.
    *
-   * @param eldest
-   *         the candidate entry
-   *
+   * @param eldest the candidate entry
    * @return {@code true} for removing it, {@code false} for keeping it
-   *
    * @see LinkedHashMap#removeEldestEntry
    */
   protected boolean removeEldestEntry(Map.Entry<String, V> eldest) {

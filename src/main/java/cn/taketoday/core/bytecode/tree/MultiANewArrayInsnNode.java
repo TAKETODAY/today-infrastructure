@@ -41,10 +41,8 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link MultiANewArrayInsnNode}.
    *
-   * @param descriptor
-   *         an array type descriptor (see {@link Type}).
-   * @param numDimensions
-   *         the number of dimensions of the array to allocate.
+   * @param descriptor an array type descriptor (see {@link Type}).
+   * @param numDimensions the number of dimensions of the array to allocate.
    */
   public MultiANewArrayInsnNode(final String descriptor, final int numDimensions) {
     super(Opcodes.MULTIANEWARRAY);

@@ -106,8 +106,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   /**
    * Copy the attributes from the supplied AttributeAccessor to this accessor.
    *
-   * @param source
-   *         the AttributeAccessor to copy from
+   * @param source the AttributeAccessor to copy from
    */
   public void copyAttributesFrom(final AttributeAccessor source) {
     Assert.notNull(source, "Source must not be null");

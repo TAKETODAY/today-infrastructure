@@ -35,9 +35,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Inspired by {@code com.google.common.util.concurrent.SettableFuture}.
  *
- * @param <T>
- *         the result type returned by this Future's {@code get} method
- *
+ * @param <T> the result type returned by this Future's {@code get} method
  * @author Mattias Severson
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
@@ -56,9 +54,7 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
    * value was set successfully, or {@code false} if the future has already been
    * set or cancelled.
    *
-   * @param value
-   *         the value that will be set
-   *
+   * @param value the value that will be set
    * @return {@code true} if the value was successfully set, else {@code false}
    */
   public boolean set(@Nullable T value) {
@@ -70,9 +66,7 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
    * exception was set successfully, or {@code false} if the future has already been
    * set or cancelled.
    *
-   * @param exception
-   *         the value that will be set
-   *
+   * @param exception the value that will be set
    * @return {@code true} if the exception was successfully set, else {@code false}
    */
   public boolean setException(Throwable exception) {
@@ -135,11 +129,8 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
    * been set via {@link #setException(Throwable)}, or throws a
    * {@link java.util.concurrent.CancellationException} if the future has been cancelled.
    *
-   * @param timeout
-   *         the maximum time to wait
-   * @param unit
-   *         the unit of the timeout argument
-   *
+   * @param timeout the maximum time to wait
+   * @param unit the unit of the timeout argument
    * @return the value associated with this future
    */
   @Override

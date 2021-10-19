@@ -48,10 +48,8 @@ public class MethodRemapper extends MethodVisitor {
   /**
    * Constructs a new {@link MethodRemapper}.
    *
-   * @param methodVisitor
-   *         the method visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited method.
+   * @param methodVisitor the method visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited method.
    */
   public MethodRemapper(final MethodVisitor methodVisitor, final Remapper remapper) {
     super(methodVisitor);
@@ -241,11 +239,8 @@ public class MethodRemapper extends MethodVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param descriptor
-   *         the descriptor of the visited annotation.
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
+   * @param descriptor the descriptor of the visited annotation.
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   @Nullable

@@ -46,10 +46,8 @@ public class FieldRemapper extends FieldVisitor {
   /**
    * Constructs a new {@link FieldRemapper}.
    *
-   * @param fieldVisitor
-   *         the field visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited field.
+   * @param fieldVisitor the field visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited field.
    */
   public FieldRemapper(final FieldVisitor fieldVisitor, final Remapper remapper) {
     super(fieldVisitor);
@@ -75,11 +73,8 @@ public class FieldRemapper extends FieldVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param descriptor
-   *         the descriptor of the visited annotation.
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
+   * @param descriptor the descriptor of the visited annotation.
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   @Nullable

@@ -17,16 +17,16 @@
 
 package cn.taketoday.expression;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Stack;
+
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.expression.lang.EvaluationContext;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Stack;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -114,9 +114,7 @@ public abstract class ExpressionContext {
    * should consider or skip other component resolvers.
    * </p>
    *
-   * @param resolved
-   *         true if the property has been resolved, or false if not.
-   *
+   * @param resolved true if the property has been resolved, or false if not.
    * @see CompositeExpressionResolver
    */
   public void setPropertyResolved(boolean resolved) {
@@ -132,11 +130,8 @@ public abstract class ExpressionContext {
    * should consider or skip other component resolvers.
    * </p>
    *
-   * @param base
-   *         The base object
-   * @param property
-   *         The property object
-   *
+   * @param base The base object
+   * @param property The property object
    * @see CompositeExpressionResolver
    * @since EL 3.0
    */
@@ -155,7 +150,6 @@ public abstract class ExpressionContext {
    * </p>
    *
    * @return true if the property has been resolved, or false if not.
-   *
    * @see CompositeExpressionResolver
    */
   public boolean isPropertyResolved() {
@@ -178,14 +172,10 @@ public abstract class ExpressionContext {
    * strictly as a unique identifier.
    * </p>
    *
-   * @param key
-   *         The key used by an @{link ELResolver} to identify this context
-   *         object.
-   * @param contextObject
-   *         The context object to add to the collection.
-   *
-   * @throws NullPointerException
-   *         if key is null or contextObject is null.
+   * @param key The key used by an @{link ELResolver} to identify this context
+   * object.
+   * @param contextObject The context object to add to the collection.
+   * @throws NullPointerException if key is null or contextObject is null.
    */
   public void putContext(Class<?> key, Object contextObject) {
 
@@ -214,15 +204,11 @@ public abstract class ExpressionContext {
    * as a unique identifier.
    * </p>
    *
-   * @param key
-   *         The unique identifier that was used to associate the context
-   *         object with this <code>ELContext</code>.
-   *
+   * @param key The unique identifier that was used to associate the context
+   * object with this <code>ELContext</code>.
    * @return The context object associated with the given key, or null if no such
    * context was found.
-   *
-   * @throws NullPointerException
-   *         if key is null.
+   * @throws NullPointerException if key is null.
    */
   public Object getContext(Class<?> key) {
     if (map == null || key == null) {
@@ -256,7 +242,6 @@ public abstract class ExpressionContext {
    * <code>ELContext</code>.
    *
    * @return The import handler to manage imports of classes and packages.
-   *
    * @since EL 3.0
    */
   public ImportHandler getImportHandler() {
@@ -309,9 +294,7 @@ public abstract class ExpressionContext {
   /**
    * Inquires if the name is a LambdaArgument
    *
-   * @param arg
-   *         A possible Lambda formal parameter name
-   *
+   * @param arg A possible Lambda formal parameter name
    * @return true if arg is a LambdaArgument, false otherwise.
    */
   public boolean isLambdaArgument(String arg) {
@@ -335,12 +318,9 @@ public abstract class ExpressionContext {
    * arguments for the immediate nesting Lambda expression then searched, and so
    * on.
    *
-   * @param arg
-   *         The formal parameter for the Lambda argument
-   *
+   * @param arg The formal parameter for the Lambda argument
    * @return The object associated with formal parameter. Null if no object has
    * been associated with the parameter.
-   *
    * @since EL 3.0
    */
   public Object getLambdaArgument(String arg) {
@@ -363,9 +343,7 @@ public abstract class ExpressionContext {
    * expression. The arguments in the map will be in scope during the evaluation
    * of the Lambda expression.
    *
-   * @param args
-   *         The Lambda arguments map
-   *
+   * @param args The Lambda arguments map
    * @since EL 3.0
    */
   public void enterLambdaScope(Map<String, Object> args) {
@@ -397,13 +375,9 @@ public abstract class ExpressionContext {
    * conversion.
    * </p>
    *
-   * @param obj
-   *         The object to convert.
-   * @param targetType
-   *         The target type for the conversion.
-   *
-   * @throws ExpressionException
-   *         thrown if errors occur.
+   * @param obj The object to convert.
+   * @param targetType The target type for the conversion.
+   * @throws ExpressionException thrown if errors occur.
    * @since EL 3.0
    */
   public Object convertToType(Object obj, Class<?> targetType) {

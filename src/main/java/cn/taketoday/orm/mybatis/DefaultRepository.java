@@ -33,16 +33,14 @@ public interface DefaultRepository<M, Id extends Serializable> {
   /**
    * Save entity to database
    *
-   * @param model
-   *         entity bean
+   * @param model entity bean
    */
   void save(M model);
 
   /**
    * Save entities to database
    *
-   * @param models
-   *         entity beans
+   * @param models entity beans
    */
   void saveAll(@Param("models") Collection<M> models);
 

@@ -272,11 +272,8 @@ public class PropsReader {
   /**
    * Resolve target object with {@link Props} and target object's class
    *
-   * @param props
-   *         {@link Props}
-   * @param beanClass
-   *         Target class, must have default {@link Constructor}
-   *
+   * @param props {@link Props}
+   * @param beanClass Target class, must have default {@link Constructor}
    * @since 2.1.5
    */
   public <T> T read(Props props, Class<T> beanClass) {
@@ -294,9 +291,7 @@ public class PropsReader {
   /**
    * Resolve target object with {@link Props} and target object's instance
    *
-   * @param bean
-   *         Bean instance
-   *
+   * @param bean Bean instance
    * @since 2.1.5
    */
   public <T> T read(Props props, T bean) {
@@ -317,9 +312,7 @@ public class PropsReader {
   /**
    * Load {@link Properties} from {@link Props} {@link Annotation}
    *
-   * @param props
-   *         {@link Props}
-   *
+   * @param props {@link Props}
    * @since 2.1.5
    */
   public Properties readMap(Props props) {

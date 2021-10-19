@@ -120,8 +120,7 @@ public abstract class ReflectionUtils {
    * IllegalStateException with an appropriate message or
    * UndeclaredThrowableException otherwise.
    *
-   * @param ex
-   *         the reflection exception to handle
+   * @param ex the reflection exception to handle
    */
   public static void handleReflectionException(Exception ex) {
     if (ex instanceof NoSuchMethodException) {
@@ -146,8 +145,7 @@ public abstract class ReflectionUtils {
    * Throws the underlying RuntimeException or Error in case of such a root cause.
    * Throws an UndeclaredThrowableException otherwise.
    *
-   * @param ex
-   *         the invocation target exception to handle
+   * @param ex the invocation target exception to handle
    */
   public static void handleInvocationTargetException(InvocationTargetException ex) {
     rethrowRuntimeException(ex.getTargetException());
@@ -163,11 +161,8 @@ public abstract class ReflectionUtils {
    * {@link Error} if appropriate; otherwise, throws an
    * {@link UndeclaredThrowableException}.
    *
-   * @param ex
-   *         the exception to rethrow
-   *
-   * @throws RuntimeException
-   *         the rethrown exception
+   * @param ex the exception to rethrow
+   * @throws RuntimeException the rethrown exception
    */
   public static void rethrowRuntimeException(Throwable ex) {
     if (ex instanceof RuntimeException) {
@@ -189,11 +184,8 @@ public abstract class ReflectionUtils {
    * {@link Error} if appropriate; otherwise, throws an
    * {@link UndeclaredThrowableException}.
    *
-   * @param ex
-   *         the exception to rethrow
-   *
-   * @throws Exception
-   *         the rethrown exception (in case of a checked exception)
+   * @param ex the exception to rethrow
+   * @throws Exception the rethrown exception (in case of a checked exception)
    */
   public static void rethrowException(Throwable ex) throws Exception {
     if (ex instanceof Exception) {
@@ -211,15 +203,10 @@ public abstract class ReflectionUtils {
    * Determine whether the given class has a public method with the given signature.
    * <p>Essentially translates {@code NoSuchMethodException} to "false".
    *
-   * @param clazz
-   *         the clazz to analyze
-   * @param methodName
-   *         the name of the method
-   * @param paramTypes
-   *         the parameter types of the method
-   *
+   * @param clazz the clazz to analyze
+   * @param methodName the name of the method
+   * @param paramTypes the parameter types of the method
    * @return whether the class has a corresponding method
-   *
    * @see Class#getMethod
    * @since 4.0
    */
@@ -234,18 +221,12 @@ public abstract class ReflectionUtils {
    * unique candidate, i.e. a single public method with the specified name.
    * <p>Essentially translates {@code NoSuchMethodException} to {@code IllegalStateException}.
    *
-   * @param clazz
-   *         the clazz to analyze
-   * @param methodName
-   *         the name of the method
-   * @param paramTypes
-   *         the parameter types of the method
-   *         (may be {@code null} to indicate any signature)
-   *
+   * @param clazz the clazz to analyze
+   * @param methodName the name of the method
+   * @param paramTypes the parameter types of the method
+   * (may be {@code null} to indicate any signature)
    * @return the method (never {@code null})
-   *
-   * @throws IllegalStateException
-   *         if the method has not been found
+   * @throws IllegalStateException if the method has not been found
    * @see Class#getMethod
    * @since 4.0
    */
@@ -281,16 +262,11 @@ public abstract class ReflectionUtils {
    * unique candidate, i.e. a single public method with the specified name.
    * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
    *
-   * @param clazz
-   *         the clazz to analyze
-   * @param methodName
-   *         the name of the method
-   * @param paramTypes
-   *         the parameter types of the method
-   *         (may be {@code null} to indicate any signature)
-   *
+   * @param clazz the clazz to analyze
+   * @param methodName the name of the method
+   * @param paramTypes the parameter types of the method
+   * (may be {@code null} to indicate any signature)
    * @return the method, or {@code null} if not found
-   *
    * @see Class#getMethod
    * @since 4.0
    */
@@ -315,13 +291,9 @@ public abstract class ReflectionUtils {
    * Return the number of methods with a given name (with any argument types),
    * for the given class and/or its superclasses. Includes non-public methods.
    *
-   * @param clazz
-   *         the clazz to check
-   * @param methodName
-   *         the name of the method
-   *
+   * @param clazz the clazz to check
+   * @param methodName the name of the method
    * @return the number of methods with the given name
-   *
    * @since 4.0
    */
   public static int getMethodCountForName(Class<?> clazz, String methodName) {
@@ -347,17 +319,11 @@ public abstract class ReflectionUtils {
   /**
    * Return a public static method of a class.
    *
-   * @param clazz
-   *         the class which defines the method
-   * @param methodName
-   *         the static method name
-   * @param args
-   *         the parameter types to the method
-   *
+   * @param clazz the class which defines the method
+   * @param methodName the static method name
+   * @param args the parameter types to the method
    * @return the static method, or {@code null} if no static method was found
-   *
-   * @throws IllegalArgumentException
-   *         if the method name is blank or the clazz is null
+   * @throws IllegalArgumentException if the method name is blank or the clazz is null
    */
   @Nullable
   public static Method getStaticMethod(Class<?> clazz, String methodName, Class<?>... args) {
@@ -399,13 +365,9 @@ public abstract class ReflectionUtils {
   /**
    * Determine whether the given class has a public method with the given signature.
    *
-   * @param clazz
-   *         the clazz to analyze
-   * @param method
-   *         the method to look for
-   *
+   * @param clazz the clazz to analyze
+   * @param method the method to look for
    * @return whether the class has a corresponding method
-   *
    * @since 3.0
    */
   public static boolean hasMethod(Class<?> clazz, Method method) {
@@ -431,15 +393,11 @@ public abstract class ReflectionUtils {
    * if bridge method resolution is desirable (e.g. for obtaining metadata from
    * the original method definition).
    *
-   * @param method
-   *         the method to be invoked, which may come from an interface
-   * @param targetClass
-   *         the target class for the current invocation
-   *         (may be {@code null} or may not even implement the method)
-   *
+   * @param method the method to be invoked, which may come from an interface
+   * @param targetClass the target class for the current invocation
+   * (may be {@code null} or may not even implement the method)
    * @return the specific target method, or the original method if the
    * {@code targetClass} does not implement it
-   *
    * @since 3.0
    */
   public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
@@ -469,10 +427,8 @@ public abstract class ReflectionUtils {
   /**
    * Determine whether the given method is overridable in the given target class.
    *
-   * @param method
-   *         the method to check
-   * @param targetClass
-   *         the target class to check against
+   * @param method the method to check
+   * @param targetClass the target class to check against
    */
   private static boolean isOverridable(Method method, @Nullable Class<?> targetClass) {
     if (Modifier.isPrivate(method.getModifiers())) {
@@ -491,11 +447,8 @@ public abstract class ReflectionUtils {
    * <p>
    * Returns {@code null} if no {@link Method} can be found.
    *
-   * @param clazz
-   *         the class to introspect
-   * @param name
-   *         the name of the method
-   *
+   * @param clazz the class to introspect
+   * @param name the name of the method
    * @return the Method object, or {@code null} if none found
    */
   @Nullable
@@ -509,14 +462,10 @@ public abstract class ReflectionUtils {
    * <p>
    * Returns {@code null} if no {@link Method} can be found.
    *
-   * @param clazz
-   *         the class to introspect
-   * @param name
-   *         the name of the method
-   * @param paramTypes
-   *         the parameter types of the method (may be {@code null} to indicate
-   *         any signature)
-   *
+   * @param clazz the class to introspect
+   * @param name the name of the method
+   * @param paramTypes the parameter types of the method (may be {@code null} to indicate
+   * any signature)
    * @return the Method object, or {@code null} if none found
    */
   @Nullable
@@ -545,8 +494,7 @@ public abstract class ReflectionUtils {
   /**
    * Find the method from FunctionalInterface
    *
-   * @throws IllegalArgumentException
-   *         if given class is not a FunctionalInterface
+   * @throws IllegalArgumentException if given class is not a FunctionalInterface
    * @see FunctionalInterface
    * @since 4.0
    */
@@ -574,13 +522,9 @@ public abstract class ReflectionUtils {
    * Thrown exceptions are handled via a call to
    * {@link #handleReflectionException}.
    *
-   * @param method
-   *         the method to invoke
-   * @param target
-   *         the target object to invoke the method on
-   *
+   * @param method the method to invoke
+   * @param target the target object to invoke the method on
    * @return the invocation result, if any
-   *
    * @see #invokeMethod(java.lang.reflect.Method, Object, Object[])
    */
   public static Object invokeMethod(Method method, Object target) {
@@ -595,13 +539,9 @@ public abstract class ReflectionUtils {
    * Thrown exceptions are handled via a call to
    * {@link #handleReflectionException}.
    *
-   * @param method
-   *         the method to invoke
-   * @param target
-   *         the target object to invoke the method on
-   * @param args
-   *         the invocation arguments (may be {@code null})
-   *
+   * @param method the method to invoke
+   * @param target the target object to invoke the method on
+   * @param args the invocation arguments (may be {@code null})
    * @return the invocation result, if any
    */
   public static Object invokeMethod(Method method, Object target, Object... args) {
@@ -623,11 +563,8 @@ public abstract class ReflectionUtils {
    * one of its superclasses, which means that an exception of that type can be
    * propagated as-is within a reflective invocation.
    *
-   * @param method
-   *         the declaring method
-   * @param exceptionType
-   *         the exception to throw
-   *
+   * @param method the declaring method
+   * @param exceptionType the exception to throw
    * @return {@code true} if the exception can be thrown as-is; {@code false} if
    * it needs to be wrapped
    */
@@ -647,13 +584,9 @@ public abstract class ReflectionUtils {
    * class, as locally declared or equivalent thereof (such as default methods on
    * Java 8 based interfaces that the given class implements).
    *
-   * @param clazz
-   *         the class to introspect
-   * @param mc
-   *         the callback to invoke for each method
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param clazz the class to introspect
+   * @param mc the callback to invoke for each method
+   * @throws IllegalStateException if introspection fails
    * @see #doWithMethods
    */
   public static void doWithLocalMethods(Class<?> clazz, MethodCallback mc) {
@@ -675,13 +608,9 @@ public abstract class ReflectionUtils {
    * The same named method occurring on subclass and superclass will appear twice,
    * unless excluded by a {@link MethodFilter}.
    *
-   * @param clazz
-   *         the class to introspect
-   * @param mc
-   *         the callback to invoke for each method
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param clazz the class to introspect
+   * @param mc the callback to invoke for each method
+   * @throws IllegalStateException if introspection fails
    * @see #doWithMethods(Class, MethodCallback, MethodFilter)
    */
   public static void doWithMethods(Class<?> clazz, MethodCallback mc) {
@@ -695,15 +624,10 @@ public abstract class ReflectionUtils {
    * The same named method occurring on subclass and superclass will appear twice,
    * unless excluded by the specified {@link MethodFilter}.
    *
-   * @param clazz
-   *         the class to introspect
-   * @param mc
-   *         the callback to invoke for each method
-   * @param mf
-   *         the filter that determines the methods to apply the callback to
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param clazz the class to introspect
+   * @param mc the callback to invoke for each method
+   * @param mf the filter that determines the methods to apply the callback to
+   * @throws IllegalStateException if introspection fails
    */
   public static void doWithMethods(Class<?> clazz, MethodCallback mc, MethodFilter mf) {
     // Keep backing up the inheritance hierarchy.
@@ -734,11 +658,8 @@ public abstract class ReflectionUtils {
    * Get all declared methods on the leaf class and all superclasses. Leaf class
    * methods are included first.
    *
-   * @param leafClass
-   *         the class to introspect
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param leafClass the class to introspect
+   * @throws IllegalStateException if introspection fails
    */
   public static Method[] getAllDeclaredMethods(Class<?> leafClass) {
     final ArrayList<Method> methods = new ArrayList<>(32);
@@ -753,13 +674,9 @@ public abstract class ReflectionUtils {
    * interfaces, since those are effectively to be treated just like declared
    * methods.
    *
-   * @param targetClass
-   *         the class to introspect
-   *
+   * @param targetClass the class to introspect
    * @return the cached array of methods
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @throws IllegalStateException if introspection fails
    * @see Class#getDeclaredMethods()
    */
   public static Method[] getDeclaredMethods(Class<?> targetClass) {
@@ -818,11 +735,8 @@ public abstract class ReflectionUtils {
    * superclass hierarchy any methods found with signatures matching a method
    * already included are filtered out.
    *
-   * @param leafClass
-   *         the class to introspect
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param leafClass the class to introspect
+   * @throws IllegalStateException if introspection fails
    */
   public static Method[] getUniqueDeclaredMethods(Class<?> leafClass) {
     return getUniqueDeclaredMethods(leafClass, null);
@@ -834,13 +748,9 @@ public abstract class ReflectionUtils {
    * superclass hierarchy any methods found with signatures matching a method
    * already included are filtered out.
    *
-   * @param leafClass
-   *         the class to introspect
-   * @param mf
-   *         the filter that determines the methods to take into account
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param leafClass the class to introspect
+   * @param mf the filter that determines the methods to take into account
+   * @throws IllegalStateException if introspection fails
    */
   public static Method[] getUniqueDeclaredMethods(Class<?> leafClass, MethodFilter mf) {
     final ArrayList<Method> methods = new ArrayList<>(32);
@@ -934,8 +844,7 @@ public abstract class ReflectionUtils {
    * Determine whether the given method is a CGLIB 'renamed' method, following the
    * pattern "CGLIB$methodName$0".
    *
-   * @param renamedMethod
-   *         the method to check
+   * @param renamedMethod the method to check
    */
   public static boolean isCglibRenamedMethod(Method renamedMethod) {
     String name = renamedMethod.getName();
@@ -955,9 +864,7 @@ public abstract class ReflectionUtils {
    * actually necessary, to avoid unnecessary conflicts with a JVM SecurityManager
    * (if active).
    *
-   * @param method
-   *         the method to make accessible
-   *
+   * @param method the method to make accessible
    * @see java.lang.reflect.Method#setAccessible
    */
 //  @SuppressWarnings("deprecation") // on JDK 9
@@ -974,11 +881,8 @@ public abstract class ReflectionUtils {
    * Copy the given {@code Collection} into a {@code Method} array.
    * <p>The {@code Collection} must contain {@code Method} elements only.
    *
-   * @param collection
-   *         the {@code Collection} to copy
-   *
+   * @param collection the {@code Collection} to copy
    * @return the {@code Method} array
-   *
    * @see StringUtils#toStringArray(Collection)
    * @see ClassUtils#toClassArray(Collection)
    * @since 4.0
@@ -995,11 +899,8 @@ public abstract class ReflectionUtils {
    * Attempt to find a {@link Field field} on the supplied {@link Class} with the
    * supplied {@code name}. Searches all superclasses up to {@link Object}.
    *
-   * @param clazz
-   *         the class to introspect
-   * @param name
-   *         the name of the field
-   *
+   * @param clazz the class to introspect
+   * @param name the name of the field
    * @return the corresponding Field object, or {@code null} if not found
    */
   @Nullable
@@ -1012,13 +913,9 @@ public abstract class ReflectionUtils {
    * supplied {@code name} and/or {@link Class type}. Searches all superclasses up
    * to {@link Object}.
    *
-   * @param clazz
-   *         the class to introspect
-   * @param name
-   *         the name of the field (may be {@code null} if type is specified)
-   * @param type
-   *         the type of the field (may be {@code null} if name is specified)
-   *
+   * @param clazz the class to introspect
+   * @param name the name of the field (may be {@code null} if type is specified)
+   * @param type the type of the field (may be {@code null} if name is specified)
    * @return the corresponding Field object, or {@code null} if not found
    */
   @Nullable
@@ -1052,12 +949,9 @@ public abstract class ReflectionUtils {
    * Thrown exceptions are handled via a call to
    * {@link #handleReflectionException(Exception)}.
    *
-   * @param field
-   *         the field to set
-   * @param target
-   *         the target object on which to set the field
-   * @param value
-   *         the value to set (may be {@code null})
+   * @param field the field to set
+   * @param target the target object on which to set the field
+   * @param value the value to set (may be {@code null})
    */
   public static void setField(Field field, Object target, Object value) {
     try {
@@ -1077,11 +971,8 @@ public abstract class ReflectionUtils {
    * Thrown exceptions are handled via a call to
    * {@link #handleReflectionException(Exception)}.
    *
-   * @param field
-   *         the field to get
-   * @param target
-   *         the target object from which to get the field
-   *
+   * @param field the field to get
+   * @param target the target object from which to get the field
    * @return the field's current value
    */
   public static Object getField(Field field, Object target) {
@@ -1097,13 +988,9 @@ public abstract class ReflectionUtils {
   /**
    * Invoke the given callback on all locally declared fields in the given class.
    *
-   * @param clazz
-   *         the target class to analyze
-   * @param fc
-   *         the callback to invoke for each field
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param clazz the target class to analyze
+   * @param fc the callback to invoke for each field
+   * @throws IllegalStateException if introspection fails
    * @see #doWithFields
    */
   public static void doWithLocalFields(Class<?> clazz, FieldCallback fc) {
@@ -1121,13 +1008,9 @@ public abstract class ReflectionUtils {
    * Invoke the given callback on all fields in the target class, going up the
    * class hierarchy to get all declared fields.
    *
-   * @param clazz
-   *         the target class to analyze
-   * @param fc
-   *         the callback to invoke for each field
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param clazz the target class to analyze
+   * @param fc the callback to invoke for each field
+   * @throws IllegalStateException if introspection fails
    */
   public static void doWithFields(Class<?> clazz, FieldCallback fc) {
     doWithFields(clazz, fc, null);
@@ -1137,15 +1020,10 @@ public abstract class ReflectionUtils {
    * Invoke the given callback on all fields in the target class, going up the
    * class hierarchy to get all declared fields.
    *
-   * @param clazz
-   *         the target class to analyze
-   * @param fc
-   *         the callback to invoke for each field
-   * @param ff
-   *         the filter that determines the fields to apply the callback to
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @param clazz the target class to analyze
+   * @param fc the callback to invoke for each field
+   * @param ff the filter that determines the fields to apply the callback to
+   * @throws IllegalStateException if introspection fails
    */
   public static void doWithFields(Class<?> clazz, FieldCallback fc, FieldFilter ff) {
     // Keep backing up the inheritance hierarchy.
@@ -1173,13 +1051,9 @@ public abstract class ReflectionUtils {
    * in order to avoid the JVM's SecurityManager check and defensive array
    * copying.
    *
-   * @param clazz
-   *         the class to introspect
-   *
+   * @param clazz the class to introspect
    * @return the cached array of fields
-   *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @throws IllegalStateException if introspection fails
    * @see Class#getDeclaredFields()
    */
   public static Field[] getDeclaredFields(Class<?> clazz) {
@@ -1204,8 +1078,7 @@ public abstract class ReflectionUtils {
    * a subclass, copy all fields, including inherited fields. Designed to work on
    * objects with public no-arg constructors.
    *
-   * @throws IllegalStateException
-   *         if introspection fails
+   * @throws IllegalStateException if introspection fails
    */
   public static void shallowCopyFieldState(final Object src, final Object dest) {
     Assert.notNull(src, "Source for field copy cannot be null");
@@ -1230,8 +1103,7 @@ public abstract class ReflectionUtils {
   /**
    * Copy a given field from the source object to the destination
    *
-   * @param field
-   *         target field property
+   * @param field target field property
    */
   public static void copyField(final Field field, final Object src, final Object dest) {
     makeAccessible(field);
@@ -1244,9 +1116,7 @@ public abstract class ReflectionUtils {
    * actually necessary, to avoid unnecessary conflicts with a JVM SecurityManager
    * (if active).
    *
-   * @param field
-   *         the field to make accessible
-   *
+   * @param field the field to make accessible
    * @see java.lang.reflect.Field#setAccessible
    */
   @SuppressWarnings("deprecation") // on JDK 9
@@ -1264,8 +1134,7 @@ public abstract class ReflectionUtils {
   /**
    * Determine whether the given field is a "public static final" constant.
    *
-   * @param field
-   *         the field to check
+   * @param field the field to check
    */
   public static boolean isPublicStaticFinal(Field field) {
     int modifiers = field.getModifiers();
@@ -1275,11 +1144,8 @@ public abstract class ReflectionUtils {
   /**
    * Get bean instance's {@link Field}
    *
-   * @param target
-   *         target instance
-   *
+   * @param target target instance
    * @return all {@link Field}
-   *
    * @since 2.1.5
    */
   @Deprecated
@@ -1290,11 +1156,8 @@ public abstract class ReflectionUtils {
   /**
    * Get all {@link Field} list, including superclass's Field
    *
-   * @param targetClass
-   *         target class
-   *
+   * @param targetClass target class
    * @return get all the {@link Field}
-   *
    * @since 2.1.2
    */
   @Deprecated
@@ -1311,11 +1174,8 @@ public abstract class ReflectionUtils {
   /**
    * Get all {@link Field} array
    *
-   * @param targetClass
-   *         target class
-   *
+   * @param targetClass target class
    * @return get all the {@link Field} array
-   *
    * @since 2.1.2
    */
   @Deprecated
@@ -1356,13 +1216,9 @@ public abstract class ReflectionUtils {
    * Determine whether the given class has a declared constructor with the given signature.
    * <p>Essentially translates {@code NoSuchMethodException} to "false".
    *
-   * @param clazz
-   *         the clazz to analyze
-   * @param paramTypes
-   *         the parameter types of the method
-   *
+   * @param clazz the clazz to analyze
+   * @param paramTypes the parameter types of the method
    * @return whether the class has a corresponding constructor
-   *
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
@@ -1375,13 +1231,9 @@ public abstract class ReflectionUtils {
    * and return it if available (else return {@code null}).
    * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
    *
-   * @param clazz
-   *         the clazz to analyze
-   * @param paramTypes
-   *         the parameter types of the method
-   *
+   * @param clazz the clazz to analyze
+   * @param paramTypes the parameter types of the method
    * @return the constructor, or {@code null} if not found
-   *
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
@@ -1399,8 +1251,7 @@ public abstract class ReflectionUtils {
   /**
    * getDeclaredConstructor
    *
-   * @throws ConstructorNotFoundException
-   *         not found
+   * @throws ConstructorNotFoundException not found
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
@@ -1552,8 +1403,7 @@ public abstract class ReflectionUtils {
     /**
      * Perform an operation using the given method.
      *
-     * @param method
-     *         the method to operate on
+     * @param method the method to operate on
      */
     void doWith(Method method) throws IllegalArgumentException, IllegalAccessException;
   }
@@ -1568,8 +1418,7 @@ public abstract class ReflectionUtils {
     /**
      * Determine whether the given method matches.
      *
-     * @param method
-     *         the method to check
+     * @param method the method to check
      */
     boolean matches(Method method);
   }
@@ -1583,8 +1432,7 @@ public abstract class ReflectionUtils {
     /**
      * Perform an operation using the given field.
      *
-     * @param field
-     *         the field to operate on
+     * @param field the field to operate on
      */
     void doWith(Field field) throws IllegalArgumentException, IllegalAccessException;
   }
@@ -1599,8 +1447,7 @@ public abstract class ReflectionUtils {
     /**
      * Determine whether the given field matches.
      *
-     * @param field
-     *         the field to check
+     * @param field the field to check
      */
     boolean matches(Field field);
   }
@@ -1610,9 +1457,7 @@ public abstract class ReflectionUtils {
   /**
    * Get {@link Parameter} index
    *
-   * @param parameter
-   *         {@link Parameter}
-   *
+   * @param parameter {@link Parameter}
    * @since 3.0
    */
   public static int getParameterIndex(final Parameter parameter) {
@@ -1638,11 +1483,8 @@ public abstract class ReflectionUtils {
   /**
    * Get {@link Parameter} with given {@code parameterIndex}
    *
-   * @param executable
-   *         {@link Method} or {@link Constructor}
-   *
-   * @throws IllegalArgumentException
-   *         parameter index is illegal
+   * @param executable {@link Method} or {@link Constructor}
+   * @throws IllegalArgumentException parameter index is illegal
    * @since 3.0
    */
   public static Parameter getParameter(final Executable executable, final int parameterIndex) {
@@ -1659,13 +1501,9 @@ public abstract class ReflectionUtils {
   /**
    * Get instance with bean class
    *
-   * @param beanClassName
-   *         bean class name string
-   *
+   * @param beanClassName bean class name string
    * @return the instance of target class
-   *
-   * @throws ClassNotFoundException
-   *         If the class was not found
+   * @throws ClassNotFoundException If the class was not found
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -1729,28 +1567,21 @@ public abstract class ReflectionUtils {
    * java.security.ProtectionDomain) <tt>defineClass</tt>} method that takes a
    * <tt>ProtectionDomain</tt> as one of its arguments.  </p>
    *
-   * @param className
-   *         The expected <a href="#name">binary name</a> of the class, or
-   *         <tt>null</tt> if not known
-   * @param bytes
-   *         The bytes that make up the class data.  The bytes in positions
-   *         <tt>off</tt> through <tt>off+len-1</tt> should have the format
-   *         of a valid class file as defined by
-   *         <cite>The Java&trade; Virtual Machine Specification</cite>.
-   *
+   * @param className The expected <a href="#name">binary name</a> of the class, or
+   * <tt>null</tt> if not known
+   * @param bytes The bytes that make up the class data.  The bytes in positions
+   * <tt>off</tt> through <tt>off+len-1</tt> should have the format
+   * of a valid class file as defined by
+   * <cite>The Java&trade; Virtual Machine Specification</cite>.
    * @return The <tt>Class</tt> object that was created from the specified
    * class data.
-   *
-   * @throws ClassFormatError
-   *         If the data did not contain a valid class
-   * @throws IndexOutOfBoundsException
-   *         If either <tt>off</tt> or <tt>len</tt> is negative, or if
-   *         <tt>off+len</tt> is greater than <tt>b.length</tt>.
-   * @throws SecurityException
-   *         If an attempt is made to add this class to a package that
-   *         contains classes that were signed by a different set of
-   *         certificates than this class (which is unsigned), or if
-   *         <tt>name</tt> begins with "<tt>java.</tt>".
+   * @throws ClassFormatError If the data did not contain a valid class
+   * @throws IndexOutOfBoundsException If either <tt>off</tt> or <tt>len</tt> is negative, or if
+   * <tt>off+len</tt> is greater than <tt>b.length</tt>.
+   * @throws SecurityException If an attempt is made to add this class to a package that
+   * contains classes that were signed by a different set of
+   * certificates than this class (which is unsigned), or if
+   * <tt>name</tt> begins with "<tt>java.</tt>".
    * @see java.security.CodeSource
    * @see java.security.SecureClassLoader
    * @since 4.0
@@ -1785,33 +1616,24 @@ public abstract class ReflectionUtils {
    * specified by the byte array "<tt>b</tt>", otherwise a {@link
    * NoClassDefFoundError <tt>NoClassDefFoundError</tt>} will be thrown. </p>
    *
-   * @param className
-   *         The expected <a href="#name">binary name</a> of the class, or
-   *         <tt>null</tt> if not known
-   * @param bytes
-   *         The bytes that make up the class data. The bytes in positions
-   *         <tt>off</tt> through <tt>off+len-1</tt> should have the format
-   *         of a valid class file as defined by
-   *         <cite>The Java&trade; Virtual Machine Specification</cite>.
-   * @param protection
-   *         The ProtectionDomain of the class
-   *
+   * @param className The expected <a href="#name">binary name</a> of the class, or
+   * <tt>null</tt> if not known
+   * @param bytes The bytes that make up the class data. The bytes in positions
+   * <tt>off</tt> through <tt>off+len-1</tt> should have the format
+   * of a valid class file as defined by
+   * <cite>The Java&trade; Virtual Machine Specification</cite>.
+   * @param protection The ProtectionDomain of the class
    * @return The <tt>Class</tt> object created from the data,
    * and optional <tt>ProtectionDomain</tt>.
-   *
-   * @throws ClassFormatError
-   *         If the data did not contain a valid class
-   * @throws NoClassDefFoundError
-   *         If <tt>name</tt> is not equal to the <a href="#name">binary
-   *         name</a> of the class specified by <tt>b</tt>
-   * @throws IndexOutOfBoundsException
-   *         If either <tt>off</tt> or <tt>len</tt> is negative, or if
-   *         <tt>off+len</tt> is greater than <tt>b.length</tt>.
-   * @throws SecurityException
-   *         If an attempt is made to add this class to a package that
-   *         contains classes that were signed by a different set of
-   *         certificates than this class, or if <tt>name</tt> begins with
-   *         "<tt>java.</tt>".
+   * @throws ClassFormatError If the data did not contain a valid class
+   * @throws NoClassDefFoundError If <tt>name</tt> is not equal to the <a href="#name">binary
+   * name</a> of the class specified by <tt>b</tt>
+   * @throws IndexOutOfBoundsException If either <tt>off</tt> or <tt>len</tt> is negative, or if
+   * <tt>off+len</tt> is greater than <tt>b.length</tt>.
+   * @throws SecurityException If an attempt is made to add this class to a package that
+   * contains classes that were signed by a different set of
+   * certificates than this class, or if <tt>name</tt> begins with
+   * "<tt>java.</tt>".
    * @since 4.0
    */
   @SuppressWarnings("unchecked")

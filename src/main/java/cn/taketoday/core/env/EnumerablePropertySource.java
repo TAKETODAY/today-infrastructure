@@ -39,9 +39,7 @@ import cn.taketoday.lang.NonNull;
  * (via {@link #getProperty(String)}) in order to evaluate whether it is present
  * or not.
  *
- * @param <T>
- *         the source type
- *
+ * @param <T> the source type
  * @author Chris Beams
  * @author Juergen Hoeller
  * @since 4.0
@@ -51,10 +49,8 @@ public abstract class EnumerablePropertySource<T> extends PropertySource<T> {
   /**
    * Create a new {@code EnumerablePropertySource} with the given name and source object.
    *
-   * @param name
-   *         the associated name
-   * @param source
-   *         the source object
+   * @param name the associated name
+   * @param source the source object
    */
   public EnumerablePropertySource(String name, T source) {
     super(name, source);
@@ -64,8 +60,7 @@ public abstract class EnumerablePropertySource<T> extends PropertySource<T> {
    * Create a new {@code EnumerablePropertySource} with the given name and with a new
    * {@code Object} instance as the underlying source.
    *
-   * @param name
-   *         the associated name
+   * @param name the associated name
    */
   protected EnumerablePropertySource(String name) {
     super(name);
@@ -76,8 +71,7 @@ public abstract class EnumerablePropertySource<T> extends PropertySource<T> {
    * <p>This implementation checks for the presence of the given name within the
    * {@link #getPropertyNames()} array.
    *
-   * @param name
-   *         the name of the property to find
+   * @param name the name of the property to find
    */
   @Override
   public boolean containsProperty(String name) {

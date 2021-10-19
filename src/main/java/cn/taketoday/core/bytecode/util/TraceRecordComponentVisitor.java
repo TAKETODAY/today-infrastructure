@@ -38,8 +38,7 @@ public final class TraceRecordComponentVisitor extends RecordComponentVisitor {
   /**
    * Constructs a new {@link TraceRecordComponentVisitor}.
    *
-   * @param printer
-   *         the printer to convert the visited record component into text.
+   * @param printer the printer to convert the visited record component into text.
    */
   public TraceRecordComponentVisitor(final Printer printer) {
     this(null, printer);
@@ -48,11 +47,9 @@ public final class TraceRecordComponentVisitor extends RecordComponentVisitor {
   /**
    * Constructs a new {@link TraceRecordComponentVisitor}.
    *
-   * @param recordComponentVisitor
-   *         the record component visitor to which to delegate calls. May be
-   *         {@literal null}.
-   * @param printer
-   *         the printer to convert the visited record component into text.
+   * @param recordComponentVisitor the record component visitor to which to delegate calls. May be
+   * {@literal null}.
+   * @param printer the printer to convert the visited record component into text.
    */
   public TraceRecordComponentVisitor(
           final RecordComponentVisitor recordComponentVisitor, final Printer printer) {

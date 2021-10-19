@@ -33,9 +33,7 @@ import cn.taketoday.lang.Assert;
  * <p>This implementation maintains a linked set of iterators
  * which are invoked in sequence until all iterators are exhausted.
  *
- * @param <E>
- *         the element type
- *
+ * @param <E> the element type
  * @author Erwin Vervaet
  * @author Juergen Hoeller
  * @author TODAY 2021/10/1 14:48

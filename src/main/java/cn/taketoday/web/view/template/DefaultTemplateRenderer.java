@@ -81,16 +81,11 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   /**
    * Write to client use request context's {@link Writer}
    *
-   * @param context
-   *         Current {@link RequestContext}
-   * @param rendered
-   *         Rendered text
-   *
-   * @throws IOException
-   *         If an input or output exception occurred
-   * @throws IllegalStateException
-   *         For Servlet Environment if the <code>getOutputStream</code>
-   *         method has already been called for this response object
+   * @param context Current {@link RequestContext}
+   * @param rendered Rendered text
+   * @throws IOException If an input or output exception occurred
+   * @throws IllegalStateException For Servlet Environment if the <code>getOutputStream</code>
+   * method has already been called for this response object
    */
   protected void write(final RequestContext context, final String rendered) throws IOException {
     if (rendered != null) {
@@ -102,11 +97,8 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   /**
    * Use EL or other render the input text.
    *
-   * @param text
-   *         input text string
-   * @param context
-   *         Current {@link RequestContext}
-   *
+   * @param text input text string
+   * @param context Current {@link RequestContext}
    * @return Rendered text string
    */
   protected String renderTemplate(final String text, RequestContext context) {
@@ -119,13 +111,9 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   /**
    * Read template source as text string
    *
-   * @param template
-   *         Template location
-   *
+   * @param template Template location
    * @return template source text string
-   *
-   * @throws IOException
-   *         If an input or output exception occurred
+   * @throws IOException If an input or output exception occurred
    */
   protected String readTemplate(final String template) throws IOException {
     final Resource resource = ResourceUtils.getResource(template);

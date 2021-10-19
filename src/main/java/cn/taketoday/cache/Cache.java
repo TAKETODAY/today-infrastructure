@@ -43,13 +43,10 @@ public abstract class Cache {
    * <p>
    * Returns {@code null} if the cache contains no mapping for this key;
    *
-   * @param key
-   *         the key whose associated value is to be returned
-   *
+   * @param key the key whose associated value is to be returned
    * @return the value to which this cache maps the specified key, A straight
    * {@code null} being returned means that the cache contains no mapping
    * for this key or the key is map to a {@code null} value.
-   *
    * @see #get(Object, Class)
    * @see #get(Object, boolean)
    * @see #toRealValue(Object)
@@ -63,16 +60,12 @@ public abstract class Cache {
    * <p>
    * Returns {@code null} if the cache contains no mapping for this key;
    *
-   * @param key
-   *         the key whose associated value is to be returned
-   * @param unWarp
-   *         unWarp value, if its {@code true} un-warp store value to real value
-   *
+   * @param key the key whose associated value is to be returned
+   * @param unWarp unWarp value, if its {@code true} un-warp store value to real value
    * @return the value to which this cache maps the specified key, A straight
    * {@code null} being returned means that the cache contains no mapping
    * for this key. if returns {@link NullValue#INSTANCE} indicates that
    * the key maps to a {@code null} value
-   *
    * @see #get(Object, Class)
    * @see NullValue#INSTANCE
    * @see NullValue
@@ -86,9 +79,7 @@ public abstract class Cache {
   /**
    * look up value in mappings with given key
    *
-   * @param key
-   *         given key
-   *
+   * @param key given key
    * @return cached value maybe a warped value
    */
   protected abstract Object doGet(Object key);
@@ -101,20 +92,15 @@ public abstract class Cache {
    * a cached {@code null} value and no cache entry found at all. Use the standard
    * {@link #get(Object)} variant for that purpose instead.
    *
-   * @param key
-   *         the key whose associated value is to be returned
-   * @param requiredType
-   *         the required type of the returned value (may be {@code null} to
-   *         bypass a type check; in case of a {@code null} value found in the
-   *         cache, the specified type is irrelevant)
-   *
+   * @param key the key whose associated value is to be returned
+   * @param requiredType the required type of the returned value (may be {@code null} to
+   * bypass a type check; in case of a {@code null} value found in the
+   * cache, the specified type is irrelevant)
    * @return the value to which this cache maps the specified key (which may be
    * {@code null} itself), or also {@code null} if the cache contains no
    * mapping for this key
-   *
-   * @throws IllegalStateException
-   *         if a cache entry has been found but failed to match the specified
-   *         type
+   * @throws IllegalStateException if a cache entry has been found but failed to match the specified
+   * type
    * @see #get(Object)
    */
   @SuppressWarnings("unchecked")
@@ -138,15 +124,10 @@ public abstract class Cache {
    * case of concurrent access on the same key.
    * <p>
    *
-   * @param key
-   *         the key whose associated value is to be returned
-   * @param valueLoader
-   *         Value Loader
-   *
+   * @param key the key whose associated value is to be returned
+   * @param valueLoader Value Loader
    * @return the value to which this cache maps the specified key
-   *
-   * @throws CacheValueRetrievalException
-   *         If cache value failed to load
+   * @throws CacheValueRetrievalException If cache value failed to load
    * @see #get(Object, boolean)
    */
   @SuppressWarnings("unchecked")
@@ -157,17 +138,11 @@ public abstract class Cache {
   /**
    * Get value If there isn't a key, use valueLoader create one
    *
-   * @param <T>
-   *         Cache value type
-   * @param key
-   *         Cache key
-   * @param valueLoader
-   *         Value Loader
-   *
+   * @param <T> Cache value type
+   * @param key Cache key
+   * @param valueLoader Value Loader
    * @return cached value maybe a warped value
-   *
-   * @throws CacheValueRetrievalException
-   *         If CacheCallback#call() throws Exception
+   * @throws CacheValueRetrievalException If CacheCallback#call() throws Exception
    */
   protected <T> Object computeIfAbsent(Object key, CacheCallback<T> valueLoader) {
     Object ret = doGet(key);
@@ -185,12 +160,9 @@ public abstract class Cache {
   /**
    * compute cache value with {@code valueLoader}
    *
-   * @param key
-   *         Cache key
-   * @param valueLoader
-   *         Cache value loader
-   * @param <T>
-   *         Value type
+   * @param key Cache key
+   * @param valueLoader Cache value loader
+   * @param <T> Value type
    */
   protected <T> Object compute(final Object key, final CacheCallback<T> valueLoader) throws Throwable {
     return valueLoader.call();
@@ -202,10 +174,8 @@ public abstract class Cache {
    * If the cache previously contained a mapping for this key, the old value is
    * replaced by the specified value.
    *
-   * @param key
-   *         the key with which the specified value is to be associated
-   * @param value
-   *         the value to be associated with the specified key
+   * @param key the key with which the specified value is to be associated
+   * @param value the value to be associated with the specified key
    */
   public void put(final Object key, final Object value) {
     doPut(key, toStoreValue(value));
@@ -214,18 +184,15 @@ public abstract class Cache {
   /**
    * Put to this cache internal
    *
-   * @param key
-   *         Target key
-   * @param value
-   *         Target value
+   * @param key Target key
+   * @param value Target value
    */
   protected abstract void doPut(Object key, Object value);
 
   /**
    * Evict the mapping for this key from this cache if it is present.
    *
-   * @param key
-   *         the key whose mapping is to be removed from the cache
+   * @param key the key whose mapping is to be removed from the cache
    */
   public abstract void evict(Object key);
 
@@ -239,9 +206,7 @@ public abstract class Cache {
   /**
    * real value to store value
    *
-   * @param userValue
-   *         real value
-   *
+   * @param userValue real value
    * @return Store value maybe a serializable object
    */
   public static Object toStoreValue(final Object userValue) {
@@ -251,9 +216,7 @@ public abstract class Cache {
   /**
    * convert store value to real value
    *
-   * @param cachedValue
-   *         cached value in mappings
-   *
+   * @param cachedValue cached value in mappings
    * @return if {@code cachedValue} is {@link NullValue#INSTANCE}
    * indicates that real value is {@code null}
    */

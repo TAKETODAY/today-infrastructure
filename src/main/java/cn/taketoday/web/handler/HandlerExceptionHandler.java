@@ -39,15 +39,10 @@ public interface HandlerExceptionHandler {
   /**
    * Handle exception
    *
-   * @param exception
-   *         The exception occurred
-   * @param handler
-   *         Current handler
-   *
+   * @param exception The exception occurred
+   * @param handler Current handler
    * @return Exception view
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
+   * @throws Throwable If any {@link Exception} occurred
    */
   Object handleException(RequestContext context, Throwable exception, Object handler)
           throws Throwable;

@@ -32,14 +32,10 @@ public interface Condition {
   /**
    * Determine if the condition matches.
    *
-   * @param context
-   *         ConditionEvaluationContext
-   * @param annotated
-   *         AnnotatedElement
-   *
+   * @param context ConditionEvaluationContext
+   * @param annotated AnnotatedElement
    * @return Return {@code false} to indicate that the bean should not be
    * * registered
-   *
    * @since 4.0
    */
   boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated);

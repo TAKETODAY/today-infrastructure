@@ -115,13 +115,9 @@ public class TemplateRendererReturnValueHandler
   /**
    * use template-renderer render template to response
    *
-   * @param templateName
-   *         template name
-   * @param context
-   *         request context
-   *
-   * @throws IOException
-   *         If any {@link IOException} occurred when render template
+   * @param templateName template name
+   * @param context request context
+   * @throws IOException If any {@link IOException} occurred when render template
    * @see TemplateRenderer#render(String, RequestContext)
    */
   public void renderTemplate(String templateName, RequestContext context) throws IOException {

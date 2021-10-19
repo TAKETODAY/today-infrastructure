@@ -35,10 +35,8 @@ public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationE
   private final Object handler;
 
   /**
-   * @param returnValue
-   *         handler's return value or execution result
-   * @param handler
-   *         target handler
+   * @param returnValue handler's return value or execution result
+   * @param handler target handler
    */
   public ReturnValueHandlerNotFoundException(Object returnValue, Object handler) {
     super("No ReturnValueHandler for return-value: [" + returnValue + ']');

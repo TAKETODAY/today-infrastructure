@@ -195,8 +195,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   /**
    * before bootstrap
    *
-   * @param bootstrap
-   *         netty ServerBootstrap
+   * @param bootstrap netty ServerBootstrap
    */
   protected void preBootstrap(ServerBootstrap bootstrap) {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
@@ -227,8 +226,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   /**
    * after bootstrap
    *
-   * @param bootstrap
-   *         netty ServerBootstrap
+   * @param bootstrap netty ServerBootstrap
    */
   protected void postBootstrap(ServerBootstrap bootstrap) {
     log.info("Netty web server started on port: [{}] with context path '{}'", getPort(), getContextPath());
@@ -347,9 +345,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    * If that {@code loggingLevel} is {@code null} will not register logging handler
    * </p>
    *
-   * @param loggingLevel
-   *         LogLevel
-   *
+   * @param loggingLevel LogLevel
    * @see LogLevel
    * @see LoggingHandler
    * @see ServerBootstrap#handler

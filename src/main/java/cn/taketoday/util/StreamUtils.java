@@ -66,13 +66,9 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream into a new byte array.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the stream to copy from (may be {@code null} or empty)
-   *
+   * @param in the stream to copy from (may be {@code null} or empty)
    * @return the new byte array that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(@Nullable InputStream in) throws IOException {
     return copyToByteArray(in, BUFFER_SIZE);
@@ -82,15 +78,10 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream into a new byte array.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the stream to copy from (may be {@code null} or empty)
-   * @param bufferSize
-   *         user specified buffer size
-   *
+   * @param in the stream to copy from (may be {@code null} or empty)
+   * @param bufferSize user specified buffer size
    * @return the new byte array that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(@Nullable InputStream in, int bufferSize) throws IOException {
     if (in == null) {
@@ -106,13 +97,9 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream into a String.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the InputStream to copy from (may be {@code null} or empty)
-   *
+   * @param in the InputStream to copy from (may be {@code null} or empty)
    * @return the String that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static String copyToString(@Nullable InputStream in) throws IOException {
     return copyToString(in, StandardCharsets.UTF_8);
@@ -122,15 +109,10 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream into a String.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the InputStream to copy from (may be {@code null} or empty)
-   * @param charset
-   *         the {@link Charset} to use to decode the bytes
-   *
+   * @param in the InputStream to copy from (may be {@code null} or empty)
+   * @param charset the {@link Charset} to use to decode the bytes
    * @return the String that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static String copyToString(@Nullable InputStream in, Charset charset) throws IOException {
     return copyToString(in, charset, BUFFER_SIZE);
@@ -140,17 +122,11 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream into a String.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the InputStream to copy from (may be {@code null} or empty)
-   * @param charset
-   *         the {@link Charset} to use to decode the bytes
-   * @param bufferSize
-   *         user specified buffer size
-   *
+   * @param in the InputStream to copy from (may be {@code null} or empty)
+   * @param charset the {@link Charset} to use to decode the bytes
+   * @param bufferSize user specified buffer size
    * @return the String that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static String copyToString(
           @Nullable InputStream in, Charset charset, int bufferSize) throws IOException {
@@ -172,11 +148,8 @@ public abstract class StreamUtils {
    * Copy the contents of the given {@link ByteArrayOutputStream} into a {@link String}.
    * <p>This is a more effective equivalent of {@code new String(baos.toByteArray(), charset)}.
    *
-   * @param baos
-   *         the {@code ByteArrayOutputStream} to be copied into a String
-   * @param charset
-   *         the {@link Charset} to use to decode the bytes
-   *
+   * @param baos the {@code ByteArrayOutputStream} to be copied into a String
+   * @param charset the {@link Charset} to use to decode the bytes
    * @return the String that has been copied to (possibly empty)
    */
   public static String copyToString(ByteArrayOutputStream baos, Charset charset) {
@@ -196,13 +169,9 @@ public abstract class StreamUtils {
    * Copy the contents of the given byte array to the given OutputStream.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the byte array to copy from
-   * @param out
-   *         the OutputStream to copy to
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @param in the byte array to copy from
+   * @param out the OutputStream to copy to
+   * @throws IOException in case of I/O errors
    */
   public static void copy(byte[] in, OutputStream out) throws IOException {
     Assert.notNull(in, "No input byte array specified");
@@ -216,15 +185,10 @@ public abstract class StreamUtils {
    * Copy the contents of the given String to the given OutputStream.
    * <p>Leaves the stream open when done.
    *
-   * @param in
-   *         the String to copy from
-   * @param charset
-   *         the Charset
-   * @param out
-   *         the OutputStream to copy to
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @param in the String to copy from
+   * @param charset the Charset
+   * @param out the OutputStream to copy to
+   * @throws IOException in case of I/O errors
    */
   public static void copy(String in, Charset charset, OutputStream out) throws IOException {
     Assert.notNull(in, "No input String specified");
@@ -240,15 +204,10 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream to the given OutputStream.
    * <p>Leaves both streams open when done.
    *
-   * @param in
-   *         the InputStream to copy from
-   * @param out
-   *         the OutputStream to copy to
-   *
+   * @param in the InputStream to copy from
+   * @param out the OutputStream to copy to
    * @return the number of bytes copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int copy(InputStream in, OutputStream out) throws IOException {
     return copy(in, out, BUFFER_SIZE);
@@ -258,17 +217,11 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream to the given OutputStream.
    * <p>Leaves both streams open when done.
    *
-   * @param in
-   *         the InputStream to copy from
-   * @param out
-   *         the OutputStream to copy to
-   * @param bufferSize
-   *         the copy buffer size
-   *
+   * @param in the InputStream to copy from
+   * @param out the OutputStream to copy to
+   * @param bufferSize the copy buffer size
    * @return the number of bytes copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int copy(InputStream in, OutputStream out, int bufferSize) throws IOException {
     Assert.notNull(in, "No InputStream specified");
@@ -291,19 +244,12 @@ public abstract class StreamUtils {
    * up to the end of the stream and returns the actual number of copied bytes.
    * <p>Leaves both streams open when done.
    *
-   * @param in
-   *         the InputStream to copy from
-   * @param out
-   *         the OutputStream to copy to
-   * @param start
-   *         the position to start copying from
-   * @param end
-   *         the position to end copying
-   *
+   * @param in the InputStream to copy from
+   * @param out the OutputStream to copy to
+   * @param start the position to start copying from
+   * @param end the position to end copying
    * @return the number of bytes copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static long copyRange(
           InputStream in, OutputStream out, long start, long end) throws IOException {
@@ -338,13 +284,9 @@ public abstract class StreamUtils {
    * Drain the remaining content of the given InputStream.
    * <p>Leaves the InputStream open when done.
    *
-   * @param in
-   *         the InputStream to drain
-   *
+   * @param in the InputStream to drain
    * @return the number of bytes read
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int drain(InputStream in) throws IOException {
     return drain(in, BUFFER_SIZE);
@@ -354,15 +296,10 @@ public abstract class StreamUtils {
    * Drain the remaining content of the given InputStream.
    * <p>Leaves the InputStream open when done.
    *
-   * @param in
-   *         the InputStream to drain
-   * @param bufferSize
-   *         buffer size
-   *
+   * @param in the InputStream to drain
+   * @param bufferSize buffer size
    * @return the number of bytes read
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int drain(InputStream in, int bufferSize) throws IOException {
     Assert.notNull(in, "No InputStream specified");
@@ -388,9 +325,7 @@ public abstract class StreamUtils {
    * Return a variant of the given {@link InputStream} where calling
    * {@link InputStream#close() close()} has no effect.
    *
-   * @param in
-   *         the InputStream to decorate
-   *
+   * @param in the InputStream to decorate
    * @return a version of the InputStream that ignores calls to close
    */
   public static InputStream nonClosing(InputStream in) {
@@ -402,9 +337,7 @@ public abstract class StreamUtils {
    * Return a variant of the given {@link OutputStream} where calling
    * {@link OutputStream#close() close()} has no effect.
    *
-   * @param out
-   *         the OutputStream to decorate
-   *
+   * @param out the OutputStream to decorate
    * @return a version of the OutputStream that ignores calls to close
    */
   public static OutputStream nonClosing(OutputStream out) {

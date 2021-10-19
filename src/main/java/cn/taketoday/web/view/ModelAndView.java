@@ -67,9 +67,7 @@ public class ModelAndView implements Model {
   /**
    * Set view
    *
-   * @param view
-   *         View object
-   *
+   * @param view View object
    * @return Current {@link ModelAndView}
    */
   public ModelAndView setView(Object view) {

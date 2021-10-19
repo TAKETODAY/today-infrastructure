@@ -57,15 +57,11 @@ public class TryCatchBlockNode {
   /**
    * Constructs a new {@link TryCatchBlockNode}.
    *
-   * @param start
-   *         the beginning of the exception handler's scope (inclusive).
-   * @param end
-   *         the end of the exception handler's scope (exclusive).
-   * @param handler
-   *         the beginning of the exception handler's code.
-   * @param type
-   *         the internal name of the type of exceptions handled by the handler, or {@literal
-   *         null} to catch any exceptions (for "finally" blocks).
+   * @param start the beginning of the exception handler's scope (inclusive).
+   * @param end the end of the exception handler's scope (exclusive).
+   * @param handler the beginning of the exception handler's code.
+   * @param type the internal name of the type of exceptions handled by the handler, or {@literal
+   * null} to catch any exceptions (for "finally" blocks).
    */
   public TryCatchBlockNode(
           final LabelNode start, final LabelNode end, final LabelNode handler, final String type) {
@@ -79,9 +75,8 @@ public class TryCatchBlockNode {
    * Updates the index of this try catch block in the method's list of try catch block nodes. This
    * index maybe stored in the 'target' field of the type annotations of this block.
    *
-   * @param index
-   *         the new index of this try catch block in the method's list of try catch block
-   *         nodes.
+   * @param index the new index of this try catch block in the method's list of try catch block
+   * nodes.
    */
   public void updateIndex(final int index) {
     int newTypeRef = 0x42000000 | (index << 8);
@@ -100,8 +95,7 @@ public class TryCatchBlockNode {
   /**
    * Makes the given visitor visit this try catch block.
    *
-   * @param methodVisitor
-   *         a method visitor.
+   * @param methodVisitor a method visitor.
    */
   public void accept(final MethodVisitor methodVisitor) {
     methodVisitor.visitTryCatchBlock(

@@ -26,9 +26,7 @@ import cn.taketoday.lang.Assert;
  * {@link ThreadLocal} subclass that exposes a specified name
  * as {@link #toString()} result (allowing for introspection).
  *
- * @param <T>
- *         the value type
- *
+ * @param <T> the value type
  * @author Juergen Hoeller
  * @author TODAY 2021/2/1 20:43
  * @since 3.0
@@ -40,8 +38,7 @@ public class NamedThreadLocal<T> extends ThreadLocal<T> {
   /**
    * Create a new NamedThreadLocal with the given name.
    *
-   * @param name
-   *         a descriptive name for this ThreadLocal
+   * @param name a descriptive name for this ThreadLocal
    */
   public NamedThreadLocal(String name) {
     Assert.hasText(name, "Name must not be empty");

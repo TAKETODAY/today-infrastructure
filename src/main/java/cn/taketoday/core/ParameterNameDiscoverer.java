@@ -48,12 +48,9 @@ public abstract class ParameterNameDiscoverer {
    * available for some parameters of the given method but not for others. However,
    * it is recommended to use stub parameter names instead wherever feasible.
    *
-   * @param executable
-   *         the Executable(method or constructor) to find parameter names for
-   *
+   * @param executable the Executable(method or constructor) to find parameter names for
    * @return an array of parameter names if the names can be resolved,
    * or {@code null} if they cannot
-   *
    * @see Executable#getParameterCount()
    */
   public String[] getParameterNames(Executable executable) {

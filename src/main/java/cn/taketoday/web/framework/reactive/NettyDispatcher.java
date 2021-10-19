@@ -29,10 +29,8 @@ public class NettyDispatcher {
    * default is using Synchronous
    * </p>
    *
-   * @param ctx
-   *         netty channel handler context
-   * @param nettyContext
-   *         netty request context
+   * @param ctx netty channel handler context
+   * @param nettyContext netty request context
    */
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
     RequestContextHolder.prepareContext(nettyContext);

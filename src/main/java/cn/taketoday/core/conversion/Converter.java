@@ -30,13 +30,9 @@ public interface Converter<S, T> {
   /**
    * Convert source object to target class {@link T}
    *
-   * @param source
-   *         source instance
-   *
+   * @param source source instance
    * @return A converted instance
-   *
-   * @throws ConversionException
-   *         can't convert source to T
+   * @throws ConversionException can't convert source to T
    */
   T convert(S source);
 

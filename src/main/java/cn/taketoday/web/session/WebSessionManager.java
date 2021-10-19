@@ -48,11 +48,8 @@ public interface WebSessionManager {
    * Returns the current session associated with this request, or if the request
    * does not have a session, creates one.
    *
-   * @param context
-   *         Current request
-   *
+   * @param context Current request
    * @return the <code>WebSession</code> associated with this request
-   *
    * @see #getSession(RequestContext, boolean)
    */
   WebSession getSession(RequestContext context);
@@ -72,17 +69,13 @@ public interface WebSessionManager {
    * maintain session integrity and is asked to create a new session when the
    * response is committed, an IllegalStateException is thrown.
    *
-   * @param context
-   *         Current request
-   * @param create
-   *         <code>true</code> to create a new session for this request if
-   *         necessary; <code>false</code> to return <code>null</code> if
-   *         there's no current session
-   *
+   * @param context Current request
+   * @param create <code>true</code> to create a new session for this request if
+   * necessary; <code>false</code> to return <code>null</code> if
+   * there's no current session
    * @return the <code>WebSession</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
-   *
    * @see #getSession(RequestContext)
    */
   WebSession getSession(RequestContext context, boolean create);

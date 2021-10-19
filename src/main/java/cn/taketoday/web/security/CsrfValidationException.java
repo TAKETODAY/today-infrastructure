@@ -40,8 +40,7 @@ public class CsrfValidationException extends AccessForbiddenException {
   /**
    * Create a new CsrfValidationException
    *
-   * @param message
-   *         the detail message
+   * @param message the detail message
    */
   public CsrfValidationException(String message) {
     super(message);

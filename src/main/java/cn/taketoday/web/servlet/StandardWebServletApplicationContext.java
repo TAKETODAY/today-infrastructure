@@ -50,8 +50,7 @@ public class StandardWebServletApplicationContext
   /**
    * Construct with given {@link ConfigurableEnvironment}
    *
-   * @param env
-   *         {@link ConfigurableEnvironment} instance
+   * @param env {@link ConfigurableEnvironment} instance
    */
   public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
     setEnvironment(env);
@@ -69,11 +68,8 @@ public class StandardWebServletApplicationContext
   }
 
   /**
-   * @param classes
-   *         class set
-   * @param servletContext
-   *         {@link ServletContext}
-   *
+   * @param classes class set
+   * @param servletContext {@link ServletContext}
    * @since 2.3.3
    */
   public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
@@ -83,13 +79,9 @@ public class StandardWebServletApplicationContext
   }
 
   /**
-   * @param servletContext
-   *         {@link ServletContext}
-   * @param propertiesLocation
-   *         properties location
-   * @param locations
-   *         package locations
-   *
+   * @param servletContext {@link ServletContext}
+   * @param propertiesLocation properties location
+   * @param locations package locations
    * @since 2.3.3
    */
   public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {

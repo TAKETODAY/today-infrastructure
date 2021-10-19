@@ -34,8 +34,7 @@ public abstract class AbstractMessage<T> implements Message<T> {
   /**
    * Create a new WebSocket message with the given payload.
    *
-   * @param payload
-   *         the non-null payload
+   * @param payload the non-null payload
    */
   protected AbstractMessage(T payload) {
     this(payload, true);
@@ -47,10 +46,8 @@ public abstract class AbstractMessage<T> implements Message<T> {
    * the message is sent as partial content and more partial messages will be
    * expected until the boolean flag is set to {@code true}.
    *
-   * @param payload
-   *         the non-null payload
-   * @param isLast
-   *         if the message is the last of a series of partial messages
+   * @param payload the non-null payload
+   * @param isLast if the message is the last of a series of partial messages
    */
   AbstractMessage(T payload, boolean isLast) {
     Assert.notNull(payload, "payload must not be null");

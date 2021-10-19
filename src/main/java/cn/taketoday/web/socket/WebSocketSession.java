@@ -60,11 +60,8 @@ public abstract class WebSocketSession
    * Non-final parts of the message are sent with isLast set to false.
    * The final part must be sent with isLast set to true.
    *
-   * @param message
-   *         Message
-   *
-   * @throws IOException
-   *         if there is a problem delivering the message.
+   * @param message Message
+   * @throws IOException if there is a problem delivering the message.
    * @see Message#isLast()
    */
   public void sendMessage(Message<?> message) throws IOException {
@@ -91,11 +88,8 @@ public abstract class WebSocketSession
    * Non-final parts of the message are sent with isLast set to false.
    * The final part must be sent with isLast set to true.
    *
-   * @param message
-   *         Message
-   *
-   * @throws IOException
-   *         if there is a problem delivering the message.
+   * @param message Message
+   * @throws IOException if there is a problem delivering the message.
    * @see Message#isLast()
    */
   public void sendPartialMessage(Message<?> message) throws IOException {
@@ -119,11 +113,8 @@ public abstract class WebSocketSession
   /**
    * Send a text message, blocking until all of the message has been transmitted.
    *
-   * @param text
-   *         the message to be sent.
-   *
-   * @throws IOException
-   *         if there is a problem delivering the message.
+   * @param text the message to be sent.
+   * @throws IOException if there is a problem delivering the message.
    */
   public abstract void sendText(String text) throws IOException;
 
@@ -132,11 +123,8 @@ public abstract class WebSocketSession
    * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
    * must be sent with isLast set to true.
    *
-   * @param partialMessage
-   *         the parts of the message being sent.
-   *
-   * @throws IOException
-   *         if there is a problem delivering the message fragment.
+   * @param partialMessage the parts of the message being sent.
+   * @throws IOException if there is a problem delivering the message fragment.
    */
   public void sendPartialText(TextMessage partialMessage) throws IOException {
     sendPartialText(partialMessage.getPayload(), partialMessage.isLast());
@@ -147,13 +135,9 @@ public abstract class WebSocketSession
    * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
    * must be sent with isLast set to true.
    *
-   * @param partialMessage
-   *         the parts of the message being sent.
-   * @param isLast
-   *         Whether the partial message being sent is the last part of the message.
-   *
-   * @throws IOException
-   *         if there is a problem delivering the message fragment.
+   * @param partialMessage the parts of the message being sent.
+   * @param isLast Whether the partial message being sent is the last part of the message.
+   * @throws IOException if there is a problem delivering the message fragment.
    */
   public abstract void sendPartialText(String partialMessage, boolean isLast)
           throws IOException;
@@ -161,11 +145,8 @@ public abstract class WebSocketSession
   /**
    * Send a binary message, returning when all of the message has been transmitted.
    *
-   * @param data
-   *         the message to be sent.
-   *
-   * @throws IOException
-   *         if there is a problem delivering the message.
+   * @param data the message to be sent.
+   * @throws IOException if there is a problem delivering the message.
    */
   public abstract void sendBinary(BinaryMessage data) throws IOException;
 
@@ -178,13 +159,9 @@ public abstract class WebSocketSession
    * reads the message in order. Non-final parts are sent with isLast set to false. The final piece
    * must be sent with isLast set to true.
    *
-   * @param partialByte
-   *         the part of the message being sent.
-   * @param isLast
-   *         Whether the partial message being sent is the last part of the message.
-   *
-   * @throws IOException
-   *         if there is a problem delivering the partial message.
+   * @param partialByte the part of the message being sent.
+   * @param isLast Whether the partial message being sent is the last part of the message.
+   * @throws IOException if there is a problem delivering the partial message.
    */
   public abstract void sendPartialBinary(ByteBuffer partialByte, boolean isLast)
           throws IOException;
@@ -208,17 +185,15 @@ public abstract class WebSocketSession
   /**
    * Set the idle timeout for this session.
    *
-   * @param timeout
-   *         The new idle timeout for this session in milliseconds.
-   *         Zero or negative values indicate an infinite timeout.
+   * @param timeout The new idle timeout for this session in milliseconds.
+   * Zero or negative values indicate an infinite timeout.
    */
   public abstract void setMaxIdleTimeout(long timeout);
 
   /**
    * Set the current maximum buffer size for binary messages.
    *
-   * @param max
-   *         The new maximum buffer size in bytes
+   * @param max The new maximum buffer size in bytes
    */
   public abstract void setMaxBinaryMessageBufferSize(int max);
 
@@ -232,8 +207,7 @@ public abstract class WebSocketSession
   /**
    * Set the maximum buffer size for text messages.
    *
-   * @param max
-   *         The new maximum buffer size in characters.
+   * @param max The new maximum buffer size in characters.
    */
   public abstract void setMaxTextMessageBufferSize(int max);
 
@@ -247,8 +221,7 @@ public abstract class WebSocketSession
   /**
    * Close the current conversation with a normal status code and no reason phrase.
    *
-   * @throws IOException
-   *         if there was a connection error closing the connection.
+   * @throws IOException if there was a connection error closing the connection.
    */
   public void close() throws IOException {
     close(CloseStatus.NORMAL);
@@ -265,11 +238,8 @@ public abstract class WebSocketSession
    * determine a suitable close code to use for the closeReason, it is recommended
    * to use {@link CloseStatus#NO_STATUS_CODE}.
    *
-   * @param status
-   *         the reason for the closure.
-   *
-   * @throws IOException
-   *         if there was a connection error closing the connection
+   * @param status the reason for the closure.
+   * @throws IOException if there was a connection error closing the connection
    */
   public abstract void close(CloseStatus status) throws IOException;
 

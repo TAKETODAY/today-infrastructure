@@ -94,7 +94,6 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
    * Return whether this throttle is currently active.
    *
    * @return {@code true} if the concurrency limit for this instance is active
-   *
    * @see #getConcurrencyLimit()
    */
   public boolean isThrottleActive() {

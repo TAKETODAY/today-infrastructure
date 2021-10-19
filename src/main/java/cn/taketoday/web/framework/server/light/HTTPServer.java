@@ -230,8 +230,7 @@ public class HTTPServer {
    * Note: the {@link #start()} method must be called to start accepting
    * connections.
    *
-   * @param port
-   *         the port on which this server will accept connections
+   * @param port the port on which this server will accept connections
    */
   public HTTPServer(int port) {
     setPort(port);
@@ -240,8 +239,7 @@ public class HTTPServer {
   /**
    * Sets the port on which this server will accept connections.
    *
-   * @param port
-   *         the port on which this server will accept connections
+   * @param port the port on which this server will accept connections
    */
   public void setPort(int port) {
     this.port = port;
@@ -258,8 +256,7 @@ public class HTTPServer {
    * must be set to configure the default JSSE provider, such as
    * {@code javax.net.ssl.keyStore} and {@code javax.net.ssl.keyStorePassword}.
    *
-   * @param factory
-   *         the server socket factory to use
+   * @param factory the server socket factory to use
    */
   public void setServerSocketFactory(ServerSocketFactory factory) {
     this.serverSocketFactory = factory;
@@ -269,8 +266,7 @@ public class HTTPServer {
   /**
    * Sets the socket timeout for established connections.
    *
-   * @param timeout
-   *         the socket timeout in milliseconds
+   * @param timeout the socket timeout in milliseconds
    */
   public void setSocketTimeout(int timeout) {
     this.socketTimeout = timeout;
@@ -281,8 +277,7 @@ public class HTTPServer {
    * If null, a default executor is used. The caller is responsible
    * for shutting down the provided executor when necessary.
    *
-   * @param executor
-   *         the executor to use
+   * @param executor the executor to use
    */
   public void setExecutor(Executor executor) {
     this.executor = executor;
@@ -303,9 +298,7 @@ public class HTTPServer {
    * Cryptic errors seen here often mean the factory configuration details are wrong.
    *
    * @return the created server socket
-   *
-   * @throws IOException
-   *         if the socket cannot be created
+   * @throws IOException if the socket cannot be created
    */
   protected ServerSocket createServerSocket() throws IOException {
     ServerSocket serv = serverSocketFactory.createServerSocket();
@@ -322,8 +315,7 @@ public class HTTPServer {
    * of the server and its virtual hosts must not be used. To modify the
    * configuration, the server must first be stopped.
    *
-   * @throws IOException
-   *         if the server cannot begin accepting connections
+   * @throws IOException if the server cannot begin accepting connections
    */
   public synchronized void start() throws IOException {
     if (serv != null)
@@ -357,8 +349,7 @@ public class HTTPServer {
    * contains a "Connection: close" header which explicitly requests
    * the connection be closed after the transaction ends.
    *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    */
   protected void handleConnection(Socket socket) throws IOException {
 //    BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), 4096);
@@ -448,15 +439,10 @@ public class HTTPServer {
    * and required special header handling, possibly returning an
    * appropriate response.
    *
-   * @param req
-   *         the request
-   * @param resp
-   *         the response
-   *
+   * @param req the request
+   * @param resp the response
    * @return whether further processing should be performed on the transaction
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    */
   protected boolean preprocessTransaction(HttpRequest req, HttpResponse resp) throws IOException {
     HttpHeaders reqHeaders = req.getHeaders();
@@ -500,13 +486,9 @@ public class HTTPServer {
   /**
    * Handles a TRACE method request.
    *
-   * @param request
-   *         the request
-   * @param response
-   *         the response into which the content is written
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param request the request
+   * @param response the response into which the content is written
+   * @throws IOException if an error occurs
    */
   public void handleTrace(HttpRequest request, HttpResponse response) throws IOException {
     response.write(null);

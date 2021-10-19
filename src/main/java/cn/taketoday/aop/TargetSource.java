@@ -54,7 +54,6 @@ public interface TargetSource extends TargetClassAware {
    * and the AOP framework can cache the return value of {@link #getTarget()}.
    *
    * @return {@code true} if the target is immutable
-   *
    * @see #getTarget
    */
   boolean isStatic();
@@ -65,9 +64,7 @@ public interface TargetSource extends TargetClassAware {
    *
    * @return the target object which contains the join-point,
    * or {@code null} if there is no actual target instance
-   *
-   * @throws Exception
-   *         if the target object can't be resolved
+   * @throws Exception if the target object can't be resolved
    */
   Object getTarget() throws Exception;
 
@@ -78,11 +75,8 @@ public interface TargetSource extends TargetClassAware {
    * default is: Nothing to release.
    * </p>
    *
-   * @param target
-   *         object obtained from a call to {@link #getTarget()}
-   *
-   * @throws Exception
-   *         if the object can't be released
+   * @param target object obtained from a call to {@link #getTarget()}
+   * @throws Exception if the object can't be released
    */
   default void releaseTarget(Object target) throws Exception { }
 

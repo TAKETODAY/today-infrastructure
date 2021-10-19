@@ -111,9 +111,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
   /**
    * do parse operation
    *
-   * @param body
-   *         request body text
-   *
+   * @param body request body text
    * @return {@link JSONObject} or {@link JSONArray}
    */
   protected Object parseRequestBody(String body) {
@@ -197,8 +195,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
   /**
    * override {@link #parserFeature}
    *
-   * @param parserFeature
-   *         new {@link Feature}s
+   * @param parserFeature new {@link Feature}s
    */
   public void setParserFeature(Feature... parserFeature) {
     setParserFeatures(Feature.of(parserFeature));
@@ -223,8 +220,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
   /**
    * Set FastJSON parser config
    *
-   * @param parserConfig
-   *         config object
+   * @param parserConfig config object
    */
   public void setParserConfig(ParserConfig parserConfig) {
     this.parserConfig = parserConfig;

@@ -52,8 +52,7 @@ public class ByteArrayResource extends AbstractResource {
   /**
    * Create a new {@code ByteArrayResource}.
    *
-   * @param byteArray
-   *         the byte array to wrap
+   * @param byteArray the byte array to wrap
    */
   public ByteArrayResource(byte[] byteArray) {
     this(byteArray, "resource loaded from byte array");
@@ -62,10 +61,8 @@ public class ByteArrayResource extends AbstractResource {
   /**
    * Create a new {@code ByteArrayResource} with a description.
    *
-   * @param byteArray
-   *         the byte array to wrap
-   * @param description
-   *         where the byte array comes from
+   * @param byteArray the byte array to wrap
+   * @param description where the byte array comes from
    */
   public ByteArrayResource(byte[] byteArray, String description) {
     Assert.notNull(byteArray, "Byte array must not be null");

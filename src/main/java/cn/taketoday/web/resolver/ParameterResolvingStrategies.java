@@ -20,13 +20,6 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,6 +27,13 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * Composite ParameterResolvingStrategy
@@ -128,9 +128,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    *
    * @param filter a predicate which returns {@code true} for elements to be
    * removed
-   *
    * @return {@code true} if any elements were removed
-   *
    * @throws NullPointerException if the specified filter is null
    * @throws UnsupportedOperationException if elements cannot be removed
    * from this collection.  Implementations may throw this exception if a
@@ -154,7 +152,6 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    * <tt>(resolverClass == resolver.getClass())</tt>.
    *
    * @param resolverClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
-   *
    * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
    */
   public boolean contains(Class<?> resolverClass) {

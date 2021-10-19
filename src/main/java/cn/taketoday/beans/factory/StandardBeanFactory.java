@@ -19,6 +19,13 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.MissingBean;
@@ -27,13 +34,6 @@ import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -79,10 +79,8 @@ public class StandardBeanFactory
   /**
    * Register {@link FactoryBeanDefinition} to the {@link BeanFactory}
    *
-   * @param oldBeanName
-   *         Target old bean name
-   * @param factoryDef
-   *         {@link FactoryBean} Bean definition
+   * @param oldBeanName Target old bean name
+   * @param factoryDef {@link FactoryBean} Bean definition
    */
   protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) {
 
@@ -232,13 +230,9 @@ public class StandardBeanFactory
   /**
    * Register bean definition with given name
    *
-   * @param name
-   *         Bean name
-   * @param def
-   *         Bean definition
-   *
-   * @throws BeanDefinitionStoreException
-   *         If can't store bean
+   * @param name Bean name
+   * @param def Bean definition
+   * @throws BeanDefinitionStoreException If can't store bean
    */
   @Nullable
   public BeanDefinition register(String name, BeanDefinition def) {

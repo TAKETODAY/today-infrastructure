@@ -130,15 +130,10 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   /**
    * Put a Template With from a {@link Resource}
    *
-   * @param name
-   *         Template name
-   * @param resource
-   *         {@link TemplateSource} from a {@link Resource}
-   *
+   * @param name Template name
+   * @param resource {@link TemplateSource} from a {@link Resource}
    * @return this
-   *
-   * @throws IOException
-   *         If any {@link IOException} occurred
+   * @throws IOException If any {@link IOException} occurred
    */
   public DefaultResourceTemplateLoader putTemplate(String name, Resource resource) throws IOException {
     cache.put(name, TemplateSource.create(resource));
@@ -148,11 +143,8 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   /**
    * Put a Template With a {@link TemplateSource}
    *
-   * @param name
-   *         Template name
-   * @param template
-   *         {@link TemplateSource}
-   *
+   * @param name Template name
+   * @param template {@link TemplateSource}
    * @return this
    */
   public DefaultResourceTemplateLoader putTemplate(String name, TemplateSource template) {
@@ -163,13 +155,9 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   /**
    * Put a Template With last Modified and a {@link ReaderSupplier}
    *
-   * @param name
-   *         Template name
-   * @param lastModified
-   *         lastModified
-   * @param reader
-   *         {@link ReaderSupplier}
-   *
+   * @param name Template name
+   * @param lastModified lastModified
+   * @param reader {@link ReaderSupplier}
    * @return this
    */
   public DefaultResourceTemplateLoader putTemplate(String name, long lastModified, ReaderSupplier reader) {
@@ -180,9 +168,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   /**
    * Remove Template from cache
    *
-   * @param name
-   *         Template name
-   *
+   * @param name Template name
    * @return this
    */
   public DefaultResourceTemplateLoader removeTemplate(String name) {

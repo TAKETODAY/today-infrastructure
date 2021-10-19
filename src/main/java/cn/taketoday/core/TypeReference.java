@@ -34,9 +34,7 @@ import cn.taketoday.lang.Assert;
  * TypeReference&lt;List&lt;String&gt;&gt; typeRef = new TypeReference&lt;List&lt;String&gt;&gt;() {};
  * </pre>
  *
- * @param <T>
- *         the referenced type
- *
+ * @param <T> the referenced type
  * @author TODAY 2021/1/6 22:11
  * @since 3.0
  */
@@ -84,10 +82,8 @@ public abstract class TypeReference<T> {
   /**
    * Build a {@code TypeReference} wrapping the given type.
    *
-   * @param type
-   *         a generic type (possibly obtained via reflection,
-   *         e.g. from {@link java.lang.reflect.Method#getGenericReturnType()})
-   *
+   * @param type a generic type (possibly obtained via reflection,
+   * e.g. from {@link java.lang.reflect.Method#getGenericReturnType()})
    * @return a corresponding reference which may be passed into
    * {@code TypeReference}-accepting methods
    */

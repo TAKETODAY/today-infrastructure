@@ -109,8 +109,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
    * <p>
    * Fill in caller data if possible.
    *
-   * @param record
-   *         The record to update
+   * @param record The record to update
    */
   private static void fillCallerData(LogRecord record, String callerFQCN, String superFQCN) {
     StackTraceElement[] steArray = new Throwable().getStackTrace();

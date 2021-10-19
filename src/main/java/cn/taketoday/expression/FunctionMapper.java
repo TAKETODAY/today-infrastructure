@@ -40,14 +40,11 @@ public abstract class FunctionMapper {
    * given prefix and local name.
    * </p>
    *
-   * @param prefix
-   *         the prefix of the function, or "" if no prefix. For example,
-   *         <code>"fn"</code> in <code>${fn:method()}</code>, or
-   *         <code>""</code> in <code>${method()}</code>.
-   * @param localName
-   *         the short name of the function. For example, <code>"method"</code>
-   *         in <code>${fn:method()}</code>.
-   *
+   * @param prefix the prefix of the function, or "" if no prefix. For example,
+   * <code>"fn"</code> in <code>${fn:method()}</code>, or
+   * <code>""</code> in <code>${method()}</code>.
+   * @param localName the short name of the function. For example, <code>"method"</code>
+   * in <code>${fn:method()}</code>.
    * @return the static method to invoke, or <code>null</code> if no match was
    * found.
    */
@@ -56,18 +53,14 @@ public abstract class FunctionMapper {
   /**
    * Adds a static method that can be used as a function.
    *
-   * @param prefix
-   *         the prefix of the function, or "" if no prefix. For example,
-   *         <code>"fn"</code> in <code>${fn:method()}</code>, or
-   *         <code>""</code> in <code>${method()}</code>.
-   * @param localName
-   *         the short name of the function. For example, <code>"method"</code>
-   *         in <code>${fn:method()}</code>.
-   * @param meth
-   *         The static method that is to be invoked, when the function is
-   *         referenced. The null value causes the function to be removed from
-   *         the map.
-   *
+   * @param prefix the prefix of the function, or "" if no prefix. For example,
+   * <code>"fn"</code> in <code>${fn:method()}</code>, or
+   * <code>""</code> in <code>${method()}</code>.
+   * @param localName the short name of the function. For example, <code>"method"</code>
+   * in <code>${fn:method()}</code>.
+   * @param meth The static method that is to be invoked, when the function is
+   * referenced. The null value causes the function to be removed from
+   * the map.
    * @since EL 3.0
    */
   public void mapFunction(String prefix, String localName, Method meth) {

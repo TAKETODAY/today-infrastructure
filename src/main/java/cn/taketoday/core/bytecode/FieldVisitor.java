@@ -44,9 +44,8 @@ public abstract class FieldVisitor {
   /**
    * Constructs a new {@link FieldVisitor}.
    *
-   * @param fieldVisitor
-   *         the field visitor to which this visitor must delegate method
-   *         calls. May be null.
+   * @param fieldVisitor the field visitor to which this visitor must delegate method
+   * calls. May be null.
    */
   public FieldVisitor(final FieldVisitor fieldVisitor) {
     this.fv = fieldVisitor;
@@ -55,11 +54,8 @@ public abstract class FieldVisitor {
   /**
    * Visits an annotation of the field.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
@@ -73,18 +69,13 @@ public abstract class FieldVisitor {
   /**
    * Visits an annotation on the type of the field.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#FIELD}. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#FIELD}. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
@@ -99,8 +90,7 @@ public abstract class FieldVisitor {
   /**
    * Visits a non standard attribute of the field.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
     if (fv != null) {

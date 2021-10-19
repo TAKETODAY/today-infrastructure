@@ -89,12 +89,9 @@ public abstract class Expression implements Serializable {
    * <code>fn2:foo</code> to the same method.
    * </p>
    *
-   * @param obj
-   *         the <code>Object</code> to test for equality.
-   *
+   * @param obj the <code>Object</code> to test for equality.
    * @return <code>true</code> if <code>obj</code> equals this
    * <code>Expression</code>; <code>false</code> otherwise.
-   *
    * @see java.util.Hashtable
    * @see java.lang.Object#equals(java.lang.Object)
    */
@@ -113,7 +110,6 @@ public abstract class Expression implements Serializable {
    * </p>
    *
    * @return The hash code for this <code>Expression</code>.
-   *
    * @see #equals
    * @see java.util.Hashtable
    * @see java.lang.Object#hashCode()

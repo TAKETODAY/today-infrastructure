@@ -44,11 +44,8 @@ import cn.taketoday.util.CollectionUtils;
  * designed for data structures exposed from request objects, for use in a
  * single thread only.
  *
- * @param <K>
- *         the key type
- * @param <V>
- *         the value element type
- *
+ * @param <K> the key type
+ * @param <V> the value element type
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author TODAY <br>
@@ -127,11 +124,8 @@ public class DefaultMultiValueMap<K, V>
   }
 
   /**
-   * @param key
-   *         they key
-   * @param values
-   *         the values to be added
-   *
+   * @param key they key
+   * @param values the values to be added
    * @since 4.0
    */
   @Override
@@ -277,7 +271,6 @@ public class DefaultMultiValueMap<K, V>
    * @return a copy of this Map, including a copy of each value-holding List entry
    * (consistently using an independent modifiable {@link List} for
    * each entry) along the lines of {@code MultiValueMap.addAll} semantics
-   *
    * @see #addAll(MultiValueMap)
    * @see #clone()
    * @since 2.1.7
@@ -302,7 +295,6 @@ public class DefaultMultiValueMap<K, V>
    * @return a shallow copy of this Map, reusing this Map's value-holding List
    * entries (even if some entries are shared or unmodifiable) along the
    * lines of standard {@code Map.put} semantics
-   *
    * @see #put(Object, List)
    * @see #putAll(Map)
    * @see DefaultMultiValueMap#DefaultMultiValueMap(Map)

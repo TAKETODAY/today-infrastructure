@@ -37,14 +37,11 @@ public interface MethodBeforeAdvice extends BeforeAdvice {
   /**
    * Callback before a given method is invoked.
    *
-   * @param invocation
-   *         the method invocation join-point
-   *
-   * @throws Throwable
-   *         if this object wishes to abort the call.
-   *         Any exception thrown will be returned to the caller if it's
-   *         allowed by the method signature. Otherwise the exception
-   *         will be wrapped as a runtime exception.
+   * @param invocation the method invocation join-point
+   * @throws Throwable if this object wishes to abort the call.
+   * Any exception thrown will be returned to the caller if it's
+   * allowed by the method signature. Otherwise the exception
+   * will be wrapped as a runtime exception.
    */
   void before(MethodInvocation invocation) throws Throwable;
 

@@ -106,9 +106,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
    * <p>Optimized to skip sorting for lists with size 0 or 1,
    * in order to avoid unnecessary array extraction.
    *
-   * @param list
-   *         the List to sort
-   *
+   * @param list the List to sort
    * @see java.util.List#sort(java.util.Comparator)
    */
   public static void sort(List<?> list) {
@@ -122,9 +120,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
    * <p>Optimized to skip sorting for lists with size 0 or 1,
    * in order to avoid unnecessary array extraction.
    *
-   * @param array
-   *         the array to sort
-   *
+   * @param array the array to sort
    * @see java.util.Arrays#sort(Object[], java.util.Comparator)
    */
   public static void sort(Object[] array) {
@@ -139,9 +135,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
    * <p>Optimized to skip sorting for lists with size 0 or 1,
    * in order to avoid unnecessary array extraction.
    *
-   * @param value
-   *         the array or List to sort
-   *
+   * @param value the array or List to sort
    * @see java.util.Arrays#sort(Object[], java.util.Comparator)
    */
   public static void sortIfNecessary(Object value) {

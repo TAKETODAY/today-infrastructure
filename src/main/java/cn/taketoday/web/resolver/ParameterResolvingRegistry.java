@@ -103,9 +103,7 @@ public class ParameterResolvingRegistry
   /**
    * Find a suitable {@link ParameterResolvingStrategy} for given {@link MethodParameter}
    *
-   * @param parameter
-   *         MethodParameter
-   *
+   * @param parameter MethodParameter
    * @return a suitable {@link ParameterResolvingStrategy},
    * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
    */
@@ -125,9 +123,7 @@ public class ParameterResolvingRegistry
    * <p>
    * find in {@code customizedResolvers} and when find in {@code defaultResolvers}
    *
-   * @param parameter
-   *         parameter value to be resolve
-   *
+   * @param parameter parameter value to be resolve
    * @return A suitable {@link ParameterResolvingStrategy}
    */
   @Nullable
@@ -144,9 +140,7 @@ public class ParameterResolvingRegistry
    * throws {@link ParameterResolverNotFoundException}
    *
    * @return A suitable {@link ParameterResolvingStrategy}
-   *
-   * @throws ParameterResolverNotFoundException
-   *         If there isn't a suitable resolver
+   * @throws ParameterResolverNotFoundException If there isn't a suitable resolver
    */
   public ParameterResolvingStrategy obtainResolvingStrategy(final MethodParameter parameter) {
     final ParameterResolvingStrategy resolver = findStrategy(parameter);
@@ -307,9 +301,7 @@ public class ParameterResolvingRegistry
    * at least one element <tt>e</tt> such that
    * <tt>(resolverClass == resolver.getClass())</tt>.
    *
-   * @param resolverClass
-   *         element whose presence in this defaultResolvers or customizedResolvers is to be tested
-   *
+   * @param resolverClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
    * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
    */
   public boolean contains(Class<?> resolverClass) {

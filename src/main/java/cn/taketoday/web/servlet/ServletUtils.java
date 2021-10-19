@@ -55,8 +55,7 @@ public abstract class ServletUtils {
   /**
    * Get HttpSession
    *
-   * @throws IllegalStateException
-   *         Not run in servlet
+   * @throws IllegalStateException Not run in servlet
    */
   public static HttpSession getHttpSession(final RequestContext context) {
     return getHttpSession(context, true);
@@ -78,19 +77,15 @@ public abstract class ServletUtils {
    * to maintain session integrity and is asked to create a new session
    * when the response is committed, an IllegalStateException is thrown.
    *
-   * @param create
-   *         <code>true</code> to create
-   *         a new session for this request if necessary;
-   *         <code>false</code> to return <code>null</code>
-   *         if there's no current session
-   *
+   * @param create <code>true</code> to create
+   * a new session for this request if necessary;
+   * <code>false</code> to return <code>null</code>
+   * if there's no current session
    * @return the <code>HttpSession</code> associated
    * with this request or <code>null</code> if
    * <code>create</code> is <code>false</code>
    * and the request has no valid session
-   *
-   * @throws IllegalStateException
-   *         Not run in servlet
+   * @throws IllegalStateException Not run in servlet
    * @see #getHttpSession(RequestContext)
    */
   public static HttpSession getHttpSession(final RequestContext context, boolean create) {

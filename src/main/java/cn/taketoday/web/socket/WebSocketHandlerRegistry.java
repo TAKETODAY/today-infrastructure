@@ -79,9 +79,7 @@ public class WebSocketHandlerRegistry
   /**
    * Create a handler bean instance
    *
-   * @param beanFactory
-   *         {@link ConfigurableBeanFactory}
-   *
+   * @param beanFactory {@link ConfigurableBeanFactory}
    * @return Returns a handler bean of target beanClass
    */
   protected Object createHandler(final BeanDefinition def, final BeanFactory beanFactory) {

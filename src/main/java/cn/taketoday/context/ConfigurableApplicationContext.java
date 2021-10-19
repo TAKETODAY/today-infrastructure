@@ -35,7 +35,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * Get configurable environment
    *
    * @return {@link ConfigurableEnvironment} never be null
-   *
    * @since 2.1.0
    */
   @Override
@@ -54,9 +53,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * factory of this application context on refresh, before any of the bean
    * definitions get evaluated. To be invoked during context configuration.
    *
-   * @param postProcessor
-   *         the factory processor to register
-   *
+   * @param postProcessor the factory processor to register
    * @since 2.1.7
    */
   void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
@@ -74,9 +71,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * a constructor if it isn't available when an object of this class is created,
    * for example in case of WebApplicationContext setup.
    *
-   * @param parent
-   *         the parent context
-   *
+   * @param parent the parent context
    * @since 4.0
    */
   void setParent(@Nullable ApplicationContext parent);
@@ -84,9 +79,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   /**
    * Set the {@code Environment} for this application context.
    *
-   * @param environment
-   *         the new environment
-   *
+   * @param environment the new environment
    * @since 4.0
    */
   void setEnvironment(ConfigurableEnvironment environment);

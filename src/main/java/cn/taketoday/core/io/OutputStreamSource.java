@@ -40,16 +40,14 @@ public interface OutputStreamSource {
    * Return an {@link OutputStream} for the underlying resource, allowing to
    * (over-)write its content.
    *
-   * @throws IOException
-   *         if the stream could not be opened
+   * @throws IOException if the stream could not be opened
    */
   OutputStream getOutputStream() throws IOException;
 
   /**
    * Get {@link Writer}
    *
-   * @throws IOException
-   *         if the stream could not be opened
+   * @throws IOException if the stream could not be opened
    */
   default Writer getWriter() throws IOException {
     return new OutputStreamWriter(getOutputStream(), Constant.DEFAULT_CHARSET);
@@ -65,11 +63,8 @@ public interface OutputStreamSource {
    *
    * @return the byte channel for the underlying resource (must not be
    * {@code null})
-   *
-   * @throws java.io.FileNotFoundException
-   *         if the underlying resource doesn't exist
-   * @throws IOException
-   *         if the content channel could not be opened
+   * @throws java.io.FileNotFoundException if the underlying resource doesn't exist
+   * @throws IOException if the content channel could not be opened
    * @see #getOutputStream()
    */
   default WritableByteChannel writableChannel() throws IOException {

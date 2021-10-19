@@ -33,8 +33,7 @@ public class CannotCreateTransactionException extends TransactionException {
   /**
    * Constructor for CannotCreateTransactionException.
    *
-   * @param msg
-   *         the detail message
+   * @param msg the detail message
    */
   public CannotCreateTransactionException(String msg) {
     super(msg);
@@ -43,10 +42,8 @@ public class CannotCreateTransactionException extends TransactionException {
   /**
    * Constructor for CannotCreateTransactionException.
    *
-   * @param msg
-   *         the detail message
-   * @param cause
-   *         the root cause from the transaction API in use
+   * @param msg the detail message
+   * @param cause the root cause from the transaction API in use
    */
   public CannotCreateTransactionException(String msg, Throwable cause) {
     super(msg, cause);

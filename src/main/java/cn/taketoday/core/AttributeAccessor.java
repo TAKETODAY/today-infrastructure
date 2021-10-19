@@ -45,10 +45,8 @@ public interface AttributeAccessor {
    * attributes by using fully-qualified names, perhaps using class or package
    * names as prefix.
    *
-   * @param name
-   *         the unique attribute key
-   * @param value
-   *         the attribute value to be attached
+   * @param name the unique attribute key
+   * @param value the attribute value to be attached
    */
   void setAttribute(String name, @Nullable Object value);
 
@@ -56,9 +54,7 @@ public interface AttributeAccessor {
    * Get the value of the attribute identified by {@code name}. Return
    * {@code null} if the attribute doesn't exist.
    *
-   * @param name
-   *         the unique attribute key
-   *
+   * @param name the unique attribute key
    * @return the current value of the attribute, if any
    */
   @Nullable
@@ -68,9 +64,7 @@ public interface AttributeAccessor {
    * Remove the attribute identified by {@code name} and return its value. Return
    * {@code null} if no attribute under {@code name} is found.
    *
-   * @param name
-   *         the unique attribute key
-   *
+   * @param name the unique attribute key
    * @return the last value of the attribute, if any
    */
   @Nullable
@@ -80,8 +74,7 @@ public interface AttributeAccessor {
    * Return {@code true} if the attribute identified by {@code name} exists.
    * Otherwise return {@code false}.
    *
-   * @param name
-   *         the unique attribute key
+   * @param name the unique attribute key
    */
   boolean hasAttribute(String name);
 
@@ -94,7 +87,6 @@ public interface AttributeAccessor {
    * Return attributes map
    *
    * @return attributes map
-   *
    * @since 3.0
    */
   Map<String, Object> getAttributes();
@@ -109,18 +101,12 @@ public interface AttributeAccessor {
    * <p>The default implementation of this method is not thread safe but can
    * overridden by concrete implementations of this interface.
    *
-   * @param <T>
-   *         the type of the attribute value
-   * @param name
-   *         the unique attribute key
-   * @param computeFunction
-   *         a function that computes a new value for the attribute
-   *         name; the function must not return a {@code null} value
-   *
+   * @param <T> the type of the attribute value
+   * @param name the unique attribute key
+   * @param computeFunction a function that computes a new value for the attribute
+   * name; the function must not return a {@code null} value
    * @return the existing value or newly computed value for the named attribute
-   *
-   * @throws IllegalStateException
-   *         If computeFunction returns {@code null}
+   * @throws IllegalStateException If computeFunction returns {@code null}
    * @see #getAttribute(String)
    * @see #setAttribute(String, Object)
    * @since 3.0

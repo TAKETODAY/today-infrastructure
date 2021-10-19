@@ -34,9 +34,7 @@ public interface HandlerMethodCustomizer extends HandlerCustomizer {
   }
 
   /**
-   * @param handlerMethod
-   *         HandlerMethod
-   *
+   * @param handlerMethod HandlerMethod
    * @return a modified handler
    */
   Object customize(HandlerMethod handlerMethod);

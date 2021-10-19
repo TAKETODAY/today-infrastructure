@@ -47,9 +47,7 @@ public abstract class Remapper {
   /**
    * Returns the given descriptor, remapped with {@link #map(String)}.
    *
-   * @param descriptor
-   *         a type descriptor.
-   *
+   * @param descriptor a type descriptor.
    * @return the given descriptor, with its [array element type] internal name remapped with {@link
    * #map(String)} (if the descriptor corresponds to an array or object type, otherwise the
    * descriptor is returned as is).
@@ -62,9 +60,7 @@ public abstract class Remapper {
    * Returns the given {@link Type}, remapped with {@link #map(String)} or {@link
    * #mapMethodDesc(String)}.
    *
-   * @param type
-   *         a type, which can be a method type.
-   *
+   * @param type a type, which can be a method type.
    * @return the given type, with its [array element type] internal name remapped with {@link
    * #map(String)} (if the type is an array or object type, otherwise the type is returned as
    * is) or, of the type is a method type, with its descriptor remapped with {@link
@@ -92,9 +88,7 @@ public abstract class Remapper {
   /**
    * Returns the given internal name, remapped with {@link #map(String)}.
    *
-   * @param internalName
-   *         the internal name (or array type descriptor) of some (array) class.
-   *
+   * @param internalName the internal name (or array type descriptor) of some (array) class.
    * @return the given internal name, remapped with {@link #map(String)}.
    */
   public String mapType(final String internalName) {
@@ -107,9 +101,7 @@ public abstract class Remapper {
   /**
    * Returns the given internal names, remapped with {@link #map(String)}.
    *
-   * @param internalNames
-   *         the internal names (or array type descriptors) of some (array) classes.
-   *
+   * @param internalNames the internal names (or array type descriptors) of some (array) classes.
    * @return the given internal name, remapped with {@link #map(String)}.
    */
   public String[] mapTypes(final String[] internalNames) {
@@ -131,9 +123,7 @@ public abstract class Remapper {
    * Returns the given method descriptor, with its argument and return type descriptors remapped
    * with {@link #mapDesc(String)}.
    *
-   * @param methodDescriptor
-   *         a method descriptor.
-   *
+   * @param methodDescriptor a method descriptor.
    * @return the given method descriptor, with its argument and return type descriptors remapped
    * with {@link #mapDesc(String)}.
    */
@@ -162,10 +152,8 @@ public abstract class Remapper {
    * {@link Float}, {@link String}, {@link Type}, {@link Handle}, {@link ConstantDynamic} or arrays
    * of primitive types .
    *
-   * @param value
-   *         an object. Only {@link Type}, {@link Handle} and {@link ConstantDynamic} values
-   *         are remapped.
-   *
+   * @param value an object. Only {@link Type}, {@link Handle} and {@link ConstantDynamic} values
+   * are remapped.
    * @return the given value, remapped with this remapper.
    */
   public Object mapValue(final Object value) {
@@ -209,11 +197,8 @@ public abstract class Remapper {
    * Returns the given signature, remapped with the {@link SignatureVisitor} returned by {@link
    * #createSignatureRemapper(SignatureVisitor)}.
    *
-   * @param signature
-   *         a <i>JavaTypeSignature</i>, <i>ClassSignature</i> or <i>MethodSignature</i>.
-   * @param typeSignature
-   *         whether the given signature is a <i>JavaTypeSignature</i>.
-   *
+   * @param signature a <i>JavaTypeSignature</i>, <i>ClassSignature</i> or <i>MethodSignature</i>.
+   * @param typeSignature whether the given signature is a <i>JavaTypeSignature</i>.
    * @return signature the given signature, remapped with the {@link SignatureVisitor} returned by
    * {@link #createSignatureRemapper(SignatureVisitor)}.
    */
@@ -237,9 +222,7 @@ public abstract class Remapper {
    * Constructs a new remapper for signatures. The default implementation of this method returns a
    * new {@link SignatureRemapper}.
    *
-   * @param signatureVisitor
-   *         the SignatureVisitor the remapper must delegate to.
-   *
+   * @param signatureVisitor the SignatureVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
   protected SignatureVisitor createSignatureRemapper(final SignatureVisitor signatureVisitor) {
@@ -250,11 +233,8 @@ public abstract class Remapper {
    * Maps an annotation attribute name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *
-   * @param descriptor
-   *         the descriptor of the annotation class.
-   * @param name
-   *         the name of the annotation attribute.
-   *
+   * @param descriptor the descriptor of the annotation class.
+   * @param name the name of the annotation attribute.
    * @return the new name of the annotation attribute.
    */
   public String mapAnnotationAttributeName(final String descriptor, final String name) {
@@ -266,13 +246,9 @@ public abstract class Remapper {
    * strategy that will work for inner classes produced by Java, but not necessarily other
    * languages. Subclasses can override.
    *
-   * @param name
-   *         the fully-qualified internal name of the inner class.
-   * @param ownerName
-   *         the internal name of the owner class of the inner class.
-   * @param innerName
-   *         the internal name of the inner class.
-   *
+   * @param name the fully-qualified internal name of the inner class.
+   * @param ownerName the internal name of the owner class of the inner class.
+   * @param innerName the internal name of the inner class.
    * @return the new inner name of the inner class.
    */
   public String mapInnerClassName(
@@ -295,13 +271,9 @@ public abstract class Remapper {
    * Maps a method name to its new name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *
-   * @param owner
-   *         the internal name of the owner class of the method.
-   * @param name
-   *         the name of the method.
-   * @param descriptor
-   *         the descriptor of the method.
-   *
+   * @param owner the internal name of the owner class of the method.
+   * @param name the name of the method.
+   * @param descriptor the descriptor of the method.
    * @return the new name of the method.
    */
   public String mapMethodName(final String owner, final String name, final String descriptor) {
@@ -312,11 +284,8 @@ public abstract class Remapper {
    * Maps an invokedynamic or a constant dynamic method name to its new name. The default
    * implementation of this method returns the given name, unchanged. Subclasses can override.
    *
-   * @param name
-   *         the name of the method.
-   * @param descriptor
-   *         the descriptor of the method.
-   *
+   * @param name the name of the method.
+   * @param descriptor the descriptor of the method.
    * @return the new name of the method.
    */
   public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
@@ -327,13 +296,9 @@ public abstract class Remapper {
    * Maps a record component name to its new name. The default implementation of this method returns
    * the given name, unchanged. Subclasses can override.
    *
-   * @param owner
-   *         the internal name of the owner class of the field.
-   * @param name
-   *         the name of the field.
-   * @param descriptor
-   *         the descriptor of the field.
-   *
+   * @param owner the internal name of the owner class of the field.
+   * @param name the name of the field.
+   * @param descriptor the descriptor of the field.
    * @return the new name of the field.
    */
   public String mapRecordComponentName(
@@ -345,13 +310,9 @@ public abstract class Remapper {
    * Maps a field name to its new name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *
-   * @param owner
-   *         the internal name of the owner class of the field.
-   * @param name
-   *         the name of the field.
-   * @param descriptor
-   *         the descriptor of the field.
-   *
+   * @param owner the internal name of the owner class of the field.
+   * @param name the name of the field.
+   * @param descriptor the descriptor of the field.
    * @return the new name of the field.
    */
   public String mapFieldName(final String owner, final String name, final String descriptor) {
@@ -362,9 +323,7 @@ public abstract class Remapper {
    * Maps a package name to its new name. The default implementation of this method returns the
    * given name, unchanged. Subclasses can override.
    *
-   * @param name
-   *         the fully qualified name of the package (using dots).
-   *
+   * @param name the fully qualified name of the package (using dots).
    * @return the new name of the package.
    */
   public String mapPackageName(final String name) {
@@ -375,9 +334,7 @@ public abstract class Remapper {
    * Maps a module name to its new name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *
-   * @param name
-   *         the fully qualified name (using dots) of a module.
-   *
+   * @param name the fully qualified name (using dots) of a module.
    * @return the new name of the module.
    */
   public String mapModuleName(final String name) {
@@ -388,9 +345,7 @@ public abstract class Remapper {
    * Maps the internal name of a class to its new name. The default implementation of this method
    * returns the given name, unchanged. Subclasses can override.
    *
-   * @param internalName
-   *         the internal name of a class.
-   *
+   * @param internalName the internal name of a class.
    * @return the new internal name.
    */
   public String map(final String internalName) {

@@ -40,8 +40,7 @@ public final class PongMessage extends AbstractMessage<ByteBuffer> {
   /**
    * Create a new pong message with the given ByteBuffer payload.
    *
-   * @param payload
-   *         the non-null payload
+   * @param payload the non-null payload
    */
   public PongMessage(ByteBuffer payload) {
     super(payload);

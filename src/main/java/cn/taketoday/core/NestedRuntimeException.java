@@ -54,8 +54,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message.
    *
-   * @param msg
-   *         the detail message
+   * @param msg the detail message
    */
   public NestedRuntimeException(String msg) {
     super(msg);
@@ -64,8 +63,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
   /**
    * Construct a {@code NestedRuntimeException} with the specified nested exception.
    *
-   * @param cause
-   *         the nested exception
+   * @param cause the nested exception
    */
   public NestedRuntimeException(Throwable cause) {
     super(cause);
@@ -75,10 +73,8 @@ public abstract class NestedRuntimeException extends RuntimeException {
    * Construct a {@code NestedRuntimeException} with the specified detail message
    * and nested exception.
    *
-   * @param msg
-   *         the detail message
-   * @param cause
-   *         the nested exception
+   * @param msg the detail message
+   * @param cause the nested exception
    */
   public NestedRuntimeException(String msg, Throwable cause) {
     super(msg, cause);
@@ -121,9 +117,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    * either it is of the given class itself or it contains a nested cause
    * of the given type.
    *
-   * @param exType
-   *         the exception type to look for
-   *
+   * @param exType the exception type to look for
    * @return whether there is a nested exception of the specified type
    */
   public boolean contains(Class<?> exType) {

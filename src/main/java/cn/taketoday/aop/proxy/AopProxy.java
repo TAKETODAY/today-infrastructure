@@ -43,7 +43,6 @@ public interface AopProxy {
    * usually, the thread context class loader.
    *
    * @return the new proxy object (never {@code null})
-   *
    * @see Thread#getContextClassLoader()
    */
   default Object getProxy() {
@@ -57,10 +56,8 @@ public interface AopProxy {
    * proxy facility's default, which is usually different from the default chosen
    * by the AopProxy implementation's {@link #getProxy()} method.
    *
-   * @param classLoader
-   *         the class loader to create the proxy with
-   *         (or {@code null} for the low-level proxy facility's default)
-   *
+   * @param classLoader the class loader to create the proxy with
+   * (or {@code null} for the low-level proxy facility's default)
    * @return the new proxy object (never {@code null})
    */
   Object getProxy(ClassLoader classLoader);

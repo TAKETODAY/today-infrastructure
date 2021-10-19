@@ -57,8 +57,7 @@ public class CompositeStrategies<T> implements ArraySizeTrimmer, Iterable<T> {
   /**
    * add resolvers or resolving-strategies
    *
-   * @param resolver
-   *         resolvers or resolving-strategies
+   * @param resolver resolvers or resolving-strategies
    */
   @SafeVarargs
   public final void add(T... resolver) {
@@ -68,8 +67,7 @@ public class CompositeStrategies<T> implements ArraySizeTrimmer, Iterable<T> {
   /**
    * add resolvers or resolving-strategies
    *
-   * @param resolvers
-   *         resolvers or resolving-strategies
+   * @param resolvers resolvers or resolving-strategies
    */
   public void add(List<T> resolvers) {
     this.strategies.addAll(resolvers);
@@ -79,8 +77,7 @@ public class CompositeStrategies<T> implements ArraySizeTrimmer, Iterable<T> {
   /**
    * set or clear resolvers
    *
-   * @param resolver
-   *         can be null
+   * @param resolver can be null
    */
   public void set(@Nullable List<T> resolver) {
     strategies.clear();
@@ -95,19 +92,14 @@ public class CompositeStrategies<T> implements ArraySizeTrimmer, Iterable<T> {
    * predicate.  Errors or runtime exceptions thrown during iteration or by
    * the predicate are relayed to the caller.
    *
-   * @param filter
-   *         a predicate which returns {@code true} for elements to be
-   *         removed
-   *
+   * @param filter a predicate which returns {@code true} for elements to be
+   * removed
    * @return {@code true} if any elements were removed
-   *
-   * @throws NullPointerException
-   *         if the specified filter is null
-   * @throws UnsupportedOperationException
-   *         if elements cannot be removed
-   *         from this collection.  Implementations may throw this exception if a
-   *         matching element cannot be removed or if, in general, removal is not
-   *         supported.
+   * @throws NullPointerException if the specified filter is null
+   * @throws UnsupportedOperationException if elements cannot be removed
+   * from this collection.  Implementations may throw this exception if a
+   * matching element cannot be removed or if, in general, removal is not
+   * supported.
    * @implSpec The default implementation traverses all elements of the collection using
    * its {@link List#iterator()}.  Each matching element is removed using
    * {@link Iterator#remove()}.  If the collection's iterator does not
@@ -124,9 +116,7 @@ public class CompositeStrategies<T> implements ArraySizeTrimmer, Iterable<T> {
    * at least one element <tt>e</tt> such that
    * <tt>(resolverClass == resolver.getClass())</tt>.
    *
-   * @param strategy
-   *         element whose presence in this strategies
-   *
+   * @param strategy element whose presence in this strategies
    * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
    */
   public boolean contains(Class<?> strategy) {

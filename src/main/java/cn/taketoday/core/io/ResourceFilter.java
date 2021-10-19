@@ -32,9 +32,7 @@ public interface ResourceFilter {
    * Tests whether or not the specified abstract {@link Resource} name should be
    * included in a name list.
    *
-   * @param resource
-   *         The Resource to be tested
-   *
+   * @param resource The Resource to be tested
    * @return <code>true</code> if and only if <code>pathname</code> should be
    * included
    */

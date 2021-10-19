@@ -59,11 +59,8 @@ public abstract class GenericTypeResolver {
    * Determine the target type for the generic return type of the given method,
    * where formal type variables are declared on the given class.
    *
-   * @param method
-   *         the method to introspect
-   * @param clazz
-   *         the class to resolve type variables against
-   *
+   * @param method the method to introspect
+   * @param clazz the class to resolve type variables against
    * @return the corresponding generic parameter or return type
    */
   public static Class<?> resolveReturnType(Method method, Class<?> clazz) {
@@ -77,11 +74,8 @@ public abstract class GenericTypeResolver {
    * target method which is assumed to return the given interface or an implementation
    * of it.
    *
-   * @param method
-   *         the target method to check the return type of
-   * @param genericIfc
-   *         the generic interface or superclass to resolve the type argument from
-   *
+   * @param method the target method to check the return type of
+   * @param genericIfc the generic interface or superclass to resolve the type argument from
    * @return the resolved parameter type of the method return type, or {@code null}
    * if not resolvable or if the single argument is of type {@link WildcardType}.
    */
@@ -99,11 +93,8 @@ public abstract class GenericTypeResolver {
    * the given target class which is assumed to implement the generic interface
    * and possibly declare a concrete type for its type variable.
    *
-   * @param clazz
-   *         the target class to check against
-   * @param genericIfc
-   *         the generic interface or superclass to resolve the type argument from
-   *
+   * @param clazz the target class to check against
+   * @param genericIfc the generic interface or superclass to resolve the type argument from
    * @return the resolved type of the argument, or {@code null} if not resolvable
    */
   @Nullable
@@ -128,11 +119,8 @@ public abstract class GenericTypeResolver {
    * target class which is assumed to implement the generic interface and possibly
    * declare concrete types for its type variables.
    *
-   * @param clazz
-   *         the target class to check against
-   * @param genericIfc
-   *         the generic interface or superclass to resolve the type argument from
-   *
+   * @param clazz the target class to check against
+   * @param genericIfc the generic interface or superclass to resolve the type argument from
    * @return the resolved type of each argument, with the array size matching the
    * number of actual type arguments, or {@code null} if not resolvable
    */
@@ -149,12 +137,9 @@ public abstract class GenericTypeResolver {
    * Resolve the given generic type against the given context class,
    * substituting type variables as far as possible.
    *
-   * @param genericType
-   *         the (potentially) generic type
-   * @param contextClass
-   *         a context class for the target type, for example a class
-   *         in which the target type appears in a method signature (can be {@code null})
-   *
+   * @param genericType the (potentially) generic type
+   * @param contextClass a context class for the target type, for example a class
+   * in which the target type appears in a method signature (can be {@code null})
    * @return the resolved type (possibly the given generic type as-is)
    */
   public static Type resolveType(Type genericType, Class<?> contextClass) {
@@ -230,11 +215,8 @@ public abstract class GenericTypeResolver {
   /**
    * Resolve the specified generic type against the given TypeVariable map.
    *
-   * @param genericType
-   *         the generic type to resolve
-   * @param map
-   *         the TypeVariable Map to resolved against
-   *
+   * @param genericType the generic type to resolve
+   * @param map the TypeVariable Map to resolved against
    * @return the type if it resolves to a Class, or {@code Object.class} otherwise
    */
   @SuppressWarnings("rawtypes")

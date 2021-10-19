@@ -20,10 +20,6 @@
 
 package cn.taketoday.web.handler;
 
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.ObjectNotationProcessor;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,6 +33,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.ObjectNotationProcessor;
 
 /**
  * jackson {@link ObjectNotationProcessor} implementation
@@ -62,9 +63,8 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
   }
 
   /**
-   * @throws JsonParseException
-   *         if underlying input contains invalid content
-   *         of type {@link JsonParser} supports (JSON for default case)
+   * @throws JsonParseException if underlying input contains invalid content
+   * of type {@link JsonParser} supports (JSON for default case)
    */
   @Override
   public Object read(String message, TypeDescriptor descriptor) throws IOException {
@@ -74,9 +74,8 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
   }
 
   /**
-   * @throws JsonParseException
-   *         if underlying input contains invalid content
-   *         of type {@link JsonParser} supports (JSON for default case)
+   * @throws JsonParseException if underlying input contains invalid content
+   * of type {@link JsonParser} supports (JSON for default case)
    */
   @Override
   public Object read(InputStream source, TypeDescriptor descriptor) throws IOException {

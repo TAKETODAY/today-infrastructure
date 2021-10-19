@@ -38,10 +38,8 @@ public class BinaryMessage extends AbstractMessage<ByteBuffer> {
    * to {@code false} the message is sent as partial content and more partial
    * messages will be expected until the boolean flag is set to {@code true}.
    *
-   * @param payload
-   *         the non-null payload
-   * @param isLast
-   *         whether this the last part of a series of partial messages
+   * @param payload the non-null payload
+   * @param isLast whether this the last part of a series of partial messages
    */
   public BinaryMessage(ByteBuffer payload, boolean isLast) {
     super(payload, isLast);

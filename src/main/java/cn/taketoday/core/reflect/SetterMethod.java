@@ -41,19 +41,14 @@ public interface SetterMethod {
    * If value is null and target property type is primitive this method will do
    * nothing.
    *
-   * @param obj
-   *         Target obj
-   * @param value
-   *         property value
-   *
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
+   * @param obj Target obj
+   * @param value property value
+   * @throws PropertyReadOnlyException If this property is read only
    */
   void set(Object obj, Object value);
 
   /**
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
+   * @throws PropertyReadOnlyException If this property is read only
    * @since 3.0
    */
   @Nullable
@@ -66,9 +61,7 @@ public interface SetterMethod {
   /**
    * new SetterMethod from java reflect property
    *
-   * @param field
-   *         given java reflect property
-   *
+   * @param field given java reflect property
    * @return SetterMethod
    */
   static SetterMethod fromField(final Field field) {
@@ -82,11 +75,8 @@ public interface SetterMethod {
   /**
    * use fast invoke tech {@link MethodInvoker}
    *
-   * @param method
-   *         java reflect {@link Method}
-   *
+   * @param method java reflect {@link Method}
    * @return SetterMethod
-   *
    * @see MethodInvoker#fromMethod(Method)
    */
   static SetterMethod fromMethod(final Method method) {
@@ -97,11 +87,8 @@ public interface SetterMethod {
   /**
    * use fast invoke tech {@link MethodInvoker}
    *
-   * @param invoker
-   *         fast MethodInvoker
-   *
+   * @param invoker fast MethodInvoker
    * @return SetterMethod
-   *
    * @see MethodInvoker#fromMethod(Method)
    */
   static SetterMethod fromMethod(final MethodInvoker invoker) {
@@ -111,11 +98,8 @@ public interface SetterMethod {
   /**
    * use java reflect {@link Field} tech
    *
-   * @param field
-   *         Field
-   *
+   * @param field Field
    * @return Reflective SetterMethod
-   *
    * @see Field#set(Object, Object)
    * @see ReflectionUtils#setField(Field, Object, Object)
    */

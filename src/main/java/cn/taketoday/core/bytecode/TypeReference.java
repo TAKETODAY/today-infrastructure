@@ -179,9 +179,8 @@ public class TypeReference {
   /**
    * Constructs a new TypeReference.
    *
-   * @param typeRef
-   *         the int encoded value of the type reference, as received in a visit method
-   *         related to type annotations, such as {@link ClassVisitor#visitTypeAnnotation}.
+   * @param typeRef the int encoded value of the type reference, as received in a visit method
+   * related to type annotations, such as {@link ClassVisitor#visitTypeAnnotation}.
    */
   public TypeReference(final int typeRef) {
     this.targetTypeAndInfo = typeRef;
@@ -190,11 +189,9 @@ public class TypeReference {
   /**
    * Returns a type reference of the given sort.
    *
-   * @param sort
-   *         one of {@link #FIELD}, {@link #METHOD_RETURN}, {@link #METHOD_RECEIVER}, {@link
-   *         #LOCAL_VARIABLE}, {@link #RESOURCE_VARIABLE}, {@link #INSTANCEOF}, {@link #NEW}, {@link
-   *         #CONSTRUCTOR_REFERENCE}, or {@link #METHOD_REFERENCE}.
-   *
+   * @param sort one of {@link #FIELD}, {@link #METHOD_RETURN}, {@link #METHOD_RECEIVER}, {@link
+   * #LOCAL_VARIABLE}, {@link #RESOURCE_VARIABLE}, {@link #INSTANCEOF}, {@link #NEW}, {@link
+   * #CONSTRUCTOR_REFERENCE}, or {@link #METHOD_REFERENCE}.
    * @return a type reference of the given sort.
    */
   public static TypeReference newTypeReference(final int sort) {
@@ -204,11 +201,8 @@ public class TypeReference {
   /**
    * Returns a reference to a type parameter of a generic class or method.
    *
-   * @param sort
-   *         one of {@link #CLASS_TYPE_PARAMETER} or {@link #METHOD_TYPE_PARAMETER}.
-   * @param paramIndex
-   *         the type parameter index.
-   *
+   * @param sort one of {@link #CLASS_TYPE_PARAMETER} or {@link #METHOD_TYPE_PARAMETER}.
+   * @param paramIndex the type parameter index.
    * @return a reference to the given generic class or method type parameter.
    */
   public static TypeReference newTypeParameterReference(final int sort, final int paramIndex) {
@@ -218,13 +212,9 @@ public class TypeReference {
   /**
    * Returns a reference to a type parameter bound of a generic class or method.
    *
-   * @param sort
-   *         one of {@link #CLASS_TYPE_PARAMETER} or {@link #METHOD_TYPE_PARAMETER}.
-   * @param paramIndex
-   *         the type parameter index.
-   * @param boundIndex
-   *         the type bound index within the above type parameters.
-   *
+   * @param sort one of {@link #CLASS_TYPE_PARAMETER} or {@link #METHOD_TYPE_PARAMETER}.
+   * @param paramIndex the type parameter index.
+   * @param boundIndex the type bound index within the above type parameters.
    * @return a reference to the given generic class or method type parameter bound.
    */
   public static TypeReference newTypeParameterBoundReference(
@@ -236,10 +226,8 @@ public class TypeReference {
    * Returns a reference to the super class or to an interface of the 'implements' clause of a
    * class.
    *
-   * @param itfIndex
-   *         the index of an interface in the 'implements' clause of a class, or -1 to
-   *         reference the super class of the class.
-   *
+   * @param itfIndex the index of an interface in the 'implements' clause of a class, or -1 to
+   * reference the super class of the class.
    * @return a reference to the given super type of a class.
    */
   public static TypeReference newSuperTypeReference(final int itfIndex) {
@@ -249,9 +237,7 @@ public class TypeReference {
   /**
    * Returns a reference to the type of a formal parameter of a method.
    *
-   * @param paramIndex
-   *         the formal parameter index.
-   *
+   * @param paramIndex the formal parameter index.
    * @return a reference to the type of the given method formal parameter.
    */
   public static TypeReference newFormalParameterReference(final int paramIndex) {
@@ -261,9 +247,7 @@ public class TypeReference {
   /**
    * Returns a reference to the type of an exception, in a 'throws' clause of a method.
    *
-   * @param exceptionIndex
-   *         the index of an exception in a 'throws' clause of a method.
-   *
+   * @param exceptionIndex the index of an exception in a 'throws' clause of a method.
    * @return a reference to the type of the given exception.
    */
   public static TypeReference newExceptionReference(final int exceptionIndex) {
@@ -273,10 +257,8 @@ public class TypeReference {
   /**
    * Returns a reference to the type of the exception declared in a 'catch' clause of a method.
    *
-   * @param tryCatchBlockIndex
-   *         the index of a try catch block (using the order in which they are
-   *         visited with visitTryCatchBlock).
-   *
+   * @param tryCatchBlockIndex the index of a try catch block (using the order in which they are
+   * visited with visitTryCatchBlock).
    * @return a reference to the type of the given exception.
    */
   public static TypeReference newTryCatchReference(final int tryCatchBlockIndex) {
@@ -287,13 +269,10 @@ public class TypeReference {
    * Returns a reference to the type of a type argument in a constructor or method call or
    * reference.
    *
-   * @param sort
-   *         one of {@link #CAST}, {@link #CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT}, {@link
-   *         #METHOD_INVOCATION_TYPE_ARGUMENT}, {@link #CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or {@link
-   *         #METHOD_REFERENCE_TYPE_ARGUMENT}.
-   * @param argIndex
-   *         the type argument index.
-   *
+   * @param sort one of {@link #CAST}, {@link #CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT}, {@link
+   * #METHOD_INVOCATION_TYPE_ARGUMENT}, {@link #CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or {@link
+   * #METHOD_REFERENCE_TYPE_ARGUMENT}.
+   * @param argIndex the type argument index.
    * @return a reference to the type of the given type argument.
    */
   public static TypeReference newTypeArgumentReference(final int sort, final int argIndex) {
@@ -408,11 +387,9 @@ public class TypeReference {
   /**
    * Puts the given target_type and target_info JVMS structures into the given ByteVector.
    *
-   * @param targetTypeAndInfo
-   *         a target_type and a target_info structures encoded as in {@link
-   *         #targetTypeAndInfo}. LOCAL_VARIABLE and RESOURCE_VARIABLE target types are not supported.
-   * @param output
-   *         where the type reference must be put.
+   * @param targetTypeAndInfo a target_type and a target_info structures encoded as in {@link
+   * #targetTypeAndInfo}. LOCAL_VARIABLE and RESOURCE_VARIABLE target types are not supported.
+   * @param output where the type reference must be put.
    */
   static void putTarget(final int targetTypeAndInfo, final ByteVector output) {
     switch (targetTypeAndInfo >>> 24) {

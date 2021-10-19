@@ -72,7 +72,6 @@ public class LightHttpConfig {
 
   /**
    * @return max header count
-   *
    * @see Utils#readHeaders(InputStream, LightHttpConfig)
    */
   public int getHeaderMaxCount() {

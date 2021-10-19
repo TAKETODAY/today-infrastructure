@@ -69,22 +69,17 @@ public class FrameNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link FrameNode}.
    *
-   * @param type
-   *         the type of this frame. Must be {@link Opcodes#F_NEW} for expanded frames, or
-   *         {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link
-   *         Opcodes#F_SAME} or {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
-   * @param numLocal
-   *         number of local variables of this stack map frame.
-   * @param local
-   *         the types of the local variables of this stack map frame. Elements of this list
-   *         can be Integer, String or LabelNode objects (for primitive, reference and uninitialized
-   *         types respectively - see {@link MethodVisitor}).
-   * @param numStack
-   *         number of operand stack elements of this stack map frame.
-   * @param stack
-   *         the types of the operand stack elements of this stack map frame. Elements of this
-   *         list can be Integer, String or LabelNode objects (for primitive, reference and
-   *         uninitialized types respectively - see {@link MethodVisitor}).
+   * @param type the type of this frame. Must be {@link Opcodes#F_NEW} for expanded frames, or
+   * {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link
+   * Opcodes#F_SAME} or {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
+   * @param numLocal number of local variables of this stack map frame.
+   * @param local the types of the local variables of this stack map frame. Elements of this list
+   * can be Integer, String or LabelNode objects (for primitive, reference and uninitialized
+   * types respectively - see {@link MethodVisitor}).
+   * @param numStack number of operand stack elements of this stack map frame.
+   * @param stack the types of the operand stack elements of this stack map frame. Elements of this
+   * list can be Integer, String or LabelNode objects (for primitive, reference and
+   * uninitialized types respectively - see {@link MethodVisitor}).
    */
   public FrameNode(
           final int type,

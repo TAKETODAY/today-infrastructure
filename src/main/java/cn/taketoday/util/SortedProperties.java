@@ -65,9 +65,8 @@ class SortedProperties extends Properties {
    * Construct a new {@code SortedProperties} instance that honors the supplied
    * {@code omitComments} flag.
    *
-   * @param omitComments
-   *         {@code true} if comments should be omitted when
-   *         storing properties in a file
+   * @param omitComments {@code true} if comments should be omitted when
+   * storing properties in a file
    */
   SortedProperties(boolean omitComments) {
     this.omitComments = omitComments;
@@ -80,12 +79,10 @@ class SortedProperties extends Properties {
    * <p>Default properties from the supplied {@code Properties} object will
    * not be copied.
    *
-   * @param properties
-   *         the {@code Properties} object from which to copy the
-   *         initial properties
-   * @param omitComments
-   *         {@code true} if comments should be omitted when
-   *         storing properties in a file
+   * @param properties the {@code Properties} object from which to copy the
+   * initial properties
+   * @param omitComments {@code true} if comments should be omitted when
+   * storing properties in a file
    */
   SortedProperties(Properties properties, boolean omitComments) {
     this(omitComments);

@@ -35,11 +35,11 @@ import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -87,10 +87,9 @@ public abstract class AbstractAutoProxyCreator
    * <p>{@code TargetSourceCreators} can only be invoked if this post processor is used
    * in a {@link BeanFactory} and its {@link BeanFactoryAware} callback is triggered.
    *
-   * @param targetSourceCreators
-   *         the list of {@code TargetSourceCreators}.
-   *         Ordering is significant: The {@code TargetSource} returned from the first matching
-   *         {@code TargetSourceCreator} (that is, the first that returns non-null) will be used.
+   * @param targetSourceCreators the list of {@code TargetSourceCreators}.
+   * Ordering is significant: The {@code TargetSource} returned from the first matching
+   * {@code TargetSourceCreator} (that is, the first that returns non-null) will be used.
    */
   public void setTargetSourceCreators(TargetSourceCreator... targetSourceCreators) {
     this.targetSourceCreators = targetSourceCreators;
@@ -132,9 +131,7 @@ public abstract class AbstractAutoProxyCreator
   /**
    * Use TargetSourceCreator to create TargetSource
    *
-   * @param def
-   *         the BeanDefinition of the bean to be instantiated
-   *
+   * @param def the BeanDefinition of the bean to be instantiated
    * @return a proxy bean or null
    */
   @Override
@@ -286,9 +283,8 @@ public abstract class AbstractAutoProxyCreator
    * <p>Typically used to add Advisors that expose contextual information
    * required by some of the later advisors.
    *
-   * @param eligibleAdvisors
-   *         the Advisors that have already been identified as
-   *         applying to a given bean
+   * @param eligibleAdvisors the Advisors that have already been identified as
+   * applying to a given bean
    */
   protected void postEligibleAdvisors(List<Advisor> eligibleAdvisors) { }
 
@@ -296,9 +292,7 @@ public abstract class AbstractAutoProxyCreator
    * Sort advisors based on ordering. Subclasses may choose to override this
    * method to customize the sorting strategy.
    *
-   * @param advisors
-   *         the source List of Advisors
-   *
+   * @param advisors the source List of Advisors
    * @see Ordered
    * @see Order
    * @see OrderUtils
@@ -317,11 +311,8 @@ public abstract class AbstractAutoProxyCreator
    * <p>The default implementation considers Advices, Advisors and
    * AopInfrastructureBeans as infrastructure classes.
    *
-   * @param beanClass
-   *         the class of the bean
-   *
+   * @param beanClass the class of the bean
    * @return whether the bean represents an infrastructure class
-   *
    * @see org.aopalliance.aop.Advice
    * @see cn.taketoday.aop.Advisor
    * @see cn.taketoday.aop.AopInfrastructureBean
@@ -339,10 +330,8 @@ public abstract class AbstractAutoProxyCreator
    * <p>Calls {@link #isConfigurationCallbackInterface} to filter for reasonable
    * proxy interfaces, falling back to a target-class proxy otherwise.
    *
-   * @param beanClass
-   *         the class of the bean
-   * @param proxyFactory
-   *         the ProxyFactory for the bean
+   * @param beanClass the class of the bean
+   * @param proxyFactory the ProxyFactory for the bean
    */
   protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
     Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
@@ -370,9 +359,7 @@ public abstract class AbstractAutoProxyCreator
    * <p>If no reasonable proxy interface is found for a given bean, it will get
    * proxied with its full target class, assuming that as the user's intention.
    *
-   * @param ifc
-   *         the interface to check
-   *
+   * @param ifc the interface to check
    * @return whether the given interface is just a container callback
    */
   protected boolean isConfigurationCallbackInterface(Class<?> ifc) {
@@ -386,9 +373,7 @@ public abstract class AbstractAutoProxyCreator
   /**
    * Determine whether the given bean should be proxied with its target class rather than its interfaces.
    *
-   * @param def
-   *         the BeanDefinition of the bean
-   *
+   * @param def the BeanDefinition of the bean
    * @return whether the given bean should be proxied with its target class
    */
   protected boolean shouldProxyTargetClass(BeanDefinition def) {

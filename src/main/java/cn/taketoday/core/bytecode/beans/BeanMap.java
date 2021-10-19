@@ -64,9 +64,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
    * the generated instance, use a new instance of <code>BeanMap.Generator</code>
    * instead of this static method.
    *
-   * @param bean
-   *         the JavaBean underlying the map
-   *
+   * @param bean the JavaBean underlying the map
    * @return a new <code>BeanMap</code> instance
    */
   public static BeanMap create(Object bean) {
@@ -96,8 +94,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
      * method overrides any value previously set using {@link #setBeanClass}. You
      * must call either this method or {@link #setBeanClass} before {@link #create}.
      *
-     * @param bean
-     *         the initial bean
+     * @param bean the initial bean
      */
     public void setBean(Object bean) {
       this.bean = bean;
@@ -109,8 +106,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
      * Set the class of the bean that the generated map should support. You must
      * call either this method or {@link #setBeanClass} before {@link #create}.
      *
-     * @param beanClass
-     *         the class of the bean
+     * @param beanClass the class of the bean
      */
     public void setBeanClass(Class beanClass) {
       this.beanClass = beanClass;
@@ -119,9 +115,8 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
     /**
      * Limit the properties reflected by the generated map.
      *
-     * @param require
-     *         any combination of {@link #REQUIRE_GETTER} and
-     *         {@link #REQUIRE_SETTER}; default is zero (any property allowed)
+     * @param require any combination of {@link #REQUIRE_GETTER} and
+     * {@link #REQUIRE_SETTER}; default is zero (any property allowed)
      */
     public void setRequire(int require) {
       this.require = require;
@@ -162,9 +157,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
    * Create a new <code>BeanMap</code> instance using the specified bean. This is
    * faster than using the {@link #create} static method.
    *
-   * @param bean
-   *         the JavaBean underlying the map
-   *
+   * @param bean the JavaBean underlying the map
    * @return a new <code>BeanMap</code> instance
    */
   abstract public BeanMap newInstance(Object bean);
@@ -172,9 +165,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
   /**
    * Get the type of a property.
    *
-   * @param name
-   *         the name of the JavaBean property
-   *
+   * @param name the name of the JavaBean property
    * @return the type of the property, or null if the property does not exist
    */
   abstract public Class getPropertyType(String name);
@@ -202,12 +193,9 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
    * statically for multiple beans--the bean instance tied to the map is ignored
    * and the bean passed to this method is used instead.
    *
-   * @param bean
-   *         the bean to query; must be compatible with the type of this
-   *         <code>BeanMap</code>
-   * @param key
-   *         must be a String
-   *
+   * @param bean the bean to query; must be compatible with the type of this
+   * <code>BeanMap</code>
+   * @param key must be a String
    * @return the current value, or null if there is no matching property
    */
   abstract public Object get(Object bean, Object key);
@@ -217,9 +205,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
    * statically for multiple beans--the bean instance tied to the map is ignored
    * and the bean passed to this method is used instead.
    *
-   * @param key
-   *         must be a String
-   *
+   * @param key must be a String
    * @return the old value, if there was one, or null
    */
   abstract public Object put(Object bean, Object key, Object value);
@@ -227,9 +213,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
   /**
    * Change the underlying bean this map should use.
    *
-   * @param bean
-   *         the new JavaBean
-   *
+   * @param bean the new JavaBean
    * @see #getBean
    */
   public void setBean(Object bean) {
@@ -240,7 +224,6 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
    * Return the bean currently in use by this map.
    *
    * @return the current JavaBean
-   *
    * @see #setBean
    */
   public Object getBean() {

@@ -45,8 +45,7 @@ public abstract class AbstractMultipartResolver
   }
 
   /**
-   * @throws FileSizeExceededException
-   *         upload file size exceeded
+   * @throws FileSizeExceededException upload file size exceeded
    * @see MultipartConfiguration#getMaxRequestSize()
    */
   @Override
@@ -80,8 +79,7 @@ public abstract class AbstractMultipartResolver
   }
 
   /**
-   * @param multipartFiles
-   *         none null multipart files
+   * @param multipartFiles none null multipart files
    */
   protected Object resolveInternal(final RequestContext context,
                                    final MethodParameter parameter,

@@ -235,9 +235,8 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
   /**
    * Create a new {@link MimeMappings} from the specified mappings.
    *
-   * @param mappings
-   *         the source mappings with extension as the key and mime-type as the
-   *         value
+   * @param mappings the source mappings with extension as the key and mime-type as the
+   * value
    */
   public MimeMappings(Map<String, String> mappings) {
     Assert.notNull(mappings, "Mappings must not be null");
@@ -271,11 +270,8 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
   /**
    * Add a new mime mapping.
    *
-   * @param extension
-   *         the file extension (excluding '.')
-   * @param mimeType
-   *         the mime type to map
-   *
+   * @param extension the file extension (excluding '.')
+   * @param mimeType the mime type to map
    * @return any previous mapping or {@code null}
    */
   public String add(String extension, String mimeType) {
@@ -286,9 +282,7 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
   /**
    * Get a mime mapping for the given extension.
    *
-   * @param extension
-   *         the file extension (excluding '.')
-   *
+   * @param extension the file extension (excluding '.')
    * @return a mime mapping or {@code null}
    */
   public String get(String extension) {
@@ -299,9 +293,7 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
   /**
    * Remove an existing mapping.
    *
-   * @param extension
-   *         the file extension (excluding '.')
-   *
+   * @param extension the file extension (excluding '.')
    * @return the removed mime mapping or {@code null} if no item was removed
    */
   public String remove(String extension) {

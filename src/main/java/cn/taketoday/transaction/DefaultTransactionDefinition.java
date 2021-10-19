@@ -98,12 +98,9 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * Set the propagation behavior by the name of the corresponding constant in
    * TransactionDefinition, e.g. "PROPAGATION_REQUIRED".
    *
-   * @param constantName
-   *         name of the constant
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied value is not resolvable to one of the
-   *         {@code PROPAGATION_} constants or is {@code null}
+   * @param constantName name of the constant
+   * @throws IllegalArgumentException if the supplied value is not resolvable to one of the
+   * {@code PROPAGATION_} constants or is {@code null}
    * @see #setPropagationBehavior
    * @see #PROPAGATION_REQUIRED
    */
@@ -130,9 +127,8 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * will throw an exception when given any other level than
    * {@link #ISOLATION_DEFAULT}.
    *
-   * @throws IllegalArgumentException
-   *         if the supplied value is not one of the {@code PROPAGATION_}
-   *         constants
+   * @throws IllegalArgumentException if the supplied value is not one of the {@code PROPAGATION_}
+   * constants
    * @see #PROPAGATION_REQUIRED
    */
   public final DefaultTransactionDefinition setPropagationBehavior(int propagationBehavior) {
@@ -152,12 +148,9 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * Set the isolation level by the name of the corresponding constant in
    * TransactionDefinition, e.g. "ISOLATION_DEFAULT".
    *
-   * @param constantName
-   *         name of the constant
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied value is not resolvable to one of the
-   *         {@code ISOLATION_} constants or is {@code null}
+   * @param constantName name of the constant
+   * @throws IllegalArgumentException if the supplied value is not resolvable to one of the
+   * {@code ISOLATION_} constants or is {@code null}
    * @see #setIsolationLevel
    * @see #ISOLATION_DEFAULT
    */
@@ -184,9 +177,8 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * will throw an exception when given any other level than
    * {@link #ISOLATION_DEFAULT}.
    *
-   * @throws IllegalArgumentException
-   *         if the supplied value is not one of the {@code ISOLATION_}
-   *         constants
+   * @throws IllegalArgumentException if the supplied value is not one of the {@code ISOLATION_}
+   * constants
    * @see #ISOLATION_DEFAULT
    */
   public final DefaultTransactionDefinition setIsolationLevel(int isolationLevel) {

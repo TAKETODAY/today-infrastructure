@@ -120,8 +120,7 @@ public class TypeHandlerRegistry {
    * Set a default {@link TypeHandler} class for {@link Enum}.
    * A default {@link TypeHandler} is {@link EnumTypeHandler}.
    *
-   * @param typeHandler
-   *         a type handler class for {@link Enum}
+   * @param typeHandler a type handler class for {@link Enum}
    */
   public void setDefaultEnumTypeHandler(Class<? extends TypeHandler> typeHandler) {
     this.defaultEnumTypeHandler = typeHandler;

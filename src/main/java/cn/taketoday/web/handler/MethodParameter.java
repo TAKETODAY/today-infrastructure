@@ -125,9 +125,7 @@ public class MethodParameter
   /**
    * init name, required, defaultValue
    *
-   * @param element
-   *         AnnotatedElement may annotated RequestParam
-   *
+   * @param element AnnotatedElement may annotated RequestParam
    * @since 4.0
    */
   protected void initRequestParam(AnnotatedElement element) {
@@ -206,9 +204,7 @@ public class MethodParameter
   /**
    * simple impl
    *
-   * @param request
-   *         Current request context
-   *
+   * @param request Current request context
    * @return parameter object
    */
   protected Object resolveParameter(final RequestContext request) throws Throwable {

@@ -43,11 +43,8 @@ public class WebSessionManagerSupport {
    * Returns the current session associated with this request, or if the request
    * does not have a session, creates one.
    *
-   * @param context
-   *         Current request
-   *
+   * @param context Current request
    * @return the <code>WebSession</code> associated with this request
-   *
    * @see #getSession(RequestContext, boolean)
    */
   public WebSession getSession(RequestContext context) {
@@ -69,17 +66,13 @@ public class WebSessionManagerSupport {
    * maintain session integrity and is asked to create a new session when the
    * response is committed, an IllegalStateException is thrown.
    *
-   * @param context
-   *         Current request
-   * @param create
-   *         <code>true</code> to create a new session for this request if
-   *         necessary; <code>false</code> to return <code>null</code> if
-   *         there's no current session
-   *
+   * @param context Current request
+   * @param create <code>true</code> to create a new session for this request if
+   * necessary; <code>false</code> to return <code>null</code> if
+   * there's no current session
    * @return the <code>WebSession</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
-   *
    * @see #getSession(RequestContext)
    */
   public WebSession getSession(RequestContext context, boolean create) {
@@ -90,9 +83,7 @@ public class WebSessionManagerSupport {
    * Get the value of the attribute identified by {@code name}. Return
    * {@code null} if the attribute doesn't exist.
    *
-   * @param name
-   *         the unique attribute key
-   *
+   * @param name the unique attribute key
    * @return the current value of the attribute, if any
    */
   public Object getAttribute(WebSession session, String name) {
@@ -116,11 +107,8 @@ public class WebSessionManagerSupport {
    * attributes by using fully-qualified names, perhaps using class or package
    * names as prefix.
    *
-   * @param name
-   *         the unique attribute key
-   * @param attribute
-   *         the attribute value to be attached
-   *
+   * @param name the unique attribute key
+   * @param attribute the attribute value to be attached
    * @since 4.0
    */
   public void setAttribute(RequestContext context, String name, Object attribute) {
@@ -134,11 +122,8 @@ public class WebSessionManagerSupport {
    * Remove the attribute identified by {@code name} and return its value. Return
    * {@code null} if no attribute under {@code name} is found.
    *
-   * @param name
-   *         the unique attribute key
-   *
+   * @param name the unique attribute key
    * @return the last value of the attribute, if any
-   *
    * @since 4.0
    */
   public Object removeAttribute(RequestContext context, String name) {

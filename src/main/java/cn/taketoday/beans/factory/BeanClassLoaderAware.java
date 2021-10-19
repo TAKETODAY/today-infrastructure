@@ -48,8 +48,7 @@ public interface BeanClassLoaderAware extends Aware {
    * <p>
    * Invoked <i>before</i> apply properties
    *
-   * @param classLoader
-   *         The owning class loader
+   * @param classLoader The owning class loader
    */
   void setBeanClassLoader(ClassLoader classLoader);
 

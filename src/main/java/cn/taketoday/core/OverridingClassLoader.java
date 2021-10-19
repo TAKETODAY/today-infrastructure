@@ -58,8 +58,7 @@ public class OverridingClassLoader extends DecoratingClassLoader {
   /**
    * Create a new OverridingClassLoader for the given ClassLoader.
    *
-   * @param parent
-   *         the ClassLoader to build an overriding ClassLoader for
+   * @param parent the ClassLoader to build an overriding ClassLoader for
    */
   public OverridingClassLoader(@Nullable ClassLoader parent) {
     this(parent, null);
@@ -68,11 +67,8 @@ public class OverridingClassLoader extends DecoratingClassLoader {
   /**
    * Create a new OverridingClassLoader for the given ClassLoader.
    *
-   * @param parent
-   *         the ClassLoader to build an overriding ClassLoader for
-   * @param overrideDelegate
-   *         the ClassLoader to delegate to for overriding
-   *
+   * @param parent the ClassLoader to build an overriding ClassLoader for
+   * @param overrideDelegate the ClassLoader to delegate to for overriding
    * @since 4.3
    */
   public OverridingClassLoader(@Nullable ClassLoader parent, @Nullable ClassLoader overrideDelegate) {
@@ -109,11 +105,8 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    * Determine whether the specified class is eligible for overriding
    * by this class loader.
    *
-   * @param className
-   *         the class name to check
-   *
+   * @param className the class name to check
    * @return whether the specified class is eligible
-   *
    * @see #isExcluded
    */
   protected boolean isEligibleForOverriding(String className) {
@@ -125,13 +118,9 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    * <p>The default implementation delegates to {@link #findLoadedClass},
    * {@link #loadBytesForClass} and {@link #defineClass}.
    *
-   * @param name
-   *         the name of the class
-   *
+   * @param name the name of the class
    * @return the Class object, or {@code null} if no class defined for that name
-   *
-   * @throws ClassNotFoundException
-   *         if the class for the given name couldn't be loaded
+   * @throws ClassNotFoundException if the class for the given name couldn't be loaded
    */
   @Nullable
   protected Class<?> loadClassForOverriding(String name) throws ClassNotFoundException {
@@ -151,14 +140,10 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    * <p>The default implementation delegates to {@link #openStreamForClass}
    * and {@link #transformIfNecessary}.
    *
-   * @param name
-   *         the name of the class
-   *
+   * @param name the name of the class
    * @return the byte content (with transformers already applied),
    * or {@code null} if no class defined for that name
-   *
-   * @throws ClassNotFoundException
-   *         if the class for the given name couldn't be loaded
+   * @throws ClassNotFoundException if the class for the given name couldn't be loaded
    */
   @Nullable
   protected byte[] loadBytesForClass(String name) throws ClassNotFoundException {
@@ -182,9 +167,7 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    * <p>The default implementation loads a standard class file through
    * the parent ClassLoader's {@code getResourceAsStream} method.
    *
-   * @param name
-   *         the name of the class
-   *
+   * @param name the name of the class
    * @return the InputStream containing the byte code for the specified class
    */
   @Nullable
@@ -197,11 +180,8 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    * Transformation hook to be implemented by subclasses.
    * <p>The default implementation simply returns the given bytes as-is.
    *
-   * @param name
-   *         the fully-qualified name of the class being transformed
-   * @param bytes
-   *         the raw bytes of the class
-   *
+   * @param name the fully-qualified name of the class being transformed
+   * @param bytes the raw bytes of the class
    * @return the transformed bytes (never {@code null};
    * same as the input bytes if the transformation produced no changes)
    */

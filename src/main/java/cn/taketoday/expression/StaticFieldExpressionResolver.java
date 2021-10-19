@@ -83,23 +83,16 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * <code>ELClass</code>, return the value of the static field. An Enum constant
    * is a public static field of an Enum object, and is a special case of this.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         An <code>ELClass</code>.
-   * @param property
-   *         A static field name.
-   *
+   * @param context The context of this evaluation.
+   * @param base An <code>ELClass</code>.
+   * @param property A static field name.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the static
    * field value.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotFoundException
-   *         if the specified class does not exist, or if the field is not a
-   *         public static filed of the class, or if the field is
-   *         inaccessible.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if the specified class does not exist, or if the field is not a
+   * public static filed of the class, or if the field is
+   * inaccessible.
    */
   @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
@@ -135,17 +128,11 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * String, a <code>PropertyNotWritableException</code> will always be thrown,
    * because writing to a static field is not allowed.
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         An <code>ELClass</code>
-   * @param property
-   *         The name of the field
-   * @param value
-   *         The value to set the field of the class to.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>
+   * @param context The context of this evaluation.
+   * @param base An <code>ELClass</code>
+   * @param property The name of the field
+   * @param value The value to set the field of the class to.
+   * @throws NullPointerException if context is <code>null</code>
    * @throws PropertyNotWritableException
    */
   @Override
@@ -184,32 +171,24 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * for the class will be invoked.
    * </p>
    *
-   * @param base
-   *         An <code>ELClass</code>
-   * @param method
-   *         When coerced to a <code>String</code>, the simple name of the
-   *         method.
-   * @param paramTypes
-   *         An array of Class objects identifying the method's formal
-   *         parameter types, in declared order. Use an empty array if the
-   *         method has no parameters. Can be <code>null</code>, in which case
-   *         the method's formal parameter types are assumed to be unknown.
-   * @param params
-   *         The parameters to pass to the method, or <code>null</code> if no
-   *         parameters.
-   *
+   * @param base An <code>ELClass</code>
+   * @param method When coerced to a <code>String</code>, the simple name of the
+   * method.
+   * @param paramTypes An array of Class objects identifying the method's formal
+   * parameter types, in declared order. Use an empty array if the
+   * method has no parameters. Can be <code>null</code>, in which case
+   * the method's formal parameter types are assumed to be unknown.
+   * @param params The parameters to pass to the method, or <code>null</code> if no
+   * parameters.
    * @return The result of the method invocation (<code>null</code> if the method
    * has a <code>void</code> return type).
-   *
-   * @throws MethodNotFoundException
-   *         if no suitable method can be found.
-   * @throws ExpressionException
-   *         if an exception was thrown while performing (base, method)
-   *         resolution. The thrown exception must be included as the cause
-   *         property of this exception, if available. If the exception thrown
-   *         is an <code>InvocationTargetException</code>, extract its
-   *         <code>cause</code> and pass it to the <code>ELException</code>
-   *         constructor.
+   * @throws MethodNotFoundException if no suitable method can be found.
+   * @throws ExpressionException if an exception was thrown while performing (base, method)
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available. If the exception thrown
+   * is an <code>InvocationTargetException</code>, extract its
+   * <code>cause</code> and pass it to the <code>ELException</code>
+   * constructor.
    */
   @Override
   public Object invoke(
@@ -250,22 +229,15 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * ELClass, return the type of the static field.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         An <code>ELClass</code>.
-   * @param property
-   *         The name of the field.
-   *
+   * @param context The context of this evaluation.
+   * @param base An <code>ELClass</code>.
+   * @param property The name of the field.
    * @return If the <code>propertyResolved</code> property of
    * <code>ELContext</code> was set to <code>true</code>, then the type of
    * the type of the field.
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
-   * @throws PropertyNotFoundException
-   *         if field is not a public static filed of the class, or if the
-   *         field is inaccessible.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if field is not a public static filed of the class, or if the
+   * field is inaccessible.
    */
   @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
@@ -302,17 +274,11 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * allowed.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param base
-   *         An <code>ELClass</code>.
-   * @param property
-   *         The name of the bean.
-   *
+   * @param context The context of this evaluation.
+   * @param base An <code>ELClass</code>.
+   * @param property The name of the bean.
    * @return <code>true</code>
-   *
-   * @throws NullPointerException
-   *         if context is <code>null</code>.
+   * @throws NullPointerException if context is <code>null</code>.
    */
   @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {

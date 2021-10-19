@@ -105,8 +105,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Create a AdvisedSupport instance with the given parameters.
    *
-   * @param interfaces
-   *         the proxied interfaces
+   * @param interfaces the proxied interfaces
    */
   public AdvisedSupport(Class<?>... interfaces) {
     this();
@@ -181,8 +180,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Add a new proxied interface.
    *
-   * @param intf
-   *         the additional interface to proxy
+   * @param intf the additional interface to proxy
    */
   public void addInterface(Class<?> intf) {
     Assert.notNull(intf, "Interface must not be null");
@@ -199,9 +197,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Remove a proxied interface.
    * <p>Does nothing if the given interface isn't proxied.
    *
-   * @param intf
-   *         the interface to remove from the proxy
-   *
+   * @param intf the interface to remove from the proxy
    * @return {@code true} if the interface was removed; {@code false}
    * if the interface was not found and hence could not be removed
    */
@@ -305,8 +301,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Add all of the given advisors to this proxy configuration.
    *
-   * @param advisors
-   *         the advisors to register
+   * @param advisors the advisors to register
    */
   public void addAdvisors(Advisor... advisors) {
     addAdvisors(Arrays.asList(advisors));
@@ -315,8 +310,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Add all of the given advisors to this proxy configuration.
    *
-   * @param advisors
-   *         the advisors to register
+   * @param advisors the advisors to register
    */
   public void addAdvisors(Collection<Advisor> advisors) {
     if (isFrozen()) {
@@ -419,9 +413,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Is the given advice included in any advisor within this proxy configuration?
    *
-   * @param advice
-   *         the advice to check inclusion of
-   *
+   * @param advice the advice to check inclusion of
    * @return whether this advice instance is included
    */
   public boolean adviceIncluded(Advice advice) {
@@ -438,9 +430,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Count advices of the given class.
    *
-   * @param adviceClass
-   *         the advice class to check
-   *
+   * @param adviceClass the advice class to check
    * @return the count of the interceptors of this class or subclasses
    */
   public int countAdvicesOfType(Class<?> adviceClass) {
@@ -462,13 +452,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * ordered {@link MethodInterceptor} array
    * </p>
    *
-   * @param method
-   *         the proxied method
-   * @param targetClass
-   *         the target class
-   *
+   * @param method the proxied method
+   * @param targetClass the target class
    * @return a List of MethodInterceptors (may also include {@link cn.taketoday.aop.support.RuntimeMethodInterceptor})
-   *
    * @see cn.taketoday.aop.support.RuntimeMethodInterceptor
    */
   public MethodInterceptor[] getInterceptors(Method method, Class<?> targetClass) {
@@ -493,8 +479,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Call this method on a new instance created by the no-arg constructor
    * to create an independent copy of the configuration from the given object.
    *
-   * @param other
-   *         the AdvisedSupport object to copy configuration from
+   * @param other the AdvisedSupport object to copy configuration from
    */
   protected void copyConfigurationFrom(AdvisedSupport other) {
     copyConfigurationFrom(other, other.targetSource, new ArrayList<>(other.advisors));
@@ -504,12 +489,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Copy the AOP configuration from the given AdvisedSupport object,
    * but allow substitution of a fresh TargetSource and a given interceptor chain.
    *
-   * @param other
-   *         the AdvisedSupport object to take proxy configuration from
-   * @param targetSource
-   *         the new TargetSource
-   * @param advisors
-   *         the Advisors for the chain
+   * @param other the AdvisedSupport object to take proxy configuration from
+   * @param targetSource the new TargetSource
+   * @param advisors the Advisors for the chain
    */
   protected void copyConfigurationFrom(AdvisedSupport other, TargetSource targetSource, List<Advisor> advisors) {
     copyFrom(other);

@@ -47,8 +47,7 @@ public class PropertyNotFoundException extends ExpressionException {
    * Creates a <code>PropertyNotFoundException</code> with the provided detail
    * message.
    *
-   * @param message
-   *         the detail message
+   * @param message the detail message
    */
   public PropertyNotFoundException(String message) {
     super(message);
@@ -57,8 +56,7 @@ public class PropertyNotFoundException extends ExpressionException {
   /**
    * Creates a <code>PropertyNotFoundException</code> with the given root cause.
    *
-   * @param exception
-   *         the originating cause of this exception
+   * @param exception the originating cause of this exception
    */
   public PropertyNotFoundException(Throwable exception) {
     super(exception);
@@ -68,10 +66,8 @@ public class PropertyNotFoundException extends ExpressionException {
    * Creates a <code>PropertyNotFoundException</code> with the given detail
    * message and root cause.
    *
-   * @param pMessage
-   *         the detail message
-   * @param pRootCause
-   *         the originating cause of this exception
+   * @param pMessage the detail message
+   * @param pRootCause the originating cause of this exception
    */
   public PropertyNotFoundException(String pMessage, Throwable pRootCause) {
     super(pMessage, pRootCause);

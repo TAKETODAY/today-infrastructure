@@ -62,8 +62,7 @@ public final class SimpleCommandLineArgsParser {
    * SimpleCommandLineArgsParser above}, returning a fully-populated
    * {@link CommandLineArgs} object.
    *
-   * @param args
-   *         command line arguments, typically from a {@code main()} method
+   * @param args command line arguments, typically from a {@code main()} method
    */
   public static CommandLineArgs parse(String... args) {
     CommandLineArgs commandLineArgs = new CommandLineArgs();

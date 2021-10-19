@@ -31,11 +31,8 @@ import cn.taketoday.lang.Nullable;
  * and {@link ListenableFutureCallback#onSuccess(Object)} call {@link #adapt(Object)}
  * on the adaptee's result.
  *
- * @param <T>
- *         the type of this {@code Future}
- * @param <S>
- *         the type of the adaptee's {@code Future}
- *
+ * @param <T> the type of this {@code Future}
+ * @param <S> the type of the adaptee's {@code Future}
  * @author Arjen Poutsma
  * @since 4.0
  */
@@ -44,8 +41,7 @@ public abstract class ListenableFutureAdapter<T, S> extends FutureAdapter<T, S> 
   /**
    * Construct a new {@code ListenableFutureAdapter} with the given adaptee.
    *
-   * @param adaptee
-   *         the future to adapt to
+   * @param adaptee the future to adapt to
    */
   protected ListenableFutureAdapter(ListenableFuture<S> adaptee) {
     super(adaptee);

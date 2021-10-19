@@ -31,9 +31,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Inspired by {@code com.google.common.util.concurrent.ExecutionList}.
  *
- * @param <T>
- *         the callback result type
- *
+ * @param <T> the callback result type
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
@@ -55,8 +53,7 @@ public class ListenableFutureCallbackRegistry<T> {
   /**
    * Add the given callback to this registry.
    *
-   * @param callback
-   *         the callback to add
+   * @param callback the callback to add
    */
   public void addCallback(ListenableFutureCallback<? super T> callback) {
     Assert.notNull(callback, "'callback' must not be null");
@@ -99,9 +96,7 @@ public class ListenableFutureCallbackRegistry<T> {
   /**
    * Add the given success callback to this registry.
    *
-   * @param callback
-   *         the success callback to add
-   *
+   * @param callback the success callback to add
    * @since 4.1
    */
   public void addSuccessCallback(SuccessCallback<? super T> callback) {
@@ -121,9 +116,7 @@ public class ListenableFutureCallbackRegistry<T> {
   /**
    * Add the given failure callback to this registry.
    *
-   * @param callback
-   *         the failure callback to add
-   *
+   * @param callback the failure callback to add
    * @since 4.1
    */
   public void addFailureCallback(FailureCallback callback) {
@@ -144,8 +137,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * Trigger a {@link ListenableFutureCallback#onSuccess(Object)} call on all
    * added callbacks with the given result.
    *
-   * @param result
-   *         the result to trigger the callbacks with
+   * @param result the result to trigger the callbacks with
    */
   public void success(@Nullable T result) {
     synchronized(this.mutex) {
@@ -162,8 +154,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * Trigger a {@link ListenableFutureCallback#onFailure(Throwable)} call on all
    * added callbacks with the given {@code Throwable}.
    *
-   * @param ex
-   *         the exception to trigger the callbacks with
+   * @param ex the exception to trigger the callbacks with
    */
   public void failure(Throwable ex) {
     synchronized(this.mutex) {

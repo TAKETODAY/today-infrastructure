@@ -48,15 +48,11 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link TableSwitchInsnNode}.
    *
-   * @param min
-   *         the minimum key value.
-   * @param max
-   *         the maximum key value.
-   * @param dflt
-   *         beginning of the default handler block.
-   * @param labels
-   *         beginnings of the handler blocks. {@code labels[i]} is the beginning of the
-   *         handler block for the {@code min + i} key.
+   * @param min the minimum key value.
+   * @param max the maximum key value.
+   * @param dflt beginning of the default handler block.
+   * @param labels beginnings of the handler blocks. {@code labels[i]} is the beginning of the
+   * handler block for the {@code min + i} key.
    */
   public TableSwitchInsnNode(
           final int min, final int max, final LabelNode dflt, final LabelNode... labels) {

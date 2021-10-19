@@ -46,9 +46,7 @@ import cn.taketoday.util.ClassUtils;
  * {@link #createBeanInstance()} template method to actually create the
  * object(s) to expose.
  *
- * @param <T>
- *         the bean type
- *
+ * @param <T> the bean type
  * @author Juergen Hoeller
  * @author Keith Donald
  * @author TODAY <br>
@@ -144,9 +142,7 @@ public abstract class AbstractFactoryBean<T>
    * proxy).
    *
    * @return the singleton instance that this FactoryBean holds
-   *
-   * @throws IllegalStateException
-   *         if the singleton instance is not initialized
+   * @throws IllegalStateException if the singleton instance is not initialized
    */
   private T getSingletonInstance() {
     Assert.state(this.initialized, "Singleton instance not initialized yet");
@@ -180,7 +176,6 @@ public abstract class AbstractFactoryBean<T>
    * on each {@link #getBean()} call.
    *
    * @return the object returned by this factory
-   *
    * @see #getBean()
    */
   protected abstract T createBeanInstance();
@@ -197,7 +192,6 @@ public abstract class AbstractFactoryBean<T>
    *
    * @return the interfaces to use for 'early singletons', or {@code null} to
    * indicate a BeanInstantiationException
-   *
    * @see BeanInstantiationException
    */
   protected Class<?>[] getEarlySingletonInterfaces() {
@@ -211,12 +205,9 @@ public abstract class AbstractFactoryBean<T>
    * <p>
    * The default implementation is empty.
    *
-   * @param instance
-   *         the singleton instance, as returned by
-   *         {@link #createBeanInstance()}
-   *
-   * @throws Exception
-   *         in case of shutdown errors
+   * @param instance the singleton instance, as returned by
+   * {@link #createBeanInstance()}
+   * @throws Exception in case of shutdown errors
    * @see #createBeanInstance()
    */
   protected void destroyInstance(T instance) throws Exception { }

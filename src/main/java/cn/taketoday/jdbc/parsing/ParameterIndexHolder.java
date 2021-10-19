@@ -38,13 +38,9 @@ public abstract class ParameterIndexHolder implements Iterable<Integer> {
   /**
    * use binder to bind parameter to this index where there is hold
    *
-   * @param binder
-   *         parameter setter set to statement
-   * @param statement
-   *         target PreparedStatement
-   *
-   * @throws SQLException
-   *         any parameter setting error
+   * @param binder parameter setter set to statement
+   * @param statement target PreparedStatement
+   * @throws SQLException any parameter setting error
    */
   public abstract void bind(ParameterBinder binder, PreparedStatement statement)
           throws SQLException;

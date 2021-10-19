@@ -13,13 +13,9 @@ public abstract class ParameterBinder {
   /**
    * Bind a value to statement
    *
-   * @param statement
-   *         statement
-   * @param paramIdx
-   *         parameter index
-   *
-   * @throws SQLException
-   *         parameter set error
+   * @param statement statement
+   * @param paramIdx parameter index
+   * @throws SQLException parameter set error
    */
   public abstract void bind(PreparedStatement statement, int paramIdx)
           throws SQLException;

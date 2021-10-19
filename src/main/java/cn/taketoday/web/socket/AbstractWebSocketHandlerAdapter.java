@@ -144,11 +144,8 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
    * subprotocol in the list sent by the client that the server supports,
    * or the empty string if there isn't one.
    *
-   * @param requested
-   *         the requested subprotocols from the client endpoint
-   * @param supported
-   *         the subprotocols supported by the server endpoint
-   *
+   * @param requested the requested subprotocols from the client endpoint
+   * @param supported the subprotocols supported by the server endpoint
    * @return the negotiated subprotocol or the empty string if there isn't one.
    */
   public String getNegotiatedSubProtocol(
@@ -173,12 +170,9 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
    * it supports, using the order in the requested extensions, the empty
    * list if none.
    *
-   * @param installed
-   *         the installed extensions on the implementation.
-   * @param requested
-   *         the requested extensions, in the order they were
-   *         requested by the client
-   *
+   * @param installed the installed extensions on the implementation.
+   * @param requested the requested extensions, in the order they were
+   * requested by the client
    * @return the list of extensions negotiated, the empty list if none.
    */
   public List<WebSocketExtension> getNegotiatedExtensions(

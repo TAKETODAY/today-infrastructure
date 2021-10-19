@@ -95,9 +95,7 @@ public abstract class CollectionUtils {
    * Return {@code true} if the supplied Collection is {@code null} or empty.
    * Otherwise, return {@code false}.
    *
-   * @param collection
-   *         the Collection to check
-   *
+   * @param collection the Collection to check
    * @return whether the given Collection is empty
    */
   public static boolean isEmpty(@Nullable Collection<?> collection) {
@@ -115,9 +113,7 @@ public abstract class CollectionUtils {
    * Return {@code true} if the supplied Map is {@code null} or empty. Otherwise,
    * return {@code false}.
    *
-   * @param map
-   *         the Map to check
-   *
+   * @param map the Map to check
    * @return whether the given Map is empty
    */
   public static boolean isEmpty(@Nullable Map<?, ?> map) {
@@ -138,8 +134,7 @@ public abstract class CollectionUtils {
   /**
    * Create a hash set
    *
-   * @param elements
-   *         Elements instance
+   * @param elements Elements instance
    */
   @SafeVarargs
   public static <E> Set<E> newHashSet(@Nullable E... elements) {
@@ -149,13 +144,9 @@ public abstract class CollectionUtils {
   }
 
   /**
-   * @param elements
-   *         elements array
-   * @param <E>
-   *         Element type
-   *
+   * @param elements elements array
+   * @param <E> Element type
    * @return ArrayLost of input elements
-   *
    * @since 4.0
    */
   @NonNull
@@ -177,11 +168,8 @@ public abstract class CollectionUtils {
    * Determine whether the given collection type is an <em>approximable</em> type,
    * i.e. a type that {@link #createApproximateCollection} can approximate.
    *
-   * @param collectionType
-   *         the collection type to check
-   *
+   * @param collectionType the collection type to check
    * @return {@code true} if the type is <em>approximable</em>
-   *
    * @since 3.0
    */
   public static boolean isApproximableCollectionType(@Nullable Class<?> collectionType) {
@@ -199,13 +187,9 @@ public abstract class CollectionUtils {
    * matching type {@code E}. As an alternative, the caller may wish to treat the
    * return value as a raw collection or collection of {@link Object}.
    *
-   * @param collection
-   *         the original collection object, potentially {@code null}
-   * @param capacity
-   *         the initial capacity
-   *
+   * @param collection the original collection object, potentially {@code null}
+   * @param capacity the initial capacity
    * @return a new, empty collection instance
-   *
    * @see #isApproximableCollectionType
    * @see java.util.LinkedList
    * @see java.util.ArrayList
@@ -242,14 +226,10 @@ public abstract class CollectionUtils {
    * Delegates to {@link #createCollection(Class, Class, int)} with a {@code null}
    * element type, and {@link Constant#DEFAULT_CAPACITY}.
    *
-   * @param collectionType
-   *         the desired type of the target collection (never {@code null})
-   *
+   * @param collectionType the desired type of the target collection (never {@code null})
    * @return a new collection instance
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code collectionType} is {@code null} or of type
-   *         {@link EnumSet}
+   * @throws IllegalArgumentException if the supplied {@code collectionType} is {@code null} or of type
+   * {@link EnumSet}
    * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType) {
@@ -262,16 +242,11 @@ public abstract class CollectionUtils {
    * Delegates to {@link #createCollection(Class, Class, int)} with a {@code null}
    * element type.
    *
-   * @param collectionType
-   *         the desired type of the target collection (never {@code null})
-   * @param capacity
-   *         the initial capacity
-   *
+   * @param collectionType the desired type of the target collection (never {@code null})
+   * @param capacity the initial capacity
    * @return a new collection instance
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code collectionType} is {@code null} or of type
-   *         {@link EnumSet}
+   * @throws IllegalArgumentException if the supplied {@code collectionType} is {@code null} or of type
+   * {@link EnumSet}
    * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType, int capacity) {
@@ -289,20 +264,14 @@ public abstract class CollectionUtils {
    * to treat the return value as a raw collection or collection of
    * {@link Object}.
    *
-   * @param collectionType
-   *         the desired type of the target collection (never {@code null})
-   * @param elementType
-   *         the collection's element type, or {@code null} if unknown (note:
-   *         only relevant for {@link EnumSet} creation)
-   * @param capacity
-   *         the initial capacity
-   *
+   * @param collectionType the desired type of the target collection (never {@code null})
+   * @param elementType the collection's element type, or {@code null} if unknown (note:
+   * only relevant for {@link EnumSet} creation)
+   * @param capacity the initial capacity
    * @return a new collection instance
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code collectionType} is {@code null}; or if the
-   *         desired {@code collectionType} is {@link EnumSet} and the supplied
-   *         {@code elementType} is not a subtype of {@link Enum}
+   * @throws IllegalArgumentException if the supplied {@code collectionType} is {@code null}; or if the
+   * desired {@code collectionType} is {@link EnumSet} and the supplied
+   * {@code elementType} is not a subtype of {@link Enum}
    * @see java.util.LinkedHashSet
    * @see java.util.ArrayList
    * @see java.util.TreeSet
@@ -350,11 +319,8 @@ public abstract class CollectionUtils {
    * Determine whether the given map type is an <em>approximable</em> type, i.e. a
    * type that {@link #createApproximateMap} can approximate.
    *
-   * @param mapType
-   *         the map type to check
-   *
+   * @param mapType the map type to check
    * @return {@code true} if the type is <em>approximable</em>
-   *
    * @since 3.0
    */
   public static boolean isApproximableMapType(@Nullable Class<?> mapType) {
@@ -374,11 +340,8 @@ public abstract class CollectionUtils {
    * <p>
    * use default capacity {@link Constant#DEFAULT_CAPACITY}.
    *
-   * @param map
-   *         the original map object, potentially {@code null}
-   *
+   * @param map the original map object, potentially {@code null}
    * @return a new, empty map instance
-   *
    * @see #isApproximableMapType
    * @see java.util.EnumMap
    * @see java.util.TreeMap
@@ -400,13 +363,9 @@ public abstract class CollectionUtils {
    * alternative, the caller may wish to treat the return value as a raw map or
    * map keyed by {@link Object}.
    *
-   * @param map
-   *         the original map object, potentially {@code null}
-   * @param capacity
-   *         the initial capacity
-   *
+   * @param map the original map object, potentially {@code null}
+   * @param capacity the initial capacity
    * @return a new, empty map instance
-   *
    * @see #isApproximableMapType
    * @see java.util.EnumMap
    * @see java.util.TreeMap
@@ -434,14 +393,10 @@ public abstract class CollectionUtils {
    * Delegates to {@link #createMap(Class, Class, int)} with a {@code null} key
    * type, and default capacity {@link Constant#DEFAULT_CAPACITY}.
    *
-   * @param mapType
-   *         the desired type of the target map
-   *
+   * @param mapType the desired type of the target map
    * @return a new map instance
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code mapType} is {@code null} or of type
-   *         {@link EnumMap}
+   * @throws IllegalArgumentException if the supplied {@code mapType} is {@code null} or of type
+   * {@link EnumMap}
    * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(@NonNull Class<?> mapType) {
@@ -454,16 +409,11 @@ public abstract class CollectionUtils {
    * Delegates to {@link #createMap(Class, Class, int)} with a {@code null} key
    * type.
    *
-   * @param mapType
-   *         the desired type of the target map
-   * @param capacity
-   *         the initial capacity
-   *
+   * @param mapType the desired type of the target map
+   * @param capacity the initial capacity
    * @return a new map instance
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code mapType} is {@code null} or of type
-   *         {@link EnumMap}
+   * @throws IllegalArgumentException if the supplied {@code mapType} is {@code null} or of type
+   * {@link EnumMap}
    * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(Class<?> mapType, int capacity) {
@@ -481,20 +431,14 @@ public abstract class CollectionUtils {
    * value as a raw map or map keyed by {@link Object}. Similarly, type safety
    * cannot be enforced if the desired {@code mapType} is {@link MultiValueMap}.
    *
-   * @param mapType
-   *         the desired type of the target map (never {@code null})
-   * @param keyType
-   *         the map's key type, or {@code null} if unknown (note: only relevant
-   *         for {@link EnumMap} creation)
-   * @param capacity
-   *         the initial capacity
-   *
+   * @param mapType the desired type of the target map (never {@code null})
+   * @param keyType the map's key type, or {@code null} if unknown (note: only relevant
+   * for {@link EnumMap} creation)
+   * @param capacity the initial capacity
    * @return a new map instance
-   *
-   * @throws IllegalArgumentException
-   *         if the supplied {@code mapType} is {@code null}; or if the desired
-   *         {@code mapType} is {@link EnumMap} and the supplied {@code keyType}
-   *         is not a subtype of {@link Enum}
+   * @throws IllegalArgumentException if the supplied {@code mapType} is {@code null}; or if the desired
+   * {@code mapType} is {@link EnumMap} and the supplied {@code keyType}
+   * is not a subtype of {@link Enum}
    * @see java.util.LinkedHashMap
    * @see java.util.TreeMap
    * @see DefaultMultiValueMap
@@ -544,7 +488,6 @@ public abstract class CollectionUtils {
    * alphanumerically based on their keys.
    *
    * @return a new {@code Properties} instance
-   *
    * @see #createSortedProperties(boolean)
    * @see #createSortedProperties(Properties, boolean)
    * @since 3.0
@@ -575,12 +518,9 @@ public abstract class CollectionUtils {
    * manner with consistent ordering of properties. Comments in generated
    * properties files can also be optionally omitted.
    *
-   * @param omitComments
-   *         {@code true} if comments should be omitted when storing properties
-   *         in a file
-   *
+   * @param omitComments {@code true} if comments should be omitted when storing properties
+   * in a file
    * @return a new {@code Properties} instance
-   *
    * @see #createStringAdaptingProperties()
    * @see #createSortedProperties(Properties, boolean)
    * @since 3.0
@@ -602,15 +542,11 @@ public abstract class CollectionUtils {
    * from the supplied {@code properties} object, but default properties from the
    * supplied {@code properties} object will not be copied.
    *
-   * @param properties
-   *         the {@code Properties} object from which to copy the initial
-   *         properties
-   * @param omitComments
-   *         {@code true} if comments should be omitted when storing properties
-   *         in a file
-   *
+   * @param properties the {@code Properties} object from which to copy the initial
+   * properties
+   * @param omitComments {@code true} if comments should be omitted when storing properties
+   * in a file
    * @return a new {@code Properties} instance
-   *
    * @see #createStringAdaptingProperties()
    * @see #createSortedProperties(boolean)
    * @since 3.0
@@ -622,13 +558,9 @@ public abstract class CollectionUtils {
   /**
    * Cast the given type to a subtype of {@link Enum}.
    *
-   * @param enumType
-   *         the enum type, never {@code null}
-   *
+   * @param enumType the enum type, never {@code null}
    * @return the given type as subtype of {@link Enum}
-   *
-   * @throws IllegalArgumentException
-   *         if the given type is not a subtype of {@link Enum}
+   * @throws IllegalArgumentException if the given type is not a subtype of {@link Enum}
    * @since 3.0
    */
   @SuppressWarnings("rawtypes")
@@ -644,18 +576,12 @@ public abstract class CollectionUtils {
    * Replaces the element at the specified position in this list with the
    * specified element (optional operation).
    *
-   * @param list
-   *         target list
-   * @param index
-   *         new element's index
-   * @param element
-   *         element object
-   *
-   * @throws IndexOutOfBoundsException
-   *         if the index is out of range (index < 0 || index >= size())
-   * @throws NullPointerException
-   *         if the specified element is null and this list does not permit null
-   *         elements
+   * @param list target list
+   * @param index new element's index
+   * @param element element object
+   * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+   * @throws NullPointerException if the specified element is null and this list does not permit null
+   * elements
    * @see List#set(int, Object)
    * @since 3.0
    */
@@ -677,11 +603,8 @@ public abstract class CollectionUtils {
    * Returns the element at the specified position in this list.
    * <p>list can be {@code null}, then returns {@code null}
    *
-   * @param index
-   *         index of the element to return
-   *
+   * @param index index of the element to return
    * @return the element at the specified position in this list
-   *
    * @see List#get(int)
    * @since 4.0
    */
@@ -697,11 +620,8 @@ public abstract class CollectionUtils {
    * Returns the element at the specified position in this list.
    * <p>list can be {@code null}, then returns {@code null}
    *
-   * @param index
-   *         index of the element to return
-   *
+   * @param index index of the element to return
    * @return the element at the specified position in this list
-   *
    * @see List#get(int)
    * @since 4.0
    */
@@ -727,25 +647,17 @@ public abstract class CollectionUtils {
    *     CollectionUtils.addAll(flavors, null); // add nothing element can be null
    * </pre>
    *
-   * @param <T>
-   *         the class of the elements to add and of the collection
-   * @param c
-   *         the collection into which <tt>elements</tt> are to be inserted
-   * @param elements
-   *         the elements to insert into <tt>c</tt>
-   *
+   * @param <T> the class of the elements to add and of the collection
+   * @param c the collection into which <tt>elements</tt> are to be inserted
+   * @param elements the elements to insert into <tt>c</tt>
    * @return <tt>true</tt> if the collection changed as a result of the call
-   *
-   * @throws UnsupportedOperationException
-   *         if <tt>c</tt> does not support
-   *         the <tt>add</tt> operation
-   * @throws NullPointerException
-   *         if <tt>elements</tt> contains one or more
-   *         null values and <tt>c</tt> does not permit null elements, or
-   *         if <tt>c</tt> or <tt>elements</tt> are <tt>null</tt>
-   * @throws IllegalArgumentException
-   *         if some property of a value in
-   *         <tt>elements</tt> prevents it from being added to <tt>c</tt>
+   * @throws UnsupportedOperationException if <tt>c</tt> does not support
+   * the <tt>add</tt> operation
+   * @throws NullPointerException if <tt>elements</tt> contains one or more
+   * null values and <tt>c</tt> does not permit null elements, or
+   * if <tt>c</tt> or <tt>elements</tt> are <tt>null</tt>
+   * @throws IllegalArgumentException if some property of a value in
+   * <tt>elements</tt> prevents it from being added to <tt>c</tt>
    * @see Collection#add(Object)
    * @since 4.0
    */
@@ -772,25 +684,17 @@ public abstract class CollectionUtils {
    *     CollectionUtils.addAll(flavors, null); // add nothing element can be null
    * </pre>
    *
-   * @param <T>
-   *         the class of the elements to add and of the collection
-   * @param c
-   *         the collection into which <tt>elements</tt> are to be inserted
-   * @param elements
-   *         the elements to insert into <tt>c</tt>
-   *
+   * @param <T> the class of the elements to add and of the collection
+   * @param c the collection into which <tt>elements</tt> are to be inserted
+   * @param elements the elements to insert into <tt>c</tt>
    * @return <tt>true</tt> if the collection changed as a result of the call
-   *
-   * @throws UnsupportedOperationException
-   *         if <tt>c</tt> does not support
-   *         the <tt>add</tt> operation
-   * @throws NullPointerException
-   *         if <tt>elements</tt> contains one or more
-   *         null values and <tt>c</tt> does not permit null elements, or
-   *         if <tt>c</tt> or <tt>elements</tt> are <tt>null</tt>
-   * @throws IllegalArgumentException
-   *         if some property of a value in
-   *         <tt>elements</tt> prevents it from being added to <tt>c</tt>
+   * @throws UnsupportedOperationException if <tt>c</tt> does not support
+   * the <tt>add</tt> operation
+   * @throws NullPointerException if <tt>elements</tt> contains one or more
+   * null values and <tt>c</tt> does not permit null elements, or
+   * if <tt>c</tt> or <tt>elements</tt> are <tt>null</tt>
+   * @throws IllegalArgumentException if some property of a value in
+   * <tt>elements</tt> prevents it from being added to <tt>c</tt>
    * @see Collection#addAll(Collection)
    * @since 4.0
    */
@@ -809,22 +713,16 @@ public abstract class CollectionUtils {
    * specified map.  The behavior of this operation is undefined if the
    * specified map is modified while the operation is in progress.
    *
-   * @param mappings
-   *         mappings to be stored in target map
-   *
-   * @throws UnsupportedOperationException
-   *         if the <tt>putAll</tt> operation
-   *         is not supported by this map
-   * @throws ClassCastException
-   *         if the class of a key or value in the
-   *         specified map prevents it from being stored in this map
-   * @throws NullPointerException
-   *         if the specified map is null, or if
-   *         this map does not permit null keys or values, and the
-   *         specified map contains null keys or values
-   * @throws IllegalArgumentException
-   *         if some property of a key or value in
-   *         the specified map prevents it from being stored in this map
+   * @param mappings mappings to be stored in target map
+   * @throws UnsupportedOperationException if the <tt>putAll</tt> operation
+   * is not supported by this map
+   * @throws ClassCastException if the class of a key or value in the
+   * specified map prevents it from being stored in this map
+   * @throws NullPointerException if the specified map is null, or if
+   * this map does not permit null keys or values, and the
+   * specified map contains null keys or values
+   * @throws IllegalArgumentException if some property of a key or value in
+   * the specified map prevents it from being stored in this map
    */
   @SuppressWarnings("all")
   public static void putAll(Map target, @Nullable Map mappings) {
@@ -861,10 +759,8 @@ public abstract class CollectionUtils {
   /**
    * remove the elements of this collection that match the given predicate.
    *
-   * @param predicate
-   *         a predicate to apply to each element to determine if it
-   *         should be removed
-   *
+   * @param predicate a predicate to apply to each element to determine if it
+   * should be removed
    * @see Predicate#negate()
    * @see Collection#removeIf(Predicate)
    * @since 4.0
@@ -876,15 +772,10 @@ public abstract class CollectionUtils {
   /**
    * transform T to R
    *
-   * @param c
-   *         collection
-   * @param transformer
-   *         transformer
-   * @param <T>
-   *         value type
-   * @param <R>
-   *         transformed value type
-   *
+   * @param c collection
+   * @param transformer transformer
+   * @param <T> value type
+   * @param <R> transformed value type
    * @since 4.0
    */
   public static <T, R> List<R> transform(
@@ -918,11 +809,8 @@ public abstract class CollectionUtils {
    * Retrieve the first element of the given Iterable, using {@link SortedSet#first()}
    * or otherwise using the iterator.
    *
-   * @param iterable
-   *         the iterable to check (may be {@code null} or empty)
-   *
+   * @param iterable the iterable to check (may be {@code null} or empty)
    * @return the first element, or {@code null} if none
-   *
    * @see SortedSet
    * @see java.util.Queue
    * @see LinkedHashMap#keySet()
@@ -950,11 +838,8 @@ public abstract class CollectionUtils {
   /**
    * Retrieve the first element of the given List, accessing the zero index.
    *
-   * @param list
-   *         the List to check (may be {@code null} or empty)
-   *
+   * @param list the List to check (may be {@code null} or empty)
    * @return the first element, or {@code null} if none
-   *
    * @since 4.0
    */
   @Nullable
@@ -965,11 +850,8 @@ public abstract class CollectionUtils {
   /**
    * Retrieve the first element of the given Array, accessing the zero index.
    *
-   * @param array
-   *         the array to check (may be {@code null} or empty)
-   *
+   * @param array the array to check (may be {@code null} or empty)
    * @return the first element, or {@code null} if none
-   *
    * @since 4.0
    */
   @Nullable
@@ -980,11 +862,8 @@ public abstract class CollectionUtils {
   /**
    * Retrieve the last element of the given List, accessing the highest index.
    *
-   * @param list
-   *         the List to check (may be {@code null} or empty)
-   *
+   * @param list the List to check (may be {@code null} or empty)
    * @return the last element, or {@code null} if none
-   *
    * @since 4.0
    */
   @Nullable
@@ -998,11 +877,8 @@ public abstract class CollectionUtils {
   /**
    * Retrieve the last element of the given array, accessing the highest index.
    *
-   * @param array
-   *         the array to check (may be {@code null} or empty)
-   *
+   * @param array the array to check (may be {@code null} or empty)
    * @return the last element, or {@code null} if none
-   *
    * @since 4.0
    */
   public static <T> T lastElement(@Nullable final T[] array) {
@@ -1017,8 +893,7 @@ public abstract class CollectionUtils {
    * Enumeration elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.
    *
-   * @throws NullPointerException
-   *         if the specified array or enumeration is null
+   * @throws NullPointerException if the specified array or enumeration is null
    * @since 4.0
    */
   public static <A, E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
@@ -1032,11 +907,8 @@ public abstract class CollectionUtils {
   /**
    * Adapt an {@link Enumeration} to an {@link Iterator}.
    *
-   * @param enumeration
-   *         the original {@code Enumeration}
-   *
+   * @param enumeration the original {@code Enumeration}
    * @return the adapted {@code Iterator}
-   *
    * @since 4.0
    */
   public static <E> Iterator<E> toIterator(@Nullable Enumeration<E> enumeration) {
@@ -1053,11 +925,8 @@ public abstract class CollectionUtils {
   /**
    * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
    *
-   * @param targetMap
-   *         the original map
-   *
+   * @param targetMap the original map
    * @return the adapted multi-value map (wrapping the original map)
-   *
    * @since 4.0
    */
   public static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, List<V>> targetMap) {
@@ -1067,11 +936,8 @@ public abstract class CollectionUtils {
   /**
    * Return an unmodifiable view of the specified multi-value map.
    *
-   * @param targetMap
-   *         the map for which an unmodifiable view is to be returned.
-   *
+   * @param targetMap the map for which an unmodifiable view is to be returned.
    * @return an unmodifiable view of the specified multi-value map
-   *
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -1097,10 +963,8 @@ public abstract class CollectionUtils {
    * but is effectively aligned with the JDK's
    * {@link java.util.concurrent.ConcurrentHashMap#ConcurrentHashMap(int)}.
    *
-   * @param expectedSize
-   *         the expected number of elements (with a corresponding
-   *         capacity to be derived so that no resize/rehash operations are needed)
-   *
+   * @param expectedSize the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
    * @see #newLinkedHashMap(int)
    * @since 4.0
    */
@@ -1113,10 +977,8 @@ public abstract class CollectionUtils {
    * that can accommodate the specified number of elements without
    * any immediate resize/rehash operations to be expected.
    *
-   * @param expectedSize
-   *         the expected number of elements (with a corresponding
-   *         capacity to be derived so that no resize/rehash operations are needed)
-   *
+   * @param expectedSize the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
    * @see #newHashMap(int)
    * @since 4.0
    */
@@ -1132,11 +994,8 @@ public abstract class CollectionUtils {
    * value that might be an {@code Object[]} or a primitive array at runtime.
    * <p>A {@code null} source value will be converted to an empty List.
    *
-   * @param source
-   *         the (potentially primitive) array
-   *
+   * @param source the (potentially primitive) array
    * @return the converted List result
-   *
    * @see ObjectUtils#toObjectArray(Object)
    * @see Arrays#asList(Object[])
    * @since 4.0
@@ -1149,11 +1008,8 @@ public abstract class CollectionUtils {
   /**
    * Merge the given array into the given Collection.
    *
-   * @param array
-   *         the array to merge (may be {@code null})
-   * @param collection
-   *         the target Collection to merge the array into
-   *
+   * @param array the array to merge (may be {@code null})
+   * @param collection the target Collection to merge the array into
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -1170,11 +1026,8 @@ public abstract class CollectionUtils {
    * <p>Uses {@code Properties.propertyNames()} to even catch
    * default properties linked into the original Properties instance.
    *
-   * @param props
-   *         the Properties instance to merge (may be {@code null})
-   * @param map
-   *         the target Map to merge the properties into
-   *
+   * @param props the Properties instance to merge (may be {@code null})
+   * @param map the target Map to merge the properties into
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -1195,13 +1048,9 @@ public abstract class CollectionUtils {
   /**
    * Check whether the given Iterator contains the given element.
    *
-   * @param iterator
-   *         the Iterator to check
-   * @param element
-   *         the element to look for
-   *
+   * @param iterator the Iterator to check
+   * @param element the element to look for
    * @return {@code true} if found, {@code false} otherwise
-   *
    * @since 4.0
    */
   public static boolean contains(@Nullable Iterator<?> iterator, Object element) {
@@ -1219,13 +1068,9 @@ public abstract class CollectionUtils {
   /**
    * Check whether the given Enumeration contains the given element.
    *
-   * @param enumeration
-   *         the Enumeration to check
-   * @param element
-   *         the element to look for
-   *
+   * @param enumeration the Enumeration to check
+   * @param element the element to look for
    * @return {@code true} if found, {@code false} otherwise
-   *
    * @since 4.0
    */
   public static boolean contains(@Nullable Enumeration<?> enumeration, Object element) {
@@ -1243,13 +1088,9 @@ public abstract class CollectionUtils {
   /**
    * Check whether the given Iterable contains the given element.
    *
-   * @param iterable
-   *         the Iterable to check
-   * @param element
-   *         the element to look for
-   *
+   * @param iterable the Iterable to check
+   * @param element the element to look for
    * @return {@code true} if found, {@code false} otherwise
-   *
    * @since 4.0
    */
   public static boolean contains(@Nullable Iterable<?> iterable, Object element) {
@@ -1271,13 +1112,9 @@ public abstract class CollectionUtils {
    * <p>Enforces the given instance to be present, rather than returning
    * {@code true} for an equal element as well.
    *
-   * @param collection
-   *         the Collection to check
-   * @param element
-   *         the element to look for
-   *
+   * @param collection the Collection to check
+   * @param element the element to look for
    * @return {@code true} if found, {@code false} otherwise
-   *
    * @since 4.0
    */
   public static boolean containsInstance(@Nullable Collection<?> collection, Object element) {
@@ -1295,13 +1132,9 @@ public abstract class CollectionUtils {
    * Return {@code true} if any element in '{@code candidates}' is
    * contained in '{@code source}'; otherwise returns {@code false}.
    *
-   * @param source
-   *         the source Collection
-   * @param candidates
-   *         the candidates to search for
-   *
+   * @param source the source Collection
+   * @param candidates the candidates to search for
    * @return whether any of the candidates has been found
-   *
    * @since 4.0
    */
   public static boolean containsAny(Collection<?> source, Collection<?> candidates) {
@@ -1314,13 +1147,9 @@ public abstract class CollectionUtils {
    * '{@code source}' returns {@code null}. Iteration order is
    * {@link Collection} implementation specific.
    *
-   * @param source
-   *         the source Collection
-   * @param candidates
-   *         the candidates to search for
-   *
+   * @param source the source Collection
+   * @param candidates the candidates to search for
    * @return the first present object, or {@code null} if not found
-   *
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -1340,12 +1169,9 @@ public abstract class CollectionUtils {
   /**
    * Determine whether the given Collection only contains a single unique object.
    *
-   * @param collection
-   *         the Collection to check
-   *
+   * @param collection the Collection to check
    * @return {@code true} if the collection contains a single reference or
    * multiple references to the same instance, {@code false} otherwise
-   *
    * @since 4.0
    */
   public static boolean hasUniqueObject(Collection<?> collection) {

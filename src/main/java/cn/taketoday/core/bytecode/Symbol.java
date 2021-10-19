@@ -194,20 +194,14 @@ abstract class Symbol {
    * Constructs a new Symbol. This constructor can't be used directly because the Symbol class is
    * abstract. Instead, use the factory methods of the {@link SymbolTable} class.
    *
-   * @param index
-   *         the symbol index in the constant pool, in the BootstrapMethods attribute, or in
-   *         the (ASM specific) type table of a class (depending on 'tag').
-   * @param tag
-   *         the symbol type. Must be one of the static tag values defined in this class.
-   * @param owner
-   *         The internal name of the symbol's owner class. Maybe {@literal null}.
-   * @param name
-   *         The name of the symbol's corresponding class field or method. Maybe {@literal
-   *         null}.
-   * @param value
-   *         The string value of this symbol. Maybe {@literal null}.
-   * @param data
-   *         The numeric value of this symbol.
+   * @param index the symbol index in the constant pool, in the BootstrapMethods attribute, or in
+   * the (ASM specific) type table of a class (depending on 'tag').
+   * @param tag the symbol type. Must be one of the static tag values defined in this class.
+   * @param owner The internal name of the symbol's owner class. Maybe {@literal null}.
+   * @param name The name of the symbol's corresponding class field or method. Maybe {@literal
+   * null}.
+   * @param value The string value of this symbol. Maybe {@literal null}.
+   * @param data The numeric value of this symbol.
    */
   Symbol(final int index,
          final int tag,

@@ -65,8 +65,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
   /**
    * Constructs a ThreadLocal
    *
-   * @param factory
-   *         The factory this context will service
+   * @param factory The factory this context will service
    */
   public HibernateSessionContext(SessionFactoryImplementor factory) {
     super(factory);
@@ -162,8 +161,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
   /**
    * Associates the given session with the current thread of execution.
    *
-   * @param session
-   *         The session to bind.
+   * @param session The session to bind.
    */
   public static void bind(Session session) {
     final SessionFactory factory = session.getSessionFactory();
@@ -196,9 +194,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
    * Disassociates a previously bound session from the current thread of
    * execution.
    *
-   * @param factory
-   *         The factory for which the session should be unbound.
-   *
+   * @param factory The factory for which the session should be unbound.
    * @return The session which was unbound.
    */
   public static Session unbind(SessionFactory factory) {
@@ -339,8 +335,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
     /**
      * Setter for property 'wrapped'.
      *
-     * @param wrapped
-     *         Value to set for property 'wrapped'.
+     * @param wrapped Value to set for property 'wrapped'.
      */
     public void setWrapped(Session wrapped) {
       this.wrappedSession = wrapped;

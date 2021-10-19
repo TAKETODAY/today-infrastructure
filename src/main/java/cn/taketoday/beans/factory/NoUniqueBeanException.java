@@ -50,12 +50,9 @@ public class NoUniqueBeanException extends BeansException {
   /**
    * Create a new {@code NoUniqueBeanException}.
    *
-   * @param type
-   *         required type of the non-unique bean
-   * @param numberOfBeansFound
-   *         the number of matching beans
-   * @param message
-   *         detailed message describing the problem
+   * @param type required type of the non-unique bean
+   * @param numberOfBeansFound the number of matching beans
+   * @param message detailed message describing the problem
    */
   public NoUniqueBeanException(Class<?> type, int numberOfBeansFound, String message) {
     super(message);
@@ -67,10 +64,8 @@ public class NoUniqueBeanException extends BeansException {
   /**
    * Create a new {@code NoUniqueBeanException}.
    *
-   * @param type
-   *         required type of the non-unique bean
-   * @param beanNamesFound
-   *         the names of all matching beans (as a Collection)
+   * @param type required type of the non-unique bean
+   * @param beanNamesFound the names of all matching beans (as a Collection)
    */
   public NoUniqueBeanException(Class<?> type, Collection<String> beanNamesFound) {
     super("expected single matching bean but found " + beanNamesFound.size() + ": " +
@@ -83,10 +78,8 @@ public class NoUniqueBeanException extends BeansException {
   /**
    * Create a new {@code NoUniqueBeanException}.
    *
-   * @param type
-   *         required type of the non-unique bean
-   * @param beanNamesFound
-   *         the names of all matching beans (as an array)
+   * @param type required type of the non-unique bean
+   * @param beanNamesFound the names of all matching beans (as an array)
    */
   public NoUniqueBeanException(Class<?> type, String... beanNamesFound) {
     this(type, Arrays.asList(beanNamesFound));
@@ -95,10 +88,8 @@ public class NoUniqueBeanException extends BeansException {
   /**
    * Create a new {@code NoUniqueBeanException}.
    *
-   * @param type
-   *         required type of the non-unique bean
-   * @param beanNamesFound
-   *         the names of all matching beans (as a Collection)
+   * @param type required type of the non-unique bean
+   * @param beanNamesFound the names of all matching beans (as a Collection)
    */
   public NoUniqueBeanException(@Nullable ResolvableType type, Collection<String> beanNamesFound) {
     super("expected single matching bean but found " + beanNamesFound.size() + ": " +
@@ -111,10 +102,8 @@ public class NoUniqueBeanException extends BeansException {
   /**
    * Create a new {@code NoUniqueBeanException}.
    *
-   * @param type
-   *         required type of the non-unique bean
-   * @param beanNamesFound
-   *         the names of all matching beans (as an array)
+   * @param type required type of the non-unique bean
+   * @param beanNamesFound the names of all matching beans (as an array)
    */
   public NoUniqueBeanException(ResolvableType type, String... beanNamesFound) {
     this(type, Arrays.asList(beanNamesFound));

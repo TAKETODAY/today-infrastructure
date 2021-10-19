@@ -194,16 +194,12 @@ public final class Type {
   /**
    * Constructs a reference type.
    *
-   * @param sort
-   *         the sort of this type, see {@link #sort}.
-   * @param valueBuffer
-   *         a buffer containing the value of this field or method type.
-   * @param valueBegin
-   *         the beginning index, inclusive, of the value of this field or method type in
-   *         valueBuffer.
-   * @param valueEnd
-   *         the end index, exclusive, of the value of this field or method type in
-   *         valueBuffer.
+   * @param sort the sort of this type, see {@link #sort}.
+   * @param valueBuffer a buffer containing the value of this field or method type.
+   * @param valueBegin the beginning index, inclusive, of the value of this field or method type in
+   * valueBuffer.
+   * @param valueEnd the end index, exclusive, of the value of this field or method type in
+   * valueBuffer.
    */
   private Type(final int sort, final String valueBuffer, final int valueBegin, final int valueEnd) {
     this.sort = sort;
@@ -234,9 +230,7 @@ public final class Type {
   /**
    * Returns the {@link Type} corresponding to the given type descriptor.
    *
-   * @param typeDescriptor
-   *         a field or method type descriptor.
-   *
+   * @param typeDescriptor a field or method type descriptor.
    * @return the {@link Type} corresponding to the given type descriptor.
    */
   public static Type fromDescriptor(final String typeDescriptor) {
@@ -246,9 +240,7 @@ public final class Type {
   /**
    * Returns the {@link Type} corresponding to the given class.
    *
-   * @param clazz
-   *         a class.
-   *
+   * @param clazz a class.
    * @return the {@link Type} corresponding to the given class.
    */
   public static Type fromClass(final Class<?> clazz) {
@@ -292,9 +284,7 @@ public final class Type {
   /**
    * Returns the method {@link Type} corresponding to the given constructor.
    *
-   * @param constructor
-   *         a {@link Constructor} object.
-   *
+   * @param constructor a {@link Constructor} object.
    * @return the method {@link Type} corresponding to the given constructor.
    */
   public static Type fromConstructor(final Constructor<?> constructor) {
@@ -304,9 +294,7 @@ public final class Type {
   /**
    * Returns the method {@link Type} corresponding to the given method.
    *
-   * @param method
-   *         a {@link Method} object.
-   *
+   * @param method a {@link Method} object.
    * @return the method {@link Type} corresponding to the given method.
    */
   public static Type fromMethod(final Method method) {
@@ -327,9 +315,7 @@ public final class Type {
   /**
    * Returns the {@link Type} corresponding to the given internal name.
    *
-   * @param internalName
-   *         an internal name.
-   *
+   * @param internalName an internal name.
    * @return the {@link Type} corresponding to the given internal name.
    */
   public static Type fromInternalName(final String internalName) {
@@ -354,9 +340,7 @@ public final class Type {
   /**
    * Returns the {@link Type}s corresponding to the given internal name.
    *
-   * @param internalNames
-   *         internal name. if null returns null
-   *
+   * @param internalNames internal name. if null returns null
    * @return the {@link Type}s corresponding to the given internal name.
    */
   public static Type[] getObjectTypes(final String[] internalNames) {
@@ -372,13 +356,9 @@ public final class Type {
   }
 
   /**
-   * @param member
-   *         Member
-   *
+   * @param member Member
    * @return the {@link Type}s corresponding to the given Executable's ExceptionTypes.
-   *
-   * @throws IllegalArgumentException
-   *         not a Executable
+   * @throws IllegalArgumentException not a Executable
    * @see Executable#getExceptionTypes()
    * @since 4.0
    */
@@ -393,9 +373,7 @@ public final class Type {
    * Returns the {@link Type} corresponding to the given method descriptor. Equivalent to <code>
    * Type.getType(methodDescriptor)</code>.
    *
-   * @param methodDescriptor
-   *         a method descriptor.
-   *
+   * @param methodDescriptor a method descriptor.
    * @return the {@link Type} corresponding to the given method descriptor.
    */
   public static Type fromMethod(final String methodDescriptor) {
@@ -405,11 +383,8 @@ public final class Type {
   /**
    * Returns the method {@link Type} corresponding to the given argument and return types.
    *
-   * @param returnType
-   *         the return type of the method.
-   * @param argumentTypes
-   *         the argument types of the method.
-   *
+   * @param returnType the return type of the method.
+   * @param argumentTypes the argument types of the method.
    * @return the method {@link Type} corresponding to the given argument and return types.
    */
   public static Type fromMethod(final Type returnType, final Type... argumentTypes) {
@@ -430,9 +405,7 @@ public final class Type {
    * Returns the {@link Type} values corresponding to the argument types of the given method
    * descriptor.
    *
-   * @param methodDescriptor
-   *         a method descriptor.
-   *
+   * @param methodDescriptor a method descriptor.
    * @return the {@link Type} values corresponding to the argument types of the given method
    * descriptor.
    */
@@ -479,9 +452,7 @@ public final class Type {
   /**
    * Returns the {@link Type} values corresponding to the argument types of the given method.
    *
-   * @param method
-   *         a method.
-   *
+   * @param method a method.
    * @return the {@link Type} values corresponding to the argument types of the given method.
    */
   public static Type[] getArgumentTypes(final Method method) {
@@ -506,9 +477,7 @@ public final class Type {
   /**
    * Returns the {@link Type} corresponding to the return type of the given method descriptor.
    *
-   * @param methodDescriptor
-   *         a method descriptor.
-   *
+   * @param methodDescriptor a method descriptor.
    * @return the {@link Type} corresponding to the return type of the given method descriptor.
    */
   public static Type forReturnType(final String methodDescriptor) {
@@ -519,9 +488,7 @@ public final class Type {
   /**
    * Returns the {@link Type} corresponding to the return type of the given method.
    *
-   * @param method
-   *         a method.
-   *
+   * @param method a method.
    * @return the {@link Type} corresponding to the return type of the given method.
    */
   public static Type forReturnType(final Method method) {
@@ -531,9 +498,7 @@ public final class Type {
   /**
    * Returns the start index of the return type of the given method descriptor.
    *
-   * @param methodDescriptor
-   *         a method descriptor.
-   *
+   * @param methodDescriptor a method descriptor.
    * @return the start index of the return type of the given method descriptor.
    */
   static int getReturnTypeOffset(final String methodDescriptor) {
@@ -556,15 +521,11 @@ public final class Type {
   /**
    * Returns the {@link Type} corresponding to the given field or method descriptor.
    *
-   * @param descriptorBuffer
-   *         a buffer containing the field or method descriptor.
-   * @param descriptorBegin
-   *         the beginning index, inclusive, of the field or method descriptor in
-   *         descriptorBuffer.
-   * @param descriptorEnd
-   *         the end index, exclusive, of the field or method descriptor in
-   *         descriptorBuffer.
-   *
+   * @param descriptorBuffer a buffer containing the field or method descriptor.
+   * @param descriptorBegin the beginning index, inclusive, of the field or method descriptor in
+   * descriptorBuffer.
+   * @param descriptorEnd the end index, exclusive, of the field or method descriptor in
+   * descriptorBuffer.
    * @return the {@link Type} corresponding to the given type descriptor.
    */
   private static Type getTypeInternal(
@@ -658,9 +619,7 @@ public final class Type {
    * Returns the internal name of the given class. The internal name of a class is its fully
    * qualified name, as returned by Class.getName(), where '.' are replaced by '/'.
    *
-   * @param clazz
-   *         an object or array class.
-   *
+   * @param clazz an object or array class.
    * @return the internal name of the given class.
    */
   public static String getInternalName(final Class<?> clazz) {
@@ -691,9 +650,7 @@ public final class Type {
   /**
    * Returns the descriptor corresponding to the given class.
    *
-   * @param clazz
-   *         an object class, a primitive class or an array class.
-   *
+   * @param clazz an object class, a primitive class or an array class.
    * @return the descriptor corresponding to the given class.
    */
   public static String getDescriptor(final Class<?> clazz) {
@@ -705,9 +662,7 @@ public final class Type {
   /**
    * Returns the descriptor corresponding to the given constructor.
    *
-   * @param constructor
-   *         a {@link Constructor} object.
-   *
+   * @param constructor a {@link Constructor} object.
    * @return the descriptor of the given constructor.
    */
   public static String getConstructorDescriptor(final Constructor<?> constructor) {
@@ -723,11 +678,8 @@ public final class Type {
   /**
    * Returns the descriptor corresponding to the given argument and return types.
    *
-   * @param returnType
-   *         the return type of the method.
-   * @param argumentTypes
-   *         the argument types of the method.
-   *
+   * @param returnType the return type of the method.
+   * @param argumentTypes the argument types of the method.
    * @return the descriptor corresponding to the given argument and return types.
    */
   public static String getMethodDescriptor(final Type returnType, final Type... argumentTypes) {
@@ -744,9 +696,7 @@ public final class Type {
   /**
    * Returns the descriptor corresponding to the given method.
    *
-   * @param method
-   *         a {@link Method} object.
-   *
+   * @param method a {@link Method} object.
    * @return the descriptor of the given method.
    */
   public static String getMethodDescriptor(final Method method) {
@@ -802,13 +752,10 @@ public final class Type {
   /**
    * Returns the descriptor corresponding to the given type name.
    *
-   * @param type
-   *         a Java type name.
-   * @param defaultPackage
-   *         true if unqualified class names belong to the default package, or false
-   *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
-   *         option is true, or "java.lang.Object" otherwise.
-   *
+   * @param type a Java type name.
+   * @param defaultPackage true if unqualified class names belong to the default package, or false
+   * if they correspond to java.lang classes. For instance "Object" means "Object" if this
+   * option is true, or "java.lang.Object" otherwise.
    * @return the descriptor corresponding to the given type name.
    */
   public static String getDescriptor(final String type, final boolean defaultPackage) {
@@ -846,8 +793,7 @@ public final class Type {
   /**
    * Appends the descriptor corresponding to this type to the given string buffer.
    *
-   * @param stringBuilder
-   *         the string builder to which the descriptor must be appended.
+   * @param stringBuilder the string builder to which the descriptor must be appended.
    */
   private void appendDescriptor(final StringBuilder stringBuilder) {
     if (sort == OBJECT) {
@@ -864,10 +810,8 @@ public final class Type {
   /**
    * Appends the descriptor of the given class to the given string builder.
    *
-   * @param clazz
-   *         the class whose descriptor must be computed.
-   * @param stringBuilder
-   *         the string builder to which the descriptor must be appended.
+   * @param clazz the class whose descriptor must be computed.
+   * @param stringBuilder the string builder to which the descriptor must be appended.
    */
   private static void appendDescriptor(final Class<?> clazz, final StringBuilder stringBuilder) {
     Class<?> currentClass = clazz;
@@ -952,7 +896,6 @@ public final class Type {
    * get Boxed Type
    *
    * @return Boxed Type
-   *
    * @since 4.0
    */
   public Type getBoxedType() {
@@ -1077,9 +1020,7 @@ public final class Type {
   /**
    * Computes the size of the arguments and of the return value of a method.
    *
-   * @param methodDescriptor
-   *         a method descriptor.
-   *
+   * @param methodDescriptor a method descriptor.
    * @return the size of the arguments of the method (plus one for the implicit this argument),
    * argumentsSize, and the size of its return value, returnSize, packed into a single int i =
    * {@code (argumentsSize &lt;&lt; 2) | returnSize} (argumentsSize is therefore equal to {@code
@@ -1123,11 +1064,9 @@ public final class Type {
    * Returns a JVM instruction opcode adapted to this {@link Type}. This method must not be used for
    * method types.
    *
-   * @param opcode
-   *         a JVM instruction opcode. This opcode must be one of ILOAD, ISTORE, IALOAD,
-   *         IASTORE, IADD, ISUB, IMUL, IDIV, IREM, INEG, ISHL, ISHR, IUSHR, IAND, IOR, IXOR and
-   *         IRETURN.
-   *
+   * @param opcode a JVM instruction opcode. This opcode must be one of ILOAD, ISTORE, IALOAD,
+   * IASTORE, IADD, ISUB, IMUL, IDIV, IREM, INEG, ISHL, ISHR, IUSHR, IAND, IOR, IXOR and
+   * IRETURN.
    * @return an opcode that is similar to the given opcode, but adapted to this {@link Type}. For
    * example, if this type is {@code float} and {@code opcode} is IRETURN, this method returns
    * FRETURN.
@@ -1198,9 +1137,7 @@ public final class Type {
   /**
    * To {@link Type} array
    *
-   * @param items
-   *         array item
-   *
+   * @param items array item
    * @return {@link Type} array
    */
   public static Type[] array(final Type... items) {
@@ -1254,7 +1191,6 @@ public final class Type {
    *
    * @return {@code true} if this object represents an array class;
    * {@code false} otherwise.
-   *
    * @since 4.0
    */
   public boolean isArray() {
@@ -1277,7 +1213,6 @@ public final class Type {
    * this method returns {@code true}.
    *
    * @return true if and only if this class represents a primitive type
-   *
    * @see java.lang.Boolean#TYPE
    * @see java.lang.Character#TYPE
    * @see java.lang.Byte#TYPE
@@ -1301,9 +1236,7 @@ public final class Type {
   /**
    * Tests if the given object is equal to this type.
    *
-   * @param object
-   *         the object to be compared to this type.
-   *
+   * @param object the object to be compared to this type.
    * @return {@literal true} if the given object is equal to this type.
    */
   @Override

@@ -76,19 +76,14 @@ public class FieldNode extends FieldVisitor {
   /**
    * Constructs a new {@link FieldNode}.
    *
-   * @param access
-   *         the field's access flags (see {@link Opcodes}). This parameter
-   *         also indicates if the field is synthetic and/or deprecated.
-   * @param name
-   *         the field's name.
-   * @param descriptor
-   *         the field's descriptor (see {@link Type}).
-   * @param signature
-   *         the field's signature.
-   * @param value
-   *         the field's initial value. This parameter, which may be {@literal null} if the
-   *         field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
-   *         Long}, a {@link Double} or a {@link String}.
+   * @param access the field's access flags (see {@link Opcodes}). This parameter
+   * also indicates if the field is synthetic and/or deprecated.
+   * @param name the field's name.
+   * @param descriptor the field's descriptor (see {@link Type}).
+   * @param signature the field's signature.
+   * @param value the field's initial value. This parameter, which may be {@literal null} if the
+   * field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
+   * Long}, a {@link Double} or a {@link String}.
    */
   public FieldNode(
           final int access,
@@ -149,8 +144,7 @@ public class FieldNode extends FieldVisitor {
   /**
    * Makes the given class visitor visit this field.
    *
-   * @param classVisitor
-   *         a class visitor.
+   * @param classVisitor a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
     FieldVisitor fieldVisitor = classVisitor.visitField(access, name, desc, signature, value);

@@ -31,10 +31,8 @@ public interface GeneratorStrategy {
   /**
    * Generate the class.
    *
-   * @param cg
-   *         a class generator on which you can call
-   *         {@link ClassGenerator#generateClass}
-   *
+   * @param cg a class generator on which you can call
+   * {@link ClassGenerator#generateClass}
    * @return a byte array containing the bits of a valid Class
    */
   byte[] generate(ClassGenerator cg) throws Exception;

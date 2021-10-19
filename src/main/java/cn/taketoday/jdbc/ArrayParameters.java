@@ -79,8 +79,7 @@ final class ArrayParameters {
    * Update both the query and the parameter indexes to include the array
    * parameters.
    *
-   * @throws ArrayParameterBindFailedException
-   *         array parameter bind failed
+   * @throws ArrayParameterBindFailedException array parameter bind failed
    */
   static String updateQueryAndParametersIndexes(
           String parsedQuery,
@@ -146,8 +145,7 @@ final class ArrayParameters {
    * array parameter below 1 parameter will not change the text query nor the
    * parameter indexes.
    *
-   * @throws ArrayParameterBindFailedException
-   *         array parameter bind failed
+   * @throws ArrayParameterBindFailedException array parameter bind failed
    */
   private static ArrayList<ArrayParameter> sortedArrayParameters(
           HashMap<String, QueryParameter> queryParameters,

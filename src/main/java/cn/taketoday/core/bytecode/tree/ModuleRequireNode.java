@@ -43,13 +43,10 @@ public class ModuleRequireNode {
   /**
    * Constructs a new {@link ModuleRequireNode}.
    *
-   * @param module
-   *         the fully qualified name (using dots) of the dependence.
-   * @param access
-   *         the access flag of the dependence among {@code ACC_TRANSITIVE}, {@code
-   *         ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param version
-   *         the module version at compile time, or {@literal null}.
+   * @param module the fully qualified name (using dots) of the dependence.
+   * @param access the access flag of the dependence among {@code ACC_TRANSITIVE}, {@code
+   * ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param version the module version at compile time, or {@literal null}.
    */
   public ModuleRequireNode(final String module, final int access, final String version) {
     this.module = module;
@@ -60,8 +57,7 @@ public class ModuleRequireNode {
   /**
    * Makes the given module visitor visit this require directive.
    *
-   * @param moduleVisitor
-   *         a module visitor.
+   * @param moduleVisitor a module visitor.
    */
   public void accept(final ModuleVisitor moduleVisitor) {
     moduleVisitor.visitRequire(module, access, version);

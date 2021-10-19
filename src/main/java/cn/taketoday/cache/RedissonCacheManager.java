@@ -57,8 +57,7 @@ public class RedissonCacheManager extends AbstractCacheManager implements CacheM
   /**
    * Set Codec instance shared between all Cache instances
    *
-   * @param codec
-   *         object
+   * @param codec object
    */
   public void setCodec(Codec codec) {
     this.codec = codec;
@@ -75,10 +74,8 @@ public class RedissonCacheManager extends AbstractCacheManager implements CacheM
   /**
    * Not a default config
    *
-   * @param name
-   *         the name of cache
-   * @param config
-   *         config instance
+   * @param name the name of cache
+   * @param config config instance
    */
   private Cache createMapCache(String name, CacheConfig config) {
     RMapCache<Object, Object> map = getMapCache(name);

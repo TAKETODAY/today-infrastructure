@@ -61,8 +61,7 @@ public class ResizableByteArrayOutputStream extends ByteArrayOutputStream {
    * Create a new <code>ResizableByteArrayOutputStream</code>
    * with the specified initial capacity.
    *
-   * @param initialCapacity
-   *         the initial buffer size in bytes
+   * @param initialCapacity the initial buffer size in bytes
    */
   public ResizableByteArrayOutputStream(int initialCapacity) {
     super(initialCapacity);
@@ -71,12 +70,9 @@ public class ResizableByteArrayOutputStream extends ByteArrayOutputStream {
   /**
    * Resize the internal buffer size to a specified capacity.
    *
-   * @param targetCapacity
-   *         the desired size of the buffer
-   *
-   * @throws IllegalArgumentException
-   *         if the given capacity is smaller than
-   *         the actual size of the content stored in the buffer already
+   * @param targetCapacity the desired size of the buffer
+   * @throws IllegalArgumentException if the given capacity is smaller than
+   * the actual size of the content stored in the buffer already
    * @see ResizableByteArrayOutputStream#size()
    */
   public synchronized void resize(int targetCapacity) {
@@ -89,9 +85,7 @@ public class ResizableByteArrayOutputStream extends ByteArrayOutputStream {
   /**
    * Grow the internal buffer size.
    *
-   * @param additionalCapacity
-   *         the number of bytes to add to the current buffer size
-   *
+   * @param additionalCapacity the number of bytes to add to the current buffer size
    * @see ResizableByteArrayOutputStream#size()
    */
   public synchronized void grow(int additionalCapacity) {

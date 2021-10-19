@@ -44,11 +44,8 @@ public abstract class TypeUtils {
    * Check if the right-hand side type may be assigned to the left-hand side
    * type following the Java generics rules.
    *
-   * @param lhsType
-   *         the target type
-   * @param rhsType
-   *         the value type that should be assigned to the target type
-   *
+   * @param lhsType the target type
+   * @param rhsType the value type that should be assigned to the target type
    * @return true if rhs is assignable to lhs
    */
   public static boolean isAssignable(Type lhsType, Type rhsType) {

@@ -37,10 +37,8 @@ public interface BeanDefinitionCustomizer {
   /**
    * Customize the given bean definition.
    *
-   * @param attributes
-   *         AnnotationAttributes
-   * @param definition
-   *         BeanDefinition to customize
+   * @param attributes AnnotationAttributes
+   * @param definition BeanDefinition to customize
    */
   void customize(@Nullable AnnotationAttributes attributes, BeanDefinition definition);
 

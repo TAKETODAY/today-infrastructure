@@ -57,9 +57,7 @@ public abstract class FileSystemUtils {
    * handling of I/O errors, clearly differentiating between non-existence
    * and failure to delete an existing file.
    *
-   * @param root
-   *         the root {@code File} to delete
-   *
+   * @param root the root {@code File} to delete
    * @return {@code true} if the {@code File} was successfully deleted,
    * otherwise {@code false}
    */
@@ -80,14 +78,10 @@ public abstract class FileSystemUtils {
    * Delete the supplied {@link File} &mdash; for directories,
    * recursively delete any nested directories or files as well.
    *
-   * @param root
-   *         the root {@code File} to delete
-   *
+   * @param root the root {@code File} to delete
    * @return {@code true} if the {@code File} existed and was deleted,
    * or {@code false} if it did not exist
-   *
-   * @throws IOException
-   *         in the case of I/O errors
+   * @throws IOException in the case of I/O errors
    */
   public static boolean deleteRecursively(@Nullable Path root) throws IOException {
     if (root == null) {
@@ -117,13 +111,9 @@ public abstract class FileSystemUtils {
    * Recursively copy the contents of the {@code src} file/directory
    * to the {@code dest} file/directory.
    *
-   * @param src
-   *         the source directory
-   * @param dest
-   *         the destination directory
-   *
-   * @throws IOException
-   *         in the case of I/O errors
+   * @param src the source directory
+   * @param dest the destination directory
+   * @throws IOException in the case of I/O errors
    */
   public static void copyRecursively(File src, File dest) throws IOException {
     Assert.notNull(src, "Source File must not be null");
@@ -135,13 +125,9 @@ public abstract class FileSystemUtils {
    * Recursively copy the contents of the {@code src} file/directory
    * to the {@code dest} file/directory.
    *
-   * @param src
-   *         the source directory
-   * @param dest
-   *         the destination directory
-   *
-   * @throws IOException
-   *         in the case of I/O errors
+   * @param src the source directory
+   * @param dest the destination directory
+   * @throws IOException in the case of I/O errors
    */
   public static void copyRecursively(Path src, Path dest) throws IOException {
     Assert.notNull(src, "Source Path must not be null");

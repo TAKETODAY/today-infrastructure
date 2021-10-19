@@ -77,11 +77,8 @@ public final class HttpRequest {
   /**
    * Constructs a Request from the data in the given input stream.
    *
-   * @param in
-   *         the input stream from which the request is read
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @param in the input stream from which the request is read
+   * @throws IOException if an error occurs
    */
   public HttpRequest(InputStream in, Socket socket, LightHttpConfig config) throws IOException {
     readRequestLine(in);
@@ -167,11 +164,8 @@ public final class HttpRequest {
    * Sets the path component of the request URI. This can be useful
    * in URL rewriting, etc.
    *
-   * @param path
-   *         the path to set
-   *
-   * @throws IllegalArgumentException
-   *         if the given path is malformed
+   * @param path the path to set
+   * @throws IllegalArgumentException if the given path is malformed
    */
   public void setPath(String path) {
     try {
@@ -225,9 +219,7 @@ public final class HttpRequest {
    *
    * @return the request parameters name-value pairs,
    * or an empty list if there are none
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    * @see Utils#parseParamsList(String)
    */
   public MultiValueMap<String, String> parseParameters() throws IOException {
@@ -254,9 +246,7 @@ public final class HttpRequest {
    *
    * @return the request parameters name-value pairs,
    * or an empty map if there are none
-   *
-   * @throws IOException
-   *         if an error occurs
+   * @throws IOException if an error occurs
    * @see #parseParameters()
    */
   public MultiValueMap<String, String> getParameters() throws IOException {
@@ -271,9 +261,7 @@ public final class HttpRequest {
    * from the Range header. If multiple ranges are requested, a single
    * range containing all of them is returned.
    *
-   * @param length
-   *         the full length of the requested resource
-   *
+   * @param length the full length of the requested resource
    * @return the requested range, or null if the Range header
    * is missing or invalid
    */
@@ -286,11 +274,8 @@ public final class HttpRequest {
   /**
    * Reads the request line, parsing the method, URI and version string.
    *
-   * @param in
-   *         the input stream from which the request line is read
-   *
-   * @throws IOException
-   *         if an error occurs or the request line is invalid
+   * @param in the input stream from which the request line is read
+   * @throws IOException if an error occurs or the request line is invalid
    */
   protected void readRequestLine(InputStream in) throws IOException {
     // RFC2616#4.1: should accept empty lines before request line

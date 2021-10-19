@@ -29,9 +29,7 @@ import cn.taketoday.lang.Assert;
  * Extension of {@link CompletableFuture} which allows for cancelling
  * a delegate along with the {@link CompletableFuture} itself.
  *
- * @param <T>
- *         the result type returned by this Future's {@code get} method
- *
+ * @param <T> the result type returned by this Future's {@code get} method
  * @author Juergen Hoeller
  * @since 4.0
  */

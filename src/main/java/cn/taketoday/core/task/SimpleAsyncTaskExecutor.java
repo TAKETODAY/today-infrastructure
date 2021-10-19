@@ -85,8 +85,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   /**
    * Create a new SimpleAsyncTaskExecutor with the given thread name prefix.
    *
-   * @param threadNamePrefix
-   *         the prefix to use for the names of newly created threads
+   * @param threadNamePrefix the prefix to use for the names of newly created threads
    */
   public SimpleAsyncTaskExecutor(String threadNamePrefix) {
     super(threadNamePrefix);
@@ -95,8 +94,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   /**
    * Create a new SimpleAsyncTaskExecutor with the given external thread factory.
    *
-   * @param threadFactory
-   *         the factory to use for creating new Threads
+   * @param threadFactory the factory to use for creating new Threads
    */
   public SimpleAsyncTaskExecutor(@Nullable ThreadFactory threadFactory) {
     this.threadFactory = threadFactory;
@@ -167,7 +165,6 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    * Return whether this throttle is currently active.
    *
    * @return {@code true} if the concurrency limit for this instance is active
-   *
    * @see #getConcurrencyLimit()
    * @see #setConcurrencyLimit
    */
@@ -241,9 +238,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    * Template method for the actual execution of a task.
    * <p>The default implementation creates a new Thread and starts it.
    *
-   * @param task
-   *         the Runnable to execute
-   *
+   * @param task the Runnable to execute
    * @see #setThreadFactory
    * @see #createThread
    * @see Thread#start()

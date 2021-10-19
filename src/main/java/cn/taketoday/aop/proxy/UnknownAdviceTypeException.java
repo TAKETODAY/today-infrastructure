@@ -38,8 +38,7 @@ public class UnknownAdviceTypeException extends IllegalArgumentException {
    * Will create a message text that says that the object is neither a
    * subinterface of Advice nor an Advisor.
    *
-   * @param advice
-   *         the advice object of unknown type
+   * @param advice the advice object of unknown type
    */
   public UnknownAdviceTypeException(Object advice) {
     super("Advice object [" + advice + "] is neither a supported sub-interface of " +
@@ -49,8 +48,7 @@ public class UnknownAdviceTypeException extends IllegalArgumentException {
   /**
    * Create a new UnknownAdviceTypeException with the given message.
    *
-   * @param message
-   *         the message text
+   * @param message the message text
    */
   public UnknownAdviceTypeException(String message) {
     super(message);

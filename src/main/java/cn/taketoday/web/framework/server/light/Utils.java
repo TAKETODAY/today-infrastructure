@@ -124,9 +124,7 @@ public abstract class Utils {
   /**
    * Formats the given time value as a string in RFC 1123 format.
    *
-   * @param time
-   *         the time in milliseconds since January 1, 1970, 00:00:00 GMT
-   *
+   * @param time the time in milliseconds since January 1, 1970, 00:00:00 GMT
    * @return the given time value as a string in RFC 1123 format
    */
   public static String formatDate(long time) {
@@ -166,14 +164,10 @@ public abstract class Utils {
    * Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
    * Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
    *
-   * @param time
-   *         a string representation of a time value
-   *
+   * @param time a string representation of a time value
    * @return the parsed date value
-   *
-   * @throws IllegalArgumentException
-   *         if the given string does not contain
-   *         a valid date format in any of the supported formats
+   * @throws IllegalArgumentException if the given string does not contain
+   * a valid date format in any of the supported formats
    */
   public static Date parseDate(String time) {
     for (String pattern : DATE_PATTERNS) {
@@ -192,16 +186,11 @@ public abstract class Utils {
    * Reads the ISO-8859-1 encoded string starting at the current stream
    * position and ending at the first occurrence of the LF character.
    *
-   * @param in
-   *         the stream from which the line is read
-   *
+   * @param in the stream from which the line is read
    * @return the read string, excluding the terminating LF character
    * and (if exists) the CR character immediately preceding it
-   *
-   * @throws EOFException
-   *         if the stream end is reached before an LF character is found
-   * @throws IOException
-   *         if an IO error occurs, or the line is longer than 8192 bytes
+   * @throws EOFException if the stream end is reached before an LF character is found
+   * @throws IOException if an IO error occurs, or the line is longer than 8192 bytes
    * @see #readToken(InputStream, int, Charset, int)
    */
   public static String readLine(InputStream in) throws IOException {
@@ -213,25 +202,16 @@ public abstract class Utils {
    * the first occurrence of the given delimiter byte, in the given encoding.
    * If LF is specified as the delimiter, a CRLF pair is also treated as one.
    *
-   * @param in
-   *         the stream from which the token is read
-   * @param delim
-   *         the byte value which marks the end of the token,
-   *         or -1 if the token ends at the end of the stream
-   * @param enc
-   *         a character-encoding name
-   * @param maxLength
-   *         the maximum length (in bytes) to read
-   *
+   * @param in the stream from which the token is read
+   * @param delim the byte value which marks the end of the token,
+   * or -1 if the token ends at the end of the stream
+   * @param enc a character-encoding name
+   * @param maxLength the maximum length (in bytes) to read
    * @return the read token, excluding the delimiter
-   *
-   * @throws UnsupportedEncodingException
-   *         if the encoding is not supported
-   * @throws EOFException
-   *         if the stream end is reached before a delimiter is found
-   * @throws IOException
-   *         if an IO error occurs, or the maximum length
-   *         is reached before the token end is reached
+   * @throws UnsupportedEncodingException if the encoding is not supported
+   * @throws EOFException if the stream end is reached before a delimiter is found
+   * @throws IOException if an IO error occurs, or the maximum length
+   * is reached before the token end is reached
    */
   public static String readToken(InputStream in, int delim,
                                  String enc, int maxLength) throws IOException {
@@ -294,9 +274,7 @@ public abstract class Utils {
    * This is a fast way to encode a string as ISO-8859-1/US-ASCII bytes.
    * If multiple strings are provided, their bytes are concatenated.
    *
-   * @param strings
-   *         the strings to convert (containing only ISO-8859-1 chars)
-   *
+   * @param strings the strings to convert (containing only ISO-8859-1 chars)
    * @return the byte array
    */
   public static byte[] getBytes(String... strings) {
@@ -314,9 +292,7 @@ public abstract class Utils {
   /**
    * Returns the parent of the given path.
    *
-   * @param path
-   *         the path whose parent is returned (must start with '/')
-   *
+   * @param path the path whose parent is returned (must start with '/')
    * @return the parent of the given path (excluding trailing slash),
    * or null if given path is the root path
    */
@@ -330,11 +306,8 @@ public abstract class Utils {
    * Returns the given string with all occurrences of the given character
    * removed from its right side.
    *
-   * @param s
-   *         the string to trim
-   * @param c
-   *         the character to remove
-   *
+   * @param s the string to trim
+   * @param c the character to remove
    * @return the trimmed string
    */
   public static String trimRight(String s, char c) {
@@ -350,11 +323,8 @@ public abstract class Utils {
    * Returns the given string with all occurrences of the given character
    * removed from its left side.
    *
-   * @param s
-   *         the string to trim
-   * @param c
-   *         the character to remove
-   *
+   * @param s the string to trim
+   * @param c the character to remove
    * @return the trimmed string
    */
   public static String trimLeft(String s, char c) {
@@ -369,11 +339,8 @@ public abstract class Utils {
    * Trims duplicate consecutive occurrences of the given character within the
    * given string, replacing them with a single instance of the character.
    *
-   * @param s
-   *         the string to trim
-   * @param c
-   *         the character to trim
-   *
+   * @param s the string to trim
+   * @param c the character to trim
    * @return the given string with duplicate consecutive occurrences of c
    * replaced by a single instance of c
    */
@@ -393,9 +360,7 @@ public abstract class Utils {
    * Returns a human-friendly string approximating the given data size,
    * e.g. "316", "1.8K", "324M", etc.
    *
-   * @param size
-   *         the size to display
-   *
+   * @param size the size to display
    * @return a human-friendly string approximating the given data size
    */
   public static String toSizeApproxString(long size) {
@@ -414,11 +379,8 @@ public abstract class Utils {
    * attribute values; this method escapes them always. This method can
    * be used for generating both HTML and XHTML valid content.
    *
-   * @param s
-   *         the string to escape
-   *
+   * @param s the string to escape
    * @return the escaped string
-   *
    * @see <a href="http://www.w3.org/International/questions/qa-escapes">The W3C FAQ</a>
    */
   public static String escapeHTML(String s) {
@@ -458,13 +420,9 @@ public abstract class Utils {
    * This is a more direct and efficient implementation than using a regex
    * (e.g. String.split()), trimming the elements and removing empty ones.
    *
-   * @param str
-   *         the string to split
-   * @param delimiters
-   *         the characters used as the delimiters between elements
-   * @param limit
-   *         if positive, limits the returned array size (remaining of str in last element)
-   *
+   * @param str the string to split
+   * @param delimiters the characters used as the delimiters between elements
+   * @param limit if positive, limits the returned array size (remaining of str in last element)
    * @return the non-empty elements in the string, or an empty array
    */
   public static String[] split(String str, String delimiters, int limit) {
@@ -490,13 +448,9 @@ public abstract class Utils {
    * Returns a string constructed by joining the string representations of the
    * iterated objects (in order), with the delimiter inserted between them.
    *
-   * @param delim
-   *         the delimiter that is inserted between the joined strings
-   * @param items
-   *         the items whose string representations are joined
-   * @param <T>
-   *         the item type
-   *
+   * @param delim the delimiter that is inserted between the joined strings
+   * @param items the items whose string representations are joined
+   * @param <T> the item type
    * @return the joined string
    */
   public static <T> String join(String delim, Iterable<T> items) {
@@ -520,9 +474,7 @@ public abstract class Utils {
    * <p>
    * The list retains the original order of the parameters.
    *
-   * @param s
-   *         an "application/x-www-form-urlencoded" string
-   *
+   * @param s an "application/x-www-form-urlencoded" string
    * @return the parameter name-value pairs parsed from the given string,
    * or an empty list if there are none
    */
@@ -550,11 +502,8 @@ public abstract class Utils {
    * by the given range string. If multiple ranges are requested, a single
    * range containing all of them is returned.
    *
-   * @param range
-   *         the string containing the range description
-   * @param length
-   *         the full length of the requested resource
-   *
+   * @param range the string containing the range description
+   * @param length the full length of the requested resource
    * @return the requested range, or null if the range value is invalid
    */
   public static long[] parseRange(String range, long length) {
@@ -599,16 +548,11 @@ public abstract class Utils {
    * {@link Long#parseLong(String, int)}, but considers the string invalid
    * if it starts with an ASCII minus sign ('-') or plus sign ('+').
    *
-   * @param s
-   *         the String containing the long representation to be parsed
-   * @param radix
-   *         the radix to be used while parsing s
-   *
+   * @param s the String containing the long representation to be parsed
+   * @param radix the radix to be used while parsing s
    * @return the long represented by s in the specified radix
-   *
-   * @throws NumberFormatException
-   *         if the string does not contain a parsable
-   *         long, or if it starts with an ASCII minus sign or plus sign
+   * @throws NumberFormatException if the string does not contain a parsable
+   * long, or if it starts with an ASCII minus sign or plus sign
    */
   public static long parseULong(String s, int radix) throws NumberFormatException {
     long val = Long.parseLong(s, radix); // throws NumberFormatException
@@ -623,11 +567,8 @@ public abstract class Utils {
    * (RFC2616#2.1: element lists are delimited by a comma and optional LWS,
    * and empty elements are ignored).
    *
-   * @param list
-   *         the element list string
-   * @param lower
-   *         specifies whether the list elements should be lower-cased
-   *
+   * @param list the element list string
+   * @param lower specifies whether the list elements should be lower-cased
    * @return the non-empty elements in the list, or an empty array
    */
   public static String[] splitElements(String list, boolean lower) {
@@ -688,14 +629,10 @@ public abstract class Utils {
    * used, tags beginning with the weak ETag prefix "W/" never match.
    * See RFC2616#3.11, RFC2616#13.3.3.
    *
-   * @param strong
-   *         if true, strong comparison is used, otherwise weak
-   *         comparison is used
-   * @param etags
-   *         the ETags to match against
-   * @param etag
-   *         the ETag to match
-   *
+   * @param strong if true, strong comparison is used, otherwise weak
+   * comparison is used
+   * @param etags the ETags to match against
+   * @param etag the ETag to match
    * @return true if the ETag is matched, false otherwise
    */
   public static boolean match(boolean strong, String[] etags, String etag) {
@@ -712,13 +649,9 @@ public abstract class Utils {
   /**
    * Adds Content-Type mappings from a standard mime.types file.
    *
-   * @param in
-   *         a stream containing a mime.types file
-   *
-   * @throws IOException
-   *         if an error occurs
-   * @throws FileNotFoundException
-   *         if the file is not found or cannot be read
+   * @param in a stream containing a mime.types file
+   * @throws IOException if an error occurs
+   * @throws FileNotFoundException if the file is not found or cannot be read
    */
   public static void addContentTypes(InputStream in) throws IOException {
     try {
@@ -744,13 +677,11 @@ public abstract class Utils {
    * with it, it is replaced with the given one. Path suffixes are
    * considered case-insensitive, and contentType is converted to lowercase.
    *
-   * @param contentType
-   *         the content type (MIME type) to be associated with
-   *         the given path suffixes
-   * @param suffixes
-   *         the path suffixes which will be associated with
-   *         the contentType, e.g. the file extensions of served files
-   *         (excluding the '.' character)
+   * @param contentType the content type (MIME type) to be associated with
+   * the given path suffixes
+   * @param suffixes the path suffixes which will be associated with
+   * the contentType, e.g. the file extensions of served files
+   * (excluding the '.' character)
    */
   public static void addContentType(String contentType, String... suffixes) {
     for (String suffix : suffixes)
@@ -761,12 +692,9 @@ public abstract class Utils {
    * Returns the content type for the given path, according to its suffix,
    * or the given default content type if none can be determined.
    *
-   * @param path
-   *         the path whose content type is requested
-   * @param def
-   *         a default content type which is returned if none can be
-   *         determined
-   *
+   * @param path the path whose content type is requested
+   * @param def a default content type which is returned if none can be
+   * determined
    * @return the content type for the given path, or the given default
    */
   public static String getContentType(String path, String def) {
@@ -778,9 +706,7 @@ public abstract class Utils {
   /**
    * Checks whether data of the given content type (MIME type) is compressible.
    *
-   * @param contentType
-   *         the content type
-   *
+   * @param contentType the content type
    * @return true if the data is compressible, false if not
    */
   public static boolean isCompressible(String contentType) {
@@ -810,17 +736,12 @@ public abstract class Utils {
   /**
    * Transfers data from an input stream to an output stream.
    *
-   * @param in
-   *         the input stream to transfer from
-   * @param out
-   *         the output stream to transfer to (or null to discard output)
-   * @param len
-   *         the number of bytes to transfer. If negative, the entire
-   *         contents of the input stream are transferred.
-   *
-   * @throws IOException
-   *         if an IO error occurs or the input stream ends
-   *         before the requested number of bytes have been read
+   * @param in the input stream to transfer from
+   * @param out the output stream to transfer to (or null to discard output)
+   * @param len the number of bytes to transfer. If negative, the entire
+   * contents of the input stream are transferred.
+   * @throws IOException if an IO error occurs or the input stream ends
+   * before the requested number of bytes have been read
    */
   public static void transfer(InputStream in, OutputStream out, long len) throws IOException {
     if (len == 0 || out == null && len < 0 && in.read() < 0)
@@ -846,16 +767,11 @@ public abstract class Utils {
    * (which are concatenated into a single element list header).
    * Leading and trailing whitespace is removed.
    *
-   * @param in
-   *         the stream from which the headers are read
-   * @param config
-   *         light http config
-   *
+   * @param in the stream from which the headers are read
+   * @param config light http config
    * @return the read headers (possibly empty, if none exist)
-   *
-   * @throws IOException
-   *         if an IO error occurs or the headers are malformed
-   *         or there are more than 100 header lines
+   * @throws IOException if an IO error occurs or the headers are malformed
+   * or there are more than 100 header lines
    * @see LightHttpConfig#getHeaderMaxCount()
    */
   public static HttpHeaders readHeaders(InputStream in, LightHttpConfig config) throws IOException {
@@ -911,17 +827,11 @@ public abstract class Utils {
    * number of bytes cannot be returned as an int. For large streams
    * use the <code>copyLarge(InputStream, OutputStream)</code> method.
    *
-   * @param input
-   *         the <code>InputStream</code> to read from
-   * @param output
-   *         the <code>OutputStream</code> to write to
-   *
+   * @param input the <code>InputStream</code> to read from
+   * @param output the <code>OutputStream</code> to write to
    * @return the number of bytes copied, or -1 if &gt; Integer.MAX_VALUE
-   *
-   * @throws NullPointerException
-   *         if the input or output is null
-   * @throws IOException
-   *         if an I/O error occurs
+   * @throws NullPointerException if the input or output is null
+   * @throws IOException if an I/O error occurs
    */
   public static int copy(final InputStream input, final OutputStream output) throws IOException {
     final long count = copyLarge(input, output);
@@ -940,17 +850,11 @@ public abstract class Utils {
    * <p>
    * The buffer size is given by {@link #DEFAULT_BUFFER_SIZE}.
    *
-   * @param input
-   *         the <code>InputStream</code> to read from
-   * @param output
-   *         the <code>OutputStream</code> to write to
-   *
+   * @param input the <code>InputStream</code> to read from
+   * @param output the <code>OutputStream</code> to write to
    * @return the number of bytes copied
-   *
-   * @throws NullPointerException
-   *         if the input or output is null
-   * @throws IOException
-   *         if an I/O error occurs
+   * @throws NullPointerException if the input or output is null
+   * @throws IOException if an I/O error occurs
    */
   public static long copyLarge(final InputStream input, final OutputStream output) throws IOException {
     byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];

@@ -151,18 +151,13 @@ public class MethodNode extends MethodVisitor {
   /**
    * Constructs a new {@link MethodNode}.
    *
-   * @param access
-   *         the method's access flags (see {@link Opcodes}). This parameter also indicates if
-   *         the method is synthetic and/or deprecated.
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param signature
-   *         the method's signature. May be {@literal null}.
-   * @param exceptions
-   *         the internal names of the method's exception classes (see {@link
-   *         Type#getInternalName()}). May be {@literal null}.
+   * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if
+   * the method is synthetic and/or deprecated.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param signature the method's signature. May be {@literal null}.
+   * @param exceptions the internal names of the method's exception classes (see {@link
+   * Type#getInternalName()}). May be {@literal null}.
    */
   public MethodNode(
           final int access,
@@ -479,9 +474,7 @@ public class MethodNode extends MethodVisitor {
    * The default implementation of this method uses the {@link Label#info} field to store
    * associations between labels and label nodes.
    *
-   * @param label
-   *         a Label.
-   *
+   * @param label a Label.
    * @return the LabelNode corresponding to label.
    */
   protected LabelNode getLabelNode(final Label label) {
@@ -518,8 +511,7 @@ public class MethodNode extends MethodVisitor {
   /**
    * Makes the given class visitor visit this method.
    *
-   * @param classVisitor
-   *         a class visitor.
+   * @param classVisitor a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
     MethodVisitor visitor = classVisitor.visitMethod(access, name, desc, signature, exceptions);
@@ -531,8 +523,7 @@ public class MethodNode extends MethodVisitor {
   /**
    * Makes the given method visitor visit this method.
    *
-   * @param methodVisitor
-   *         a method visitor.
+   * @param methodVisitor a method visitor.
    */
   public void accept(final MethodVisitor methodVisitor) {
     // Visit the parameters.

@@ -125,8 +125,7 @@ public class WebServletApplicationLoader
   /**
    * Find configuration file.
    *
-   * @param dir
-   *         directory
+   * @param dir directory
    */
   protected void scanConfigLocation(File dir, Set<String> files, FileFilter filter) {
     if (log.isTraceEnabled()) {
@@ -150,9 +149,7 @@ public class WebServletApplicationLoader
   /**
    * Prepare {@link WebServletApplicationContext}
    *
-   * @param servletContext
-   *         {@link ServletContext}
-   *
+   * @param servletContext {@link ServletContext}
    * @return {@link WebServletApplicationContext}
    */
   protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
@@ -267,10 +264,8 @@ public class WebServletApplicationLoader
   /**
    * Configure {@link Filter}
    *
-   * @param applicationContext
-   *         {@link ApplicationContext}
-   * @param contextInitializers
-   *         {@link WebApplicationInitializer}s
+   * @param applicationContext {@link ApplicationContext}
+   * @param contextInitializers {@link WebApplicationInitializer}s
    */
   protected void configureFilterInitializers(
           WebApplicationContext applicationContext, List<WebApplicationInitializer> contextInitializers) {
@@ -313,10 +308,8 @@ public class WebServletApplicationLoader
   /**
    * Configure {@link Servlet}
    *
-   * @param applicationContext
-   *         {@link ApplicationContext}
-   * @param contextInitializers
-   *         {@link WebApplicationInitializer}s
+   * @param applicationContext {@link ApplicationContext}
+   * @param contextInitializers {@link WebApplicationInitializer}s
    */
   protected void configureServletInitializers(
           WebApplicationContext applicationContext, List<WebApplicationInitializer> contextInitializers) {
@@ -366,10 +359,8 @@ public class WebServletApplicationLoader
   /**
    * Configure listeners
    *
-   * @param context
-   *         {@link ApplicationContext}
-   * @param contextInitializers
-   *         {@link WebApplicationInitializer}s
+   * @param context {@link ApplicationContext}
+   * @param contextInitializers {@link WebApplicationInitializer}s
    */
   protected void configureListenerInitializers(
           WebApplicationContext context, List<WebApplicationInitializer> contextInitializers) {
@@ -384,9 +375,7 @@ public class WebServletApplicationLoader
   /**
    * Sets the request character encoding for this ServletContext.
    *
-   * @param encoding
-   *         request character encoding
-   *
+   * @param encoding request character encoding
    * @since 3.0
    */
   public void setRequestCharacterEncoding(String encoding) {
@@ -396,9 +385,7 @@ public class WebServletApplicationLoader
   /**
    * Sets the response character encoding for this ServletContext.
    *
-   * @param encoding
-   *         response character encoding
-   *
+   * @param encoding response character encoding
    * @since 3.0
    */
   public void setResponseCharacterEncoding(String encoding) {

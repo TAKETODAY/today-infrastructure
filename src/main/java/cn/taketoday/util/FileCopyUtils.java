@@ -64,15 +64,10 @@ public abstract class FileCopyUtils {
   /**
    * Copy the contents of the given input File to the given output File.
    *
-   * @param in
-   *         the file to copy from
-   * @param out
-   *         the file to copy to
-   *
+   * @param in the file to copy from
+   * @param out the file to copy to
    * @return the number of bytes copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int copy(File in, File out) throws IOException {
     Assert.notNull(in, "No input File specified");
@@ -83,13 +78,9 @@ public abstract class FileCopyUtils {
   /**
    * Copy the contents of the given byte array to the given output File.
    *
-   * @param in
-   *         the byte array to copy from
-   * @param out
-   *         the file to copy to
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @param in the byte array to copy from
+   * @param out the file to copy to
+   * @throws IOException in case of I/O errors
    */
   public static void copy(byte[] in, File out) throws IOException {
     Assert.notNull(in, "No input byte array specified");
@@ -100,13 +91,9 @@ public abstract class FileCopyUtils {
   /**
    * Copy the contents of the given input File into a new byte array.
    *
-   * @param in
-   *         the file to copy from
-   *
+   * @param in the file to copy from
    * @return the new byte array that has been copied to
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(File in) throws IOException {
     Assert.notNull(in, "No input File specified");
@@ -121,15 +108,10 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given InputStream to the given OutputStream.
    * Closes both streams when done.
    *
-   * @param in
-   *         the stream to copy from
-   * @param out
-   *         the stream to copy to
-   *
+   * @param in the stream to copy from
+   * @param out the stream to copy to
    * @return the number of bytes copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int copy(InputStream in, OutputStream out) throws IOException {
     try {
@@ -145,13 +127,9 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given byte array to the given OutputStream.
    * Closes the stream when done.
    *
-   * @param in
-   *         the byte array to copy from
-   * @param out
-   *         the OutputStream to copy to
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @param in the byte array to copy from
+   * @param out the OutputStream to copy to
+   * @throws IOException in case of I/O errors
    */
   public static void copy(byte[] in, OutputStream out) throws IOException {
     Assert.notNull(in, "No input byte array specified");
@@ -169,13 +147,9 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given InputStream into a new byte array.
    * Closes the stream when done.
    *
-   * @param in
-   *         the stream to copy from (may be {@code null} or empty)
-   *
+   * @param in the stream to copy from (may be {@code null} or empty)
    * @return the new byte array that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(@Nullable InputStream in) throws IOException {
     return copyToByteArray(in, BUFFER_SIZE);
@@ -185,15 +159,10 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given InputStream into a new byte array.
    * Closes the stream when done.
    *
-   * @param in
-   *         the stream to copy from (may be {@code null} or empty)
-   * @param bufferSize
-   *         user specified buffer size
-   *
+   * @param in the stream to copy from (may be {@code null} or empty)
+   * @param bufferSize user specified buffer size
    * @return the new byte array that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(@Nullable InputStream in, int bufferSize) throws IOException {
     if (in == null) {
@@ -213,15 +182,10 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given Reader to the given Writer.
    * Closes both when done.
    *
-   * @param in
-   *         the Reader to copy from
-   * @param out
-   *         the Writer to copy to
-   *
+   * @param in the Reader to copy from
+   * @param out the Writer to copy to
    * @return the number of characters copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int copy(Reader in, Writer out) throws IOException {
     return copy(in, out, BUFFER_SIZE);
@@ -231,17 +195,11 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given Reader to the given Writer.
    * Closes both when done.
    *
-   * @param in
-   *         the Reader to copy from
-   * @param out
-   *         the Writer to copy to
-   * @param bufferSize
-   *         user specified buffer size
-   *
+   * @param in the Reader to copy from
+   * @param out the Writer to copy to
+   * @param bufferSize user specified buffer size
    * @return the number of characters copied
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static int copy(Reader in, Writer out, int bufferSize) throws IOException {
     Assert.notNull(in, "No Reader specified");
@@ -268,13 +226,9 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given String to the given Writer.
    * Closes the writer when done.
    *
-   * @param in
-   *         the String to copy from
-   * @param out
-   *         the Writer to copy to
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @param in the String to copy from
+   * @param out the Writer to copy to
+   * @throws IOException in case of I/O errors
    */
   public static void copy(String in, Writer out) throws IOException {
     Assert.notNull(in, "No input String specified");
@@ -292,13 +246,9 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given Reader into a String.
    * Closes the reader when done.
    *
-   * @param in
-   *         the reader to copy from (may be {@code null} or empty)
-   *
+   * @param in the reader to copy from (may be {@code null} or empty)
    * @return the String that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static String copyToString(@Nullable Reader in) throws IOException {
     return copyToString(in, BUFFER_SIZE);
@@ -308,15 +258,10 @@ public abstract class FileCopyUtils {
    * Copy the contents of the given Reader into a String.
    * Closes the reader when done.
    *
-   * @param in
-   *         the reader to copy from (may be {@code null} or empty)
-   * @param bufferSize
-   *         user specified buffer size
-   *
+   * @param in the reader to copy from (may be {@code null} or empty)
+   * @param bufferSize user specified buffer size
    * @return the String that has been copied to (possibly empty)
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   public static String copyToString(@Nullable Reader in, int bufferSize) throws IOException {
     if (in == null) {
@@ -331,8 +276,7 @@ public abstract class FileCopyUtils {
    * Attempt to close the supplied {@link Closeable}, silently swallowing any
    * exceptions.
    *
-   * @param closeable
-   *         the {@code Closeable} to close
+   * @param closeable the {@code Closeable} to close
    */
   private static void close(@Nullable Closeable closeable) {
     if (closeable != null) {

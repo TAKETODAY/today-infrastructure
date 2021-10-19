@@ -144,9 +144,7 @@ public abstract class AbstractRegexpMethodPointcut
   /**
    * Match the specified candidate against the configured patterns.
    *
-   * @param signatureString
-   *         "java.lang.Object.hashCode" style signature
-   *
+   * @param signatureString "java.lang.Object.hashCode" style signature
    * @return whether the candidate matches at least one of the specified patterns
    */
   protected boolean matchesPattern(String signatureString) {
@@ -171,11 +169,8 @@ public abstract class AbstractRegexpMethodPointcut
    * <p>This method will be invoked from the {@link #setPatterns} method,
    * and also on deserialization.
    *
-   * @param patterns
-   *         the patterns to initialize
-   *
-   * @throws IllegalArgumentException
-   *         in case of an invalid pattern
+   * @param patterns the patterns to initialize
+   * @throws IllegalArgumentException in case of an invalid pattern
    */
   protected abstract void initPatternRepresentation(String[] patterns) throws IllegalArgumentException;
 
@@ -185,22 +180,16 @@ public abstract class AbstractRegexpMethodPointcut
    * <p>This method will be invoked from the {@link #setExcludedPatterns} method,
    * and also on deserialization.
    *
-   * @param patterns
-   *         the patterns to initialize
-   *
-   * @throws IllegalArgumentException
-   *         in case of an invalid pattern
+   * @param patterns the patterns to initialize
+   * @throws IllegalArgumentException in case of an invalid pattern
    */
   protected abstract void initExcludedPatternRepresentation(String[] patterns) throws IllegalArgumentException;
 
   /**
    * Does the pattern at the given index match the given String?
    *
-   * @param pattern
-   *         the {@code String} pattern to match
-   * @param patternIndex
-   *         index of pattern (starting from 0)
-   *
+   * @param pattern the {@code String} pattern to match
+   * @param patternIndex index of pattern (starting from 0)
    * @return {@code true} if there is a match, {@code false} otherwise
    */
   protected abstract boolean matches(String pattern, int patternIndex);
@@ -208,11 +197,8 @@ public abstract class AbstractRegexpMethodPointcut
   /**
    * Does the exclusion pattern at the given index match the given String?
    *
-   * @param pattern
-   *         the {@code String} pattern to match
-   * @param patternIndex
-   *         index of pattern (starting from 0)
-   *
+   * @param pattern the {@code String} pattern to match
+   * @param patternIndex index of pattern (starting from 0)
    * @return {@code true} if there is a match, {@code false} otherwise
    */
   protected abstract boolean matchesExclusion(String pattern, int patternIndex);

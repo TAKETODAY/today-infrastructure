@@ -48,9 +48,7 @@ public abstract class WebApplicationUtils {
   /**
    * Obtain a {@link WebServer} form bean-factory
    *
-   * @param beanFactory
-   *         Target bean-factory
-   *
+   * @param beanFactory Target bean-factory
    * @return WebServer
    */
   public static WebServer obtainWebServer(WebServerApplicationContext beanFactory) {
@@ -173,8 +171,7 @@ public abstract class WebApplicationUtils {
   }
 
   /**
-   * @param homeDir
-   *         source dir
+   * @param homeDir source dir
    */
   private static File findHomeDir(File homeDir) {
 
@@ -197,9 +194,7 @@ public abstract class WebApplicationUtils {
   /**
    * Parse command line arguments
    *
-   * @param args
-   *         arguments
-   *
+   * @param args arguments
    * @return key-value
    */
   public static Map<String, String> parseCommandLineArguments(final String... args) {

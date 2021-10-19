@@ -73,13 +73,9 @@ public interface PatternResourceLoader extends ResourceLoader {
    * resource should be avoided, as far as possible. The result should
    * have set semantics.
    *
-   * @param locationPattern
-   *         the location pattern to resolve
-   *
+   * @param locationPattern the location pattern to resolve
    * @return the corresponding {@code Resource} objects
-   *
-   * @throws IOException
-   *         in case of I/O errors
+   * @throws IOException in case of I/O errors
    */
   Resource[] getResources(String locationPattern) throws IOException;
 
@@ -89,12 +85,9 @@ public interface PatternResourceLoader extends ResourceLoader {
    * {@code ResourcePatternResolver} extension, or a default
    * {@link PathMatchingPatternResourceLoader} built on the given {@code ResourceLoader}.
    *
-   * @param resourceLoader
-   *         the ResourceLoader to build a pattern resolver for
-   *         (may be {@code null} to indicate a default ResourceLoader)
-   *
+   * @param resourceLoader the ResourceLoader to build a pattern resolver for
+   * (may be {@code null} to indicate a default ResourceLoader)
    * @return the ResourcePatternResolver
-   *
    * @see PathMatchingPatternResourceLoader
    */
   static PatternResourceLoader getPatternResourceLoader(@Nullable ResourceLoader resourceLoader) {

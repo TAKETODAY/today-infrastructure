@@ -27,7 +27,7 @@ import cn.taketoday.logging.LoggerFactory;
 /**
  * Configuration exception
  * <p>
- *   throw it in startup time (Configuration time)
+ * throw it in startup time (Configuration time)
  * </p>
  *
  * @author TODAY 2018-08-08 09:55

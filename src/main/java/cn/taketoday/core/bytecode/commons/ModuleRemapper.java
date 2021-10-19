@@ -43,10 +43,8 @@ public class ModuleRemapper extends ModuleVisitor {
   /**
    * Constructs a new {@link ModuleRemapper}.
    *
-   * @param moduleVisitor
-   *         the module visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited module.
+   * @param moduleVisitor the module visitor this remapper must delegate to.
+   * @param remapper the remapper to use to remap the types in the visited module.
    */
   public ModuleRemapper(final ModuleVisitor moduleVisitor, final Remapper remapper) {
     super(moduleVisitor);

@@ -60,11 +60,8 @@ public interface MultipartFile extends Serializable, InputStreamSource {
   /**
    * Save upload file to server.
    *
-   * @param dest
-   *         the destination file path
-   *
-   * @throws IOException
-   *         if an error occurs when write to dest.
+   * @param dest the destination file path
+   * @throws IOException if an error occurs when write to dest.
    */
   void save(File dest) throws IOException;
 
@@ -77,8 +74,7 @@ public interface MultipartFile extends Serializable, InputStreamSource {
   /**
    * Returns the contents of the file item as an array of bytes.
    *
-   * @throws IOException
-   *         If any IO exception occurred
+   * @throws IOException If any IO exception occurred
    * @since 2.3.3
    */
   byte[] getBytes() throws IOException;
@@ -87,7 +83,6 @@ public interface MultipartFile extends Serializable, InputStreamSource {
    * Get original resource
    *
    * @return Original resource
-   *
    * @since 2.3.3
    */
   Object getOriginalResource();
@@ -96,8 +91,7 @@ public interface MultipartFile extends Serializable, InputStreamSource {
    * Deletes the underlying storage for a file item, including deleting any
    * associated temporary disk file.
    *
-   * @throws IOException
-   *         if an error occurs.
+   * @throws IOException if an error occurs.
    * @since 2.3.3
    */
   void delete() throws IOException;

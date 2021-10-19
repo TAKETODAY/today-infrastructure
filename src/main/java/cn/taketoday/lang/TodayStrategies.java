@@ -74,9 +74,7 @@ public final class TodayStrategies extends StrategiesDetector {
   /**
    * Retrieve the flag for the given property key.
    *
-   * @param key
-   *         the property key
-   *
+   * @param key the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise
    */
@@ -90,9 +88,7 @@ public final class TodayStrategies extends StrategiesDetector {
    * If there isn't a key returns defaultFlag
    * </p>
    *
-   * @param key
-   *         the property key
-   *
+   * @param key the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise ,If there isn't a key returns defaultFlag
    */
@@ -104,8 +100,7 @@ public final class TodayStrategies extends StrategiesDetector {
    * Programmatically set a local flag to "true", overriding an
    * entry in the {@link #STRATEGIES_LOCATION} file (if any).
    *
-   * @param key
-   *         the property key
+   * @param key the property key
    */
   public static void setFlag(String key) {
     getDetector().getStrategies().set(key, Boolean.TRUE.toString());
@@ -115,10 +110,8 @@ public final class TodayStrategies extends StrategiesDetector {
    * Programmatically set a local property, overriding an entry in the
    * {@link #STRATEGIES_LOCATION} file (if any).
    *
-   * @param key
-   *         the property key
-   * @param value
-   *         the associated property value, or {@code null} to reset it
+   * @param key the property key
+   * @param value the associated property value, or {@code null} to reset it
    */
   public static void setProperty(String key, @Nullable String value) {
     if (value != null) {
@@ -133,9 +126,7 @@ public final class TodayStrategies extends StrategiesDetector {
    * Retrieve the property value for the given key, checking local
    * properties first and falling back to JVM-level system properties.
    *
-   * @param key
-   *         the property key
-   *
+   * @param key the property key
    * @return the associated property value, or {@code null} if none found
    */
   @Nullable

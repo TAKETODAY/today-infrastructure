@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
@@ -62,9 +61,8 @@ public class DefaultResourceLoader implements ResourceLoader {
   /**
    * Create a new DefaultResourceLoader.
    *
-   * @param classLoader
-   *         the ClassLoader to load class path resources with, or {@code null}
-   *         for using the thread context class loader at the time of actual resource access
+   * @param classLoader the ClassLoader to load class path resources with, or {@code null}
+   * for using the thread context class loader at the time of actual resource access
    */
   public DefaultResourceLoader(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
@@ -117,9 +115,7 @@ public class DefaultResourceLoader implements ResourceLoader {
   /**
    * Obtain a cache for the given value type, keyed by {@link Resource}.
    *
-   * @param valueType
-   *         the value type, e.g. an ASM {@code MetadataReader}
-   *
+   * @param valueType the value type, e.g. an ASM {@code MetadataReader}
    * @return the cache {@link Map}, shared at the {@code ResourceLoader} level
    */
   @SuppressWarnings("unchecked")
@@ -161,11 +157,8 @@ public class DefaultResourceLoader implements ResourceLoader {
    * be appropriate for standalone implementations but can be overridden,
    * e.g. for implementations targeted at a Servlet container.
    *
-   * @param path
-   *         the path to the resource
-   *
+   * @param path the path to the resource
    * @return the corresponding Resource handle
-   *
    * @see ClassPathResource
    */
   protected Resource getResourceByPath(String path) {

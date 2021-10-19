@@ -19,15 +19,15 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.Lazy;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.lang.Configuration;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.beans.Lazy;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.lang.Configuration;
 
 /**
  * Indicates the 'role' hint for a given bean.

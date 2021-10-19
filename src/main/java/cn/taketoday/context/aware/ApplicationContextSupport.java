@@ -59,11 +59,8 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * {@link #initApplicationContext()} method without ApplicationContext
    * reference.
    *
-   * @param context
-   *         the containing ApplicationContext
-   *
-   * @throws ApplicationContextException
-   *         if thrown by ApplicationContext methods
+   * @param context the containing ApplicationContext
+   * @throws ApplicationContextException if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
   protected void initApplicationContext(ApplicationContext context) {
@@ -76,8 +73,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * The default implementation is empty. Called by
    * {@link #initApplicationContext(ApplicationContext)}.
    *
-   * @throws ApplicationContextException
-   *         if thrown by ApplicationContext methods
+   * @throws ApplicationContextException if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
   protected void initApplicationContext() { }
@@ -89,8 +85,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
   /**
    * Return the ApplicationContext that this object is associated with.
    *
-   * @throws IllegalStateException
-   *         if not running in an ApplicationContext
+   * @throws IllegalStateException if not running in an ApplicationContext
    */
   public ApplicationContext obtainApplicationContext() {
     final ApplicationContext context = getApplicationContext();
@@ -101,8 +96,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
   /**
    * unwrap bean-factory to {@code requiredType}
    *
-   * @throws IllegalArgumentException
-   *         not a requiredType
+   * @throws IllegalArgumentException not a requiredType
    * @see ApplicationContext#getBeanFactory()
    * @since 4.0
    */
@@ -113,8 +107,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
   /**
    * unwrap this ApplicationContext to {@code requiredType}
    *
-   * @throws IllegalArgumentException
-   *         not a requiredType
+   * @throws IllegalArgumentException not a requiredType
    * @since 4.0
    */
   public <T> T unwrap(Class<T> requiredType) {

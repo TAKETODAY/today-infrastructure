@@ -190,14 +190,10 @@ public class AntPathMatcher implements PathMatcher {
   /**
    * Actually match the given {@code path} against the given {@code pattern}.
    *
-   * @param pattern
-   *         the pattern to match against
-   * @param path
-   *         the path String to test
-   * @param fullMatch
-   *         whether a full pattern match is required (else a pattern match as
-   *         far as the given base path goes is sufficient)
-   *
+   * @param pattern the pattern to match against
+   * @param path the path String to test
+   * @param fullMatch whether a full pattern match is required (else a pattern match as
+   * far as the given base path goes is sufficient)
    * @return {@code true} if the supplied {@code path} matched, {@code false} if
    * it didn't
    */
@@ -391,9 +387,7 @@ public class AntPathMatcher implements PathMatcher {
    * Tokenize the given path pattern into parts, based on this matcher's settings.
    * <p>
    *
-   * @param pattern
-   *         the pattern to tokenize
-   *
+   * @param pattern the pattern to tokenize
    * @return the tokenized pattern parts
    */
   protected String[] tokenizePattern(final String pathSeparator, final String pattern) {
@@ -408,9 +402,7 @@ public class AntPathMatcher implements PathMatcher {
   /**
    * Tokenize the given path String into parts, based on this matcher's settings.
    *
-   * @param path
-   *         the path to tokenize
-   *
+   * @param path the path to tokenize
    * @return the tokenized path parts
    */
   protected String[] tokenizePath(final String pathSeparator, final String path) {
@@ -420,12 +412,9 @@ public class AntPathMatcher implements PathMatcher {
   /**
    * Test whether or not a string matches against a pattern.
    *
-   * @param pattern
-   *         the pattern to match against (never {@code null})
-   * @param str
-   *         the String which must be matched against the pattern (never
-   *         {@code null})
-   *
+   * @param pattern the pattern to match against (never {@code null})
+   * @param str the String which must be matched against the pattern (never
+   * {@code null})
    * @return {@code true} if the string matches against the pattern, or
    * {@code false} otherwise
    */
@@ -443,9 +432,7 @@ public class AntPathMatcher implements PathMatcher {
    * <p>
    * This method may be overridden to implement a custom cache strategy.
    *
-   * @param pattern
-   *         the pattern to match against (never {@code null})
-   *
+   * @param pattern the pattern to match against (never {@code null})
    * @return a corresponding AntPathStringMatcher (never {@code null})
    */
   protected AntPathStringMatcher getStringMatcher(String pattern) {
@@ -616,15 +603,10 @@ public class AntPathMatcher implements PathMatcher {
    * </tr>
    * </table>
    *
-   * @param pattern1
-   *         the first pattern
-   * @param pattern2
-   *         the second pattern
-   *
+   * @param pattern1 the first pattern
+   * @param pattern2 the second pattern
    * @return the combination of the two patterns
-   *
-   * @throws IllegalArgumentException
-   *         if the two patterns cannot be combined
+   * @throws IllegalArgumentException if the two patterns cannot be combined
    */
   @Override
   public String combine(final String pattern1, final String pattern2) {
@@ -727,9 +709,7 @@ public class AntPathMatcher implements PathMatcher {
    * the given path is {@code /hotels/2}, the pattern {@code /hotels/2} will be
    * sorted before {@code /hotels/1}.
    *
-   * @param path
-   *         the full path to use for comparison
-   *
+   * @param path the full path to use for comparison
    * @return a comparator capable of sorting patterns in order of explicitness
    */
   @Override

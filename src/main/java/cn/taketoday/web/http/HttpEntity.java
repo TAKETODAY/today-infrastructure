@@ -50,9 +50,7 @@ import cn.taketoday.lang.Nullable;
  * }
  * </pre>
  *
- * @param <T>
- *         the body type
- *
+ * @param <T> the body type
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author TODAY 2020/12/6 17:10
@@ -82,8 +80,7 @@ public class HttpEntity<T> {
   /**
    * Create a new {@code HttpEntity} with the given body and no headers.
    *
-   * @param body
-   *         the entity body
+   * @param body the entity body
    */
   public HttpEntity(T body) {
     this(body, null);
@@ -92,8 +89,7 @@ public class HttpEntity<T> {
   /**
    * Create a new {@code HttpEntity} with the given headers and no body.
    *
-   * @param headers
-   *         the entity headers
+   * @param headers the entity headers
    */
   public HttpEntity(MultiValueMap<String, String> headers) {
     this(null, headers);
@@ -102,10 +98,8 @@ public class HttpEntity<T> {
   /**
    * Create a new {@code HttpEntity} with the given body and headers.
    *
-   * @param body
-   *         the entity body
-   * @param headers
-   *         the entity headers
+   * @param body the entity body
+   * @param headers the entity headers
    */
   public HttpEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers) {
     DefaultHttpHeaders tempHeaders = new DefaultHttpHeaders();

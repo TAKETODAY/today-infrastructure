@@ -56,9 +56,7 @@ public interface ReturnValueHandler {
    * This method can test this {@link ReturnValueHandler} supports the target handler
    * in application startup time , static match
    *
-   * @param handler
-   *         Target HTTP handler
-   *
+   * @param handler Target HTTP handler
    * @return If this {@link ReturnValueHandler} supports the target handler
    */
   boolean supportsHandler(Object handler);
@@ -69,11 +67,8 @@ public interface ReturnValueHandler {
    * This method can test this {@link ReturnValueHandler} supports the target handler
    * in application runtime
    *
-   * @param returnValue
-   *         Target handler's return-value or result
-   *
+   * @param returnValue Target handler's return-value or result
    * @return If this {@link ReturnValueHandler} supports the target handler's result
-   *
    * @since 4.0
    */
   default boolean supportsReturnValue(@Nullable Object returnValue) {
@@ -83,13 +78,10 @@ public interface ReturnValueHandler {
   /**
    * Handle result of the handler
    *
-   * @param context
-   *         Current HTTP request context
-   * @param handler
-   *         Target HTTP handler
-   * @param returnValue
-   *         Handler execution result
-   *         Or {@link HandlerExceptionHandler} return value
+   * @param context Current HTTP request context
+   * @param handler Target HTTP handler
+   * @param returnValue Handler execution result
+   * Or {@link HandlerExceptionHandler} return value
    */
   void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue)
           throws IOException;

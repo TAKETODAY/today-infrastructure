@@ -45,9 +45,7 @@ public abstract class SqlSessionUtils {
    * provided as a parameter and using its {@code DataSource} and
    * {@code ExecutorType}
    *
-   * @param sessionFactory
-   *         a MyBatis {@code SqlSessionFactory} to create new sessions
-   *
+   * @param sessionFactory a MyBatis {@code SqlSessionFactory} to create new sessions
    * @return a MyBatis {@code SqlSession}
    */
   public static SqlSession getSqlSession(SqlSessionFactory sessionFactory) {
@@ -63,10 +61,8 @@ public abstract class SqlSessionUtils {
    * needed. Tries to get a SqlSession out of current transaction. If there is not
    * any, it creates a new one.
    *
-   * @param sessionFactory
-   *         A MyBatis {@code SqlSessionFactory} to create new session
-   * @param executorType
-   *         The executor type of the SqlSession to create
+   * @param sessionFactory A MyBatis {@code SqlSessionFactory} to create new session
+   * @param executorType The executor type of the SqlSession to create
    */
   public static SqlSession getSqlSession(
           final SynchronizationMetaData metaData,
@@ -93,12 +89,9 @@ public abstract class SqlSessionUtils {
    * transaction will handle closing / rolling back the Connection associated with
    * the SqlSession.
    *
-   * @param sessionFactory
-   *         sqlSessionFactory used for registration.
-   * @param executorType
-   *         executorType used for registration.
-   * @param session
-   *         sqlSession used for registration.
+   * @param sessionFactory sqlSessionFactory used for registration.
+   * @param executorType executorType used for registration.
+   * @param session sqlSession used for registration.
    */
   private static void registerSessionHolder(
           final SynchronizationMetaData metaData,
@@ -186,11 +179,8 @@ public abstract class SqlSessionUtils {
    * Returns if the {@code SqlSession} passed as an argument is being managed by
    * Today
    *
-   * @param session
-   *         a MyBatis SqlSession to check
-   * @param sessionFactory
-   *         the SqlSessionFactory which the SqlSession was built with
-   *
+   * @param session a MyBatis SqlSession to check
+   * @param sessionFactory the SqlSessionFactory which the SqlSession was built with
    * @return true if session is transactional, otherwise false
    */
   public static boolean isSqlSessionTransactional(

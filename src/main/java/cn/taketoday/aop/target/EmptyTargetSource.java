@@ -49,9 +49,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   /**
    * Return an EmptyTargetSource for the given target Class.
    *
-   * @param targetClass
-   *         the target Class (may be {@code null})
-   *
+   * @param targetClass the target Class (may be {@code null})
    * @see #getTargetClass()
    */
   public static EmptyTargetSource forClass(Class<?> targetClass) {
@@ -61,11 +59,8 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   /**
    * Return an EmptyTargetSource for the given target Class.
    *
-   * @param targetClass
-   *         the target Class (may be {@code null})
-   * @param isStatic
-   *         whether the TargetSource should be marked as static
-   *
+   * @param targetClass the target Class (may be {@code null})
+   * @param isStatic whether the TargetSource should be marked as static
    * @see #getTargetClass()
    */
   public static EmptyTargetSource forClass(Class<?> targetClass, boolean isStatic) {
@@ -85,10 +80,8 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
    * <p>This constructor is {@code private} to enforce the
    * Singleton pattern / factory method pattern.
    *
-   * @param targetClass
-   *         the target class to expose (may be {@code null})
-   * @param isStatic
-   *         whether the TargetSource is marked as static
+   * @param targetClass the target class to expose (may be {@code null})
+   * @param isStatic whether the TargetSource is marked as static
    */
   private EmptyTargetSource(Class<?> targetClass, boolean isStatic) {
     this.targetClass = targetClass;

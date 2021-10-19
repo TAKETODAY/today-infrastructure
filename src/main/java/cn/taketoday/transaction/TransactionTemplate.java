@@ -72,13 +72,9 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
   /**
    * Perform a rollback, handling rollback exceptions properly.
    *
-   * @param status
-   *         object representing the transaction
-   * @param ex
-   *         the thrown application exception or error
-   *
-   * @throws TransactionException
-   *         in case of a rollback error
+   * @param status object representing the transaction
+   * @param ex the thrown application exception or error
+   * @throws TransactionException in case of a rollback error
    */
   protected void rollbackOnException(TransactionManager transactionManager, TransactionStatus status, Throwable ex)
           throws TransactionException //

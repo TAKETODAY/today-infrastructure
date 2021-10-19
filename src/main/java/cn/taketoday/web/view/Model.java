@@ -34,9 +34,7 @@ public interface Model {
   /**
    * Contains a attribute with given name
    *
-   * @param name
-   *         Attribute name
-   *
+   * @param name Attribute name
    * @return if contains the attribute
    */
   default boolean containsAttribute(String name) {
@@ -46,8 +44,7 @@ public interface Model {
   /**
    * Add the attributes from map
    *
-   * @param attributes
-   *         The attributes
+   * @param attributes The attributes
    */
   default void setAttributes(Map<String, Object> attributes) {
     attributes.forEach(this::setAttribute);
@@ -57,9 +54,7 @@ public interface Model {
    * Returns the value of the named attribute as an <code>Object</code>, or
    * <code>null</code> if no attribute of the given name exists.
    *
-   * @param name
-   *         a <code>String</code> specifying the name of the attribute
-   *
+   * @param name a <code>String</code> specifying the name of the attribute
    * @return an <code>Object</code> containing the value of the attribute, or
    * <code>null</code> if the attribute does not exist
    */
@@ -68,10 +63,8 @@ public interface Model {
   /**
    * Stores an attribute in this request. Attributes are reset between requests..
    *
-   * @param name
-   *         a <code>String</code> specifying the name of the attribute
-   * @param value
-   *         the <code>Object</code> to be stored
+   * @param name a <code>String</code> specifying the name of the attribute
+   * @param value the <code>Object</code> to be stored
    */
   void setAttribute(String name, Object value);
 
@@ -79,10 +72,8 @@ public interface Model {
    * Removes an attribute from this request. This method is not generally needed
    * as attributes only persist as long as the request is being handled.
    *
-   * @param name
-   *         a <code>String</code> specifying the name of the attribute to
-   *         remove
-   *
+   * @param name a <code>String</code> specifying the name of the attribute to
+   * remove
    * @return the last value of the attribute, if any
    */
   Object removeAttribute(String name);

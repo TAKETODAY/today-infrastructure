@@ -65,8 +65,7 @@ public class BasicValue implements Value {
   /**
    * Constructs a new {@link BasicValue} of the given type.
    *
-   * @param type
-   *         the value type.
+   * @param type the value type.
    */
   public BasicValue(final Type type) {
     this.type = type;

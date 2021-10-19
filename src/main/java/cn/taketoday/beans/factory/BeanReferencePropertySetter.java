@@ -69,7 +69,6 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
    * Resolve reference {@link PropertySetter}
    *
    * @return A {@link PropertySetter} bean or a proxy
-   *
    * @see ConfigurableBeanFactory#isFullLifecycle()
    * @see ConfigurableBeanFactory#isFullPrototype()
    */

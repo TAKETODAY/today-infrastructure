@@ -53,11 +53,8 @@ public abstract class Pointcuts {
   /**
    * Match all methods that <b>either</b> (or both) of the given pointcuts matches.
    *
-   * @param pc1
-   *         the first Pointcut
-   * @param pc2
-   *         the second Pointcut
-   *
+   * @param pc1 the first Pointcut
+   * @param pc2 the second Pointcut
    * @return a distinct Pointcut that matches all methods that either
    * of the given Pointcuts matches
    */
@@ -68,11 +65,8 @@ public abstract class Pointcuts {
   /**
    * Match all methods that <b>both</b> the given pointcuts match.
    *
-   * @param pc1
-   *         the first Pointcut
-   * @param pc2
-   *         the second Pointcut
-   *
+   * @param pc1 the first Pointcut
+   * @param pc2 the second Pointcut
    * @return a distinct Pointcut that matches all methods that both
    * of the given Pointcuts match
    */
@@ -83,12 +77,9 @@ public abstract class Pointcuts {
   /**
    * Perform the least expensive check for a pointcut match.
    *
-   * @param pointcut
-   *         the pointcut to match
-   * @param invocation
-   *         runtime invocation contains the candidate method
-   *         and target class, arguments to the method
-   *
+   * @param pointcut the pointcut to match
+   * @param invocation runtime invocation contains the candidate method
+   * and target class, arguments to the method
    * @return whether there's a runtime match
    */
   public static boolean matches(Pointcut pointcut, MethodInvocation invocation) {
@@ -111,15 +102,10 @@ public abstract class Pointcuts {
   /**
    * Perform the least expensive check for a pointcut match.
    *
-   * @param pointcut
-   *         the pointcut to match
-   * @param method
-   *         the candidate method
-   * @param targetClass
-   *         the target class
-   * @param args
-   *         arguments to the method
-   *
+   * @param pointcut the pointcut to match
+   * @param method the candidate method
+   * @param targetClass the target class
+   * @param args arguments to the method
    * @return whether there's a runtime match
    */
   public static boolean matches(Pointcut pointcut, Method method, Class<?> targetClass, Object... args) {

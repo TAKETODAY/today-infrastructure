@@ -51,9 +51,7 @@ public class DebugInterceptor extends SimpleTraceInterceptor {
    * Create a new DebugInterceptor with dynamic or static logger,
    * according to the given flag.
    *
-   * @param useDynamicLogger
-   *         whether to use a dynamic logger or a static logger
-   *
+   * @param useDynamicLogger whether to use a dynamic logger or a static logger
    * @see #setUseDynamicLogger
    */
   public DebugInterceptor(boolean useDynamicLogger) {

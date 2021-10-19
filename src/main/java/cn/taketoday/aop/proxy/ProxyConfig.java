@@ -160,8 +160,7 @@ public class ProxyConfig implements Serializable {
   /**
    * Copy configuration from the other config object.
    *
-   * @param other
-   *         object to copy configuration from
+   * @param other object to copy configuration from
    */
   public void copyFrom(ProxyConfig other) {
     Assert.notNull(other, "Other ProxyConfig object must not be null");

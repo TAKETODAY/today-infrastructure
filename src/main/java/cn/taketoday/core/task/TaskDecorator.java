@@ -50,9 +50,7 @@ public interface TaskDecorator {
    * {@code Runnable} for actual execution, internally delegating to the
    * original {@link Runnable#run()} implementation.
    *
-   * @param runnable
-   *         the original {@code Runnable}
-   *
+   * @param runnable the original {@code Runnable}
    * @return the decorated {@code Runnable}
    */
   Runnable decorate(Runnable runnable);

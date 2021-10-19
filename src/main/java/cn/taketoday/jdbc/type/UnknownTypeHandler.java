@@ -37,8 +37,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   /**
    * The constructor that pass the type handler registry.
    *
-   * @param typeHandlerRegistry
-   *         a type handler registry
+   * @param typeHandlerRegistry a type handler registry
    */
   public UnknownTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
     this.registry = typeHandlerRegistry;

@@ -25,9 +25,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Success callback for a {@link ListenableFuture}.
  *
- * @param <T>
- *         the result type
- *
+ * @param <T> the result type
  * @author Sebastien Deleuze
  * @since 4.0
  */
@@ -38,8 +36,7 @@ public interface SuccessCallback<T> {
    * Called when the {@link ListenableFuture} completes with success.
    * <p>Note that Exceptions raised by this method are ignored.
    *
-   * @param result
-   *         the result
+   * @param result the result
    */
   void onSuccess(@Nullable T result);
 

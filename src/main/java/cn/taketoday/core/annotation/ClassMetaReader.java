@@ -177,8 +177,7 @@ public class ClassMetaReader {
   /**
    * read class Annotations
    *
-   * @param classNode
-   *         class structure source
+   * @param classNode class structure source
    */
   public static AnnotationAttributes[] readAnnotations(ClassNode classNode) {
     if (classNode != null) {
@@ -203,9 +202,7 @@ public class ClassMetaReader {
   }
 
   /**
-   * @param annotated
-   *         AnnotatedElement or string (class-name)
-   *
+   * @param annotated AnnotatedElement or string (class-name)
    * @return list of target input AnnotationNode
    */
   public static AnnotationAttributes[] readAnnotations(Object annotated) {
@@ -234,9 +231,7 @@ public class ClassMetaReader {
   }
 
   /**
-   * @param annotated
-   *         AnnotatedElement or string (class-name)
-   *
+   * @param annotated AnnotatedElement or string (class-name)
    * @return list of target input AnnotationNode
    */
   public static List<AnnotationNode> getAnnotationNode(Object annotated) {

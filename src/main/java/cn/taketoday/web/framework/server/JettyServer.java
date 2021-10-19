@@ -263,13 +263,9 @@ public class JettyServer
   /**
    * Create a sever {@link Connector}
    *
-   * @param host
-   *         server host
-   * @param port
-   *         server port
-   * @param server
-   *         server instance
-   *
+   * @param host server host
+   * @param port server port
+   * @param server server instance
    * @return a {@link ServerConnector}
    */
   protected ServerConnector getServerConnector(
@@ -308,8 +304,7 @@ public class JettyServer
   /**
    * Configure the given Jetty {@link WebAppContext} for use.
    *
-   * @param context
-   *         the context to configure
+   * @param context the context to configure
    */
   protected void configureWebAppContext(final WebAppContext context) {
     Assert.notNull(context, "WebAppContext must not be null");
@@ -342,9 +337,7 @@ public class JettyServer
   /**
    * Return the Jetty {@link Configuration}s that should be applied to the server.
    *
-   * @param webAppContext
-   *         the Jetty {@link WebAppContext}
-   *
+   * @param webAppContext the Jetty {@link WebAppContext}
    * @return configurations to apply
    */
   protected Configuration[] getWebAppContextConfigurations(final WebAppContext webAppContext) {
@@ -413,9 +406,7 @@ public class JettyServer
    * {@link ServletContextInitializer}s. By default this method will return a
    * {@link ServletContextInitializerConfiguration}.
    *
-   * @param webAppContext
-   *         the Jetty {@link WebAppContext}
-   *
+   * @param webAppContext the Jetty {@link WebAppContext}
    * @return the {@link Configuration} instance
    */
   protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
@@ -425,10 +416,8 @@ public class JettyServer
   /**
    * Configure session timeout, store directory
    *
-   * @param context
-   *         jetty web app context
-   * @param sessionConfig
-   *         SessionConfiguration
+   * @param context jetty web app context
+   * @param sessionConfig SessionConfiguration
    */
   protected void configureSession(final WebAppContext context, SessionConfiguration sessionConfig) {
     final SessionHandler sessionHandler = context.getSessionHandler();

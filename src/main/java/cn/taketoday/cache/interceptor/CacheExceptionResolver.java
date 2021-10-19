@@ -42,15 +42,10 @@ public interface CacheExceptionResolver {
    * retrieving an item with the specified {@code key}, possibly rethrowing it as
    * a fatal exception.
    *
-   * @param exception
-   *         the exception thrown by the cache provider
-   * @param cache
-   *         the cache
-   * @param key
-   *         the key used to get the item
-   *
+   * @param exception the exception thrown by the cache provider
+   * @param cache the cache
+   * @param key the key used to get the item
    * @return cache value
-   *
    * @see Cache#get(Object)
    */
   Object resolveGetException(RuntimeException exception, Cache cache, Object key);
@@ -60,15 +55,10 @@ public interface CacheExceptionResolver {
    * an item with the specified {@code key} and {@code value}, possibly rethrowing
    * it as a fatal exception.
    *
-   * @param exception
-   *         the exception thrown by the cache provider
-   * @param cache
-   *         the cache
-   * @param key
-   *         the key used to update the item
-   * @param value
-   *         the value to associate with the key
-   *
+   * @param exception the exception thrown by the cache provider
+   * @param cache the cache
+   * @param key the key used to update the item
+   * @param value the value to associate with the key
    * @see Cache#put(Object, Object)
    */
   void resolvePutException(RuntimeException exception, Cache cache, Object key, Object value);
@@ -78,12 +68,9 @@ public interface CacheExceptionResolver {
    * an item with the specified {@code key}, possibly rethrowing it as a fatal
    * exception.
    *
-   * @param exception
-   *         the exception thrown by the cache provider
-   * @param cache
-   *         the cache
-   * @param key
-   *         the key used to clear the item
+   * @param exception the exception thrown by the cache provider
+   * @param cache the cache
+   * @param key the key used to clear the item
    */
   void resolveEvictException(RuntimeException exception, Cache cache, Object key);
 
@@ -91,10 +78,8 @@ public interface CacheExceptionResolver {
    * Handle the given runtime exception thrown by the cache provider when clearing
    * the specified {@link Cache}, possibly rethrowing it as a fatal exception.
    *
-   * @param exception
-   *         the exception thrown by the cache provider
-   * @param cache
-   *         the cache to clear
+   * @param exception the exception thrown by the cache provider
+   * @param cache the cache to clear
    */
   void resolveClearException(RuntimeException exception, Cache cache);
 

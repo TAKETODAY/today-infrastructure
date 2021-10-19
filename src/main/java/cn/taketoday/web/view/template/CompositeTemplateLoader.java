@@ -79,8 +79,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
   /**
    * Set {@link TemplateLoader}s
    *
-   * @param values
-   *         Input {@link TemplateLoader}s
+   * @param values Input {@link TemplateLoader}s
    */
   public final void setTemplateLoaders(final TemplateLoader... values) {
     this.loaders = values;
@@ -89,8 +88,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
   /**
    * Add array of {@link TemplateLoader}s
    *
-   * @param values
-   *         Input {@link TemplateLoader}s
+   * @param values Input {@link TemplateLoader}s
    */
   public void addTemplateLoaders(final TemplateLoader... values) {
     Assert.notNull(values, "TemplateLoaders must not be null");
@@ -110,8 +108,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
   /**
    * Add {@link Collection} of {@link TemplateLoader}
    *
-   * @param loaders
-   *         {@link Collection} of {@link TemplateLoader}
+   * @param loaders {@link Collection} of {@link TemplateLoader}
    */
   public void addTemplateLoaders(final Collection<TemplateLoader> loaders) {
     Assert.notNull(loaders, "TemplateLoaders must not be null");
@@ -146,14 +143,10 @@ public class CompositeTemplateLoader implements TemplateLoader {
   /**
    * Get a suitable {@link TemplateLoader} With given name
    *
-   * @param name
-   *         Template name
-   *
+   * @param name Template name
    * @return Suitable {@link TemplateLoader}. May null if there isn't a suitable
    * {@link TemplateLoader}
-   *
-   * @throws IOException
-   *         If any {@link IOException} coourred
+   * @throws IOException If any {@link IOException} coourred
    */
   protected TemplateLoader getTemplateLoader(String name) throws IOException {
     final TemplateLoader ret = cache.get(name);

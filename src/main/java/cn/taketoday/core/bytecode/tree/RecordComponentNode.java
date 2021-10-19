@@ -62,12 +62,9 @@ public class RecordComponentNode extends RecordComponentVisitor {
   /**
    * Constructs a new {@link RecordComponentNode}.
    *
-   * @param name
-   *         the record component name.
-   * @param descriptor
-   *         the record component descriptor (see {@link Type}).
-   * @param signature
-   *         the record component signature.
+   * @param name the record component name.
+   * @param descriptor the record component descriptor (see {@link Type}).
+   * @param signature the record component signature.
    */
   public RecordComponentNode(final String name, final String descriptor, final String signature) {
     this.name = name;
@@ -121,8 +118,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
   /**
    * Makes the given class visitor visit this record component.
    *
-   * @param classVisitor
-   *         a class visitor.
+   * @param classVisitor a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
     RecordComponentVisitor recordComponentVisitor =

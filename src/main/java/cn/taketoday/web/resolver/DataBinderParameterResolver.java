@@ -230,8 +230,7 @@ public class DataBinderParameterResolver
     final AnnotationBinderParameter parameter;
 
     /**
-     * @throws IllegalStateException
-     *         If there isn't a suitable resolver
+     * @throws IllegalStateException If there isn't a suitable resolver
      */
     AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolvingRegistry registry) {
       this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName

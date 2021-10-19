@@ -64,8 +64,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Create a ComposablePointcut based on the given Pointcut.
    *
-   * @param pointcut
-   *         the original Pointcut
+   * @param pointcut the original Pointcut
    */
   public ComposablePointcut(Pointcut pointcut) {
     Assert.notNull(pointcut, "Pointcut must not be null");
@@ -77,8 +76,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * Create a ComposablePointcut for the given ClassFilter,
    * with {@code MethodMatcher.TRUE}.
    *
-   * @param classFilter
-   *         the ClassFilter to use
+   * @param classFilter the ClassFilter to use
    */
   public ComposablePointcut(ClassFilter classFilter) {
     Assert.notNull(classFilter, "ClassFilter must not be null");
@@ -90,8 +88,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * Create a ComposablePointcut for the given MethodMatcher,
    * with {@code ClassFilter.TRUE}.
    *
-   * @param methodMatcher
-   *         the MethodMatcher to use
+   * @param methodMatcher the MethodMatcher to use
    */
   public ComposablePointcut(MethodMatcher methodMatcher) {
     Assert.notNull(methodMatcher, "MethodMatcher must not be null");
@@ -102,10 +99,8 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Create a ComposablePointcut for the given ClassFilter and MethodMatcher.
    *
-   * @param classFilter
-   *         the ClassFilter to use
-   * @param methodMatcher
-   *         the MethodMatcher to use
+   * @param classFilter the ClassFilter to use
+   * @param methodMatcher the MethodMatcher to use
    */
   public ComposablePointcut(ClassFilter classFilter, MethodMatcher methodMatcher) {
     Assert.notNull(classFilter, "ClassFilter must not be null");
@@ -117,9 +112,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Apply a union with the given ClassFilter.
    *
-   * @param other
-   *         the ClassFilter to apply a union with
-   *
+   * @param other the ClassFilter to apply a union with
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut union(ClassFilter other) {
@@ -130,9 +123,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Apply an intersection with the given ClassFilter.
    *
-   * @param other
-   *         the ClassFilter to apply an intersection with
-   *
+   * @param other the ClassFilter to apply an intersection with
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut intersection(ClassFilter other) {
@@ -143,9 +134,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Apply a union with the given MethodMatcher.
    *
-   * @param other
-   *         the MethodMatcher to apply a union with
-   *
+   * @param other the MethodMatcher to apply a union with
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut union(MethodMatcher other) {
@@ -156,9 +145,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Apply an intersection with the given MethodMatcher.
    *
-   * @param other
-   *         the MethodMatcher to apply an intersection with
-   *
+   * @param other the MethodMatcher to apply an intersection with
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut intersection(MethodMatcher other) {
@@ -173,9 +160,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * MethodMatchers and ClassFilters from different Pointcuts will never
    * get interleaved with each other.
    *
-   * @param other
-   *         the Pointcut to apply a union with
-   *
+   * @param other the Pointcut to apply a union with
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut union(Pointcut other) {
@@ -188,9 +173,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
   /**
    * Apply an intersection with the given Pointcut.
    *
-   * @param other
-   *         the Pointcut to apply an intersection with
-   *
+   * @param other the Pointcut to apply an intersection with
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut intersection(Pointcut other) {

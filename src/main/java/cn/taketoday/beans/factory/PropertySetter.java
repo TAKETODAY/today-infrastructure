@@ -45,10 +45,8 @@ public interface PropertySetter {
    * If property value is {@link #DO_NOT_SET} will not set value
    * </p>
    *
-   * @param bean
-   *         property's bean
-   * @param beanFactory
-   *         current AbstractBeanFactory
+   * @param bean property's bean
+   * @param beanFactory current AbstractBeanFactory
    */
   void applyValue(Object bean, AbstractBeanFactory beanFactory);
 }

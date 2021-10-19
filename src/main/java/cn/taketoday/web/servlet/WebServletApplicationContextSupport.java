@@ -49,9 +49,8 @@ public class WebServletApplicationContextSupport
    * {@link #initApplicationContext(ApplicationContext)} as well as
    * {@link #setServletContext(javax.servlet.ServletContext)}.
    *
-   * @param servletContext
-   *         the ServletContext that this application object runs in (never
-   *         {@code null})
+   * @param servletContext the ServletContext that this application object runs in (never
+   * {@code null})
    */
   protected void initServletContext(ServletContext servletContext) { }
 
@@ -59,8 +58,7 @@ public class WebServletApplicationContextSupport
    * Return the current application context as
    * {@link WebServletApplicationContext}.
    *
-   * @throws IllegalStateException
-   *         if not running in a WebApplicationContext
+   * @throws IllegalStateException if not running in a WebApplicationContext
    * @see #getApplicationContext()
    */
   public final WebServletApplicationContext getWebServletApplicationContext() {
@@ -74,8 +72,7 @@ public class WebServletApplicationContextSupport
   /**
    * Return the current ServletContext.
    *
-   * @throws IllegalStateException
-   *         if not running within a required ServletContext
+   * @throws IllegalStateException if not running within a required ServletContext
    */
   public final ServletContext getServletContext() {
     if (this.servletContext != null) {

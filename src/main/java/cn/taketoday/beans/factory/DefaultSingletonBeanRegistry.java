@@ -20,17 +20,17 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Default SingletonBeanRegistry implementation
@@ -67,7 +67,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   protected void singletonAlreadyExist(String name, Object singleton, Object existBean) {
     log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-            name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(existBean));
+             name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(existBean));
   }
 
   @Override
@@ -92,7 +92,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * @param beanName the name of the bean
    * @param singletonSupplier the ObjectFactory to lazily create the singleton
    * with, if necessary
-   *
    * @return the registered singleton object
    */
   @SuppressWarnings("unchecked")
@@ -163,9 +162,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    * </p>
    *
    * @param type type
-   *
    * @return bean name
-   *
    * @see ClassUtils#getShortName(Class)
    */
   protected String createBeanName(Class<?> type) {

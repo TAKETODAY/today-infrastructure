@@ -57,8 +57,7 @@ public class CustomizableThreadCreator implements Serializable {
   /**
    * Create a new CustomizableThreadCreator with the given thread name prefix.
    *
-   * @param threadNamePrefix
-   *         the prefix to use for the names of newly created threads
+   * @param threadNamePrefix the prefix to use for the names of newly created threads
    */
   public CustomizableThreadCreator(@Nullable String threadNamePrefix) {
     this.threadNamePrefix = (threadNamePrefix != null ? threadNamePrefix : getDefaultThreadNamePrefix());
@@ -151,9 +150,7 @@ public class CustomizableThreadCreator implements Serializable {
    * <p>The default implementation creates a new Thread for the given
    * {@link Runnable}, applying an appropriate thread name.
    *
-   * @param runnable
-   *         the Runnable to execute
-   *
+   * @param runnable the Runnable to execute
    * @see #nextThreadName()
    */
   public Thread createThread(Runnable runnable) {

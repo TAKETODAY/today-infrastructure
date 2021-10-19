@@ -60,8 +60,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * <p>This constructor is available as an optimization for adapting to existing
    * headers map structures, primarily for internal use within the framework.
    *
-   * @param headers
-   *         the headers map (expected to operate with case-insensitive keys)
+   * @param headers the headers map (expected to operate with case-insensitive keys)
    */
   public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
     Assert.notNull(headers, "MultiValueMap must not be null");

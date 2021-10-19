@@ -323,25 +323,19 @@ public abstract class Printer {
   /**
    * Class header. See {@link ClassVisitor#visit}.
    *
-   * @param version
-   *         the class version. The minor version is stored in the 16 most significant bits,
-   *         and the major version in the 16 least significant bits.
-   * @param access
-   *         the class's access flags (see {@link Opcodes}). This parameter also indicates if
-   *         the class is deprecated.
-   * @param name
-   *         the internal name of the class (see {@link
-   *         Type#getInternalName()}).
-   * @param signature
-   *         the signature of this class. May be {@literal null} if the class is not a
-   *         generic one, and does not extend or implement generic classes or interfaces.
-   * @param superName
-   *         the internal of name of the super class (see {@link
-   *         Type#getInternalName()}). For interfaces, the super class is {@link
-   *         Object}. May be {@literal null}, but only for the {@link Object} class.
-   * @param interfaces
-   *         the internal names of the class's interfaces (see {@link
-   *         Type#getInternalName()}). May be {@literal null}.
+   * @param version the class version. The minor version is stored in the 16 most significant bits,
+   * and the major version in the 16 least significant bits.
+   * @param access the class's access flags (see {@link Opcodes}). This parameter also indicates if
+   * the class is deprecated.
+   * @param name the internal name of the class (see {@link
+   * Type#getInternalName()}).
+   * @param signature the signature of this class. May be {@literal null} if the class is not a
+   * generic one, and does not extend or implement generic classes or interfaces.
+   * @param superName the internal of name of the super class (see {@link
+   * Type#getInternalName()}). For interfaces, the super class is {@link
+   * Object}. May be {@literal null}, but only for the {@link Object} class.
+   * @param interfaces the internal names of the class's interfaces (see {@link
+   * Type#getInternalName()}). May be {@literal null}.
    */
   public abstract void visit(
           int version,
@@ -354,26 +348,20 @@ public abstract class Printer {
   /**
    * Class source. See {@link ClassVisitor#visitSource}.
    *
-   * @param source
-   *         the name of the source file from which the class was compiled. May be {@literal
-   *         null}.
-   * @param debug
-   *         additional debug information to compute the correspondence between source and
-   *         compiled elements of the class. May be {@literal null}.
+   * @param source the name of the source file from which the class was compiled. May be {@literal
+   * null}.
+   * @param debug additional debug information to compute the correspondence between source and
+   * compiled elements of the class. May be {@literal null}.
    */
   public abstract void visitSource(String source, String debug);
 
   /**
    * Module. See {@link ClassVisitor#visitModule}.
    *
-   * @param name
-   *         the fully qualified name (using dots) of the module.
-   * @param access
-   *         the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
-   *         ACC_MANDATED}.
-   * @param version
-   *         the module version, or {@literal null}.
-   *
+   * @param name the fully qualified name (using dots) of the module.
+   * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * ACC_MANDATED}.
+   * @param version the module version, or {@literal null}.
    * @return the printer.
    */
   public Printer visitModule(final String name, final int access, final String version) {
@@ -388,8 +376,7 @@ public abstract class Printer {
    * implicitly its own nest, so it's invalid to call this method with the visited class name as
    * argument.
    *
-   * @param nestHost
-   *         the internal name of the host class of the nest.
+   * @param nestHost the internal name of the host class of the nest.
    */
   public void visitNestHost(final String nestHost) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -398,25 +385,19 @@ public abstract class Printer {
   /**
    * Class outer class. See {@link ClassVisitor#visitOuterClass}.
    *
-   * @param owner
-   *         internal name of the enclosing class of the class.
-   * @param name
-   *         the name of the method that contains the class, or {@literal null} if the class is
-   *         not enclosed in a method of its enclosing class.
-   * @param descriptor
-   *         the descriptor of the method that contains the class, or {@literal null} if
-   *         the class is not enclosed in a method of its enclosing class.
+   * @param owner internal name of the enclosing class of the class.
+   * @param name the name of the method that contains the class, or {@literal null} if the class is
+   * not enclosed in a method of its enclosing class.
+   * @param descriptor the descriptor of the method that contains the class, or {@literal null} if
+   * the class is not enclosed in a method of its enclosing class.
    */
   public abstract void visitOuterClass(String owner, String name, String descriptor);
 
   /**
    * Class annotation. See {@link ClassVisitor#visitAnnotation}.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public abstract Printer visitClassAnnotation(String descriptor, boolean visible);
@@ -424,21 +405,16 @@ public abstract class Printer {
   /**
    * Class type annotation. See {@link ClassVisitor#visitTypeAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
-   *         TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link
-   *         TypeReference#CLASS_EXTENDS}. See {@link
-   *         TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
+   * TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link
+   * TypeReference#CLASS_EXTENDS}. See {@link
+   * TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public Printer visitClassTypeAnnotation(
@@ -449,8 +425,7 @@ public abstract class Printer {
   /**
    * Class attribute. See {@link ClassVisitor#visitAttribute}.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public abstract void visitClassAttribute(Attribute attribute);
 
@@ -461,8 +436,7 @@ public abstract class Printer {
    * the visited class is the host of a nest. A nest host is implicitly a member of its own nest, so
    * it's invalid to call this method with the visited class name as argument.
    *
-   * @param nestMember
-   *         the internal name of a nest member.
+   * @param nestMember the internal name of a nest member.
    */
   public void visitNestMember(final String nestMember) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -472,8 +446,7 @@ public abstract class Printer {
    * Visits a permitted subclasses. A permitted subclass is one of the allowed subclasses of the
    * current class. See {@link ClassVisitor#visitPermittedSubclass(String)}.
    *
-   * @param permittedSubclass
-   *         the internal name of a permitted subclass.
+   * @param permittedSubclass the internal name of a permitted subclass.
    */
   public void visitPermittedSubclass(final String permittedSubclass) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -482,18 +455,14 @@ public abstract class Printer {
   /**
    * Class inner name. See {@link ClassVisitor#visitInnerClass}.
    *
-   * @param name
-   *         the internal name of an inner class (see {@link
-   *         Type#getInternalName()}).
-   * @param outerName
-   *         the internal name of the class to which the inner class belongs (see {@link
-   *         Type#getInternalName()}). May be {@literal null} for not member classes.
-   * @param innerName
-   *         the (simple) name of the inner class inside its enclosing class. May be
-   *         {@literal null} for anonymous inner classes.
-   * @param access
-   *         the access flags of the inner class as originally declared in the enclosing
-   *         class.
+   * @param name the internal name of an inner class (see {@link
+   * Type#getInternalName()}).
+   * @param outerName the internal name of the class to which the inner class belongs (see {@link
+   * Type#getInternalName()}). May be {@literal null} for not member classes.
+   * @param innerName the (simple) name of the inner class inside its enclosing class. May be
+   * {@literal null} for anonymous inner classes.
+   * @param access the access flags of the inner class as originally declared in the enclosing
+   * class.
    */
   public abstract void visitInnerClass(String name, String outerName, String innerName, int access);
 
@@ -501,14 +470,10 @@ public abstract class Printer {
    * Visits a record component of the class. See {@link
    * ClassVisitor#visitRecordComponent(String, String, String)}.
    *
-   * @param name
-   *         the field's name.
-   * @param descriptor
-   *         the record component descriptor (see {@link Type}).
-   * @param signature
-   *         the record component signature. May be {@literal null} if the record component
-   *         type does not use generic types.
-   *
+   * @param name the field's name.
+   * @param descriptor the record component descriptor (see {@link Type}).
+   * @param signature the record component signature. May be {@literal null} if the record component
+   * type does not use generic types.
    * @return a visitor to visit this record component annotations and attributes, or {@literal null}
    * if this class visitor is not interested in visiting these annotations and attributes.
    */
@@ -520,24 +485,18 @@ public abstract class Printer {
   /**
    * Class field. See {@link ClassVisitor#visitField}.
    *
-   * @param access
-   *         the field's access flags (see {@link Opcodes}). This parameter also indicates if
-   *         the field is synthetic and/or deprecated.
-   * @param name
-   *         the field's name.
-   * @param descriptor
-   *         the field's descriptor (see {@link Type}).
-   * @param signature
-   *         the field's signature. May be {@literal null} if the field's type does not use
-   *         generic types.
-   * @param value
-   *         the field's initial value. This parameter, which may be {@literal null} if the
-   *         field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
-   *         Long}, a {@link Double} or a {@link String} (for {@code int}, {@code float}, {@code long}
-   *         or {@code String} fields respectively). <i>This parameter is only used for static
-   *         fields</i>. Its value is ignored for non static fields, which must be initialized through
-   *         bytecode instructions in constructors or methods.
-   *
+   * @param access the field's access flags (see {@link Opcodes}). This parameter also indicates if
+   * the field is synthetic and/or deprecated.
+   * @param name the field's name.
+   * @param descriptor the field's descriptor (see {@link Type}).
+   * @param signature the field's signature. May be {@literal null} if the field's type does not use
+   * generic types.
+   * @param value the field's initial value. This parameter, which may be {@literal null} if the
+   * field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
+   * Long}, a {@link Double} or a {@link String} (for {@code int}, {@code float}, {@code long}
+   * or {@code String} fields respectively). <i>This parameter is only used for static
+   * fields</i>. Its value is ignored for non static fields, which must be initialized through
+   * bytecode instructions in constructors or methods.
    * @return the printer.
    */
   public abstract Printer visitField(
@@ -546,20 +505,14 @@ public abstract class Printer {
   /**
    * Class method. See {@link ClassVisitor#visitMethod}.
    *
-   * @param access
-   *         the method's access flags (see {@link Opcodes}). This parameter also indicates if
-   *         the method is synthetic and/or deprecated.
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param signature
-   *         the method's signature. May be {@literal null} if the method parameters,
-   *         return type and exceptions do not use generic types.
-   * @param exceptions
-   *         the internal names of the method's exception classes (see {@link
-   *         Type#getInternalName()}). May be {@literal null}.
-   *
+   * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if
+   * the method is synthetic and/or deprecated.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param signature the method's signature. May be {@literal null} if the method parameters,
+   * return type and exceptions do not use generic types.
+   * @param exceptions the internal names of the method's exception classes (see {@link
+   * Type#getInternalName()}). May be {@literal null}.
    * @return the printer.
    */
   public abstract Printer visitMethod(
@@ -575,8 +528,7 @@ public abstract class Printer {
   /**
    * Module main class. See {@link ModuleVisitor#visitMainClass}.
    *
-   * @param mainClass
-   *         the internal name of the main class of the current module.
+   * @param mainClass the internal name of the main class of the current module.
    */
   public void visitMainClass(final String mainClass) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -585,8 +537,7 @@ public abstract class Printer {
   /**
    * Module package. See {@link ModuleVisitor#visitPackage}.
    *
-   * @param packaze
-   *         the internal name of a package.
+   * @param packaze the internal name of a package.
    */
   public void visitPackage(final String packaze) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -595,13 +546,10 @@ public abstract class Printer {
   /**
    * Module require. See {@link ModuleVisitor#visitRequire}.
    *
-   * @param module
-   *         the fully qualified name (using dots) of the dependence.
-   * @param access
-   *         the access flag of the dependence among {@code ACC_TRANSITIVE}, {@code
-   *         ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param version
-   *         the module version at compile time, or {@literal null}.
+   * @param module the fully qualified name (using dots) of the dependence.
+   * @param access the access flag of the dependence among {@code ACC_TRANSITIVE}, {@code
+   * ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param version the module version at compile time, or {@literal null}.
    */
   public void visitRequire(final String module, final int access, final String version) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -610,14 +558,11 @@ public abstract class Printer {
   /**
    * Module export. See {@link ModuleVisitor#visitExport}.
    *
-   * @param packaze
-   *         the internal name of the exported package.
-   * @param access
-   *         the access flag of the exported package, valid values are among {@code
-   *         ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param modules
-   *         the fully qualified names (using dots) of the modules that can access the public
-   *         classes of the exported package, or {@literal null}.
+   * @param packaze the internal name of the exported package.
+   * @param access the access flag of the exported package, valid values are among {@code
+   * ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param modules the fully qualified names (using dots) of the modules that can access the public
+   * classes of the exported package, or {@literal null}.
    */
   public void visitExport(final String packaze, final int access, final String... modules) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -626,14 +571,11 @@ public abstract class Printer {
   /**
    * Module open. See {@link ModuleVisitor#visitOpen}.
    *
-   * @param packaze
-   *         the internal name of the opened package.
-   * @param access
-   *         the access flag of the opened package, valid values are among {@code
-   *         ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param modules
-   *         the fully qualified names (using dots) of the modules that can use deep
-   *         reflection to the classes of the open package, or {@literal null}.
+   * @param packaze the internal name of the opened package.
+   * @param access the access flag of the opened package, valid values are among {@code
+   * ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param modules the fully qualified names (using dots) of the modules that can use deep
+   * reflection to the classes of the open package, or {@literal null}.
    */
   public void visitOpen(final String packaze, final int access, final String... modules) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -642,8 +584,7 @@ public abstract class Printer {
   /**
    * Module use. See {@link ModuleVisitor#visitUse}.
    *
-   * @param service
-   *         the internal name of the service.
+   * @param service the internal name of the service.
    */
   public void visitUse(final String service) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -652,11 +593,9 @@ public abstract class Printer {
   /**
    * Module provide. See {@link ModuleVisitor#visitProvide}.
    *
-   * @param service
-   *         the internal name of the service.
-   * @param providers
-   *         the internal names of the implementations of the service (there is at least
-   *         one provider).
+   * @param service the internal name of the service.
+   * @param providers the internal names of the implementations of the service (there is at least
+   * one provider).
    */
   public void visitProvide(final String service, final String... providers) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -674,15 +613,13 @@ public abstract class Printer {
   /**
    * Annotation value. See {@link AnnotationVisitor#visit}.
    *
-   * @param name
-   *         the value name.
-   * @param value
-   *         the actual value, whose type must be {@link Byte}, {@link Boolean}, {@link
-   *         Character}, {@link Short}, {@link Integer} , {@link Long}, {@link Float}, {@link Double},
-   *         {@link String} or {@link Type} of {@link Type#OBJECT}
-   *         or {@link Type#ARRAY} sort. This value can also be an array of byte,
-   *         boolean, short, char, int, long, float or double values (this is equivalent to using {@link
-   *         #visitArray} and visiting each array element in turn, but is more convenient).
+   * @param name the value name.
+   * @param value the actual value, whose type must be {@link Byte}, {@link Boolean}, {@link
+   * Character}, {@link Short}, {@link Integer} , {@link Long}, {@link Float}, {@link Double},
+   * {@link String} or {@link Type} of {@link Type#OBJECT}
+   * or {@link Type#ARRAY} sort. This value can also be an array of byte,
+   * boolean, short, char, int, long, float or double values (this is equivalent to using {@link
+   * #visitArray} and visiting each array element in turn, but is more convenient).
    */
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   public abstract void visit(String name, Object value);
@@ -690,23 +627,17 @@ public abstract class Printer {
   /**
    * Annotation enum value. See {@link AnnotationVisitor#visitEnum}.
    *
-   * @param name
-   *         the value name.
-   * @param descriptor
-   *         the class descriptor of the enumeration class.
-   * @param value
-   *         the actual enumeration value.
+   * @param name the value name.
+   * @param descriptor the class descriptor of the enumeration class.
+   * @param value the actual enumeration value.
    */
   public abstract void visitEnum(String name, String descriptor, String value);
 
   /**
    * Nested annotation value. See {@link AnnotationVisitor#visitAnnotation}.
    *
-   * @param name
-   *         the value name.
-   * @param descriptor
-   *         the class descriptor of the nested annotation class.
-   *
+   * @param name the value name.
+   * @param descriptor the class descriptor of the nested annotation class.
    * @return the printer.
    */
   public abstract Printer visitAnnotation(String name, String descriptor);
@@ -714,9 +645,7 @@ public abstract class Printer {
   /**
    * Annotation array value. See {@link AnnotationVisitor#visitArray}.
    *
-   * @param name
-   *         the value name.
-   *
+   * @param name the value name.
    * @return the printer.
    */
   public abstract Printer visitArray(String name);
@@ -732,11 +661,8 @@ public abstract class Printer {
    * Visits an annotation of the record component. See {@link
    * RecordComponentVisitor#visitAnnotation}.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
@@ -748,20 +674,15 @@ public abstract class Printer {
    * Visits an annotation on a type in the record component signature. See {@link
    * RecordComponentVisitor#visitTypeAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
-   *         TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
-   *         {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
+   * TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
+   * {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
@@ -774,8 +695,7 @@ public abstract class Printer {
    * Visits a non standard attribute of the record component. See {@link
    * RecordComponentVisitor#visitAttribute}.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public void visitRecordComponentAttribute(final Attribute attribute) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -797,11 +717,8 @@ public abstract class Printer {
   /**
    * Field annotation. See {@link FieldVisitor#visitAnnotation}.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public abstract Printer visitFieldAnnotation(String descriptor, boolean visible);
@@ -809,18 +726,13 @@ public abstract class Printer {
   /**
    * Field type annotation. See {@link FieldVisitor#visitTypeAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#FIELD}. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#FIELD}. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public Printer visitFieldTypeAnnotation(
@@ -831,8 +743,7 @@ public abstract class Printer {
   /**
    * Field attribute. See {@link FieldVisitor#visitAttribute}.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public abstract void visitFieldAttribute(Attribute attribute);
 
@@ -846,11 +757,9 @@ public abstract class Printer {
   /**
    * Method parameter. See {@link MethodVisitor#visitParameter(String, int)}.
    *
-   * @param name
-   *         parameter name or {@literal null} if none is provided.
-   * @param access
-   *         the parameter's access flags, only {@code ACC_FINAL}, {@code ACC_SYNTHETIC}
-   *         or/and {@code ACC_MANDATED} are allowed (see {@link Opcodes}).
+   * @param name parameter name or {@literal null} if none is provided.
+   * @param access the parameter's access flags, only {@code ACC_FINAL}, {@code ACC_SYNTHETIC}
+   * or/and {@code ACC_MANDATED} are allowed (see {@link Opcodes}).
    */
   public void visitParameter(final String name, final int access) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
@@ -866,11 +775,8 @@ public abstract class Printer {
   /**
    * Method annotation. See {@link MethodVisitor#visitAnnotation}.
    *
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public abstract Printer visitMethodAnnotation(String descriptor, boolean visible);
@@ -878,23 +784,18 @@ public abstract class Printer {
   /**
    * Method type annotation. See {@link MethodVisitor#visitTypeAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#METHOD_TYPE_PARAMETER}, {@link
-   *         TypeReference#METHOD_TYPE_PARAMETER_BOUND}, {@link
-   *         TypeReference#METHOD_RETURN}, {@link
-   *         TypeReference#METHOD_RECEIVER}, {@link
-   *         TypeReference#METHOD_FORMAL_PARAMETER} or {@link
-   *         TypeReference#THROWS}. See {@link TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#METHOD_TYPE_PARAMETER}, {@link
+   * TypeReference#METHOD_TYPE_PARAMETER_BOUND}, {@link
+   * TypeReference#METHOD_RETURN}, {@link
+   * TypeReference#METHOD_RECEIVER}, {@link
+   * TypeReference#METHOD_FORMAL_PARAMETER} or {@link
+   * TypeReference#THROWS}. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public Printer visitMethodTypeAnnotation(
@@ -906,17 +807,14 @@ public abstract class Printer {
    * Number of method parameters that can have annotations. See {@link
    * MethodVisitor#visitAnnotableParameterCount}.
    *
-   * @param parameterCount
-   *         the number of method parameters than can have annotations. This number
-   *         must be less or equal than the number of parameter types in the method descriptor. It can
-   *         be strictly less when a method has synthetic parameters and when these parameters are
-   *         ignored when computing parameter indices for the purpose of parameter annotations (see
-   *         https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
-   * @param visible
-   *         {@literal true} to define the number of method parameters that can have
-   *         annotations visible at runtime, {@literal false} to define the number of method parameters
-   *         that can have annotations invisible at runtime.
-   *
+   * @param parameterCount the number of method parameters than can have annotations. This number
+   * must be less or equal than the number of parameter types in the method descriptor. It can
+   * be strictly less when a method has synthetic parameters and when these parameters are
+   * ignored when computing parameter indices for the purpose of parameter annotations (see
+   * https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
+   * @param visible {@literal true} to define the number of method parameters that can have
+   * annotations visible at runtime, {@literal false} to define the number of method parameters
+   * that can have annotations invisible at runtime.
    * @return the printer.
    */
   public Printer visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
@@ -927,18 +825,14 @@ public abstract class Printer {
    * Method parameter annotation. See {@link
    * MethodVisitor#visitParameterAnnotation}.
    *
-   * @param parameter
-   *         the parameter index. This index must be strictly smaller than the number of
-   *         parameters in the method descriptor, and strictly smaller than the parameter count
-   *         specified in {@link #visitAnnotableParameterCount}. Important note: <i>a parameter index i
-   *         is not required to correspond to the i'th parameter descriptor in the method
-   *         descriptor</i>, in particular in case of synthetic parameters (see
-   *         https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param parameter the parameter index. This index must be strictly smaller than the number of
+   * parameters in the method descriptor, and strictly smaller than the parameter count
+   * specified in {@link #visitAnnotableParameterCount}. Important note: <i>a parameter index i
+   * is not required to correspond to the i'th parameter descriptor in the method
+   * descriptor</i>, in particular in case of synthetic parameters (see
+   * https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public abstract Printer visitParameterAnnotation(
@@ -947,8 +841,7 @@ public abstract class Printer {
   /**
    * Method attribute. See {@link MethodVisitor#visitAttribute}.
    *
-   * @param attribute
-   *         an attribute.
+   * @param attribute an attribute.
    */
   public abstract void visitMethodAttribute(Attribute attribute);
 
@@ -958,25 +851,20 @@ public abstract class Printer {
   /**
    * Method stack frame. See {@link MethodVisitor#visitFrame}.
    *
-   * @param type
-   *         the type of this stack map frame. Must be {@link Opcodes#F_NEW} for expanded
-   *         frames, or {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link
-   *         Opcodes#F_SAME} or {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
-   * @param numLocal
-   *         the number of local variables in the visited frame.
-   * @param local
-   *         the local variable types in this frame. This array must not be modified. Primitive
-   *         types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
-   *         Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL} or
-   *         {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element).
-   *         Reference types are represented by String objects (representing internal names), and
-   *         uninitialized types by Label objects (this label designates the NEW instruction that
-   *         created this uninitialized value).
-   * @param numStack
-   *         the number of operand stack elements in the visited frame.
-   * @param stack
-   *         the operand stack types in this frame. This array must not be modified. Its
-   *         content has the same format as the "local" array.
+   * @param type the type of this stack map frame. Must be {@link Opcodes#F_NEW} for expanded
+   * frames, or {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link
+   * Opcodes#F_SAME} or {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
+   * @param numLocal the number of local variables in the visited frame.
+   * @param local the local variable types in this frame. This array must not be modified. Primitive
+   * types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
+   * Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL} or
+   * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element).
+   * Reference types are represented by String objects (representing internal names), and
+   * uninitialized types by Label objects (this label designates the NEW instruction that
+   * created this uninitialized value).
+   * @param numStack the number of operand stack elements in the visited frame.
+   * @param stack the operand stack types in this frame. This array must not be modified. Its
+   * content has the same format as the "local" array.
    */
   public abstract void visitFrame(
           int type, int numLocal, Object[] local, int numStack, Object[] stack);
@@ -984,92 +872,76 @@ public abstract class Printer {
   /**
    * Method instruction. See {@link MethodVisitor#visitInsn}
    *
-   * @param opcode
-   *         the opcode of the instruction to be visited. This opcode is either NOP,
-   *         ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5,
-   *         LCONST_0, LCONST_1, FCONST_0, FCONST_1, FCONST_2, DCONST_0, DCONST_1, IALOAD, LALOAD,
-   *         FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD, IASTORE, LASTORE, FASTORE, DASTORE,
-   *         AASTORE, BASTORE, CASTORE, SASTORE, POP, POP2, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2,
-   *         SWAP, IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL, FMUL, DMUL, IDIV, LDIV,
-   *         FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL, LSHL, ISHR, LSHR, IUSHR,
-   *         LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR, I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L, F2D, D2I,
-   *         D2L, D2F, I2B, I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
-   *         DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER, or MONITOREXIT.
+   * @param opcode the opcode of the instruction to be visited. This opcode is either NOP,
+   * ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5,
+   * LCONST_0, LCONST_1, FCONST_0, FCONST_1, FCONST_2, DCONST_0, DCONST_1, IALOAD, LALOAD,
+   * FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD, IASTORE, LASTORE, FASTORE, DASTORE,
+   * AASTORE, BASTORE, CASTORE, SASTORE, POP, POP2, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2,
+   * SWAP, IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL, FMUL, DMUL, IDIV, LDIV,
+   * FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL, LSHL, ISHR, LSHR, IUSHR,
+   * LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR, I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L, F2D, D2I,
+   * D2L, D2F, I2B, I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
+   * DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER, or MONITOREXIT.
    */
   public abstract void visitInsn(int opcode);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitIntInsn}.
    *
-   * @param opcode
-   *         the opcode of the instruction to be visited. This opcode is either BIPUSH, SIPUSH
-   *         or NEWARRAY.
-   * @param operand
-   *         the operand of the instruction to be visited.<br>
-   *         When opcode is BIPUSH, operand value should be between Byte.MIN_VALUE and Byte.MAX_VALUE.
-   *         <br>
-   *         When opcode is SIPUSH, operand value should be between Short.MIN_VALUE and Short.MAX_VALUE.
-   *         <br>
-   *         When opcode is NEWARRAY, operand value should be one of {@link Opcodes#T_BOOLEAN}, {@link
-   *         Opcodes#T_CHAR}, {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE}, {@link Opcodes#T_BYTE},
-   *         {@link Opcodes#T_SHORT}, {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
+   * @param opcode the opcode of the instruction to be visited. This opcode is either BIPUSH, SIPUSH
+   * or NEWARRAY.
+   * @param operand the operand of the instruction to be visited.<br>
+   * When opcode is BIPUSH, operand value should be between Byte.MIN_VALUE and Byte.MAX_VALUE.
+   * <br>
+   * When opcode is SIPUSH, operand value should be between Short.MIN_VALUE and Short.MAX_VALUE.
+   * <br>
+   * When opcode is NEWARRAY, operand value should be one of {@link Opcodes#T_BOOLEAN}, {@link
+   * Opcodes#T_CHAR}, {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE}, {@link Opcodes#T_BYTE},
+   * {@link Opcodes#T_SHORT}, {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
    */
   public abstract void visitIntInsn(int opcode, int operand);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitVarInsn}.
    *
-   * @param opcode
-   *         the opcode of the local variable instruction to be visited. This opcode is either
-   *         ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
-   * @param var
-   *         the operand of the instruction to be visited. This operand is the index of a local
-   *         variable.
+   * @param opcode the opcode of the local variable instruction to be visited. This opcode is either
+   * ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
+   * @param var the operand of the instruction to be visited. This operand is the index of a local
+   * variable.
    */
   public abstract void visitVarInsn(int opcode, int var);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitTypeInsn}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be visited. This opcode is either NEW,
-   *         ANEWARRAY, CHECKCAST or INSTANCEOF.
-   * @param type
-   *         the operand of the instruction to be visited. This operand must be the internal
-   *         name of an object or array class (see {@link Type#getInternalName()}).
+   * @param opcode the opcode of the type instruction to be visited. This opcode is either NEW,
+   * ANEWARRAY, CHECKCAST or INSTANCEOF.
+   * @param type the operand of the instruction to be visited. This operand must be the internal
+   * name of an object or array class (see {@link Type#getInternalName()}).
    */
   public abstract void visitTypeInsn(int opcode, String type);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitFieldInsn}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be visited. This opcode is either
-   *         GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
-   * @param owner
-   *         the internal name of the field's owner class (see {@link
-   *         Type#getInternalName()}).
-   * @param name
-   *         the field's name.
-   * @param descriptor
-   *         the field's descriptor (see {@link Type}).
+   * @param opcode the opcode of the type instruction to be visited. This opcode is either
+   * GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
+   * @param owner the internal name of the field's owner class (see {@link
+   * Type#getInternalName()}).
+   * @param name the field's name.
+   * @param descriptor the field's descriptor (see {@link Type}).
    */
   public abstract void visitFieldInsn(int opcode, String owner, String name, String descriptor);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitMethodInsn}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be visited. This opcode is either
-   *         INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   * @param owner
-   *         the internal name of the method's owner class (see {@link
-   *         Type#getInternalName()}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   *
+   * @param opcode the opcode of the type instruction to be visited. This opcode is either
+   * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+   * @param owner the internal name of the method's owner class (see {@link
+   * Type#getInternalName()}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
    */
   @Deprecated
@@ -1084,18 +956,13 @@ public abstract class Printer {
   /**
    * Method instruction. See {@link MethodVisitor#visitMethodInsn}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be visited. This opcode is either
-   *         INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   * @param owner
-   *         the internal name of the method's owner class (see {@link
-   *         Type#getInternalName()}).
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param isInterface
-   *         if the method's owner class is an interface.
+   * @param opcode the opcode of the type instruction to be visited. This opcode is either
+   * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+   * @param owner the internal name of the method's owner class (see {@link
+   * Type#getInternalName()}).
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param isInterface if the method's owner class is an interface.
    */
   public void visitMethodInsn(
           final int opcode,
@@ -1109,17 +976,13 @@ public abstract class Printer {
   /**
    * Method instruction. See {@link MethodVisitor#visitInvokeDynamicInsn}.
    *
-   * @param name
-   *         the method's name.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param bootstrapMethodHandle
-   *         the bootstrap method.
-   * @param bootstrapMethodArguments
-   *         the bootstrap method constant arguments. Each argument must be
-   *         an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
-   *         Type} or {@link Handle} value. This method is allowed to modify the
-   *         content of the array so a caller should expect that this array may change.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param bootstrapMethodHandle the bootstrap method.
+   * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
+   * an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
+   * Type} or {@link Handle} value. This method is allowed to modify the
+   * content of the array so a caller should expect that this array may change.
    */
   public abstract void visitInvokeDynamicInsn(
           String name,
@@ -1130,109 +993,89 @@ public abstract class Printer {
   /**
    * Method jump instruction. See {@link MethodVisitor#visitJumpInsn}.
    *
-   * @param opcode
-   *         the opcode of the type instruction to be visited. This opcode is either IFEQ,
-   *         IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT,
-   *         IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE, GOTO, JSR, IFNULL or IFNONNULL.
-   * @param label
-   *         the operand of the instruction to be visited. This operand is a label that
-   *         designates the instruction to which the jump instruction may jump.
+   * @param opcode the opcode of the type instruction to be visited. This opcode is either IFEQ,
+   * IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT,
+   * IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE, GOTO, JSR, IFNULL or IFNONNULL.
+   * @param label the operand of the instruction to be visited. This operand is a label that
+   * designates the instruction to which the jump instruction may jump.
    */
   public abstract void visitJumpInsn(int opcode, Label label);
 
   /**
    * Method label. See {@link MethodVisitor#visitLabel}.
    *
-   * @param label
-   *         a {@link Label} object.
+   * @param label a {@link Label} object.
    */
   public abstract void visitLabel(Label label);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitLdcInsn}.
    *
-   * @param value
-   *         the constant to be loaded on the stack. This parameter must be a non null {@link
-   *         Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link
-   *         Type} of OBJECT or ARRAY sort for {@code .class} constants, for classes whose version is
-   *         49, a {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle
-   *         constants, for classes whose version is 51 or a {@link ConstantDynamic} for a constant
-   *         dynamic for classes whose version is 55.
+   * @param value the constant to be loaded on the stack. This parameter must be a non null {@link
+   * Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link
+   * Type} of OBJECT or ARRAY sort for {@code .class} constants, for classes whose version is
+   * 49, a {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle
+   * constants, for classes whose version is 51 or a {@link ConstantDynamic} for a constant
+   * dynamic for classes whose version is 55.
    */
   public abstract void visitLdcInsn(Object value);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitIincInsn}.
    *
-   * @param var
-   *         index of the local variable to be incremented.
-   * @param increment
-   *         amount to increment the local variable by.
+   * @param var index of the local variable to be incremented.
+   * @param increment amount to increment the local variable by.
    */
   public abstract void visitIincInsn(int var, int increment);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitTableSwitchInsn}.
    *
-   * @param min
-   *         the minimum key value.
-   * @param max
-   *         the maximum key value.
-   * @param dflt
-   *         beginning of the default handler block.
-   * @param labels
-   *         beginnings of the handler blocks. {@code labels[i]} is the beginning of the
-   *         handler block for the {@code min + i} key.
+   * @param min the minimum key value.
+   * @param max the maximum key value.
+   * @param dflt beginning of the default handler block.
+   * @param labels beginnings of the handler blocks. {@code labels[i]} is the beginning of the
+   * handler block for the {@code min + i} key.
    */
   public abstract void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitLookupSwitchInsn}.
    *
-   * @param dflt
-   *         beginning of the default handler block.
-   * @param keys
-   *         the values of the keys.
-   * @param labels
-   *         beginnings of the handler blocks. {@code labels[i]} is the beginning of the
-   *         handler block for the {@code keys[i]} key.
+   * @param dflt beginning of the default handler block.
+   * @param keys the values of the keys.
+   * @param labels beginnings of the handler blocks. {@code labels[i]} is the beginning of the
+   * handler block for the {@code keys[i]} key.
    */
   public abstract void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels);
 
   /**
    * Method instruction. See {@link MethodVisitor#visitMultiANewArrayInsn}.
    *
-   * @param descriptor
-   *         an array type descriptor (see {@link Type}).
-   * @param numDimensions
-   *         the number of dimensions of the array to allocate.
+   * @param descriptor an array type descriptor (see {@link Type}).
+   * @param numDimensions the number of dimensions of the array to allocate.
    */
   public abstract void visitMultiANewArrayInsn(String descriptor, int numDimensions);
 
   /**
    * Instruction type annotation. See {@link MethodVisitor#visitInsnAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#INSTANCEOF}, {@link
-   *         TypeReference#NEW}, {@link
-   *         TypeReference#CONSTRUCTOR_REFERENCE}, {@link
-   *         TypeReference#METHOD_REFERENCE}, {@link
-   *         TypeReference#CAST}, {@link
-   *         TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT}, {@link
-   *         TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT}, {@link
-   *         TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or {@link
-   *         TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT}. See {@link
-   *         TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#INSTANCEOF}, {@link
+   * TypeReference#NEW}, {@link
+   * TypeReference#CONSTRUCTOR_REFERENCE}, {@link
+   * TypeReference#METHOD_REFERENCE}, {@link
+   * TypeReference#CAST}, {@link
+   * TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT}, {@link
+   * TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT}, {@link
+   * TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or {@link
+   * TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT}. See {@link
+   * TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public Printer visitInsnAnnotation(
@@ -1243,15 +1086,11 @@ public abstract class Printer {
   /**
    * Method exception handler. See {@link MethodVisitor#visitTryCatchBlock}.
    *
-   * @param start
-   *         the beginning of the exception handler's scope (inclusive).
-   * @param end
-   *         the end of the exception handler's scope (exclusive).
-   * @param handler
-   *         the beginning of the exception handler's code.
-   * @param type
-   *         the internal name of the type of exceptions handled by the handler, or {@literal
-   *         null} to catch any exceptions (for "finally" blocks).
+   * @param start the beginning of the exception handler's scope (inclusive).
+   * @param end the end of the exception handler's scope (exclusive).
+   * @param handler the beginning of the exception handler's code.
+   * @param type the internal name of the type of exceptions handled by the handler, or {@literal
+   * null} to catch any exceptions (for "finally" blocks).
    */
   public abstract void visitTryCatchBlock(Label start, Label end, Label handler, String type);
 
@@ -1259,19 +1098,14 @@ public abstract class Printer {
    * Try catch block type annotation. See {@link
    * MethodVisitor#visitTryCatchAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#EXCEPTION_PARAMETER}. See {@link
-   *         TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#EXCEPTION_PARAMETER}. See {@link
+   * TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public Printer visitTryCatchAnnotation(
@@ -1282,20 +1116,14 @@ public abstract class Printer {
   /**
    * Method debug info. See {@link MethodVisitor#visitLocalVariable}.
    *
-   * @param name
-   *         the name of a local variable.
-   * @param descriptor
-   *         the type descriptor of this local variable.
-   * @param signature
-   *         the type signature of this local variable. May be {@literal null} if the local
-   *         variable type does not use generic types.
-   * @param start
-   *         the first instruction corresponding to the scope of this local variable
-   *         (inclusive).
-   * @param end
-   *         the last instruction corresponding to the scope of this local variable (exclusive).
-   * @param index
-   *         the local variable's index.
+   * @param name the name of a local variable.
+   * @param descriptor the type descriptor of this local variable.
+   * @param signature the type signature of this local variable. May be {@literal null} if the local
+   * variable type does not use generic types.
+   * @param start the first instruction corresponding to the scope of this local variable
+   * (inclusive).
+   * @param end the last instruction corresponding to the scope of this local variable (exclusive).
+   * @param index the local variable's index.
    */
   public abstract void visitLocalVariable(
           String name, String descriptor, String signature, Label start, Label end, int index);
@@ -1304,29 +1132,21 @@ public abstract class Printer {
    * Local variable type annotation. See {@link
    * MethodVisitor#visitTryCatchAnnotation}.
    *
-   * @param typeRef
-   *         a reference to the annotated type. The sort of this type reference must be
-   *         {@link TypeReference#LOCAL_VARIABLE} or {@link
-   *         TypeReference#RESOURCE_VARIABLE}. See {@link
-   *         TypeReference}.
-   * @param typePath
-   *         the path to the annotated type argument, wildcard bound, array element type, or
-   *         static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *         'typeRef' as a whole.
-   * @param start
-   *         the fist instructions corresponding to the continuous ranges that make the scope
-   *         of this local variable (inclusive).
-   * @param end
-   *         the last instructions corresponding to the continuous ranges that make the scope of
-   *         this local variable (exclusive). This array must have the same size as the 'start' array.
-   * @param index
-   *         the local variable's index in each range. This array must have the same size as
-   *         the 'start' array.
-   * @param descriptor
-   *         the class descriptor of the annotation class.
-   * @param visible
-   *         {@literal true} if the annotation is visible at runtime.
-   *
+   * @param typeRef a reference to the annotated type. The sort of this type reference must be
+   * {@link TypeReference#LOCAL_VARIABLE} or {@link
+   * TypeReference#RESOURCE_VARIABLE}. See {@link
+   * TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   * static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   * 'typeRef' as a whole.
+   * @param start the fist instructions corresponding to the continuous ranges that make the scope
+   * of this local variable (inclusive).
+   * @param end the last instructions corresponding to the continuous ranges that make the scope of
+   * this local variable (exclusive). This array must have the same size as the 'start' array.
+   * @param index the local variable's index in each range. This array must have the same size as
+   * the 'start' array.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return the printer.
    */
   public Printer visitLocalVariableAnnotation(
@@ -1343,21 +1163,17 @@ public abstract class Printer {
   /**
    * Method debug info. See {@link MethodVisitor#visitLineNumber}.
    *
-   * @param line
-   *         a line number. This number refers to the source file from which the class was
-   *         compiled.
-   * @param start
-   *         the first instruction corresponding to this line number.
+   * @param line a line number. This number refers to the source file from which the class was
+   * compiled.
+   * @param start the first instruction corresponding to this line number.
    */
   public abstract void visitLineNumber(int line, Label start);
 
   /**
    * Method max stack and max locals. See {@link MethodVisitor#visitMaxs}.
    *
-   * @param maxStack
-   *         maximum stack size of the method.
-   * @param maxLocals
-   *         maximum number of local variables for the method.
+   * @param maxStack maximum stack size of the method.
+   * @param maxLocals maximum number of local variables for the method.
    */
   public abstract void visitMaxs(int maxStack, int maxLocals);
 
@@ -1380,8 +1196,7 @@ public abstract class Printer {
   /**
    * Prints the text constructed by this visitor.
    *
-   * @param printWriter
-   *         the print writer to be used.
+   * @param printWriter the print writer to be used.
    */
   public void print(final PrintWriter printWriter) {
     printList(printWriter, text);
@@ -1390,11 +1205,9 @@ public abstract class Printer {
   /**
    * Prints the given string tree.
    *
-   * @param printWriter
-   *         the writer to be used to print the tree.
-   * @param list
-   *         a string tree, i.e., a string list that can contain other string lists, and so on
-   *         recursively.
+   * @param printWriter the writer to be used to print the tree.
+   * @param list a string tree, i.e., a string list that can contain other string lists, and so on
+   * recursively.
    */
   static void printList(final PrintWriter printWriter, final List<?> list) {
     for (Object o : list) {
@@ -1410,10 +1223,8 @@ public abstract class Printer {
   /**
    * Appends a quoted string to the given string builder.
    *
-   * @param stringBuilder
-   *         the buffer where the string must be added.
-   * @param string
-   *         the string to be added.
+   * @param stringBuilder the buffer where the string must be added.
+   * @param string the string to be added.
    */
   public static void appendString(final StringBuilder stringBuilder, final String string) {
     stringBuilder.append('\"');
@@ -1456,19 +1267,12 @@ public abstract class Printer {
    *
    * <p>Command line arguments: [-nodebug] &lt;binary class name or class file name &gt;
    *
-   * @param args
-   *         the command line arguments.
-   * @param usage
-   *         the help message to show when command line arguments are incorrect.
-   * @param printer
-   *         the printer to convert the class into text.
-   * @param output
-   *         where to print the result.
-   * @param logger
-   *         where to log errors.
-   *
-   * @throws IOException
-   *         if the class cannot be found, or if an IOException occurs.
+   * @param args the command line arguments.
+   * @param usage the help message to show when command line arguments are incorrect.
+   * @param printer the printer to convert the class into text.
+   * @param output where to print the result.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   static void main(
           final String[] args,

@@ -55,9 +55,7 @@ public abstract class OrderUtils {
   /**
    * Get the order of the {@link AnnotatedElement}
    *
-   * @param annotated
-   *         {@link AnnotatedElement}
-   *
+   * @param annotated {@link AnnotatedElement}
    * @return The order
    */
   public static int getOrderOrLowest(final AnnotatedElement annotated) {
@@ -67,9 +65,7 @@ public abstract class OrderUtils {
   /**
    * Get the order of the object
    *
-   * @param obj
-   *         object
-   *
+   * @param obj object
    * @return The order
    */
   public static int getOrderOrLowest(final Object obj) {
@@ -93,11 +89,8 @@ public abstract class OrderUtils {
    * default value if none can be found.
    * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
    *
-   * @param element
-   *         the annotated element (e.g. type or method)
-   *
+   * @param element the annotated element (e.g. type or method)
    * @return the priority value, or the specified default order if none can be found
-   *
    * @see #getPriority(AnnotatedElement)
    */
   public static int getOrder(AnnotatedElement element, int defaultOrder) {
@@ -110,11 +103,8 @@ public abstract class OrderUtils {
    * default value if none can be found.
    * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
    *
-   * @param element
-   *         the annotated element (e.g. type or method)
-   *
+   * @param element the annotated element (e.g. type or method)
    * @return the priority value, or the specified default order if none can be found
-   *
    * @see #getPriority(AnnotatedElement)
    */
   @Nullable
@@ -127,9 +117,7 @@ public abstract class OrderUtils {
    * Return the order declared on the specified {@code element}.
    * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
    *
-   * @param element
-   *         the annotated element (e.g. type or method)
-   *
+   * @param element the annotated element (e.g. type or method)
    * @return the order value, or {@code null} if none can be found
    */
   @Nullable
@@ -155,9 +143,7 @@ public abstract class OrderUtils {
    * Return the value of the {@code javax.annotation.Priority} annotation
    * declared on the specified type, or {@code null} if none.
    *
-   * @param element
-   *         the annotated element (e.g. type or method)
-   *
+   * @param element the annotated element (e.g. type or method)
    * @return the priority value if the annotation is declared, or {@code null} if none
    */
   @Nullable

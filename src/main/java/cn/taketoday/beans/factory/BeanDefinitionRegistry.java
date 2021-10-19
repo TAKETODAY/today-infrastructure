@@ -41,12 +41,9 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * register a bean with the given name and {@link BeanDefinition}
    *
-   * @param def
-   *         Bean definition
-   *
-   * @throws BeanDefinitionOverrideException
-   *         if there is already a BeanDefinition
-   *         * for the specified bean name and we are not allowed to override it
+   * @param def Bean definition
+   * @throws BeanDefinitionOverrideException if there is already a BeanDefinition
+   * * for the specified bean name and we are not allowed to override it
    * @since 1.2.0
    */
   void registerBeanDefinition(String name, BeanDefinition def);
@@ -54,9 +51,7 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
    *
-   * @param def
-   *         Target {@link BeanDefinition}
-   *
+   * @param def Target {@link BeanDefinition}
    * @since 2.1.6
    */
   default void registerBeanDefinition(BeanDefinition def) {
@@ -66,8 +61,7 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Remove the BeanDefinition for the given name.
    *
-   * @param beanName
-   *         The name of the bean instance to register
+   * @param beanName The name of the bean instance to register
    */
   void removeBeanDefinition(String beanName);
 
@@ -75,9 +69,7 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
    * Return the BeanDefinition for the given bean name. Return the BeanDefinition
    * for the given bean name.
    *
-   * @param beanName
-   *         Name of the bean to find a definition for
-   *
+   * @param beanName Name of the bean to find a definition for
    * @return the BeanDefinition for the given name (never {@code null})
    */
   @Nullable
@@ -86,17 +78,14 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Return the BeanDefinition for the given bean class.
    *
-   * @param beanClass
-   *         Bean definition bean class
+   * @param beanClass Bean definition bean class
    */
   BeanDefinition getBeanDefinition(Class<?> beanClass);
 
   /**
    * Check if this registry contains a bean definition with the given name.
    *
-   * @param beanName
-   *         The name of the bean to look for
-   *
+   * @param beanName The name of the bean to look for
    * @return If this registry contains a bean definition with the given name
    */
   boolean containsBeanDefinition(String beanName);
@@ -104,13 +93,9 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Whether there is a bean with the given name and type.
    *
-   * @param beanName
-   *         The name of the bean to look for
-   * @param type
-   *         Bean type
-   *
+   * @param beanName The name of the bean to look for
+   * @param type Bean type
    * @return If exist a bean with given name and type
-   *
    * @since 2.1.7
    */
   default boolean containsBeanDefinition(String beanName, Class<?> type) {
@@ -120,9 +105,7 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Whether there is a bean with the given type.
    *
-   * @param type
-   *         The bean class of the bean to look for
-   *
+   * @param type The bean class of the bean to look for
    * @return If exist a bean with given type
    */
   boolean containsBeanDefinition(Class<?> type);
@@ -130,11 +113,8 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Whether there is a bean with the given type.
    *
-   * @param type
-   *         Target type
-   * @param equals
-   *         Must equals type
-   *
+   * @param type Target type
+   * @param equals Must equals type
    * @return If exist a bean with given type
    */
   boolean containsBeanDefinition(Class<?> type, boolean equals);
@@ -158,11 +138,8 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
    * Determine whether the given bean name is already in use within this registry,
    * i.e. whether there is a local bean or alias registered under this name.
    *
-   * @param beanName
-   *         the name to check
-   *
+   * @param beanName the name to check
    * @return whether the given bean name is already in use
-   *
    * @since 4.0
    */
   boolean isBeanNameInUse(String beanName);

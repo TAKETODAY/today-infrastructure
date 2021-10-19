@@ -179,11 +179,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
   }
 
   /**
-   * @param method
-   *         current method
-   * @param fields
-   *         Target keys in {@link GeneratorContext#targetClass}
-   *
+   * @param method current method
+   * @param fields Target keys in {@link GeneratorContext#targetClass}
    * @return Target key
    */
   protected String putTargetInv(final Method method, GeneratorContext context, final List<String> fields) {

@@ -46,8 +46,7 @@ public class PropertyNotWritableException extends ExpressionException {
    * Creates a <code>PropertyNotWritableException</code> with the provided detail
    * message.
    *
-   * @param pMessage
-   *         the detail message
+   * @param pMessage the detail message
    */
   public PropertyNotWritableException(String pMessage) {
     super(pMessage);
@@ -59,8 +58,7 @@ public class PropertyNotWritableException extends ExpressionException {
    * Creates a <code>PropertyNotWritableException</code> with the given root
    * cause.
    *
-   * @param exception
-   *         the originating cause of this exception
+   * @param exception the originating cause of this exception
    */
   public PropertyNotWritableException(Throwable exception) {
     super(exception);
@@ -72,10 +70,8 @@ public class PropertyNotWritableException extends ExpressionException {
    * Creates a <code>PropertyNotWritableException</code> with the given detail
    * message and root cause.
    *
-   * @param pMessage
-   *         the detail message
-   * @param pRootCause
-   *         the originating cause of this exception
+   * @param pMessage the detail message
+   * @param pRootCause the originating cause of this exception
    */
   public PropertyNotWritableException(String pMessage, Throwable pRootCause) {
     super(pMessage, pRootCause);

@@ -65,8 +65,7 @@ public abstract class DecoratingClassLoader extends ClassLoader {
    * <p>Any class whose fully-qualified name starts with the name registered
    * here will be handled by the parent ClassLoader in the usual fashion.
    *
-   * @param packageName
-   *         the package name to exclude
+   * @param packageName the package name to exclude
    */
   public void excludePackage(String packageName) {
     Assert.notNull(packageName, "Package name must not be null");
@@ -78,8 +77,7 @@ public abstract class DecoratingClassLoader extends ClassLoader {
    * <p>Any class name registered here will be handled by the parent
    * ClassLoader in the usual fashion.
    *
-   * @param className
-   *         the class name to exclude
+   * @param className the class name to exclude
    */
   public void excludeClass(String className) {
     Assert.notNull(className, "Class name must not be null");
@@ -91,11 +89,8 @@ public abstract class DecoratingClassLoader extends ClassLoader {
    * by this class loader.
    * <p>The default implementation checks against excluded packages and classes.
    *
-   * @param className
-   *         the class name to check
-   *
+   * @param className the class name to check
    * @return whether the specified class is eligible
-   *
    * @see #excludePackage
    * @see #excludeClass
    */

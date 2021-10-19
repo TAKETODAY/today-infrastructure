@@ -65,11 +65,8 @@ public abstract class BeanFactoryUtils {
    * Return whether the given name is a factory dereference
    * (beginning with the factory dereference prefix).
    *
-   * @param name
-   *         the name of the bean
-   *
+   * @param name the name of the bean
    * @return whether the given name is a factory dereference
-   *
    * @see BeanFactory#FACTORY_BEAN_PREFIX
    */
   public static boolean isFactoryDereference(@Nullable String name) {
@@ -80,11 +77,8 @@ public abstract class BeanFactoryUtils {
    * Return the actual bean name, stripping out the factory dereference
    * prefix (if any, also stripping repeated factory prefixes if found).
    *
-   * @param name
-   *         the name of the bean
-   *
+   * @param name the name of the bean
    * @return the transformed name
-   *
    * @see BeanFactory#FACTORY_BEAN_PREFIX
    */
   public static String transformedBeanName(String name) {
@@ -105,11 +99,8 @@ public abstract class BeanFactoryUtils {
    * Return whether the given name is a bean name which has been generated
    * by the default naming strategy (containing a "#..." part).
    *
-   * @param name
-   *         the name of the bean
-   *
+   * @param name the name of the bean
    * @return whether the given name is a generated bean name
-   *
    * @see #GENERATED_BEAN_NAME_SEPARATOR
    */
   public static boolean isGeneratedBeanName(@Nullable String name) {
@@ -120,11 +111,8 @@ public abstract class BeanFactoryUtils {
    * Extract the "raw" bean name from the given (potentially generated) bean name,
    * excluding any "#..." suffixes which might have been added for uniqueness.
    *
-   * @param name
-   *         the potentially generated bean name
-   *
+   * @param name the potentially generated bean name
    * @return the raw bean name
-   *
    * @see #GENERATED_BEAN_NAME_SEPARATOR
    */
   public static String originalBeanName(String name) {
@@ -141,11 +129,8 @@ public abstract class BeanFactoryUtils {
    * <p>Beans that are "overridden" (specified in a descendant factory
    * with the same name) are only counted once.
    *
-   * @param lbf
-   *         the bean factory
-   *
+   * @param lbf the bean factory
    * @return count of beans including those defined in ancestor factories
-   *
    * @see #beanNamesIncludingAncestors
    */
   public static int countBeansIncludingAncestors(BeanFactory lbf) {
@@ -155,11 +140,8 @@ public abstract class BeanFactoryUtils {
   /**
    * Return all bean names in the factory, including ancestor factories.
    *
-   * @param lbf
-   *         the bean factory
-   *
+   * @param lbf the bean factory
    * @return the array of matching bean names, or an empty array if none
-   *
    * @see #beanNamesForTypeIncludingAncestors
    */
   public static Set<String> beanNamesIncludingAncestors(BeanFactory lbf) {
@@ -175,13 +157,9 @@ public abstract class BeanFactoryUtils {
    * <p>This version of {@code beanNamesForTypeIncludingAncestors} automatically
    * includes prototypes and FactoryBeans.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         the type that beans must match (as a {@code ResolvableType})
-   *
+   * @param lbf the bean factory
+   * @param type the type that beans must match (as a {@code ResolvableType})
    * @return the array of matching bean names, or an empty array if none
-   *
    * @see BeanFactory#getBeansOfType(ResolvableType, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory lbf, ResolvableType type) {
@@ -208,19 +186,13 @@ public abstract class BeanFactoryUtils {
    * only raw FactoryBeans will be checked (which doesn't require initialization
    * of each FactoryBean).
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         the type that beans must match (as a {@code ResolvableType})
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   *
+   * @param lbf the bean factory
+   * @param type the type that beans must match (as a {@code ResolvableType})
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
    * @return the array of matching bean names, or an empty array if none
-   *
    * @see BeanFactory#getBeanNamesOfType(ResolvableType, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(
@@ -248,13 +220,9 @@ public abstract class BeanFactoryUtils {
    * <p>This version of {@code beanNamesForTypeIncludingAncestors} automatically
    * includes prototypes and FactoryBeans.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         the type that beans must match (as a {@code Class})
-   *
+   * @param lbf the bean factory
+   * @param type the type that beans must match (as a {@code Class})
    * @return the array of matching bean names, or an empty array if none
-   *
    * @see BeanFactory#getBeanNamesOfType(Class)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory lbf, Class<?> type) {
@@ -281,19 +249,13 @@ public abstract class BeanFactoryUtils {
    * only raw FactoryBeans will be checked (which doesn't require initialization
    * of each FactoryBean).
    *
-   * @param lbf
-   *         the bean factory
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   * @param type
-   *         the type that beans must match
-   *
+   * @param lbf the bean factory
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
+   * @param type the type that beans must match
    * @return the array of matching bean names, or an empty array if none
-   *
    * @see BeanFactory#getBeanNamesOfType(Class, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(
@@ -317,13 +279,9 @@ public abstract class BeanFactoryUtils {
    * type, including those defined in ancestor factories, without creating any bean
    * instances yet. Will return unique names in case of overridden bean definitions.
    *
-   * @param lbf
-   *         the bean factory
-   * @param annotationType
-   *         the type of annotation to look for
-   *
+   * @param lbf the bean factory
+   * @param annotationType the type of annotation to look for
    * @return the array of matching bean names, or an empty array if none
-   *
    * @see BeanFactory#getBeanNamesForAnnotation(Class)
    */
   public static Set<String> beanNamesForAnnotationIncludingAncestors(
@@ -357,15 +315,10 @@ public abstract class BeanFactoryUtils {
    * 'replacing' beans by explicitly choosing the same bean name in a child factory;
    * the bean in the ancestor factory won't be visible then, not even for by-type lookups.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         type of bean to match
-   *
+   * @param lbf the bean factory
+   * @param type type of bean to match
    * @return the Map of matching bean instances, or an empty Map if none
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see BeanFactory#getBeansOfType(Class)
    */
   public static <T> Map<String, T> beansOfTypeIncludingAncestors(
@@ -406,21 +359,14 @@ public abstract class BeanFactoryUtils {
    * 'replacing' beans by explicitly choosing the same bean name in a child factory;
    * the bean in the ancestor factory won't be visible then, not even for by-type lookups.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         type of bean to match
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   *
+   * @param lbf the bean factory
+   * @param type type of bean to match
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
    * @return the Map of matching bean instances, or an empty Map if none
-   *
-   * @throws BeansException
-   *         if a bean could not be created
+   * @throws BeansException if a bean could not be created
    * @see BeanFactory#getBeansOfType(Class, boolean, boolean)
    */
   public static <T> Map<String, T> beansOfTypeIncludingAncestors(
@@ -464,19 +410,12 @@ public abstract class BeanFactoryUtils {
    * 'replacing' beans by explicitly choosing the same bean name in a child factory;
    * the bean in the ancestor factory won't be visible then, not even for by-type lookups.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         type of bean to match
-   *
+   * @param lbf the bean factory
+   * @param type type of bean to match
    * @return the matching bean instance
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if no bean of the given type was found
-   * @throws NoUniqueBeanException
-   *         if more than one bean of the given type was found
-   * @throws BeansException
-   *         if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws BeansException if the bean could not be created
    * @see #beansOfTypeIncludingAncestors(BeanFactory, Class)
    */
   public static <T> T beanOfTypeIncludingAncestors(BeanFactory lbf, Class<T> type) throws BeansException {
@@ -500,25 +439,16 @@ public abstract class BeanFactoryUtils {
    * 'replacing' beans by explicitly choosing the same bean name in a child factory;
    * the bean in the ancestor factory won't be visible then, not even for by-type lookups.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         type of bean to match
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   *
+   * @param lbf the bean factory
+   * @param type type of bean to match
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
    * @return the matching bean instance
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if no bean of the given type was found
-   * @throws NoUniqueBeanException
-   *         if more than one bean of the given type was found
-   * @throws BeansException
-   *         if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws BeansException if the bean could not be created
    * @see #beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    */
   public static <T> T beanOfTypeIncludingAncestors(
@@ -540,19 +470,12 @@ public abstract class BeanFactoryUtils {
    * <p>This version of {@code beanOfType} automatically includes
    * prototypes and FactoryBeans.
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         type of bean to match
-   *
+   * @param lbf the bean factory
+   * @param type type of bean to match
    * @return the matching bean instance
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if no bean of the given type was found
-   * @throws NoUniqueBeanException
-   *         if more than one bean of the given type was found
-   * @throws BeansException
-   *         if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws BeansException if the bean could not be created
    * @see BeanFactory#getBeansOfType(Class)
    */
   public static <T> T beanOfType(BeanFactory lbf, Class<T> type) throws BeansException {
@@ -572,25 +495,16 @@ public abstract class BeanFactoryUtils {
    * only raw FactoryBeans will be checked (which doesn't require initialization
    * of each FactoryBean).
    *
-   * @param lbf
-   *         the bean factory
-   * @param type
-   *         type of bean to match
-   * @param includeNonSingletons
-   *         whether to include prototype or scoped beans too
-   *         or just singletons (also applies to FactoryBeans)
-   * @param includeNoneRegistered
-   *         whether to include singletons already in {@code singletons}
-   *         but not in {@code beanDefinitionMap}
-   *
+   * @param lbf the bean factory
+   * @param type type of bean to match
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered whether to include singletons already in {@code singletons}
+   * but not in {@code beanDefinitionMap}
    * @return the matching bean instance
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if no bean of the given type was found
-   * @throws NoUniqueBeanException
-   *         if more than one bean of the given type was found
-   * @throws BeansException
-   *         if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws BeansException if the bean could not be created
    * @see BeanFactory#getBeansOfType(Class, boolean, boolean)
    */
   public static <T> T beanOfType(
@@ -604,12 +518,9 @@ public abstract class BeanFactoryUtils {
   /**
    * Merge the given bean names result with the given parent result.
    *
-   * @param result
-   *         the local bean name result ,the merged result (possibly the local result as-is)
-   * @param parentResult
-   *         the parent bean name result (possibly empty)
-   * @param hbf
-   *         the local bean factory
+   * @param result the local bean name result ,the merged result (possibly the local result as-is)
+   * @param parentResult the parent bean name result (possibly empty)
+   * @param hbf the local bean factory
    */
   private static void mergeNamesWithParent(
           Set<String> result, Set<String> parentResult, HierarchicalBeanFactory hbf) {
@@ -625,17 +536,11 @@ public abstract class BeanFactoryUtils {
   /**
    * Extract a unique bean for the given type from the given Map of matching beans.
    *
-   * @param type
-   *         type of bean to match
-   * @param matchingBeans
-   *         all matching beans found
-   *
+   * @param type type of bean to match
+   * @param matchingBeans all matching beans found
    * @return the unique bean instance
-   *
-   * @throws NoSuchBeanDefinitionException
-   *         if no bean of the given type was found
-   * @throws NoUniqueBeanException
-   *         if more than one bean of the given type was found
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
    */
   private static <T> T uniqueBean(Class<T> type, Map<String, T> matchingBeans) {
     int count = matchingBeans.size();

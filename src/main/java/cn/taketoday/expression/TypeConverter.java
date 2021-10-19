@@ -93,15 +93,10 @@ public abstract class TypeConverter extends ExpressionResolver {
    * conversion.
    * </p>
    *
-   * @param context
-   *         The context of this evaluation.
-   * @param obj
-   *         The object to convert.
-   * @param targetType
-   *         The target type for the conversion.
-   *
-   * @throws ExpressionException
-   *         thrown if errors occur.
+   * @param context The context of this evaluation.
+   * @param obj The object to convert.
+   * @param targetType The target type for the conversion.
+   * @throws ExpressionException thrown if errors occur.
    */
   @Override
   abstract public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);

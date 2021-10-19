@@ -47,11 +47,8 @@ public abstract class DataSourceUtils {
   /**
    * Get jdbc Connection from {@link DataSource}
    *
-   * @param dataSource
-   *         the DataSource to obtain Connections from
-   *
+   * @param dataSource the DataSource to obtain Connections from
    * @return a JDBC Connection from the given DataSource
-   *
    * @see #releaseConnection
    */
   public static Connection getConnection(DataSource dataSource) {
@@ -61,11 +58,8 @@ public abstract class DataSourceUtils {
   /**
    * Get jdbc Connection from {@link DataSource}
    *
-   * @param dataSource
-   *         the DataSource to obtain Connections from
-   *
+   * @param dataSource the DataSource to obtain Connections from
    * @return a JDBC Connection from the given DataSource
-   *
    * @see #releaseConnection
    */
   public static Connection getConnection(
@@ -148,15 +142,10 @@ public abstract class DataSourceUtils {
    * defensively turning an unexpected {@code null} return value from
    * {@link DataSource#getConnection()} into an {@link IllegalStateException}.
    *
-   * @param dataSource
-   *         the DataSource to obtain Connections from
-   *
+   * @param dataSource the DataSource to obtain Connections from
    * @return a JDBC Connection from the given DataSource (never {@code null})
-   *
-   * @throws SQLException
-   *         if thrown by JDBC methods ,if a database access error occurs
-   * @throws java.sql.SQLTimeoutException
-   *         when the driver has determined that the
+   * @throws SQLException if thrown by JDBC methods ,if a database access error occurs
+   * @throws java.sql.SQLTimeoutException when the driver has determined that the
    * @see DataSource#getConnection()
    */
   public static Connection fetchConnection(DataSource dataSource) throws SQLException {
@@ -166,15 +155,10 @@ public abstract class DataSourceUtils {
   /**
    * Prepare the given Connection with the given transaction semantics.
    *
-   * @param con
-   *         the Connection to prepare
-   * @param definition
-   *         the transaction definition to apply
-   *
+   * @param con the Connection to prepare
+   * @param definition the transaction definition to apply
    * @return the previous isolation level, if any
-   *
-   * @throws SQLException
-   *         if thrown by JDBC methods
+   * @throws SQLException if thrown by JDBC methods
    * @see #resetConnectionAfterTransaction
    */
   public static Integer prepareConnectionForTransaction(
@@ -213,11 +197,8 @@ public abstract class DataSourceUtils {
    * Reset the given Connection after a transaction, regarding read-only flag and
    * isolation level.
    *
-   * @param con
-   *         the Connection to reset
-   * @param previousIsolationLevel
-   *         the isolation level to restore, if any
-   *
+   * @param con the Connection to reset
+   * @param previousIsolationLevel the isolation level to restore, if any
    * @see #prepareConnectionForTransaction
    */
   public static void resetConnectionAfterTransaction(Connection con, Integer previousIsolationLevel) {
@@ -249,12 +230,9 @@ public abstract class DataSourceUtils {
    * Determine whether the given JDBC Connection is transactional, that is, bound
    * to the current thread.
    *
-   * @param con
-   *         the Connection to check
-   * @param dataSource
-   *         the DataSource that the Connection was obtained from (may be
-   *         {@code null})
-   *
+   * @param con the Connection to check
+   * @param dataSource the DataSource that the Connection was obtained from (may be
+   * {@code null})
    * @return whether the Connection is transactional
    */
   public static boolean isConnectionTransactional(Connection con, DataSource dataSource) {
@@ -269,13 +247,9 @@ public abstract class DataSourceUtils {
    * Apply the current transaction timeout, if any, to the given JDBC Statement
    * object.
    *
-   * @param stmt
-   *         the JDBC Statement object
-   * @param dataSource
-   *         the DataSource that the Connection was obtained from
-   *
-   * @throws SQLException
-   *         if thrown by JDBC methods
+   * @param stmt the JDBC Statement object
+   * @param dataSource the DataSource that the Connection was obtained from
+   * @throws SQLException if thrown by JDBC methods
    * @see java.sql.Statement#setQueryTimeout
    */
   public static void applyTransactionTimeout(Statement stmt, DataSource dataSource) throws SQLException {
@@ -286,16 +260,11 @@ public abstract class DataSourceUtils {
    * Apply the specified timeout - overridden by the current transaction timeout,
    * if any - to the given JDBC Statement object.
    *
-   * @param stmt
-   *         the JDBC Statement object
-   * @param dataSource
-   *         the DataSource that the Connection was obtained from
-   * @param timeout
-   *         the timeout to apply (or 0 for no timeout outside of a
-   *         transaction)
-   *
-   * @throws SQLException
-   *         if thrown by JDBC methods
+   * @param stmt the JDBC Statement object
+   * @param dataSource the DataSource that the Connection was obtained from
+   * @param timeout the timeout to apply (or 0 for no timeout outside of a
+   * transaction)
+   * @throws SQLException if thrown by JDBC methods
    * @see java.sql.Statement#setQueryTimeout
    */
   public static void applyTimeout(Statement stmt, DataSource dataSource, Integer timeout) throws SQLException {
@@ -319,13 +288,10 @@ public abstract class DataSourceUtils {
    * Close the given Connection, obtained from the given DataSource, if it is not
    * managed externally (that is, not bound to the thread).
    *
-   * @param con
-   *         the Connection to close if necessary (if this is {@code null}, the
-   *         call will be ignored)
-   * @param dataSource
-   *         the DataSource that the Connection was obtained from (may be
-   *         {@code null})
-   *
+   * @param con the Connection to close if necessary (if this is {@code null}, the
+   * call will be ignored)
+   * @param dataSource the DataSource that the Connection was obtained from (may be
+   * {@code null})
    * @see #getConnection
    */
   public static void releaseConnection(Connection con, DataSource dataSource) {
@@ -345,15 +311,11 @@ public abstract class DataSourceUtils {
    * as {@link #releaseConnection}, but throwing the original SQLException.
    * <p>
    *
-   * @param con
-   *         the Connection to close if necessary (if this is {@code null}, the
-   *         call will be ignored)
-   * @param dataSource
-   *         the DataSource that the Connection was obtained from (may be
-   *         {@code null})
-   *
-   * @throws SQLException
-   *         if thrown by JDBC methods
+   * @param con the Connection to close if necessary (if this is {@code null}, the
+   * call will be ignored)
+   * @param dataSource the DataSource that the Connection was obtained from (may be
+   * {@code null})
+   * @throws SQLException if thrown by JDBC methods
    * @see #doGetConnection
    */
   public static void doReleaseConnection(Connection con, DataSource dataSource) throws SQLException {
@@ -378,12 +340,9 @@ public abstract class DataSourceUtils {
    * Connection in case of a proxy. Used to detect equality even if the user
    * passed in a raw target Connection while the held one is a proxy.
    *
-   * @param conHolder
-   *         the ConnectionHolder for the held Connection (potentially a proxy)
-   * @param passedInCon
-   *         the Connection passed-in by the user (potentially a target
-   *         Connection without proxy)
-   *
+   * @param conHolder the ConnectionHolder for the held Connection (potentially a proxy)
+   * @param passedInCon the Connection passed-in by the user (potentially a target
+   * Connection without proxy)
    * @return whether the given Connections are equal
    */
   private static boolean connectionEquals(ConnectionHolder conHolder, Connection passedInCon) {

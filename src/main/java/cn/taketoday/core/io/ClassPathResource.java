@@ -54,9 +54,7 @@ public class ClassPathResource implements Resource, WritableResource {
    * <p>The thread context class loader will be used for
    * loading the resource.
    *
-   * @param location
-   *         the absolute path within the class path
-   *
+   * @param location the absolute path within the class path
    * @see java.lang.ClassLoader#getResourceAsStream(String)
    * @see ClassUtils#getDefaultClassLoader() ()
    */
@@ -69,12 +67,9 @@ public class ClassPathResource implements Resource, WritableResource {
    * A leading slash will be removed, as the ClassLoader resource access
    * methods will not accept it.
    *
-   * @param path
-   *         the absolute path within the classpath
-   * @param classLoader
-   *         the class loader to load the resource with,
-   *         or {@code null} for the thread context class loader
-   *
+   * @param path the absolute path within the classpath
+   * @param classLoader the class loader to load the resource with,
+   * or {@code null} for the thread context class loader
    * @see ClassLoader#getResourceAsStream(String)
    */
   public ClassPathResource(String path, ClassLoader classLoader) {
@@ -92,11 +87,8 @@ public class ClassPathResource implements Resource, WritableResource {
    * The path can be relative to the given class, or absolute within
    * the classpath via a leading slash.
    *
-   * @param path
-   *         relative or absolute path within the class path
-   * @param clazz
-   *         the class to load resources with
-   *
+   * @param path relative or absolute path within the class path
+   * @param clazz the class to load resources with
    * @see java.lang.Class#getResourceAsStream
    */
   public ClassPathResource(String path, Class<?> clazz) {

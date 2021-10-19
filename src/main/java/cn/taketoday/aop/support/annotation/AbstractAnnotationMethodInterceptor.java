@@ -114,12 +114,9 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
   /**
    * Invoke advice method
    *
-   * @param inv
-   *         Target method invocation
-   * @param returnValue
-   *         Target method return value
-   * @param throwable
-   *         Target method throws {@link Exception}
+   * @param inv Target method invocation
+   * @param returnValue Target method return value
+   * @param throwable Target method throws {@link Exception}
    */
   protected Object invokeAdviceMethod(
           final MethodInvocation inv, final Object returnValue, Throwable throwable
@@ -237,11 +234,8 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
   /**
    * Resolve an annotation
    *
-   * @param methodInvocation
-   *         The join point
-   * @param annotationClass
-   *         Given annotation class
-   *
+   * @param methodInvocation The join point
+   * @param annotationClass Given annotation class
    * @return Annotation
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })

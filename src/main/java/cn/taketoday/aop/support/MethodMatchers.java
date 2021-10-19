@@ -51,11 +51,8 @@ public abstract class MethodMatchers {
   /**
    * Match all methods that <i>either</i> (or both) of the given MethodMatchers matches.
    *
-   * @param mm1
-   *         the first MethodMatcher
-   * @param mm2
-   *         the second MethodMatcher
-   *
+   * @param mm1 the first MethodMatcher
+   * @param mm2 the second MethodMatcher
    * @return a distinct MethodMatcher that matches all methods that either
    * of the given MethodMatchers matches
    */
@@ -68,15 +65,10 @@ public abstract class MethodMatchers {
   /**
    * Match all methods that <i>either</i> (or both) of the given MethodMatchers matches.
    *
-   * @param mm1
-   *         the first MethodMatcher
-   * @param cf1
-   *         the corresponding ClassFilter for the first MethodMatcher
-   * @param mm2
-   *         the second MethodMatcher
-   * @param cf2
-   *         the corresponding ClassFilter for the second MethodMatcher
-   *
+   * @param mm1 the first MethodMatcher
+   * @param cf1 the corresponding ClassFilter for the first MethodMatcher
+   * @param mm2 the second MethodMatcher
+   * @param cf2 the corresponding ClassFilter for the second MethodMatcher
    * @return a distinct MethodMatcher that matches all methods that either
    * of the given MethodMatchers matches
    */
@@ -89,11 +81,8 @@ public abstract class MethodMatchers {
   /**
    * Match all methods that <i>both</i> of the given MethodMatchers match.
    *
-   * @param mm1
-   *         the first MethodMatcher
-   * @param mm2
-   *         the second MethodMatcher
-   *
+   * @param mm1 the first MethodMatcher
+   * @param mm2 the second MethodMatcher
    * @return a distinct MethodMatcher that matches all methods that both
    * of the given MethodMatchers match
    */
@@ -107,16 +96,11 @@ public abstract class MethodMatchers {
    * {@link IntroductionAwareMethodMatcher}
    * (if applicable).
    *
-   * @param mm
-   *         the MethodMatcher to apply (may be an IntroductionAwareMethodMatcher)
-   * @param method
-   *         the candidate method
-   * @param targetClass
-   *         the target class
-   * @param hasIntroductions
-   *         {@code true} if the object on whose behalf we are
-   *         asking is the subject on one or more introductions; {@code false} otherwise
-   *
+   * @param mm the MethodMatcher to apply (may be an IntroductionAwareMethodMatcher)
+   * @param method the candidate method
+   * @param targetClass the target class
+   * @param hasIntroductions {@code true} if the object on whose behalf we are
+   * asking is the subject on one or more introductions; {@code false} otherwise
    * @return whether or not this method matches statically
    */
   public static boolean matches(MethodMatcher mm, Method method, Class<?> targetClass, boolean hasIntroductions) {

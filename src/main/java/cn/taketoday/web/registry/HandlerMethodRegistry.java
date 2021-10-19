@@ -127,9 +127,7 @@ public class HandlerMethodRegistry
   /**
    * Whether the given type is a handler with handler methods.
    *
-   * @param def
-   *         the definition of the bean being checked
-   *
+   * @param def the definition of the bean being checked
    * @return "true" if this a handler type, "false" otherwise.
    */
   protected boolean isController(BeanDefinition def) {
@@ -144,9 +142,7 @@ public class HandlerMethodRegistry
   }
 
   /**
-   * @param def
-   *         the definition of the bean
-   *
+   * @param def the definition of the bean
    * @since 3.0.3
    */
   public void buildHandlerMethod(BeanDefinition def) {
@@ -159,12 +155,9 @@ public class HandlerMethodRegistry
   /**
    * Set Action Mapping
    *
-   * @param beanClass
-   *         Controller
-   * @param method
-   *         Action or Handler
-   * @param controllerMapping
-   *         find mapping on class
+   * @param beanClass Controller
+   * @param method Action or Handler
+   * @param controllerMapping find mapping on class
    */
   protected void buildHandlerMethod(Method method,
                                     Class<?> beanClass,
@@ -184,11 +177,9 @@ public class HandlerMethodRegistry
   /**
    * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
    *
-   * @param handler
-   *         current {@link HandlerMethod}
-   *         methods on class
-   * @param annotationAttributes
-   *         {@link ActionMapping} Attributes, never be null
+   * @param handler current {@link HandlerMethod}
+   * methods on class
+   * @param annotationAttributes {@link ActionMapping} Attributes, never be null
    */
   protected void mappingHandlerMethod(HandlerMethod handler,
                                       AnnotationAttributes controllerMapping,
@@ -238,13 +229,9 @@ public class HandlerMethodRegistry
   /**
    * Mapping to {@link HandlerMethodRegistry}
    *
-   * @param handlerMethod
-   *         {@link HandlerMethod}
-   * @param path
-   *         Request path
-   * @param requestMethod
-   *         HTTP request method
-   *
+   * @param handlerMethod {@link HandlerMethod}
+   * @param path Request path
+   * @param requestMethod HTTP request method
    * @see HttpMethod
    */
   private void mappingHandlerMethod(String path, HttpMethod requestMethod, HandlerMethod handlerMethod) {
@@ -285,11 +272,8 @@ public class HandlerMethodRegistry
   /**
    * Transform {@link HandlerMethod} if path contains {@link PathVariable}
    *
-   * @param pathPattern
-   *         path pattern
-   * @param handler
-   *         Target {@link HandlerMethod}
-   *
+   * @param pathPattern path pattern
+   * @param handler Target {@link HandlerMethod}
    * @return Transformed {@link HandlerMethod}
    */
   protected HandlerMethod transformHandlerMethod(String pathPattern, HandlerMethod handler) {
@@ -304,9 +288,7 @@ public class HandlerMethodRegistry
   /**
    * contains {@link PathVariable} char: '{' and '}'
    *
-   * @param path
-   *         handler key
-   *
+   * @param path handler key
    * @return If contains '{' and '}'
    */
   public static boolean containsPathVariable(String path) {
@@ -340,11 +322,8 @@ public class HandlerMethodRegistry
   /**
    * Create {@link HandlerMethod}.
    *
-   * @param beanClass
-   *         Controller class
-   * @param method
-   *         Action or Handler
-   *
+   * @param beanClass Controller class
+   * @param method Action or Handler
    * @return A new {@link HandlerMethod}
    */
   protected HandlerMethod createHandlerMethod(Class<?> beanClass, Method method) {
@@ -360,11 +339,8 @@ public class HandlerMethodRegistry
   /**
    * Create a handler bean instance
    *
-   * @param beanClass
-   *         Target bean class
-   * @param beanFactory
-   *         {@link ConfigurableBeanFactory}
-   *
+   * @param beanClass Target bean class
+   * @param beanFactory {@link ConfigurableBeanFactory}
    * @return Returns a handler bean of target beanClass
    */
   protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
@@ -377,11 +353,8 @@ public class HandlerMethodRegistry
   /**
    * Get list of intercepters.
    *
-   * @param controllerClass
-   *         controller class
-   * @param action
-   *         method
-   *
+   * @param controllerClass controller class
+   * @param action method
    * @return List of {@link HandlerInterceptor} objects
    */
   protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {

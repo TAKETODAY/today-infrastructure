@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Field;
+
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -33,8 +35,6 @@ import cn.taketoday.lang.Required;
 import cn.taketoday.lang.Value;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Field;
 
 /**
  * Resolve {@link Value} and {@link Env} annotation property.

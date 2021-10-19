@@ -40,12 +40,9 @@ public class CheckRecordComponentAdapter extends RecordComponentVisitor {
   /**
    * Constructs a new {@link CheckRecordComponentAdapter}.
    *
-   * @param recordComponentVisitor
-   *         the record component visitor to which this adapter must delegate
-   *         calls.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
+   * @param recordComponentVisitor the record component visitor to which this adapter must delegate
+   * calls.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckRecordComponentAdapter(final RecordComponentVisitor recordComponentVisitor) {
     super(recordComponentVisitor);

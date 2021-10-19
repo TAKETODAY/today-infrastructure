@@ -74,12 +74,9 @@ public interface TransactionSynchronization extends Flushable {
    * Note that exceptions will get propagated to the commit caller and cause a
    * rollback of the transaction.
    *
-   * @param readOnly
-   *         whether the transaction is defined as read-only transaction
-   *
-   * @throws RuntimeException
-   *         in case of errors; will be <b>propagated to the caller</b> (note:
-   *         do not throw TransactionException subclasses here!)
+   * @param readOnly whether the transaction is defined as read-only transaction
+   * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b> (note:
+   * do not throw TransactionException subclasses here!)
    * @see #beforeCompletion
    */
   default void beforeCommit(SynchronizationMetaData metaData, boolean readOnly) { }
@@ -92,9 +89,8 @@ public interface TransactionSynchronization extends Flushable {
    * {@code beforeCommit} threw an exception. This callback allows for closing
    * resources before transaction completion, for any outcome.
    *
-   * @throws RuntimeException
-   *         in case of errors; will be <b>logged but not propagated</b>
-   *         (note: do not throw TransactionException subclasses here!)
+   * @throws RuntimeException in case of errors; will be <b>logged but not propagated</b>
+   * (note: do not throw TransactionException subclasses here!)
    * @see #beforeCommit
    * @see #afterCompletion
    */
@@ -117,9 +113,8 @@ public interface TransactionSynchronization extends Flushable {
    * {@code PROPAGATION_REQUIRES_NEW} for any transactional operation that is
    * called from here.</b>
    *
-   * @throws RuntimeException
-   *         in case of errors; will be <b>propagated to the caller</b> (note:
-   *         do not throw TransactionException subclasses here!)
+   * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b> (note:
+   * do not throw TransactionException subclasses here!)
    */
   default void afterCommit(SynchronizationMetaData metaData) { }
 

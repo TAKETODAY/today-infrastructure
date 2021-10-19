@@ -55,8 +55,7 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
   /**
    * Put cache operation
    *
-   * @param invocation
-   *         the method invocation join-point
+   * @param invocation the method invocation join-point
    */
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {

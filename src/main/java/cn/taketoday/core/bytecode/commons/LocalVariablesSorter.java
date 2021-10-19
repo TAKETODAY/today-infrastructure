@@ -72,15 +72,10 @@ public class LocalVariablesSorter extends MethodVisitor {
   /**
    * Constructs a new {@link LocalVariablesSorter}.
    *
-   * @param access
-   *         access flags of the adapted method.
-   * @param descriptor
-   *         the method's descriptor (see {@link Type}).
-   * @param methodVisitor
-   *         the method visitor to which this adapter delegates calls.
-   *
-   * @throws IllegalStateException
-   *         if a subclass calls this constructor.
+   * @param access access flags of the adapted method.
+   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param methodVisitor the method visitor to which this adapter delegates calls.
+   * @throws IllegalStateException if a subclass calls this constructor.
    */
   public LocalVariablesSorter(
           final int access, final String descriptor, final MethodVisitor methodVisitor) {
@@ -261,9 +256,7 @@ public class LocalVariablesSorter extends MethodVisitor {
   /**
    * Constructs a new local variable of the given type.
    *
-   * @param type
-   *         the type of the local variable to be created.
-   *
+   * @param type the type of the local variable to be created.
    * @return the identifier of the newly created local variable.
    */
   public int newLocalIndex(final Type type) {
@@ -309,11 +302,10 @@ public class LocalVariablesSorter extends MethodVisitor {
    * one, for instance if a local variable is added in the middle of a try/catch block: the frame
    * for the exception handler should have a TOP type for this new local.
    *
-   * @param newLocals
-   *         the stack map frame types corresponding to the local variables added with
-   *         {@link #newLocalIndex} (and null for the others). The format of this array is the same as in
-   *         {@link MethodVisitor#visitFrame}, except that long and double types use two slots. The
-   *         types for the current stack map frame must be updated in place in this array.
+   * @param newLocals the stack map frame types corresponding to the local variables added with
+   * {@link #newLocalIndex} (and null for the others). The format of this array is the same as in
+   * {@link MethodVisitor#visitFrame}, except that long and double types use two slots. The
+   * types for the current stack map frame must be updated in place in this array.
    */
   protected void updateNewLocals(final Object[] newLocals) {
     // The default implementation does nothing.
@@ -323,10 +315,8 @@ public class LocalVariablesSorter extends MethodVisitor {
    * Notifies subclasses that a local variable has been added or remapped. The default
    * implementation of this method does nothing.
    *
-   * @param local
-   *         a local variable identifier, as returned by {@link #newLocalIndex}.
-   * @param type
-   *         the type of the value being stored in the local variable.
+   * @param local a local variable identifier, as returned by {@link #newLocalIndex}.
+   * @param type the type of the value being stored in the local variable.
    */
   protected void setLocalType(final int local, final Type type) {
     // The default implementation does nothing.

@@ -51,9 +51,7 @@ public class ConditionEvaluator {
   /**
    * Decide whether to load the bean
    *
-   * @param annotated
-   *         Target class or a method
-   *
+   * @param annotated Target class or a method
    * @return If matched
    */
   public boolean passCondition(final AnnotatedElement annotated) {

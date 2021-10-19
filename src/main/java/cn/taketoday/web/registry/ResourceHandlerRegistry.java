@@ -133,11 +133,8 @@ public class ResourceHandlerRegistry
   /**
    * Get request path
    *
-   * @param requestURI
-   *         Current requestURI
-   * @param length
-   *         context path length
-   *
+   * @param requestURI Current requestURI
+   * @param length context path length
    * @return Decoded request path
    */
   protected String requestPath(final String requestURI, final int length) {

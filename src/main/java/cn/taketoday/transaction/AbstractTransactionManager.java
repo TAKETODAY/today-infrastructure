@@ -493,11 +493,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * to this manager's default timeout if the transaction definition doesn't
    * specify a non-default value.
    *
-   * @param definition
-   *         the transaction definition
-   *
+   * @param definition the transaction definition
    * @return the actual timeout to use
-   *
    * @see TransactionDefinition#getTimeout()
    * @see #setDefaultTimeout
    */
@@ -512,13 +509,10 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Suspend the given transaction. Suspends transaction synchronization first,
    * then delegates to the {@code doSuspend} template method.
    *
-   * @param transaction
-   *         the current transaction object (or {@code null} to just suspend
-   *         active synchronizations, if any)
-   *
+   * @param transaction the current transaction object (or {@code null} to just suspend
+   * active synchronizations, if any)
    * @return an object that holds suspended resources (or {@code null} if neither
    * transaction nor synchronization active)
-   *
    * @see #doSuspend
    * @see #resume
    */
@@ -573,13 +567,10 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Resume the given transaction. Delegates to the {@code doResume} template
    * method first, then resuming transaction synchronization.
    *
-   * @param transaction
-   *         the current transaction object
-   * @param resourcesHolder
-   *         the object that holds suspended resources, as returned by
-   *         {@code suspend} (or {@code null} to just resume synchronizations,
-   *         if any)
-   *
+   * @param transaction the current transaction object
+   * @param resourcesHolder the object that holds suspended resources, as returned by
+   * {@code suspend} (or {@code null} to just resume synchronizations,
+   * if any)
    * @see #doResume
    * @see #suspend
    */
@@ -640,8 +631,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Reactivate transaction synchronization for the current thread and resume all
    * given synchronizations.
    *
-   * @param suspendedSynchronizations
-   *         List of TransactionSynchronization objects
+   * @param suspendedSynchronizations List of TransactionSynchronization objects
    */
   private void doResumeSynchronization(
           final SynchronizationMetaData metaData,
@@ -684,11 +674,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Process an actual commit. Rollback-only flags have already been checked and
    * applied.
    *
-   * @param status
-   *         object representing the transaction
-   *
-   * @throws TransactionException
-   *         in case of commit failure
+   * @param status object representing the transaction
+   * @throws TransactionException in case of commit failure
    */
   private void processCommit(DefaultTransactionStatus status) throws TransactionException {
 
@@ -779,11 +766,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Process an actual rollback. The completed flag has already been checked.
    *
-   * @param status
-   *         object representing the transaction
-   *
-   * @throws TransactionException
-   *         in case of rollback failure
+   * @param status object representing the transaction
+   * @throws TransactionException in case of rollback failure
    */
   private void processRollback(DefaultTransactionStatus status, boolean unexpected) {
     final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
@@ -845,13 +829,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Invoke {@code doRollback}, handling rollback exceptions properly.
    *
-   * @param status
-   *         object representing the transaction
-   * @param ex
-   *         the thrown application exception or error
-   *
-   * @throws TransactionException
-   *         in case of rollback failure
+   * @param status object representing the transaction
+   * @param ex the thrown application exception or error
+   * @throws TransactionException in case of rollback failure
    * @see #doRollback
    */
   private void doRollbackOnCommitException(
@@ -882,8 +862,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Trigger {@code beforeCommit} callbacks.
    *
-   * @param status
-   *         object representing the transaction
+   * @param status object representing the transaction
    */
   protected void triggerBeforeCommit(final SynchronizationMetaData metaData, DefaultTransactionStatus status) {
     if (status.isNewSynchronization()) {
@@ -897,8 +876,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Trigger {@code beforeCompletion} callbacks.
    *
-   * @param status
-   *         object representing the transaction
+   * @param status object representing the transaction
    */
   protected void triggerBeforeCompletion(final SynchronizationMetaData metaData, DefaultTransactionStatus status) {
     if (status.isNewSynchronization()) {
@@ -912,8 +890,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Trigger {@code afterCommit} callbacks.
    *
-   * @param status
-   *         object representing the transaction
+   * @param status object representing the transaction
    */
   private void triggerAfterCommit(final SynchronizationMetaData metaData, DefaultTransactionStatus status) {
     if (status.isNewSynchronization()) {
@@ -927,11 +904,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Trigger {@code afterCompletion} callbacks.
    *
-   * @param status
-   *         object representing the transaction
-   * @param completionStatus
-   *         completion status according to TransactionSynchronization
-   *         constants
+   * @param status object representing the transaction
+   * @param completionStatus completion status according to TransactionSynchronization
+   * constants
    */
   private void triggerAfterCompletion(
           final SynchronizationMetaData metaData,
@@ -966,12 +941,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * To be called by this abstract manager itself, or by special implementations
    * of the {@code registerAfterCompletionWithExistingTransaction} callback.
    *
-   * @param syncs
-   *         List of TransactionSynchronization objects
-   * @param completionStatus
-   *         the completion status according to the constants in the
-   *         TransactionSynchronization interface
-   *
+   * @param syncs List of TransactionSynchronization objects
+   * @param completionStatus the completion status according to the constants in the
+   * TransactionSynchronization interface
    * @see TransactionSynchronization#STATUS_COMMITTED
    * @see TransactionSynchronization#STATUS_ROLLED_BACK
    * @see TransactionSynchronization#STATUS_UNKNOWN
@@ -986,9 +958,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Clean up after completion, clearing synchronization if necessary, and
    * invoking doCleanupAfterCompletion.
    *
-   * @param status
-   *         object representing the transaction
-   *
+   * @param status object representing the transaction
    * @see #doCleanupAfterCompletion
    */
   private void cleanupAfterCompletion(final SynchronizationMetaData metaData, DefaultTransactionStatus status) {
@@ -1028,11 +998,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * transaction and store corresponding state in the returned transaction object.
    *
    * @return the current transaction object
-   *
-   * @throws CannotCreateTransactionException
-   *         if transaction support is not available
-   * @throws TransactionException
-   *         in case of lookup or system errors
+   * @throws CannotCreateTransactionException if transaction support is not available
+   * @throws TransactionException in case of lookup or system errors
    * @see #doBegin
    * @see #doCommit
    * @see #doRollback
@@ -1053,13 +1020,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * in existing transactions is generally not supported. Subclasses are of course
    * encouraged to provide such support.
    *
-   * @param transaction
-   *         transaction object returned by doGetTransaction
-   *
+   * @param transaction transaction object returned by doGetTransaction
    * @return if there is an existing transaction
-   *
-   * @throws TransactionException
-   *         in case of system errors
+   * @throws TransactionException in case of system errors
    * @see #doGetTransaction
    */
   protected boolean isExistingTransaction(Object transaction) throws TransactionException {
@@ -1105,14 +1068,10 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * there will be an active transaction: The implementation of this method has to
    * detect this and start an appropriate nested transaction.
    *
-   * @param transaction
-   *         transaction object returned by {@code doGetTransaction}
-   * @param definition
-   *         TransactionDefinition instance, describing propagation behavior,
-   *         isolation level, read-only flag, timeout, and transaction name
-   *
-   * @throws TransactionException
-   *         in case of creation or system errors
+   * @param transaction transaction object returned by {@code doGetTransaction}
+   * @param definition TransactionDefinition instance, describing propagation behavior,
+   * isolation level, read-only flag, timeout, and transaction name
+   * @throws TransactionException in case of creation or system errors
    */
   protected abstract void doBegin(
           SynchronizationMetaData metaData,
@@ -1126,17 +1085,12 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * TransactionSuspensionNotSupportedException, assuming that transaction
    * suspension is generally not supported.
    *
-   * @param transaction
-   *         transaction object returned by {@code doGetTransaction}
-   *
+   * @param transaction transaction object returned by {@code doGetTransaction}
    * @return an object that holds suspended resources (will be kept unexamined for
    * passing it into doResume)
-   *
-   * @throws TransactionException
-   *         if suspending is not supported by the transaction manager
-   *         implementation
-   * @throws TransactionException
-   *         in case of system errors
+   * @throws TransactionException if suspending is not supported by the transaction manager
+   * implementation
+   * @throws TransactionException in case of system errors
    * @see #doResume
    */
   protected Object doSuspend(final SynchronizationMetaData metaData, final Object transaction) {
@@ -1152,15 +1106,11 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * TransactionSuspensionNotSupportedException, assuming that transaction
    * suspension is generally not supported.
    *
-   * @param transaction
-   *         transaction object returned by {@code doGetTransaction}
-   * @param suspendedResources
-   *         the object that holds suspended resources, as returned by
-   *         doSuspend
-   *
-   * @throws TransactionException
-   *         if resuming is not supported by the transaction manager
-   *         implementation
+   * @param transaction transaction object returned by {@code doGetTransaction}
+   * @param suspendedResources the object that holds suspended resources, as returned by
+   * doSuspend
+   * @throws TransactionException if resuming is not supported by the transaction manager
+   * implementation
    * @see #doSuspend
    */
   protected void doResume(
@@ -1217,12 +1167,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Note that exceptions will get propagated to the commit caller and cause a
    * rollback of the transaction.
    *
-   * @param status
-   *         the status representation of the transaction
-   *
-   * @throws RuntimeException
-   *         in case of errors; will be <b>propagated to the caller</b> (note:
-   *         do not throw TransactionException subclasses here!)
+   * @param status the status representation of the transaction
+   * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b> (note:
+   * do not throw TransactionException subclasses here!)
    */
   protected void prepareForCommit(SynchronizationMetaData metaData, DefaultTransactionStatus status) { }
 
@@ -1234,11 +1181,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * straight commit will be performed on the transaction object contained in the
    * passed-in status.
    *
-   * @param status
-   *         the status representation of the transaction
-   *
-   * @throws TransactionException
-   *         in case of commit or system errors
+   * @param status the status representation of the transaction
+   * @throws TransactionException in case of commit or system errors
    * @see DefaultTransactionStatus#getTransaction
    */
   protected abstract void doCommit(
@@ -1251,11 +1195,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * will already have been handled before. Usually, a straight rollback will be
    * performed on the transaction object contained in the passed-in status.
    *
-   * @param status
-   *         the status representation of the transaction
-   *
-   * @throws TransactionException
-   *         in case of system errors
+   * @param status the status representation of the transaction
+   * @throws TransactionException in case of system errors
    * @see DefaultTransactionStatus#getTransaction
    */
   protected abstract void doRollback(
@@ -1269,11 +1210,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * participating in existing transactions is generally not supported. Subclasses
    * are of course encouraged to provide such support.
    *
-   * @param status
-   *         the status representation of the transaction
-   *
-   * @throws TransactionException
-   *         in case of system errors
+   * @param status the status representation of the transaction
+   * @throws TransactionException in case of system errors
    */
   protected void doSetRollbackOnly(
           SynchronizationMetaData metaData, DefaultTransactionStatus status) throws TransactionException {
@@ -1295,13 +1233,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * immediately, passing in "STATUS_UNKNOWN". This is the best we can do if
    * there's no chance to determine the actual outcome of the outer transaction.
    *
-   * @param transaction
-   *         transaction object returned by {@code doGetTransaction}
-   * @param syncs
-   *         List of TransactionSynchronization objects
-   *
-   * @throws TransactionException
-   *         in case of system errors
+   * @param transaction transaction object returned by {@code doGetTransaction}
+   * @param syncs List of TransactionSynchronization objects
+   * @throws TransactionException in case of system errors
    * @see #invokeAfterCompletion(SynchronizationMetaData, List, int)
    * @see TransactionSynchronization#afterCompletion(SynchronizationMetaData, int)
    * @see TransactionSynchronization#STATUS_UNKNOWN
@@ -1320,8 +1254,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * <p>
    * Should not throw any exceptions but just issue warnings on errors.
    *
-   * @param transaction
-   *         transaction object returned by {@code doGetTransaction}
+   * @param transaction transaction object returned by {@code doGetTransaction}
    */
   protected void doCleanupAfterCompletion(final SynchronizationMetaData metaData, Object transaction) { }
 

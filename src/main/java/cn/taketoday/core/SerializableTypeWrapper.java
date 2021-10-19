@@ -80,9 +80,7 @@ final class SerializableTypeWrapper {
   /**
    * Unwrap the given type, effectively returning the original non-serializable type.
    *
-   * @param type
-   *         the type to unwrap
-   *
+   * @param type the type to unwrap
    * @return the original non-serializable type
    */
   @SuppressWarnings("unchecked")

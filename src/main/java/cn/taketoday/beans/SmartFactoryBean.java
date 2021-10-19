@@ -39,9 +39,7 @@ import cn.taketoday.beans.factory.AbstractBeanFactory;
  * the plain {@link FactoryBean} interface. New methods might be added
  * to this extended interface even in point releases.
  *
- * @param <T>
- *         the bean type
- *
+ * @param <T> the bean type
  * @author Juergen Hoeller
  * @author TODAY 2021/3/9 14:06
  * @since 3.0
@@ -62,7 +60,6 @@ public interface SmartFactoryBean<T> extends FactoryBean<T> {
    * <p>The default implementation returns {@code false}.
    *
    * @return whether eager initialization applies
-   *
    * @see AbstractBeanFactory#initializeSingletons()
    */
   default boolean isEagerInit() {

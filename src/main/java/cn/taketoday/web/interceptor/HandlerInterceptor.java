@@ -41,15 +41,10 @@ public interface HandlerInterceptor {
   /**
    * Before Handler process.
    *
-   * @param context
-   *         Current request Context
-   * @param handler
-   *         Request handler
-   *
+   * @param context Current request Context
+   * @param handler Request handler
    * @return If is it possible to execute the target handler
-   *
-   * @throws Throwable
-   *         If any exception occurred
+   * @throws Throwable If any exception occurred
    */
   default boolean beforeProcess(RequestContext context, Object handler) throws Throwable {
     return true;
@@ -58,15 +53,10 @@ public interface HandlerInterceptor {
   /**
    * After Handler processed.
    *
-   * @param context
-   *         Current request Context
-   * @param handler
-   *         Request handler
-   * @param result
-   *         Handler returned value
-   *
-   * @throws Throwable
-   *         If any exception occurred
+   * @param context Current request Context
+   * @param handler Request handler
+   * @param result Handler returned value
+   * @throws Throwable If any exception occurred
    */
   default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable { }
 
@@ -74,7 +64,6 @@ public interface HandlerInterceptor {
    * handler's interceptor intercept entrance
    *
    * @return return value is target handler's result
-   *
    * @since 4.0
    */
   default Object intercept(RequestContext context, Object handler, InterceptorChain chain) throws Throwable {

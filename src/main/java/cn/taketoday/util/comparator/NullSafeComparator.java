@@ -29,9 +29,7 @@ import cn.taketoday.lang.Nullable;
  * A Comparator that will safely compare nulls to be lower or higher than
  * other objects. Can decorate a given Comparator or work on Comparables.
  *
- * @param <T>
- *         the type of objects that may be compared by this comparator
- *
+ * @param <T> the type of objects that may be compared by this comparator
  * @author Keith Donald
  * @author Juergen Hoeller
  * @see Comparable
@@ -71,9 +69,7 @@ public class NullSafeComparator<T> implements Comparator<T> {
    * {@code NullSafeComparator.NULLS_LOW} and
    * {@code NullSafeComparator.NULLS_HIGH}.
    *
-   * @param nullsLow
-   *         whether to treat nulls lower or higher than non-null objects
-   *
+   * @param nullsLow whether to treat nulls lower or higher than non-null objects
    * @see Comparable
    * @see #NULLS_LOW
    * @see #NULLS_HIGH
@@ -91,10 +87,8 @@ public class NullSafeComparator<T> implements Comparator<T> {
    * The given underlying Comparator must be able to handle the elements that this
    * Comparator will be applied to.
    *
-   * @param comparator
-   *         the comparator to use when comparing two non-null objects
-   * @param nullsLow
-   *         whether to treat nulls lower or higher than non-null objects
+   * @param comparator the comparator to use when comparing two non-null objects
+   * @param nullsLow whether to treat nulls lower or higher than non-null objects
    */
   public NullSafeComparator(Comparator<T> comparator, boolean nullsLow) {
     Assert.notNull(comparator, "Non-null Comparator is required");
