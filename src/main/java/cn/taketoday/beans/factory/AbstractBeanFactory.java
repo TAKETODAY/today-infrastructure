@@ -76,7 +76,7 @@ public abstract class AbstractBeanFactory
   /** dependencies */
   private final HashSet<BeanReferencePropertySetter> dependencies = new HashSet<>(128);
   /** Bean Post Processors */
-  private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
+  protected final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   // @since 2.1.6
@@ -85,7 +85,7 @@ public abstract class AbstractBeanFactory
   private boolean fullLifecycle = false;
 
   /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
-  private boolean hasInstantiationAwareBeanPostProcessors;
+  protected boolean hasInstantiationAwareBeanPostProcessors;
   /** @since 4.0 */
   private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
 

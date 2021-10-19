@@ -84,6 +84,28 @@ public abstract class AbstractAutowireCapableBeanFactory
     return null;
   }
 
+  public void populateBean(Object bean, BeanDefinition definition) {
+
+    // postProcess();
+
+    // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
+    // state of the bean before properties are set. This can be used, for example,
+    // to support styles of field injection.
+    if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
+      for (BeanPostProcessor postProcessor : postProcessors) {
+        if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
+          if (!((InstantiationAwareBeanPostProcessor) postProcessor).postProcessAfterInstantiation(bean, definition)) {
+            return;
+          }
+        }
+      }
+
+    }
+
+    applyPropertyValues(bean, definition);
+
+  }
+
   @Override
   public void autowireBeanProperties(Object existingBean) {
     Class<Object> userClass = ClassUtils.getUserClass(existingBean);
