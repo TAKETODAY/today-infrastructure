@@ -1314,22 +1314,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void initialize(String name) {
-    BeanDefinition def = obtainBeanDefinition(name);
-    if (!def.isInitialized()) {
-      createSingleton(def);
-    }
-    else if (log.isWarnEnabled()) {
-      log.warn("A bean named: [{}] has already initialized", name);
-    }
-  }
-
-  @Override
-  public Object initialize(BeanDefinition def) {
-    return getBean(def);
-  }
-
-  @Override
   public void initializeSingletons() {
     log.debug("Initialization of singleton objects.");
     for (BeanDefinition def : getBeanDefinitions().values()) {

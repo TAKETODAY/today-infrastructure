@@ -85,23 +85,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   void destroyBean(Object beanInstance, BeanDefinition def);
 
   /**
-   * initialize bean with given name
-   *
-   * @param name bean name
-   * @since 1.2.0
-   */
-  void initialize(String name);
-
-  /**
-   * initialize bean definition
-   *
-   * @param beanDefinition bean definition
-   * @return initialized object
-   * @since 2.0.0
-   */
-  Object initialize(BeanDefinition beanDefinition);
-
-  /**
    * Initialize singletons
    * <p>
    * Ensure that all non-lazy-init singletons are instantiated, also considering
