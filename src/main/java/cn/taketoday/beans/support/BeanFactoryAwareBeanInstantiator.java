@@ -45,7 +45,9 @@ public class BeanFactoryAwareBeanInstantiator {
 
   public BeanFactoryAwareBeanInstantiator(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.argumentsResolver = ArgumentsResolver.getOrShared(beanFactory);
+    if (beanFactory != null) {
+      this.argumentsResolver = beanFactory.getArgumentsResolver();
+    }
   }
 
   public <T> T instantiate(Class<T> beanClass) {
