@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -35,6 +36,9 @@ import cn.taketoday.util.ClassUtils;
 public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
+
+  // @since 4.0
+  private InstantiationStrategy instantiationStrategy = new DefaultInstantiationStrategy();
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
@@ -85,7 +89,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   public void populateBean(Object bean, BeanDefinition definition) {
-
     // postProcess();
 
     // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
@@ -94,12 +97,12 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
       for (BeanPostProcessor postProcessor : postProcessors) {
         if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
-          if (!((InstantiationAwareBeanPostProcessor) postProcessor).postProcessAfterInstantiation(bean, definition)) {
+          InstantiationAwareBeanPostProcessor processor = (InstantiationAwareBeanPostProcessor) postProcessor;
+          if (!processor.postProcessAfterInstantiation(bean, definition)) {
             return;
           }
         }
       }
-
     }
 
     applyPropertyValues(bean, definition);
@@ -183,6 +186,15 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
     return BeanDefinitionBuilder.defaults(beanClass)
             .setScope(Scope.PROTOTYPE);
+  }
+
+  public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
+    Assert.notNull(instantiationStrategy, "InstantiationStrategy is required");
+    this.instantiationStrategy = instantiationStrategy;
+  }
+
+  public InstantiationStrategy getInstantiationStrategy() {
+    return instantiationStrategy;
   }
 
 }

@@ -20,9 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.lang.Nullable;
-
-import java.lang.reflect.Constructor;
 
 /**
  * Interface responsible for creating instances corresponding to a bean definition.
@@ -38,30 +35,24 @@ public interface InstantiationStrategy {
   /**
    * Return an instance of the bean with the given name in this factory.
    *
-   * @param bd the bean definition
-   * @param beanName the name of the bean when it is created in this context.
-   * The name can be {@code null} if we are autowiring a bean which doesn't
-   * belong to the factory.
+   * @param def the bean definition
    * @param owner the owning BeanFactory
    * @return a bean instance for this bean definition
    * @throws BeansException if the instantiation attempt failed
    */
-  Object instantiate(BeanDefinition bd, @Nullable String beanName, BeanFactory owner)
+  Object instantiate(BeanDefinition def, BeanFactory owner)
           throws BeansException;
 
   /**
-   * Return an instance of the bean with the given name in this factory,
-   * creating it via the given constructor.
+   * Return an instance of the bean with the given name in this factory.
    *
-   * @param bd the bean definition
-   * @param beanName the name of the bean when it is created in this context.
-   * The name can be {@code null} if we are autowiring a bean which doesn't
-   * belong to the factory.
+   * @param def the bean definition
    * @param owner the owning BeanFactory
-   * @param args the constructor arguments to apply
+   * @param args input arguments
    * @return a bean instance for this bean definition
    * @throws BeansException if the instantiation attempt failed
    */
-  Object instantiate(BeanDefinition bd, @Nullable String beanName, BeanFactory owner, Object... args) throws BeansException;
+  Object instantiate(BeanDefinition def, BeanFactory owner, Object... args)
+          throws BeansException;
 
 }

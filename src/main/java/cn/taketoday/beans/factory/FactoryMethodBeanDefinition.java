@@ -72,7 +72,7 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
    */
   @Override
   public int getOrder() {
-    final int order = super.getOrder();
+    int order = super.getOrder();
     if (LOWEST_PRECEDENCE == order) {
       return OrderUtils.getOrderOrLowest(getFactoryMethod());
     }
@@ -90,18 +90,18 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
 
   @Override
   protected BeanInstantiator createConstructor(BeanFactory factory) {
-    final Method factoryMethod = obtainFactoryMethod();
+    Method factoryMethod = obtainFactoryMethod();
 
-    final MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);
+    MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);
     if (Modifier.isStatic(factoryMethod.getModifiers())) {
       return BeanInstantiator.fromStaticMethod(methodInvoker);
     }
-    final Object bean = factory.getBean(getDeclaringName());
+    Object bean = factory.getBean(getDeclaringName());
     return BeanInstantiator.fromMethod(methodInvoker, bean);
   }
 
   private Method obtainFactoryMethod() {
-    final Method factoryMethod = getFactoryMethod();
+    Method factoryMethod = getFactoryMethod();
     Assert.state(factoryMethod != null, "StandardBeanDefinition is not ready");
     return factoryMethod;
   }
@@ -156,11 +156,11 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
     }
 
     if (obj instanceof FactoryMethodBeanDefinition) {
-      final boolean equals = super.equals(obj);
+      boolean equals = super.equals(obj);
       if (!equals) {
         return false;
       }
-      final FactoryMethodBeanDefinition other = (FactoryMethodBeanDefinition) obj;
+      FactoryMethodBeanDefinition other = (FactoryMethodBeanDefinition) obj;
       return Objects.equals(declaringName, other.declaringName)
               && Objects.equals(factoryMethod, other.factoryMethod);
     }
@@ -182,7 +182,7 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
 
   @Override
   public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-    final T ret = AnnotationUtils.getAnnotation(annotationClass, getFactoryMethod());
+    T ret = AnnotationUtils.getAnnotation(annotationClass, getFactoryMethod());
     if (ret == null) {
       return super.getAnnotation(annotationClass);
     }
@@ -199,21 +199,21 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
     return mergeAnnotations(getFactoryMethod().getDeclaredAnnotations(), super.getDeclaredAnnotations());
   }
 
-  protected Annotation[] mergeAnnotations(final Annotation[] methodAnns, final Annotation[] classAnns) {
+  protected Annotation[] mergeAnnotations(Annotation[] methodAnns, Annotation[] classAnns) {
 
     if (ObjectUtils.isEmpty(methodAnns)) {
       return classAnns;
     }
 
     if (ObjectUtils.isNotEmpty(classAnns)) {
-      final Set<Annotation> rets = new HashSet<>();
-      final Set<Class<?>> clazz = Stream.of(methodAnns)
+      Set<Annotation> rets = new HashSet<>();
+      Set<Class<?>> clazz = Stream.of(methodAnns)
               .map(Annotation::annotationType)
               .collect(Collectors.toSet());
 
       Collections.addAll(rets, methodAnns);
 
-      for (final Annotation annotation : classAnns) {
+      for (Annotation annotation : classAnns) {
         if (!clazz.contains(annotation.annotationType())) {
           rets.add(annotation);
         }
