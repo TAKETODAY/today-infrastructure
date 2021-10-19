@@ -78,6 +78,7 @@ public class ConditionEvaluator {
     Assert.notNull(condition, "Condition Class must not be null");
     ApplicationContext context = evaluationContext.getContext();
     for (final Class<? extends Condition> conditionClass : condition) {
+      // TODO
       if (!BeanUtils.newInstance(conditionClass, context).matches(evaluationContext, annotated)) {
         return false; // can't match
       }

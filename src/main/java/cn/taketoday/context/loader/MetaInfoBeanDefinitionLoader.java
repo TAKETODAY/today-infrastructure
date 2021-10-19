@@ -20,9 +20,17 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
+import java.util.List;
+import java.util.Set;
+
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.ContextUtils;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -40,8 +48,53 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
    * @since 2.1.6
    */
   @Override
-  public void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
+  public void loadBeanDefinitions(DefinitionLoadingContext context) {
+    loadMetaInfoBeans(context);
+  }
 
+  /**
+   * Resolve bean from META-INF/beans
+   *
+   * @param context reader context
+   * @see Constant#META_INFO_beans
+   * @since 2.1.6
+   */
+  public Set<Class<?>> loadMetaInfoBeans(DefinitionLoadingContext context) {
+    log.debug("Loading META-INF/beans");
+
+    // Load the META-INF/beans @since 2.1.6
+    // ---------------------------------------------------
+    Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
+    // @since 4.0 load from StrategiesLoader strategy file
+    beans.addAll(TodayStrategies.getDetector().getTypes(MissingBean.class));
+
+    BeanDefinitionBuilder builder = context.createBuilder();
+
+    for (Class<?> beanClass : beans) {
+      AnnotationAttributes missingBean = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
+      if (missingBean != null) {
+        if (context.isMissingBeanInContext(missingBean, beanClass)) {
+          // MissingBean in 'META-INF/beans' @since 3.0
+          String name = createBeanName(beanClass);
+          builder.build(name, missingBean, context.getMissingBeanRegistry()::registerMissing);
+        }
+        else {
+          log.info("@MissingBean -> '{}' cannot pass the condition " +
+                           "or contains its bean definition, dont register to the map", beanClass);
+        }
+      }
+      else {
+        if (context.passCondition(beanClass)) {
+          // can't be a missed bean. MissingBean load after normal loading beans
+          List<BeanDefinition> defs = BeanDefinitionBuilder.from(beanClass);
+          for (BeanDefinition def : defs) {
+            context.registerBeanDefinition(def);
+          }
+        }
+      }
+
+    }
+    return beans;
   }
 
 }

@@ -5,5 +5,5 @@ redisson-,objenesis-,freemarker-,activation-,byte-buddy-,snakeyaml-,\
 cache-api-,reactor-core-,reactive-streams-,today-,hibernate-,validation-,\
 classmate-,tomcat-,quartz-,fst-,log4j-
 
-cn.taketoday.context.loader.BeanDefinitionCreationStrategy=\
+cn.taketoday.context.loader.BeanDefinitionLoadingStrategy=\
 cn.taketoday.context.annotation.AnnotationBeanDefinitionCreator

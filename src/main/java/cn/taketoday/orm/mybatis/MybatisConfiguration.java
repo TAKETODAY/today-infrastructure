@@ -41,8 +41,8 @@ import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.loader.BeanDefinitionCreationContext;
-import cn.taketoday.context.loader.BeanDefinitionCreationStrategy;
+import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -62,7 +62,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2018-10-05 19:03
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class MybatisConfiguration implements BeanDefinitionCreationStrategy {
+public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
@@ -71,7 +71,7 @@ public class MybatisConfiguration implements BeanDefinitionCreationStrategy {
 
   @Override
   public Set<BeanDefinition> loadBeanDefinitions(
-          ClassNode classNode, BeanDefinitionCreationContext creationContext) {
+          ClassNode classNode, DefinitionLoadingContext loadingContext) {
     log.info("Loading Mybatis Mapper Bean Definitions");
 
     if (!Modifier.isInterface(classNode.access)) {
@@ -86,7 +86,7 @@ public class MybatisConfiguration implements BeanDefinitionCreationStrategy {
       log.debug("Found Mapper: [{}]", className);
       String[] names = attributes.getStringArray(Constant.VALUE);
       String name = ObjectUtils.isNotEmpty(names)
-                    ? names[0] : creationContext.createBeanName(className);
+                    ? names[0] : loadingContext.createBeanName(className);
 
       return Collections.singleton(createBeanDefinition(className, name));
     }

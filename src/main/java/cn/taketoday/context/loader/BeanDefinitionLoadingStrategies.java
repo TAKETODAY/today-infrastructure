@@ -35,22 +35,22 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/10/10 22:06
  * @since 4.0
  */
-public class BeanDefinitionCreationStrategies implements BeanDefinitionCreationStrategy {
-  private final ArrayList<BeanDefinitionCreationStrategy> creationStrategies = new ArrayList<>();
+public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStrategy {
+  private final ArrayList<BeanDefinitionLoadingStrategy> creationStrategies = new ArrayList<>();
 
   {
     TodayStrategies detector = TodayStrategies.getDetector();
-    List<BeanDefinitionCreationStrategy> strategies = detector.getStrategies(
-            BeanDefinitionCreationStrategy.class);
+    List<BeanDefinitionLoadingStrategy> strategies = detector.getStrategies(
+            BeanDefinitionLoadingStrategy.class);
     addStrategies(strategies);
   }
 
   @Override
   public Set<BeanDefinition> loadBeanDefinitions(
-          ClassNode classNode, BeanDefinitionCreationContext creationContext) {
+          ClassNode classNode, DefinitionLoadingContext loadingContext) {
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
-    for (BeanDefinitionCreationStrategy strategy : creationStrategies) {
-      Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(classNode, creationContext);
+    for (BeanDefinitionLoadingStrategy strategy : creationStrategies) {
+      Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(classNode, loadingContext);
       if (CollectionUtils.isNotEmpty(beanDefinitions)) {
         definitions.addAll(beanDefinitions);
       }
@@ -58,22 +58,22 @@ public class BeanDefinitionCreationStrategies implements BeanDefinitionCreationS
     return definitions;
   }
 
-  public void addStrategies(@Nullable BeanDefinitionCreationStrategy... strategies) {
+  public void addStrategies(@Nullable BeanDefinitionLoadingStrategy... strategies) {
     CollectionUtils.addAll(creationStrategies, strategies);
     creationStrategies.trimToSize();
   }
 
-  public void addStrategies(@Nullable List<BeanDefinitionCreationStrategy> strategies) {
+  public void addStrategies(@Nullable List<BeanDefinitionLoadingStrategy> strategies) {
     CollectionUtils.addAll(creationStrategies, strategies);
     creationStrategies.trimToSize();
   }
 
-  public void setStrategies(@Nullable BeanDefinitionCreationStrategy... strategies) {
+  public void setStrategies(@Nullable BeanDefinitionLoadingStrategy... strategies) {
     creationStrategies.clear();
     addStrategies(strategies);
   }
 
-  public void setStrategies(@Nullable List<BeanDefinitionCreationStrategy> strategies) {
+  public void setStrategies(@Nullable List<BeanDefinitionLoadingStrategy> strategies) {
     creationStrategies.clear();
     addStrategies(strategies);
   }

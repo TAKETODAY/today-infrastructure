@@ -48,8 +48,8 @@ class DefaultSingletonBeanRegistryTests {
     Set<String> names = beanRegistry.getSingletonNames();
     assertThat(names).hasSize(2).contains("tb", "tb2");
 
-    assertThat(beanRegistry.getSingletonCount()).isEqualTo(0);
-    assertThat(beanRegistry.getSingletonNames().size()).isEqualTo(0);
+    assertThat(beanRegistry.getSingletonCount()).isEqualTo(2);
+    assertThat(beanRegistry.getSingletonNames().size()).isEqualTo(2);
   }
 
 }

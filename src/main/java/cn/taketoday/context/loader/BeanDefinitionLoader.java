@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 
 /**
@@ -31,7 +29,7 @@ import cn.taketoday.context.annotation.BeanDefinitionBuilder;
  */
 public interface BeanDefinitionLoader {
 
-  void loadBeanDefinitions(ConfigurableApplicationContext context, BeanDefinitionRegistry registry);
+  void loadBeanDefinitions(DefinitionLoadingContext loadingContext);
 
   default String createBeanName(Class<?> beanClass) {
     return BeanDefinitionBuilder.defaultBeanName(beanClass);

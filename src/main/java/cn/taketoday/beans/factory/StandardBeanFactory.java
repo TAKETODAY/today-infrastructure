@@ -137,6 +137,7 @@ public class StandardBeanFactory
 
   @Override
   public boolean containsBeanDefinition(Class<?> type, boolean equals) {
+    // TODO optimise lookup performance
     Predicate<BeanDefinition> predicate = getPredicate(type, equals);
     BeanDefinition def = getBeanDefinition(createBeanName(type));
     if (def != null && predicate.test(def)) {

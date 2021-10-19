@@ -27,8 +27,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.loader.BeanDefinitionCreationContext;
-import cn.taketoday.context.loader.BeanDefinitionCreationStrategy;
+import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
@@ -38,7 +38,7 @@ import cn.taketoday.lang.Component;
  * @author TODAY 2021/10/10 22:20
  * @since 4.0
  */
-public class AnnotationBeanDefinitionCreator implements BeanDefinitionCreationStrategy {
+public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStrategy {
   private final Set<Class<? extends Annotation>> annotationTypes;
 
   public AnnotationBeanDefinitionCreator() {
@@ -48,7 +48,7 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionCreationSt
 
   @Override
   public Set<BeanDefinition> loadBeanDefinitions(
-          ClassNode classNode, BeanDefinitionCreationContext creationContext) {
+          ClassNode classNode, DefinitionLoadingContext loadingContext) {
     if (Modifier.isAbstract(classNode.access) || Modifier.isInterface(classNode.access)) {
       return null;
     }
@@ -58,10 +58,10 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionCreationSt
     for (Class<? extends Annotation> annotationType : annotationTypes) {
       AnnotationAttributes attributes = ClassMetaReader.selectAttributes(annotations, annotationType);
       if (attributes != null) {
-        BeanDefinitionBuilder builder = creationContext.getDefinitionBuilder();
+        BeanDefinitionBuilder builder = loadingContext.createBuilder();
         builder.reset();
         builder.attributes(attributes);
-        builder.build(creationContext.createBeanName(classNode.name), definitions::add);
+        builder.build(loadingContext.createBeanName(classNode.name), definitions::add);
       }
     }
     return definitions;

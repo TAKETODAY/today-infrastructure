@@ -26,6 +26,8 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.ConfigurationBeanReader;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
@@ -40,7 +42,8 @@ public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
   private String propertiesLocation;
-  private final ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(this);
+  private final DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, this);
+  private final ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(loadingContext);
 
   /**
    * Default Constructor
@@ -123,16 +126,26 @@ public class StandardApplicationContext
     return propertiesLocation;
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of AbstractApplicationContext
+  //---------------------------------------------------------------------
+
   @Override
   public void prepareBeanFactory() {
     super.prepareBeanFactory();
     List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
             BeanDefinitionLoader.class, this);
 
-    StandardBeanFactory beanFactory = getBeanFactory();
     for (BeanDefinitionLoader loader : strategies) {
-      loader.loadBeanDefinitions(this, beanFactory);
+      loader.loadBeanDefinitions(loadingContext);
     }
+  }
+
+  @Override
+  public void registerBeanFactoryPostProcessor() {
+    getFactoryPostProcessors().add(new ConfigurationBeanReader(loadingContext));
+
+    super.registerBeanFactoryPostProcessor();
   }
 
   @Override

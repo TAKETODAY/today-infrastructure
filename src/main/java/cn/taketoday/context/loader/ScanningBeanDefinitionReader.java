@@ -63,12 +63,12 @@ public class ScanningBeanDefinitionReader {
   private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
-  private final BeanDefinitionCreationStrategies creationStrategies = new BeanDefinitionCreationStrategies();
-  private final BeanDefinitionCreationContext creationContext;
+  private final BeanDefinitionLoadingStrategies creationStrategies = new BeanDefinitionLoadingStrategies();
+  private final DefinitionLoadingContext loadingContext;
 
-  public ScanningBeanDefinitionReader(BeanDefinitionRegistry registry) {
-    this.registry = registry;
-    this.creationContext = new BeanDefinitionCreationContext(registry);
+  public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
+    this.registry = loadingContext.getRegistry();
+    this.loadingContext = loadingContext;
   }
 
   public void setResourceLoader(PatternResourceLoader resourceLoader) {
@@ -209,7 +209,7 @@ public class ScanningBeanDefinitionReader {
   }
 
   protected void process(ClassNode classNode) {
-    Set<BeanDefinition> beanDefinitions = creationStrategies.loadBeanDefinitions(classNode, creationContext);
+    Set<BeanDefinition> beanDefinitions = creationStrategies.loadBeanDefinitions(classNode, loadingContext);
     if (CollectionUtils.isNotEmpty(beanDefinitions)) {
       for (BeanDefinition beanDefinition : beanDefinitions) {
         registry.registerBeanDefinition(beanDefinition);

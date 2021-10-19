@@ -136,12 +136,11 @@ class FactoryBeanTests {
   @Test
   public void testConfigurationFactoryBean() throws NoSuchBeanDefinitionException {
 
-    HashSet<Class<?>> classes = new HashSet<Class<?>>(Arrays.asList(TESTFactoryBean.class));
-
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-      applicationContext.registerBean(classes);
+      applicationContext.register(TESTFactoryBean.class);
       applicationContext.registerBean("factoryBeanConfigurationImporter", FactoryBeanConfigurationImporter.class);
+      applicationContext.refresh();
 
       FactoryBeanConfiguration bean = applicationContext.getBean(FactoryBeanConfiguration.class);
       Object testFactoryBean = applicationContext.getBean("testFactoryBean");

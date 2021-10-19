@@ -20,35 +20,28 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import java.util.Set;
+
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.bytecode.tree.ClassNode;
 
 /**
- * @author TODAY 2021/10/10 22:10
+ * @author TODAY 2021/10/10 22:27
  * @since 4.0
  */
-public class BeanDefinitionCreationContext {
-  final BeanDefinitionRegistry registry;
-  private final BeanDefinitionBuilder definitionBuilder = new BeanDefinitionBuilder();
+public abstract class AbstractBeanDefinitionLoadingStrategy implements BeanDefinitionLoadingStrategy {
 
-  public BeanDefinitionCreationContext(BeanDefinitionRegistry registry) {
-    this.registry = registry;
+  @Override
+  public Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, DefinitionLoadingContext loadingContext) {
+    if (supports(classNode, loadingContext)) {
+      return loadInternal(classNode, loadingContext);
+    }
+    return null;
   }
 
-  public BeanDefinitionRegistry getRegistry() {
-    return registry;
-  }
+  protected abstract boolean supports(
+          ClassNode classNode, DefinitionLoadingContext creationContext);
 
-  public BeanDefinitionBuilder getDefinitionBuilder() {
-    return definitionBuilder;
-  }
-
-  public String createBeanName(Class<?> c) {
-    return BeanDefinitionBuilder.defaultBeanName(c);
-  }
-
-  public String createBeanName(String className) {
-    return BeanDefinitionBuilder.defaultBeanName(className);
-  }
-
+  protected abstract Set<BeanDefinition> loadInternal(
+          ClassNode classNode, DefinitionLoadingContext creationContext);
 }

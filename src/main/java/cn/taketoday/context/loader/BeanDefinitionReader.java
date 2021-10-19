@@ -20,11 +20,8 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -41,32 +38,21 @@ import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.aware.ImportAware;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * read bean-definition
@@ -129,235 +115,7 @@ public class BeanDefinitionReader {
               .name(beanName);
 
       BeanDefinition def = builder.build();
-      importAnnotated(def);
       register(def);
-      loadConfigurationBeans(def); // scan config bean
-    }
-  }
-
-  public void importAnnotated(BeanDefinition annotated) {
-    BeanDefinitionRegistry registry = obtainRegistry();
-    for (AnnotationAttributes attr : AnnotationUtils.getAttributesArray(annotated, Import.class)) {
-      for (Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
-        if (!registry.containsBeanDefinition(importClass, true)) {
-          doImport(annotated, importClass);
-        }
-      }
-    }
-  }
-
-  /**
-   * Select import
-   *
-   * @param annotated Target {@link BeanDefinition}
-   * @since 2.1.7
-   */
-  protected void doImport(BeanDefinition annotated, Class<?> importClass) {
-    log.debug("Importing: [{}]", importClass);
-
-    BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);
-    importDef.setAttribute(ImportAware.ImportAnnotatedMetadata, annotated); // @since 3.0
-    register(importDef);
-    loadConfigurationBeans(importDef); // scan config bean
-    if (ImportSelector.class.isAssignableFrom(importClass)) {
-      String[] imports = createImporter(importDef, ImportSelector.class).selectImports(annotated, obtainRegistry());
-      if (ObjectUtils.isNotEmpty(imports)) {
-        for (String select : imports) {
-          Class<Object> beanClass = ClassUtils.load(select);
-          if (beanClass == null) {
-            throw new ConfigurationException("Bean class not in class-path: " + select);
-          }
-          register(BeanDefinitionBuilder.defaults(beanClass));
-        }
-      }
-    }
-    if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
-      createImporter(importDef, BeanDefinitionImporter.class)
-              .registerBeanDefinitions(annotated, obtainRegistry());
-    }
-    if (ApplicationListener.class.isAssignableFrom(importClass)) {
-      context.addApplicationListener(createImporter(importDef, ApplicationListener.class));
-    }
-  }
-
-  /**
-   * Load {@link Configuration} beans from input bean class
-   *
-   * @param declaringDef current {@link Configuration} bean
-   * @since 2.1.7
-   */
-  protected void loadConfigurationBeans(BeanDefinition declaringDef) {
-    for (Method method : ReflectionUtils.getDeclaredMethods(declaringDef.getBeanClass())) {
-      AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(method, Component.class);
-      if (ObjectUtils.isEmpty(components)) {
-        // detect missed bean
-        AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, method);
-        if (isMissedBean(attributes, method)) {
-          // register directly @since 3.0
-
-          String defaultBeanName = method.getName();
-          String declaringBeanName = createBeanName(method.getDeclaringClass()); // @since v2.1.7
-
-          BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
-          builder.factoryMethod(method);
-          builder.declaringName(declaringBeanName);
-          builder.beanClass(method.getReturnType());
-
-          builder.build(defaultBeanName, attributes, (attribute, definition) -> {
-            // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
-            definition.setAttribute(MissingBean.MissingBeanMetadata, attribute);
-            // register missed bean
-            register(definition);
-            // @since 3.0.5
-            if (definition.isAnnotationPresent(Configuration.class)) {
-              loadConfigurationBeans(definition);
-            }
-          });
-        }
-      } // is a Component
-      else if (conditionEvaluator().passCondition(method)) { // pass the condition
-        registerConfigurationBean(declaringDef, method, components);
-      }
-    }
-  }
-
-  /**
-   * Create {@link Configuration} bean definition, and register it
-   *
-   * @param method factory method
-   * @param components {@link AnnotationAttributes}
-   */
-  protected void registerConfigurationBean(
-          BeanDefinition declaringDef, Method method, AnnotationAttributes[] components
-  ) {
-    String defaultBeanName = method.getName(); // @since v2.1.7
-    String declaringBeanName = declaringDef.getName(); // @since v2.1.7
-
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
-    builder.factoryMethod(method);
-    builder.declaringName(declaringBeanName);
-    builder.beanClass(method.getReturnType());
-    builder.build(defaultBeanName, components, (component, definition) -> {
-      register(definition);
-      if (definition.isAnnotationPresent(Configuration.class)) {
-        loadConfigurationBeans(definition);
-      }
-    });
-  }
-
-  /**
-   * Load missing beans, default beans
-   *
-   * @param candidates candidate class set
-   */
-  public void loadMissingBean(Collection<Class<?>> candidates) {
-    log.debug("Loading lost beans");
-
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
-    for (Class<?> beanClass : candidates) {
-      AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
-      if (isMissedBean(attributes, beanClass)) {
-        String beanName = createBeanName(beanClass);
-        builder.build(beanName, attributes, this::registerMissing);
-      }
-    }
-  }
-
-  protected void registerMissing(AnnotationAttributes missingBean, BeanDefinition def) {
-    // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
-    def.setAttribute(MissingBean.MissingBeanMetadata, missingBean);
-    // register missed bean
-    register(def);
-  }
-
-  /**
-   * Is a context missed bean?
-   *
-   * @param missingBean The {@link Annotation} declared on the class or a method
-   * @param annotated Missed bean class or method
-   * @return If the bean is missed in context
-   * @since 3.0
-   */
-  private boolean isMissedBean(AnnotationAttributes missingBean, AnnotatedElement annotated) {
-    if (missingBean != null && conditionEvaluator().passCondition(annotated)) {
-      // find by bean name
-      String beanName = missingBean.getString(Constant.VALUE);
-      if (StringUtils.isNotEmpty(beanName) && obtainRegistry().containsBeanDefinition(beanName)) {
-        return false;
-      }
-      // find by type
-      Class<?> type = missingBean.getClass("type");
-      if (type != void.class) {
-        return !obtainRegistry().containsBeanDefinition(type, missingBean.getBoolean("equals"));
-      }
-      else {
-        return !obtainRegistry().containsBeanDefinition(PropsReader.getBeanClass(annotated));
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Resolve bean from META-INF/beans
-   *
-   * @see Constant#META_INFO_beans
-   * @since 2.1.6
-   */
-  public Set<Class<?>> loadMetaInfoBeans() {
-    log.debug("Loading META-INF/beans");
-
-    // Load the META-INF/beans @since 2.1.6
-    // ---------------------------------------------------
-    Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
-    // @since 4.0 load from StrategiesLoader strategy file
-    beans.addAll(TodayStrategies.getDetector().getTypes(MissingBean.class));
-
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
-
-    for (Class<?> beanClass : beans) {
-      AnnotationAttributes missingBean = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
-      if (missingBean != null) {
-        if (isMissedBean(missingBean, beanClass)) {
-          // MissingBean in 'META-INF/beans' @since 3.0
-          String name = createBeanName(beanClass);
-          builder.build(name, missingBean, this::registerMissing);
-        }
-        else {
-          log.info("@MissingBean -> '{}' cannot pass the condition " +
-                           "or contains its bean definition, dont register to the map", beanClass);
-        }
-      }
-      else {
-        if (conditionEvaluator().passCondition(beanClass)) {
-          // can't be a missed bean. MissingBean load after normal loading beans
-          List<BeanDefinition> defs = BeanDefinitionBuilder.from(beanClass);
-          for (BeanDefinition def : defs) {
-            register(def);
-          }
-        }
-      }
-
-    }
-    return beans;
-  }
-
-  /**
-   * Create {@link ImportSelector} ,or {@link BeanDefinitionImporter},
-   * {@link ApplicationListener} object
-   *
-   * @param target Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
-   * @return {@link ImportSelector} object
-   */
-  protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
-    try {
-      Object bean = context.getBean(importDef);
-      if (bean instanceof ImportAware) {
-        ((ImportAware) bean).setImportBeanDefinition(importDef);
-      }
-      return target.cast(bean);
-    }
-    catch (Throwable e) {
-      throw new BeanDefinitionStoreException("Can't initialize a target: [" + importDef + "]");
     }
   }
 
@@ -446,12 +204,12 @@ public class BeanDefinitionReader {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(obj, "bean-instance must not be null");
     SingletonBeanRegistry singletonRegistry = context.unwrapFactory(SingletonBeanRegistry.class);
-    List<BeanDefinition> loaded = load(name, obj.getClass());
-    for (BeanDefinition def : loaded) {
-      if (def.isSingleton()) {
-        singletonRegistry.registerSingleton(name, obj);
-      }
-    }
+
+    DefaultBeanDefinition definition = new DefaultBeanDefinition(name, obj.getClass());
+    register(definition);
+    definition.setSynthetic(true);
+    definition.setInitialized(true);
+    singletonRegistry.registerSingleton(name, obj);
   }
 
   //---------------------------------------------------------------------

@@ -24,24 +24,18 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY 2021/10/10 22:27
+ * scanning BeanDefinition loading strategy
+ *
+ * @author TODAY 2021/10/10 22:04
  * @since 4.0
  */
-public abstract class AbstractBeanDefinitionCreationStrategy implements BeanDefinitionCreationStrategy {
+@FunctionalInterface
+public interface BeanDefinitionLoadingStrategy {
 
-  @Override
-  public Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, BeanDefinitionCreationContext creationContext) {
-    if (supports(classNode, creationContext)) {
-      return createInternal(classNode, creationContext);
-    }
-    return null;
-  }
+  @Nullable
+  Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, DefinitionLoadingContext loadingContext);
 
-  protected abstract boolean supports(
-          ClassNode classNode, BeanDefinitionCreationContext creationContext);
-
-  protected abstract Set<BeanDefinition> createInternal(
-          ClassNode classNode, BeanDefinitionCreationContext creationContext);
 }

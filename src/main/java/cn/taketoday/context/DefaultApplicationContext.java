@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionReader;
-import cn.taketoday.context.loader.ConfigurationBeanReader;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -192,17 +191,6 @@ public class DefaultApplicationContext
       return this.resourceLoader.getClassLoader();
     }
     return super.getClassLoader();
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of AbstractApplicationContext
-  //---------------------------------------------------------------------
-
-  @Override
-  public void registerBeanFactoryPostProcessor() {
-    getFactoryPostProcessors().add(new ConfigurationBeanReader(beanDefinitionReader));
-
-    super.registerBeanFactoryPostProcessor();
   }
 
   //---------------------------------------------------------------------
