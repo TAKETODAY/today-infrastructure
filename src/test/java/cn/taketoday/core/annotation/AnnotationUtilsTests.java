@@ -18,11 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core.annotation;
 
+import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
+import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.DefaultComponent;
+import cn.taketoday.lang.Service;
+import cn.taketoday.lang.Singleton;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import org.junit.jupiter.api.Test;
+import test.demo.config.Config;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -34,20 +54,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.ClassMetaReader;
-import cn.taketoday.core.bytecode.tree.ClassNode;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.DefaultComponent;
-import cn.taketoday.lang.Service;
-import cn.taketoday.lang.Singleton;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,15 +107,15 @@ public class AnnotationUtilsTests {
 
     double[] double0() default 10;
 
-    String[] value() default {};
+    String[] value() default { };
 
     String scope() default Scope.SINGLETON;
 
     TestEnum test() default TestEnum.TEST;
 
-    String[] destroyMethods() default {};
+    String[] destroyMethods() default { };
 
-    Class<?>[] classes() default {};
+    Class<?>[] classes() default { };
 
     Service service() default @Service;
   }
@@ -362,12 +368,38 @@ public class AnnotationUtilsTests {
   }
 
   @Test
-  public void testIsAnnotationPresent() {
-
-    assert AnnotationUtils.isPresent(ClassUtilsTests.AutowiredOnConstructor.class, Singleton.class);
-    assert AnnotationUtils.isPresent(ClassUtilsTests.AutowiredOnConstructor.class, ClassUtilsTests.MySingleton.class);
+  void testIsAnnotationPresent() {
+    assert AnnotationUtils.isPresent(AutowiredOnConstructor.class, Singleton.class);
+    assert AnnotationUtils.isPresent(AutowiredOnConstructor.class, MySingleton.class);
 
     assert ClassUtils.load("") == null;
+  }
+
+
+  @MySingleton
+  @SuppressWarnings("unused")
+  public static class AutowiredOnConstructor {
+
+    @Autowired
+    private AutowiredOnConstructor(ApplicationContext context) {
+      System.err.println("init");
+    }
+
+    private void test() {
+      System.err.println("test");
+    }
+
+    private void throwing() {
+      throw new ApplicationContextException();
+    }
+  }
+
+  @Singleton
+  @Inherited
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.TYPE, ElementType.METHOD })
+  public @interface MySingleton {
+
   }
 
   // old code
@@ -504,7 +536,7 @@ public class AnnotationUtilsTests {
     @Target({ ElementType.TYPE, ElementType.METHOD })
     @C(scope = Scope.PROTOTYPE)
     public @interface A {
-      String[] value() default {};
+      String[] value() default { };
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -512,13 +544,13 @@ public class AnnotationUtilsTests {
     @C(scope = Scope.SINGLETON)
     public @interface S {
       @AliasFor(type = C.class)
-      String[] value() default {};
+      String[] value() default { };
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE, ElementType.METHOD })
     public @interface C {
-      String[] value() default {};
+      String[] value() default { };
 
       String scope() default Scope.SINGLETON;
     }
@@ -527,15 +559,72 @@ public class AnnotationUtilsTests {
     @Target({ ElementType.TYPE, ElementType.METHOD })
     @A
     public @interface D {
-      String[] value() default {};
+      String[] value() default { };
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE, ElementType.METHOD })
     @D
     public @interface P {
-      String[] value() default {};
+      String[] value() default { };
     }
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @interface Transactional {
+
+    boolean readOnly() default false;
+  }
+
+  public static abstract class Foo<T> {
+
+    @Order(1)
+    public abstract void something(T arg);
+  }
+
+  public static class SimpleFoo extends Foo<String> {
+
+    @Override
+    @Transactional
+    public void something(final String arg) {
+    }
+  }
+
+  @Test
+  void getValueFromAnnotation() throws Exception {
+    Method method = SimpleFoo.class.getMethod("something", Object.class);
+    Order order = AnnotationUtils.getAnnotation(Order.class, method);
+
+    assertThat(AnnotationUtils.getValue(order, Constant.VALUE)).isEqualTo(1);
+    assertThat(AnnotationUtils.getValue(order)).isEqualTo(1);
+  }
+
+
+  @Test
+  void getDefaultValueFromAnnotation() throws Exception {
+    Method method = SimpleFoo.class.getMethod("something", Object.class);
+    Order order = AnnotationUtils.getAnnotation(Order.class, method);
+
+    assertThat(AnnotationUtils.getDefaultValue(order, Constant.VALUE)).isEqualTo(Ordered.LOWEST_PRECEDENCE);
+    assertThat(AnnotationUtils.getDefaultValue(order)).isEqualTo(Ordered.LOWEST_PRECEDENCE);
+  }
+
+  @Test
+  void getDefaultValueFromNonPublicAnnotation() {
+    Annotation[] declaredAnnotations = NonPublicAnnotatedClass.class.getDeclaredAnnotations();
+    assertThat(declaredAnnotations).hasSize(1);
+    Annotation annotation = declaredAnnotations[0];
+    assertThat(annotation).isNotNull();
+    assertThat(annotation.annotationType().getSimpleName()).isEqualTo("NonPublicAnnotation");
+    assertThat(AnnotationUtils.getDefaultValue(annotation, Constant.VALUE)).isEqualTo(-1);
+    assertThat(AnnotationUtils.getDefaultValue(annotation)).isEqualTo(-1);
+  }
+
+  @Test
+  void getDefaultValueFromAnnotationType() {
+    assertThat(AnnotationUtils.getDefaultValue(Order.class, Constant.VALUE)).isEqualTo(Ordered.LOWEST_PRECEDENCE);
+    assertThat(AnnotationUtils.getDefaultValue(Order.class)).isEqualTo(Ordered.LOWEST_PRECEDENCE);
   }
 
 }

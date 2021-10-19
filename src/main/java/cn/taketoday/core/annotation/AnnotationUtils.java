@@ -20,17 +20,22 @@
 
 package cn.taketoday.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.util.Collection;
-import java.util.List;
-
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -291,6 +296,164 @@ public abstract class AnnotationUtils {
     return annType != null && element != null
             && (element.isAnnotationPresent(annType)
             || ObjectUtils.isNotEmpty(getAttributesArray(element, annType)));
+  }
+
+
+  /**
+   * Retrieve the <em>value</em> of the {@code value} attribute of a
+   * single-element Annotation, given an annotation instance.
+   *
+   * @param annotation the annotation instance from which to retrieve the value
+   * @return the attribute value, or {@code null} if not found unless the attribute
+   * value cannot be retrieved due to an {@link AnnotationConfigurationException},
+   * in which case such an exception will be rethrown
+   * @see #getValue(Annotation, String)
+   */
+  @Nullable
+  public static Object getValue(Annotation annotation) {
+    return getValue(annotation, Constant.VALUE);
+  }
+
+  /**
+   * Retrieve the <em>value</em> of a named attribute, given an annotation instance.
+   *
+   * @param annotation the annotation instance from which to retrieve the value
+   * @param attributeName the name of the attribute value to retrieve
+   * @return the attribute value, or {@code null} if not found unless the attribute
+   * value cannot be retrieved due to an {@link AnnotationConfigurationException},
+   * in which case such an exception will be rethrown
+   * @see #getValue(Annotation)
+   */
+  @Nullable
+  public static Object getValue(@Nullable Annotation annotation, @Nullable String attributeName) {
+    if (annotation == null || !StringUtils.hasText(attributeName)) {
+      return null;
+    }
+    try {
+      Method method = annotation.annotationType().getDeclaredMethod(attributeName);
+      ReflectionUtils.makeAccessible(method);
+      return method.invoke(annotation);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+    catch (InvocationTargetException ex) {
+      rethrowAnnotationConfigurationException(ex.getTargetException());
+      throw new IllegalStateException("Could not obtain value for annotation attribute '" +
+              attributeName + "' in " + annotation, ex);
+    }
+    catch (Throwable ex) {
+      handleIntrospectionFailure(annotation.getClass(), ex);
+      return null;
+    }
+  }
+
+  /**
+   * Retrieve the <em>default value</em> of the {@code value} attribute
+   * of a single-element Annotation, given an annotation instance.
+   *
+   * @param annotation the annotation instance from which to retrieve the default value
+   * @return the default value, or {@code null} if not found
+   * @see #getDefaultValue(Annotation, String)
+   */
+  @Nullable
+  public static Object getDefaultValue(Annotation annotation) {
+    return getDefaultValue(annotation, Constant.VALUE);
+  }
+
+  /**
+   * Retrieve the <em>default value</em> of a named attribute, given an annotation instance.
+   *
+   * @param annotation the annotation instance from which to retrieve the default value
+   * @param attributeName the name of the attribute value to retrieve
+   * @return the default value of the named attribute, or {@code null} if not found
+   * @see #getDefaultValue(Class, String)
+   */
+  @Nullable
+  public static Object getDefaultValue(@Nullable Annotation annotation, @Nullable String attributeName) {
+    return (annotation != null ? getDefaultValue(annotation.annotationType(), attributeName) : null);
+  }
+
+  /**
+   * Retrieve the <em>default value</em> of the {@code value} attribute
+   * of a single-element Annotation, given the {@link Class annotation type}.
+   *
+   * @param annotationType the <em>annotation type</em> for which the default value should be retrieved
+   * @return the default value, or {@code null} if not found
+   * @see #getDefaultValue(Class, String)
+   */
+  @Nullable
+  public static Object getDefaultValue(Class<? extends Annotation> annotationType) {
+    return getDefaultValue(annotationType, Constant.VALUE);
+  }
+
+  /**
+   * Retrieve the <em>default value</em> of a named attribute, given the
+   * {@link Class annotation type}.
+   *
+   * @param annotationType the <em>annotation type</em> for which the default value should be retrieved
+   * @param attributeName the name of the attribute value to retrieve.
+   * @return the default value of the named attribute, or {@code null} if not found
+   * @see #getDefaultValue(Annotation, String)
+   */
+  @Nullable
+  public static Object getDefaultValue(
+          @Nullable Class<? extends Annotation> annotationType, @Nullable String attributeName) {
+    if (annotationType == null || !StringUtils.hasText(attributeName)) {
+      return null;
+    }
+    Method method = ReflectionUtils.getMethod(annotationType, attributeName);
+    if (method != null) {
+      return method.getDefaultValue();
+    }
+    return null;
+  }
+
+  /**
+   * If the supplied throwable is an {@link AnnotationConfigurationException},
+   * it will be cast to an {@code AnnotationConfigurationException} and thrown,
+   * allowing it to propagate to the caller.
+   * <p>Otherwise, this method does nothing.
+   *
+   * @param ex the throwable to inspect
+   */
+  static void rethrowAnnotationConfigurationException(Throwable ex) {
+    if (ex instanceof AnnotationConfigurationException) {
+      throw (AnnotationConfigurationException) ex;
+    }
+  }
+
+  /**
+   * Handle the supplied annotation introspection exception.
+   * <p>If the supplied exception is an {@link AnnotationConfigurationException},
+   * it will simply be thrown, allowing it to propagate to the caller, and
+   * nothing will be logged.
+   * <p>Otherwise, this method logs an introspection failure (in particular for
+   * a {@link TypeNotPresentException}) before moving on, assuming nested
+   * {@code Class} values were not resolvable within annotation attributes and
+   * thereby effectively pretending there were no annotations on the specified
+   * element.
+   *
+   * @param element the element that we tried to introspect annotations on
+   * @param ex the exception that we encountered
+   * @see #rethrowAnnotationConfigurationException
+   * @see IntrospectionFailureLogger
+   */
+  static void handleIntrospectionFailure(@Nullable AnnotatedElement element, Throwable ex) {
+    rethrowAnnotationConfigurationException(ex);
+    IntrospectionFailureLogger logger = IntrospectionFailureLogger.INFO;
+    boolean meta = false;
+    if (element instanceof Class && Annotation.class.isAssignableFrom((Class<?>) element)) {
+      // Meta-annotation or (default) value lookup on an annotation type
+      logger = IntrospectionFailureLogger.DEBUG;
+      meta = true;
+    }
+    if (logger.isEnabled()) {
+      String message = meta ?
+              "Failed to meta-introspect annotation " :
+              "Failed to introspect annotations on ";
+      logger.log(message + element + ": " + ex);
+    }
   }
 
   /**
