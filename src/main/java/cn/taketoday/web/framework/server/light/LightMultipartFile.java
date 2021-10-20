@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import cn.taketoday.web.http.ContentDisposition;
 import cn.taketoday.web.multipart.AbstractMultipartFile;
@@ -139,9 +140,9 @@ public final class LightMultipartFile extends AbstractMultipartFile implements R
   }
 
   @Override
-  public void delete() {
+  public void delete() throws IOException {
     if (tempFile != null) {
-      tempFile.delete();
+      Files.delete(tempFile.toPath());
     }
   }
 

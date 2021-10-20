@@ -74,7 +74,7 @@ public abstract class WebApplicationUtils {
     if (StringUtils.isEmpty(subdir)) {
       return getBaseTemporalDirectory(startupClass);
     }
-    final File dir = new File(getBaseTemporalDirectory(startupClass), subdir);
+    File dir = new File(getBaseTemporalDirectory(startupClass), subdir);
     dir.mkdirs();
     return dir;
   }
@@ -85,19 +85,19 @@ public abstract class WebApplicationUtils {
    * @return the application temp directory
    */
   public static File getBaseTemporalDirectory(Class<?> startupClass) {
-    final String property = System.getProperty("java.io.tmpdir");
+    String property = System.getProperty("java.io.tmpdir");
     if (StringUtils.isEmpty(property)) {
       throw new IllegalStateException("There is no 'java.io.tmpdir' property set");
     }
 
-    final File baseTempDir = new File(property);
+    File baseTempDir = new File(property);
     if (!baseTempDir.exists()) {
       throw new IllegalStateException("Temp directory " + baseTempDir + " does not exist");
     }
     if (!baseTempDir.isDirectory()) {
       throw new IllegalStateException("Temp location " + baseTempDir + " is not a directory");
     }
-    final File directory = new File(baseTempDir, startupClass.getName());
+    File directory = new File(baseTempDir, startupClass.getName());
     if (!directory.exists()) {
       directory.mkdirs();
       if (!directory.exists()) {
@@ -132,16 +132,16 @@ public abstract class WebApplicationUtils {
       if (startupClass == null) {
         return null;
       }
-      final ProtectionDomain domain = startupClass.getProtectionDomain();
+      ProtectionDomain domain = startupClass.getProtectionDomain();
       if (domain == null) {
         return null;
       }
 
-      final CodeSource codeSource = domain.getCodeSource();
+      CodeSource codeSource = domain.getCodeSource();
       if (codeSource == null) {
         return null;
       }
-      final File source = findSource(codeSource.getLocation());
+      File source = findSource(codeSource.getLocation());
 
       if (source != null && source.exists()) {
         return source.getAbsoluteFile();
@@ -177,7 +177,7 @@ public abstract class WebApplicationUtils {
 
     File ret = homeDir;
     if (ret == null) {
-      final String userDir = System.getProperty("user.dir");
+      String userDir = System.getProperty("user.dir");
       ret = new File(StringUtils.isNotEmpty(userDir) ? userDir : ".");
     }
     if (ret.isFile()) {
@@ -197,14 +197,14 @@ public abstract class WebApplicationUtils {
    * @param args arguments
    * @return key-value
    */
-  public static Map<String, String> parseCommandLineArguments(final String... args) {
+  public static Map<String, String> parseCommandLineArguments(String... args) {
     if (ObjectUtils.isEmpty(args)) {
       return Collections.emptyMap();
     }
-    final LinkedHashMap<String, String> argsMap = new LinkedHashMap<>();
-    for (final String arg : args) {
+    LinkedHashMap<String, String> argsMap = new LinkedHashMap<>();
+    for (String arg : args) {
       if (arg.startsWith("--") && arg.indexOf('=') > -1) {
-        final String[] param = arg.substring(2).split("=");
+        String[] param = arg.substring(2).split("=");
         if (param.length >= 2) {
           argsMap.put(param[0], param[1]);
         }
