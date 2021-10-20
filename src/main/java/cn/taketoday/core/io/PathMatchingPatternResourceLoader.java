@@ -259,13 +259,14 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
       // a class path resource (multiple resources for same name possible)
-      if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {
+      String location = locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length());
+      if (getPathMatcher().isPattern(location)) {
         // a class path resource pattern
         return findPathMatchingResources(locationPattern);
       }
       else {
         // all class path resources with the given name
-        return findAllClassPathResources(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()));
+        return findAllClassPathResources(location);
       }
     }
     else {
