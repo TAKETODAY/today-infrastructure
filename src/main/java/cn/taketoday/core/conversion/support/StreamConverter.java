@@ -48,7 +48,7 @@ final class StreamConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
     // Stream.class, Collection.class
     // Stream.class, Object[].class
     // Collection.class, Stream.class
@@ -64,11 +64,11 @@ final class StreamConverter implements TypeConverter {
   }
 
   @Override
-  public Object convert(final TypeDescriptor targetType, final Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     if (source instanceof Stream) {
       return convertFromStream((Stream<?>) source, targetType);
     }
-    final TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
+    TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
     if (elementDescriptor == null) {
       // convert to Stream
       if (source instanceof Collection) {
@@ -80,21 +80,21 @@ final class StreamConverter implements TypeConverter {
     }
     else {
       if (source instanceof Collection) {
-        final Collection<?> collection = (Collection<?>) source;
-        final ArrayList target = new ArrayList<>(collection.size());
+        Collection<?> collection = (Collection<?>) source;
+        ArrayList target = new ArrayList<>(collection.size());
 
-        for (final Object element : collection) {
-          final Object converted = conversionService.convert(element, elementDescriptor);
+        for (Object element : collection) {
+          Object converted = conversionService.convert(element, elementDescriptor);
           target.add(converted);
         }
         return target.stream();
       }
       else if (source instanceof Object[]) {
         // array
-        final Object[] sourceArray = (Object[]) source;
-        final ArrayList target = new ArrayList<>(sourceArray.length);
-        for (final Object element : sourceArray) {
-          final Object converted = conversionService.convert(element, elementDescriptor);
+        Object[] sourceArray = (Object[]) source;
+        ArrayList target = new ArrayList<>(sourceArray.length);
+        for (Object element : sourceArray) {
+          Object converted = conversionService.convert(element, elementDescriptor);
           target.add(converted);
         }
         return target.stream();
@@ -113,12 +113,12 @@ final class StreamConverter implements TypeConverter {
       }
 
       @Override
-      public Object apply(final Object original) {
+      public Object apply(Object original) {
         return conversionService.convert(original, elementType);
       }
     }
 
-    final TypeDescriptor elementType = targetType.getElementDescriptor();
+    TypeDescriptor elementType = targetType.getElementDescriptor();
     if (elementType != null) {
       if (targetType.isCollection()) {
         return source.map(new MapFunction(elementType))
@@ -129,11 +129,12 @@ final class StreamConverter implements TypeConverter {
               .toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
     }
 
+    // elementType is null
     if (targetType.isCollection()) {
       return source.collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
               targetType.getType(), null, 16)));
     }
-    return source.toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
+    return source.toArray(Object[]::new);
   }
 
 }
