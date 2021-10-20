@@ -154,8 +154,9 @@ public class StandardApplicationContext
     ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
     if (propertiesLocation != null) {
       processor.setPropertiesLocation(propertiesLocation);
-      processor.postProcessEnvironment();
     }
+    processor.postProcessEnvironment();
+
     // prepare properties
     TodayStrategies detector = TodayStrategies.getDetector();
     List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(
