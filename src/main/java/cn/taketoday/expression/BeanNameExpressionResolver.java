@@ -105,7 +105,6 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   public Object getValue(ExpressionContext context, Object base, Object property) {
 
     if (base == null && property instanceof String) {
-      final BeanNameResolver beanNameResolver = this.beanNameResolver;
       if (beanNameResolver.isNameResolved((String) property)) {
         context.setPropertyResolved(base, property);
         return beanNameResolver.getBean((String) property);
@@ -140,8 +139,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
 
     if (base == null && property instanceof String) {
-      final String beanName = (String) property;
-      final BeanNameResolver beanNameResolver = this.beanNameResolver;
+      String beanName = (String) property;
       if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
         beanNameResolver.setBeanValue(beanName, value);
         context.setPropertyResolved(base, property);
