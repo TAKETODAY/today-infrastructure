@@ -70,7 +70,7 @@ public class BeanPropertyAccessor {
   }
 
   public BeanPropertyAccessor(Class<?> beanClass, ConversionService conversionService) {
-    final BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
+    BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
     this.rootObject = metadata.newInstance();
     this.metadata = metadata;
     this.conversionService = conversionService;
@@ -105,7 +105,7 @@ public class BeanPropertyAccessor {
    * @see #getProperty(String)
    */
   @SuppressWarnings("unchecked")
-  public <T> T getProperty(final String propertyPath, final Class<T> requiredType) {
+  public <T> T getProperty(String propertyPath, Class<T> requiredType) {
     return (T) convertIfNecessary(getProperty(propertyPath), requiredType);
   }
 
@@ -121,7 +121,7 @@ public class BeanPropertyAccessor {
    * @throws NoSuchPropertyException If there is not a property
    * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
-  public Object getProperty(final String propertyPath) {
+  public Object getProperty(String propertyPath) {
     return getProperty(getRootObject(), obtainMetadata(), propertyPath);
   }
 
@@ -137,7 +137,7 @@ public class BeanPropertyAccessor {
    * @throws NoSuchPropertyException If there is not a property
    * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
-  public static Object getProperty(final Object root, final String propertyPath) {
+  public static Object getProperty(Object root, String propertyPath) {
     return getProperty(root, BeanMetadata.ofObject(root), propertyPath);
   }
 
@@ -154,33 +154,34 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public static Object getProperty(
-          final Object root, final BeanMetadata metadata, final String propertyPath) {
-    final int signIndex = getNestedPropertySeparatorIndex(propertyPath);
+          Object root, BeanMetadata metadata, String propertyPath) {
+    int signIndex = getNestedPropertySeparatorIndex(propertyPath);
 
     if (signIndex != -1) {
-      final String property = propertyPath.substring(0, signIndex);
+      String property = propertyPath.substring(0, signIndex);
       // get property value and get value in the next call // root[1].name
-      final Object propertyValue = getPropertyValue(root, metadata, property);
+      Object propertyValue = getPropertyValue(root, metadata, property);
       if (propertyValue == null) {
         return null; // 上一级为空,下一级自然为空
       }
 
-      final BeanMetadata subMetadata = getSubBeanMetadata(metadata, property, propertyValue);
-      final String newPath = propertyPath.substring(signIndex + 1);
+      BeanMetadata subMetadata = getSubBeanMetadata(metadata, property, propertyValue);
+      String newPath = propertyPath.substring(signIndex + 1);
       return getProperty(propertyValue, subMetadata, newPath);
     }
     return getPropertyValue(root, metadata, propertyPath);
   }
 
-  private static BeanMetadata getSubBeanMetadata(BeanMetadata root, String property, Object propertyValue) {
+  private static BeanMetadata getSubBeanMetadata(
+          BeanMetadata root, String property, Object propertyValue) {
     if (property.indexOf('[') != -1) {
       return BeanMetadata.ofObject(propertyValue);
     }
-    return BeanMetadata.ofClass(root.getBeanProperty(property).getType());
+    return BeanMetadata.ofClass(root.obtainBeanProperty(property).getType());
   }
 
   static Object getPropertyValue(Object root, BeanMetadata metadata, String propertyPath) {
-    final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+    int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
     if (signIndex < 0) {
       return metadata.getProperty(root, propertyPath);
     }
@@ -189,7 +190,7 @@ public class BeanPropertyAccessor {
 
   static Object getKeyedPropertyValue(Object root, BeanMetadata metadata, int signIndex, String propertyPath) {
     // check
-    final int endIndex = propertyPath.indexOf(']');
+    int endIndex = propertyPath.indexOf(']');
     if (endIndex == -1 || signIndex + 1 == endIndex) {
       // key is illegal
       throw new IllegalArgumentException("Unsupported Operator: " + propertyPath);
@@ -197,7 +198,7 @@ public class BeanPropertyAccessor {
     Object propValue = root;
     // array,list: [0]; map: [key]
     if (signIndex != 0) {
-      final String property = propertyPath.substring(0, signIndex);
+      String property = propertyPath.substring(0, signIndex);
       propValue = metadata.getProperty(root, property);
       if (propValue == null) {
         return null;
@@ -205,7 +206,7 @@ public class BeanPropertyAccessor {
     }
 
     try {
-      final String key = propertyPath.substring(signIndex + 1, endIndex);
+      String key = propertyPath.substring(signIndex + 1, endIndex);
       propValue = getKeyedPropertyValue(propValue, key);
       if (endIndex != propertyPath.length() - 1
               && propertyPath.charAt(endIndex + 1) == '[') {
@@ -234,32 +235,32 @@ public class BeanPropertyAccessor {
   @SuppressWarnings({ "rawtypes" })
   static Object getKeyedPropertyValue(Object propertyValue, String key) {
     if (propertyValue instanceof Map) {
-      final Map map = (Map) propertyValue;
+      Map map = (Map) propertyValue;
       return map.get(key);
     }
     else if (propertyValue instanceof List) {
-      final List list = (List) propertyValue;
+      List list = (List) propertyValue;
       return list.get(Integer.parseInt(key));
     }
     else if (propertyValue instanceof Set) {
       // Apply index to Iterator in case of a Set.
-      final Set set = (Set) propertyValue;
+      Set set = (Set) propertyValue;
       int index = Integer.parseInt(key);
       if (index < 0 || index >= set.size()) {
         throw new IndexOutOfBoundsException(
                 "Cannot get element with index " + index + " from Set of size " + set.size());
       }
-      final Iterator it = set.iterator();
+      Iterator it = set.iterator();
       for (int j = 0; it.hasNext(); j++) {
-        final Object elem = it.next();
+        Object elem = it.next();
         if (j == index) {
           return elem;
         }
       }
     }
     else if (propertyValue.getClass().isArray()) {
-      final int arrayIndex = Integer.parseInt(key);
-      final int length = Array.getLength(propertyValue);
+      int arrayIndex = Integer.parseInt(key);
+      int length = Array.getLength(propertyValue);
       if (arrayIndex >= length) {
         throw new ArrayIndexOutOfBoundsException(length);
       }
@@ -279,7 +280,7 @@ public class BeanPropertyAccessor {
    * @throws NoSuchPropertyException If no such property
    * @throws InvalidPropertyValueException Invalid property value
    */
-  public void setProperty(final String propertyPath, final Object value) {
+  public void setProperty(String propertyPath, Object value) {
     setProperty(getRootObject(), obtainMetadata(), propertyPath, value);
   }
 
@@ -292,7 +293,7 @@ public class BeanPropertyAccessor {
    * @throws NoSuchPropertyException If no such property
    * @throws InvalidPropertyValueException Invalid property value
    */
-  public void setProperty(final Object root, final String propertyPath, final Object value) {
+  public void setProperty(Object root, String propertyPath, Object value) {
     setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
   }
 
@@ -310,19 +311,19 @@ public class BeanPropertyAccessor {
    * @see #throwsWhenReadOnly
    */
   public void setProperty(
-          final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
-    final int index = getNestedPropertySeparatorIndex(propertyPath);
+          Object root, BeanMetadata metadata, String propertyPath, Object value) {
+    int index = getNestedPropertySeparatorIndex(propertyPath);
 
     if (index != -1) {
       Object subValue;
       Class<?> propertyType;
       if (propertyPath.charAt(index - 1) == ']') { // xxx[0].list[0]
-        final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
-        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
+        int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+        BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
         if (beanProperty == null) { // @since 3.0.2
           return;
         }
-        final Class<?> componentType = beanProperty.getComponentClass();
+        Class<?> componentType = beanProperty.getComponentClass();
 
         propertyType = componentType != null ? componentType : root.getClass();
         try { // xxx[0].list[0]
@@ -345,7 +346,7 @@ public class BeanPropertyAccessor {
         }
       }
       else {
-        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, index);
+        BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, index);
         if (beanProperty == null) {
           return;
         }
@@ -359,18 +360,18 @@ public class BeanPropertyAccessor {
     }
     else {
       // do set property operation
-      final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+      int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
       if (signIndex < 0) {
-        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath);
+        BeanProperty beanProperty = getBeanProperty(metadata, propertyPath);
         if (beanProperty != null) {
           setValue(root, beanProperty, value);
         }
       }
       else {
-        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
+        BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
         if (beanProperty != null) {
-          final Object subValue = getSubValue(root, beanProperty);
-          final String key = getKey(propertyPath, signIndex);
+          Object subValue = getSubValue(root, beanProperty);
+          String key = getKey(propertyPath, signIndex);
           setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
         }
       }
@@ -394,7 +395,7 @@ public class BeanPropertyAccessor {
 
   @Nullable
   private BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath, int index) {
-    final String property = propertyPath.substring(0, index);
+    String property = propertyPath.substring(0, index);
     return getBeanProperty(metadata, property);
   }
 
@@ -402,8 +403,8 @@ public class BeanPropertyAccessor {
    * @since 3.0.2
    */
   @Nullable
-  private BeanProperty getBeanProperty(final BeanMetadata metadata, final String propertyPath) {
-    final BeanProperty beanProperty = metadata.getBeanProperty(propertyPath);
+  private BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath) {
+    BeanProperty beanProperty = metadata.getBeanProperty(propertyPath);
     if (beanProperty == null && !ignoreUnknownProperty) {
       throw new NoSuchPropertyException(metadata.getType(), propertyPath);
     }
@@ -412,8 +413,8 @@ public class BeanPropertyAccessor {
 
   protected Object getComponentValue(
           Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
-    final Object componentValue = beanProperty.newComponentInstance();
-    final String key = getKey(propertyPath, signIndex);
+    Object componentValue = beanProperty.newComponentInstance();
+    String key = getKey(propertyPath, signIndex);
     setKeyedProperty(root, beanProperty, subValue, key, componentValue, propertyPath);
     return componentValue;
   }
@@ -423,12 +424,12 @@ public class BeanPropertyAccessor {
   }
 
   private Object setNewValue(Object root, BeanProperty beanProperty) {
-    final Object subValue = beanProperty.newInstance();
+    Object subValue = beanProperty.newInstance();
     setValue(root, beanProperty, subValue);
     return subValue;
   }
 
-  private Object getSubValue(final Object object, final BeanProperty beanProperty) {
+  private Object getSubValue(Object object, BeanProperty beanProperty) {
     // check if it has value
     Object subValue = beanProperty.getValue(object);
     if (subValue == null) {
@@ -440,18 +441,18 @@ public class BeanPropertyAccessor {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   protected void setKeyedProperty(
-          final Object root, final BeanProperty beanProperty, Object propValue,
-          final String key, final Object value, final String propertyPath
+          Object root, BeanProperty beanProperty, Object propValue,
+          String key, Object value, String propertyPath
   ) {
     if (propValue instanceof List) {
       Object convertedValue = value;
-      final Type valueType = beanProperty.getGeneric(0);
+      Type valueType = beanProperty.getGeneric(0);
       if (valueType instanceof Class) {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
-      final List<?> list = (List<?>) propValue;
-      final int index = Integer.parseInt(key);
+      List<?> list = (List<?>) propValue;
+      int index = Integer.parseInt(key);
       try {
         CollectionUtils.setValue(list, index, convertedValue);
       }
@@ -468,11 +469,11 @@ public class BeanPropertyAccessor {
     else if (propValue instanceof Map) {
       Object convertedKey = key;
       Object convertedValue = value;
-      final Type keyType = beanProperty.getGeneric(0);
+      Type keyType = beanProperty.getGeneric(0);
       if (keyType instanceof Class) {
         convertedKey = convertIfNecessary(convertedKey, (Class<?>) keyType);
       }
-      final Type valueType = beanProperty.getGeneric(1);
+      Type valueType = beanProperty.getGeneric(1);
       if (valueType instanceof Class) {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
@@ -480,7 +481,7 @@ public class BeanPropertyAccessor {
     }
     else {
       // array
-      final Class<?> propValueClass = propValue.getClass();
+      Class<?> propValueClass = propValue.getClass();
       if (propValueClass.isArray()) {
         Class<?> componentType = propValueClass.getComponentType();
         int arrayIndex = Integer.parseInt(key);
@@ -508,36 +509,36 @@ public class BeanPropertyAccessor {
    * @param beanProperty property metadata
    * @throws InvalidPropertyValueException conversion failed
    */
-  protected Object convertIfNecessary(final Object value, final BeanProperty beanProperty) {
+  protected Object convertIfNecessary(Object value, BeanProperty beanProperty) {
     if (value == null || beanProperty.isInstance(value)) {
       return value;
     }
     return doConvertInternal(value, beanProperty);
   }
 
-  protected Object doConvertInternal(Object value, final BeanProperty beanProperty) {
+  protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
     return doConvertInternal(value, TypeDescriptor.fromProperty(beanProperty));
   }
 
   /**
    * @throws InvalidPropertyValueException conversion failed
    */
-  protected Object convertIfNecessary(final Object value, final Class<?> requiredType) {
+  protected Object convertIfNecessary(Object value, Class<?> requiredType) {
     if (value == null || requiredType.isInstance(value)) {
       return value;
     }
     return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
   }
 
-  protected Object doConvertInternal(final Object value, final TypeDescriptor requiredType) {
-    final TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
+  protected Object doConvertInternal(Object value, TypeDescriptor requiredType) {
+    TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
     if (typeConverter == null) {
       return converterNotFound(value, requiredType);
     }
     return typeConverter.convert(requiredType, value);
   }
 
-  protected Object converterNotFound(final Object value, final TypeDescriptor requiredType) {
+  protected Object converterNotFound(Object value, TypeDescriptor requiredType) {
     throw new InvalidPropertyValueException(
             "Invalid property value [" + value + "] cannot convert '"
                     + value.getClass() + "' to target class: [" + requiredType + "]");
@@ -550,10 +551,10 @@ public class BeanPropertyAccessor {
    * @param propertyPath the property path to check
    * @return the index of the nested property separator, or -1 if none
    */
-  public static int getNestedPropertySeparatorIndex(final String propertyPath) {
+  public static int getNestedPropertySeparatorIndex(String propertyPath) {
     int idx = 0;
     boolean inKey = false;
-    for (final char value : propertyPath.toCharArray()) {
+    for (char value : propertyPath.toCharArray()) {
       if (value == '[' || value == ']') {
         inKey = !inKey;
       }
@@ -587,7 +588,7 @@ public class BeanPropertyAccessor {
   }
 
   public BeanMetadata obtainMetadata() {
-    final BeanMetadata metadata = getMetadata();
+    BeanMetadata metadata = getMetadata();
     Assert.state(metadata != null, "No BeanMetadata.");
     return metadata;
   }
