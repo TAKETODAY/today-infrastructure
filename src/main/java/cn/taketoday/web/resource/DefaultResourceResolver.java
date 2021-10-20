@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Set;
 
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
@@ -33,8 +34,8 @@ import cn.taketoday.core.io.ResourceFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebUtils;
@@ -78,8 +79,8 @@ public class DefaultResourceResolver implements WebResourceResolver {
     for (final String location : matchResult.getMapping().getLocations()) {
       try {
         // log.debug("look in: [{}]", location);
-        final Resource[] resources = resourceLoader.getResources(location);
-        if (ObjectUtils.isNotEmpty(resources)) {
+        final Set<Resource> resources = resourceLoader.getResources(location);
+        if (CollectionUtils.isNotEmpty(resources)) {
           for (final Resource resource : resources) {
             final Resource createRelative = resource.createRelative(extractPathWithinPattern);
             if (createRelative.exists()) {
