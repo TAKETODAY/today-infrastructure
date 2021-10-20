@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2009-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.jdbc.type;
 
@@ -45,13 +64,14 @@ import cn.taketoday.core.annotation.AnnotationUtils;
  * @author Kazuki Shimizu
  * @author TODAY
  */
+@SuppressWarnings("rawtypes")
 public class TypeHandlerRegistry {
   private static final TypeHandlerRegistry sharedInstance = new TypeHandlerRegistry();
 
   private ObjectTypeHandler objectTypeHandler = ObjectTypeHandler.getSharedInstance();
 
   private final TypeHandler<Object> unknownTypeHandler;
-  private final Map<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
+  private final HashMap<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
 
   public TypeHandlerRegistry() {
@@ -149,8 +169,8 @@ public class TypeHandlerRegistry {
 
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getTypeHandler(TypeReference<T> javaTypeReference) {
-    final ResolvableType resolvableType = javaTypeReference.getResolvableType();
-    final Class<T> aClass = (Class<T>) resolvableType.toClass();
+    ResolvableType resolvableType = javaTypeReference.getResolvableType();
+    Class<T> aClass = (Class<T>) resolvableType.toClass();
     return getTypeHandler(aClass);
   }
 
@@ -180,7 +200,7 @@ public class TypeHandlerRegistry {
   @SuppressWarnings("unchecked")
   public <T> void register(TypeHandler<T> typeHandler) {
     boolean mappedTypeFound = false;
-    final MappedTypes mappedTypes = AnnotationUtils.getAnnotation(MappedTypes.class, typeHandler.getClass());
+    MappedTypes mappedTypes = AnnotationUtils.getAnnotation(MappedTypes.class, typeHandler.getClass());
     if (mappedTypes != null) {
       for (Class<?> handledType : mappedTypes.value()) {
         register((Class<T>) handledType, typeHandler);
@@ -208,8 +228,8 @@ public class TypeHandlerRegistry {
   }
 
   public <T> void register(TypeReference<T> reference, TypeHandler<T> handler) {
-    final ResolvableType resolvableType = reference.getResolvableType();
-    final Class<?> aClass = resolvableType.toClass();
+    ResolvableType resolvableType = reference.getResolvableType();
+    Class<?> aClass = resolvableType.toClass();
     register(aClass, handler);
   }
 
