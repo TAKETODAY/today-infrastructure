@@ -239,7 +239,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @throws UnsupportedEncodingException
    *         if the character encoding is not supported
    * @see #getContentAsString()
-   * @since 5.2
+   * @since 4.0
    */
   public String getContentAsString(Charset fallbackCharset) throws UnsupportedEncodingException {
     return (isCharset() && this.characterEncoding != null ?

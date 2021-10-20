@@ -54,15 +54,15 @@ public class ConditionEvaluator {
    * @param annotated Target class or a method
    * @return If matched
    */
-  public boolean passCondition(final AnnotatedElement annotated) {
-    final AnnotationAttributes[] attributes =
+  public boolean passCondition(AnnotatedElement annotated) {
+    AnnotationAttributes[] attributes =
             AnnotationUtils.getAttributesArray(annotated, Conditional.class);
     if (ObjectUtils.isNotEmpty(attributes)) {
       if (attributes.length == 1) {
         return passCondition(annotated, attributes[0].getClassArray(Constant.VALUE));
       }
       AnnotationAwareOrderComparator.sort(attributes);
-      for (final AnnotationAttributes conditional : attributes) {
+      for (AnnotationAttributes conditional : attributes) {
         if (!passCondition(annotated, conditional.getClassArray(Constant.VALUE))) {
           return false; // can't match
         }
@@ -72,12 +72,12 @@ public class ConditionEvaluator {
   }
 
   public boolean passCondition(
-          final AnnotatedElement annotated,
-          final Class<? extends Condition>[] condition
+          AnnotatedElement annotated,
+          Class<? extends Condition>[] condition
   ) {
     Assert.notNull(condition, "Condition Class must not be null");
     ApplicationContext context = evaluationContext.getContext();
-    for (final Class<? extends Condition> conditionClass : condition) {
+    for (Class<? extends Condition> conditionClass : condition) {
       // TODO
       if (!BeanUtils.newInstance(conditionClass, context).matches(evaluationContext, annotated)) {
         return false; // can't match

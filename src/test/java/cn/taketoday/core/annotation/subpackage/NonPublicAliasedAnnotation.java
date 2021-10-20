@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Non-public mock of {@code org.springframework.web.bind.annotation.RequestMapping}.
+ * Non-public mock of {@code cn.taketoday.web.bind.annotation.RequestMapping}.
  *
  * @author Sam Brannen
  * @since 4.2

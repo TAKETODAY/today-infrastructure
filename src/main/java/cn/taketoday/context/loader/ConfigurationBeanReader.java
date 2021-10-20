@@ -1,5 +1,5 @@
 /*
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
@@ -21,12 +21,16 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
@@ -39,6 +43,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -74,29 +79,72 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     log.debug("Loading Configuration Beans");
 
     for (BeanDefinition definition : context.getRegistry()) {
-      if (definition.isAnnotationPresent(Configuration.class)) {
-        // @Configuration bean
-        loadConfigurationBeans(definition);
+      processConfiguration(definition);
+      processImport(definition);
+      processComponentScan(definition);
+    }
+  }
+
+  private void processConfiguration(BeanDefinition definition) {
+    if (isConfiguration(definition)) {
+      // @Configuration bean
+      loadConfigurationBeans(definition);
+    }
+  }
+
+  protected boolean isConfiguration(BeanDefinition definition) {
+    return definition.isAnnotationPresent(Configuration.class);
+  }
+
+  private void processComponentScan(BeanDefinition definition) {
+    if (definition.isAnnotationPresent(ComponentScan.class)) {
+      ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
+      List<AnnotationAttributes> annotations = AnnotationUtils.getAttributes(definition, ComponentScan.class);
+
+      LinkedHashSet<String> basePackages = new LinkedHashSet<>();
+      LinkedHashSet<String> patternLocations = new LinkedHashSet<>();
+      LinkedHashSet<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies = new LinkedHashSet<>();
+
+      for (AnnotationAttributes annotation : annotations) {
+        CollectionUtils.addAll(basePackages, annotation.getStringArray(Constant.VALUE));
+        CollectionUtils.addAll(patternLocations, annotation.getStringArray("patternLocations"));
+        CollectionUtils.addAll(loadingStrategies, annotation.getClassArray("loadingStrategies"));
+      }
+
+      scanningReader.addLoadingStrategies(loadingStrategies);
+
+      if (CollectionUtils.isNotEmpty(basePackages)) {
+        scanningReader.scanPackages(basePackages.toArray(Constant.EMPTY_STRING_ARRAY));
+      }
+
+      if (ObjectUtils.isNotEmpty(patternLocations)) {
+        scanningReader.scan(patternLocations.toArray(Constant.EMPTY_STRING_ARRAY));
       }
     }
+
+  }
+
+  public void importing(Class<?> component) {
+    DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(component);
+    loadConfigurationBeans(defaults);
   }
 
   /**
    * Load {@link Configuration} beans from input bean class
    *
-   * @param declaringDef current {@link Configuration} bean
+   * @param config current {@link Configuration} bean
    * @since 2.1.7
    */
-  protected void loadConfigurationBeans(BeanDefinition declaringDef) {
+  protected void loadConfigurationBeans(BeanDefinition config) {
     // process local declared methods first
-    for (Method method : ReflectionUtils.getDeclaredMethods(declaringDef.getBeanClass())) {
+    for (Method method : ReflectionUtils.getDeclaredMethods(config.getBeanClass())) {
       AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(method, Component.class);
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
         context.detectMissingBean(method);
       } // is a Component
       else if (context.passCondition(method)) { // pass the condition
-        registerConfigurationBean(declaringDef, method, components);
+        registerConfigurationBean(config, method, components);
       }
     }
   }
@@ -124,7 +172,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   public void register(BeanDefinition definition) {
     context.registerBeanDefinition(definition);
-    importAnnotated(definition);
+    processImport(definition);
     if (definition.isAnnotationPresent(Configuration.class)) {
       loadConfigurationBeans(definition); //  scan config bean
     }
@@ -137,7 +185,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    * @param target Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
    * @return {@link ImportSelector} object
    */
-  protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
+  protected final <T> T createImporter(BeanDefinition importDef, Class<T> target) {
     try {
       Object bean = context.getBean(importDef);
       if (bean instanceof ImportAware) {
@@ -150,7 +198,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  void importAnnotated(BeanDefinition annotated) {
+  protected final void processImport(BeanDefinition annotated) {
     for (AnnotationAttributes attr : AnnotationUtils.getAttributesArray(annotated, Import.class)) {
       for (Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
         if (!context.containsBeanDefinition(importClass, true)) {

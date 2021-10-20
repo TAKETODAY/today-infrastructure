@@ -1,5 +1,5 @@
 /*
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
@@ -46,6 +47,8 @@ public class DefinitionLoadingContext {
   private final ApplicationContext applicationContext;
 
   private final MissingBeanRegistry missingBeanRegistry;
+
+  private BeanFactoryAwareBeanInstantiator instantiator;
 
   public DefinitionLoadingContext(BeanDefinitionRegistry registry, ApplicationContext context) {
     this.registry = registry;
@@ -121,7 +124,7 @@ public class DefinitionLoadingContext {
   }
 
   public boolean passCondition(AnnotatedElement annotated) {
-    return conditionEvaluator.passCondition(annotated);
+    return getConditionEvaluator().passCondition(annotated);
   }
 
   public void addApplicationListener(ApplicationListener<?> importer) {
@@ -138,6 +141,21 @@ public class DefinitionLoadingContext {
 
   public boolean isMissingBeanInContext(AnnotationAttributes missingBean, AnnotatedElement annotated) {
     return missingBeanRegistry.isMissingBeanInContext(missingBean, annotated);
+  }
+
+  //---------------------------------------------------------------------
+  // BeanFactoryAwareBeanInstantiator
+  //---------------------------------------------------------------------
+
+  private BeanFactoryAwareBeanInstantiator instantiator() {
+    if (instantiator == null) {
+      this.instantiator = new BeanFactoryAwareBeanInstantiator(applicationContext);
+    }
+    return instantiator;
+  }
+
+  public <T> T instantiate(Class<T> beanClass) {
+    return instantiator().instantiate(beanClass);
   }
 
 }

@@ -20,6 +20,12 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -34,12 +40,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-
 /**
  * @author TODAY 2021/10/2 23:38
  * @since 4.0
@@ -53,7 +53,6 @@ public class ScanningBeanDefinitionReader {
   private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
-
 
   private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
@@ -81,7 +80,7 @@ public class ScanningBeanDefinitionReader {
    */
   public int scanPackages(String... basePackages) throws BeanDefinitionStoreException {
     // Loading candidates components
-    log.info("Scanning candidates components from: '{}'", Arrays.toString(basePackages));
+    log.info("Scanning candidates components from packages: '{}'", Arrays.toString(basePackages));
 
     int beanDefinitionCount = registry.getBeanDefinitionCount();
     for (String location : basePackages) {
@@ -107,7 +106,7 @@ public class ScanningBeanDefinitionReader {
    */
   public int scan(String... patternLocations) {
     // Loading candidates components
-    log.info("Scanning candidates components from: '{}'", Arrays.toString(patternLocations));
+    log.info("Scanning candidates components from resource location: '{}'", Arrays.toString(patternLocations));
     int beanDefinitionCount = registry.getBeanDefinitionCount();
 
     for (String location : patternLocations) {
@@ -126,13 +125,32 @@ public class ScanningBeanDefinitionReader {
     try {
       Set<Resource> resources = resourceLoader.getResources(patternLocation);
       for (Resource resource : resources) {
-        ClassNode classNode = ClassMetaReader.read(resource);
-        process(classNode);
+        if (isCandidateComponent(resource)) {
+          ClassNode classNode = ClassMetaReader.read(resource);
+          process(classNode);
+        }
       }
     }
     catch (IOException e) {
       throw new BeanDefinitionStoreException("IO exception occur With Msg: [" + e + ']', e);
     }
+  }
+
+  private boolean isCandidateComponent(Resource resource) {
+
+    return false;
+  }
+
+  /**
+   * Determine whether the given class is a candidate component based on any
+   * {@code @Conditional} annotations.
+   *
+   * @param classNode the ASM ClassReader for the class
+   * @return whether the class qualifies as a candidate component
+   */
+  private boolean isConditionMatch(ClassNode classNode) {
+    loadingContext.passCondition();
+    return ;
   }
 
   protected void process(ClassNode classNode) {
@@ -169,5 +187,11 @@ public class ScanningBeanDefinitionReader {
     return ClassUtils.convertClassNameToResourcePath(basePackage);
   }
 
+  public void addLoadingStrategies(Set<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies) {
+    for (Class<? extends BeanDefinitionLoadingStrategy> loadingStrategy : loadingStrategies) {
+      BeanDefinitionLoadingStrategy strategy = loadingContext.instantiate(loadingStrategy);
+      scanningStrategies.addStrategies(strategy);
+    }
 
+  }
 }

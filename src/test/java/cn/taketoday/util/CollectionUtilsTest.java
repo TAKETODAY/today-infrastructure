@@ -157,7 +157,7 @@ public class CollectionUtilsTest {
   }
 
   @Test
-  void createMapIsNotTypeSafeForLinkedMultiValueMap() {
+  void createMapIsNotTypeSafeForDefaultMultiValueMap() {
     Map<String, Integer> map = createMap(MultiValueMap.class, null, 3);
 
     // Use a try-catch block to ensure that the exception is thrown as a result of the

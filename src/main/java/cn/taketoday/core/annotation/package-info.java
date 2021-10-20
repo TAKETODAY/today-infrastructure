@@ -20,7 +20,8 @@
  */
 
 /**
- * Annotation support
+ * Core support package for annotations, meta-annotations, and merged
+ * annotations with attribute overrides. Enhanced from spring
  *
  * @author TODAY 2021/8/15 22:41
  */

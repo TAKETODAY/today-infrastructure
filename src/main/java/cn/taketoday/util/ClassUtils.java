@@ -1035,6 +1035,15 @@ public abstract class ClassUtils {
     return shortName;
   }
 
+  public static String getSimpleName(String className) {
+    String simpleName = getShortName(className);
+    int innerIndex = simpleName.indexOf(Constant.PACKAGE_SEPARATOR);
+    if (innerIndex > -1) {
+      simpleName = simpleName.substring(innerIndex + 1);
+    }
+    return simpleName;
+  }
+
   /**
    * Get the class name without the qualified package name.
    *

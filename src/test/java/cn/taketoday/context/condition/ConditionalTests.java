@@ -70,8 +70,8 @@ class ConditionalTests {
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalClass.class));
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnMissing.class));
-      Assertions.assertTrue(!registry.containsBeanDefinition(ConditionalMissingClass.class));
-      Assertions.assertTrue(!registry.containsBeanDefinition(ConditionalMissed.class));
+      Assertions.assertFalse(registry.containsBeanDefinition(ConditionalMissingClass.class));
+      Assertions.assertFalse(registry.containsBeanDefinition(ConditionalMissed.class));
     }
   }
 
@@ -99,7 +99,7 @@ class ConditionalTests {
       BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalExpression_.class));
-      Assertions.assertTrue(!registry.containsBeanDefinition(ConditionalExpression__.class));
+      Assertions.assertFalse(registry.containsBeanDefinition(ConditionalExpression__.class));
     }
   }
 
@@ -138,9 +138,9 @@ class ConditionalTests {
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnProperty_.class));
-      Assertions.assertTrue(!registry.containsBeanDefinition(ConditionalOnProperty__.class));
+      Assertions.assertFalse(registry.containsBeanDefinition(ConditionalOnProperty__.class));
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnProperty___.class));
-      Assertions.assertTrue(!registry.containsBeanDefinition(ConditionalOnProperty____.class));
+      Assertions.assertFalse(registry.containsBeanDefinition(ConditionalOnProperty____.class));
     }
   }
 

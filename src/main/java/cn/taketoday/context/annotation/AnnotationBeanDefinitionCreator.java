@@ -24,15 +24,18 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.annotation.ClassMetaReader;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.lang.Component;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/10/10 22:20
@@ -52,16 +55,22 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStr
     if (Modifier.isAbstract(classNode.access) || Modifier.isInterface(classNode.access)) {
       return null;
     }
+    // TODO lazy class loading
+
+    String className = ClassUtils.convertResourcePathToClassName(classNode.name);
+    Class<?> aClass = ClassUtils.resolveClassName(className, null);
 
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
-    AnnotationAttributes[] annotations = ClassMetaReader.readAnnotations(classNode);
     for (Class<? extends Annotation> annotationType : annotationTypes) {
-      AnnotationAttributes attributes = ClassMetaReader.selectAttributes(annotations, annotationType);
-      if (attributes != null) {
-        BeanDefinitionBuilder builder = loadingContext.createBuilder();
-        builder.reset();
-        builder.attributes(attributes);
-        builder.build(loadingContext.createBeanName(classNode.name), definitions::add);
+      List<AnnotationAttributes> annotations = AnnotationUtils.getAttributes(aClass, annotationType);
+
+      if (CollectionUtils.isNotEmpty(annotations)) {
+        for (AnnotationAttributes attributes : annotations) {
+          BeanDefinitionBuilder builder = loadingContext.createBuilder();
+          builder.beanClass(aClass);
+          builder.attributes(attributes);
+          builder.build(loadingContext.createBeanName(className), definitions::add);
+        }
       }
     }
     return definitions;

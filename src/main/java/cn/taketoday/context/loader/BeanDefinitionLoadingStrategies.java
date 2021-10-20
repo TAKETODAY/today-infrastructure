@@ -38,7 +38,7 @@ import cn.taketoday.util.CollectionUtils;
 public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStrategy {
   private final ArrayList<BeanDefinitionLoadingStrategy> creationStrategies = new ArrayList<>();
 
-  {
+  public BeanDefinitionLoadingStrategies() {
     TodayStrategies detector = TodayStrategies.getDetector();
     List<BeanDefinitionLoadingStrategy> strategies = detector.getStrategies(
             BeanDefinitionLoadingStrategy.class);

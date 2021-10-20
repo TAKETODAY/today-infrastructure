@@ -667,12 +667,13 @@ public class BeanDefinitionBuilder {
     }
   }
 
-  public static String defaultBeanName(String clazzName) {
-    return StringUtils.uncapitalize(clazzName);
+  public static String defaultBeanName(String className) {
+    return StringUtils.uncapitalize(ClassUtils.getSimpleName(className));
   }
 
   public static String defaultBeanName(Class<?> clazz) {
-    return StringUtils.uncapitalize(ClassUtils.getShortName(clazz));
+    String simpleName = clazz.getSimpleName();
+    return StringUtils.uncapitalize(simpleName);
   }
 
 }

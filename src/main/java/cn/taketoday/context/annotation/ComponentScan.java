@@ -24,9 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
+
 /**
- * @author TODAY <br>
- * 2019-11-13 23:52
+ * @author TODAY 2019-11-13 23:52
+ * @see cn.taketoday.context.loader.ScanningBeanDefinitionReader
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,6 +37,10 @@ public @interface ComponentScan {
   /**
    * Scan package
    */
-  String[] value();
+  String[] value() default {};
+
+  String[] patternLocations() default {};
+
+  Class<? extends BeanDefinitionLoadingStrategy>[] loadingStrategies() default {};
 
 }
