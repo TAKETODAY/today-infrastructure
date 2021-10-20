@@ -172,7 +172,7 @@ public class StandardApplicationContext
 
   @Override
   public void scan(String... basePackages) {
-    scanningReader.scan(basePackages);
+    scanningReader.scanPackages(basePackages);
   }
 
 }

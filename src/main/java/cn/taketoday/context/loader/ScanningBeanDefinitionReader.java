@@ -23,35 +23,22 @@ package cn.taketoday.context.loader;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.core.ThrowableSupplier;
 import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
-import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import static cn.taketoday.lang.Constant.PACKAGE_SEPARATOR;
-import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -59,10 +46,14 @@ import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
  */
 public class ScanningBeanDefinitionReader {
   private static final Logger log = LoggerFactory.getLogger(ScanningBeanDefinitionReader.class);
+  static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
   private final BeanDefinitionRegistry registry;
   /** @since 2.1.7 Scan candidates */
   private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
+
+  private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
+
 
   private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
@@ -84,133 +75,63 @@ public class ScanningBeanDefinitionReader {
   /**
    * Load {@link BeanDefinition}s from input package locations
    *
-   * @param locations package locations
+   * @param basePackages package locations
    * @throws BeanDefinitionStoreException If BeanDefinition could not be store
    * @since 4.0
    */
-  public void scan(String... locations) throws BeanDefinitionStoreException {
+  public int scanPackages(String... basePackages) throws BeanDefinitionStoreException {
     // Loading candidates components
-    log.info("Scanning candidates components");
+    log.info("Scanning candidates components from: '{}'", Arrays.toString(basePackages));
 
     int beanDefinitionCount = registry.getBeanDefinitionCount();
-    for (String location : locations) {
-      scan(location);
+    for (String location : basePackages) {
+      scanFromPackage(location);
     }
     int afterScanCount = registry.getBeanDefinitionCount();
-    log.info("There are [{}] candidates components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(locations));
+    log.info("There are [{}] candidates components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(basePackages));
+    return afterScanCount - beanDefinitionCount;
   }
 
-  public void scan(String packageName) {
-    String resourceToUse = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
+  public void scanFromPackage(String packageName) {
+    String resourceToUse = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX +
+            resolveBasePackage(packageName) + '/' + this.resourcePattern;
+    doScanning(resourceToUse);
+  }
+
+  /**
+   * Load {@link BeanDefinition}s from input pattern locations
+   *
+   * @param patternLocations package locations
+   * @throws BeanDefinitionStoreException If BeanDefinition could not be store
+   * @since 4.0
+   */
+  public int scan(String... patternLocations) {
+    // Loading candidates components
+    log.info("Scanning candidates components from: '{}'", Arrays.toString(patternLocations));
+    int beanDefinitionCount = registry.getBeanDefinitionCount();
+
+    for (String location : patternLocations) {
+      doScanning(location);
+    }
+
+    int afterScanCount = registry.getBeanDefinitionCount();
+    log.info("There are [{}] candidates components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(patternLocations));
+    return afterScanCount - beanDefinitionCount;
+  }
+
+  public void doScanning(String patternLocation) {
     if (log.isDebugEnabled()) {
-      log.debug("Scanning component candidates from package: [{}]", packageName);
+      log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      Set<Resource> resources = resourceLoader.getResources(resourceToUse);
+      Set<Resource> resources = resourceLoader.getResources(patternLocation);
       for (Resource resource : resources) {
-        scan(resource, packageName);
-      }
-    }
-    catch (IOException e) {
-      throw new ApplicationContextException("IO exception occur With Msg: [" + e + ']', e);
-    }
-  }
-
-  /**
-   * Scan class in a {@link Resource}
-   *
-   * @param resource {@link Resource} in class maybe a jar file or class directory
-   * @param packageName if {@link Resource} is a directory will use this packageName
-   * @throws IOException if the resource is not available
-   * @since 2.1.6
-   */
-  protected void scan(Resource resource, String packageName) throws IOException {
-    if (log.isTraceEnabled()) {
-      log.trace("Scanning candidate components in [{}]", resource.getLocation());
-    }
-    if (resource instanceof FileBasedResource) {
-      if (resource.isDirectory()) {
-        findInDirectory(resource);
-        return;
-      }
-      if (resource.getName().endsWith(".jar")) {
-        scanInJarFile(resource, packageName, () -> new JarFile(resource.getFile()));
-      }
-    }
-    else if (resource instanceof JarEntryResource) {
-      scanInJarFile(resource, packageName, ((JarEntryResource) resource)::getJarFile);
-    }
-    else if (resource instanceof ClassPathResource) {
-      scan(((ClassPathResource) resource).getOriginalResource(), packageName);
-    }
-  }
-
-  private Predicate<Resource> jarResourceFilter;
-
-  protected void scanInJarFile(Resource resource,
-                               String packageName,
-                               ThrowableSupplier<JarFile, IOException> jarFileSupplier) throws IOException //
-  {
-    if (getJarResourceFilter().test(resource)) {
-      if (log.isTraceEnabled()) {
-        log.trace("Scan in jar file: [{}]", resource.getLocation());
-      }
-      try (JarFile jarFile = jarFileSupplier.get()) {
-        Enumeration<JarEntry> jarEntries = jarFile.entries();
-        while (jarEntries.hasMoreElements()) {
-          loadClassFromJarEntry(jarEntries.nextElement(), packageName);
-        }
-      }
-    }
-  }
-
-  /**
-   * Load classes from a {@link JarEntry}
-   *
-   * @param jarEntry The entry of jar
-   */
-  public void loadClassFromJarEntry(JarEntry jarEntry, String packageName) {
-    if (jarEntry.isDirectory()) {
-      return;
-    }
-    String jarEntryName = jarEntry.getName(); // cn/taketoday/xxx/yyy.class
-    if (jarEntryName.endsWith(ClassUtils.CLASS_FILE_SUFFIX)) {
-      // fix #10 classes loading from a jar can't be load
-      String nameToUse = jarEntryName.replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);
-      if (StringUtils.isEmpty(packageName) || nameToUse.startsWith(packageName)) {
-        String className = nameToUse.substring(0, nameToUse.lastIndexOf(PACKAGE_SEPARATOR));
-        ClassNode classNode = ClassMetaReader.read(className);
-        process(classNode);
-      }
-    }
-  }
-
-  /**
-   * <p>
-   * Find in directory.
-   * </p>
-   * Note: don't need packageName
-   *
-   * @throws IOException if the resource is not available
-   */
-  protected void findInDirectory(Resource directory) throws IOException {
-    if (!directory.exists()) {
-      log.error("The location: [{}] you provided that does not exist", directory.getLocation());
-      return;
-    }
-
-    if (log.isTraceEnabled()) {
-      log.trace("Enter: [{}]", directory.getLocation());
-    }
-
-    for (Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
-      if (resource.isDirectory()) { // recursive
-        findInDirectory(resource);
-      }
-      else {
         ClassNode classNode = ClassMetaReader.read(resource);
         process(classNode);
       }
+    }
+    catch (IOException e) {
+      throw new BeanDefinitionStoreException("IO exception occur With Msg: [" + e + ']', e);
     }
   }
 
@@ -223,52 +144,30 @@ public class ScanningBeanDefinitionReader {
     }
   }
 
-  /** Class resource filter */
-  private static final ResourceFilter CLASS_RESOURCE_FILTER = resource ->
-          resource.isDirectory()
-                  || (resource.getName().endsWith(ClassUtils.CLASS_FILE_SUFFIX)
-                  && !resource.getName().startsWith("package-info"));
-
-  public Predicate<Resource> getJarResourceFilter() {
-    Predicate<Resource> jarResourceFilter = this.jarResourceFilter;
-    if (jarResourceFilter == null) {
-      return this.jarResourceFilter = new DefaultJarResourcePredicate(CandidateComponentScanner.getSharedInstance());
-    }
-    return jarResourceFilter;
+  /**
+   * Set the resource pattern to use when scanning the classpath.
+   * This value will be appended to each base package name.
+   *
+   * @see #DEFAULT_RESOURCE_PATTERN
+   */
+  public void setResourcePattern(String resourcePattern) {
+    Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
+    this.resourcePattern = resourcePattern;
   }
 
-  static final class DefaultJarResourcePredicate implements Predicate<Resource> {
-    private final CandidateComponentScanner scanner;
-
-    DefaultJarResourcePredicate(CandidateComponentScanner scanner) {
-      this.scanner = scanner;
-    }
-
-    @Override
-    public boolean test(Resource resource) {
-
-      if (scanner.isUseDefaultIgnoreScanJarPrefix()) {
-
-        String fileName = resource.getName();
-        for (String ignoreJarName : CandidateComponentScanner.getDefaultIgnoreJarPrefix()) {
-          if (fileName.startsWith(ignoreJarName)) {
-            return false;
-          }
-        }
-      }
-
-      String[] ignoreScanJarPrefixs = scanner.getIgnoreScanJarPrefixs();
-      if (ignoreScanJarPrefixs != null) {
-        String fileName = resource.getName();
-
-        for (String ignoreJarName : ignoreScanJarPrefixs) {
-          if (fileName.startsWith(ignoreJarName)) {
-            return false;
-          }
-        }
-      }
-
-      return true;
-    }
+  /**
+   * Resolve the specified base package into a pattern specification for
+   * the package search path.
+   * <p>The default implementation resolves placeholders against system properties,
+   * and converts a "."-based package path to a "/"-based resource path.
+   *
+   * @param basePackage the base package as specified by the user
+   * @return the pattern specification to be used for package searching
+   */
+  protected String resolveBasePackage(String basePackage) {
+    // TODO resolveRequiredPlaceholders
+    return ClassUtils.convertClassNameToResourcePath(basePackage);
   }
+
+
 }
