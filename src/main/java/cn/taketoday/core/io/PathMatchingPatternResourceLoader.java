@@ -19,6 +19,18 @@
  */
 package cn.taketoday.core.io;
 
+import cn.taketoday.core.AntPathMatcher;
+import cn.taketoday.core.PathMatcher;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,18 +46,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.core.PathMatcher;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.lang.Constant.BLANK;
 
@@ -272,15 +272,17 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       // Generally only look for a pattern after a prefix here,
       // and on Tomcat only after the "*/" separator for its "war:" protocol.
       int prefixEnd = locationPattern.startsWith("war:")
-                      ? locationPattern.indexOf("*/")
-                      : locationPattern.indexOf(':');
+              ? locationPattern.indexOf("*/")
+              : locationPattern.indexOf(':');
 
       if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd + 1))) {
         return findPathMatchingResources(locationPattern); // a file pattern
       }
       else {
         // a single resource with the given name
-        return new Resource[] { getResource(locationPattern) };
+        LinkedHashSet<Resource> result = new LinkedHashSet<>();
+        result.add(getResource(locationPattern));
+        return result;
       }
     }
   }
@@ -371,13 +373,13 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           }
           catch (IOException ex) {
             log.debug("Cannot search for matching files underneath [{}] because it cannot be converted to a valid 'jar:' URL: {}",
-                      url, ex.getMessage());
+                    url, ex.getMessage());
           }
         }
       }
       catch (Exception ex) {
         log.debug("Cannot introspect jar files since ClassLoader [{}] does not support 'getURLs()': {}",
-                  classLoader, ex);
+                classLoader, ex);
       }
     }
 
@@ -392,7 +394,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       }
       catch (Exception ex) {
         log.debug("Cannot introspect jar files in parent ClassLoader since [{}] does not support 'getParent()': {}",
-                  classLoader, ex.toString(), ex);
+                classLoader, ex.toString(), ex);
       }
     }
   }
@@ -437,7 +439,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         }
         catch (MalformedURLException ex) {
           log.debug("Cannot search for matching files underneath [{}] because it cannot be converted to a valid 'jar:' URL: {}",
-                    path, ex.getMessage(), ex);
+                  path, ex.getMessage(), ex);
         }
       }
     }
@@ -461,8 +463,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       return false;
     }
     String duplicatePath = StringUtils.matchesFirst(filePath, '/')
-                           ? filePath.substring(1)
-                           : "/".concat(filePath);
+            ? filePath.substring(1)
+            : "/".concat(filePath);
     try {
       return result.contains(new JarEntryResource(
               new StringBuilder(duplicatePath.length() + 11)
@@ -619,7 +621,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
     catch (FileNotFoundException ex) {
       log.error("Cannot search for matching files underneath {} in the file system: {}",
-                rootDirResource, ex.toString(), ex);
+              rootDirResource, ex.toString(), ex);
       return Collections.emptySet();
     }
     catch (Exception ex) {
@@ -678,7 +680,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     if (!rootDir.canRead()) {
       if (log.isInfoEnabled()) {
         log.info("Skipping search for matching files underneath directory [{}] because the application is not allowed to read the directory",
-                 rootDir.getAbsolutePath());
+                rootDir.getAbsolutePath());
       }
       return Collections.emptySet();
     }
@@ -718,7 +720,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         }
         else if (log.isDebugEnabled()) {
           log.debug("Skipping subdirectory [{}] because the application is not allowed to read the directory",
-                    dir.getAbsolutePath());
+                  dir.getAbsolutePath());
         }
       }
       if (pathMatcher.match(fullPattern, currPath)) {
