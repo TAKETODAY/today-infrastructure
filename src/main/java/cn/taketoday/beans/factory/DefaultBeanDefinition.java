@@ -128,6 +128,10 @@ public class DefaultBeanDefinition
   /** @since 4.0  class name lazy load */
   private String className;
 
+  @Nullable
+  /** source @since 4.0 source */
+  private Object source;
+
   public DefaultBeanDefinition() { }
 
   public DefaultBeanDefinition(Class<?> beanClass) {
@@ -589,6 +593,17 @@ public class DefaultBeanDefinition
   @Override
   public boolean isPrimary() {
     return this.primary;
+  }
+
+  /** @since 4.0 source */
+  public void setSource(@Nullable Object source){
+    this.source = source;
+  }
+
+  /** @since 4.0 source */
+  @Nullable
+  public Object getSource() {
+    return this.source;
   }
 
   @Override
