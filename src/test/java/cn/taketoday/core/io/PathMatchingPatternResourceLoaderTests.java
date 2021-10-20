@@ -77,7 +77,7 @@ class PathMatchingPatternResourceLoaderTests {
 
   @Test
   public void singleResourceOnFileSystem() throws IOException {
-    Resource[] resources = resolver.getResources("cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class");
+    Resource[] resources = resolver.getResourcesArray("cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class");
     assertEquals(1, resources.length);
     assertTrue(resources[0].exists());
     assertProtocolAndFilenames(resources, "file", "PathMatchingPatternResourceLoaderTests.class");
@@ -92,14 +92,14 @@ class PathMatchingPatternResourceLoaderTests {
 
   @Test
   public void singleResourceInJar() throws IOException {
-    Resource[] resources = resolver.getResources("org/junit/Assert.class");
+    Resource[] resources = resolver.getResourcesArray("org/junit/Assert.class");
     assertEquals(1, resources.length);
     assertProtocolAndFilenames(resources, "jar", "Assert.class");
   }
 
   @Test
   public void classpathStarWithPatternOnFileSystem() throws IOException {
-    Resource[] resources = resolver.getResources("classpath*:cn/taketoday/core/io/*.class");
+    Resource[] resources = resolver.getResourcesArray("classpath*:cn/taketoday/core/io/*.class");
     // Have to exclude Clover-generated class files here,
     // as we might be running as part of a Clover test run.
     List<Resource> noCloverResources = new ArrayList<>();
@@ -115,19 +115,19 @@ class PathMatchingPatternResourceLoaderTests {
 
   @Test
   public void classpathWithPatternInJar() throws IOException {
-    Resource[] resources = resolver.getResources("classpath:junit/runner/*.class");
+    Resource[] resources = resolver.getResourcesArray("classpath:junit/runner/*.class");
     assertProtocolAndFilenames(resources, "jar", CLASSES_IN_JUNIT_RUNNER);
   }
 
   @Test
   public void classpathStarWithPatternInJar() throws IOException {
-    Resource[] resources = resolver.getResources("classpath*:junit/runner/*.class");
+    Resource[] resources = resolver.getResourcesArray("classpath*:junit/runner/*.class");
     assertProtocolAndFilenames(resources, "jar", CLASSES_IN_JUNIT_RUNNER);
   }
 
   @Test
   public void rootPatternRetrievalInJarFiles() throws IOException {
-    Resource[] resources = resolver.getResources("classpath*:**/pom.properties");
+    Resource[] resources = resolver.getResourcesArray("classpath*:**/pom.properties");
     boolean found = false;
     for (Resource resource : resources) {
       if (resource.getName().endsWith("pom.properties")) {

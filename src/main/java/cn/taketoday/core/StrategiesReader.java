@@ -23,6 +23,7 @@ package cn.taketoday.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -65,11 +66,11 @@ public abstract class StrategiesReader {
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
     Assert.notNull(strategiesLocation, "file-location must not be null");
     try {
-      PatternResourceLoader resourceLoader = PatternResourceLoader.getPatternResourceLoader(this.resourceLoader);
+      PatternResourceLoader resourceLoader = PatternResourceLoader.fromResourceLoader(this.resourceLoader);
       final List<String> strategiesLocations = StringUtils.splitAsList(strategiesLocation);
       for (final String location : strategiesLocations) {
         log.info("Detecting strategies location '{}'", location);
-        final Resource[] resources = resourceLoader.getResources(location);
+        final Set<Resource> resources = resourceLoader.getResources(location);
         for (final Resource resource : resources) {
           read(resource, strategies);
         }

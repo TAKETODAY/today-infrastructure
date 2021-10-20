@@ -77,7 +77,7 @@ public interface ResourceLoaderAware extends Aware {
    *
    * @param resourceLoader the ResourceLoader object to be used by this object
    * @see PatternResourceLoader
-   * @see cn.taketoday.core.io.PathMatchingPatternResourceLoader#getPatternResourceLoader
+   * @see cn.taketoday.core.io.PathMatchingPatternResourceLoader#fromResourceLoader
    */
   void setResourceLoader(ResourceLoader resourceLoader);
 

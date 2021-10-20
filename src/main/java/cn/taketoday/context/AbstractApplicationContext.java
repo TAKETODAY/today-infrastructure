@@ -154,8 +154,9 @@ public abstract class AbstractApplicationContext
   // Implementation of PatternResourceLoader interface
   //---------------------------------------------------------------------
 
+
   @Override
-  public Resource[] getResources(String locationPattern) throws IOException {
+  public Set<Resource> getResources(String locationPattern) throws IOException {
     return patternResourceLoader.getResources(locationPattern);
   }
 

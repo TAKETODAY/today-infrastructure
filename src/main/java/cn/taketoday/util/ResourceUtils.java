@@ -105,7 +105,7 @@ public abstract class ResourceUtils {
    * @throws IOException in case of I/O errors
    */
   public static Resource[] getResources(String pathPattern, @Nullable ClassLoader classLoader) throws IOException {
-    return new PathMatchingPatternResourceLoader(classLoader).getResources(pathPattern);
+    return new PathMatchingPatternResourceLoader(classLoader).getResourcesArray(pathPattern);
   }
 
   /**

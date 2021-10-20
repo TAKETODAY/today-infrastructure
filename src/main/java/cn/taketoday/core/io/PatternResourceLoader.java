@@ -20,9 +20,10 @@
 
 package cn.taketoday.core.io;
 
-import java.io.IOException;
-
 import cn.taketoday.lang.Nullable;
+
+import java.io.IOException;
+import java.util.Set;
 
 /**
  * Strategy interface for resolving a location pattern (for example,
@@ -74,10 +75,24 @@ public interface PatternResourceLoader extends ResourceLoader {
    * have set semantics.
    *
    * @param locationPattern the location pattern to resolve
+   * @return a mutable Set of the corresponding {@code Resource} instances
+   * @throws IOException in case of I/O errors
+   */
+  Set<Resource> getResources(String locationPattern) throws IOException;
+
+  /**
+   * Resolve the given location pattern into {@code Resource} objects.
+   * <p>Overlapping resource entries that point to the same physical
+   * resource should be avoided, as far as possible. The result should
+   * have set semantics.
+   *
+   * @param locationPattern the location pattern to resolve
    * @return the corresponding {@code Resource} objects
    * @throws IOException in case of I/O errors
    */
-  Resource[] getResources(String locationPattern) throws IOException;
+  default Resource[] getResourcesArray(String locationPattern) throws IOException{
+    return getResources(locationPattern).toArray(Resource.EMPTY_ARRAY);
+  }
 
   /**
    * Return a default {@link PatternResourceLoader} for the given {@link ResourceLoader}.
@@ -90,7 +105,7 @@ public interface PatternResourceLoader extends ResourceLoader {
    * @return the ResourcePatternResolver
    * @see PathMatchingPatternResourceLoader
    */
-  static PatternResourceLoader getPatternResourceLoader(@Nullable ResourceLoader resourceLoader) {
+  static PatternResourceLoader fromResourceLoader(@Nullable ResourceLoader resourceLoader) {
     if (resourceLoader instanceof PatternResourceLoader) {
       return (PatternResourceLoader) resourceLoader;
     }

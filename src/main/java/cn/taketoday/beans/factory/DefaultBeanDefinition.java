@@ -129,7 +129,7 @@ public class DefaultBeanDefinition
   private String className;
 
   @Nullable
-  /** source since 4.0 source */
+  /** source @since 4.0 source */
   private Object source;
 
   public DefaultBeanDefinition() { }

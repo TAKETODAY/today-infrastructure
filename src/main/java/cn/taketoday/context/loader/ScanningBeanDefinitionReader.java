@@ -20,15 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -36,6 +27,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.ThrowableSupplier;
 import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
@@ -47,6 +39,16 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import static cn.taketoday.lang.Constant.PACKAGE_SEPARATOR;
 import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
@@ -63,7 +65,7 @@ public class ScanningBeanDefinitionReader {
   private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
-  private final BeanDefinitionLoadingStrategies creationStrategies = new BeanDefinitionLoadingStrategies();
+  private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
 
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
@@ -90,11 +92,12 @@ public class ScanningBeanDefinitionReader {
     // Loading candidates components
     log.info("Scanning candidates components");
 
+    int beanDefinitionCount = registry.getBeanDefinitionCount();
     for (String location : locations) {
       scan(location);
     }
-
-//    log.info("There are [{}] candidates components in [{}]", candidates.size(), this);
+    int afterScanCount = registry.getBeanDefinitionCount();
+    log.info("There are [{}] candidates components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(locations));
   }
 
   public void scan(String packageName) {
@@ -103,7 +106,7 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from package: [{}]", packageName);
     }
     try {
-      Resource[] resources = resourceLoader.getResources(resourceToUse);
+      Set<Resource> resources = resourceLoader.getResources(resourceToUse);
       for (Resource resource : resources) {
         scan(resource, packageName);
       }
@@ -136,6 +139,9 @@ public class ScanningBeanDefinitionReader {
     }
     else if (resource instanceof JarEntryResource) {
       scanInJarFile(resource, packageName, ((JarEntryResource) resource)::getJarFile);
+    }
+    else if (resource instanceof ClassPathResource) {
+      scan(((ClassPathResource) resource).getOriginalResource(), packageName);
     }
   }
 
@@ -209,7 +215,7 @@ public class ScanningBeanDefinitionReader {
   }
 
   protected void process(ClassNode classNode) {
-    Set<BeanDefinition> beanDefinitions = creationStrategies.loadBeanDefinitions(classNode, loadingContext);
+    Set<BeanDefinition> beanDefinitions = scanningStrategies.loadBeanDefinitions(classNode, loadingContext);
     if (CollectionUtils.isNotEmpty(beanDefinitions)) {
       for (BeanDefinition beanDefinition : beanDefinitions) {
         registry.registerBeanDefinition(beanDefinition);

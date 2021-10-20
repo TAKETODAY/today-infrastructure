@@ -254,7 +254,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   }
 
   @Override
-  public Resource[] getResources(String locationPattern) throws IOException {
+  public Set<Resource> getResources(String locationPattern) throws IOException {
     Assert.notNull(locationPattern, "Location pattern must not be null");
 
     if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
@@ -285,29 +285,30 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
   }
 
+
   /**
    * Find all class location resources with the given location via the
    * ClassLoader. Delegates to {@link #doFindAllClassPathResources(String)}.
    *
    * @param location the absolute path within the classpath
-   * @return the result as Resource array
+   * @return the result as Resource set
    * @throws IOException in case of I/O errors
    * @see java.lang.ClassLoader#getResources
    * @see #convertClassLoaderURL
    */
-  protected Resource[] findAllClassPathResources(String location) throws IOException {
+  protected Set<Resource> findAllClassPathResources(String location) throws IOException {
     String path = location;
     if (path.startsWith("/")) {
       path = path.substring(1);
     }
     Set<Resource> result = doFindAllClassPathResources(path);
     if (CollectionUtils.isEmpty(result)) {
-      return Resource.EMPTY_ARRAY;
+      return result;
     }
     if (log.isTraceEnabled()) {
       log.trace("Resolved classpath location [{}] to resources {}", location, result);
     }
-    return result.toArray(new Resource[result.size()]);
+    return result;
   }
 
   /**
@@ -487,11 +488,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see #doFindPathMatchingFileResources
    * @see PathMatcher
    */
-  protected Resource[] findPathMatchingResources(String locationPattern) throws IOException {
+  protected Set<Resource> findPathMatchingResources(String locationPattern) throws IOException {
 
     String rootDirPath = determineRootDir(locationPattern);
     String subPattern = locationPattern.substring(rootDirPath.length());
-    Resource[] rootDirResources = getResources(rootDirPath);
+    Set<Resource> rootDirResources = getResources(rootDirPath);
     LinkedHashSet<Resource> result = new LinkedHashSet<>();
 
     for (Resource rootDirResource : rootDirResources) {
@@ -500,7 +501,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     if (log.isTraceEnabled()) {
       log.trace("Resolved location pattern [{}] to resources {}", locationPattern, result);
     }
-    return result.toArray(new Resource[result.size()]);
+    return result;
   }
 
   protected void rootDirResource(

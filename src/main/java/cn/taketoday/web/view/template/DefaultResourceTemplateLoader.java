@@ -75,7 +75,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     if (ret == null) {
       String template = getTemplate(name);
       try {
-        Resource[] resources = resourceLoader.getResources(template);
+        Resource[] resources = resourceLoader.getResourcesArray(template);
         if (ObjectUtils.isNotEmpty(resources)) {
           for (Resource resource : resources) {
             if (resource.exists()) {

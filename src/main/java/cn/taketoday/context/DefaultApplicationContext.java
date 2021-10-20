@@ -20,11 +20,6 @@
 
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -40,6 +35,11 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * ApplicationContext default implementation
@@ -139,7 +139,7 @@ public class DefaultApplicationContext
    * @see #getResource
    * @see DefaultResourceLoader
    * @see PatternResourceLoader
-   * @see #getResources
+   * @see #getResourcesArray
    */
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = resourceLoader;
@@ -171,7 +171,7 @@ public class DefaultApplicationContext
    * @see #setResourceLoader
    */
   @Override
-  public Resource[] getResources(String locationPattern) throws IOException {
+  public Set<Resource> getResources(String locationPattern) throws IOException {
     if (this.resourceLoader instanceof PatternResourceLoader) {
       return ((PatternResourceLoader) this.resourceLoader).getResources(locationPattern);
     }
@@ -401,7 +401,7 @@ public class DefaultApplicationContext
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-                 (a, bd) -> bd.setSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
+            (a, bd) -> bd.setSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
   }
 
   /**
