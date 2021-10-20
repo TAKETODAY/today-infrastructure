@@ -34,6 +34,7 @@ import cn.taketoday.beans.factory.Scope;
  *
  * @author TODAY 2018-07-2 22:46:39
  */
+@Indexed
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {

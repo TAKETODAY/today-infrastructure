@@ -19,18 +19,21 @@
  */
 package cn.taketoday.lang;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.Scope;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
-
 /**
- * @author TODAY <br>
- * 2018-7-2 20:45:21
+ * Indicates that an annotated class is a "Service"
+ *
+ * @author TODAY 2018-7-2 20:45:21
+ * @see Component
+ * @see Repository
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)
@@ -43,7 +46,7 @@ public @interface Service {
    *
    * @return the suggested component name, if any (or empty String otherwise)
    */
-  String[] value() default {};
+  String[] value() default { };
 
   /**
    * The optional name of a method to call on the bean instance during
@@ -55,7 +58,7 @@ public @interface Service {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default {};
+  String[] initMethods() default { };
 
   /**
    * The optional names of a method to call on the bean instance upon closing the
@@ -70,5 +73,5 @@ public @interface Service {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String[] destroyMethods() default {};
+  String[] destroyMethods() default { };
 }

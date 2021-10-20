@@ -576,7 +576,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         String jarFileUrl = jarCon.getJarFileURL().toExternalForm();
         log.trace("Looking for matching resources in jar file [{}]", jarFileUrl);
       }
-      if (!BLANK.equals(rootEntryPath) && !rootEntryPath.endsWith("/")) {
+      if (!BLANK.equals(rootEntryPath) && !StringUtils.matchesEnd(rootEntryPath, '/') /*rootEntryPath.endsWith("/")*/) {
         // Root entry path must end with slash to allow for proper matching.
         // The Sun JRE does not return a slash here, but BEA JRockit does.
         rootEntryPath = rootEntryPath.concat("/");
