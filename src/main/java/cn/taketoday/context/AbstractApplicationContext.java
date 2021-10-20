@@ -154,7 +154,6 @@ public abstract class AbstractApplicationContext
   // Implementation of PatternResourceLoader interface
   //---------------------------------------------------------------------
 
-
   @Override
   public Set<Resource> getResources(String locationPattern) throws IOException {
     return patternResourceLoader.getResources(locationPattern);
@@ -783,6 +782,11 @@ public abstract class AbstractApplicationContext
       return this.factoryPostProcessors = new ArrayList<>();
     }
     return processors;
+  }
+
+  // since 4.0
+  public void addFactoryPostProcessors(BeanFactoryPostProcessor... postProcessors) {
+    CollectionUtils.addAll(getFactoryPostProcessors(), postProcessors);
   }
 
   //---------------------------------------------------------------------

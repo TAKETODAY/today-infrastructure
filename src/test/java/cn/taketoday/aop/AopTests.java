@@ -88,10 +88,13 @@ class AopTests {
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
       context.register(AopConfig.class);
+
       AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
       proxyCreator.setBeanFactory(beanFactory);
       proxyCreator.setProxyTargetClass(true);
       beanFactory.addBeanPostProcessor(proxyCreator);
+
+      context.refresh();
 
       UserService userService = context.getBean(UserService.class);
 

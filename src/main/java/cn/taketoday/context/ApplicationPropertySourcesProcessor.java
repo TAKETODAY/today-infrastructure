@@ -236,7 +236,7 @@ public class ApplicationPropertySourcesProcessor {
   }
 
   public void setPropertiesLocation(String propertiesLocation) {
-    Assert.notNull(propertiesLocation, "propertiesLocation must not be null");
+    Assert.hasLength(propertiesLocation, "propertiesLocation must not be null");
     this.propertiesLocation = propertiesLocation;
   }
 

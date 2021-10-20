@@ -105,7 +105,6 @@ public class BeanDefinitionReader {
   // import
 
   public void register(Class<?>... beans) {
-
     Assert.notNull(beans, "Cannot import null beans");
 
     BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);

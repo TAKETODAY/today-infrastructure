@@ -20,6 +20,11 @@
 
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -36,11 +41,6 @@ import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Supplier;
-
 /**
  * ApplicationContext default implementation
  *
@@ -55,7 +55,7 @@ public class DefaultApplicationContext
   private boolean customClassLoader = false;
 
   protected final StandardBeanFactory beanFactory;
-  protected final BeanDefinitionReader beanDefinitionReader;
+  private BeanDefinitionReader beanDefinitionReader;
 
   /**
    * Default Constructor
@@ -65,7 +65,6 @@ public class DefaultApplicationContext
    */
   public DefaultApplicationContext() {
     this.beanFactory = new StandardBeanFactory();
-    this.beanDefinitionReader = new BeanDefinitionReader(this, beanFactory);
   }
 
   /**
@@ -78,7 +77,6 @@ public class DefaultApplicationContext
   public DefaultApplicationContext(StandardBeanFactory beanFactory) {
     Assert.notNull(beanFactory, "BeanFactory must not be null");
     this.beanFactory = beanFactory;
-    this.beanDefinitionReader = new BeanDefinitionReader(this, beanFactory);
   }
 
   /**
@@ -272,22 +270,22 @@ public class DefaultApplicationContext
    * @since 3.0
    */
   public void registerBean(Class<?> clazz) {
-    beanDefinitionReader.registerBean(clazz);
+    beanDefinitionReader().registerBean(clazz);
   }
 
   public void registerBean(Class<?>... candidates) {
-    beanDefinitionReader.registerBean(candidates);
+    beanDefinitionReader().registerBean(candidates);
   }
 
   /**
    * @since 4.0
    */
   public void registerBean(Set<Class<?>> candidates) {
-    beanDefinitionReader.registerBean(candidates);
+    beanDefinitionReader().registerBean(candidates);
   }
 
   public void registerBean(String name, Class<?> clazz) {
-    beanDefinitionReader.registerBean(name, clazz);
+    beanDefinitionReader().registerBean(name, clazz);
   }
 
   /**
@@ -354,7 +352,7 @@ public class DefaultApplicationContext
           Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException //
   {
-    beanDefinitionReader.registerBean(clazz, supplier, prototype, ignoreAnnotation);
+    beanDefinitionReader().registerBean(clazz, supplier, prototype, ignoreAnnotation);
   }
 
   /**
@@ -370,7 +368,7 @@ public class DefaultApplicationContext
    * @since 4.0
    */
   public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    beanDefinitionReader.registerBean(name, supplier);
+    beanDefinitionReader().registerBean(name, supplier);
   }
 
   /**
@@ -401,7 +399,7 @@ public class DefaultApplicationContext
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (a, bd) -> bd.setSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
+                 (a, bd) -> bd.setSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
   }
 
   /**
@@ -481,6 +479,13 @@ public class DefaultApplicationContext
     }
 
     registerBeanDefinition(nameToUse, definition);
+  }
+
+  protected final BeanDefinitionReader beanDefinitionReader() {
+    if (beanDefinitionReader == null) {
+      beanDefinitionReader = new BeanDefinitionReader(this, beanFactory);
+    }
+    return beanDefinitionReader;
   }
 
 }

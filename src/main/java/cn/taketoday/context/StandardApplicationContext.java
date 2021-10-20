@@ -32,6 +32,7 @@ import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link ApplicationContext}
@@ -41,9 +42,11 @@ import cn.taketoday.lang.TodayStrategies;
 public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
+  @Nullable
   private String propertiesLocation;
-  private final DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, this);
-  private final ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(loadingContext);
+
+  private DefinitionLoadingContext loadingContext;
+  private ScanningBeanDefinitionReader scanningReader;
 
   /**
    * Default Constructor
@@ -136,6 +139,7 @@ public class StandardApplicationContext
     List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
             BeanDefinitionLoader.class, this);
 
+    DefinitionLoadingContext loadingContext = loadingContext();
     for (BeanDefinitionLoader loader : strategies) {
       loader.loadBeanDefinitions(loadingContext);
     }
@@ -143,7 +147,7 @@ public class StandardApplicationContext
 
   @Override
   public void registerBeanFactoryPostProcessor() {
-    getFactoryPostProcessors().add(new ConfigurationBeanReader(loadingContext));
+    addFactoryPostProcessors(new ConfigurationBeanReader(loadingContext()));
 
     super.registerBeanFactoryPostProcessor();
   }
@@ -151,8 +155,9 @@ public class StandardApplicationContext
   @Override
   protected void initPropertySources(ConfigurableEnvironment environment) throws IOException {
     super.initPropertySources(environment);
+
     ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
-    if (propertiesLocation != null) {
+    if (StringUtils.isNotEmpty(propertiesLocation)) {
       processor.setPropertiesLocation(propertiesLocation);
     }
     processor.postProcessEnvironment();
@@ -168,12 +173,25 @@ public class StandardApplicationContext
 
   @Override
   public void register(Class<?>... components) {
-    beanDefinitionReader.register(components);
+    beanDefinitionReader().register(components);
   }
 
   @Override
   public void scan(String... basePackages) {
-    scanningReader.scanPackages(basePackages);
+    scanningReader().scanPackages(basePackages);
   }
 
+  private ScanningBeanDefinitionReader scanningReader() {
+    if (scanningReader == null) {
+      scanningReader = new ScanningBeanDefinitionReader(loadingContext());
+    }
+    return scanningReader;
+  }
+
+  private DefinitionLoadingContext loadingContext() {
+    if (loadingContext == null) {
+      loadingContext = new DefinitionLoadingContext(beanFactory, this);
+    }
+    return loadingContext;
+  }
 }
