@@ -36,10 +36,8 @@ import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceFilter;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -103,23 +101,11 @@ public class ApplicationPropertySourcesProcessor {
     }
     else {
       // load properties files
-      if (!propertiesResource.exists()) {
-        log.warn("The resource: [{}] you provided that doesn't exist", propertiesResource);
-        return;
-      }
-      if (propertiesResource.isDirectory()) {
-        log.debug("Start scanning properties resource.");
-        ResourceFilter propertiesFileFilter = (Resource file) -> {
-          if (file.isDirectory()) {
-            return true;
-          }
-          String name = file.getName();
-          return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
-        };
-        doLoadFromDirectory(propertiesResource, propertiesFileFilter);
+      if (propertiesResource.exists()) {
+        doLoad(propertiesResource);
       }
       else {
-        doLoad(propertiesResource);
+        log.warn("The resource: [{}] you provided that doesn't exist", propertiesResource);
       }
     }
   }
@@ -154,8 +140,10 @@ public class ApplicationPropertySourcesProcessor {
 
     if (locations.isEmpty()) {
       // scan class path properties files
-      for (String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
-        loadProperties(propertiesLocation);
+      if (propertiesLocation != null) {
+        for (String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
+          loadProperties(propertiesLocation);
+        }
       }
     }
     // load other files
@@ -233,23 +221,6 @@ public class ApplicationPropertySourcesProcessor {
       for (String profile : StringUtils.splitAsList(profiles)) {
         environment.addActiveProfile(profile);
       }
-    }
-  }
-
-  /**
-   * Do load
-   *
-   * @param directory base dir
-   * @throws IOException if the resource is not available
-   */
-  private void doLoadFromDirectory(Resource directory, ResourceFilter propertiesFileFilter) throws IOException {
-    Resource[] listResources = directory.list(propertiesFileFilter);
-    for (Resource resource : listResources) {
-      if (resource.isDirectory()) { // recursive
-        doLoadFromDirectory(resource, propertiesFileFilter);
-        continue;
-      }
-      doLoad(resource);
     }
   }
 
