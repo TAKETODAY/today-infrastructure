@@ -24,8 +24,8 @@ import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Nullable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 import java.io.IOException;
 
@@ -42,8 +42,7 @@ import java.io.IOException;
  * @since 4.0
  */
 public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilter {
-
-  protected final Log logger = LogFactory.getLog(getClass());
+  private static final Logger log = LoggerFactory.getLogger(AbstractTypeHierarchyTraversingFilter.class);
 
   private final boolean considerInherited;
 
@@ -55,9 +54,7 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
   }
 
   @Override
-  public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
-          throws IOException {
-
+  public boolean match(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
     // This method optimizes avoiding unnecessary creation of ClassReaders
     // as well as visiting over those readers.
     if (matchSelf(metadataReader)) {
@@ -74,21 +71,21 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
         // Optimization to avoid creating ClassReader for super class.
         Boolean superClassMatch = matchSuperClass(superClassName);
         if (superClassMatch != null) {
-          if (superClassMatch.booleanValue()) {
+          if (superClassMatch) {
             return true;
           }
         }
         else {
           // Need to read super class to determine a match...
           try {
-            if (match(metadata.getSuperClassName(), metadataReaderFactory)) {
+            if (match(metadata.getSuperClassName(), factory)) {
               return true;
             }
           }
           catch (IOException ex) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Could not read super class [" + metadata.getSuperClassName() +
-                      "] of type-filtered class [" + metadata.getClassName() + "]");
+            if (log.isDebugEnabled()) {
+              log.debug("Could not read super class [{}] of type-filtered class [{]]",
+                      metadata.getSuperClassName(), metadata.getClassName());
             }
           }
         }
@@ -100,21 +97,20 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
         // Optimization to avoid creating ClassReader for super class
         Boolean interfaceMatch = matchInterface(ifc);
         if (interfaceMatch != null) {
-          if (interfaceMatch.booleanValue()) {
+          if (interfaceMatch) {
             return true;
           }
         }
         else {
           // Need to read interface to determine a match...
           try {
-            if (match(ifc, metadataReaderFactory)) {
+            if (match(ifc, factory)) {
               return true;
             }
           }
           catch (IOException ex) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Could not read interface [" + ifc + "] for type-filtered class [" +
-                      metadata.getClassName() + "]");
+            if (log.isDebugEnabled()) {
+              log.debug("Could not read interface [{}] for type-filtered class [{]]", ifc, metadata.getClassName());
             }
           }
         }

@@ -44,6 +44,7 @@ import java.lang.annotation.Inherited;
  * @author Ramnivas Laddad
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author TODAY
  * @since 4.0
  */
 public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter {
@@ -94,8 +95,6 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
   /**
    * Return the {@link Annotation} that this instance is using to filter
    * candidates.
-   *
-   * @since 4.0
    */
   public final Class<? extends Annotation> getAnnotationType() {
     return this.annotationType;
@@ -104,8 +103,8 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
   @Override
   protected boolean matchSelf(MetadataReader metadataReader) {
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
-    return metadata.hasAnnotation(this.annotationType.getName()) ||
-            (this.considerMetaAnnotations && metadata.hasMetaAnnotation(this.annotationType.getName()));
+    return metadata.hasAnnotation(this.annotationType.getName())
+            || this.considerMetaAnnotations && metadata.hasMetaAnnotation(this.annotationType.getName());
   }
 
   @Override
@@ -126,15 +125,16 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
       return false;
     }
     else if (typeName.startsWith("java")) {
-      if (!this.annotationType.getName().startsWith("java")) {
+      if (!annotationType.getName().startsWith("java")) {
         // Standard Java types do not have non-standard annotations on them ->
         // skip any load attempt, in particular for Java language interfaces.
         return false;
       }
       try {
         Class<?> clazz = ClassUtils.forName(typeName, getClass().getClassLoader());
-        return ((this.considerMetaAnnotations ? AnnotationUtils.getAnnotation(clazz, this.annotationType) :
-                clazz.getAnnotation(this.annotationType)) != null);
+        return considerMetaAnnotations
+                ? AnnotationUtils.isPresent(clazz, annotationType)
+                : clazz.isAnnotationPresent(annotationType);
       }
       catch (Throwable ex) {
         // Class not regularly loadable - can't determine a match that way.

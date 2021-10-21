@@ -29,7 +29,6 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;

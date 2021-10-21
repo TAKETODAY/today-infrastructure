@@ -31,8 +31,6 @@ import cn.taketoday.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * ASM class visitor that creates {@link SimpleAnnotationMetadata}.
@@ -52,18 +50,18 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
   @Nullable
   private String superClassName;
 
-  private String[] interfaceNames = new String[0];
+  private String[] interfaceNames = Constant.EMPTY_STRING_ARRAY;
 
   @Nullable
   private String enclosingClassName;
 
   private boolean independentInnerClass;
 
-  private final Set<String> memberClassNames = new LinkedHashSet<>(4);
+  private final LinkedHashSet<String> memberClassNames = new LinkedHashSet<>(4);
 
-  private final List<MergedAnnotation<?>> annotations = new ArrayList<>();
+  private final ArrayList<MergedAnnotation<?>> annotations = new ArrayList<>();
 
-  private final List<SimpleMethodMetadata> annotatedMethods = new ArrayList<>();
+  private final ArrayList<SimpleMethodMetadata> annotatedMethods = new ArrayList<>();
 
   @Nullable
   private SimpleAnnotationMetadata metadata;

@@ -47,7 +47,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
 
   private final String descriptor;
 
-  private final List<MergedAnnotation<?>> annotations = new ArrayList<>(4);
+  private final ArrayList<MergedAnnotation<?>> annotations = new ArrayList<>(4);
 
   private final Consumer<SimpleMethodMetadata> consumer;
 

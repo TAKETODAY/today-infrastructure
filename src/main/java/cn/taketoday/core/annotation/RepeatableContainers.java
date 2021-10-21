@@ -138,7 +138,8 @@ public abstract class RepeatableContainers {
    * Java's {@link Repeatable @Repeatable} annotation.
    */
   private static class StandardRepeatableContainers extends RepeatableContainers {
-    private static final Map<Class<? extends Annotation>, Object> cache = new ConcurrentReferenceHashMap<>();
+    private static final ConcurrentReferenceHashMap<Class<? extends Annotation>, Object>
+            cache = new ConcurrentReferenceHashMap<>();
     private static final Object NONE = new Object();
 
     private static final StandardRepeatableContainers INSTANCE = new StandardRepeatableContainers();
@@ -159,8 +160,7 @@ public abstract class RepeatableContainers {
 
     @Nullable
     private static Method getRepeatedAnnotationsMethod(Class<? extends Annotation> annotationType) {
-      Object result = cache.computeIfAbsent(annotationType,
-              StandardRepeatableContainers::computeRepeatedAnnotationsMethod);
+      Object result = cache.computeIfAbsent(annotationType, StandardRepeatableContainers::computeRepeatedAnnotationsMethod);
       return (result != NONE ? (Method) result : null);
     }
 
@@ -171,8 +171,8 @@ public abstract class RepeatableContainers {
         Class<?> returnType = method.getReturnType();
         if (returnType.isArray()) {
           Class<?> componentType = returnType.getComponentType();
-          if (Annotation.class.isAssignableFrom(componentType) &&
-                  componentType.isAnnotationPresent(Repeatable.class)) {
+          if (Annotation.class.isAssignableFrom(componentType)
+                  && componentType.isAnnotationPresent(Repeatable.class)) {
             return method;
           }
         }

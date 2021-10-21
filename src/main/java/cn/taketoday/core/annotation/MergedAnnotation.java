@@ -16,18 +16,17 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Proxy;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -63,8 +62,7 @@ public interface MergedAnnotation<A extends Annotation> {
   /**
    * The attribute name for annotations with a single element.
    */
-  String VALUE = "value";
-
+  String VALUE = Constant.VALUE;
 
   /**
    * Get the {@code Class} reference for the actual annotation type.
@@ -663,7 +661,6 @@ public interface MergedAnnotation<A extends Annotation> {
     return TypeMappedAnnotation.of(classLoader, source, annotationType, attributes);
   }
 
-
   /**
    * Adaptations that can be applied to attribute values when creating
    * {@linkplain MergedAnnotation#asMap(Adapt...) Maps} or
@@ -682,7 +679,7 @@ public interface MergedAnnotation<A extends Annotation> {
      */
     ANNOTATION_TO_MAP;
 
-    protected final boolean isIn(Adapt... adaptations) {
+    final boolean isIn(Adapt... adaptations) {
       for (Adapt candidate : adaptations) {
         if (candidate == this) {
           return true;
@@ -699,17 +696,27 @@ public interface MergedAnnotation<A extends Annotation> {
      * @return a new {@link Adapt} array
      */
     public static Adapt[] values(boolean classToString, boolean annotationsToMap) {
-      EnumSet<Adapt> result = EnumSet.noneOf(Adapt.class);
-      addIfTrue(result, Adapt.CLASS_TO_STRING, classToString);
-      addIfTrue(result, Adapt.ANNOTATION_TO_MAP, annotationsToMap);
-      return result.toArray(new Adapt[0]);
+      int size = 0;
+      if (classToString) {
+        size++;
+      }
+      if (annotationsToMap) {
+        size++;
+      }
+      if (size == 0) {
+        return EMPTY;
+      }
+      Adapt[] adapts = new Adapt[size];
+      if (classToString) {
+        adapts[--size] = Adapt.CLASS_TO_STRING;
+      }
+      if (annotationsToMap) {
+        adapts[--size] = Adapt.ANNOTATION_TO_MAP;
+      }
+      return adapts;
     }
 
-    private static <T> void addIfTrue(Set<T> result, T value, boolean test) {
-      if (test) {
-        result.add(value);
-      }
-    }
+    static final Adapt[] EMPTY = { };
   }
 
 }

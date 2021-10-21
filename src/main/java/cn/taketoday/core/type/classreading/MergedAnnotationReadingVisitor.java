@@ -28,7 +28,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -51,10 +50,11 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
 
   private final Consumer<MergedAnnotation<A>> consumer;
 
-  private final Map<String, Object> attributes = new LinkedHashMap<>(4);
+  private final LinkedHashMap<String, Object> attributes = new LinkedHashMap<>(4);
 
-  public MergedAnnotationReadingVisitor(@Nullable ClassLoader classLoader, @Nullable Object source,
-                                        Class<A> annotationType, Consumer<MergedAnnotation<A>> consumer) {
+  public MergedAnnotationReadingVisitor
+          (@Nullable ClassLoader classLoader, @Nullable Object source,
+           Class<A> annotationType, Consumer<MergedAnnotation<A>> consumer) {
 
     this.classLoader = classLoader;
     this.source = source;

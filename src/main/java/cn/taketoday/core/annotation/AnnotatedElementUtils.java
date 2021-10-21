@@ -102,7 +102,6 @@ public abstract class AnnotatedElementUtils {
    * typically for use with other methods on {@link AnnotatedElementUtils}.
    *
    * @param annotations the annotations to expose through the {@code AnnotatedElement}
-   * @since 4.0
    */
   public static AnnotatedElement forAnnotations(Annotation... annotations) {
     return new AnnotatedElementForAnnotations(annotations);
@@ -121,7 +120,6 @@ public abstract class AnnotatedElementUtils {
    * or an empty set if not found
    * @see #getMetaAnnotationTypes(AnnotatedElement, String)
    * @see #hasMetaAnnotationTypes
-   * @since 4.0
    */
   public static Set<String> getMetaAnnotationTypes(
           AnnotatedElement element, Class<? extends Annotation> annotationType) {
@@ -211,8 +209,8 @@ public abstract class AnnotatedElementUtils {
    */
   public static boolean isAnnotated(AnnotatedElement element, Class<? extends Annotation> annotationType) {
     // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(annotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(element)) {
+    if (AnnotationFilter.PLAIN.matches(annotationType)
+            || AnnotationsScanner.hasPlainJavaAnnotationsOnly(element)) {
       return element.isAnnotationPresent(annotationType);
     }
     // Exhaustive retrieval of merged annotations...

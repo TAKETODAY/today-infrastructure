@@ -300,13 +300,15 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     return Object.class;
   }
 
-  private <T extends Map<String, Object>> Object adaptValueForMapOptions(Method attribute, Object value,
-                                                                         Class<?> mapType, Function<MergedAnnotation<?>, T> factory, Adapt[] adaptations) {
+  private <T extends Map<String, Object>> Object adaptValueForMapOptions(
+          Method attribute, Object value,
+          Class<?> mapType, Function<MergedAnnotation<?>, T> factory, Adapt[] adaptations) {
 
     if (value instanceof MergedAnnotation) {
       MergedAnnotation<?> annotation = (MergedAnnotation<?>) value;
-      return (Adapt.ANNOTATION_TO_MAP.isIn(adaptations) ?
-              annotation.asMap(factory, adaptations) : annotation.synthesize());
+      return Adapt.ANNOTATION_TO_MAP.isIn(adaptations)
+              ? annotation.asMap(factory, adaptations)
+              : annotation.synthesize();
     }
     if (value instanceof MergedAnnotation[]) {
       MergedAnnotation<?>[] annotations = (MergedAnnotation<?>[]) value;
@@ -354,8 +356,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   private Object getRequiredValue(int attributeIndex, String attributeName) {
     Object value = getValue(attributeIndex, Object.class);
     if (value == null) {
-      throw new NoSuchElementException("No element at attribute index "
-              + attributeIndex + " for name " + attributeName);
+      throw new NoSuchElementException(
+              "No element at attribute index " + attributeIndex + " for name " + attributeName);
     }
     return value;
   }
@@ -384,8 +386,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       }
     }
     if (!forMirrorResolution) {
-      attributeIndex =
-              (mapping.getDistance() != 0 ? resolvedMirrors : resolvedRootMirrors)[attributeIndex];
+      attributeIndex = (mapping.getDistance() != 0 ? resolvedMirrors : resolvedRootMirrors)[attributeIndex];
     }
     if (attributeIndex == -1) {
       return null;

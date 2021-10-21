@@ -20,9 +20,9 @@
 
 package cn.taketoday.core.type.classreading;
 
-import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.lang.Nullable;
 
 /**

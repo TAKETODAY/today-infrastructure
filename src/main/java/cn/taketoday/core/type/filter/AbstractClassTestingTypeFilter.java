@@ -37,7 +37,7 @@ public abstract class AbstractClassTestingTypeFilter implements TypeFilter {
 
   @Override
   public final boolean match(
-          MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
+          MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
     return match(metadataReader.getClassMetadata());
   }
 

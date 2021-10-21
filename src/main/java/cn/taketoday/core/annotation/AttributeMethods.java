@@ -22,7 +22,9 @@ package cn.taketoday.core.annotation;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -30,7 +32,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 
 /**
  * Provides a quick way to access the attribute methods of an {@link Annotation}
@@ -39,7 +44,7 @@ import java.util.Map;
  * @author Phillip Webb
  * @since 4.0
  */
-final class AttributeMethods {
+final class AttributeMethods implements Iterable<Method> {
   static final AttributeMethods NONE = new AttributeMethods(null, Constant.EMPTY_METHOD_ARRAY);
 
   private static final ConcurrentReferenceHashMap<Class<? extends Annotation>, AttributeMethods>
@@ -52,7 +57,6 @@ final class AttributeMethods {
     return m1 != null ? -1 : 1;
   };
 
-
   @Nullable
   private final Class<? extends Annotation> annotationType;
 
@@ -63,7 +67,6 @@ final class AttributeMethods {
   private final boolean hasDefaultValueMethod;
 
   private final boolean hasNestedAnnotation;
-
 
   private AttributeMethods(@Nullable Class<? extends Annotation> annotationType, Method[] attributes) {
     this.annotationType = annotationType;
@@ -95,7 +98,7 @@ final class AttributeMethods {
    * @return {@code true} if there is only a value attribute
    */
   boolean hasOnlyValueAttribute() {
-    return attributes.length == 1 &&MergedAnnotation.VALUE.equals(attributes[0].getName());
+    return attributes.length == 1 && MergedAnnotation.VALUE.equals(attributes[0].getName());
   }
 
   /**
@@ -251,6 +254,27 @@ final class AttributeMethods {
     return this.hasNestedAnnotation;
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of Iterable
+  //---------------------------------------------------------------------
+
+  @NonNull
+  @Override
+  public Iterator<Method> iterator() {
+    return new ArrayIterator<>(attributes);
+  }
+
+  @Override
+  public Spliterator<Method> spliterator() {
+    return Spliterators.spliterator(attributes, Spliterator.ORDERED);
+  }
+
+  @Override
+  public void forEach(Consumer<? super Method> action) {
+    for (Method attribute : attributes) {
+      action.accept(attribute);
+    }
+  }
 
   /**
    * Get the attribute methods for the given annotation type.

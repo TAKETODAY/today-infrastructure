@@ -46,7 +46,6 @@ import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;

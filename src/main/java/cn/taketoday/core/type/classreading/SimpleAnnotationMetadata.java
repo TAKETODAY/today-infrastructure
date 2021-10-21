@@ -16,8 +16,8 @@
 
 package cn.taketoday.core.type.classreading;
 
-import cn.taketoday.asm.Opcodes;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;

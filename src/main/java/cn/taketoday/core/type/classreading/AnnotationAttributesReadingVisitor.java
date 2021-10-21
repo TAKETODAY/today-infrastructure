@@ -44,7 +44,7 @@ import java.util.Set;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 4.0O
+ * @since 4.0
  * @deprecated this class and related classes in this
  * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
  * and related classes for internal use within the framework.
