@@ -20,12 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -33,11 +27,24 @@ import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.type.filter.AnnotationTypeFilter;
+import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Repository;
+import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.annotation.Controller;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -56,6 +63,10 @@ public class ScanningBeanDefinitionReader {
   private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
+
+  private final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
+
+  private final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
 
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
     this.registry = loadingContext.getRegistry();
@@ -149,7 +160,7 @@ public class ScanningBeanDefinitionReader {
    */
   private boolean isConditionMatch(ClassNode classNode) {
     loadingContext.passCondition();
-    return ;
+    return;
   }
 
   protected void process(ClassNode classNode) {
@@ -170,6 +181,68 @@ public class ScanningBeanDefinitionReader {
   public void setResourcePattern(String resourcePattern) {
     Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
     this.resourcePattern = resourcePattern;
+  }
+
+  /**
+   * Add an include type filter to the <i>end</i> of the inclusion list.
+   */
+  public void addIncludeFilter(TypeFilter includeFilter) {
+    this.includeFilters.add(includeFilter);
+  }
+
+  /**
+   * Add an exclude type filter to the <i>front</i> of the exclusion list.
+   */
+  public void addExcludeFilter(TypeFilter excludeFilter) {
+    this.excludeFilters.add(0, excludeFilter);
+  }
+
+  /**
+   * Reset the configured type filters.
+   *
+   * @param useDefaultFilters whether to re-register the default filters for
+   * the {@link Component @Component}, {@link Repository @Repository},
+   * {@link Service @Service}, and {@link Controller @Controller}
+   * stereotype annotations
+   * @see #registerDefaultFilters()
+   */
+  public void resetFilters(boolean useDefaultFilters) {
+    this.includeFilters.clear();
+    this.excludeFilters.clear();
+    if (useDefaultFilters) {
+      registerDefaultFilters();
+    }
+  }
+
+  /**
+   * Register the default filter for {@link Component @Component}.
+   * <p>This will implicitly register all annotations that have the
+   * {@link Component @Component} meta-annotation including the
+   * {@link Repository @Repository}, {@link Service @Service}, and
+   * {@link Controller @Controller} stereotype annotations.
+   * <p>Also supports Jakarta EE's {@link jakarta.annotation.ManagedBean} and
+   * JSR-330's {@link jakarta.inject.Named} annotations, if available.
+   */
+  @SuppressWarnings("unchecked")
+  protected void registerDefaultFilters() {
+    this.includeFilters.add(new AnnotationTypeFilter(Component.class));
+    ClassLoader cl = getClass().getClassLoader();
+    try {
+      this.includeFilters.add(new AnnotationTypeFilter(
+              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.annotation.ManagedBean", cl)), false));
+      log.trace("JSR-250 'jakarta.annotation.ManagedBean' found and supported for component scanning");
+    }
+    catch (ClassNotFoundException ex) {
+      // JSR-250 1.1 API (as included in Jakarta EE) not available - simply skip.
+    }
+    try {
+      this.includeFilters.add(new AnnotationTypeFilter(
+              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.inject.Named", cl)), false));
+      log.trace("JSR-330 'jakarta.inject.Named' annotation found and supported for component scanning");
+    }
+    catch (ClassNotFoundException ex) {
+      // JSR-330 API not available - simply skip.
+    }
   }
 
   /**

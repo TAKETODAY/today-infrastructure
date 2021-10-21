@@ -131,7 +131,6 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
    *
    * @param type the class to introspect
    * @return a new {@link AnnotationMetadata} instance
-   * @since 4.0
    */
   static AnnotationMetadata introspect(Class<?> type) {
     return StandardAnnotationMetadata.from(type);

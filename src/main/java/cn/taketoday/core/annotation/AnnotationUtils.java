@@ -172,6 +172,7 @@ public abstract class AnnotationUtils {
    * @param annType Target annotation type
    * @return Whether it's present
    */
+  @Deprecated
   public static <A extends Annotation> boolean isPresent(
           @Nullable final AnnotatedElement element, @Nullable final Class<A> annType) {
     return annType != null && element != null

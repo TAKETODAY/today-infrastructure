@@ -20,19 +20,17 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.AnnotatedElement;
-
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * Condition Evaluation
@@ -49,37 +47,47 @@ public class ConditionEvaluator {
   }
 
   /**
+   * Determine if an item should be skipped based on {@code @Conditional} annotations.
+   *
+   * @param metadata the meta data
+   * @return if the item should be skipped
+   */
+  public boolean passCondition(AnnotatedTypeMetadata metadata) {
+    MergedAnnotation<Conditional> annotation = metadata.getAnnotations().get(Conditional.class);
+    if (annotation.isPresent()) {
+      Class<? extends Condition>[] classArray = annotation.getClassArray(MergedAnnotation.VALUE);
+      return passCondition(metadata, classArray);
+    }
+    return true;
+  }
+
+
+  /**
    * Decide whether to load the bean
    *
    * @param annotated Target class or a method
    * @return If matched
    */
   public boolean passCondition(AnnotatedElement annotated) {
-    AnnotationAttributes[] attributes =
-            AnnotationUtils.getAttributesArray(annotated, Conditional.class);
-    if (ObjectUtils.isNotEmpty(attributes)) {
-      if (attributes.length == 1) {
-        return passCondition(annotated, attributes[0].getClassArray(Constant.VALUE));
-      }
-      AnnotationAwareOrderComparator.sort(attributes);
-      for (AnnotationAttributes conditional : attributes) {
-        if (!passCondition(annotated, conditional.getClassArray(Constant.VALUE))) {
-          return false; // can't match
-        }
-      }
+    MergedAnnotations from = MergedAnnotations.from(annotated);
+    MergedAnnotation<Conditional> annotation = MergedAnnotation.of(annotated, Conditional.class, null);
+    if (annotation.isPresent()) {
+      Class<? extends Condition>[] classArray = annotation.getClassArray(MergedAnnotation.VALUE);
+      return passCondition(metadata, classArray);
     }
     return true;
   }
 
+
   public boolean passCondition(
-          AnnotatedElement annotated,
+          AnnotatedTypeMetadata metadata,
           Class<? extends Condition>[] condition
   ) {
     Assert.notNull(condition, "Condition Class must not be null");
     ApplicationContext context = evaluationContext.getContext();
     for (Class<? extends Condition> conditionClass : condition) {
       // TODO
-      if (!BeanUtils.newInstance(conditionClass, context).matches(evaluationContext, annotated)) {
+      if (!BeanUtils.newInstance(conditionClass, context).matches(evaluationContext, metadata)) {
         return false; // can't match
       }
     }

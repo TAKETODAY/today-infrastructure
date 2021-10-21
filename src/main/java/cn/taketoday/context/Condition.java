@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -32,13 +31,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * registered and are free to veto registration based on any criteria that can
  * be determined at that point.
  *
- * <p>Conditions must follow the same restrictions as {@link BeanFactoryPostProcessor}
- * and take care to never interact with bean instances. For more fine-grained control
- * of conditions that interact with {@code @Configuration} beans consider implementing
- * the {@link ConfigurationCondition} interface.
- *
  * @author TODAY 2018-11-10 13:44
- * @see ConfigurationCondition
  * @see Conditional
  */
 @FunctionalInterface

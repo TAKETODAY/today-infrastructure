@@ -45,6 +45,7 @@ import cn.taketoday.context.loader.PropertyValueResolverComposite;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
@@ -460,6 +461,7 @@ public class BeanDefinitionBuilder {
   public void build(
           String defaultName, AnnotatedElement annotated,
           BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
+    MergedAnnotation<Component> of = MergedAnnotation.of(annotated, Component.class, null);
     AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(annotated, Component.class);
     build(defaultName, components, consumer);
   }

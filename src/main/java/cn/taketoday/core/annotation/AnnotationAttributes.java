@@ -270,7 +270,8 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
    * @throws IllegalArgumentException if the attribute does not exist or
    * if it is not of the expected type
    */
-  public Class<?>[] getClassArray(String attributeName) {
+  @SuppressWarnings("unchecked")
+  public <T> Class<T>[] getClassArray(String attributeName) {
     return getRequiredAttribute(attributeName, Class[].class);
   }
 
