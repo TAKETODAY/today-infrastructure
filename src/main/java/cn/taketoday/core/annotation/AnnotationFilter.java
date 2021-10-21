@@ -40,7 +40,7 @@ public interface AnnotationFilter {
    * and their subpackages.
    * <p>This is the default filter in the {@link MergedAnnotations} model.
    */
-  AnnotationFilter PLAIN = packages("java.lang", "cn.taketoday.lang");
+  AnnotationFilter PLAIN = packages("java.lang");
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
