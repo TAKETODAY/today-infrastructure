@@ -98,7 +98,7 @@ public abstract class AnnotationUtils {
    * @param annType Target annotation type
    * @return Whether it's present
    */
-  @Deprecated
+
   public static <A extends Annotation> boolean isPresent(
           @Nullable AnnotatedElement element, @Nullable Class<A> annType) {
     return annType != null && element != null
@@ -361,9 +361,7 @@ public abstract class AnnotationUtils {
    * @see cn.taketoday.core.BridgeMethodResolver#findBridgedMethod
    * @see java.lang.annotation.Repeatable
    * @see java.lang.reflect.AnnotatedElement#getAnnotationsByType
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   public static <A extends Annotation> Set<A> getRepeatableAnnotations(
           AnnotatedElement annotatedElement, Class<A> annotationType) {
 
@@ -399,9 +397,7 @@ public abstract class AnnotationUtils {
    * @see cn.taketoday.core.BridgeMethodResolver#findBridgedMethod
    * @see java.lang.annotation.Repeatable
    * @see java.lang.reflect.AnnotatedElement#getAnnotationsByType
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   public static <A extends Annotation> Set<A> getRepeatableAnnotations(
           AnnotatedElement annotatedElement, Class<A> annotationType,
           @Nullable Class<? extends Annotation> containerAnnotationType) {
@@ -445,9 +441,7 @@ public abstract class AnnotationUtils {
    * @see cn.taketoday.core.BridgeMethodResolver#findBridgedMethod
    * @see java.lang.annotation.Repeatable
    * @see java.lang.reflect.AnnotatedElement#getDeclaredAnnotationsByType
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(
           AnnotatedElement annotatedElement, Class<A> annotationType) {
     return getDeclaredRepeatableAnnotations(annotatedElement, annotationType, null);
@@ -482,9 +476,7 @@ public abstract class AnnotationUtils {
    * @see cn.taketoday.core.BridgeMethodResolver#findBridgedMethod
    * @see java.lang.annotation.Repeatable
    * @see java.lang.reflect.AnnotatedElement#getDeclaredAnnotationsByType
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
     RepeatableContainers repeatableContainers =
@@ -639,9 +631,7 @@ public abstract class AnnotationUtils {
    * or {@code null} if not found
    * @see Class#isAnnotationPresent(Class)
    * @see Class#getDeclaredAnnotations()
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   @Nullable
   public static Class<?> findAnnotationDeclaringClass(
           Class<? extends Annotation> annotationType, @Nullable Class<?> clazz) {
@@ -676,10 +666,7 @@ public abstract class AnnotationUtils {
    * {@code annotationTypes}, or {@code null} if not found
    * @see Class#isAnnotationPresent(Class)
    * @see Class#getDeclaredAnnotations()
-   * @since 3.2.2
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   @Nullable
   public static Class<?> findAnnotationDeclaringClassForTypes(
           List<Class<? extends Annotation>> annotationTypes, @Nullable Class<?> clazz) {
@@ -734,9 +721,7 @@ public abstract class AnnotationUtils {
    * is <em>present</em> and <em>inherited</em>
    * @see Class#isAnnotationPresent(Class)
    * @see #isAnnotationDeclaredLocally(Class, Class)
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
   public static boolean isAnnotationInherited(Class<? extends Annotation> annotationType, Class<?> clazz) {
     return MergedAnnotations.from(clazz, SearchStrategy.INHERITED_ANNOTATIONS)
             .stream(annotationType)
@@ -752,23 +737,22 @@ public abstract class AnnotationUtils {
    * @param annotationType the annotation type to search on
    * @param metaAnnotationType the type of meta-annotation to search for
    * @return {@code true} if such an annotation is meta-present
-   * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
-  @Deprecated
-  public static boolean isAnnotationMetaPresent(Class<? extends Annotation> annotationType,
-                                                @Nullable Class<? extends Annotation> metaAnnotationType) {
-
+  public static boolean isAnnotationMetaPresent(
+          Class<? extends Annotation> annotationType,
+          @Nullable Class<? extends Annotation> metaAnnotationType) {
     if (metaAnnotationType == null) {
       return false;
     }
     // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(metaAnnotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotationType)) {
+    if (AnnotationFilter.PLAIN.matches(metaAnnotationType)
+            || AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotationType)) {
       return annotationType.isAnnotationPresent(metaAnnotationType);
     }
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(annotationType, SearchStrategy.INHERITED_ANNOTATIONS,
-                                  RepeatableContainers.none()).isPresent(metaAnnotationType);
+    return MergedAnnotations.from(
+            annotationType, SearchStrategy.INHERITED_ANNOTATIONS,
+            RepeatableContainers.none()).isPresent(metaAnnotationType);
   }
 
   /**
@@ -999,16 +983,16 @@ public abstract class AnnotationUtils {
       int size = mirrorSets.size();
       for (int i = 0; i < size; i++) {
         AnnotationTypeMapping.MirrorSets.MirrorSet mirrorSet = mirrorSets.get(i);
-        int resolved = mirrorSet.resolve(attributes.displayName, attributes,
-                                         AnnotationUtils::getAttributeValueForMirrorResolution);
+        int resolved = mirrorSet.resolve(
+                attributes.displayName, attributes, AnnotationUtils::getAttributeValueForMirrorResolution);
         if (resolved != -1) {
           Method attribute = mapping.getAttributes().get(resolved);
           Object value = attributes.get(attribute.getName());
           for (int j = 0; j < mirrorSet.size(); j++) {
             Method mirror = mirrorSet.get(j);
             if (mirror != attribute) {
-              attributes.put(mirror.getName(),
-                             adaptValue(annotatedElement, value, classValuesAsString));
+              attributes.put(
+                      mirror.getName(), adaptValue(annotatedElement, value, classValuesAsString));
             }
           }
         }
@@ -1019,8 +1003,8 @@ public abstract class AnnotationUtils {
       Object value = attributeEntry.getValue();
       if (value instanceof DefaultValueHolder) {
         value = ((DefaultValueHolder) value).defaultValue;
-        attributes.put(attributeName,
-                       adaptValue(annotatedElement, value, classValuesAsString));
+        attributes.put(
+                attributeName, adaptValue(annotatedElement, value, classValuesAsString));
       }
     }
   }
