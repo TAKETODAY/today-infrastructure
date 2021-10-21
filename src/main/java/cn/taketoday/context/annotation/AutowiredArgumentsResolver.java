@@ -26,7 +26,7 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
@@ -71,7 +71,7 @@ public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
   // @since 3.0 Required
   public static boolean isRequired(AnnotatedElement element, @Nullable Autowired autowired) {
     return (autowired == null || autowired.required())
-            || AnnotationUtils.isPresent(element, Required.class);
+            || AnnotatedElementUtils.isAnnotated(element, Required.class);
   }
 
   protected Object resolveBean(@Nullable String name, Class<?> type, BeanFactory beanFactory) {

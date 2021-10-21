@@ -42,9 +42,9 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.IterablePropertyResolver;
@@ -109,7 +109,7 @@ public class PropsReader {
 
   public List<PropertySetter> read(AnnotatedElement annotated) {
     Assert.notNull(annotated, "AnnotatedElement must not be null");
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Props.class, annotated);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(annotated, Props.class);
     if (attributes == null) {
       return Collections.emptyList();
     }

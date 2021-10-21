@@ -41,8 +41,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
@@ -279,16 +279,16 @@ public class BeanDefinitionReader {
     if (prototype) {
       builder.prototype();
     }
-    if (AnnotationUtils.isPresent(clazz, Primary.class)) {
+    if (AnnotatedElementUtils.isAnnotated(clazz, Primary.class)) {
       builder.primary(true);
     }
 
-    AnnotationAttributes lazy = AnnotationUtils.getAttributes(Lazy.class, clazz);
+    AnnotationAttributes lazy = AnnotatedElementUtils.getMergedAnnotationAttributes(clazz, Lazy.class);
     if (lazy != null) {
       builder.lazyInit(lazy.getBoolean(Constant.VALUE));
     }
 
-    AnnotationAttributes role = AnnotationUtils.getAttributes(Role.class, clazz);
+    AnnotationAttributes role = AnnotatedElementUtils.getMergedAnnotationAttributes(clazz, Role.class);
     if (role != null) {
       builder.role(role.getNumber(Constant.VALUE));
     }
@@ -373,7 +373,7 @@ public class BeanDefinitionReader {
   }
 
   private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
-    AnnotationAttributes[] annotationAttributes = AnnotationUtils.getAttributesArray(candidate, Component.class);
+    AnnotationAttributes[] annotationAttributes = AnnotatedElementUtils.getMergedAttributesArray(candidate, Component.class);
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       String defaultBeanName = createBeanName(candidate);
       for (AnnotationAttributes attributes : annotationAttributes) {

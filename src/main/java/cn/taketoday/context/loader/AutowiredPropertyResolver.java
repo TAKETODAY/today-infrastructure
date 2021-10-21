@@ -30,7 +30,8 @@ import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
@@ -71,18 +72,28 @@ public class AutowiredPropertyResolver
   @Override
   protected PropertySetter resolveInternal(PropertyResolvingContext context, Field field) {
     Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
-
     String name = null;
     Class<?> propertyClass = field.getType();
     if (autowired != null) {
       name = autowired.value();
     }
-    else if (isPresent(field, RESOURCE_CLASS)) { // @Resource
-      name = AnnotationUtils.getAttributes(RESOURCE_CLASS, field).getString("name");
+    else {
+      // @Resource
+      AnnotationAttributes resource = AnnotatedElementUtils.getMergedAnnotationAttributes(
+              field, RESOURCE_CLASS);
+      if (resource != null) {
+        name = resource.getString("name");
+      }
+      else {
+        // @Named
+        AnnotationAttributes named = AnnotatedElementUtils.getMergedAnnotationAttributes(
+                field, NAMED_CLASS);
+        if (named != null) {
+          name = named.getString(Constant.VALUE);
+        }
+      }
     }
-    else if (isPresent(field, NAMED_CLASS)) {// @Named
-      name = AnnotationUtils.getAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
-    } // @Inject or name is empty
+    // @Inject or name is empty
 
     if (StringUtils.isEmpty(name)) {
       name = byType(context, propertyClass);

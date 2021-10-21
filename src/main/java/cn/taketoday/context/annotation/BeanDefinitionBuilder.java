@@ -42,10 +42,10 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
@@ -461,8 +461,7 @@ public class BeanDefinitionBuilder {
   public void build(
           String defaultName, AnnotatedElement annotated,
           BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
-    MergedAnnotation<Component> of = MergedAnnotation.of(annotated, Component.class, null);
-    AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(annotated, Component.class);
+    AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(annotated, Component.class);
     build(defaultName, components, consumer);
   }
 
@@ -491,7 +490,7 @@ public class BeanDefinitionBuilder {
 
   public void build(
           String defaultName, AnnotatedElement annotated, Consumer<BeanDefinition> consumer) {
-    AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(annotated, Component.class);
+    AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(annotated, Component.class);
     build(defaultName, components, consumer);
   }
 
@@ -649,7 +648,7 @@ public class BeanDefinitionBuilder {
     String defaultBeanName = defaultBeanName(candidate);
 
     AnnotationAttributes[] annotationAttributes =
-            AnnotationUtils.getAttributesArray(candidate, Component.class);
+            AnnotatedElementUtils.getMergedAttributesArray(candidate, Component.class);
     // has Component
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       ArrayList<BeanDefinition> definitions = new ArrayList<>(2);

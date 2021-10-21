@@ -20,13 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-
-import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Collections;
@@ -34,6 +27,12 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.lang.Nullable;
 
 /**
  * General utility methods for finding annotations, meta-annotations, and
@@ -124,7 +123,7 @@ public abstract class AnnotatedElementUtils {
   public static Set<String> getMetaAnnotationTypes(
           AnnotatedElement element, Class<? extends Annotation> annotationType) {
 
-    return getMetaAnnotationTypes(element, element.getAnnotation(annotationType));
+    return getMetaAnnotationTypes(element.getAnnotation(annotationType));
   }
 
   /**
@@ -145,13 +144,13 @@ public abstract class AnnotatedElementUtils {
   public static Set<String> getMetaAnnotationTypes(AnnotatedElement element, String annotationName) {
     for (Annotation annotation : element.getAnnotations()) {
       if (annotation.annotationType().getName().equals(annotationName)) {
-        return getMetaAnnotationTypes(element, annotation);
+        return getMetaAnnotationTypes(annotation);
       }
     }
     return Collections.emptySet();
   }
 
-  private static Set<String> getMetaAnnotationTypes(AnnotatedElement element, @Nullable Annotation annotation) {
+  private static Set<String> getMetaAnnotationTypes(@Nullable Annotation annotation) {
     if (annotation == null) {
       return Collections.emptySet();
     }
@@ -367,7 +366,6 @@ public abstract class AnnotatedElementUtils {
    */
   public static <A extends Annotation> Set<A> getAllMergedAnnotations(
           AnnotatedElement element, Class<A> annotationType) {
-
     return getAnnotations(element).stream(annotationType)
             .collect(MergedAnnotationCollectors.toAnnotationSet());
   }
@@ -792,6 +790,22 @@ public abstract class AnnotatedElementUtils {
             Adapt.values(classValuesAsString, nestedAnnotationsAsMap));
   }
 
+  public static <A extends Annotation> AnnotationAttributes[] getMergedAttributesArray(
+          AnnotatedElement annotated, Class<A> annotationType) {
+    // Shortcut: directly present on the element, with no merging needed?
+    if (AnnotationFilter.PLAIN.matches(annotationType) ||
+            AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotated)) {
+      return new AnnotationAttributes[] {
+              AnnotationUtils.getAnnotationAttributes(
+                      annotated, annotated.getDeclaredAnnotation(annotationType))
+      };
+    }
+
+    return MergedAnnotations.from(annotated, SearchStrategy.DIRECT, RepeatableContainers.none())
+            .stream(annotationType)
+            .map(MergedAnnotation::asAnnotationAttributes)
+            .toArray(AnnotationAttributes[]::new);
+  }
 
   /**
    * Adapted {@link AnnotatedElement} that hold specific annotations.

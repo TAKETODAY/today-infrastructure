@@ -27,8 +27,8 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -71,7 +71,8 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
     BeanDefinitionBuilder builder = context.createBuilder();
 
     for (Class<?> beanClass : beans) {
-      AnnotationAttributes missingBean = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
+      AnnotationAttributes missingBean = AnnotatedElementUtils.getMergedAnnotationAttributes(
+              beanClass, MissingBean.class);
       if (missingBean != null) {
         if (context.isMissingBeanInContext(missingBean, beanClass)) {
           // MissingBean in 'META-INF/beans' @since 3.0

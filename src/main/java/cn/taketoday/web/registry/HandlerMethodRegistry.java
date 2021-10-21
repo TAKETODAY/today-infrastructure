@@ -19,6 +19,15 @@
  */
 package cn.taketoday.web.registry;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -30,7 +39,6 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
@@ -50,15 +58,6 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Store {@link HandlerMethod}
@@ -146,8 +145,9 @@ public class HandlerMethodRegistry
    */
   public void buildHandlerMethod(BeanDefinition def) {
     // find mapping on BeanDefinition
-    AnnotationAttributes controllerMapping
-            = AnnotationUtils.getAttributes(ActionMapping.class, def);
+    AnnotationAttributes controllerMapping = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            def, ActionMapping.class);
+
     buildHandlerMethod(def.getBeanClass(), controllerMapping);
   }
 
@@ -340,8 +340,8 @@ public class HandlerMethodRegistry
   protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
     BeanDefinition def = registry.getBeanDefinition(beanClass);
     return def.isSingleton()
-            ? beanFactory.getBean(def)
-            : Prototypes.newProxyInstance(beanClass, def, beanFactory);
+           ? beanFactory.getBean(def)
+           : Prototypes.newProxyInstance(beanClass, def, beanFactory);
   }
 
   /**

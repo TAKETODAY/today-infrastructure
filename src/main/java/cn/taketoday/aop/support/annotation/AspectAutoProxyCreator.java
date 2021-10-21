@@ -41,10 +41,14 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -182,7 +186,7 @@ public class AspectAutoProxyCreator
     }
 
     // exist in bean factory ?
-    if (AnnotationUtils.isPresent(interceptor, Component.class)) {
+    if (AnnotatedElementUtils.isAnnotated(interceptor, Component.class)) {
       if (beanFactory instanceof BeanDefinitionRegistry) {
         BeanDefinition interceptorDef = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(interceptor);
         if (interceptorDef != null) {
@@ -220,7 +224,7 @@ public class AspectAutoProxyCreator
   }
 
   private AnnotationAttributes[] getAdviceAttributes(AnnotatedElement annotated) {
-    return AnnotationUtils.getAttributesArray(annotated, Advice.class);
+    return AnnotatedElementUtils.getMergedAttributesArray(annotated, Advice.class);
   }
 
 }

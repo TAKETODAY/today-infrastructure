@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -262,7 +263,7 @@ public class TypeDescriptor implements Serializable {
    * @return <tt>true</tt> if the annotation is present
    */
   public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-    return AnnotationUtils.isPresent(this.annotatedElement, annotationType);
+    return AnnotatedElementUtils.isAnnotated(this.annotatedElement, annotationType);
   }
 
   /**
@@ -273,7 +274,7 @@ public class TypeDescriptor implements Serializable {
    * @return the annotation, or {@code null} if no such annotation exists on this type descriptor
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-    return AnnotationUtils.getAnnotation(annotationType, this.annotatedElement);
+    return AnnotationUtils.getAnnotation(this.annotatedElement, annotationType);
   }
 
   /**

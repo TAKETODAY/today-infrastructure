@@ -27,8 +27,9 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -91,7 +92,8 @@ public class MockMethodParameter extends MethodParameter {
 
   @Override
   protected void initRequestParam(AnnotatedElement element) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, element);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            element, RequestParam.class);
     if (attributes != null) {
       this.name = attributes.getString(Constant.VALUE);
       this.required = attributes.getBoolean("required");

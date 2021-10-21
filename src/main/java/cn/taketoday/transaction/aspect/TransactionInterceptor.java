@@ -31,11 +31,11 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.logging.Logger;
@@ -191,9 +191,11 @@ public class TransactionInterceptor implements MethodInterceptor {
   }
 
   static TransactionDefinition getTransaction(Method method) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Transactional.class, method);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            method, Transactional.class);
     if (attributes == null) {
-      attributes = AnnotationUtils.getAttributes(Transactional.class, method.getDeclaringClass());
+      attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+              method.getDeclaringClass(), Transactional.class);
     }
     if (attributes == null) {
       throw new IllegalStateException(

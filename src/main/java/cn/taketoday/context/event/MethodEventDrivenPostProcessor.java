@@ -30,8 +30,9 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
@@ -59,9 +60,9 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
     ReflectionUtils.doWithMethods(beanClass, method -> {
-      if (AnnotationUtils.isPresent(method, EventListener.class)) {
-        AnnotationAttributes[] attributes
-                = AnnotationUtils.getAttributesArray(method, EventListener.class);
+      if (AnnotatedElementUtils.isAnnotated(method, EventListener.class)) {
+        AnnotationAttributes[] attributes =
+                AnnotatedElementUtils.getMergedAttributesArray(method, EventListener.class);
         for (AnnotationAttributes attribute : attributes) {
           Class<?>[] eventTypes = getEventTypes(attribute, method);
           // use ContextUtils#resolveParameter to resolve method arguments

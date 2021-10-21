@@ -41,6 +41,7 @@ import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -378,12 +379,12 @@ public class DefaultBeanDefinition
 
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-    return AnnotationUtils.isPresent(getBeanClass(), annotation);
+    return AnnotatedElementUtils.isAnnotated(getBeanClass(), annotation);
   }
 
   @Override
   public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-    return AnnotationUtils.getAnnotation(annotationClass, getBeanClass());
+    return AnnotationUtils.getAnnotation(getBeanClass(), annotationClass);
   }
 
   @Override
@@ -596,7 +597,7 @@ public class DefaultBeanDefinition
   }
 
   /** @since 4.0 source */
-  public void setSource(@Nullable Object source){
+  public void setSource(@Nullable Object source) {
     this.source = source;
   }
 

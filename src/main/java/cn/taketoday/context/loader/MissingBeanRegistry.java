@@ -29,8 +29,8 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
@@ -76,10 +76,11 @@ public class MissingBeanRegistry {
   }
 
   public void detectMissingBean(Method method) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, method);
-    if (isMissingBeanInContext(attributes, method)) {
+    AnnotationAttributes missingBean = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            method, MissingBean.class);
+    if (isMissingBeanInContext(missingBean, method)) {
       // register directly @since 3.0
-      registerMissingBean(method, attributes);
+      registerMissingBean(method, missingBean);
     }
   }
 

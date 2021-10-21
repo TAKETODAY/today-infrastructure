@@ -200,7 +200,7 @@ public class TypeHandlerRegistry {
   @SuppressWarnings("unchecked")
   public <T> void register(TypeHandler<T> typeHandler) {
     boolean mappedTypeFound = false;
-    MappedTypes mappedTypes = AnnotationUtils.getAnnotation(MappedTypes.class, typeHandler.getClass());
+    MappedTypes mappedTypes = AnnotationUtils.getAnnotation(typeHandler.getClass(), MappedTypes.class);
     if (mappedTypes != null) {
       for (Class<?> handledType : mappedTypes.value()) {
         register((Class<T>) handledType, typeHandler);

@@ -25,9 +25,9 @@ import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
@@ -53,12 +53,13 @@ public class ValuePropertyResolver implements PropertyValueResolver {
   @Override
   public PropertySetter resolveProperty(
           PropertyResolvingContext context, Field field) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Value.class, field);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            field, Value.class);
     if (attributes != null) {
       ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
       return resolve(context, field, expressionInfo);
     }
-    else if ((attributes = AnnotationUtils.getAttributes(Env.class, field)) != null) {
+    else if ((attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(field, Env.class)) != null) {
       ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
       return resolve(context, field, expressionInfo);
     }
@@ -83,7 +84,8 @@ public class ValuePropertyResolver implements PropertyValueResolver {
     }
 
     Object value = evaluator.evaluate(expr, field.getType());
-    if (value == null && AnnotationUtils.isPresent(field, Required.class)) {// perform @Required Annotation
+    if (value == null && AnnotatedElementUtils.isAnnotated(field, Required.class)) {
+      // perform @Required Annotation
       throw new ConfigurationException(
               "Can't resolve expression of field: [" + field +
                       "] with expression: [" + expr.getExpression() + "].");

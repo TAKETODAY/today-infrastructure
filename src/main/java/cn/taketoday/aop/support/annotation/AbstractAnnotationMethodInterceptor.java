@@ -241,9 +241,9 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private Object resolveAnnotation(MethodInvocation methodInvocation, Class annotationClass) {
     final Method method = methodInvocation.getMethod();
-    Annotation annotation = AnnotationUtils.getAnnotation(annotationClass, method);
+    Annotation annotation = AnnotationUtils.getAnnotation(method, annotationClass);
     if (annotation == null) {
-      annotation = AnnotationUtils.getAnnotation(annotationClass, method.getDeclaringClass());
+      annotation = AnnotationUtils.getAnnotation(method.getDeclaringClass(), annotationClass);
     }
     return annotation;
   }

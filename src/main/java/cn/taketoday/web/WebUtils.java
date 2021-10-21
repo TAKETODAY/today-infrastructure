@@ -25,9 +25,10 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.StringTokenizer;
 
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.io.Resource;
@@ -158,7 +159,7 @@ public abstract class WebUtils {
     if (ConversionException.class.isAssignableFrom(exceptionClass)) {
       return new DefaultResponseStatus(HttpStatus.BAD_REQUEST);
     }
-    ResponseStatus status = AnnotationUtils.getAnnotation(ResponseStatus.class, exceptionClass);
+    ResponseStatus status = AnnotationUtils.getAnnotation(exceptionClass, ResponseStatus.class);
     if (status != null) {
       return new DefaultResponseStatus(status);
     }
@@ -377,12 +378,14 @@ public abstract class WebUtils {
    * @since 4.0
    */
   public static boolean isResponseBody(Method method) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(ResponseBody.class, method);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            method, ResponseBody.class);
     if (attributes != null) {
       return attributes.getBoolean(Constant.VALUE);
     }
     Class<?> declaringClass = method.getDeclaringClass();
-    attributes = AnnotationUtils.getAttributes(ResponseBody.class, declaringClass);
+    attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            declaringClass, ResponseBody.class);
     if (attributes != null) {
       return attributes.getBoolean(Constant.VALUE);
     }

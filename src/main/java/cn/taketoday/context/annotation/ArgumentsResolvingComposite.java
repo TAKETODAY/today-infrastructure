@@ -35,10 +35,10 @@ import cn.taketoday.context.annotation.autowire.MapArgumentsResolver;
 import cn.taketoday.context.annotation.autowire.ObjectSupplierArgumentsResolver;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.NullValue;
@@ -184,7 +184,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
     @Nullable
     @Override
     public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      AnnotationAttributes attributes = AnnotationUtils.getAttributes(Env.class, parameter);
+      AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(parameter, Env.class);
       if (attributes != null) {
         ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
         return expressionEvaluator.evaluate(expressionInfo, parameter.getType());
@@ -199,7 +199,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
     @Nullable
     @Override
     public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      AnnotationAttributes attributes = AnnotationUtils.getAttributes(Value.class, parameter);
+      AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(parameter, Value.class);
       if (attributes != null) {
         ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
         return expressionEvaluator.evaluate(expressionInfo, parameter.getType());

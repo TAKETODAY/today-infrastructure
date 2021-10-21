@@ -69,7 +69,7 @@ public class ConditionEvaluator {
    * @return If matched
    */
   public boolean passCondition(AnnotatedElement annotated) {
-    MergedAnnotations from = MergedAnnotations.from(annotated);
+    MergedAnnotations from = MergedAnnotations.from(annotated, MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS);
     MergedAnnotation<Conditional> annotation = MergedAnnotation.of(annotated, Conditional.class, null);
     if (annotation.isPresent()) {
       Class<? extends Condition>[] classArray = annotation.getClassArray(MergedAnnotation.VALUE);

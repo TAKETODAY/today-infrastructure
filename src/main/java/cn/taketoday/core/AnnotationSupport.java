@@ -40,7 +40,7 @@ public interface AnnotationSupport extends AnnotatedElement {
 
   @Override
   default <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-    return AnnotationUtils.getAnnotation(annotationClass, getAnnotationSource());
+    return AnnotationUtils.getAnnotation(getAnnotationSource(), annotationClass);
   }
 
   // AnnotatedElement @since 3.0

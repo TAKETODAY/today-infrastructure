@@ -19,7 +19,9 @@
  */
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -28,9 +30,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 
 /**
  * General utility for determining the order of an object based on its type declaration.
@@ -128,7 +127,8 @@ public abstract class OrderUtils {
       return (cached instanceof Integer ? (Integer) cached : null);
     }
     Integer result;
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Order.class, element);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            element, Order.class);
     if (attributes != null) {
       result = attributes.getNumber(Constant.VALUE);
     }
@@ -148,7 +148,8 @@ public abstract class OrderUtils {
    */
   @Nullable
   public static Integer getPriority(AnnotatedElement element) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(JAVAX_PRIORITY_ANNOTATION, element);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            element, JAVAX_PRIORITY_ANNOTATION);
     if (attributes != null) {
       return attributes.getNumber(Constant.VALUE);
     }

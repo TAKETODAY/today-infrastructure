@@ -20,18 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -44,6 +32,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -72,96 +73,21 @@ public abstract class AnnotationUtils {
    * @throws ReflectionException if BeanProperty not found
    * @since 2.1.5
    */
-  public static <A> A injectAttributes(final AnnotationAttributes source,
-                                       final Class<?> annotationClass, final A instance) {
-    return reader.injectAttributes(source, annotationClass, instance);
-  }
-
-  /**
-   * Get First Annotation
-   *
-   * @param element The annotated element
-   * @param annotationClass The annotation class
-   * @param implClass the annotation' subclass
-   * @return the {@link Collection} of {@link Annotation} instance
-   * @since 2.1.7
-   */
-  public static <T extends Annotation> T getAnnotationFor(
-          final Class<T> annotationClass,
-          final Class<? extends T> implClass,
-          final AnnotatedElement element
-  ) {
-
-  }
-
-  /**
-   * Get First Annotation
-   *
-   * @param annotatedElement The annotated element
-   * @param annotationClass The annotation class
-   * @return The target {@link Annotation} instance. If annotatedElement is null returns null
-   * @since 2.1.7
-   */
-  public static <T extends Annotation> T getAnnotation(
-          final Class<T> annotationClass, final AnnotatedElement annotatedElement) {
-    return reader.getAnnotation(annotationClass, annotatedElement);
-  }
-
-  /**
-   * Get Annotation by proxy
-   *
-   * @param annotationClass The annotation class
-   * @param attributes The annotation attributes key-value
-   * @return the target {@link Annotation} instance
-   * @since 2.1.1
-   */
-  public static <T extends Annotation> T getAnnotationProxy(
-          final Class<T> annotationClass, final AnnotationAttributes attributes) {
-    return reader.getAnnotationProxy(annotationClass, attributes);
-  }
-
-  /**
-   * Get attributes the 'key-value' of annotations
-   *
-   * @param element The annotated element
-   * @param annotationClass The annotation class
-   * @return a set of {@link AnnotationAttributes}
-   * @since 2.1.1
-   */
-  public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
-          final AnnotatedElement element, final Class<T> annotationClass
-  ) {
-    return reader.getAttributes(element, annotationClass);
-  }
-
-  /**
-   * Get attributes the 'key-value' of annotations
-   *
-   * @param element The annotated element
-   * @param annotationClass The annotation class
-   * @return First of the {@link AnnotationAttributes} on the element
-   * @since 2.1.7
-   */
-  @Nullable
-  public static <T extends Annotation> AnnotationAttributes getAttributes(
-          final Class<T> annotationClass, final AnnotatedElement element
-  ) {
-    return reader.getAttributes(annotationClass, element);
-  }
-
-  /**
-   * Get attributes the 'key-value' of annotations
-   *
-   * @param element The annotated element
-   * @param targetClass The annotation class
-   * @return a set of {@link AnnotationAttributes} never be null
-   * @since 2.1.1
-   */
-  @NonNull
-  public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
-          final AnnotatedElement element, final Class<T> targetClass
-  ) {
-    return reader.getAttributesArray(element, targetClass);
+  public static <A> A injectAttributes(
+          AnnotationAttributes source, Class<?> annotationClass, A instance) {
+    Class<?> implClass = instance.getClass();
+    BeanMetadata metadata = BeanMetadata.ofClass(implClass);
+    for (Method method : annotationClass.getDeclaredMethods()) {
+      // method name must == field name
+      String name = method.getName();
+      BeanProperty beanProperty = metadata.getBeanProperty(name);
+      if (beanProperty == null) {
+        throw new ReflectionException(
+                "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
+      }
+      beanProperty.setValue(instance, source.get(name));
+    }
+    return instance;
   }
 
   /**
@@ -174,10 +100,10 @@ public abstract class AnnotationUtils {
    */
   @Deprecated
   public static <A extends Annotation> boolean isPresent(
-          @Nullable final AnnotatedElement element, @Nullable final Class<A> annType) {
+          @Nullable AnnotatedElement element, @Nullable Class<A> annType) {
     return annType != null && element != null
             && (element.isAnnotationPresent(annType)
-            || ObjectUtils.isNotEmpty(getAttributesArray(element, annType)));
+            || ObjectUtils.isNotEmpty(AnnotatedElementUtils.getMergedAttributesArray(element, annType)));
   }
 
   /**
@@ -221,8 +147,8 @@ public abstract class AnnotationUtils {
     }
     if (logger.isEnabled()) {
       String message = meta ?
-              "Failed to meta-introspect annotation " :
-              "Failed to introspect annotations on ";
+                       "Failed to meta-introspect annotation " :
+                       "Failed to introspect annotations on ";
       logger.log(message + element + ": " + ex);
     }
   }
@@ -438,8 +364,8 @@ public abstract class AnnotationUtils {
    * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
   @Deprecated
-  public static <A extends Annotation> Set<A> getRepeatableAnnotations(AnnotatedElement annotatedElement,
-                                                                       Class<A> annotationType) {
+  public static <A extends Annotation> Set<A> getRepeatableAnnotations(
+          AnnotatedElement annotatedElement, Class<A> annotationType) {
 
     return getRepeatableAnnotations(annotatedElement, annotationType, null);
   }
@@ -477,11 +403,13 @@ public abstract class AnnotationUtils {
    */
   @Deprecated
   public static <A extends Annotation> Set<A> getRepeatableAnnotations(
-          AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
+          AnnotatedElement annotatedElement, Class<A> annotationType,
+          @Nullable Class<? extends Annotation> containerAnnotationType) {
 
-    RepeatableContainers repeatableContainers = (containerAnnotationType != null ?
-            RepeatableContainers.of(annotationType, containerAnnotationType) :
-            RepeatableContainers.standardRepeatables());
+    RepeatableContainers repeatableContainers =
+            containerAnnotationType != null
+            ? RepeatableContainers.of(annotationType, containerAnnotationType)
+            : RepeatableContainers.standardRepeatables();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.SUPERCLASS, repeatableContainers)
             .stream(annotationType)
@@ -559,10 +487,10 @@ public abstract class AnnotationUtils {
   @Deprecated
   public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
-
-    RepeatableContainers repeatableContainers = containerAnnotationType != null ?
-            RepeatableContainers.of(annotationType, containerAnnotationType) :
-            RepeatableContainers.standardRepeatables();
+    RepeatableContainers repeatableContainers =
+            containerAnnotationType != null
+            ? RepeatableContainers.of(annotationType, containerAnnotationType)
+            : RepeatableContainers.standardRepeatables();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.DIRECT, repeatableContainers)
             .stream(annotationType)
@@ -595,8 +523,8 @@ public abstract class AnnotationUtils {
     }
 
     // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(annotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotatedElement)) {
+    if (AnnotationFilter.PLAIN.matches(annotationType)
+            || AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotatedElement)) {
       return annotatedElement.getDeclaredAnnotation(annotationType);
     }
 
@@ -629,8 +557,8 @@ public abstract class AnnotationUtils {
     }
 
     // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(annotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(method)) {
+    if (AnnotationFilter.PLAIN.matches(annotationType)
+            || AnnotationsScanner.hasPlainJavaAnnotationsOnly(method)) {
       return method.getDeclaredAnnotation(annotationType);
     }
 
@@ -670,8 +598,8 @@ public abstract class AnnotationUtils {
     }
 
     // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(annotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(clazz)) {
+    if (AnnotationFilter.PLAIN.matches(annotationType)
+            || AnnotationsScanner.hasPlainJavaAnnotationsOnly(clazz)) {
       A annotation = clazz.getDeclaredAnnotation(annotationType);
       if (annotation != null) {
         return annotation;
@@ -840,7 +768,7 @@ public abstract class AnnotationUtils {
     }
     // Exhaustive retrieval of merged annotations...
     return MergedAnnotations.from(annotationType, SearchStrategy.INHERITED_ANNOTATIONS,
-            RepeatableContainers.none()).isPresent(metaAnnotationType);
+                                  RepeatableContainers.none()).isPresent(metaAnnotationType);
   }
 
   /**
@@ -988,8 +916,7 @@ public abstract class AnnotationUtils {
     Adapt[] adaptations = Adapt.values(classValuesAsString, nestedAnnotationsAsMap);
     return MergedAnnotation.from(annotatedElement, annotation)
             .withNonMergedAttributes()
-            .asMap(mergedAnnotation ->
-                    new AnnotationAttributes(mergedAnnotation.getType(), true), adaptations);
+            .asMap(mergedAnnotation -> new AnnotationAttributes(mergedAnnotation.getType(), true), adaptations);
   }
 
   /**
@@ -1073,7 +1000,7 @@ public abstract class AnnotationUtils {
       for (int i = 0; i < size; i++) {
         AnnotationTypeMapping.MirrorSets.MirrorSet mirrorSet = mirrorSets.get(i);
         int resolved = mirrorSet.resolve(attributes.displayName, attributes,
-                AnnotationUtils::getAttributeValueForMirrorResolution);
+                                         AnnotationUtils::getAttributeValueForMirrorResolution);
         if (resolved != -1) {
           Method attribute = mapping.getAttributes().get(resolved);
           Object value = attributes.get(attribute.getName());
@@ -1081,7 +1008,7 @@ public abstract class AnnotationUtils {
             Method mirror = mirrorSet.get(j);
             if (mirror != attribute) {
               attributes.put(mirror.getName(),
-                      adaptValue(annotatedElement, value, classValuesAsString));
+                             adaptValue(annotatedElement, value, classValuesAsString));
             }
           }
         }
@@ -1093,7 +1020,7 @@ public abstract class AnnotationUtils {
       if (value instanceof DefaultValueHolder) {
         value = ((DefaultValueHolder) value).defaultValue;
         attributes.put(attributeName,
-                adaptValue(annotatedElement, value, classValuesAsString));
+                       adaptValue(annotatedElement, value, classValuesAsString));
       }
     }
   }
@@ -1177,7 +1104,7 @@ public abstract class AnnotationUtils {
     catch (InvocationTargetException ex) {
       rethrowAnnotationConfigurationException(ex.getTargetException());
       throw new IllegalStateException("Could not obtain value for annotation attribute '" +
-              attributeName + "' in " + annotation, ex);
+                                              attributeName + "' in " + annotation, ex);
     }
     catch (Throwable ex) {
       handleIntrospectionFailure(annotation.getClass(), ex);
@@ -1362,7 +1289,6 @@ public abstract class AnnotationUtils {
   public static void clearCache() {
     AnnotationTypeMappings.clearCache();
     AnnotationsScanner.clearCache();
-    reader.clearCache();
   }
 
   /**

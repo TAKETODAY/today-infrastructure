@@ -16,8 +16,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -30,6 +28,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link MergedAnnotations} implementation that searches for and adapts
@@ -65,9 +65,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   @Nullable
   private volatile List<Aggregate> aggregates;
 
-
-  private TypeMappedAnnotations(@Nullable AnnotatedElement element, @Nullable SearchStrategy searchStrategy,
-                                RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  private TypeMappedAnnotations(
+          @Nullable AnnotatedElement element, @Nullable SearchStrategy searchStrategy,
+          RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
     this.source = element;
     this.element = element;
@@ -77,8 +77,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     this.annotationFilter = annotationFilter;
   }
 
-  private TypeMappedAnnotations(@Nullable Object source, @Nullable Annotation[] annotations,
-                                RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  private TypeMappedAnnotations(
+          @Nullable Object source, @Nullable Annotation[] annotations,
+          RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
     this.source = source;
     this.element = null;
     this.searchStrategy = null;
@@ -87,14 +88,13 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     this.annotationFilter = annotationFilter;
   }
 
-
   @Override
   public <A extends Annotation> boolean isPresent(Class<A> annotationType) {
     if (this.annotationFilter.matches(annotationType)) {
       return false;
     }
-    return Boolean.TRUE.equals(scan(annotationType,
-            IsPresent.get(repeatableContainers, annotationFilter, false)));
+    return Boolean.TRUE.equals(scan(
+            annotationType, IsPresent.get(repeatableContainers, annotationFilter, false)));
   }
 
   @Override
@@ -103,7 +103,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return false;
     }
     return Boolean.TRUE.equals(scan(annotationType,
-            IsPresent.get(repeatableContainers, annotationFilter, false)));
+                                    IsPresent.get(repeatableContainers, annotationFilter, false)));
   }
 
   @Override
@@ -112,7 +112,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return false;
     }
     return Boolean.TRUE.equals(scan(annotationType,
-            IsPresent.get(repeatableContainers, annotationFilter, true)));
+                                    IsPresent.get(repeatableContainers, annotationFilter, true)));
   }
 
   @Override
@@ -121,7 +121,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return false;
     }
     return Boolean.TRUE.equals(scan(annotationType,
-            IsPresent.get(repeatableContainers, annotationFilter, true)));
+                                    IsPresent.get(repeatableContainers, annotationFilter, true)));
   }
 
   @Override
@@ -130,22 +130,24 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
-                                                        @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
+  public <A extends Annotation> MergedAnnotation<A> get(
+          Class<A> annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
 
     return get(annotationType, predicate, null);
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
-                                                        @Nullable Predicate<? super MergedAnnotation<A>> predicate,
-                                                        @Nullable MergedAnnotationSelector<A> selector) {
+  public <A extends Annotation> MergedAnnotation<A> get(
+          Class<A> annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
+          @Nullable MergedAnnotationSelector<A> selector) {
 
     if (annotationFilter.matches(annotationType)) {
       return MergedAnnotation.missing();
     }
-    MergedAnnotation<A> result = scan(annotationType,
-            new MergedAnnotationFinder<>(annotationType, predicate, selector));
+    MergedAnnotation<A> result = scan(
+            annotationType, new MergedAnnotationFinder<>(annotationType, predicate, selector));
     return (result != null ? result : MergedAnnotation.missing());
   }
 
@@ -170,7 +172,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return MergedAnnotation.missing();
     }
     MergedAnnotation<A> result = scan(annotationType,
-            new MergedAnnotationFinder<>(annotationType, predicate, selector));
+                                      new MergedAnnotationFinder<>(annotationType, predicate, selector));
     return (result != null ? result : MergedAnnotation.missing());
   }
 
@@ -225,7 +227,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       if (aggregates == null || aggregates.isEmpty()) {
         aggregates = Collections.emptyList();
       }
-      aggregates = aggregates;
+      this.aggregates = aggregates;
     }
     return aggregates;
   }
@@ -241,7 +243,6 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     }
     return null;
   }
-
 
   static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
                                 RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
@@ -261,14 +262,14 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     return new TypeMappedAnnotations(source, annotations, repeatableContainers, annotationFilter);
   }
 
-  private static boolean isMappingForType(AnnotationTypeMapping mapping,
-                                          AnnotationFilter annotationFilter, @Nullable Object requiredType) {
+  private static boolean isMappingForType(
+          AnnotationTypeMapping mapping,
+          AnnotationFilter annotationFilter, @Nullable Object requiredType) {
 
     Class<? extends Annotation> actualType = mapping.getAnnotationType();
     return (!annotationFilter.matches(actualType) &&
             (requiredType == null || actualType == requiredType || actualType.getName().equals(requiredType)));
   }
-
 
   /**
    * {@link AnnotationsProcessor} used to detect if an annotation is directly
@@ -306,8 +307,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public Boolean doWithAnnotations(Object requiredType, int aggregateIndex,
-                                     @Nullable Object source, Annotation[] annotations) {
+    public Boolean doWithAnnotations(
+            Object requiredType, int aggregateIndex,
+            @Nullable Object source, Annotation[] annotations) {
 
       for (Annotation annotation : annotations) {
         if (annotation != null) {
@@ -340,9 +342,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return null;
     }
 
-    static IsPresent get(RepeatableContainers repeatableContainers,
-                         AnnotationFilter annotationFilter, boolean directOnly) {
-
+    static IsPresent get(
+            RepeatableContainers repeatableContainers,
+            AnnotationFilter annotationFilter, boolean directOnly) {
       // Use a single shared instance for common combinations
       if (annotationFilter == AnnotationFilter.PLAIN) {
         if (repeatableContainers == RepeatableContainers.none()) {
@@ -370,13 +372,13 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     @Nullable
     private MergedAnnotation<A> result;
 
-    MergedAnnotationFinder(Object requiredType,
-                           @Nullable Predicate<? super MergedAnnotation<A>> predicate,
-                           @Nullable MergedAnnotationSelector<A> selector) {
-
-      this.requiredType = requiredType;
+    MergedAnnotationFinder(
+            Object requiredType,
+            @Nullable Predicate<? super MergedAnnotation<A>> predicate,
+            @Nullable MergedAnnotationSelector<A> selector) {
       this.predicate = predicate;
-      this.selector = (selector != null ? selector : MergedAnnotationSelectors.nearest());
+      this.requiredType = requiredType;
+      this.selector = selector != null ? selector : MergedAnnotationSelectors.nearest();
     }
 
     @Override
@@ -387,8 +389,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public MergedAnnotation<A> doWithAnnotations(Object type, int aggregateIndex,
-                                                 @Nullable Object source, Annotation[] annotations) {
+    public MergedAnnotation<A> doWithAnnotations(
+            Object type, int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
 
       for (Annotation annotation : annotations) {
         if (annotation != null && !annotationFilter.matches(annotation)) {
@@ -486,7 +488,6 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     }
   }
 
-
   private static class Aggregate {
 
     private final int aggregateIndex;
@@ -532,7 +533,6 @@ final class TypeMappedAnnotations implements MergedAnnotations {
               annotations.get(annotationIndex), aggregateIndex, logger);
     }
   }
-
 
   /**
    * {@link Spliterator} used to consume merged annotations from the

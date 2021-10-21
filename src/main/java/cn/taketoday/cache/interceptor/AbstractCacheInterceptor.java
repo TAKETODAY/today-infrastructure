@@ -39,11 +39,12 @@ import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextHolder;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
@@ -157,19 +158,19 @@ public abstract class AbstractCacheInterceptor
       Class<? extends Annotation> annClass = target.annotationClass;
 
       // Find target method [annClass] AnnotationAttributes
-      AnnotationAttributes attributes = AnnotationUtils.getAttributes(annClass, method);
+      AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(method, annClass);
       Class<?> declaringClass = method.getDeclaringClass();
       if (attributes == null) {
-        attributes = AnnotationUtils.getAttributes(annClass, declaringClass);
+        attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(declaringClass, annClass);
         if (attributes == null) {
           throw new IllegalStateException("Unexpected exception has occurred, may be it's a bug");
         }
       }
 
-      CacheConfiguration configuration = //
+      CacheConfiguration configuration =
               AnnotationUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
 
-      CacheConfig cacheConfig = AnnotationUtils.getAnnotation(CacheConfig.class, declaringClass);
+      CacheConfig cacheConfig = AnnotationUtils.getAnnotation(declaringClass, CacheConfig.class);
       if (cacheConfig != null) {
         configuration.mergeCacheConfigAttributes(cacheConfig);
       }

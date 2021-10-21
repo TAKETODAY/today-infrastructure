@@ -22,7 +22,6 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -34,9 +33,9 @@ import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
@@ -99,7 +98,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private void processComponentScan(BeanDefinition definition) {
     if (definition.isAnnotationPresent(ComponentScan.class)) {
       ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
-      List<AnnotationAttributes> annotations = AnnotationUtils.getAttributes(definition, ComponentScan.class);
+      AnnotationAttributes[] annotations = AnnotatedElementUtils.getMergedAttributesArray(definition, ComponentScan.class);
 
       LinkedHashSet<String> basePackages = new LinkedHashSet<>();
       LinkedHashSet<String> patternLocations = new LinkedHashSet<>();
@@ -138,7 +137,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   protected void loadConfigurationBeans(BeanDefinition config) {
     // process local declared methods first
     for (Method method : ReflectionUtils.getDeclaredMethods(config.getBeanClass())) {
-      AnnotationAttributes[] components = AnnotationUtils.getAttributesArray(method, Component.class);
+      AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(method, Component.class);
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
         context.detectMissingBean(method);
@@ -199,8 +198,9 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   protected final void processImport(BeanDefinition annotated) {
-    for (AnnotationAttributes attr : AnnotationUtils.getAttributesArray(annotated, Import.class)) {
-      for (Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
+    AnnotationAttributes[] mergedAttributesArray = AnnotatedElementUtils.getMergedAttributesArray(annotated, Import.class);
+    for (AnnotationAttributes attr : mergedAttributesArray) {
+      for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
         if (!context.containsBeanDefinition(importClass, true)) {
           doImport(annotated, importClass);
         }

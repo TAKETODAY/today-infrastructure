@@ -29,9 +29,9 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -90,7 +90,7 @@ public class MapArgumentsResolver
   }
 
   private DefaultProps getProps(Parameter parameter) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Props.class, parameter);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(parameter, Props.class);
     if (attributes == null) {
       if (Properties.class.isAssignableFrom(parameter.getType())) {
         return new DefaultProps();

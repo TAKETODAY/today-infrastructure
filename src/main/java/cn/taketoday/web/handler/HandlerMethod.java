@@ -88,7 +88,7 @@ public class HandlerMethod
     this.handlerInvoker = MethodInvoker.fromMethod(method);
     setOrder(OrderUtils.getOrderOrLowest(method) + OrderUtils.getOrderOrLowest(bean));
     // @since 3.0
-    final Produce produce = getMethodAnnotation(Produce.class);
+    Produce produce = getMethodAnnotation(Produce.class);
     if (produce != null) {
       setContentType(produce.value());
     }
@@ -129,36 +129,36 @@ public class HandlerMethod
    *
    * @since 4.0
    */
-  public boolean isReturnTypeAssignableFrom(final Class<?> childClass) {
+  public boolean isReturnTypeAssignableFrom(Class<?> childClass) {
     return returnType.isAssignableFrom(childClass);
   }
 
-  public boolean isReturnTypeAssignableTo(final Class<?> superClass) {
+  public boolean isReturnTypeAssignableTo(Class<?> superClass) {
     return superClass.isAssignableFrom(returnType);
   }
 
-  public boolean isReturn(final Class<?> returnType) {
+  public boolean isReturn(Class<?> returnType) {
     return returnType == this.returnType;
   }
 
-  public boolean isDeclaringClassPresent(final Class<? extends Annotation> annotationClass) {
+  public boolean isDeclaringClassPresent(Class<? extends Annotation> annotationClass) {
     return AnnotationUtils.isPresent(method.getDeclaringClass(), annotationClass);
   }
 
-  public boolean isMethodPresent(final Class<? extends Annotation> annotationClass) {
+  public boolean isMethodPresent(Class<? extends Annotation> annotationClass) {
     return AnnotationUtils.isPresent(method, annotationClass);
   }
 
-  public <A extends Annotation> A getDeclaringClassAnnotation(final Class<A> annotation) {
+  public <A extends Annotation> A getDeclaringClassAnnotation(Class<A> annotation) {
     return getAnnotation(method.getDeclaringClass(), annotation);
   }
 
-  public <A extends Annotation> A getMethodAnnotation(final Class<A> annotation) {
+  public <A extends Annotation> A getMethodAnnotation(Class<A> annotation) {
     return getAnnotation(method, annotation);
   }
 
-  public <A extends Annotation> A getAnnotation(final AnnotatedElement element, final Class<A> annotation) {
-    return AnnotationUtils.getAnnotation(annotation, element);
+  public <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotation) {
+    return AnnotationUtils.getAnnotation(element, annotation);
   }
 
   /**
@@ -170,8 +170,8 @@ public class HandlerMethod
 
   protected void applyResponseStatus(RequestContext context, ResponseStatus status) {
     if (status != null) {
-      final String reason = status.reason();
-      final HttpStatus httpStatus = status.value();
+      String reason = status.reason();
+      HttpStatus httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
         context.setStatus(httpStatus.value(), reason);
       }
@@ -236,31 +236,31 @@ public class HandlerMethod
 
   @Override
   public void handleReturnValue(
-          final RequestContext context, final Object handler, final Object returnValue) throws IOException {
+          RequestContext context, Object handler, Object returnValue) throws IOException {
     applyResponseStatus(context);
     if (returnValueHandler == null) {
       returnValueHandler = resultHandlers.obtainHandler(this);
     }
     returnValueHandler.handleReturnValue(context, handler, returnValue);
     // @since 3.0
-    final String contentType = getContentType();
+    String contentType = getContentType();
     if (contentType != null) {
       context.setContentType(contentType);
     }
   }
 
-  public Object invokeHandler(final RequestContext request) throws Throwable {
+  public Object invokeHandler(RequestContext request) throws Throwable {
     return handleInternal(request);
   }
 
   @Override
-  protected Object handleInternal(final RequestContext context) throws Throwable {
+  protected Object handleInternal(RequestContext context) throws Throwable {
     if (ObjectUtils.isEmpty(parameters)) {
       return handlerInvoker.invoke(bean, null);
     }
-    final Object[] args = new Object[parameters.length];
+    Object[] args = new Object[parameters.length];
     int i = 0;
-    for (final MethodParameter parameter : parameters) {
+    for (MethodParameter parameter : parameters) {
       args[i++] = parameter.resolveParameter(context);
     }
     return handlerInvoker.invoke(bean, args);
@@ -274,12 +274,12 @@ public class HandlerMethod
   // HandlerAdapter
 
   @Override
-  public boolean supports(final Object handler) {
+  public boolean supports(Object handler) {
     return handler == this;
   }
 
   @Override
-  public Object handle(final RequestContext context, final Object handler) throws Throwable {
+  public Object handle(RequestContext context, Object handler) throws Throwable {
     return handleRequest(context);
   }
 
@@ -303,7 +303,7 @@ public class HandlerMethod
       return true;
     if (!(o instanceof HandlerMethod))
       return false;
-    final HandlerMethod that = (HandlerMethod) o;
+    HandlerMethod that = (HandlerMethod) o;
     return Objects.equals(bean, that.bean)
             && Objects.equals(method, that.method)
             && Objects.equals(contentType, that.contentType)
@@ -318,10 +318,10 @@ public class HandlerMethod
 
   @Override
   public String toString() {
-    final Class<?> declaringClass = method.getDeclaringClass();
-    final String simpleName = declaringClass.getSimpleName();
+    Class<?> declaringClass = method.getDeclaringClass();
+    String simpleName = declaringClass.getSimpleName();
 
-    final StringBuilder builder = new StringBuilder();
+    StringBuilder builder = new StringBuilder();
     builder.append(simpleName)
             .append('#')
             .append(method.getName())

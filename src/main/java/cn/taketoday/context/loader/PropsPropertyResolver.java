@@ -28,8 +28,8 @@ import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
  * @author TODAY 2018-08-04 16:01
@@ -41,7 +41,8 @@ public class PropsPropertyResolver implements PropertyValueResolver {
    */
   @Override
   public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Props.class, field);
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
+            field, Props.class);
     if (attributes != null) {
       DefaultProps props = new DefaultProps(attributes);
 

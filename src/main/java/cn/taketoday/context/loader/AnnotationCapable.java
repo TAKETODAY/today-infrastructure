@@ -43,10 +43,9 @@ public interface AnnotationCapable<A extends Annotation> {
 
   default A getAnnotation(AnnotatedElement annotated) {
     Assert.notNull(annotated, "annotated must not be null");
-
     Class<A> generic = GenericTypeResolver.resolveTypeArgument(getClass(), AnnotationCapable.class);
     if (generic != null) {
-      return AnnotationUtils.getAnnotation(generic, annotated);
+      return AnnotationUtils.getAnnotation(annotated, generic);
     }
     throw new ConfigurationException("Cannot get target annotation on " + annotated);
   }

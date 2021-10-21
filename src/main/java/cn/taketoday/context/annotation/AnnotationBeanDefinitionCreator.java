@@ -24,18 +24,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.lang.Component;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/10/10 22:20
@@ -62,9 +61,9 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStr
 
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
     for (Class<? extends Annotation> annotationType : annotationTypes) {
-      List<AnnotationAttributes> annotations = AnnotationUtils.getAttributes(aClass, annotationType);
+      AnnotationAttributes[] annotations = AnnotatedElementUtils.getMergedAttributesArray(aClass, annotationType);
 
-      if (CollectionUtils.isNotEmpty(annotations)) {
+      if (ObjectUtils.isNotEmpty(annotations)) {
         for (AnnotationAttributes attributes : annotations) {
           BeanDefinitionBuilder builder = loadingContext.createBuilder();
           builder.beanClass(aClass);
