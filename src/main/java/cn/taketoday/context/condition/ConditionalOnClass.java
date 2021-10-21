@@ -19,16 +19,17 @@
  */
 package cn.taketoday.context.condition;
 
+import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.util.ClassUtils;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.AnnotatedElement;
-
-import cn.taketoday.context.Condition;
-import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link Conditional} that only matches when the specified classes are on the
@@ -47,33 +48,35 @@ public @interface ConditionalOnClass {
    *
    * @return the classes that must be present
    */
-  String[] value() default {};
+  String[] value() default { };
 
 }
 
 final class OnClassCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
-    ConditionalOnClass conditionalOnClass = annotated.getAnnotation(ConditionalOnClass.class);
-    if (conditionalOnClass != null) {
-      for (String name : conditionalOnClass.value()) {
+  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    MergedAnnotation<ConditionalOnClass> conditionalOnClass = metadata.getAnnotations().get(ConditionalOnClass.class);
+    if (conditionalOnClass.isPresent()) {
+      String[] classArray = conditionalOnClass.getStringArray(MergedAnnotation.VALUE);
+      for (String name : classArray) {
         if (!ClassUtils.isPresent(name)) {
           return false;
         }
       }
     }
 
-    ConditionalOnMissingClass onMissingClass = annotated.getAnnotation(ConditionalOnMissingClass.class);
-    if (onMissingClass != null) {
-      for (String name : onMissingClass.value()) {
+    MergedAnnotation<ConditionalOnClass> onMissingClass = metadata.getAnnotations().get(ConditionalOnClass.class);
+    if (onMissingClass.isPresent()) {
+      String[] classArray = onMissingClass.getStringArray(MergedAnnotation.VALUE);
+      for (String name : classArray) {
         if (ClassUtils.isPresent(name)) {
           return false;
         }
       }
     }
-
     return true;
   }
+
 
 }
