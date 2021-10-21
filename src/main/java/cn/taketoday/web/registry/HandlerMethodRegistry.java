@@ -19,15 +19,6 @@
  */
 package cn.taketoday.web.registry;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -35,9 +26,10 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionReader;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -59,7 +51,14 @@ import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
-import static cn.taketoday.util.CollectionUtils.newHashSet;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Store {@link HandlerMethod}
@@ -194,7 +193,7 @@ public class HandlerMethodRegistry
       for (String value : controllerMapping.getStringArray(Constant.VALUE)) {
         namespaces.add(StringUtils.formatURL(value));
       }
-      Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", HttpMethod[].class));
+      Collections.addAll(classRequestMethods, controllerMapping.getEnum("method"));
       emptyNamespaces = namespaces.isEmpty();
       addClassRequestMethods = !classRequestMethods.isEmpty();
     }
@@ -202,7 +201,7 @@ public class HandlerMethodRegistry
     for (AnnotationAttributes handlerMethodMapping : annotationAttributes) {
       boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
       Set<HttpMethod> requestMethods = // http request method on method(action/handler)
-              newHashSet(handlerMethodMapping.getAttribute("method", HttpMethod[].class));
+              CollectionUtils.newHashSet(handlerMethodMapping.getEnum("method"));
 
       if (addClassRequestMethods)
         requestMethods.addAll(classRequestMethods);
@@ -237,8 +236,8 @@ public class HandlerMethodRegistry
   private void mappingHandlerMethod(String path, HttpMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
     String pathPattern = getRequestPathPattern(path);
-    super.registerHandler(requestMethod.name().concat(pathPattern),
-                          transformHandlerMethod(pathPattern, handlerMethod));
+    HandlerMethod transformed = transformHandlerMethod(pathPattern, handlerMethod);
+    super.registerHandler(requestMethod.name().concat(pathPattern), transformed);
   }
 
   protected final String getRequestPathPattern(String path) {
@@ -346,8 +345,8 @@ public class HandlerMethodRegistry
   protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
     BeanDefinition def = registry.getBeanDefinition(beanClass);
     return def.isSingleton()
-           ? beanFactory.getBean(def)
-           : Prototypes.newProxyInstance(beanClass, def, beanFactory);
+            ? beanFactory.getBean(def)
+            : Prototypes.newProxyInstance(beanClass, def, beanFactory);
   }
 
   /**
@@ -360,20 +359,21 @@ public class HandlerMethodRegistry
   protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {
     ArrayList<HandlerInterceptor> ret = new ArrayList<>();
 
+    Set<Interceptor> controllerInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(controllerClass, Interceptor.class);
+
     // get interceptor on class
-    Interceptor[] controllerInterceptors = AnnotationUtils.getAnnotationArray(controllerClass, Interceptor.class);
-    if (controllerInterceptors != null) {
+    if (CollectionUtils.isNotEmpty(controllerInterceptors)) {
       for (Interceptor controllerInterceptor : controllerInterceptors) {
         Collections.addAll(ret, getInterceptors(controllerInterceptor.value()));
       }
     }
     // HandlerInterceptor on a method
-    Interceptor[] actionInterceptors = AnnotationUtils.getAnnotationArray(action, Interceptor.class);
-    if (actionInterceptors != null) {
+    Set<Interceptor> actionInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(action, Interceptor.class);
+    if (CollectionUtils.isNotEmpty(actionInterceptors)) {
+      ApplicationContext beanFactory = obtainApplicationContext();
       for (Interceptor actionInterceptor : actionInterceptors) {
         Collections.addAll(ret, getInterceptors(actionInterceptor.value()));
         // exclude interceptors
-        ApplicationContext beanFactory = obtainApplicationContext();
         for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
           ret.remove(beanFactory.getBean(interceptor));
         }

@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collector.Characteristics;
 
@@ -39,13 +40,8 @@ import java.util.stream.Collector.Characteristics;
  * @since 4.0
  */
 public abstract class MergedAnnotationCollectors {
-
   private static final Characteristics[] NO_CHARACTERISTICS = { };
-
   private static final Characteristics[] IDENTITY_FINISH_CHARACTERISTICS = { Characteristics.IDENTITY_FINISH };
-
-  private MergedAnnotationCollectors() {
-  }
 
   /**
    * Create a new {@link Collector} that accumulates merged annotations to a
@@ -108,11 +104,11 @@ public abstract class MergedAnnotationCollectors {
    * @param adaptations the adaptations that should be applied to the annotation values
    * @return a {@link Collector} which collects and synthesizes the
    * annotations into a {@link DefaultMultiValueMap}
-   * @see #toMultiValueMap(Function, Adapt...)
+   * @see #toMultiValueMap(UnaryOperator, Adapt...)
    */
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
           Adapt... adaptations) {
-    return toMultiValueMap(Function.identity(), adaptations);
+    return toMultiValueMap(UnaryOperator.identity(), adaptations);
   }
 
   /**
@@ -129,8 +125,7 @@ public abstract class MergedAnnotationCollectors {
    * @see #toMultiValueMap(Adapt...)
    */
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
-          Function<MultiValueMap<String, Object>, MultiValueMap<String, Object>> finisher,
-          Adapt... adaptations) {
+          UnaryOperator<MultiValueMap<String, Object>> finisher, Adapt... adaptations) {
 
     Characteristics[] characteristics = (isSameInstance(finisher, Function.identity()) ?
             IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS);

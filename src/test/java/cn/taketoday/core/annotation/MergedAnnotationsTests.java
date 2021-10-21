@@ -16,16 +16,16 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Indexed;
 import org.junit.jupiter.api.Test;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
-import cn.taketoday.core.testfixture.stereotype.Component;
-import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -47,7 +47,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.annotation.Resource;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.assertj.core.api.Assertions.assertThat;

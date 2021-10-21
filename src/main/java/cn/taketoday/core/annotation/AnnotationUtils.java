@@ -26,7 +26,6 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
@@ -51,9 +50,6 @@ import java.util.Set;
  * @since 4.0
  */
 public abstract class AnnotationUtils {
-  private static final AnnotationMetaReader reader =
-          TodayStrategies.getDetector().getFirst(
-                  AnnotationMetaReader.class, ReflectiveAnnotationMetaReader::new);
 
   /**
    * The attribute name for annotations with a single element.
@@ -65,23 +61,6 @@ public abstract class AnnotationUtils {
 
   private static final Map<Class<? extends Annotation>, Map<String, DefaultValueHolder>> defaultValuesCache =
           new ConcurrentReferenceHashMap<>();
-
-  /**
-   * Get the array of {@link Annotation} instance
-   *
-   * @param element annotated element
-   * @param annotationClass target annotation class
-   * @param implClass impl class
-   * @return the array of {@link Annotation} instance
-   * @since 2.1.1
-   */
-  public static <T extends Annotation> T[] getAnnotationArray(
-          final AnnotatedElement element,
-          final Class<T> annotationClass,
-          final Class<? extends T> implClass
-  ) {
-    return reader.getAnnotationArray(element, annotationClass, implClass);
-  }
 
   /**
    * Get the array of {@link Annotation} instance
@@ -100,23 +79,6 @@ public abstract class AnnotationUtils {
   }
 
   /**
-   * Get Annotation by reflect
-   *
-   * @param element The annotated element
-   * @param annotationClass The annotation class
-   * @param implClass The implementation class
-   * @return the {@link Collection} of {@link Annotation} instance
-   * @since 2.0.x
-   */
-  public static <A extends Annotation> List<A> getAnnotation(
-          final AnnotatedElement element,
-          final Class<A> annotationClass,
-          final Class<? extends A> implClass
-  ) {
-    return reader.getAnnotation(element, annotationClass, implClass);
-  }
-
-  /**
    * Inject {@link AnnotationAttributes} by reflect
    *
    * @param source Element attributes
@@ -131,44 +93,7 @@ public abstract class AnnotationUtils {
     return reader.injectAttributes(source, annotationClass, instance);
   }
 
-  /**
-   * Get Annotation Attributes from an annotation instance
-   *
-   * @param annotation annotation instance
-   * @return {@link AnnotationAttributes}
-   * @since 2.1.1
-   */
-  public static AnnotationAttributes getAttributes(final Annotation annotation) {
-    return getAttributes(annotation.annotationType(), annotation);
-  }
 
-  /**
-   * Get Annotation Attributes from an annotation instance
-   *
-   * @param annotationType Input annotation type
-   * @param annotation Input annotation
-   * @return {@link AnnotationAttributes} key-value
-   * @since 2.1.7
-   */
-  public static AnnotationAttributes getAttributes(
-          final Class<? extends Annotation> annotationType, final Object annotation) {
-    return reader.getAttributes(annotationType, annotation);
-  }
-
-  /**
-   * Get Annotation by proxy
-   *
-   * @param annotatedElement The annotated element
-   * @param annotationClass The annotation class
-   * @return the {@link Collection} of {@link Annotation} instance
-   * @since 2.1.1
-   */
-  public static <T extends Annotation> List<T> getAnnotation(
-          final AnnotatedElement annotatedElement,
-          final Class<T> annotationClass
-  ) {
-    return reader.getAnnotation(annotatedElement, annotationClass);
-  }
 
   /**
    * Get First Annotation
