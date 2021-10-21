@@ -16,8 +16,8 @@
 
 package cn.taketoday.core.type;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
 import cn.taketoday.util.StringUtils;
 
 import java.lang.reflect.Modifier;
@@ -29,7 +29,7 @@ import java.util.LinkedHashSet;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 public class StandardClassMetadata implements ClassMetadata {
 

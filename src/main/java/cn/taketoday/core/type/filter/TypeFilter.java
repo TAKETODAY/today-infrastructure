@@ -28,7 +28,7 @@ import java.io.IOException;
  * @author Costin Leau
  * @author Juergen Hoeller
  * @author Mark Fisher
- * @since 2.5
+ * @since 4.0
  */
 @FunctionalInterface
 public interface TypeFilter {

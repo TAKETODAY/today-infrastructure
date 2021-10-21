@@ -1,17 +1,21 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -22,31 +26,33 @@ import java.lang.annotation.Annotation;
  * Strategy interface used to select between two {@link MergedAnnotation}
  * instances.
  *
- * @author Phillip Webb
- * @since 4.0
  * @param <A> the annotation type
- * @see cn.taketoday.core.annotation.MergedAnnotationSelectors
+ * @author Phillip Webb
+ * @see MergedAnnotationSelectors
+ * @since 4.0
  */
 @FunctionalInterface
 public interface MergedAnnotationSelector<A extends Annotation> {
 
-	/**
-	 * Determine if the existing annotation is known to be the best
-	 * candidate and any subsequent selections may be skipped.
-	 * @param annotation the annotation to check
-	 * @return {@code true} if the annotation is known to be the best candidate
-	 */
-	default boolean isBestCandidate(MergedAnnotation<A> annotation) {
-		return false;
-	}
+  /**
+   * Determine if the existing annotation is known to be the best
+   * candidate and any subsequent selections may be skipped.
+   *
+   * @param annotation the annotation to check
+   * @return {@code true} if the annotation is known to be the best candidate
+   */
+  default boolean isBestCandidate(MergedAnnotation<A> annotation) {
+    return false;
+  }
 
-	/**
-	 * Select the annotation that should be used.
-	 * @param existing an existing annotation returned from an earlier result
-	 * @param candidate a candidate annotation that may be better suited
-	 * @return the most appropriate annotation from the {@code existing} or
-	 * {@code candidate}
-	 */
-	MergedAnnotation<A> select(MergedAnnotation<A> existing, MergedAnnotation<A> candidate);
+  /**
+   * Select the annotation that should be used.
+   *
+   * @param existing an existing annotation returned from an earlier result
+   * @param candidate a candidate annotation that may be better suited
+   * @return the most appropriate annotation from the {@code existing} or
+   * {@code candidate}
+   */
+  MergedAnnotation<A> select(MergedAnnotation<A> existing, MergedAnnotation<A> candidate);
 
 }

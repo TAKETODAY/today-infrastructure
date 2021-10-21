@@ -18,18 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.type;
+package cn.taketoday.lang;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Tests for {@link StandardMethodMetadata}.
+ * Indicates that the annotated element uses an API from the {@code sun.misc}
+ * package.
  *
- * @author Phillip Webb
+ * @author Stephane Nicoll
+ * @since 4.0
  */
-class StandardMethodMetadataTests extends AbstractMethodMetadataTests {
-
-	@Override
-	protected AnnotationMetadata get(Class<?> source) {
-		return AnnotationMetadata.introspect(source);
-	}
+@Documented
+@Retention(RetentionPolicy.CLASS)
+@Target({ ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.TYPE })
+public @interface UsesSunMisc {
 
 }

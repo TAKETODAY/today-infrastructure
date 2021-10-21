@@ -1,17 +1,21 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -29,147 +33,142 @@ import java.util.function.Predicate;
 
 /**
  * An {@link AbstractMergedAnnotation} used as the implementation of
- * {@link cn.taketoday.core.annotation.MergedAnnotation#missing()}.
+ * {@link MergedAnnotation#missing()}.
  *
+ * @param <A> the annotation type
  * @author Phillip Webb
  * @author Juergen Hoeller
  * @since 4.0
- * @param <A> the annotation type
  */
 final class MissingMergedAnnotation<A extends Annotation> extends AbstractMergedAnnotation<A> {
 
-	private static final MissingMergedAnnotation<?> INSTANCE = new MissingMergedAnnotation<>();
+  private static final MissingMergedAnnotation<?> INSTANCE = new MissingMergedAnnotation<>();
 
+  private MissingMergedAnnotation() { }
 
-	private MissingMergedAnnotation() {
-	}
+  @Override
+  public Class<A> getType() {
+    throw new NoSuchElementException("Unable to get type for missing annotation");
+  }
 
+  @Override
+  public boolean isPresent() {
+    return false;
+  }
 
-	@Override
-	public Class<A> getType() {
-		throw new NoSuchElementException("Unable to get type for missing annotation");
-	}
+  @Override
+  @Nullable
+  public Object getSource() {
+    return null;
+  }
 
-	@Override
-	public boolean isPresent() {
-		return false;
-	}
+  @Override
+  @Nullable
+  public MergedAnnotation<?> getMetaSource() {
+    return null;
+  }
 
-	@Override
-	@Nullable
-	public Object getSource() {
-		return null;
-	}
+  @Override
+  public MergedAnnotation<?> getRoot() {
+    return this;
+  }
 
-	@Override
-	@Nullable
-	public cn.taketoday.core.annotation.MergedAnnotation<?> getMetaSource() {
-		return null;
-	}
+  @Override
+  public List<Class<? extends Annotation>> getMetaTypes() {
+    return Collections.emptyList();
+  }
 
-	@Override
-	public cn.taketoday.core.annotation.MergedAnnotation<?> getRoot() {
-		return this;
-	}
+  @Override
+  public int getDistance() {
+    return -1;
+  }
 
-	@Override
-	public List<Class<? extends Annotation>> getMetaTypes() {
-		return Collections.emptyList();
-	}
+  @Override
+  public int getAggregateIndex() {
+    return -1;
+  }
 
-	@Override
-	public int getDistance() {
-		return -1;
-	}
+  @Override
+  public boolean hasNonDefaultValue(String attributeName) {
+    throw new NoSuchElementException(
+            "Unable to check non-default value for missing annotation");
+  }
 
-	@Override
-	public int getAggregateIndex() {
-		return -1;
-	}
+  @Override
+  public boolean hasDefaultValue(String attributeName) {
+    throw new NoSuchElementException(
+            "Unable to check default value for missing annotation");
+  }
 
-	@Override
-	public boolean hasNonDefaultValue(String attributeName) {
-		throw new NoSuchElementException(
-				"Unable to check non-default value for missing annotation");
-	}
+  @Override
+  public <T> Optional<T> getValue(String attributeName, Class<T> type) {
+    return Optional.empty();
+  }
 
-	@Override
-	public boolean hasDefaultValue(String attributeName) {
-		throw new NoSuchElementException(
-				"Unable to check default value for missing annotation");
-	}
+  @Override
+  public <T> Optional<T> getDefaultValue(@Nullable String attributeName, Class<T> type) {
+    return Optional.empty();
+  }
 
-	@Override
-	public <T> Optional<T> getValue(String attributeName, Class<T> type) {
-		return Optional.empty();
-	}
+  @Override
+  public MergedAnnotation<A> filterAttributes(Predicate<String> predicate) {
+    return this;
+  }
 
-	@Override
-	public <T> Optional<T> getDefaultValue(@Nullable String attributeName, Class<T> type) {
-		return Optional.empty();
-	}
+  @Override
+  public MergedAnnotation<A> withNonMergedAttributes() {
+    return this;
+  }
 
-	@Override
-	public cn.taketoday.core.annotation.MergedAnnotation<A> filterAttributes(Predicate<String> predicate) {
-		return this;
-	}
+  @Override
+  public AnnotationAttributes asAnnotationAttributes(MergedAnnotation.Adapt... adaptations) {
+    return new AnnotationAttributes();
+  }
 
-	@Override
-	public cn.taketoday.core.annotation.MergedAnnotation<A> withNonMergedAttributes() {
-		return this;
-	}
+  @Override
+  public Map<String, Object> asMap(MergedAnnotation.Adapt... adaptations) {
+    return Collections.emptyMap();
+  }
 
-	@Override
-	public AnnotationAttributes asAnnotationAttributes(cn.taketoday.core.annotation.MergedAnnotation.Adapt... adaptations) {
-		return new AnnotationAttributes();
-	}
+  @Override
+  public <T extends Map<String, Object>> T asMap(Function<MergedAnnotation<?>, T> factory, MergedAnnotation.Adapt... adaptations) {
+    return factory.apply(this);
+  }
 
-	@Override
-	public Map<String, Object> asMap(cn.taketoday.core.annotation.MergedAnnotation.Adapt... adaptations) {
-		return Collections.emptyMap();
-	}
+  @Override
+  public String toString() {
+    return "(missing)";
+  }
 
-	@Override
-	public <T extends Map<String, Object>> T asMap(Function<cn.taketoday.core.annotation.MergedAnnotation<?>, T> factory, cn.taketoday.core.annotation.MergedAnnotation.Adapt... adaptations) {
-		return factory.apply(this);
-	}
+  @Override
+  public <T extends Annotation> MergedAnnotation<T> getAnnotation(
+          String attributeName, Class<T> type) throws NoSuchElementException {
 
-	@Override
-	public String toString() {
-		return "(missing)";
-	}
+    throw new NoSuchElementException(
+            "Unable to get attribute value for missing annotation");
+  }
 
-	@Override
-	public <T extends Annotation> cn.taketoday.core.annotation.MergedAnnotation<T> getAnnotation(String attributeName,
-                                                                                                      Class<T> type) throws NoSuchElementException {
+  @Override
+  public <T extends Annotation> MergedAnnotation<T>[] getAnnotationArray(
+          String attributeName, Class<T> type) throws NoSuchElementException {
+    throw new NoSuchElementException(
+            "Unable to get attribute value for missing annotation");
+  }
 
-		throw new NoSuchElementException(
-				"Unable to get attribute value for missing annotation");
-	}
+  @Override
+  protected <T> T getAttributeValue(String attributeName, Class<T> type) {
+    throw new NoSuchElementException(
+            "Unable to get attribute value for missing annotation");
+  }
 
-	@Override
-	public <T extends Annotation> cn.taketoday.core.annotation.MergedAnnotation<T>[] getAnnotationArray(
-			String attributeName, Class<T> type) throws NoSuchElementException {
+  @Override
+  protected A createSynthesized() {
+    throw new NoSuchElementException("Unable to synthesize missing annotation");
+  }
 
-		throw new NoSuchElementException(
-				"Unable to get attribute value for missing annotation");
-	}
-
-	@Override
-	protected <T> T getAttributeValue(String attributeName, Class<T> type) {
-		throw new NoSuchElementException(
-				"Unable to get attribute value for missing annotation");
-	}
-
-	@Override
-	protected A createSynthesized() {
-		throw new NoSuchElementException("Unable to synthesize missing annotation");
-	}
-
-
-	@SuppressWarnings("unchecked")
-	static <A extends Annotation> cn.taketoday.core.annotation.MergedAnnotation<A> getInstance() {
-		return (cn.taketoday.core.annotation.MergedAnnotation<A>) INSTANCE;
-	}
+  @SuppressWarnings("unchecked")
+  static <A extends Annotation> MergedAnnotation<A> getInstance() {
+    return (MergedAnnotation<A>) INSTANCE;
+  }
 
 }

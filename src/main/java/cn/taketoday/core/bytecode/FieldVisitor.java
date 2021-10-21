@@ -23,10 +23,13 @@ package cn.taketoday.core.bytecode;
  * A visitor to visit a Java field. The methods of this class must be called in the following order:
  * ( {@code visitAnnotation} | {@code visitTypeAnnotation} | {@code visitAttribute} )* {@code
  * visitEnd}.
+ * <p>
+ * default is empty implementation
+ * </p>
  *
  * @author Eric Bruneton
  */
-public abstract class FieldVisitor {
+public class FieldVisitor {
 
   /**
    * The field visitor to which this visitor must delegate method calls. May be

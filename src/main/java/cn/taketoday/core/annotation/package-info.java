@@ -1,4 +1,3 @@
-
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
@@ -25,4 +24,9 @@
  *
  * @author TODAY 2021/8/15 22:41
  */
+@NonNullApi
+@NonNullFields
 package cn.taketoday.core.annotation;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

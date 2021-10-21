@@ -16,6 +16,9 @@
 
 package cn.taketoday.core.type.filter;
 
+import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+import cn.taketoday.lang.Nullable;
 import org.aspectj.bridge.IMessageHandler;
 import org.aspectj.weaver.ResolvedType;
 import org.aspectj.weaver.World;
@@ -26,9 +29,6 @@ import org.aspectj.weaver.patterns.IScope;
 import org.aspectj.weaver.patterns.PatternParser;
 import org.aspectj.weaver.patterns.SimpleScope;
 import org.aspectj.weaver.patterns.TypePattern;
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-import cn.taketoday.lang.Nullable;
 
 import java.io.IOException;
 
@@ -40,7 +40,7 @@ import java.io.IOException;
  *
  * @author Ramnivas Laddad
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class AspectJTypeFilter implements TypeFilter {
 

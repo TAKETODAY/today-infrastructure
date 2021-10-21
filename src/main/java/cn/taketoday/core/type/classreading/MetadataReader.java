@@ -25,7 +25,7 @@ import cn.taketoday.core.type.ClassMetadata;
  * as read by an ASM {@link cn.taketoday.core.bytecode.ClassReader}.
  *
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public interface MetadataReader {
 

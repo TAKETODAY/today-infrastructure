@@ -33,11 +33,11 @@ import java.util.Map;
 @FunctionalInterface
 interface ValueExtractor {
 
-	/**
-	 * Extract the annotation attribute represented by the supplied {@link Method}
-	 * from the supplied source {@link Object}.
-	 */
-	@Nullable
-	Object extract(Method attribute, @Nullable Object object);
+  /**
+   * Extract the annotation attribute represented by the supplied {@link Method}
+   * from the supplied source {@link Object}.
+   */
+  @Nullable
+  Object extract(Method attribute, @Nullable Object object);
 
 }

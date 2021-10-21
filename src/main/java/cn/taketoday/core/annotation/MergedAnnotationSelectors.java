@@ -1,17 +1,21 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -24,85 +28,80 @@ import java.util.function.Predicate;
  * for {@link MergedAnnotation} instances.
  *
  * @author Phillip Webb
- * @since 4.0
  * @see MergedAnnotations#get(Class, Predicate, MergedAnnotationSelector)
  * @see MergedAnnotations#get(String, Predicate, MergedAnnotationSelector)
+ * @since 4.0
  */
 public abstract class MergedAnnotationSelectors {
 
-	private static final MergedAnnotationSelector<?> NEAREST = new Nearest();
+  private static final MergedAnnotationSelector<?> NEAREST = new Nearest();
+  private static final MergedAnnotationSelector<?> FIRST_DIRECTLY_DECLARED = new FirstDirectlyDeclared();
 
-	private static final MergedAnnotationSelector<?> FIRST_DIRECTLY_DECLARED = new FirstDirectlyDeclared();
+  /**
+   * Select the nearest annotation, i.e. the one with the lowest distance.
+   *
+   * @return a selector that picks the annotation with the lowest distance
+   */
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> MergedAnnotationSelector<A> nearest() {
+    return (MergedAnnotationSelector<A>) NEAREST;
+  }
 
+  /**
+   * Select the first directly declared annotation when possible. If no direct
+   * annotations are declared then the nearest annotation is selected.
+   *
+   * @return a selector that picks the first directly declared annotation whenever possible
+   */
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> MergedAnnotationSelector<A> firstDirectlyDeclared() {
+    return (MergedAnnotationSelector<A>) FIRST_DIRECTLY_DECLARED;
+  }
 
-	private MergedAnnotationSelectors() {
-	}
+  /**
+   * {@link MergedAnnotationSelector} to select the nearest annotation.
+   */
+  private static class Nearest implements MergedAnnotationSelector<Annotation> {
 
+    @Override
+    public boolean isBestCandidate(MergedAnnotation<Annotation> annotation) {
+      return annotation.getDistance() == 0;
+    }
 
-	/**
-	 * Select the nearest annotation, i.e. the one with the lowest distance.
-	 * @return a selector that picks the annotation with the lowest distance
-	 */
-	@SuppressWarnings("unchecked")
-	public static <A extends Annotation> MergedAnnotationSelector<A> nearest() {
-		return (MergedAnnotationSelector<A>) NEAREST;
-	}
+    @Override
+    public MergedAnnotation<Annotation> select(
+            MergedAnnotation<Annotation> existing, MergedAnnotation<Annotation> candidate) {
 
-	/**
-	 * Select the first directly declared annotation when possible. If no direct
-	 * annotations are declared then the nearest annotation is selected.
-	 * @return a selector that picks the first directly declared annotation whenever possible
-	 */
-	@SuppressWarnings("unchecked")
-	public static <A extends Annotation> MergedAnnotationSelector<A> firstDirectlyDeclared() {
-		return (MergedAnnotationSelector<A>) FIRST_DIRECTLY_DECLARED;
-	}
+      if (candidate.getDistance() < existing.getDistance()) {
+        return candidate;
+      }
+      return existing;
+    }
 
-
-	/**
-	 * {@link MergedAnnotationSelector} to select the nearest annotation.
-	 */
-	private static class Nearest implements MergedAnnotationSelector<Annotation> {
-
-		@Override
-		public boolean isBestCandidate(MergedAnnotation<Annotation> annotation) {
-			return annotation.getDistance() == 0;
-		}
-
-		@Override
-		public MergedAnnotation<Annotation> select(
-				MergedAnnotation<Annotation> existing, MergedAnnotation<Annotation> candidate) {
-
-			if (candidate.getDistance() < existing.getDistance()) {
-				return candidate;
-			}
-			return existing;
-		}
-
-	}
+  }
 
 
-	/**
-	 * {@link MergedAnnotationSelector} to select the first directly declared
-	 * annotation.
-	 */
-	private static class FirstDirectlyDeclared implements MergedAnnotationSelector<Annotation> {
+  /**
+   * {@link MergedAnnotationSelector} to select the first directly declared
+   * annotation.
+   */
+  private static class FirstDirectlyDeclared implements MergedAnnotationSelector<Annotation> {
 
-		@Override
-		public boolean isBestCandidate(MergedAnnotation<Annotation> annotation) {
-			return annotation.getDistance() == 0;
-		}
+    @Override
+    public boolean isBestCandidate(MergedAnnotation<Annotation> annotation) {
+      return annotation.getDistance() == 0;
+    }
 
-		@Override
-		public MergedAnnotation<Annotation> select(
-				MergedAnnotation<Annotation> existing, MergedAnnotation<Annotation> candidate) {
+    @Override
+    public MergedAnnotation<Annotation> select(
+            MergedAnnotation<Annotation> existing, MergedAnnotation<Annotation> candidate) {
 
-			if (existing.getDistance() > 0 && candidate.getDistance() == 0) {
-				return candidate;
-			}
-			return existing;
-		}
+      if (existing.getDistance() > 0 && candidate.getDistance() == 0) {
+        return candidate;
+      }
+      return existing;
+    }
 
-	}
+  }
 
 }

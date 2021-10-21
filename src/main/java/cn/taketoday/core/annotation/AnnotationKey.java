@@ -20,11 +20,11 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Assert;
+
 import java.io.Serializable;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Objects;
-
-import cn.taketoday.lang.Assert;
 
 /**
  * @author TODAY 2021/8/15 22:40

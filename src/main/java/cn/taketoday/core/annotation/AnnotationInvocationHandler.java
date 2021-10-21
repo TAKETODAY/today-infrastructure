@@ -20,6 +20,9 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.util.ReflectionUtils;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
@@ -35,9 +38,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Map;
-
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * InvocationHandler for dynamic proxy implementation of Annotation.

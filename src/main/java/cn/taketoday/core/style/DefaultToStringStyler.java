@@ -25,7 +25,7 @@ import cn.taketoday.util.ObjectUtils;
  * Default {@code toString()} styler.
  *
  * <p>This class is used by {@link ToStringBuilder} to style {@code toString()}
- * output in a consistent manner according to Spring conventions.
+ * output in a consistent manner according to conventions.
  *
  * @author Keith Donald
  * @author Juergen Hoeller

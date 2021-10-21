@@ -16,16 +16,16 @@
 
 package cn.taketoday.core.type.classreading;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.lang.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * ASM method visitor that creates {@link SimpleMethodMetadata}.
@@ -70,7 +70,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
   @Nullable
   public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     return MergedAnnotationReadingVisitor.get(this.classLoader, getSource(),
-                                              descriptor, visible, this.annotations::add);
+            descriptor, visible, this.annotations::add);
   }
 
   @Override

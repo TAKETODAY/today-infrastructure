@@ -27,7 +27,7 @@ import java.io.IOException;
  * @author Juergen Hoeller
  * @see SimpleMetadataReaderFactory
  * @see CachingMetadataReaderFactory
- * @since 2.5
+ * @since 4.0
  */
 public interface MetadataReaderFactory {
 

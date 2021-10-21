@@ -16,6 +16,10 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,10 +29,6 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collector.Characteristics;
-
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 
 /**
  * {@link Collector} implementations that provide various reduction operations for
@@ -40,7 +40,7 @@ import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
  */
 public abstract class MergedAnnotationCollectors {
 
-  private static final Characteristics[] NO_CHARACTERISTICS = {};
+  private static final Characteristics[] NO_CHARACTERISTICS = { };
 
   private static final Characteristics[] IDENTITY_FINISH_CHARACTERISTICS = { Characteristics.IDENTITY_FINISH };
 
@@ -61,7 +61,7 @@ public abstract class MergedAnnotationCollectors {
    */
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, Set<A>> toAnnotationSet() {
     return Collector.of(LinkedHashSet::new, (set, annotation) -> set.add(annotation.synthesize()),
-                        MergedAnnotationCollectors::combiner);
+            MergedAnnotationCollectors::combiner);
   }
 
   /**
@@ -95,7 +95,7 @@ public abstract class MergedAnnotationCollectors {
           IntFunction<R[]> generator) {
 
     return Collector.of(ArrayList::new, (list, annotation) -> list.add(annotation.synthesize()),
-                        MergedAnnotationCollectors::combiner, list -> list.toArray(generator.apply(list.size())));
+            MergedAnnotationCollectors::combiner, list -> list.toArray(generator.apply(list.size())));
   }
 
   /**
@@ -133,10 +133,10 @@ public abstract class MergedAnnotationCollectors {
           Adapt... adaptations) {
 
     Characteristics[] characteristics = (isSameInstance(finisher, Function.identity()) ?
-                                         IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS);
+            IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS);
     return Collector.of(DefaultMultiValueMap::new,
-                        (map, annotation) -> annotation.asMap(adaptations).forEach(map::add),
-                        MergedAnnotationCollectors::combiner, finisher, characteristics);
+            (map, annotation) -> annotation.asMap(adaptations).forEach(map::add),
+            MergedAnnotationCollectors::combiner, finisher, characteristics);
   }
 
   private static boolean isSameInstance(Object instance, Object candidate) {

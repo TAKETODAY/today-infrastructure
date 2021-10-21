@@ -1,20 +1,30 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type.classreading;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
@@ -22,12 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * ASM visitor which looks for annotations defined on a class or method,
@@ -45,7 +49,8 @@ import cn.taketoday.util.ObjectUtils;
  * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
  * and related classes for internal use within the framework.
  */
-@Deprecated final class AnnotationAttributesReadingVisitor extends RecursiveAnnotationAttributesVisitor {
+@Deprecated
+final class AnnotationAttributesReadingVisitor extends RecursiveAnnotationAttributesVisitor {
 
   private final MultiValueMap<String, AnnotationAttributes> attributesMap;
 
@@ -109,7 +114,7 @@ import cn.taketoday.util.ObjectUtils;
         // Only do attribute scanning for public annotations.
         if (Modifier.isPublic(annotationType.getModifiers())) {
           this.attributesMap.add(annotationName,
-                                 AnnotationUtils.getAnnotationAttributes(annotation, false, true));
+                  AnnotationUtils.getAnnotationAttributes(annotation, false, true));
         }
         for (Annotation metaMetaAnnotation : annotationType.getAnnotations()) {
           recursivelyCollectMetaAnnotations(visited, metaMetaAnnotation);

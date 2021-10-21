@@ -16,11 +16,6 @@
 
 package cn.taketoday.core.type.classreading;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
@@ -29,9 +24,15 @@ import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * ASM class visitor that creates {@link SimpleAnnotationMetadata}.
@@ -44,7 +45,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
   @Nullable
   private final ClassLoader classLoader;
 
-  private String className = "";
+  private String className = Constant.BLANK;
 
   private int access;
 
@@ -95,8 +96,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
   }
 
   @Override
-  public void visitInnerClass(String name, @Nullable String outerName, String innerName,
-                              int access) {
+  public void visitInnerClass(String name, @Nullable String outerName, String innerName, int access) {
     if (outerName != null) {
       String className = toClassName(name);
       String outerClassName = toClassName(outerName);
@@ -114,7 +114,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
   @Nullable
   public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     return MergedAnnotationReadingVisitor.get(this.classLoader, getSource(),
-                                              descriptor, visible, this.annotations::add);
+            descriptor, visible, this.annotations::add);
   }
 
   @Override

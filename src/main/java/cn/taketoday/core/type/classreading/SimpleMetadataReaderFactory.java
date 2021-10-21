@@ -30,7 +30,7 @@ import java.io.IOException;
  * creating a new ASM {@link cn.taketoday.asm.ClassReader} for every request.
  *
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
 

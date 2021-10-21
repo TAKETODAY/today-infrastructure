@@ -16,20 +16,19 @@
 
 package cn.taketoday.core.type.classreading;
 
-import cn.taketoday.asm.AnnotationVisitor;
-import cn.taketoday.asm.Attribute;
-import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.FieldVisitor;
-import cn.taketoday.asm.MethodVisitor;
-import cn.taketoday.asm.Opcodes;
-import cn.taketoday.asm.SpringAsmInfo;
+import cn.taketoday.core.bytecode.AnnotationVisitor;
+import cn.taketoday.core.bytecode.Attribute;
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.FieldVisitor;
+import cn.taketoday.core.bytecode.MethodVisitor;
+import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.type.ClassMetadata;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * ASM class visitor which looks only for the class name and implemented types,
@@ -41,12 +40,11 @@ import java.util.Set;
  * @author Mark Fisher
  * @author Ramnivas Laddad
  * @author Chris Beams
- * @since 2.5
- * @deprecated  this class and related classes in this
+ * @since 4.0
+ * @deprecated this class and related classes in this
  * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
  * and related classes for internal use within the framework.
  */
-@Deprecated
 class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata {
 
   private String className = "";
@@ -67,13 +65,9 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
   @Nullable
   private String superClassName;
 
-  private String[] interfaces = new String[0];
+  private String[] interfaces = Constant.EMPTY_STRING_ARRAY;
 
-  private final Set<String> memberClassNames = new LinkedHashSet<>(4);
-
-  public ClassMetadataReadingVisitor() {
-    super(SpringAsmInfo.ASM_VERSION);
-  }
+  private final LinkedHashSet<String> memberClassNames = new LinkedHashSet<>(4);
 
   @Override
   public void visit(
@@ -114,38 +108,29 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
   }
 
   @Override
-  public void visitSource(String source, String debug) {
-    // no-op
-  }
+  public void visitSource(String source, String debug) { }
 
   @Override
   @Nullable
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-    // no-op
     return new EmptyAnnotationVisitor();
   }
 
   @Override
-  public void visitAttribute(Attribute attr) {
-    // no-op
-  }
+  public void visitAttribute(Attribute attr) { }
 
   @Override
   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-    // no-op
-    return new EmptyFieldVisitor();
+    return new FieldVisitor();
   }
 
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-    // no-op
-    return new EmptyMethodVisitor();
+    return new MethodVisitor();
   }
 
   @Override
-  public void visitEnd() {
-    // no-op
-  }
+  public void visitEnd() { }
 
   @Override
   public String getClassName() {
@@ -206,10 +191,6 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
 
   private static class EmptyAnnotationVisitor extends AnnotationVisitor {
 
-    public EmptyAnnotationVisitor() {
-      super(SpringAsmInfo.ASM_VERSION);
-    }
-
     @Override
     public AnnotationVisitor visitAnnotation(String name, String desc) {
       return this;
@@ -218,20 +199,6 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
     @Override
     public AnnotationVisitor visitArray(String name) {
       return this;
-    }
-  }
-
-  private static class EmptyMethodVisitor extends MethodVisitor {
-
-    public EmptyMethodVisitor() {
-      super(SpringAsmInfo.ASM_VERSION);
-    }
-  }
-
-  private static class EmptyFieldVisitor extends FieldVisitor {
-
-    public EmptyFieldVisitor() {
-      super(SpringAsmInfo.ASM_VERSION);
     }
   }
 

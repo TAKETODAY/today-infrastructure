@@ -35,10 +35,13 @@ package cn.taketoday.core.bytecode;
  * been visited, and the {@code visitLocalVariable}, {@code visitLocalVariableAnnotation} and {@code
  * visitLineNumber} methods must be called <i>after</i> the labels passed as arguments have been
  * visited.
+ * <p>
+ * default is empty implementation
+ * </p>
  *
  * @author Eric Bruneton
  */
-public abstract class MethodVisitor {
+public class MethodVisitor {
 
   /**
    * The method visitor to which this visitor must delegate method calls. May be {@literal null}.

@@ -20,6 +20,19 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -32,20 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -309,116 +308,6 @@ public abstract class AnnotationUtils {
   }
 
   /**
-   * Retrieve the <em>value</em> of the {@code value} attribute of a
-   * single-element Annotation, given an annotation instance.
-   *
-   * @param annotation the annotation instance from which to retrieve the value
-   * @return the attribute value, or {@code null} if not found unless the attribute
-   * value cannot be retrieved due to an {@link AnnotationConfigurationException},
-   * in which case such an exception will be rethrown
-   * @see #getValue(Annotation, String)
-   */
-  @Nullable
-  public static Object getValue(Annotation annotation) {
-    return getValue(annotation, Constant.VALUE);
-  }
-
-  /**
-   * Retrieve the <em>value</em> of a named attribute, given an annotation instance.
-   *
-   * @param annotation the annotation instance from which to retrieve the value
-   * @param attributeName the name of the attribute value to retrieve
-   * @return the attribute value, or {@code null} if not found unless the attribute
-   * value cannot be retrieved due to an {@link AnnotationConfigurationException},
-   * in which case such an exception will be rethrown
-   * @see #getValue(Annotation)
-   */
-  @Nullable
-  public static Object getValue(@Nullable Annotation annotation, @Nullable String attributeName) {
-    if (annotation == null || !StringUtils.hasText(attributeName)) {
-      return null;
-    }
-    try {
-      Method method = annotation.annotationType().getDeclaredMethod(attributeName);
-      ReflectionUtils.makeAccessible(method);
-      return method.invoke(annotation);
-    }
-    catch (NoSuchMethodException ex) {
-      return null;
-    }
-    catch (InvocationTargetException ex) {
-      rethrowAnnotationConfigurationException(ex.getTargetException());
-      throw new IllegalStateException("Could not obtain value for annotation attribute '" +
-                                              attributeName + "' in " + annotation, ex);
-    }
-    catch (Throwable ex) {
-      handleIntrospectionFailure(annotation.getClass(), ex);
-      return null;
-    }
-  }
-
-  /**
-   * Retrieve the <em>default value</em> of the {@code value} attribute
-   * of a single-element Annotation, given an annotation instance.
-   *
-   * @param annotation the annotation instance from which to retrieve the default value
-   * @return the default value, or {@code null} if not found
-   * @see #getDefaultValue(Annotation, String)
-   */
-  @Nullable
-  public static Object getDefaultValue(Annotation annotation) {
-    return getDefaultValue(annotation, Constant.VALUE);
-  }
-
-  /**
-   * Retrieve the <em>default value</em> of a named attribute, given an annotation instance.
-   *
-   * @param annotation the annotation instance from which to retrieve the default value
-   * @param attributeName the name of the attribute value to retrieve
-   * @return the default value of the named attribute, or {@code null} if not found
-   * @see #getDefaultValue(Class, String)
-   */
-  @Nullable
-  public static Object getDefaultValue(@Nullable Annotation annotation, @Nullable String attributeName) {
-    return (annotation != null ? getDefaultValue(annotation.annotationType(), attributeName) : null);
-  }
-
-  /**
-   * Retrieve the <em>default value</em> of the {@code value} attribute
-   * of a single-element Annotation, given the {@link Class annotation type}.
-   *
-   * @param annotationType the <em>annotation type</em> for which the default value should be retrieved
-   * @return the default value, or {@code null} if not found
-   * @see #getDefaultValue(Class, String)
-   */
-  @Nullable
-  public static Object getDefaultValue(Class<? extends Annotation> annotationType) {
-    return getDefaultValue(annotationType, Constant.VALUE);
-  }
-
-  /**
-   * Retrieve the <em>default value</em> of a named attribute, given the
-   * {@link Class annotation type}.
-   *
-   * @param annotationType the <em>annotation type</em> for which the default value should be retrieved
-   * @param attributeName the name of the attribute value to retrieve.
-   * @return the default value of the named attribute, or {@code null} if not found
-   * @see #getDefaultValue(Annotation, String)
-   */
-  @Nullable
-  public static Object getDefaultValue(
-          @Nullable Class<? extends Annotation> annotationType, @Nullable String attributeName) {
-    if (annotationType == null || !StringUtils.hasText(attributeName)) {
-      return null;
-    }
-    Method method = ReflectionUtils.getMethod(annotationType, attributeName);
-    if (method != null) {
-      return method.getDefaultValue();
-    }
-    return null;
-  }
-
-  /**
    * If the supplied throwable is an {@link AnnotationConfigurationException},
    * it will be cast to an {@code AnnotationConfigurationException} and thrown,
    * allowing it to propagate to the caller.
@@ -459,8 +348,8 @@ public abstract class AnnotationUtils {
     }
     if (logger.isEnabled()) {
       String message = meta ?
-                       "Failed to meta-introspect annotation " :
-                       "Failed to introspect annotations on ";
+              "Failed to meta-introspect annotation " :
+              "Failed to introspect annotations on ";
       logger.log(message + element + ": " + ex);
     }
   }
@@ -532,10 +421,7 @@ public abstract class AnnotationUtils {
     if (annotationName.startsWith("java.")) {
       return true;
     }
-    if (AnnotationsScanner.hasPlainJavaAnnotationsOnly(clazz)) {
-      return false;
-    }
-    return true;
+    return !AnnotationsScanner.hasPlainJavaAnnotationsOnly(clazz);
   }
 
   /**
@@ -558,7 +444,7 @@ public abstract class AnnotationUtils {
     if (annotationType.isInstance(annotation)) {
       return synthesizeAnnotation((A) annotation, annotationType);
     }
-    // Shortcut: no searchable annotations to be found on plain Java classes and core Spring types...
+    // Shortcut: no searchable annotations to be found on plain Java classes and core types...
     if (AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotation)) {
       return null;
     }
@@ -579,7 +465,6 @@ public abstract class AnnotationUtils {
    * @param annotatedElement the {@code AnnotatedElement} from which to get the annotation
    * @param annotationType the annotation type to look for, both locally and as a meta-annotation
    * @return the first matching annotation, or {@code null} if not found
-   * @since 4.0
    */
   @Nullable
   public static <A extends Annotation> A getAnnotation(AnnotatedElement annotatedElement, Class<A> annotationType) {
@@ -740,12 +625,12 @@ public abstract class AnnotationUtils {
    * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
   @Deprecated
-  public static <A extends Annotation> Set<A> getRepeatableAnnotations(AnnotatedElement annotatedElement,
-                                                                       Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
+  public static <A extends Annotation> Set<A> getRepeatableAnnotations(
+          AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
 
     RepeatableContainers repeatableContainers = (containerAnnotationType != null ?
-                                                 RepeatableContainers.of(annotationType, containerAnnotationType) :
-                                                 RepeatableContainers.standardRepeatables());
+            RepeatableContainers.of(annotationType, containerAnnotationType) :
+            RepeatableContainers.standardRepeatables());
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.SUPERCLASS, repeatableContainers)
             .stream(annotationType)
@@ -785,9 +670,8 @@ public abstract class AnnotationUtils {
    * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
   @Deprecated
-  public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(AnnotatedElement annotatedElement,
-                                                                               Class<A> annotationType) {
-
+  public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(
+          AnnotatedElement annotatedElement, Class<A> annotationType) {
     return getDeclaredRepeatableAnnotations(annotatedElement, annotationType, null);
   }
 
@@ -824,12 +708,12 @@ public abstract class AnnotationUtils {
    * @deprecated as of 5.2 since it is superseded by the {@link MergedAnnotations} API
    */
   @Deprecated
-  public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(AnnotatedElement annotatedElement,
-                                                                               Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
+  public static <A extends Annotation> Set<A> getDeclaredRepeatableAnnotations(
+          AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
 
     RepeatableContainers repeatableContainers = containerAnnotationType != null ?
-                                                RepeatableContainers.of(annotationType, containerAnnotationType) :
-                                                RepeatableContainers.standardRepeatables();
+            RepeatableContainers.of(annotationType, containerAnnotationType) :
+            RepeatableContainers.standardRepeatables();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.DIRECT, repeatableContainers)
             .stream(annotationType)
@@ -1109,7 +993,7 @@ public abstract class AnnotationUtils {
     }
     // Exhaustive retrieval of merged annotations...
     return MergedAnnotations.from(annotationType, SearchStrategy.INHERITED_ANNOTATIONS,
-                                  RepeatableContainers.none()).isPresent(metaAnnotationType);
+            RepeatableContainers.none()).isPresent(metaAnnotationType);
   }
 
   /**
@@ -1146,7 +1030,7 @@ public abstract class AnnotationUtils {
    * @throws IllegalStateException if a declared {@code Class} attribute could not be read
    * @see Class#getAnnotations()
    * @see #getAnnotationAttributes(Annotation)
-   * @since 4.05
+   * @since 4.0
    */
   public static void validateAnnotation(Annotation annotation) {
     AttributeMethods.forAnnotationType(annotation.annotationType()).validate(annotation);
@@ -1263,7 +1147,7 @@ public abstract class AnnotationUtils {
     return MergedAnnotation.from(annotatedElement, annotation)
             .withNonMergedAttributes()
             .asMap(mergedAnnotation ->
-                           new AnnotationAttributes(mergedAnnotation.getType(), true), adaptations);
+                    new AnnotationAttributes(mergedAnnotation.getType(), true), adaptations);
   }
 
   /**
@@ -1286,7 +1170,7 @@ public abstract class AnnotationUtils {
           Class<? extends Annotation> annotationType) {
 
     return defaultValuesCache.computeIfAbsent(annotationType,
-                                              AnnotationUtils::computeDefaultValues);
+            AnnotationUtils::computeDefaultValues);
   }
 
   private static Map<String, DefaultValueHolder> computeDefaultValues(
@@ -1311,7 +1195,7 @@ public abstract class AnnotationUtils {
       // If we have nested annotations, we need them as nested maps
       AnnotationAttributes attributes = MergedAnnotation.of(annotationType)
               .asMap(annotation ->
-                             new AnnotationAttributes(annotation.getType(), true), Adapt.ANNOTATION_TO_MAP);
+                      new AnnotationAttributes(annotation.getType(), true), Adapt.ANNOTATION_TO_MAP);
       for (Map.Entry<String, Object> element : attributes.entrySet()) {
         result.put(element.getKey(), new DefaultValueHolder(element.getValue()));
       }
@@ -1334,7 +1218,6 @@ public abstract class AnnotationUtils {
    * compatibility with {@link cn.taketoday.core.type.AnnotationMetadata})
    * or to preserve them as Class references
    * @see #getDefaultValue(Class, String)
-   * @since 4.0
    */
   public static void postProcessAnnotationAttributes(
           @Nullable Object annotatedElement, @Nullable AnnotationAttributes attributes, boolean classValuesAsString) {
@@ -1349,9 +1232,9 @@ public abstract class AnnotationUtils {
       }
       AnnotationTypeMapping mapping = AnnotationTypeMappings.forAnnotationType(annotationType).get(0);
       for (int i = 0; i < mapping.getMirrorSets().size(); i++) {
-        MirrorSet mirrorSet = mapping.getMirrorSets().get(i);
+        AnnotationTypeMapping.MirrorSets.MirrorSet mirrorSet = mapping.getMirrorSets().get(i);
         int resolved = mirrorSet.resolve(attributes.displayName, attributes,
-                                         AnnotationUtils::getAttributeValueForMirrorResolution);
+                AnnotationUtils::getAttributeValueForMirrorResolution);
         if (resolved != -1) {
           Method attribute = mapping.getAttributes().get(resolved);
           Object value = attributes.get(attribute.getName());
@@ -1359,7 +1242,7 @@ public abstract class AnnotationUtils {
             Method mirror = mirrorSet.get(j);
             if (mirror != attribute) {
               attributes.put(mirror.getName(),
-                             adaptValue(annotatedElement, value, classValuesAsString));
+                      adaptValue(annotatedElement, value, classValuesAsString));
             }
           }
         }
@@ -1371,7 +1254,7 @@ public abstract class AnnotationUtils {
       if (value instanceof DefaultValueHolder) {
         value = ((DefaultValueHolder) value).defaultValue;
         attributes.put(attributeName,
-                       adaptValue(annotatedElement, value, classValuesAsString));
+                adaptValue(annotatedElement, value, classValuesAsString));
       }
     }
   }
@@ -1398,10 +1281,12 @@ public abstract class AnnotationUtils {
         return names;
       }
     }
-    if (value instanceof Annotation annotation) {
+    if (value instanceof Annotation) {
+      Annotation annotation = (Annotation) value;
       return MergedAnnotation.from(annotatedElement, annotation).synthesize();
     }
-    if (value instanceof Annotation[] annotations) {
+    if (value instanceof Annotation[]) {
+      Annotation[] annotations = (Annotation[]) value;
       Annotation[] synthesized = (Annotation[]) Array.newInstance(
               annotations.getClass().getComponentType(), annotations.length);
       for (int i = 0; i < annotations.length; i++) {
@@ -1453,58 +1338,11 @@ public abstract class AnnotationUtils {
     catch (InvocationTargetException ex) {
       rethrowAnnotationConfigurationException(ex.getTargetException());
       throw new IllegalStateException("Could not obtain value for annotation attribute '" +
-                                              attributeName + "' in " + annotation, ex);
+              attributeName + "' in " + annotation, ex);
     }
     catch (Throwable ex) {
       handleIntrospectionFailure(annotation.getClass(), ex);
       return null;
-    }
-  }
-
-  /**
-   * If the supplied throwable is an {@link AnnotationConfigurationException},
-   * it will be cast to an {@code AnnotationConfigurationException} and thrown,
-   * allowing it to propagate to the caller.
-   * <p>Otherwise, this method does nothing.
-   *
-   * @param ex the throwable to inspect
-   */
-  static void rethrowAnnotationConfigurationException(Throwable ex) {
-    if (ex instanceof AnnotationConfigurationException) {
-      throw (AnnotationConfigurationException) ex;
-    }
-  }
-
-  /**
-   * Handle the supplied annotation introspection exception.
-   * <p>If the supplied exception is an {@link AnnotationConfigurationException},
-   * it will simply be thrown, allowing it to propagate to the caller, and
-   * nothing will be logged.
-   * <p>Otherwise, this method logs an introspection failure (in particular for
-   * a {@link TypeNotPresentException}) before moving on, assuming nested
-   * {@code Class} values were not resolvable within annotation attributes and
-   * thereby effectively pretending there were no annotations on the specified
-   * element.
-   *
-   * @param element the element that we tried to introspect annotations on
-   * @param ex the exception that we encountered
-   * @see #rethrowAnnotationConfigurationException
-   * @see IntrospectionFailureLogger
-   */
-  static void handleIntrospectionFailure(@Nullable AnnotatedElement element, Throwable ex) {
-    rethrowAnnotationConfigurationException(ex);
-    IntrospectionFailureLogger logger = IntrospectionFailureLogger.INFO;
-    boolean meta = false;
-    if (element instanceof Class && Annotation.class.isAssignableFrom((Class<?>) element)) {
-      // Meta-annotation or (default) value lookup on an annotation type
-      logger = IntrospectionFailureLogger.DEBUG;
-      meta = true;
-    }
-    if (logger.isEnabled()) {
-      String message = meta ?
-                       "Failed to meta-introspect annotation " :
-                       "Failed to introspect annotations on ";
-      logger.log(message + element + ": " + ex);
     }
   }
 
@@ -1687,7 +1525,7 @@ public abstract class AnnotationUtils {
   /**
    * Clear the internal annotation metadata cache.
    *
-   * @since 4.05
+   * @since 4.0
    */
   public static void clearCache() {
     AnnotationTypeMappings.clearCache();

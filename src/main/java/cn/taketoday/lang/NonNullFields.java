@@ -18,53 +18,36 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.annotation;
+package cn.taketoday.lang;
 
+import javax.annotation.Nonnull;
+import javax.annotation.meta.TypeQualifierDefault;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Example class used to test {@link AnnotationsScanner} with enclosing classes.
+ * A common annotation to declare that fields are to be considered as
+ * non-nullable by default for a given package.
  *
- * @author Phillip Webb
+ * <p>Leverages JSR-305 meta-annotations to indicate nullability in Java to common
+ * tools with JSR-305 support and used by Kotlin to infer nullability of Spring API.
+ *
+ * <p>Should be used at package level in association with {@link Nullable}
+ * annotations at field level.
+ *
+ * @author Sebastien Deleuze
  * @since 4.0
+ * @see NonNullApi
+ * @see Nullable
+ * @see NonNull
  */
-@AnnotationEnclosingClassSample.EnclosedOne
-public class AnnotationEnclosingClassSample {
-
-	@EnclosedTwo
-	public static class EnclosedStatic {
-
-		@EnclosedThree
-		public static class EnclosedStaticStatic {
-
-		}
-
-	}
-
-	@EnclosedTwo
-	public class EnclosedInner {
-
-		@EnclosedThree
-		public class EnclosedInnerInner {
-
-		}
-
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface EnclosedOne {
-
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface EnclosedTwo {
-
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface EnclosedThree {
-
-	}
-
+@Target(ElementType.PACKAGE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Nonnull
+@TypeQualifierDefault(ElementType.FIELD)
+public @interface NonNullFields {
 }

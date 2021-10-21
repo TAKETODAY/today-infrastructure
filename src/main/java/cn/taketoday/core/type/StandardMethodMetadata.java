@@ -16,13 +16,13 @@
 
 package cn.taketoday.core.type;
 
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.MultiValueMap;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -68,7 +68,6 @@ public class StandardMethodMetadata implements MethodMetadata {
    * @param nestedAnnotationsAsMap return nested annotations and annotation arrays as
    * {@link cn.taketoday.core.annotation.AnnotationAttributes} for compatibility
    * with ASM-based {@link AnnotationMetadata} implementations
-   * @since 3.1.1
    * @deprecated since 4.0 in favor of obtaining instances via {@link AnnotationMetadata}
    */
   @Deprecated
@@ -138,7 +137,7 @@ public class StandardMethodMetadata implements MethodMetadata {
       return MethodMetadata.super.getAnnotationAttributes(annotationName, classValuesAsString);
     }
     return AnnotatedElementUtils.getMergedAnnotationAttributes(this.introspectedMethod,
-                                                               annotationName, classValuesAsString, false);
+            annotationName, classValuesAsString, false);
   }
 
   @Override
@@ -147,8 +146,8 @@ public class StandardMethodMetadata implements MethodMetadata {
     if (this.nestedAnnotationsAsMap) {
       return MethodMetadata.super.getAllAnnotationAttributes(annotationName, classValuesAsString);
     }
-    return AnnotatedElementUtils.getAllAnnotationAttributes(this.introspectedMethod,
-                                                            annotationName, classValuesAsString, false);
+    return AnnotatedElementUtils.getAllAnnotationAttributes(
+            this.introspectedMethod, annotationName, classValuesAsString, false);
   }
 
   @Override

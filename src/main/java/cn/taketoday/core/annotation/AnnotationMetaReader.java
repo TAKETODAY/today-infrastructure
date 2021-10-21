@@ -20,6 +20,20 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.EmptyObject;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
@@ -35,26 +49,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.EmptyObject;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
-
 /**
  * @author TODAY 2021/8/15 22:36
  * @since 4.0
  */
 public abstract class AnnotationMetaReader {
-  public static final AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
+  public static final AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = { };
 
   /** @since 2.1.1 */
   static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();

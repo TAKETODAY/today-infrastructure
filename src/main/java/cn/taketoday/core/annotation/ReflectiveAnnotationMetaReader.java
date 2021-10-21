@@ -20,17 +20,17 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Java Reflect AnnotationMetaReader
@@ -56,8 +56,8 @@ public class ReflectiveAnnotationMetaReader extends AnnotationMetaReader {
         }
       }
       return result.isEmpty()
-             ? EMPTY_ANNOTATION_ATTRIBUTES
-             : result.toArray(new AnnotationAttributes[result.size()]);
+              ? EMPTY_ANNOTATION_ATTRIBUTES
+              : result.toArray(new AnnotationAttributes[result.size()]);
     }
   }
 
@@ -108,7 +108,7 @@ public class ReflectiveAnnotationMetaReader extends AnnotationMetaReader {
     ArrayList<AnnotationAttributes> ret = new ArrayList<>();
 
     findTargetAttributes(annotationType, target, ret,
-                         new TransformTarget(annotation, annotationType), IGNORE_ANNOTATION_CLASS);
+            new TransformTarget(annotation, annotationType), IGNORE_ANNOTATION_CLASS);
     return ret;
   }
 

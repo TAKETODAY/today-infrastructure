@@ -16,8 +16,6 @@
 
 package cn.taketoday.core.type.classreading;
 
-import java.lang.reflect.Field;
-
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Type;
@@ -26,6 +24,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
 
 /**
  * {@link AnnotationVisitor} to recursively visit annotations.

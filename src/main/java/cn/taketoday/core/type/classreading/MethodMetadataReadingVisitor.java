@@ -16,11 +16,6 @@
 
 package cn.taketoday.core.type.classreading;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -31,6 +26,11 @@ import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * ASM method visitor which looks for the annotations defined on a method,
@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @author Chris Beams
  * @author Phillip Webb
  * @since 3.0
- * @deprecated  this class and related classes in this
+ * @deprecated this class and related classes in this
  * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
  * and related classes for internal use within the framework.
  */

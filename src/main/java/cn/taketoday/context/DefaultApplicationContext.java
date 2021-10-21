@@ -376,8 +376,8 @@ public class DefaultApplicationContext
    * constructor arguments for consideration in the autowiring process.
    *
    * @param beanClass the class of the bean
-   * @param constructorArgs custom argument values to be fed into Spring's
-   * constructor resolution algorithm, resolving either all arguments or just
+   * @param constructorArgs custom argument values to be fed into constructor
+   * resolution algorithm, resolving either all arguments or just
    * specific ones, with the rest to be resolved through regular autowiring
    * (may be {@code null} or empty)
    */
@@ -391,8 +391,8 @@ public class DefaultApplicationContext
    *
    * @param beanName the name of the bean (may be {@code null})
    * @param beanClass the class of the bean
-   * @param constructorArgs custom argument values to be fed into Spring's
-   * constructor resolution algorithm, resolving either all arguments or just
+   * @param constructorArgs custom argument values to be fed into constructor
+   * resolution algorithm, resolving either all arguments or just
    * specific ones, with the rest to be resolved through regular autowiring
    * (may be {@code null} or empty)
    */

@@ -25,7 +25,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Rod Johnson
  * @author Mark Fisher
  * @author Ramnivas Laddad
- * @since 2.5
+ * @since 4.0
  */
 public class AssignableTypeFilter extends AbstractTypeHierarchyTraversingFilter {
 

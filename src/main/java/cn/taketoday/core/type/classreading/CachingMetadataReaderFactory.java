@@ -28,12 +28,12 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Caching implementation of the {@link MetadataReaderFactory} interface,
- * caching a {@link MetadataReader} instance per Spring {@link Resource} handle
+ * caching a {@link MetadataReader} instance per {@link Resource} handle
  * (i.e. per ".class" file).
  *
  * @author Juergen Hoeller
  * @author Costin Leau
- * @since 2.5
+ * @since 4.0
  */
 public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 
@@ -68,7 +68,7 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
    * Create a new CachingMetadataReaderFactory for the given {@link ResourceLoader},
    * using a shared resource cache if supported or a local resource cache otherwise.
    *
-   * @param resourceLoader the Spring ResourceLoader to use
+   * @param resourceLoader the ResourceLoader to use
    * (also determines the ClassLoader to use)
    * @see DefaultResourceLoader#getResourceCache
    */

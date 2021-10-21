@@ -17,7 +17,7 @@
 package cn.taketoday.core.type.filter;
 
 import cn.taketoday.core.type.ClassMetadata;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 import java.util.regex.Pattern;
 
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class RegexPatternTypeFilter extends AbstractClassTestingTypeFilter {
 

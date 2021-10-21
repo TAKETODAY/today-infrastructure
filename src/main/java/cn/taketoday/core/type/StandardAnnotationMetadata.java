@@ -16,6 +16,7 @@
 
 package cn.taketoday.core.type;
 
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -23,7 +24,6 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -42,7 +42,7 @@ import java.util.Set;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 public class StandardAnnotationMetadata extends StandardClassMetadata implements AnnotationMetadata {
 
@@ -75,7 +75,6 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
    * @param nestedAnnotationsAsMap return nested annotations and annotation arrays as
    * {@link cn.taketoday.core.annotation.AnnotationAttributes} for compatibility
    * with ASM-based {@link AnnotationMetadata} implementations
-   * @since 3.1.1
    * @deprecated since 4.0 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}.
    * Use {@link MergedAnnotation#asMap(cn.taketoday.core.annotation.MergedAnnotation.Adapt...) MergedAnnotation.asMap}
    * from {@link #getAnnotations()} rather than {@link #getAnnotationAttributes(String)}
@@ -85,7 +84,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
   public StandardAnnotationMetadata(Class<?> introspectedClass, boolean nestedAnnotationsAsMap) {
     super(introspectedClass);
     this.mergedAnnotations = MergedAnnotations.from(introspectedClass,
-                                                    SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none());
+            SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none());
     this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;
   }
 

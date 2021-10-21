@@ -16,20 +16,18 @@
 
 package cn.taketoday.core.type.classreading;
 
-import cn.taketoday.asm.AnnotationVisitor;
-import cn.taketoday.asm.MethodVisitor;
-import cn.taketoday.asm.Opcodes;
-import cn.taketoday.asm.Type;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.bytecode.AnnotationVisitor;
+import cn.taketoday.core.bytecode.MethodVisitor;
+import cn.taketoday.core.bytecode.Opcodes;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -49,21 +47,20 @@ import java.util.Set;
  * @author Costin Leau
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 2.5
- * @deprecated  this class has been replaced by
+ * @since 4.0
+ * @deprecated this class has been replaced by
  * {@link SimpleAnnotationMetadataReadingVisitor} for internal use within the
  * framework, but there is no public replacement for
  * {@code AnnotationMetadataReadingVisitor}.
  */
-@Deprecated
 public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisitor implements AnnotationMetadata {
 
   @Nullable
   protected final ClassLoader classLoader;
 
-  protected final Set<String> annotationSet = new LinkedHashSet<>(4);
+  protected final LinkedHashSet<String> annotationSet = new LinkedHashSet<>(4);
 
-  protected final Map<String, Set<String>> metaAnnotationMap = new LinkedHashMap<>(4);
+  protected final LinkedHashMap<String, Set<String>> metaAnnotationMap = new LinkedHashMap<>(4);
 
   /**
    * Declared as a {@link DefaultMultiValueMap} instead of a {@link MultiValueMap}
@@ -73,7 +70,7 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
    */
   protected final DefaultMultiValueMap<String, AnnotationAttributes> attributesMap = new DefaultMultiValueMap<>(3);
 
-  protected final Set<MethodMetadata> methodMetadataSet = new LinkedHashSet<>(4);
+  protected final LinkedHashSet<MethodMetadata> methodMetadataSet = new LinkedHashSet<>(4);
 
   public AnnotationMetadataReadingVisitor(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
@@ -92,7 +89,7 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
       return super.visitMethod(access, name, desc, signature, exceptions);
     }
     return new MethodMetadataReadingVisitor(name, access, getClassName(),
-                                            Type.getReturnType(desc).getClassName(), this.classLoader, this.methodMetadataSet);
+            Type.forReturnType(desc).getClassName(), this.classLoader, this.methodMetadataSet);
   }
 
   @Override
@@ -101,7 +98,7 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
     if (!visible) {
       return null;
     }
-    String className = Type.getType(desc).getClassName();
+    String className = Type.fromDescriptor(desc).getClassName();
     if (AnnotationUtils.isInJavaLangAnnotationPackage(className)) {
       return null;
     }
@@ -137,8 +134,8 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
 
   @Override
   public boolean isAnnotated(String annotationName) {
-    return (!AnnotationUtils.isInJavaLangAnnotationPackage(annotationName) &&
-            this.attributesMap.containsKey(annotationName));
+    return !AnnotationUtils.isInJavaLangAnnotationPackage(annotationName)
+            && this.attributesMap.containsKey(annotationName);
   }
 
   @Override
@@ -188,7 +185,7 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
 
   @Override
   public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
-    Set<MethodMetadata> annotatedMethods = new LinkedHashSet<>(4);
+    LinkedHashSet<MethodMetadata> annotatedMethods = new LinkedHashSet<>(4);
     for (MethodMetadata methodMetadata : this.methodMetadataSet) {
       if (methodMetadata.isAnnotated(annotationName)) {
         annotatedMethods.add(methodMetadata);

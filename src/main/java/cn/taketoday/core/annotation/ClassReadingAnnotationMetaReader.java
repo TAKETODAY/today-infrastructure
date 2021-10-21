@@ -20,16 +20,16 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/8/15 22:43
@@ -54,8 +54,8 @@ public class ClassReadingAnnotationMetaReader extends AnnotationMetaReader {
         }
       }
       return result.isEmpty()
-             ? EMPTY_ANNOTATION_ATTRIBUTES
-             : result.toArray(new AnnotationAttributes[result.size()]);
+              ? EMPTY_ANNOTATION_ATTRIBUTES
+              : result.toArray(new AnnotationAttributes[result.size()]);
     }
   }
 

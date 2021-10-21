@@ -26,7 +26,7 @@ import cn.taketoday.lang.Nullable;
  * @see StandardClassMetadata
  * @see cn.taketoday.core.type.classreading.MetadataReader#getClassMetadata()
  * @see AnnotationMetadata
- * @since 2.5
+ * @since 4.0
  */
 public interface ClassMetadata {
 

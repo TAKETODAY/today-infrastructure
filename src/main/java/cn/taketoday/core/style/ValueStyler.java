@@ -20,7 +20,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy that encapsulates value String styling algorithms
- * according to Spring conventions.
+ * according to conventions.
  *
  * @author Keith Donald
  * @since 4.0
