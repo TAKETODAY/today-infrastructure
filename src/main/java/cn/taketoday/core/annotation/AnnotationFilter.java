@@ -19,7 +19,6 @@ package cn.taketoday.core.annotation;
 import java.lang.annotation.Annotation;
 
 /**
- * 注释过滤器
  * Callback interface that can be used to filter specific annotation types.
  *
  * <p>Note that the {@link MergedAnnotations} model (which this interface has been
@@ -29,7 +28,6 @@ import java.lang.annotation.Annotation;
  *
  * @author Phillip Webb
  * @author Juergen Hoeller
- * @date 2021/10/21
  * @see MergedAnnotations
  * @since 4.0
  */
@@ -81,11 +79,7 @@ public interface AnnotationFilter {
    * filtering is needed (allowing for any annotation types to be present).
    *
    * @see #PLAIN
-   * @deprecated as of 5.2.6 since the {@link MergedAnnotations} model
-   * always ignores lang annotations according to the {@link #PLAIN} filter
-   * (for efficiency reasons)
    */
-  @Deprecated
   AnnotationFilter NONE = new AnnotationFilter() {
     @Override
     public boolean matches(Annotation annotation) {
@@ -107,7 +101,6 @@ public interface AnnotationFilter {
       return "No annotation filtering";
     }
   };
-
 
   /**
    * Test if the given annotation matches the filter.
@@ -136,7 +129,6 @@ public interface AnnotationFilter {
    * @return {@code true} if the annotation matches
    */
   boolean matches(String typeName);
-
 
   /**
    * Create a new {@link AnnotationFilter} that matches annotations in the
