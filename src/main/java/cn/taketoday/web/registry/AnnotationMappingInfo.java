@@ -98,7 +98,7 @@ final class AnnotationMappingInfo implements Ordered {
   AnnotationMappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
     this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),
          attributes.getStringArray("consumes"), attributes.getStringArray("params"),
-         attributes.getAttribute("method", HttpMethod[].class), handler);
+         attributes.getRequiredAttribute("method", HttpMethod[].class), handler);
   }
 
   public AnnotationMappingInfo(AnnotationMappingInfo mapping, HandlerMethod handler) {
