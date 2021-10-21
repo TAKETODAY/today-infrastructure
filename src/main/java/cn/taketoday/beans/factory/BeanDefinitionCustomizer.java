@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Nullable;
 
 /**

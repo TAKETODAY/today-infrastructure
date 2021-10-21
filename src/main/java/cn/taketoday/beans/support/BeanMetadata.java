@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Constant;

@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Constant;
 
 /**

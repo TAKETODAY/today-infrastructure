@@ -41,7 +41,7 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;

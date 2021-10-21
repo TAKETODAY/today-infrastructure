@@ -25,7 +25,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.ClassMetaReader;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.logging.Logger;

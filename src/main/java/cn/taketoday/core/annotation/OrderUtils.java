@@ -19,7 +19,7 @@
  */
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;

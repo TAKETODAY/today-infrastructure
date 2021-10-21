@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.util.ReflectionUtils;
 
 import java.io.Serializable;

@@ -35,7 +35,7 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionReader;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotationUtils;

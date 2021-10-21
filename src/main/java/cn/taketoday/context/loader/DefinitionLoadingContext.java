@@ -29,7 +29,7 @@ import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;

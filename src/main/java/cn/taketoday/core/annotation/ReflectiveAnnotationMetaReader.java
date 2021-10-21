@@ -20,7 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;

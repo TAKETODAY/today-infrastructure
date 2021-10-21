@@ -31,7 +31,7 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;

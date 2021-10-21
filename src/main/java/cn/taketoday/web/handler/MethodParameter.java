@@ -25,7 +25,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.AnnotationSupport;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.TypeDescriptor;

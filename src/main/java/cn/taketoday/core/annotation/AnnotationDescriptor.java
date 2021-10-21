@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 
 import java.util.Map;
 

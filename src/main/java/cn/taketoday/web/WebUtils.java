@@ -25,7 +25,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.StringTokenizer;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationUtils;

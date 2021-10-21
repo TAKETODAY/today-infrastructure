@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.expression;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Value;

@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 import java.io.Serializable;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Constants;
 
 /**

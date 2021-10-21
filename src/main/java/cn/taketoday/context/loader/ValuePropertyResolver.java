@@ -25,7 +25,7 @@ import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;

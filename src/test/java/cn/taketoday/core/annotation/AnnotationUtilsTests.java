@@ -20,11 +20,12 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.NonNullApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

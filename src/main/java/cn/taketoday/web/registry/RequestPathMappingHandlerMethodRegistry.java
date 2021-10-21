@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;

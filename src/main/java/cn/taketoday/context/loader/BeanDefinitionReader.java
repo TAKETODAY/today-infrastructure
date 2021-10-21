@@ -41,7 +41,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Constant;

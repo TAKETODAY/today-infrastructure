@@ -20,8 +20,9 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -39,12 +40,10 @@ import java.util.Map;
  * @since 4.0
  */
 final class AttributeMethods {
+  static final AttributeMethods NONE = new AttributeMethods(null, Constant.EMPTY_METHOD_ARRAY);
 
-  static final AttributeMethods NONE = new AttributeMethods(null, new Method[0]);
-
-
-  private static final Map<Class<? extends Annotation>, AttributeMethods> cache =
-          new ConcurrentReferenceHashMap<>();
+  private static final ConcurrentReferenceHashMap<Class<? extends Annotation>, AttributeMethods>
+          cache = new ConcurrentReferenceHashMap<>();
 
   private static final Comparator<Method> methodComparator = (m1, m2) -> {
     if (m1 != null && m2 != null) {
@@ -57,7 +56,7 @@ final class AttributeMethods {
   @Nullable
   private final Class<? extends Annotation> annotationType;
 
-  private final Method[] attributeMethods;
+  private final Method[] attributes;
 
   private final boolean[] canThrowTypeNotPresentException;
 
@@ -66,14 +65,14 @@ final class AttributeMethods {
   private final boolean hasNestedAnnotation;
 
 
-  private AttributeMethods(@Nullable Class<? extends Annotation> annotationType, Method[] attributeMethods) {
+  private AttributeMethods(@Nullable Class<? extends Annotation> annotationType, Method[] attributes) {
     this.annotationType = annotationType;
-    this.attributeMethods = attributeMethods;
-    this.canThrowTypeNotPresentException = new boolean[attributeMethods.length];
+    this.attributes = attributes;
+    this.canThrowTypeNotPresentException = new boolean[attributes.length];
     boolean foundDefaultValueMethod = false;
     boolean foundNestedAnnotation = false;
-    for (int i = 0; i < attributeMethods.length; i++) {
-      Method method = this.attributeMethods[i];
+    for (int i = 0; i < attributes.length; i++) {
+      Method method = this.attributes[i];
       Class<?> type = method.getReturnType();
       if (method.getDefaultValue() != null) {
         foundDefaultValueMethod = true;
@@ -96,10 +95,8 @@ final class AttributeMethods {
    * @return {@code true} if there is only a value attribute
    */
   boolean hasOnlyValueAttribute() {
-    return (this.attributeMethods.length == 1 &&
-            MergedAnnotation.VALUE.equals(this.attributeMethods[0].getName()));
+    return attributes.length == 1 &&MergedAnnotation.VALUE.equals(attributes[0].getName());
   }
-
 
   /**
    * Determine if values from the given annotation can be safely accessed without
@@ -167,7 +164,7 @@ final class AttributeMethods {
   @Nullable
   Method get(String name) {
     int index = indexOf(name);
-    return index != -1 ? this.attributeMethods[index] : null;
+    return index != -1 ? this.attributes[index] : null;
   }
 
   /**
@@ -179,7 +176,7 @@ final class AttributeMethods {
    * (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   Method get(int index) {
-    return this.attributeMethods[index];
+    return this.attributes[index];
   }
 
   /**
@@ -202,8 +199,8 @@ final class AttributeMethods {
    * @return the index of the attribute, or {@code -1}
    */
   int indexOf(String name) {
-    for (int i = 0; i < this.attributeMethods.length; i++) {
-      if (this.attributeMethods[i].getName().equals(name)) {
+    for (int i = 0; i < this.attributes.length; i++) {
+      if (this.attributes[i].getName().equals(name)) {
         return i;
       }
     }
@@ -218,8 +215,8 @@ final class AttributeMethods {
    * @return the index of the attribute, or {@code -1}
    */
   int indexOf(Method attribute) {
-    for (int i = 0; i < this.attributeMethods.length; i++) {
-      if (this.attributeMethods[i].equals(attribute)) {
+    for (int i = 0; i < this.attributes.length; i++) {
+      if (this.attributes[i].equals(attribute)) {
         return i;
       }
     }
@@ -232,7 +229,7 @@ final class AttributeMethods {
    * @return the number of attributes
    */
   int size() {
-    return this.attributeMethods.length;
+    return this.attributes.length;
   }
 
   /**

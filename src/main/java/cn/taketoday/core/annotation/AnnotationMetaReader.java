@@ -23,7 +23,7 @@ package cn.taketoday.core.annotation;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.Assert;

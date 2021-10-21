@@ -30,7 +30,7 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.lang.Component;

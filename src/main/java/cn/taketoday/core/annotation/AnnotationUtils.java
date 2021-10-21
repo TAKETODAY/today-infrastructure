@@ -20,8 +20,8 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.NonNull;
@@ -1155,7 +1155,6 @@ public abstract class AnnotationUtils {
    * if available.
    *
    * @param attributes the annotation attributes to process
-   * @since 4.0
    */
   public static void registerDefaultValues(AnnotationAttributes attributes) {
     Class<? extends Annotation> annotationType = attributes.annotationType();

@@ -35,7 +35,7 @@ import cn.taketoday.context.annotation.autowire.MapArgumentsResolver;
 import cn.taketoday.context.annotation.autowire.ObjectSupplierArgumentsResolver;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;

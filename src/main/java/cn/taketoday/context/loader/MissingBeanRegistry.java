@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.lang.Constant;

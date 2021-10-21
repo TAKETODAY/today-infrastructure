@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.MethodInvoker;

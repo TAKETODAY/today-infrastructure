@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**

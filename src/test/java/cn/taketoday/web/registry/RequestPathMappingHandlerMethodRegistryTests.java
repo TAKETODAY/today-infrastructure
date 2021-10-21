@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.annotation.ActionMapping;

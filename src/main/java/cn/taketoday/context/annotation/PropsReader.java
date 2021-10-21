@@ -42,7 +42,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionService;

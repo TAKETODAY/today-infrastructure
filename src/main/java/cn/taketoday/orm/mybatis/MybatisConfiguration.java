@@ -43,7 +43,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.ClassMetaReader;

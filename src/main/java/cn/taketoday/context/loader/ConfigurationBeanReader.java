@@ -34,7 +34,7 @@ import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Component;

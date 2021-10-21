@@ -24,8 +24,6 @@
  *
  * @author TODAY 2021/8/15 22:41
  */
-@NonNullApi
-@NonNullFields
 package cn.taketoday.core.annotation;
 
 import cn.taketoday.lang.NonNullApi;

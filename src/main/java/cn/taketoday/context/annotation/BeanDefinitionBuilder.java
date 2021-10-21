@@ -42,7 +42,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyResolvingContext;
 import cn.taketoday.context.loader.PropertyValueResolverComposite;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;

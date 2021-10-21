@@ -20,17 +20,18 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Order;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Indexed;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ExtendsBaseClassWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ImplementsInterfaceWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.WebController;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.WebMapping;
-import cn.taketoday.core.testfixture.stereotype.Component;
-import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MultiValueMap;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -48,9 +49,9 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Resource;
 import javax.annotation.meta.When;
 
-import jakarta.annotation.Resource;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;

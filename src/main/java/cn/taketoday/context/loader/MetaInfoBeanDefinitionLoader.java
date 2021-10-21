@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.TodayStrategies;

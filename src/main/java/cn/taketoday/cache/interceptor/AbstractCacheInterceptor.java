@@ -39,7 +39,7 @@ import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextHolder;
-import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
