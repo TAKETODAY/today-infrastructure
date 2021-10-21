@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.type;
 
+import cn.taketoday.lang.Component;
 import org.junit.jupiter.api.Test;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.testfixture.stereotype.Component;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;

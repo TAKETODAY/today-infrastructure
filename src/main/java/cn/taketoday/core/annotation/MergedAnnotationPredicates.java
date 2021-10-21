@@ -146,7 +146,6 @@ public abstract class MergedAnnotationPredicates {
       }
       Object value = this.valueExtractor.apply(annotation);
       return ObjectUtils.nullSafeEquals(value, this.lastValue);
-
     }
   }
 
@@ -158,7 +157,7 @@ public abstract class MergedAnnotationPredicates {
 
     private final Function<? super MergedAnnotation<A>, K> keyExtractor;
 
-    private final Set<K> seen = new HashSet<>();
+    private final HashSet<K> seen = new HashSet<>();
 
     UniquePredicate(Function<? super MergedAnnotation<A>, K> keyExtractor) {
       Assert.notNull(keyExtractor, "Key extractor must not be null");

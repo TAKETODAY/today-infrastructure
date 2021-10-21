@@ -23,6 +23,7 @@ package cn.taketoday.context.loader;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.ResourceLoader;
 
 /**
  * for ConditionEvaluator Evaluation
@@ -36,9 +37,12 @@ public class ConditionEvaluationContext {
   private final ApplicationContext context;
   private final BeanDefinitionRegistry registry;
 
+  private final ResourceLoader resourceLoader;
+
   public ConditionEvaluationContext(ApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
     this.registry = registry;
+    this.resourceLoader = context;
     this.environment = context.getEnvironment();
   }
 
@@ -54,4 +58,7 @@ public class ConditionEvaluationContext {
     return registry;
   }
 
+  public ResourceLoader getResourceLoader() {
+    return resourceLoader;
+  }
 }
