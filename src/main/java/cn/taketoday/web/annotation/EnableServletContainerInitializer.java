@@ -19,6 +19,20 @@
  */
 package cn.taketoday.web.annotation;
 
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.aware.AnnotationImportAware;
+import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
+
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
+import javax.servlet.annotation.HandlesTypes;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,20 +40,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.HandlesTypes;
-
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.aware.AnnotationImportAware;
-import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
@@ -55,7 +55,7 @@ public @interface EnableServletContainerInitializer {
    *
    * @see HandlesTypes#value()
    */
-  String[] scanPackages() default {};
+  String[] scanPackages() default { };
 }
 
 class ServletContainerInitializerConfig
@@ -64,23 +64,23 @@ class ServletContainerInitializerConfig
 
   @Override
   @SuppressWarnings("unchecked")
-  public void onStartup(final ServletContext servletContext) throws Throwable {
-    final ApplicationContext context = getApplicationContext();
+  public void onStartup(ServletContext servletContext) throws Throwable {
+    ApplicationContext context = getApplicationContext();
     CandidateComponentScanner componentScannerToUse = CandidateComponentScanner.getSharedInstance();
     if (target != null) {
-      final String[] scanPackages = target.scanPackages();
+      String[] scanPackages = target.scanPackages();
       if (ObjectUtils.isNotEmpty(scanPackages)) {
         componentScannerToUse.scan(scanPackages);
       }
     }
 
-    for (final ServletContainerInitializer initializer : context.getBeans(ServletContainerInitializer.class)) {
-      final HandlesTypes handles = AnnotationUtils.getAnnotation(initializer, HandlesTypes.class);
+    for (ServletContainerInitializer initializer : context.getBeans(ServletContainerInitializer.class)) {
+      HandlesTypes handles = AnnotationUtils.getAnnotation(initializer.getClass(), HandlesTypes.class);
 
       Set<Class<?>> c = null;
       if (handles != null) {
         c = new HashSet<>();
-        for (final Class<?> handlesType : handles.value()) {
+        for (Class<?> handlesType : handles.value()) {
           if (handlesType.isAnnotation()) {
             c.addAll(componentScannerToUse.getAnnotatedClasses((Class<? extends Annotation>) handlesType));
           }

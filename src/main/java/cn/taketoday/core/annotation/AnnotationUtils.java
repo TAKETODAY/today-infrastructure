@@ -63,22 +63,6 @@ public abstract class AnnotationUtils {
           new ConcurrentReferenceHashMap<>();
 
   /**
-   * Get the array of {@link Annotation} instance
-   *
-   * @param element annotated element
-   * @param targetClass target annotation class
-   * @return the array of {@link Annotation} instance. If returns null
-   * it indicates that no targetClass Annotations
-   * @since 2.1.1
-   */
-  @Nullable
-  public static <T extends Annotation> T[] getAnnotationArray(
-          final AnnotatedElement element, @Nullable final Class<T> targetClass
-  ) {
-    return reader.getAnnotationArray(element, targetClass);
-  }
-
-  /**
    * Inject {@link AnnotationAttributes} by reflect
    *
    * @param source Element attributes
@@ -93,8 +77,6 @@ public abstract class AnnotationUtils {
     return reader.injectAttributes(source, annotationClass, instance);
   }
 
-
-
   /**
    * Get First Annotation
    *
@@ -104,26 +86,12 @@ public abstract class AnnotationUtils {
    * @return the {@link Collection} of {@link Annotation} instance
    * @since 2.1.7
    */
-  public static <T extends Annotation> T getAnnotation(
+  public static <T extends Annotation> T getAnnotationFor(
           final Class<T> annotationClass,
           final Class<? extends T> implClass,
           final AnnotatedElement element
   ) {
-    return reader.getAnnotation(annotationClass, implClass, element);
-  }
 
-  /**
-   * Get First Annotation
-   *
-   * @param annotated The annotated element object
-   * @param annotationClass The annotation class
-   * @return The target {@link Annotation} instance
-   * @since 2.1.7
-   */
-  public static <T extends Annotation> T getAnnotation(
-          final Object annotated, final Class<T> annotationClass
-  ) {
-    return reader.getAnnotation(annotated, annotationClass);
   }
 
   /**
