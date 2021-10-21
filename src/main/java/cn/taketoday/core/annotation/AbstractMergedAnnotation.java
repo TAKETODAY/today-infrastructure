@@ -148,12 +148,14 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   }
 
   @Override
-  public Class<?> getClass(String attributeName) {
+  @SuppressWarnings("unchecked")
+  public <T> Class<T> getClass(String attributeName) {
     return getRequiredAttributeValue(attributeName, Class.class);
   }
 
   @Override
-  public Class<?>[] getClassArray(String attributeName) {
+  @SuppressWarnings("unchecked")
+  public <T> Class<T>[] getClassArray(String attributeName) {
     return getRequiredAttributeValue(attributeName, Class[].class);
   }
 

@@ -364,7 +364,7 @@ public interface MergedAnnotation<A extends Annotation> {
    * @return the value as a class
    * @throws NoSuchElementException if there is no matching attribute
    */
-  Class<?> getClass(String attributeName) throws NoSuchElementException;
+  <T> Class<T> getClass(String attributeName) throws NoSuchElementException;
 
   /**
    * Get a required class array attribute value from the annotation.
@@ -373,7 +373,7 @@ public interface MergedAnnotation<A extends Annotation> {
    * @return the value as a class array
    * @throws NoSuchElementException if there is no matching attribute
    */
-  Class<?>[] getClassArray(String attributeName) throws NoSuchElementException;
+  <T> Class<T>[] getClassArray(String attributeName) throws NoSuchElementException;
 
   /**
    * Get a required enum attribute value from the annotation.
