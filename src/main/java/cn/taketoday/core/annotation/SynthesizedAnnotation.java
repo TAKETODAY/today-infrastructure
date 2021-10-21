@@ -22,7 +22,7 @@ package cn.taketoday.core.annotation;
  * <p>Used to detect whether an annotation has already been synthesized.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 public interface SynthesizedAnnotation {
 }

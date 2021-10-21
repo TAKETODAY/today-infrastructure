@@ -40,7 +40,7 @@ import static cn.taketoday.core.annotation.AnnotatedElementUtils.getAllMergedAnn
  * <p>See <a href="https://jira.spring.io/browse/SPR-13486">SPR-13486</a>.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  * @see AnnotatedElementUtils
  * @see AnnotatedElementUtilsTests
  * @see ComposedRepeatableAnnotationsTests

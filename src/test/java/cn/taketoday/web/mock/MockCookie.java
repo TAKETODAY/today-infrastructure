@@ -62,7 +62,7 @@ public class MockCookie extends Cookie {
   /**
    * Set the "Expires" attribute for this cookie.
    *
-   * @since 5.1.11
+   * @since 4.0
    */
   public void setExpires(ZonedDateTime expires) {
     this.expires = expires;
@@ -73,7 +73,7 @@ public class MockCookie extends Cookie {
    *
    * @return the "Expires" attribute for this cookie, or {@code null} if not set
    *
-   * @since 5.1.11
+   * @since 4.0
    */
 
   public ZonedDateTime getExpires() {

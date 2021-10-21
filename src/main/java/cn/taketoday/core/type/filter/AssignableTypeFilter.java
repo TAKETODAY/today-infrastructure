@@ -44,7 +44,7 @@ public class AssignableTypeFilter extends AbstractTypeHierarchyTraversingFilter 
   /**
    * Return the {@code type} that this instance is using to filter candidates.
    *
-   * @since 5.0
+   * @since 4.0
    */
   public final Class<?> getTargetType() {
     return this.targetType;

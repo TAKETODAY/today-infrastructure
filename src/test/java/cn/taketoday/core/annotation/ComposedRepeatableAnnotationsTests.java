@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * <p>See <a href="https://jira.spring.io/browse/SPR-13973">SPR-13973</a>.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  * @see AnnotatedElementUtils#getMergedRepeatableAnnotations
  * @see AnnotatedElementUtils#findMergedRepeatableAnnotations
  * @see cn.taketoday.core.annotation.AnnotatedElementUtilsTests

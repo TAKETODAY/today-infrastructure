@@ -122,7 +122,7 @@ abstract class AnnotationReadingVisitorUtils {
    * type to look for
    * @return the merged annotation attributes, or {@code null} if no
    * matching annotation is present in the {@code attributesMap}
-   * @since 4.0.3
+   * @since 4.0
    */
   @Nullable
   public static AnnotationAttributes getMergedAnnotationAttributes(

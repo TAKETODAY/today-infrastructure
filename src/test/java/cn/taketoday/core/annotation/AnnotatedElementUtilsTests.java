@@ -72,7 +72,7 @@ import static cn.taketoday.core.annotation.AnnotationUtilsTests.asArray;
  * @author Sam Brannen
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
- * @since 4.0.3
+ * @since 4.0
  * @see AnnotationUtilsTests
  * @see cn.taketoday.core.annotation.MultipleComposedAnnotationsOnSingleAnnotatedElementTests
  * @see ComposedRepeatableAnnotationsTests
@@ -688,7 +688,7 @@ class AnnotatedElementUtilsTests {
 	}
 
 	/**
-	 * @since 4.0.1
+	 * @since 4.0
 	 * @see <a href="https://github.com/spring-projects/spring-framework/issues/23767">#23767</a>
 	 */
 	@Test
@@ -702,7 +702,7 @@ class AnnotatedElementUtilsTests {
 	}
 
 	/**
-	 * @since 4.0.1
+	 * @since 4.0
 	 * @see <a href="https://github.com/spring-projects/spring-framework/issues/23767">#23767</a>
 	 */
 	@Test
@@ -716,7 +716,7 @@ class AnnotatedElementUtilsTests {
 	}
 
 	/**
-	 * @since 4.0.1
+	 * @since 4.0
 	 * @see <a href="https://github.com/spring-projects/spring-framework/issues/23767">#23767</a>
 	 */
 	@Test
@@ -730,7 +730,7 @@ class AnnotatedElementUtilsTests {
 	}
 
 	/**
-	 * @since 4.0.1
+	 * @since 4.0
 	 * @see <a href="https://github.com/spring-projects/spring-framework/issues/23767">#23767</a>
 	 */
 	@Test

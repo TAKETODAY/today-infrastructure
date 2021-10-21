@@ -69,7 +69,7 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    *
    * @param parent the ClassLoader to build an overriding ClassLoader for
    * @param overrideDelegate the ClassLoader to delegate to for overriding
-   * @since 4.3
+   * @since 4.0
    */
   public OverridingClassLoader(@Nullable ClassLoader parent, @Nullable ClassLoader overrideDelegate) {
     super(parent);

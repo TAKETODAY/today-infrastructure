@@ -526,7 +526,7 @@ final class AnnotationTypeMapping {
 	 * <p>Consult the documentation for {@link MergedAnnotation#synthesize()}
 	 * for an explanation of what is considered synthesizable.
 	 * @return {@code true} if the mapped annotation is synthesizable
-	 * @since 4.0.6
+	 * @since 4.0
 	 */
 	boolean isSynthesizable() {
 		return this.synthesizable;

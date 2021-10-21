@@ -94,7 +94,7 @@ public abstract class AnnotatedElementUtils {
 	 * Build an adapted {@link AnnotatedElement} for the given annotations,
 	 * typically for use with other methods on {@link AnnotatedElementUtils}.
 	 * @param annotations the annotations to expose through the {@code AnnotatedElement}
-	 * @since 4.3
+	 * @since 4.0
 	 */
 	public static AnnotatedElement forAnnotations(Annotation... annotations) {
 		return new AnnotatedElementForAnnotations(annotations);
@@ -110,7 +110,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param annotationType the annotation type on which to find meta-annotations
 	 * @return the names of all meta-annotations present on the annotation,
 	 * or an empty set if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #getMetaAnnotationTypes(AnnotatedElement, String)
 	 * @see #hasMetaAnnotationTypes
 	 */
@@ -161,7 +161,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationType the meta-annotation type to find
 	 * @return {@code true} if a matching meta-annotation is present
-	 * @since 4.2.3
+	 * @since 4.0
 	 * @see #getMetaAnnotationTypes
 	 */
 	public static boolean hasMetaAnnotationTypes(AnnotatedElement element, Class<? extends Annotation> annotationType) {
@@ -195,7 +195,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationType the annotation type to find
 	 * @return {@code true} if a matching annotation is present
-	 * @since 4.2.3
+	 * @since 4.0
 	 * @see #hasAnnotation(AnnotatedElement, Class)
 	 */
 	public static boolean isAnnotated(AnnotatedElement element, Class<? extends Annotation> annotationType) {
@@ -235,7 +235,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationType the annotation type to find
 	 * @return the merged {@code AnnotationAttributes}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #getMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 * @see #findMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 * @see #getMergedAnnotation(AnnotatedElement, Class)
@@ -262,7 +262,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationName the fully qualified class name of the annotation type to find
 	 * @return the merged {@code AnnotationAttributes}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #getMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 * @see #findMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
@@ -296,7 +296,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param nestedAnnotationsAsMap whether to convert nested Annotation instances
 	 * into {@code AnnotationAttributes} maps or to preserve them as Annotation instances
 	 * @return the merged {@code AnnotationAttributes}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 * @see #findMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 * @see #getAllAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
@@ -321,7 +321,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationType the annotation type to find
 	 * @return the merged, synthesized {@code Annotation}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 */
 	@Nullable
@@ -352,7 +352,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param annotationType the annotation type to find (never {@code null})
 	 * @return the set of all merged, synthesized {@code Annotations} found,
 	 * or an empty set if none were found
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #getMergedAnnotation(AnnotatedElement, Class)
 	 * @see #getAllAnnotationAttributes(AnnotatedElement, String)
 	 * @see #findAllMergedAnnotations(AnnotatedElement, Class)
@@ -379,7 +379,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param annotationTypes the annotation types to find
 	 * @return the set of all merged, synthesized {@code Annotations} found,
 	 * or an empty set if none were found
-	 * @since 5.1
+	 * @since 4.0
 	 * @see #getAllMergedAnnotations(AnnotatedElement, Class)
 	 */
 	public static Set<Annotation> getAllMergedAnnotations(AnnotatedElement element,
@@ -409,7 +409,7 @@ public abstract class AnnotatedElementUtils {
 	 * or an empty set if none were found
 	 * @throws IllegalArgumentException if the {@code element} or {@code annotationType}
 	 * is {@code null}, or if the container type cannot be resolved
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #getMergedAnnotation(AnnotatedElement, Class)
 	 * @see #getAllMergedAnnotations(AnnotatedElement, Class)
 	 * @see #getMergedRepeatableAnnotations(AnnotatedElement, Class, Class)
@@ -442,7 +442,7 @@ public abstract class AnnotatedElementUtils {
 	 * is {@code null}, or if the container type cannot be resolved
 	 * @throws AnnotationConfigurationException if the supplied {@code containerType}
 	 * is not a valid container annotation for the supplied {@code annotationType}
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #getMergedAnnotation(AnnotatedElement, Class)
 	 * @see #getAllMergedAnnotations(AnnotatedElement, Class)
 	 */
@@ -516,7 +516,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationType the annotation type to find
 	 * @return {@code true} if a matching annotation is present
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #isAnnotated(AnnotatedElement, Class)
 	 */
 	public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotationType) {
@@ -552,7 +552,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param nestedAnnotationsAsMap whether to convert nested Annotation instances into
 	 * {@code AnnotationAttributes} maps or to preserve them as Annotation instances
 	 * @return the merged {@code AnnotationAttributes}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 * @see #getMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 */
@@ -588,7 +588,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param nestedAnnotationsAsMap whether to convert nested Annotation instances into
 	 * {@code AnnotationAttributes} maps or to preserve them as Annotation instances
 	 * @return the merged {@code AnnotationAttributes}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 * @see #getMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 */
@@ -614,7 +614,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the annotated element
 	 * @param annotationType the annotation type to find
 	 * @return the merged, synthesized {@code Annotation}, or {@code null} if not found
-	 * @since 4.2
+	 * @since 4.0
 	 * @see #findAllMergedAnnotations(AnnotatedElement, Class)
 	 * @see #findMergedAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
 	 * @see #getMergedAnnotationAttributes(AnnotatedElement, Class)
@@ -647,7 +647,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param annotationType the annotation type to find (never {@code null})
 	 * @return the set of all merged, synthesized {@code Annotations} found,
 	 * or an empty set if none were found
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 * @see #getAllMergedAnnotations(AnnotatedElement, Class)
 	 */
@@ -672,7 +672,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param annotationTypes the annotation types to find
 	 * @return the set of all merged, synthesized {@code Annotations} found,
 	 * or an empty set if none were found
-	 * @since 5.1
+	 * @since 4.0
 	 * @see #findAllMergedAnnotations(AnnotatedElement, Class)
 	 */
 	public static Set<Annotation> findAllMergedAnnotations(AnnotatedElement element, Set<Class<? extends Annotation>> annotationTypes) {
@@ -701,7 +701,7 @@ public abstract class AnnotatedElementUtils {
 	 * or an empty set if none were found
 	 * @throws IllegalArgumentException if the {@code element} or {@code annotationType}
 	 * is {@code null}, or if the container type cannot be resolved
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 * @see #findAllMergedAnnotations(AnnotatedElement, Class)
 	 * @see #findMergedRepeatableAnnotations(AnnotatedElement, Class, Class)
@@ -734,7 +734,7 @@ public abstract class AnnotatedElementUtils {
 	 * is {@code null}, or if the container type cannot be resolved
 	 * @throws AnnotationConfigurationException if the supplied {@code containerType}
 	 * is not a valid container annotation for the supplied {@code annotationType}
-	 * @since 4.3
+	 * @since 4.0
 	 * @see #findMergedAnnotation(AnnotatedElement, Class)
 	 * @see #findAllMergedAnnotations(AnnotatedElement, Class)
 	 */

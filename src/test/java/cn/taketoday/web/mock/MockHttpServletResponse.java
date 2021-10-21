@@ -707,7 +707,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    *         the {@code Cookie} to set
    *
    * @see #addCookie(Cookie)
-   * @since 5.1.10
+   * @since 4.0
    */
   private void setCookie(Cookie cookie) {
     Assert.notNull(cookie, "Cookie must not be null");

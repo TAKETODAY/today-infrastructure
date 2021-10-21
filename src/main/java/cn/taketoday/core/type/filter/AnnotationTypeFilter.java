@@ -91,7 +91,7 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
    * Return the {@link Annotation} that this instance is using to filter
    * candidates.
    *
-   * @since 5.0
+   * @since 4.0
    */
   public final Class<? extends Annotation> getAnnotationType() {
     return this.annotationType;

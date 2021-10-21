@@ -136,14 +136,14 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * The default protocol: 'HTTP/1.1'.
    *
-   * @since 4.3.7
+   * @since 4.0
    */
   public static final String DEFAULT_PROTOCOL = "HTTP/1.1";
 
   /**
    * The default scheme: 'http'.
    *
-   * @since 4.3.7
+   * @since 4.0
    */
   public static final String DEFAULT_SCHEME = HTTP;
 
@@ -444,7 +444,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    *
    * @see #setContent(byte[])
    * @see #getContentAsString()
-   * @since 5.0
+   * @since 4.0
    */
 
   public byte[] getContentAsByteArray() {
@@ -464,7 +464,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #setContent(byte[])
    * @see #setCharacterEncoding(String)
    * @see #getContentAsByteArray()
-   * @since 5.0
+   * @since 4.0
    */
   public String getContentAsString() throws IllegalStateException, UnsupportedEncodingException {
     Assert.state(this.characterEncoding != null,
@@ -1083,7 +1083,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * Remove already registered entries for the specified HTTP header, if any.
    *
-   * @since 4.3.20
+   * @since 4.00
    */
   public void removeHeader(String name) {
     Assert.notNull(name, "Header name must not be null");
@@ -1333,7 +1333,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * {@link MockHttpSession#changeSessionId()} if the session is a mock session.
    * Otherwise it simply returns the current session id.
    *
-   * @since 4.0.3
+   * @since 4.0
    */
   @Override
   public String changeSessionId() {

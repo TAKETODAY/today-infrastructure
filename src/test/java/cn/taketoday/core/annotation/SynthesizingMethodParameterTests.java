@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 /**
  * @author Juergen Hoeller
- * @since 5.0
+ * @since 4.0
  */
 class SynthesizingMethodParameterTests {
 

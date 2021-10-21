@@ -58,7 +58,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
    *
    * @param introspectedClass the Class to introspect
    * @see #StandardAnnotationMetadata(Class, boolean)
-   * @deprecated since 5.2 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}
+   * @deprecated since 4.0 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}
    */
   @Deprecated
   public StandardAnnotationMetadata(Class<?> introspectedClass) {
@@ -76,7 +76,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
    * {@link cn.taketoday.core.annotation.AnnotationAttributes} for compatibility
    * with ASM-based {@link AnnotationMetadata} implementations
    * @since 3.1.1
-   * @deprecated since 5.2 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}.
+   * @deprecated since 4.0 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}.
    * Use {@link MergedAnnotation#asMap(cn.taketoday.core.annotation.MergedAnnotation.Adapt...) MergedAnnotation.asMap}
    * from {@link #getAnnotations()} rather than {@link #getAnnotationAttributes(String)}
    * if {@code nestedAnnotationsAsMap} is {@code false}

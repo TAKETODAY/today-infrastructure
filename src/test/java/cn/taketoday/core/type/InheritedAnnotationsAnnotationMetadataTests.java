@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@code SimpleAnnotationMetadata} does not.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  * @see AnnotationMetadataTests
  */
 class InheritedAnnotationsAnnotationMetadataTests {

@@ -121,7 +121,7 @@ public class MockHttpSession implements HttpSession {
    *
    * @return the new session id
    *
-   * @since 4.0.3
+   * @since 4.0
    */
   public String changeSessionId() {
     this.id = Integer.toString(nextId++);

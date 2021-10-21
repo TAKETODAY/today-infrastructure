@@ -29,7 +29,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * {@link LinkedHashMap} subclass representing annotation attribute
  * <em>key-value</em> pairs as read by {@link AnnotationUtils},
- * {@link AnnotatedElementUtils}, and Spring's reflection- and ASM-based
+ * {@link AnnotatedElementUtils}, and reflection- and ASM-based
  * {@link cn.taketoday.core.type.AnnotationMetadata} implementations.
  *
  * <p>Provides 'pseudo-reification' to avoid noisy Map generics in the calling
@@ -105,7 +105,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	 * specified {@code annotationType}.
 	 * @param annotationType the type of annotation represented by this
 	 * {@code AnnotationAttributes} instance; never {@code null}
-	 * @since 4.2
 	 */
 	public AnnotationAttributes(Class<? extends Annotation> annotationType) {
 		Assert.notNull(annotationType, "'annotationType' must not be null");
@@ -120,7 +119,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	 * @param annotationType the type of annotation represented by this
 	 * {@code AnnotationAttributes} instance; never {@code null}
 	 * @param validated if the attributes are considered already validated
-	 * @since 4.0
 	 */
 	AnnotationAttributes(Class<? extends Annotation> annotationType, boolean validated) {
 		Assert.notNull(annotationType, "'annotationType' must not be null");
@@ -136,7 +134,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	 * {@code AnnotationAttributes} instance; never {@code null}
 	 * @param classLoader the ClassLoader to try to load the annotation type on,
 	 * or {@code null} to just store the annotation type name
-	 * @since 4.3.2
 	 */
 	public AnnotationAttributes(String annotationType, @Nullable ClassLoader classLoader) {
 		Assert.notNull(annotationType, "'annotationType' must not be null");
@@ -162,7 +159,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	/**
 	 * Get the type of annotation represented by this {@code AnnotationAttributes}.
 	 * @return the annotation type, or {@code null} if unknown
-	 * @since 4.2
 	 */
 	@Nullable
 	public Class<? extends Annotation> annotationType() {
@@ -287,7 +283,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	 * @return the annotation
 	 * @throws IllegalArgumentException if the attribute does not exist or
 	 * if it is not of the expected type
-	 * @since 4.2
 	 */
 	public <A extends Annotation> A getAnnotation(String attributeName, Class<A> annotationType) {
 		return getRequiredAttribute(attributeName, annotationType);
@@ -323,7 +318,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	 * @return the annotation array
 	 * @throws IllegalArgumentException if the attribute does not exist or
 	 * if it is not of the expected type
-	 * @since 4.2
 	 */
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationArray(String attributeName, Class<A> annotationType) {
