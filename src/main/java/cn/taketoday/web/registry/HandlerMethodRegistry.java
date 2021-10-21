@@ -161,11 +161,10 @@ public class HandlerMethodRegistry
   protected void buildHandlerMethod(Method method,
                                     Class<?> beanClass,
                                     AnnotationAttributes controllerMapping) {
+    AnnotationAttributes actionMapping = // find mapping on method
+            AnnotatedElementUtils.getMergedAnnotationAttributes(method, ActionMapping.class);
 
-    AnnotationAttributes[] actionMapping = // find mapping on method
-            AnnotationUtils.getAttributesArray(method, ActionMapping.class);
-
-    if (ObjectUtils.isNotEmpty(actionMapping)) {
+    if (actionMapping != null) {
       // build HandlerMethod
       HandlerMethod handler = createHandlerMethod(beanClass, method);
       // do mapping url
@@ -178,11 +177,10 @@ public class HandlerMethodRegistry
    *
    * @param handler current {@link HandlerMethod}
    * methods on class
-   * @param annotationAttributes {@link ActionMapping} Attributes, never be null
    */
   protected void mappingHandlerMethod(HandlerMethod handler,
                                       AnnotationAttributes controllerMapping,
-                                      AnnotationAttributes[] annotationAttributes) {
+                                      AnnotationAttributes handlerMethodMapping) {
     boolean emptyNamespaces = true;
     boolean addClassRequestMethods = false;
     Set<String> namespaces = Collections.emptySet();
@@ -198,31 +196,28 @@ public class HandlerMethodRegistry
       addClassRequestMethods = !classRequestMethods.isEmpty();
     }
 
-    for (AnnotationAttributes handlerMethodMapping : annotationAttributes) {
-      boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
-      Set<HttpMethod> requestMethods = // http request method on method(action/handler)
-              CollectionUtils.newHashSet(handlerMethodMapping.getEnum("method"));
+    boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
+    Set<HttpMethod> requestMethods = // http request method on method(action/handler)
+            CollectionUtils.newHashSet(handlerMethodMapping.getEnum("method"));
 
-      if (addClassRequestMethods)
-        requestMethods.addAll(classRequestMethods);
+    if (addClassRequestMethods)
+      requestMethods.addAll(classRequestMethods);
 
-      for (String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
-        String checkedUrl = StringUtils.formatURL(urlOnMethod);
-        // splice urls and request methods
-        // ---------------------------------
-        for (HttpMethod requestMethod : requestMethods) {
-          if (exclude || emptyNamespaces) {
-            mappingHandlerMethod(checkedUrl, requestMethod, handler);
-          }
-          else {
-            for (String namespace : namespaces) {
-              mappingHandlerMethod(namespace.concat(checkedUrl), requestMethod, handler);
-            }
+    for (String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
+      String checkedUrl = StringUtils.formatURL(urlOnMethod);
+      // splice urls and request methods
+      // ---------------------------------
+      for (HttpMethod requestMethod : requestMethods) {
+        if (exclude || emptyNamespaces) {
+          mappingHandlerMethod(checkedUrl, requestMethod, handler);
+        }
+        else {
+          for (String namespace : namespaces) {
+            mappingHandlerMethod(namespace.concat(checkedUrl), requestMethod, handler);
           }
         }
       }
     }
-
   }
 
   /**

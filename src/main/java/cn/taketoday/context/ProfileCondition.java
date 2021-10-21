@@ -23,6 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.env.Environment;
@@ -38,6 +39,9 @@ public class ProfileCondition implements Condition {
   @Override
   public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
     Environment environment = context.getEnvironment();
+
+    AnnotatedElementUtils
+
     AnnotationAttributes[] attributesArray = AnnotationUtils.getAttributesArray(annotated, Profile.class);
     for (AnnotationAttributes attributes : attributesArray) {
       if (environment.acceptsProfiles(attributes.getStringArray(Constant.VALUE))) {

@@ -20,13 +20,6 @@
 
 package cn.taketoday.web.registry;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
@@ -39,6 +32,13 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
 import cn.taketoday.web.http.HttpMethod;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -53,13 +53,13 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   public void onStartup(WebApplicationContext context) {
     super.onStartup(context);
 
-    for (final Map.Entry<String, Object> entry : getHandlers().entrySet()) {
+    for (Map.Entry<String, Object> entry : getHandlers().entrySet()) {
       super.logMapping(entry.getKey(), entry.getValue());
     }
 
-    final List<PatternHandler> patternHandlers = getPatternHandlers();
+    List<PatternHandler> patternHandlers = getPatternHandlers();
     if (CollectionUtils.isNotEmpty(patternHandlers)) {
-      for (final PatternHandler patternHandler : patternHandlers) {
+      for (PatternHandler patternHandler : patternHandlers) {
         super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
       }
     }
@@ -85,27 +85,25 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   @Override
   protected void mappingHandlerMethod(HandlerMethod handler,
                                       AnnotationAttributes controllerMapping,
-                                      AnnotationAttributes[] annotationAttributes) {
-    final AnnotationAttributes mapping = new AnnotationAttributes(ActionMapping.class);
-    for (final AnnotationAttributes actionMapping : annotationAttributes) {
-      mergeMappingAttributes(mapping, actionMapping, controllerMapping);
-      for (final String path : mapping.getStringArray("value")) { // url on method
-        final String pathPattern = getRequestPathPattern(path);
-        // transform
-        handler = transformHandlerMethod(pathPattern, handler);
-        final AnnotationMappingInfo mappingInfo = new AnnotationMappingInfo(mapping, handler);
-        registerHandler(pathPattern, mappingInfo);
-      }
-      mapping.clear(); // for next mapping
+                                      AnnotationAttributes handlerMethodMapping) {
+    AnnotationAttributes mapping = new AnnotationAttributes(ActionMapping.class);
+    mergeMappingAttributes(mapping, handlerMethodMapping, controllerMapping);
+    for (String path : mapping.getStringArray("value")) { // url on method
+      String pathPattern = getRequestPathPattern(path);
+      // transform
+      handler = transformHandlerMethod(pathPattern, handler);
+      AnnotationMappingInfo mappingInfo = new AnnotationMappingInfo(mapping, handler);
+      registerMappingInfo(pathPattern, mappingInfo);
     }
+    mapping.clear(); // for next mapping
   }
 
   @Override
   protected Object transformHandler(String handlerKey, Object handler) {
     if (handler instanceof AnnotationMappingInfo) {
       AnnotationMappingInfo mapping = (AnnotationMappingInfo) handler;
-      final HandlerMethod handlerMethod = mapping.getHandler();
-      final Object transformed = super.transformHandler(handlerKey, handlerMethod);
+      HandlerMethod handlerMethod = mapping.getHandler();
+      Object transformed = super.transformHandler(handlerKey, handlerMethod);
       if (transformed != handlerMethod) {
         mapping = new AnnotationMappingInfo(mapping, (HandlerMethod) transformed);
       }
@@ -123,24 +121,11 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       return;
     }
 
-    doMergeMapping(mapping, actionMapping, controllerMapping, Constant.VALUE, true);
-    doMergeMapping(mapping, actionMapping, controllerMapping, "params");
-    doMergeMapping(mapping, actionMapping, controllerMapping, "produces");
-    doMergeMapping(mapping, actionMapping, controllerMapping, "consumes");
+    doMergeMapping(mapping, actionMapping, controllerMapping, Constant.VALUE, String[].class, true);
+    doMergeMapping(mapping, actionMapping, controllerMapping, "params", String[].class, false);
+    doMergeMapping(mapping, actionMapping, controllerMapping, "produces", String[].class, false);
+    doMergeMapping(mapping, actionMapping, controllerMapping, "consumes", String[].class, false);
     doMergeMapping(mapping, actionMapping, controllerMapping, "method", HttpMethod[].class, false);
-  }
-
-  private void doMergeMapping(AnnotationAttributes mapping,
-                              AnnotationAttributes actionMapping,
-                              AnnotationAttributes controllerMapping, String key) {
-    doMergeMapping(mapping, actionMapping, controllerMapping, key, String[].class, false);
-  }
-
-  private void doMergeMapping(AnnotationAttributes mapping,
-                              AnnotationAttributes actionMapping,
-                              AnnotationAttributes controllerMapping,
-                              String key, boolean append) {
-    doMergeMapping(mapping, actionMapping, controllerMapping, key, String[].class, append);
   }
 
   private <T> void doMergeMapping(AnnotationAttributes mapping,
@@ -148,22 +133,22 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
                                   AnnotationAttributes controllerMapping,
                                   String key, Class<T> requiredType, boolean append) {
 
-    final T attribute = controllerMapping.getAttribute(key, requiredType);
-    final int length = Array.getLength(attribute);
+    T attribute = controllerMapping.getRequiredAttribute(key, requiredType);
+    int length = Array.getLength(attribute);
     if (length == 0) {
-      mapping.put(key, actionMapping.getAttribute(key, requiredType));
+      mapping.put(key, actionMapping.getRequiredAttribute(key, requiredType));
     }
     else {
       LinkedHashSet<Object> values = new LinkedHashSet<>();
-      final T actionAttribute = actionMapping.getAttribute(key, requiredType);
-      final int actionLength = Array.getLength(actionAttribute);
+      T actionAttribute = actionMapping.getRequiredAttribute(key, requiredType);
+      int actionLength = Array.getLength(actionAttribute);
       if (append) {
         for (int i = 0; i < length; i++) {
-          final Object classElement = Array.get(attribute, i);
-          final String parentPath = StringUtils.formatURL(classElement.toString());
-          final boolean appendParentPathEmpty = !parentPath.isEmpty();
+          Object classElement = Array.get(attribute, i);
+          String parentPath = StringUtils.formatURL(classElement.toString());
+          boolean appendParentPathEmpty = !parentPath.isEmpty();
           for (int j = 0; j < actionLength; j++) {
-            final Object element = Array.get(actionAttribute, j);
+            Object element = Array.get(actionAttribute, j);
             if (appendParentPathEmpty) {
               values.add(parentPath.concat(StringUtils.formatURL(element.toString())));
             }
@@ -176,15 +161,15 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       else {
 //      Collections.addAll(values, actionAttribute);
         for (int i = 0; i < length; i++) {
-          final Object element = Array.get(attribute, i);
+          Object element = Array.get(attribute, i);
           values.add(element);
         }
         for (int i = 0; i < actionLength; i++) {
-          final Object element = Array.get(actionAttribute, i);
+          Object element = Array.get(actionAttribute, i);
           values.add(element);
         }
       }
-      final Object array = Array.newInstance(requiredType.getComponentType(), values.size());
+      Object array = Array.newInstance(requiredType.getComponentType(), values.size());
       mapping.put(key, values.toArray((Object[]) array));
     }
   }
@@ -192,7 +177,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   @Override
   public void registerHandler(String handlerKey, Object handler) {
     if (handler instanceof AnnotationMappingInfo) {
-      registerHandler(handlerKey, (AnnotationMappingInfo) handler);
+      registerMappingInfo(handlerKey, (AnnotationMappingInfo) handler);
     }
     else {
       super.registerHandler(handlerKey, handler);
@@ -200,17 +185,17 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   @SuppressWarnings("unchecked")
-  private void registerHandler(String requestPath, AnnotationMappingInfo handler) {
-    final Object existMappingInfo = getExistMappingInfo(requestPath);
+  private void registerMappingInfo(String requestPath, AnnotationMappingInfo handler) {
+    Object existMappingInfo = getExistMappingInfo(requestPath);
     if (existMappingInfo instanceof List) {
       // List<ActionMappingInfo>
-      final List<AnnotationMappingInfo> mappingInfo = (List<AnnotationMappingInfo>) existMappingInfo;
+      List<AnnotationMappingInfo> mappingInfo = (List<AnnotationMappingInfo>) existMappingInfo;
       mappingInfo.add(handler);
       sort(mappingInfo);
     }
     else if (existMappingInfo instanceof AnnotationMappingInfo) {
       // ActionMappingInfo
-      final ArrayList<AnnotationMappingInfo> mappingInfo = new ArrayList<>();
+      ArrayList<AnnotationMappingInfo> mappingInfo = new ArrayList<>();
       mappingInfo.add(handler);
       mappingInfo.add((AnnotationMappingInfo) existMappingInfo);
       sort(mappingInfo);
@@ -230,9 +215,9 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   private Object getExistMappingInfo(String requestPath) {
     Object existMappingInfo = getHandlers().get(requestPath);
     if (existMappingInfo == null && getPathMatcher().isPattern(requestPath)) {
-      final List<PatternHandler> patternHandlers = getPatternHandlers();
+      List<PatternHandler> patternHandlers = getPatternHandlers();
       if (CollectionUtils.isNotEmpty(patternHandlers)) {
-        for (final PatternHandler patternHandler : patternHandlers) {
+        for (PatternHandler patternHandler : patternHandlers) {
           if (Objects.equals(patternHandler.getPattern(), requestPath)) {
             return patternHandler.getHandler();
           }
@@ -245,10 +230,10 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   @Override
   @SuppressWarnings("unchecked")
   protected Object lookupHandler(String requestPath, RequestContext context) {
-    final Object handler = super.lookupHandler(requestPath, context);
+    Object handler = super.lookupHandler(requestPath, context);
     if (handler != null) {
       if (handler instanceof AnnotationMappingInfo) {  // single MappingInfo
-        final AnnotationMappingInfo mappingInfo = (AnnotationMappingInfo) handler;
+        AnnotationMappingInfo mappingInfo = (AnnotationMappingInfo) handler;
         if (testMapping(mappingInfo, context)) {
           return mappingInfo.getHandler();
         }
@@ -256,7 +241,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         return null;
       }
       else if (handler instanceof List) { // list of MappingInfo
-        for (final AnnotationMappingInfo mappingInfo : ((List<AnnotationMappingInfo>) handler)) {
+        for (AnnotationMappingInfo mappingInfo : ((List<AnnotationMappingInfo>) handler)) {
           if (testMapping(mappingInfo, context)) {
             return mappingInfo.getHandler();
           }
@@ -268,13 +253,13 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     return handler;
   }
 
-  protected boolean testMapping(final AnnotationMappingInfo mappingInfo, final RequestContext context) {
+  protected boolean testMapping(AnnotationMappingInfo mappingInfo, RequestContext context) {
     // test request method
-    final HttpMethod[] supportedMethods = mappingInfo.method();
+    HttpMethod[] supportedMethods = mappingInfo.method();
     if (supportedMethods != null) {
-      final String requestMethod = context.getMethod();
+      String requestMethod = context.getMethod();
       boolean matched = false;
-      for (final HttpMethod testMethod : supportedMethods) {
+      for (HttpMethod testMethod : supportedMethods) {
         if (testMethod.matches(requestMethod)) {
           matched = true;
           break;
@@ -286,19 +271,19 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     }
 
     // test contentType
-    final MediaType[] consumes = mappingInfo.consumes();
+    MediaType[] consumes = mappingInfo.consumes();
     if (consumes != null) {
-      final MimeType contentType = MimeType.valueOf(context.getContentType());
-      for (final MediaType consume : consumes) {
+      MimeType contentType = MimeType.valueOf(context.getContentType());
+      for (MediaType consume : consumes) {
         if (!consume.includes(contentType)) {
           return false;
         }
       }
     }
     // test params
-    final RequestParameter[] params = mappingInfo.params();
+    RequestParameter[] params = mappingInfo.params();
     if (params != null) {
-      for (final RequestParameter param : params) {
+      for (RequestParameter param : params) {
         if (!param.matches(context)) {
           return false;
         }
@@ -306,10 +291,10 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     }
 
     // test produces (Accept header)
-    final MediaType[] produces = mappingInfo.produces();
+    MediaType[] produces = mappingInfo.produces();
     if (produces != null) {
-      final List<MediaType> acceptedMediaTypes = context.requestHeaders().getAccept();
-      for (final MediaType produce : produces) {
+      List<MediaType> acceptedMediaTypes = context.requestHeaders().getAccept();
+      for (MediaType produce : produces) {
         if (!matchMediaType(produce, acceptedMediaTypes)) {
           return false;
         }
@@ -329,7 +314,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   private boolean matchParameters(MediaType accept, MediaType acceptedMediaType) {
-    for (final Map.Entry<String, String> entry : accept.getParameters().entrySet()) {
+    for (Map.Entry<String, String> entry : accept.getParameters().entrySet()) {
       String s1 = entry.getValue();
       String s2 = acceptedMediaType.getParameter(entry.getKey());
       if (StringUtils.hasText(s1) && StringUtils.hasText(s2) && !s1.equalsIgnoreCase(s2)) {

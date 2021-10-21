@@ -165,38 +165,6 @@ public abstract class AnnotationUtils {
   }
 
   /**
-   * Get attributes the 'key-value' of annotations
-   *
-   * @return a set of {@link AnnotationAttributes} never be null
-   * @since 2.1.7
-   */
-  public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
-          final AnnotationKey<T> key
-  ) {
-    return reader.getAttributesArray(key);
-  }
-
-  public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
-          final AnnotationAttributes annotation, final Class<T> target
-  ) {
-    return reader.searchAttributes(annotation, target);
-  }
-
-  /**
-   * Get target {@link AnnotationAttributes} on input annotation
-   *
-   * @param target The annotation class
-   * @param annotation The annotation instance
-   * @return {@link AnnotationAttributes} list never be null.
-   * @since 2.1.7
-   */
-  public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
-          final Annotation annotation, final Class<T> target
-  ) {
-    return reader.searchAttributes(annotation, target);
-  }
-
-  /**
    * Whether a {@link Annotation} present on {@link AnnotatedElement}
    *
    * @param <A> {@link Annotation} type

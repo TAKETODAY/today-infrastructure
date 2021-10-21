@@ -360,7 +360,7 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
    * if it is not of the expected type
    */
   @SuppressWarnings("unchecked")
-  <T> T getRequiredAttribute(String attributeName, Class<T> expectedType) {
+  public <T> T getRequiredAttribute(String attributeName, Class<T> expectedType) {
     Assert.hasText(attributeName, "'attributeName' must not be null or empty");
     Object value = get(attributeName);
     assertAttributePresence(attributeName, value);
