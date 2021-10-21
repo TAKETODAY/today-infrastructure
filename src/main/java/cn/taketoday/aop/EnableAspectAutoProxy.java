@@ -33,8 +33,8 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
 
@@ -70,7 +70,7 @@ class AutoProxyConfiguration implements BeanDefinitionImporter {
    */
   @MissingBean(type = ProxyCreator.class)
   static AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
-    final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
+    AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
 
     if (ObjectUtils.isNotEmpty(sourceCreators)) {
       proxyCreator.setTargetSourceCreators(sourceCreators);
@@ -80,11 +80,12 @@ class AutoProxyConfiguration implements BeanDefinitionImporter {
 
   @Override
   public void registerBeanDefinitions(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
-    final BeanDefinition proxyCreatorDef = registry.getBeanDefinition(ProxyCreator.class);
+    BeanDefinition proxyCreatorDef = registry.getBeanDefinition(ProxyCreator.class);
     Assert.state(proxyCreatorDef != null, "No ProxyCreator bean definition.");
 
     if (ProxyConfig.class.isAssignableFrom(proxyCreatorDef.getBeanClass())) {
-      final AnnotationAttributes aspectAutoProxy = AnnotationUtils.getAttributes(EnableAspectAutoProxy.class, annotatedMetadata);
+      AnnotationAttributes aspectAutoProxy = AnnotatedElementUtils.getMergedAnnotationAttributes(
+              annotatedMetadata, EnableAspectAutoProxy.class);
       if (aspectAutoProxy != null) {
         proxyCreatorDef.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));
         proxyCreatorDef.addPropertyValue("proxyTargetClass", aspectAutoProxy.getBoolean("proxyTargetClass"));

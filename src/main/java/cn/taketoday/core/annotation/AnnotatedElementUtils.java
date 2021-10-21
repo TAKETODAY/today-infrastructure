@@ -335,8 +335,8 @@ public abstract class AnnotatedElementUtils {
   @Nullable
   public static <A extends Annotation> A getMergedAnnotation(AnnotatedElement element, Class<A> annotationType) {
     // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(annotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(element)) {
+    if (AnnotationFilter.PLAIN.matches(annotationType)
+            || AnnotationsScanner.hasPlainJavaAnnotationsOnly(element)) {
       return element.getDeclaredAnnotation(annotationType);
     }
     // Exhaustive retrieval of merged annotations...

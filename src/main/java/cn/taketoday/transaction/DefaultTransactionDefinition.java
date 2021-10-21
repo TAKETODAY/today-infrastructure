@@ -21,8 +21,8 @@ package cn.taketoday.transaction;
 
 import java.io.Serializable;
 
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Constants;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 
 /**
  * @author TODAY <br>
@@ -60,9 +60,7 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
   private String qualifier;
   private Class<?>[] rollbackOn;
 
-  public DefaultTransactionDefinition() {
-
-  }
+  public DefaultTransactionDefinition() { }
 
   public DefaultTransactionDefinition(AnnotationAttributes attributes) {
     setTimeout(attributes.getNumber("timeout").intValue());
@@ -70,13 +68,13 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
     setReadOnly(attributes.getBoolean(READ_ONLY_MARKER));
     setQualifier(attributes.getString("txManager"));
 
-    final Class<?>[] rollbackOn = attributes.getAttribute("rollbackOn", Class[].class);
+    Class<?>[] rollbackOn = attributes.getClassArray("rollbackOn");
     setRollbackOn(rollbackOn);
 
-    final Isolation isolation = attributes.getEnum("isolation");
+    Isolation isolation = attributes.getEnum("isolation");
     setIsolationLevel(isolation.value());
 
-    final Propagation propagation = attributes.getEnum("propagation");
+    Propagation propagation = attributes.getEnum("propagation");
     setPropagationBehavior(propagation.value());
   }
 
