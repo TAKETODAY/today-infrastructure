@@ -16,6 +16,7 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
@@ -444,6 +445,16 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
       return (AnnotationAttributes) map;
     }
     return new AnnotationAttributes(map);
+  }
+
+  @Nullable
+  public static AnnotationAttributes fromMetadata(AnnotatedTypeMetadata metadata, Class<?> annotationClass) {
+    return fromMetadata(metadata, annotationClass.getName());
+  }
+
+  @Nullable
+  public static AnnotationAttributes fromMetadata(AnnotatedTypeMetadata metadata, String annotationClassName) {
+    return AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(annotationClassName, false));
   }
 
 }
