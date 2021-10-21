@@ -22,7 +22,9 @@ package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import jakarta.annotation.Priority;
+import javax.annotation.Priority;
+
+import cn.taketoday.core.Order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

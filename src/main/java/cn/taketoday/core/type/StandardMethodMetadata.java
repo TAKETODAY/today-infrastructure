@@ -16,6 +16,10 @@
 
 package cn.taketoday.core.type;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -23,10 +27,6 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Map;
 
 /**
  * {@link MethodMetadata} implementation that uses standard reflection
@@ -51,9 +51,7 @@ public class StandardMethodMetadata implements MethodMetadata {
    * Create a new StandardMethodMetadata wrapper for the given Method.
    *
    * @param introspectedMethod the Method to introspect
-   * @deprecated since 4.0 in favor of obtaining instances via {@link AnnotationMetadata}
    */
-  @Deprecated
   public StandardMethodMetadata(Method introspectedMethod) {
     this(introspectedMethod, false);
   }
@@ -68,9 +66,7 @@ public class StandardMethodMetadata implements MethodMetadata {
    * @param nestedAnnotationsAsMap return nested annotations and annotation arrays as
    * {@link cn.taketoday.core.annotation.AnnotationAttributes} for compatibility
    * with ASM-based {@link AnnotationMetadata} implementations
-   * @deprecated since 4.0 in favor of obtaining instances via {@link AnnotationMetadata}
    */
-  @Deprecated
   public StandardMethodMetadata(Method introspectedMethod, boolean nestedAnnotationsAsMap) {
     Assert.notNull(introspectedMethod, "Method must not be null");
     this.introspectedMethod = introspectedMethod;
@@ -136,8 +132,8 @@ public class StandardMethodMetadata implements MethodMetadata {
     if (this.nestedAnnotationsAsMap) {
       return MethodMetadata.super.getAnnotationAttributes(annotationName, classValuesAsString);
     }
-    return AnnotatedElementUtils.getMergedAnnotationAttributes(this.introspectedMethod,
-            annotationName, classValuesAsString, false);
+    return AnnotatedElementUtils.getMergedAnnotationAttributes(
+            this.introspectedMethod, annotationName, classValuesAsString, false);
   }
 
   @Override

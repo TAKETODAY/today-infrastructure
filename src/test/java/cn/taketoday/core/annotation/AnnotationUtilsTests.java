@@ -923,7 +923,7 @@ class AnnotationUtilsTests {
 		Map<String, Object> map = Collections.singletonMap(VALUE, 42L);
 		assertThatIllegalStateException().isThrownBy(() ->
 				synthesizeAnnotation(map, Component.class, null).value())
-			.withMessageContaining("Attribute 'value' in annotation org.springframework.core.testfixture.stereotype.Component "
+			.withMessageContaining("Attribute 'value' in annotation cn.taketoday.core.testfixture.stereotype.Component "
 					+ "should be compatible with java.lang.String but a java.lang.Long value was returned");
 	}
 
@@ -1323,7 +1323,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.web.bind.annotation.RequestMapping}.
+	 * Mock of {@code cn.taketoday.web.bind.annotation.RequestMapping}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface WebMapping {
@@ -1340,7 +1340,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.web.bind.annotation.GetMapping}, except
+	 * Mock of {@code cn.taketoday.web.bind.annotation.GetMapping}, except
 	 * that the String arrays are overridden with single String elements.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -1355,7 +1355,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.web.bind.annotation.PostMapping}, except
+	 * Mock of {@code cn.taketoday.web.bind.annotation.PostMapping}, except
 	 * that the path is overridden by convention with single String element.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -1401,7 +1401,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.test.context.ContextConfiguration}.
+	 * Mock of {@code cn.taketoday.test.context.ContextConfiguration}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface ContextConfig {
@@ -1416,7 +1416,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.test.context.ContextHierarchy}.
+	 * Mock of {@code cn.taketoday.test.context.ContextHierarchy}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface Hierarchy {
@@ -1764,7 +1764,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.context.annotation.ComponentScan}.
+	 * Mock of {@code cn.taketoday.context.annotation.ComponentScan}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface ComponentScan {
@@ -1776,7 +1776,7 @@ class AnnotationUtilsTests {
 	}
 
 	/**
-	 * Mock of {@code org.springframework.context.annotation.ComponentScan}.
+	 * Mock of {@code cn.taketoday.context.annotation.ComponentScan}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface ComponentScanSingleFilter {

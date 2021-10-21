@@ -27,7 +27,7 @@ package cn.taketoday.core.type;
  * @see StandardMethodMetadata
  * @see AnnotationMetadata#getAnnotatedMethods
  * @see AnnotatedTypeMetadata
- * @since 3.0
+ * @since 4.0
  */
 public interface MethodMetadata extends AnnotatedTypeMetadata {
 
@@ -43,8 +43,6 @@ public interface MethodMetadata extends AnnotatedTypeMetadata {
 
   /**
    * Get the fully-qualified name of the underlying method's declared return type.
-   *
-   * @since 4.2
    */
   String getReturnTypeName();
 
@@ -52,8 +50,6 @@ public interface MethodMetadata extends AnnotatedTypeMetadata {
    * Determine whether the underlying method is effectively abstract:
    * i.e. marked as abstract in a class or declared as a regular,
    * non-default method in an interface.
-   *
-   * @since 4.2
    */
   boolean isAbstract();
 

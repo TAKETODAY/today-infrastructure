@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -103,16 +103,16 @@ public class MissingBeanRegistry {
     register(def);
   }
 
-  public void registerMissing(AnnotationAttributes missingBean, ClassNode classNode) {
+  public void registerMissing(AnnotationAttributes missingBean, MetadataReader classNode) {
     missingInfos.add(new ScannedMissingInfo(classNode, missingBean));
   }
 
   static class ScannedMissingInfo {
-    final ClassNode classNode;
+    final MetadataReader metadata;
     final AnnotationAttributes missingBean;
 
-    ScannedMissingInfo(ClassNode classNode, AnnotationAttributes missingBean) {
-      this.classNode = classNode;
+    ScannedMissingInfo(MetadataReader metadata, AnnotationAttributes missingBean) {
+      this.metadata = metadata;
       this.missingBean = missingBean;
     }
   }

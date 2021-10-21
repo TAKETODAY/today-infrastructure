@@ -102,8 +102,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     if (annotationFilter.matches(annotationType)) {
       return false;
     }
-    return Boolean.TRUE.equals(scan(annotationType,
-                                    IsPresent.get(repeatableContainers, annotationFilter, false)));
+    return Boolean.TRUE.equals(scan(
+            annotationType, IsPresent.get(repeatableContainers, annotationFilter, false)));
   }
 
   @Override
@@ -111,8 +111,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     if (annotationFilter.matches(annotationType)) {
       return false;
     }
-    return Boolean.TRUE.equals(scan(annotationType,
-                                    IsPresent.get(repeatableContainers, annotationFilter, true)));
+    return Boolean.TRUE.equals(
+            scan(annotationType, IsPresent.get(repeatableContainers, annotationFilter, true)));
   }
 
   @Override
@@ -157,16 +157,17 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(String annotationType,
-                                                        @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
-
+  public <A extends Annotation> MergedAnnotation<A> get(
+          String annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
     return get(annotationType, predicate, null);
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(String annotationType,
-                                                        @Nullable Predicate<? super MergedAnnotation<A>> predicate,
-                                                        @Nullable MergedAnnotationSelector<A> selector) {
+  public <A extends Annotation> MergedAnnotation<A> get(
+          String annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
+          @Nullable MergedAnnotationSelector<A> selector) {
 
     if (annotationFilter.matches(annotationType)) {
       return MergedAnnotation.missing();
@@ -198,6 +199,16 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return Stream.empty();
     }
     return StreamSupport.stream(spliterator(), false);
+  }
+
+  @Override
+  public <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType) {
+    if (annotationFilter == AnnotationFilter.ALL) {
+      return new AnnotationAttributes[0];
+    }
+    return StreamSupport.stream(spliterator(annotationType), false)
+            .map(MergedAnnotation::asAnnotationAttributes)
+            .toArray(AnnotationAttributes[]::new);
   }
 
   @Override

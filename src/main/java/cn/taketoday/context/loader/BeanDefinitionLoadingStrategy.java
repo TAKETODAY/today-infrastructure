@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -36,6 +36,7 @@ import cn.taketoday.lang.Nullable;
 public interface BeanDefinitionLoadingStrategy {
 
   @Nullable
-  Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, DefinitionLoadingContext loadingContext);
+  Set<BeanDefinition> loadBeanDefinitions(
+          MetadataReader metadata, DefinitionLoadingContext loadingContext);
 
 }

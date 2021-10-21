@@ -23,12 +23,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
  * {@link Conditional} that only matches when the specified resources are exits
@@ -53,9 +54,13 @@ public @interface ConditionalOnResource {
 final class OnResourceCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    MergedAnnotation<ConditionalOnResource> conditionalOnResource
+            = metadata.getAnnotations().get(ConditionalOnResource.class);
+
+    String[] stringArray = conditionalOnResource.getStringArray(MergedAnnotation.VALUE);
     ApplicationContext resourceLoader = context.getContext();
-    for (final String resource : annotated.getAnnotation(ConditionalOnResource.class).value()) {
+    for (final String resource : stringArray) {
       if (!resourceLoader.getResource(resource).exists()) {
         return false;
       }

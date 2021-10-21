@@ -61,4 +61,9 @@ public class ConditionEvaluationContext {
   public ResourceLoader getResourceLoader() {
     return resourceLoader;
   }
+
+  public <T> T evaluateExpression(String expression, Class<T> booleanClass) {
+    return context.getExpressionEvaluator().evaluate(expression, booleanClass);
+  }
+
 }

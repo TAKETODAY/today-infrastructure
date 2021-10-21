@@ -23,12 +23,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.StringUtils;
 
@@ -65,20 +66,23 @@ public @interface ConditionalOnProperty {
 final class OnPropertyCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
-    ConditionalOnProperty conditionalOnProperty = annotated.getAnnotation(ConditionalOnProperty.class);
-    String prefix = conditionalOnProperty.prefix();
+  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+
+    MergedAnnotation<ConditionalOnProperty> conditionalOnProperty = metadata.getAnnotations()
+            .get(ConditionalOnProperty.class);
+
+    String prefix = conditionalOnProperty.getString("prefix");
 
     Environment environment = context.getEnvironment();
     if (StringUtils.isEmpty(prefix)) {
-      for (String key : conditionalOnProperty.value()) {
+      for (String key : conditionalOnProperty.getStringArray(MergedAnnotation.VALUE)) {
         if (!environment.containsProperty(key)) {
           return false;
         }
       }
     }
     else {
-      for (String key : conditionalOnProperty.value()) {
+      for (String key : conditionalOnProperty.getStringArray(MergedAnnotation.VALUE)) {
         if (!environment.containsProperty(prefix + key)) {
           return false;
         }

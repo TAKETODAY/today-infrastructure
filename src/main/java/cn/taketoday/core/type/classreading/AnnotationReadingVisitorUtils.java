@@ -41,9 +41,6 @@ import java.util.Set;
  * @author Phillip Webb
  * @author Sam Brannen
  * @since 4.0
- * @deprecated  this class and related classes in this
- * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
- * and related classes for internal use within the framework.
  */
 @Deprecated
 abstract class AnnotationReadingVisitorUtils {
@@ -122,7 +119,6 @@ abstract class AnnotationReadingVisitorUtils {
    * type to look for
    * @return the merged annotation attributes, or {@code null} if no
    * matching annotation is present in the {@code attributesMap}
-   * @since 4.0
    */
   @Nullable
   public static AnnotationAttributes getMergedAnnotationAttributes(

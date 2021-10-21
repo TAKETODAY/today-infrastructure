@@ -28,7 +28,6 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
@@ -43,10 +42,11 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
@@ -70,18 +70,18 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
 
   @Override
   public Set<BeanDefinition> loadBeanDefinitions(
-          ClassNode classNode, DefinitionLoadingContext loadingContext) {
+          MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     log.info("Loading Mybatis Mapper Bean Definitions");
 
-    if (!Modifier.isInterface(classNode.access)) {
+    if (!metadata.getClassMetadata().isInterface()) {
       return null;
     }
 
     // must be an interface
-
-    AnnotationAttributes attributes = ClassMetaReader.selectAttributes(classNode, Repository.class);
+    MergedAnnotations annotations = metadata.getAnnotationMetadata().getAnnotations();
+    AnnotationAttributes attributes = annotations.get(Repository.class).asAnnotationAttributes();
     if (attributes != null) {
-      String className = classNode.name;
+      String className = metadata.getAnnotationMetadata().getClassName();
       log.debug("Found Mapper: [{}]", className);
       String[] names = attributes.getStringArray(Constant.VALUE);
       String name = ObjectUtils.isNotEmpty(names)

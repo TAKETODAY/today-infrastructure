@@ -20,17 +20,28 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
@@ -38,13 +49,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.annotation.Controller;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -60,7 +64,9 @@ public class ScanningBeanDefinitionReader {
 
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
-  private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
+  @Nullable
+  private PatternResourceLoader resourceLoader;
+
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
 
@@ -68,17 +74,12 @@ public class ScanningBeanDefinitionReader {
 
   private final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
 
+  @Nullable
+  private MetadataReaderFactory metadataReaderFactory;
+
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
     this.registry = loadingContext.getRegistry();
     this.loadingContext = loadingContext;
-  }
-
-  public void setResourceLoader(PatternResourceLoader resourceLoader) {
-    this.resourceLoader = resourceLoader;
-  }
-
-  public PatternResourceLoader getResourceLoader() {
-    return resourceLoader;
   }
 
   /**
@@ -133,11 +134,12 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      Set<Resource> resources = resourceLoader.getResources(patternLocation);
+      Set<Resource> resources = getResourceLoader().getResources(patternLocation);
+      MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
       for (Resource resource : resources) {
-        if (isCandidateComponent(resource)) {
-          ClassNode classNode = ClassMetaReader.read(resource);
-          process(classNode);
+        MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
+        if (isCandidateComponent(metadataReader)) {
+          process(metadataReader);
         }
       }
     }
@@ -146,8 +148,24 @@ public class ScanningBeanDefinitionReader {
     }
   }
 
-  private boolean isCandidateComponent(Resource resource) {
-
+  /**
+   * Determine whether the given class does not match any exclude filter
+   * and does match at least one include filter.
+   *
+   * @param metadataReader the ASM ClassReader for the class
+   * @return whether the class qualifies as a candidate component
+   */
+  protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
+    for (TypeFilter tf : this.excludeFilters) {
+      if (tf.match(metadataReader, getMetadataReaderFactory())) {
+        return false;
+      }
+    }
+    for (TypeFilter tf : this.includeFilters) {
+      if (tf.match(metadataReader, getMetadataReaderFactory())) {
+        return isConditionMatch(metadataReader);
+      }
+    }
     return false;
   }
 
@@ -155,16 +173,15 @@ public class ScanningBeanDefinitionReader {
    * Determine whether the given class is a candidate component based on any
    * {@code @Conditional} annotations.
    *
-   * @param classNode the ASM ClassReader for the class
+   * @param metadataReader the ASM ClassReader for the class
    * @return whether the class qualifies as a candidate component
    */
-  private boolean isConditionMatch(ClassNode classNode) {
-    loadingContext.passCondition();
-    return;
+  private boolean isConditionMatch(MetadataReader metadataReader) {
+    return loadingContext.passCondition(metadataReader.getAnnotationMetadata());
   }
 
-  protected void process(ClassNode classNode) {
-    Set<BeanDefinition> beanDefinitions = scanningStrategies.loadBeanDefinitions(classNode, loadingContext);
+  protected void process(MetadataReader metadata) {
+    Set<BeanDefinition> beanDefinitions = scanningStrategies.loadBeanDefinitions(metadata, loadingContext);
     if (CollectionUtils.isNotEmpty(beanDefinitions)) {
       for (BeanDefinition beanDefinition : beanDefinitions) {
         registry.registerBeanDefinition(beanDefinition);
@@ -220,8 +237,8 @@ public class ScanningBeanDefinitionReader {
    * {@link Component @Component} meta-annotation including the
    * {@link Repository @Repository}, {@link Service @Service}, and
    * {@link Controller @Controller} stereotype annotations.
-   * <p>Also supports Jakarta EE's {@link jakarta.annotation.ManagedBean} and
-   * JSR-330's {@link jakarta.inject.Named} annotations, if available.
+   * <p>Also supports Java EE's {@link javax.annotation.ManagedBean} and
+   * {@link javax.inject.Named} annotations, if available.
    */
   @SuppressWarnings("unchecked")
   protected void registerDefaultFilters() {
@@ -229,20 +246,69 @@ public class ScanningBeanDefinitionReader {
     ClassLoader cl = getClass().getClassLoader();
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
-              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.annotation.ManagedBean", cl)), false));
-      log.trace("JSR-250 'jakarta.annotation.ManagedBean' found and supported for component scanning");
+              ((Class<? extends Annotation>) ClassUtils.forName("javax.annotation.ManagedBean", cl)), false));
+      log.trace("'javax.annotation.ManagedBean' found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-250 1.1 API (as included in Jakarta EE) not available - simply skip.
     }
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
-              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.inject.Named", cl)), false));
-      log.trace("JSR-330 'jakarta.inject.Named' annotation found and supported for component scanning");
+              ((Class<? extends Annotation>) ClassUtils.forName("javax.inject.Named", cl)), false));
+      log.trace("'javax.inject.Named' annotation found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-330 API not available - simply skip.
     }
+  }
+
+  /**
+   * Set the {@link ResourceLoader} to use for resource locations.
+   * This will typically be a {@link PatternResourceLoader} implementation.
+   * <p>Default is a {@code PathMatchingResourcePatternResolver}, also capable of
+   * resource pattern resolving through the {@code ResourcePatternResolver} interface.
+   *
+   * @see PatternResourceLoader
+   * @see PathMatchingPatternResourceLoader
+   */
+  public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
+    this.resourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
+    this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
+  }
+
+  public PatternResourceLoader getResourceLoader() {
+    return getResourcePatternResolver();
+  }
+
+  /**
+   * Return the ResourceLoader that this component provider uses.
+   */
+  private PatternResourceLoader getResourcePatternResolver() {
+    if (this.resourceLoader == null) {
+      this.resourceLoader = new PathMatchingPatternResourceLoader();
+    }
+    return this.resourceLoader;
+  }
+
+  /**
+   * Set the {@link MetadataReaderFactory} to use.
+   * <p>Default is a {@link CachingMetadataReaderFactory} for the specified
+   * {@linkplain #setResourceLoader resource loader}.
+   * <p>Call this setter method <i>after</i> {@link #setResourceLoader} in order
+   * for the given MetadataReaderFactory to override the default factory.
+   */
+  public void setMetadataReaderFactory(MetadataReaderFactory metadataReaderFactory) {
+    this.metadataReaderFactory = metadataReaderFactory;
+  }
+
+  /**
+   * Return the MetadataReaderFactory used by this component provider.
+   */
+  public final MetadataReaderFactory getMetadataReaderFactory() {
+    if (this.metadataReaderFactory == null) {
+      this.metadataReaderFactory = new CachingMetadataReaderFactory();
+    }
+    return this.metadataReaderFactory;
   }
 
   /**

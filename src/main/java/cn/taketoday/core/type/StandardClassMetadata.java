@@ -16,12 +16,12 @@
 
 package cn.taketoday.core.type;
 
+import java.lang.reflect.Modifier;
+import java.util.LinkedHashSet;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashSet;
 
 /**
  * {@link ClassMetadata} implementation that uses standard reflection
@@ -39,9 +39,7 @@ public class StandardClassMetadata implements ClassMetadata {
    * Create a new StandardClassMetadata wrapper for the given Class.
    *
    * @param introspectedClass the Class to introspect
-   * @deprecated since 4.0 in favor of {@link StandardAnnotationMetadata}
    */
-  @Deprecated
   public StandardClassMetadata(Class<?> introspectedClass) {
     Assert.notNull(introspectedClass, "Class must not be null");
     this.introspectedClass = introspectedClass;
@@ -81,9 +79,14 @@ public class StandardClassMetadata implements ClassMetadata {
 
   @Override
   public boolean isIndependent() {
-    return (!hasEnclosingClass() ||
-            (this.introspectedClass.getDeclaringClass() != null &&
-                    Modifier.isStatic(this.introspectedClass.getModifiers())));
+    return !hasEnclosingClass()
+            || (this.introspectedClass.getDeclaringClass() != null
+            && Modifier.isStatic(this.introspectedClass.getModifiers()));
+  }
+
+  @Override
+  public int getModifiers() {
+    return introspectedClass.getModifiers();
   }
 
   @Override

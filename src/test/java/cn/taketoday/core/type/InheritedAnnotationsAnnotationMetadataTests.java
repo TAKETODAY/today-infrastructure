@@ -21,10 +21,11 @@
 package cn.taketoday.core.type;
 
 import org.junit.jupiter.api.Test;
+
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
-import cn.taketoday.util.MultiValueMap;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

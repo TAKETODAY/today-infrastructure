@@ -19,10 +19,9 @@
  */
 package cn.taketoday.context.condition;
 
-import java.lang.reflect.AnnotatedElement;
-
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
  * @author TODAY <br>
@@ -31,7 +30,7 @@ import cn.taketoday.context.loader.ConditionEvaluationContext;
 public class WindowsCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     String system = context.getEnvironment().getProperty("os.name");
     return system != null && system.contains("Windows");
   }

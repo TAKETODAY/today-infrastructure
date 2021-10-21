@@ -21,7 +21,6 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,12 +28,10 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Component;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/10/10 22:20
@@ -50,25 +47,18 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStr
 
   @Override
   public Set<BeanDefinition> loadBeanDefinitions(
-          ClassNode classNode, DefinitionLoadingContext loadingContext) {
-    if (Modifier.isAbstract(classNode.access) || Modifier.isInterface(classNode.access)) {
-      return null;
-    }
-    // TODO lazy class loading
-
-    String className = ClassUtils.convertResourcePathToClassName(classNode.name);
-    Class<?> aClass = ClassUtils.resolveClassName(className, null);
+          MetadataReader metadata, DefinitionLoadingContext loadingContext) {
+    AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
 
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
     for (Class<? extends Annotation> annotationType : annotationTypes) {
-      AnnotationAttributes[] annotations = AnnotatedElementUtils.getMergedAttributesArray(aClass, annotationType);
-
-      if (ObjectUtils.isNotEmpty(annotations)) {
+      if (annotationMetadata.isAnnotated(annotationType.getName())) {
+        AnnotationAttributes[] annotations = annotationMetadata.getAnnotations().getAttributes(annotationType);
         for (AnnotationAttributes attributes : annotations) {
           BeanDefinitionBuilder builder = loadingContext.createBuilder();
-          builder.beanClass(aClass);
+          builder.beanClassName(annotationMetadata.getClassName());
           builder.attributes(attributes);
-          builder.build(loadingContext.createBeanName(className), definitions::add);
+          builder.build(loadingContext.createBeanName(annotationMetadata.getClassName()), definitions::add);
         }
       }
     }

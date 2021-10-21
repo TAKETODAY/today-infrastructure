@@ -21,91 +21,91 @@
 package cn.taketoday.core.type;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.testfixture.stereotype.Component;
+
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
+import cn.taketoday.lang.Component;
+import type.InheritedAnnotation;
+import type.NonInheritedAnnotation;
 
-import example.type.AnnotationTypeFilterTestsTypes;
-import example.type.InheritedAnnotation;
-import example.type.NonInheritedAnnotation;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Ramnivas Laddad
  * @author Juergen Hoeller
  * @author Oliver Gierke
  * @author Sam Brannen
- * @see AnnotationTypeFilterTestsTypes
  */
 class AnnotationTypeFilterTests {
 
-	@Test
-	void directAnnotationMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeComponent";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void directAnnotationMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeComponent";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void inheritedAnnotationFromInterfaceDoesNotMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void inheritedAnnotationFromInterfaceDoesNotMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
-		// Must fail as annotation on interfaces should not be considered a match
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isFalse();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
+    // Must fail as annotation on interfaces should not be considered a match
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isFalse();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void inheritedAnnotationFromBaseClassDoesMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeComponent";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void inheritedAnnotationFromBaseClassDoesMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeComponent";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void nonInheritedAnnotationDoesNotMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeClassMarkedWithNonInheritedAnnotation";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void nonInheritedAnnotationDoesNotMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeClassMarkedWithNonInheritedAnnotation";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AnnotationTypeFilter filter = new AnnotationTypeFilter(NonInheritedAnnotation.class);
-		// Must fail as annotation isn't inherited
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isFalse();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AnnotationTypeFilter filter = new AnnotationTypeFilter(NonInheritedAnnotation.class);
+    // Must fail as annotation isn't inherited
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isFalse();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void nonAnnotatedClassDoesntMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeNonCandidateClass";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void nonAnnotatedClassDoesntMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeNonCandidateClass";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AnnotationTypeFilter filter = new AnnotationTypeFilter(Component.class);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isFalse();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AnnotationTypeFilter filter = new AnnotationTypeFilter(Component.class);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isFalse();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void matchesInterfacesIfConfigured() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void matchesInterfacesIfConfigured() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "example.type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class, false, true);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class, false, true);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
 }

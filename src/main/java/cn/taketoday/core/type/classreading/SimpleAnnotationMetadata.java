@@ -16,15 +16,15 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
-
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * {@link AnnotationMetadata} created from a
@@ -59,9 +59,10 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
   @Nullable
   private Set<String> annotationTypes;
 
-  SimpleAnnotationMetadata(String className, int access, @Nullable String enclosingClassName,
-                           @Nullable String superClassName, boolean independentInnerClass, String[] interfaceNames,
-                           String[] memberClassNames, MethodMetadata[] annotatedMethods, MergedAnnotations annotations) {
+  SimpleAnnotationMetadata(
+          String className, int access, @Nullable String enclosingClassName,
+          @Nullable String superClassName, boolean independentInnerClass, String[] interfaceNames,
+          String[] memberClassNames, MethodMetadata[] annotatedMethods, MergedAnnotations annotations) {
 
     this.className = className;
     this.access = access;
@@ -97,6 +98,11 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
   @Override
   public boolean isFinal() {
     return (this.access & Opcodes.ACC_FINAL) != 0;
+  }
+
+  @Override
+  public int getModifiers() {
+    return access;
   }
 
   @Override

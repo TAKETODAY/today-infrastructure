@@ -16,9 +16,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -26,6 +23,9 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Provides access to a collection of merged annotations, usually obtained
@@ -216,7 +216,9 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see MergedAnnotationSelectors
    */
   <A extends Annotation> MergedAnnotation<A> get(
-          Class<A> annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate, @Nullable MergedAnnotationSelector<A> selector);
+          Class<A> annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
+          @Nullable MergedAnnotationSelector<A> selector);
 
   /**
    * Get the {@linkplain MergedAnnotationSelectors#nearest() nearest} matching
@@ -260,7 +262,9 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see MergedAnnotationSelectors
    */
   <A extends Annotation> MergedAnnotation<A> get(
-          String annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate, @Nullable MergedAnnotationSelector<A> selector);
+          String annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
+          @Nullable MergedAnnotationSelector<A> selector);
 
   /**
    * Stream all annotations and meta-annotations that match the specified
@@ -294,6 +298,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a stream of annotations
    */
   Stream<MergedAnnotation<Annotation>> stream();
+
+  <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType);
 
   /**
    * Create a new {@link MergedAnnotations} instance containing all

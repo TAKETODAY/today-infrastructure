@@ -485,7 +485,7 @@ public class BeanDefinitionReader {
   /**
    * @param annotated should AnnotatedElement skip register to registry?
    */
-  protected boolean shouldSkip(AnnotatedElement annotated) {
+  protected boolean shouldSkip(Class<?> annotated) {
     return enableConditionEvaluation && !conditionEvaluator().passCondition(annotated);
   }
 

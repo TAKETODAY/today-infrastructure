@@ -16,6 +16,13 @@
 
 package cn.taketoday.core.type;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -25,13 +32,6 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * {@link AnnotationMetadata} implementation that uses standard reflection
@@ -58,9 +58,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
    *
    * @param introspectedClass the Class to introspect
    * @see #StandardAnnotationMetadata(Class, boolean)
-   * @deprecated since 4.0 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}
    */
-  @Deprecated
   public StandardAnnotationMetadata(Class<?> introspectedClass) {
     this(introspectedClass, false);
   }
@@ -76,15 +74,14 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
    * {@link cn.taketoday.core.annotation.AnnotationAttributes} for compatibility
    * with ASM-based {@link AnnotationMetadata} implementations
    * @deprecated since 4.0 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}.
-   * Use {@link MergedAnnotation#asMap(cn.taketoday.core.annotation.MergedAnnotation.Adapt...) MergedAnnotation.asMap}
+   * Use {@link MergedAnnotation#asMap(MergedAnnotation.Adapt...) MergedAnnotation.asMap}
    * from {@link #getAnnotations()} rather than {@link #getAnnotationAttributes(String)}
    * if {@code nestedAnnotationsAsMap} is {@code false}
    */
-  @Deprecated
   public StandardAnnotationMetadata(Class<?> introspectedClass, boolean nestedAnnotationsAsMap) {
     super(introspectedClass);
-    this.mergedAnnotations = MergedAnnotations.from(introspectedClass,
-            SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none());
+    this.mergedAnnotations = MergedAnnotations.from(
+            introspectedClass, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none());
     this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;
   }
 
@@ -135,7 +132,8 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
         }
       }
       catch (Throwable ex) {
-        throw new IllegalStateException("Failed to introspect annotated methods on " + getIntrospectedClass(), ex);
+        throw new IllegalStateException(
+                "Failed to introspect annotated methods on " + getIntrospectedClass(), ex);
       }
     }
     return false;
@@ -144,7 +142,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
   @Override
   @SuppressWarnings("deprecation")
   public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
-    Set<MethodMetadata> annotatedMethods = null;
+    LinkedHashSet<MethodMetadata> annotatedMethods = null;
     if (AnnotationUtils.isCandidateClass(getIntrospectedClass(), annotationName)) {
       try {
         Method[] methods = ReflectionUtils.getDeclaredMethods(getIntrospectedClass());
@@ -158,7 +156,8 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
         }
       }
       catch (Throwable ex) {
-        throw new IllegalStateException("Failed to introspect annotated methods on " + getIntrospectedClass(), ex);
+        throw new IllegalStateException(
+                "Failed to introspect annotated methods on " + getIntrospectedClass(), ex);
       }
     }
     return annotatedMethods != null ? annotatedMethods : Collections.emptySet();

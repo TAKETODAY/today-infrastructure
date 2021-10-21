@@ -118,7 +118,8 @@ class TypeMappedAnnotationTests {
 		MergedAnnotation<?> annotation = TypeMappedAnnotation.of(null, null, ClassAttributes.class,
 				Collections.singletonMap("classArrayValue", new String[] { InputStream.class.getName() }));
 		assertThat(annotation.getStringArray("classArrayValue")).containsExactly(InputStream.class.getName());
-		assertThat(annotation.getClassArray("classArrayValue")).containsExactly(InputStream.class);
+		Class<?>[] classArrayValues = annotation.getClassArray("classArrayValue");
+		assertThat(classArrayValues).containsExactly(InputStream.class);
 	}
 
 	private <A extends Annotation> TypeMappedAnnotation<A> getTypeMappedAnnotation(

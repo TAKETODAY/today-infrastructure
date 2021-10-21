@@ -84,6 +84,8 @@ public class BeanDefinitionBuilder {
   private String name;
   /** bean class. */
   private Class<?> beanClass;
+
+  private String beanClassName;
   /** bean scope. */
   private String scope;
 
@@ -177,6 +179,11 @@ public class BeanDefinitionBuilder {
 
   public BeanDefinitionBuilder primary(boolean primary) {
     this.primary = primary;
+    return this;
+  }
+
+  public BeanDefinitionBuilder beanClassName(String beanClassName) {
+    this.beanClassName = beanClassName;
     return this;
   }
 

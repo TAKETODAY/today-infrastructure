@@ -23,12 +23,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
  * annotation for a conditional element that depends on the value of a Java
@@ -55,9 +55,11 @@ public @interface ConditionalOnExpression {
 final class OnExpressionCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
-    ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context.getContext());
-    final String expression = annotated.getAnnotation(ConditionalOnExpression.class).value();
-    return expressionEvaluator.evaluate(expression, boolean.class);
+  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    String expression = metadata.getAnnotations()
+            .get(ConditionalOnExpression.class)
+            .getString(MergedAnnotation.VALUE);
+    return context.evaluateExpression(expression, boolean.class);
   }
+
 }

@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.type;
 
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 
 /**
  * Interface that defines abstract access to the annotations of a specific
@@ -96,8 +96,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
    * @return {@code true} if a matching meta-annotation is present
    */
   default boolean hasMetaAnnotation(String metaAnnotationName) {
-    return getAnnotations().get(metaAnnotationName,
-            MergedAnnotation::isMetaPresent).isPresent();
+    return getAnnotations().get(metaAnnotationName, MergedAnnotation::isMetaPresent).isPresent();
   }
 
   /**

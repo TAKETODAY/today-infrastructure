@@ -20,17 +20,19 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.lang.Assert;
-
-import java.lang.reflect.AnnotatedElement;
 
 /**
  * Condition Evaluation
@@ -53,14 +55,13 @@ public class ConditionEvaluator {
    * @return if the item should be skipped
    */
   public boolean passCondition(AnnotatedTypeMetadata metadata) {
-    MergedAnnotation<Conditional> annotation = metadata.getAnnotations().get(Conditional.class);
-    if (annotation.isPresent()) {
-      Class<? extends Condition>[] classArray = annotation.getClassArray(MergedAnnotation.VALUE);
+    AnnotationAttributes[] attributes = metadata.getAnnotations().getAttributes(Conditional.class);
+    for (AnnotationAttributes attribute : attributes) {
+      Class<? extends Condition>[] classArray = attribute.getClassArray(MergedAnnotation.VALUE);
       return passCondition(metadata, classArray);
     }
     return true;
   }
-
 
   /**
    * Decide whether to load the bean
@@ -68,16 +69,15 @@ public class ConditionEvaluator {
    * @param annotated Target class or a method
    * @return If matched
    */
-  public boolean passCondition(AnnotatedElement annotated) {
-    MergedAnnotations from = MergedAnnotations.from(annotated, MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS);
-    MergedAnnotation<Conditional> annotation = MergedAnnotation.of(annotated, Conditional.class, null);
-    if (annotation.isPresent()) {
-      Class<? extends Condition>[] classArray = annotation.getClassArray(MergedAnnotation.VALUE);
-      return passCondition(metadata, classArray);
-    }
-    return true;
+  public boolean passCondition(Class<?> annotated) {
+    AnnotationMetadata introspect = AnnotationMetadata.introspect(annotated);
+    return passCondition(introspect);
   }
 
+  public boolean passCondition(Method annotated) {
+    StandardMethodMetadata standardMethodMetadata = new StandardMethodMetadata(annotated);
+    return passCondition(standardMethodMetadata);
+  }
 
   public boolean passCondition(
           AnnotatedTypeMetadata metadata,

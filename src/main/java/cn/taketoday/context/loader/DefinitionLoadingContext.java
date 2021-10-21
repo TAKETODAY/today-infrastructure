@@ -30,6 +30,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -124,7 +125,19 @@ public class DefinitionLoadingContext {
   }
 
   public boolean passCondition(AnnotatedElement annotated) {
-    return getConditionEvaluator().passCondition(annotated);
+    if (annotated instanceof Class) {
+      return getConditionEvaluator().passCondition((Class<?>) annotated);
+    }
+    else if (annotated instanceof Method) {
+      return getConditionEvaluator().passCondition((Method) annotated);
+    }
+    else {
+      throw new IllegalArgumentException("AnnotatedElement must be Method or Class");
+    }
+  }
+
+  public boolean passCondition(AnnotatedTypeMetadata metadata) {
+    return getConditionEvaluator().passCondition(metadata);
   }
 
   public void addApplicationListener(ApplicationListener<?> importer) {

@@ -21,10 +21,13 @@
 package cn.taketoday.core.type;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Ramnivas Laddad
@@ -32,49 +35,49 @@ import cn.taketoday.core.type.filter.AssignableTypeFilter;
  */
 class AssignableTypeFilterTests {
 
-	@Test
-	void directMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AssignableTypeFilterTestsTypes$TestNonInheritingClass";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void directMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "type.AssignableTypeFilterTestsTypes$TestNonInheritingClass";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AssignableTypeFilter matchingFilter = new AssignableTypeFilter(example.type.AssignableTypeFilterTestsTypes.TestNonInheritingClass.class);
-		AssignableTypeFilter notMatchingFilter = new AssignableTypeFilter(example.type.AssignableTypeFilterTestsTypes.TestInterface.class);
-		assertThat(notMatchingFilter.match(metadataReader, metadataReaderFactory)).isFalse();
-		assertThat(matchingFilter.match(metadataReader, metadataReaderFactory)).isTrue();
-	}
+    AssignableTypeFilter matchingFilter = new AssignableTypeFilter(type.AssignableTypeFilterTestsTypes.TestNonInheritingClass.class);
+    AssignableTypeFilter notMatchingFilter = new AssignableTypeFilter(type.AssignableTypeFilterTestsTypes.TestInterface.class);
+    assertThat(notMatchingFilter.match(metadataReader, metadataReaderFactory)).isFalse();
+    assertThat(matchingFilter.match(metadataReader, metadataReaderFactory)).isTrue();
+  }
 
-	@Test
-	void interfaceMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AssignableTypeFilterTestsTypes$TestInterfaceImpl";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void interfaceMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "type.AssignableTypeFilterTestsTypes$TestInterfaceImpl";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AssignableTypeFilter filter = new AssignableTypeFilter(example.type.AssignableTypeFilterTestsTypes.TestInterface.class);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AssignableTypeFilter filter = new AssignableTypeFilter(type.AssignableTypeFilterTestsTypes.TestInterface.class);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void superClassMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AssignableTypeFilterTestsTypes$SomeDaoLikeImpl";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void superClassMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "type.AssignableTypeFilterTestsTypes$SomeDaoLikeImpl";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AssignableTypeFilter filter = new AssignableTypeFilter(example.type.AssignableTypeFilterTestsTypes.SimpleJdbcDaoSupport.class);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AssignableTypeFilter filter = new AssignableTypeFilter(type.AssignableTypeFilterTestsTypes.SimpleJdbcDaoSupport.class);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
-	@Test
-	void interfaceThroughSuperClassMatch() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		String classUnderTest = "example.type.AssignableTypeFilterTestsTypes$SomeDaoLikeImpl";
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
+  @Test
+  void interfaceThroughSuperClassMatch() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    String classUnderTest = "type.AssignableTypeFilterTestsTypes$SomeDaoLikeImpl";
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
-		AssignableTypeFilter filter = new AssignableTypeFilter(example.type.AssignableTypeFilterTestsTypes.JdbcDaoSupport.class);
-		assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
-		ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
-	}
+    AssignableTypeFilter filter = new AssignableTypeFilter(type.AssignableTypeFilterTestsTypes.JdbcDaoSupport.class);
+    assertThat(filter.match(metadataReader, metadataReaderFactory)).isTrue();
+    ClassloadingAssertions.assertClassNotLoaded(classUnderTest);
+  }
 
 }

@@ -48,10 +48,6 @@ import java.util.Set;
  * @author Phillip Webb
  * @author Sam Brannen
  * @since 4.0
- * @deprecated this class has been replaced by
- * {@link SimpleAnnotationMetadataReadingVisitor} for internal use within the
- * framework, but there is no public replacement for
- * {@code AnnotationMetadataReadingVisitor}.
  */
 public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisitor implements AnnotationMetadata {
 

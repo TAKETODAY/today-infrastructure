@@ -22,19 +22,18 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.AnnotatedElement;
-
 import javax.annotation.PostConstruct;
 
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
-import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Value;
+import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Value;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,12 +72,12 @@ class AutowireCapableBeanFactoryTests {
   }
 
   static class AutowireTestBeanCondition implements Condition {
-
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedElement annotated) {
+    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
       final ApplicationContext.State state = context.getContext().getState();
       return state == ApplicationContext.State.NONE;
     }
+
   }
 
   @Conditional(AutowireTestBeanCondition.class)

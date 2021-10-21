@@ -16,6 +16,8 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.util.LinkedHashSet;
+
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassVisitor;
@@ -27,8 +29,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.util.LinkedHashSet;
 
 /**
  * ASM class visitor which looks only for the class name and implemented types,
@@ -57,6 +57,8 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
 
   private boolean isFinal;
 
+  private int access;
+
   @Nullable
   private String enclosingClassName;
 
@@ -73,14 +75,17 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
   public void visit(
           int version, int access, String name, String signature, @Nullable String supername, String[] interfaces) {
 
+    this.access = access;
     this.className = ClassUtils.convertResourcePathToClassName(name);
     this.isInterface = ((access & Opcodes.ACC_INTERFACE) != 0);
     this.isAnnotation = ((access & Opcodes.ACC_ANNOTATION) != 0);
     this.isAbstract = ((access & Opcodes.ACC_ABSTRACT) != 0);
     this.isFinal = ((access & Opcodes.ACC_FINAL) != 0);
+
     if (supername != null && !this.isInterface) {
       this.superClassName = ClassUtils.convertResourcePathToClassName(supername);
     }
+
     this.interfaces = new String[interfaces.length];
     for (int i = 0; i < interfaces.length; i++) {
       this.interfaces[i] = ClassUtils.convertResourcePathToClassName(interfaces[i]);
@@ -182,6 +187,11 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
   @Override
   public String[] getInterfaceNames() {
     return this.interfaces;
+  }
+
+  @Override
+  public int getModifiers() {
+    return access;
   }
 
   @Override

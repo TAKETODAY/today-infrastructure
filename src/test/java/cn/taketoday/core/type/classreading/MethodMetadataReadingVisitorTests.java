@@ -18,7 +18,8 @@ package cn.taketoday.core.type.classreading;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.asm.ClassReader;
+
+import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;

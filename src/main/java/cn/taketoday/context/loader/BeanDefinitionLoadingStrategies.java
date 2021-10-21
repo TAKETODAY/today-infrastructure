@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
@@ -47,10 +47,10 @@ public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStr
 
   @Override
   public Set<BeanDefinition> loadBeanDefinitions(
-          ClassNode classNode, DefinitionLoadingContext loadingContext) {
+          MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
     for (BeanDefinitionLoadingStrategy strategy : creationStrategies) {
-      Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(classNode, loadingContext);
+      Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(metadata, loadingContext);
       if (CollectionUtils.isNotEmpty(beanDefinitions)) {
         definitions.addAll(beanDefinitions);
       }

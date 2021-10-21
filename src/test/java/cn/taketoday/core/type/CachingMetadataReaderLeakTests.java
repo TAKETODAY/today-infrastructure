@@ -21,17 +21,17 @@
 package cn.taketoday.core.type;
 
 import org.junit.jupiter.api.Test;
+
+import java.net.URL;
+
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlResource;
-import cn.taketoday.core.testfixture.EnabledForTestGroups;
+import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 
-import java.net.URL;
-
+import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
-import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 
 /**
  * Unit tests for checking the behaviour of {@link CachingMetadataReaderFactory} under
@@ -44,37 +44,37 @@ import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 @EnabledForTestGroups(LONG_RUNNING)
 class CachingMetadataReaderLeakTests {
 
-	private static final int ITEMS_TO_LOAD = 9999;
+  private static final int ITEMS_TO_LOAD = 9999;
 
-	private final MetadataReaderFactory mrf = new CachingMetadataReaderFactory();
+  private final MetadataReaderFactory mrf = new CachingMetadataReaderFactory();
 
-	@Test
-	void significantLoad() throws Exception {
-		// the biggest public class in the JDK (>60k)
-		URL url = getClass().getResource("/java/awt/Component.class");
-		assertThat(url).isNotNull();
+  @Test
+  void significantLoad() throws Exception {
+    // the biggest public class in the JDK (>60k)
+    URL url = getClass().getResource("/java/awt/Component.class");
+    assertThat(url).isNotNull();
 
-		// look at a LOT of items
-		for (int i = 0; i < ITEMS_TO_LOAD; i++) {
-			Resource resource = new UrlResource(url) {
+    // look at a LOT of items
+    for (int i = 0; i < ITEMS_TO_LOAD; i++) {
+      Resource resource = new UrlBasedResource(url) {
 
-				@Override
-				public boolean equals(Object obj) {
-					return (obj == this);
-				}
+        @Override
+        public boolean equals(Object obj) {
+          return (obj == this);
+        }
 
-				@Override
-				public int hashCode() {
-					return System.identityHashCode(this);
-				}
-			};
+        @Override
+        public int hashCode() {
+          return System.identityHashCode(this);
+        }
+      };
 
-			MetadataReader reader = mrf.getMetadataReader(resource);
-			assertThat(reader).isNotNull();
-		}
+      MetadataReader reader = mrf.getMetadataReader(resource);
+      assertThat(reader).isNotNull();
+    }
 
-		// useful for profiling to take snapshots
-		// System.in.read();
-	}
+    // useful for profiling to take snapshots
+    // System.in.read();
+  }
 
 }

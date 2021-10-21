@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.core.bytecode.tree.ClassNode;
+import cn.taketoday.core.type.classreading.MetadataReader;
 
 /**
  * @author TODAY 2021/10/10 22:27
@@ -32,16 +32,16 @@ import cn.taketoday.core.bytecode.tree.ClassNode;
 public abstract class AbstractBeanDefinitionLoadingStrategy implements BeanDefinitionLoadingStrategy {
 
   @Override
-  public Set<BeanDefinition> loadBeanDefinitions(ClassNode classNode, DefinitionLoadingContext loadingContext) {
-    if (supports(classNode, loadingContext)) {
-      return loadInternal(classNode, loadingContext);
+  public Set<BeanDefinition> loadBeanDefinitions(MetadataReader metadata, DefinitionLoadingContext loadingContext) {
+    if (supports(metadata, loadingContext)) {
+      return loadInternal(metadata, loadingContext);
     }
     return null;
   }
 
   protected abstract boolean supports(
-          ClassNode classNode, DefinitionLoadingContext creationContext);
+          MetadataReader metadata, DefinitionLoadingContext creationContext);
 
   protected abstract Set<BeanDefinition> loadInternal(
-          ClassNode classNode, DefinitionLoadingContext creationContext);
+          MetadataReader metadata, DefinitionLoadingContext creationContext);
 }
