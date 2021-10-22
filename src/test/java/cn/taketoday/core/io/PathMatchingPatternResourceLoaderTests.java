@@ -48,7 +48,7 @@ class PathMatchingPatternResourceLoaderTests {
           "FileBasedResource.class", //
           "JarEntryResource.class", //
           "JarResource.class", //
-          "PathMatchingResourcePatternResolver.class", //
+          "PathMatchingPatternResourceLoader.class", //
           "InputStreamSource.class", //
           "Resource.class", //
           "ResourceFilter.class", //

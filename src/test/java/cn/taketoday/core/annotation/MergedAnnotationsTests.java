@@ -1180,9 +1180,11 @@ class MergedAnnotationsTests {
     assertThat(MergedAnnotations.from(NonInheritedAnnotationClass.class,
                                       SearchStrategy.INHERITED_ANNOTATIONS).get(
             Order.class).getAggregateIndex()).isEqualTo(0);
-    assertThat(MergedAnnotations.from(SubNonInheritedAnnotationClass.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
-            Order.class).getAggregateIndex()).isEqualTo(-1);
+    assertThat(
+            MergedAnnotations.from(
+                            SubNonInheritedAnnotationClass.class, SearchStrategy.INHERITED_ANNOTATIONS)
+                    .get(Order.class).getAggregateIndex()
+    ).isEqualTo(-1);
   }
 
   @Test
@@ -1386,7 +1388,7 @@ class MergedAnnotationsTests {
     Component synthesizedComponent = MergedAnnotation.from(component).synthesize();
     assertThat(synthesizedComponent).isNotNull();
     assertThat(synthesizedComponent).isEqualTo(component);
-    assertThat(synthesizedComponent.value()).isEqualTo("webController");
+    assertThat(synthesizedComponent.value()).contains("webController");
   }
 
   @Test
@@ -1696,7 +1698,7 @@ class MergedAnnotationsTests {
     MergedAnnotation<Component> annotation = MergedAnnotation.of(Component.class, map);
     Component synthesizedComponent = annotation.synthesize();
     assertThat(synthesizedComponent).isInstanceOf(SynthesizedAnnotation.class);
-    assertThat(synthesizedComponent.value()).isEqualTo("webController");
+    assertThat(synthesizedComponent.value()).contains("webController");
   }
 
   @Test
@@ -1839,8 +1841,8 @@ class MergedAnnotationsTests {
   }
 
   private void testMissingTextAttribute(Map<String, Object> attributes) {
-    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() ->
-                                                                               MergedAnnotation.of(AnnotationWithoutDefaults.class, attributes).synthesize().text())
+    assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> MergedAnnotation.of(AnnotationWithoutDefaults.class, attributes).synthesize().text())
             .withMessage("No value found for attribute named 'text' in merged annotation " +
                                  AnnotationWithoutDefaults.class.getName());
   }
@@ -1849,10 +1851,11 @@ class MergedAnnotationsTests {
   void synthesizeFromMapWithAttributeOfIncorrectType() throws Exception {
     Map<String, Object> map = Collections.singletonMap("value", 42L);
     MergedAnnotation<Component> annotation = MergedAnnotation.of(Component.class, map);
-    assertThatIllegalStateException().isThrownBy(() -> annotation.synthesize().value())
+    assertThatIllegalStateException()
+            .isThrownBy(() -> annotation.synthesize().value())
             .withMessage("Attribute 'value' in annotation " +
-                                 "cn.taketoday.core.testfixture.stereotype.Component should be " +
-                                 "compatible with java.lang.String but a java.lang.Long value was returned");
+                                 "cn.taketoday.core.lang.Component should be " +
+                                 "compatible with [Ljava.lang.String; but a java.lang.Long value was returned");
   }
 
   @Test
