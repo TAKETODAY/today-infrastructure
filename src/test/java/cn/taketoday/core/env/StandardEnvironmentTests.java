@@ -116,7 +116,7 @@ public class StandardEnvironmentTests {
 
   @Test
   void defaultProfilesContainsDefaultProfileByDefault() {
-    assertThat(environment.getDefaultProfiles().length).isEqualTo(1);
+    assertThat(environment.getDefaultProfiles()).hasSize(1);
     assertThat(environment.getDefaultProfiles()[0]).isEqualTo("default");
   }
 
@@ -125,7 +125,7 @@ public class StandardEnvironmentTests {
     environment.setActiveProfiles("local", "embedded");
     String[] activeProfiles = environment.getActiveProfiles();
     assertThat(activeProfiles).contains("local", "embedded");
-    assertThat(activeProfiles.length).isEqualTo(2);
+    assertThat(activeProfiles).hasSize(2);
   }
 
   @Test
@@ -170,17 +170,17 @@ public class StandardEnvironmentTests {
 
   @Test
   void addActiveProfile() {
-    assertThat(environment.getActiveProfiles().length).isEqualTo(0);
+    assertThat(environment.getActiveProfiles().length).isZero();
     environment.setActiveProfiles("local", "embedded");
     assertThat(environment.getActiveProfiles()).contains("local", "embedded");
-    assertThat(environment.getActiveProfiles().length).isEqualTo(2);
+    assertThat(environment.getActiveProfiles()).hasSize(2);
     environment.addActiveProfile("p1");
     assertThat(environment.getActiveProfiles()).contains("p1");
-    assertThat(environment.getActiveProfiles().length).isEqualTo(3);
+    assertThat(environment.getActiveProfiles()).hasSize(3);
     environment.addActiveProfile("p2");
     environment.addActiveProfile("p3");
     assertThat(environment.getActiveProfiles()).contains("p2", "p3");
-    assertThat(environment.getActiveProfiles().length).isEqualTo(5);
+    assertThat(environment.getActiveProfiles()).hasSize(5);
   }
 
   @Test
@@ -207,7 +207,7 @@ public class StandardEnvironmentTests {
   void defaultProfileWithCircularPlaceholder() {
     try {
       System.setProperty(KEY_DEFAULT_PROFILES, "${context.profiles.default}");
-      assertThatIllegalArgumentException().isThrownBy(() -> environment.getDefaultProfiles());
+      assertThatIllegalArgumentException().isThrownBy(environment::getDefaultProfiles);
     }
     finally {
       System.clearProperty(KEY_DEFAULT_PROFILES);
@@ -216,9 +216,9 @@ public class StandardEnvironmentTests {
 
   @Test
   void getActiveProfiles_systemPropertiesEmpty() {
-    assertThat(environment.getActiveProfiles().length).isEqualTo(0);
+    assertThat(environment.getActiveProfiles().length).isZero();
     System.setProperty(KEY_ACTIVE_PROFILES, "");
-    assertThat(environment.getActiveProfiles().length).isEqualTo(0);
+    assertThat(environment.getActiveProfiles().length).isZero();
     System.clearProperty(KEY_ACTIVE_PROFILES);
   }
 
@@ -247,14 +247,14 @@ public class StandardEnvironmentTests {
   void getDefaultProfiles() {
     assertThat(environment.getDefaultProfiles()).isEqualTo(new String[] { DEFAULT_PROFILE });
     environment.getPropertySources().addFirst(new MockPropertySource().withProperty(KEY_DEFAULT_PROFILES, "pd1"));
-    assertThat(environment.getDefaultProfiles().length).isEqualTo(1);
+    assertThat(environment.getDefaultProfiles()).hasSize(1);
     assertThat(Arrays.asList(environment.getDefaultProfiles())).contains("pd1");
   }
 
   @Test
   void setDefaultProfiles() {
     environment.setDefaultProfiles();
-    assertThat(environment.getDefaultProfiles().length).isEqualTo(0);
+    assertThat(environment.getDefaultProfiles().length).isZero();
     environment.setDefaultProfiles("pd1");
     assertThat(Arrays.asList(environment.getDefaultProfiles())).contains("pd1");
     environment.setDefaultProfiles("pd2", "pd3");
@@ -357,21 +357,21 @@ public class StandardEnvironmentTests {
   @Test
   void suppressGetenvAccessThroughSystemProperty() {
     System.setProperty("context.getenv.ignore", "true");
-    assertThat(environment.getSystemEnvironment().isEmpty()).isTrue();
+    assertThat(environment.getSystemEnvironment()).isEmpty();
     System.clearProperty("context.getenv.ignore");
   }
 
   @Test
   void suppressGetenvAccessThroughSpringProperty() {
     TodayStrategies.setProperty("context.getenv.ignore", "true");
-    assertThat(environment.getSystemEnvironment().isEmpty()).isTrue();
+    assertThat(environment.getSystemEnvironment()).isEmpty();
     TodayStrategies.setProperty("context.getenv.ignore", null);
   }
 
   @Test
   void suppressGetenvAccessThroughSpringFlag() {
     TodayStrategies.setFlag("context.getenv.ignore");
-    assertThat(environment.getSystemEnvironment().isEmpty()).isTrue();
+    assertThat(environment.getSystemEnvironment()).isEmpty();
     TodayStrategies.setProperty("context.getenv.ignore", null);
   }
 

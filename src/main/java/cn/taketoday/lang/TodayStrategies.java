@@ -25,11 +25,15 @@ import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.StrategiesReader;
 import cn.taketoday.core.YamlStrategiesReader;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * today-framework Strategies
- * <p>
- * General purpose factory loading mechanism for internal use within the framework.
+ * <p>General purpose factory loading mechanism for internal use within the framework.
+ * <p>Reads a {@code today.strategies} file from the root of the Spring library classpath,
+ * and also allows for programmatically setting properties through {@link #setProperty}.
+ * When checking a property, local entries are being checked first, then falling back
+ * to JVM-level system properties through a {@link System#getProperty} check.
  *
  * @author TODAY 2021/9/5 13:57
  * @since 4.0
@@ -79,7 +83,8 @@ public final class TodayStrategies extends StrategiesDetector {
    * otherwise
    */
   public static boolean getFlag(String key) {
-    return getDetector().getBoolean(key);
+    String property = getProperty(key);
+    return Boolean.parseBoolean(property);
   }
 
   /**
@@ -93,7 +98,8 @@ public final class TodayStrategies extends StrategiesDetector {
    * otherwise ,If there isn't a key returns defaultFlag
    */
   public static boolean getFlag(String key, boolean defaultFlag) {
-    return getDetector().getBoolean(key, defaultFlag);
+    String property = getProperty(key);
+    return StringUtils.isEmpty(property) ? defaultFlag : Boolean.parseBoolean(property);
   }
 
   /**
@@ -131,7 +137,18 @@ public final class TodayStrategies extends StrategiesDetector {
    */
   @Nullable
   public static String getProperty(String key) {
-    return getDetector().getFirst(key);
+    String value = getDetector().getFirst(key);
+
+    if (value == null) {
+      try {
+        value = System.getProperty(key);
+      }
+      catch (Throwable ex) {
+        System.err.println("Could not retrieve system property '" + key + "': " + ex);
+      }
+    }
+
+    return value;
   }
 
 }
