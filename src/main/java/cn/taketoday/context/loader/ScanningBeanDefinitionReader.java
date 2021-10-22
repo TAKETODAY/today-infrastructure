@@ -294,7 +294,7 @@ public class ScanningBeanDefinitionReader {
    * <p>Call this setter method <i>after</i> {@link #setResourceLoader} in order
    * for the given MetadataReaderFactory to override the default factory.
    */
-  public void setMetadataReaderFactory(MetadataReaderFactory metadataReaderFactory) {
+  public void setMetadataReaderFactory(@Nullable MetadataReaderFactory metadataReaderFactory) {
     this.metadataReaderFactory = metadataReaderFactory;
   }
 

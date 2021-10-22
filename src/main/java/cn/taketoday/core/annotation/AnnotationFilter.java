@@ -16,6 +16,9 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 
 /**
@@ -36,11 +39,24 @@ public interface AnnotationFilter {
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
-   * {@code java.lang} and {@code cn.taketoday.lang} packages
-   * and their subpackages.
+   * {@code java.lang} and {@code cn.taketoday.lang.Nullable},
+   * {@code cn.taketoday.lang.NonNull}
    * <p>This is the default filter in the {@link MergedAnnotations} model.
    */
-  AnnotationFilter PLAIN = packages("java.lang");
+  AnnotationFilter PLAIN = new AnnotationFilter() {
+
+    @Override
+    public boolean matches(Class<?> type) {
+      return type == Nullable.class
+              || type == NonNull.class
+              || matches(type.getName());
+    }
+
+    @Override
+    public boolean matches(String typeName) {
+      return typeName.startsWith("java.lang.");
+    }
+  };
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
