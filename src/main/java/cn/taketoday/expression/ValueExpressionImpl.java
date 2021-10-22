@@ -44,6 +44,8 @@ import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.parser.AstLiteralExpression;
 import cn.taketoday.expression.parser.Node;
 
+import java.util.Objects;
+
 /**
  * An <code>Expression</code> that can get or set a value.
  *
@@ -156,7 +158,7 @@ public final class ValueExpressionImpl extends ValueExpression {
 
   @Override
   public Object getValue(final ExpressionContext context) throws ExpressionException {
-    Object value = this.getNode().getValue(new EvaluationContext(context));
+    Object value = getNode().getValue(new EvaluationContext(context));
 
     if (value != null && expectedType != null) {
       try {
@@ -173,7 +175,7 @@ public final class ValueExpressionImpl extends ValueExpression {
 
   @Override
   public int hashCode() {
-    return getNode().hashCode();
+    return Objects.hash(expr, expectedType);
   }
 
   @Override

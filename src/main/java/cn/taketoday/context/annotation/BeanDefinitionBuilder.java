@@ -20,19 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
@@ -57,6 +44,19 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static cn.taketoday.lang.Constant.VALUE;
 
@@ -383,7 +383,10 @@ public class BeanDefinitionBuilder {
       }
       return factoryMethodDef;
     }
-    return new DefaultBeanDefinition(name, beanClass);
+    if (beanClass != null) {
+      return new DefaultBeanDefinition(name, beanClass);
+    }
+    return new DefaultBeanDefinition(name, beanClassName);
   }
 
   public BeanDefinition build() {
@@ -406,8 +409,7 @@ public class BeanDefinitionBuilder {
 
     LinkedHashSet<PropertySetter> propertySetters = null;
 
-    if (autowire) {
-      Assert.state(beanClass != null, "bean-class must not be null");
+    if (autowire && beanClass != null) {
       propertySetters = resolvePropertyValue(beanClass);
     }
 

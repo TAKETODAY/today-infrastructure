@@ -79,13 +79,13 @@ class ConditionalTests {
   // ------------------------------------------------
 
   @Singleton
-  @ConditionalOnExpression("${1+1==2}")
+  @ConditionalOnExpression("#{1+1==2}")
   public static class ConditionalExpression_ {
 
   }
 
   @Singleton
-  @ConditionalOnExpression("${1+1!=2}")
+  @ConditionalOnExpression("#{1+1!=2}")
   public static class ConditionalExpression__ {
 
   }

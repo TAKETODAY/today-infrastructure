@@ -19,18 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -53,6 +41,18 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -129,8 +129,8 @@ public class DefaultBeanDefinition
   /** @since 4.0  class name lazy load */
   private String className;
 
-  @Nullable
   /** source @since 4.0 source */
+  @Nullable
   private Object source;
 
   public DefaultBeanDefinition() { }
@@ -184,17 +184,22 @@ public class DefaultBeanDefinition
 
   @Override
   public Class<?> getBeanClass() {
-    if (beanClass == null) {
-      if (className != null) {
-        try {
-          beanClass = ClassUtils.forName(className);
-        }
-        catch (ClassNotFoundException e) {
-          throw ExceptionUtils.sneakyThrow(e);
-        }
+    if (beanClass == null && className != null) {
+      try {
+        beanClass = ClassUtils.forName(className);
+      }
+      catch (ClassNotFoundException e) {
+        throw ExceptionUtils.sneakyThrow(e);
       }
     }
     return beanClass;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean hasBeanClass() {
+    return beanClass != null;
   }
 
   public void setBeanClass(Class<?> beanClass) {

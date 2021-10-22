@@ -20,13 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -50,6 +43,12 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.annotation.Controller;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
 /**
  * @author TODAY 2021/10/2 23:38
  * @since 4.0
@@ -59,8 +58,6 @@ public class ScanningBeanDefinitionReader {
   static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
   private final BeanDefinitionRegistry registry;
-  /** @since 2.1.7 Scan candidates */
-  private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
@@ -80,6 +77,7 @@ public class ScanningBeanDefinitionReader {
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
     this.registry = loadingContext.getRegistry();
     this.loadingContext = loadingContext;
+    registerDefaultFilters();
   }
 
   /**
@@ -91,7 +89,7 @@ public class ScanningBeanDefinitionReader {
    */
   public int scanPackages(String... basePackages) throws BeanDefinitionStoreException {
     // Loading candidates components
-    log.info("Scanning candidates components from packages: '{}'", Arrays.toString(basePackages));
+    log.info("Scanning candidates components from packages: {}", Arrays.toString(basePackages));
 
     int beanDefinitionCount = registry.getBeanDefinitionCount();
     for (String location : basePackages) {
@@ -103,8 +101,7 @@ public class ScanningBeanDefinitionReader {
   }
 
   public void scanFromPackage(String packageName) {
-    String resourceToUse = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX +
-            resolveBasePackage(packageName) + '/' + this.resourcePattern;
+    String resourceToUse = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(packageName) + '/' + this.resourcePattern;
     doScanning(resourceToUse);
   }
 
