@@ -133,7 +133,7 @@ class PropsReaderTests {
 
     PropsReaderConfig bean = propsReader.read(declaredAnnotation, PropsReaderConfig.class);
     assertThat(bean).isNotNull();
-    assertThat(bean.description).isEqualTo("TODAY BLOG");
+    assertThat(bean.description).isEqualTo("TODAY BLOG 2");
     assertThat(bean.cdn).isEqualTo("https://cdn.taketoday.cn");
 
     assertThat(bean.nested).isNotNull();

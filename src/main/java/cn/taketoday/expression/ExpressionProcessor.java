@@ -40,11 +40,11 @@
 
 package cn.taketoday.expression;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * <p>
@@ -311,9 +311,10 @@ public class ExpressionProcessor {
     if (expression == null) {
       return "${null}";
     }
-    char firstChar = expression.charAt(0);
-    if (firstChar == '#' || firstChar == '$') {
-      return expression;
+    for (char c : expression.toCharArray()) {
+      if ('#' == c || '$' == c) {
+        return expression;
+      }
     }
     return "#{" + expression + '}';
   }
