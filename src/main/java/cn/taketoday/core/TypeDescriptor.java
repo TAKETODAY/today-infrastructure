@@ -274,7 +274,7 @@ public class TypeDescriptor implements Serializable {
    * @return the annotation, or {@code null} if no such annotation exists on this type descriptor
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-    return AnnotationUtils.getAnnotation(this.annotatedElement, annotationType);
+    return AnnotationUtils.findAnnotation(this.annotatedElement, annotationType);
   }
 
   /**

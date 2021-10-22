@@ -16,8 +16,20 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Indexed;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -36,20 +48,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.Resource;
-
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Indexed;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +96,7 @@ class MergedAnnotationsTests {
   @Test
   void streamWhenFromNonAnnotatedClass() {
     assertThat(MergedAnnotations.from(NonAnnotatedClass.class).
-                       stream(TransactionalComponent.class)).isEmpty();
+            stream(TransactionalComponent.class)).isEmpty();
   }
 
   @Test
@@ -113,19 +111,19 @@ class MergedAnnotationsTests {
     Stream<Class<?>> classes = MergedAnnotations.from(ComposedTransactionalComponent.class)
             .stream().map(MergedAnnotation::getType);
     assertThat(classes).containsExactly(TransactionalComponent.class,
-                                        Transactional.class, Component.class, Indexed.class);
+            Transactional.class, Component.class, Indexed.class);
   }
 
   @Test
   void isPresentWhenFromNonAnnotatedClass() {
     assertThat(MergedAnnotations.from(NonAnnotatedClass.class).
-                       isPresent(Transactional.class)).isFalse();
+            isPresent(Transactional.class)).isFalse();
   }
 
   @Test
   void isPresentWhenFromAnnotationClassWithMetaDepth0() {
     assertThat(MergedAnnotations.from(TransactionalComponent.class).
-                       isPresent(TransactionalComponent.class)).isFalse();
+            isPresent(TransactionalComponent.class)).isFalse();
   }
 
   @Test
@@ -259,7 +257,7 @@ class MergedAnnotationsTests {
   @Test
   void collectMultiValueMapFromClassWithLocalAnnotationThatShadowsAnnotationFromSuperclass() {
     MultiValueMap<String, Object> map = MergedAnnotations.from(DerivedTxConfig.class,
-                                                               SearchStrategy.INHERITED_ANNOTATIONS).stream(Transactional.class).collect(
+            SearchStrategy.INHERITED_ANNOTATIONS).stream(Transactional.class).collect(
             MergedAnnotationCollectors.toMultiValueMap());
     assertThat(map).contains(entry("value", Arrays.asList("DerivedTxConfig")));
   }
@@ -281,14 +279,14 @@ class MergedAnnotationsTests {
   @Test
   void getWithInheritedAnnotationsFromClassWithLocalAnnotation() {
     MergedAnnotation<?> annotation = MergedAnnotations.from(TxConfig.class,
-                                                            SearchStrategy.INHERITED_ANNOTATIONS).get(Transactional.class);
+            SearchStrategy.INHERITED_ANNOTATIONS).get(Transactional.class);
     assertThat(annotation.getString("value")).isEqualTo("TxConfig");
   }
 
   @Test
   void getWithInheritedAnnotationsFromClassWithLocalAnnotationThatShadowsAnnotationFromSuperclass() {
     MergedAnnotation<?> annotation = MergedAnnotations.from(DerivedTxConfig.class,
-                                                            SearchStrategy.INHERITED_ANNOTATIONS).get(Transactional.class);
+            SearchStrategy.INHERITED_ANNOTATIONS).get(Transactional.class);
     assertThat(annotation.getString("value")).isEqualTo("DerivedTxConfig");
   }
 
@@ -408,11 +406,11 @@ class MergedAnnotationsTests {
             SearchStrategy.INHERITED_ANNOTATIONS).get(
             ImplicitAliasesContextConfiguration.class);
     assertThat(annotation.getStringArray("groovyScripts")).containsExactly("A.xml",
-                                                                           "B.xml");
+            "B.xml");
     assertThat(annotation.getStringArray("xmlFiles")).containsExactly("A.xml",
-                                                                      "B.xml");
+            "B.xml");
     assertThat(annotation.getStringArray("locations")).containsExactly("A.xml",
-                                                                       "B.xml");
+            "B.xml");
     assertThat(annotation.getStringArray("value")).containsExactly("A.xml", "B.xml");
   }
 
@@ -453,7 +451,7 @@ class MergedAnnotationsTests {
 
   private void testGetWithInherited(Class<?> element, String... expected) {
     MergedAnnotation<?> annotation = MergedAnnotations.from(element,
-                                                            SearchStrategy.INHERITED_ANNOTATIONS).get(ContextConfiguration.class);
+            SearchStrategy.INHERITED_ANNOTATIONS).get(ContextConfiguration.class);
     assertThat(annotation.getStringArray("locations")).isEqualTo(expected);
     assertThat(annotation.getStringArray("value")).isEqualTo(expected);
     assertThat(annotation.getClassArray("classes")).isEmpty();
@@ -462,9 +460,9 @@ class MergedAnnotationsTests {
   @Test
   void getWithInheritedAnnotationsFromInvalidConventionBasedComposedAnnotation() {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotations.from(InvalidConventionBasedComposedContextConfigurationClass.class,
-                                                                                                                SearchStrategy.INHERITED_ANNOTATIONS)
-                                                                                                 .get(ContextConfiguration.class));
+            MergedAnnotations.from(InvalidConventionBasedComposedContextConfigurationClass.class,
+                            SearchStrategy.INHERITED_ANNOTATIONS)
+                    .get(ContextConfiguration.class));
   }
 
   @Test
@@ -531,7 +529,7 @@ class MergedAnnotationsTests {
     Method method = ConcreteClassWithInheritedAnnotation.class.getMethod(
             "handleFromInterface");
     MergedAnnotation<?> annotation = MergedAnnotations.from(method,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(Order.class);
+            SearchStrategy.TYPE_HIERARCHY).get(Order.class);
     assertThat(annotation.isPresent()).isTrue();
     assertThat(annotation.getAggregateIndex()).isEqualTo(1);
   }
@@ -540,7 +538,7 @@ class MergedAnnotationsTests {
   void getWithTypeHierarchyInheritedFromAbstractMethod() throws NoSuchMethodException {
     Method method = ConcreteClassWithInheritedAnnotation.class.getMethod("handle");
     MergedAnnotation<?> annotation = MergedAnnotations.from(method,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(Transactional.class);
+            SearchStrategy.TYPE_HIERARCHY).get(Transactional.class);
     assertThat(annotation.isPresent()).isTrue();
     assertThat(annotation.getAggregateIndex()).isEqualTo(1);
   }
@@ -550,7 +548,7 @@ class MergedAnnotationsTests {
     Method method = ConcreteClassWithInheritedAnnotation.class.getMethod(
             "handleParameterized", String.class);
     MergedAnnotation<?> annotation = MergedAnnotations.from(method,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(Transactional.class);
+            SearchStrategy.TYPE_HIERARCHY).get(Transactional.class);
     assertThat(annotation.isPresent()).isTrue();
     assertThat(annotation.getAggregateIndex()).isEqualTo(1);
   }
@@ -564,13 +562,13 @@ class MergedAnnotationsTests {
       }
     });
     Method bridgeMethod = methods.get(0).getReturnType().equals(Object.class) ?
-                          methods.get(0) : methods.get(1);
+            methods.get(0) : methods.get(1);
     Method bridgedMethod = methods.get(0).getReturnType().equals(Object.class) ?
-                           methods.get(1) : methods.get(0);
+            methods.get(1) : methods.get(0);
     assertThat(bridgeMethod.isBridge()).isTrue();
     assertThat(bridgedMethod.isBridge()).isFalse();
     MergedAnnotation<?> annotation = MergedAnnotations.from(bridgeMethod,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(Order.class);
+            SearchStrategy.TYPE_HIERARCHY).get(Order.class);
     assertThat(annotation.isPresent()).isTrue();
     assertThat(annotation.getAggregateIndex()).isEqualTo(0);
   }
@@ -643,7 +641,7 @@ class MergedAnnotationsTests {
 
   private MergedAnnotation<?> testGetWithTypeHierarchy(Class<?> element, String... expected) {
     MergedAnnotation<?> annotation = MergedAnnotations.from(element,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(ComponentScan.class);
+            SearchStrategy.TYPE_HIERARCHY).get(ComponentScan.class);
     assertThat(annotation.getStringArray("value")).containsExactly(expected);
     assertThat(annotation.getStringArray("basePackages")).containsExactly(expected);
     return annotation;
@@ -691,7 +689,7 @@ class MergedAnnotationsTests {
 
   private void testGetWithTypeHierarchyWebMapping(AnnotatedElement element) {
     MergedAnnotation<?> annotation = MergedAnnotations.from(element,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(RequestMapping.class);
+            SearchStrategy.TYPE_HIERARCHY).get(RequestMapping.class);
     assertThat(annotation.getStringArray("value")).containsExactly("/test");
     assertThat(annotation.getStringArray("path")).containsExactly("/test");
   }
@@ -719,14 +717,14 @@ class MergedAnnotationsTests {
   @Test
   void streamTypeHierarchyAndEnclosingClassesFromNonAnnotatedInnerClassWithAnnotatedEnclosingClass() {
     Stream<Class<?>> classes = MergedAnnotations.from(AnnotatedClass.NonAnnotatedInnerClass.class,
-                                                      SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES).stream().map(MergedAnnotation::getType);
+            SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES).stream().map(MergedAnnotation::getType);
     assertThat(classes).containsExactly(Component.class, Indexed.class);
   }
 
   @Test
   void streamTypeHierarchyAndEnclosingClassesFromNonAnnotatedStaticNestedClassWithAnnotatedEnclosingClass() {
     Stream<Class<?>> classes = MergedAnnotations.from(AnnotatedClass.NonAnnotatedStaticNestedClass.class,
-                                                      SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES).stream().map(MergedAnnotation::getType);
+            SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES).stream().map(MergedAnnotation::getType);
     assertThat(classes).containsExactly(Component.class, Indexed.class);
   }
 
@@ -921,7 +919,7 @@ class MergedAnnotationsTests {
   void getDirectFromClassWithAnnotatedClassWithMissingTargetMetaAnnotation() {
     // TransactionalClass is NOT annotated or meta-annotated with @Component
     MergedAnnotation<?> annotation = MergedAnnotations.from(TransactionalClass.class,
-                                                            SearchStrategy.TYPE_HIERARCHY).get(Component.class);
+            SearchStrategy.TYPE_HIERARCHY).get(Component.class);
     assertThat(annotation.isPresent()).isFalse();
   }
 
@@ -979,39 +977,39 @@ class MergedAnnotationsTests {
   void getSuperClassForAllScenarios() {
     // no class-level annotation
     assertThat(MergedAnnotations.from(NonAnnotatedInterface.class,
-                                      SearchStrategy.SUPERCLASS).get(
+            SearchStrategy.SUPERCLASS).get(
             Transactional.class).getSource()).isNull();
     assertThat(MergedAnnotations.from(NonAnnotatedClass.class,
-                                      SearchStrategy.SUPERCLASS).get(
+            SearchStrategy.SUPERCLASS).get(
             Transactional.class).getSource()).isNull();
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(MergedAnnotations.from(InheritedAnnotationInterface.class,
-                                      SearchStrategy.SUPERCLASS).get(
+            SearchStrategy.SUPERCLASS).get(
             Transactional.class).getSource()).isEqualTo(
             InheritedAnnotationInterface.class);
     assertThat(MergedAnnotations.from(SubInheritedAnnotationInterface.class,
-                                      SearchStrategy.SUPERCLASS).get(
+            SearchStrategy.SUPERCLASS).get(
             Transactional.class).getSource()).isNull();
     assertThat(MergedAnnotations.from(InheritedAnnotationClass.class,
-                                      SearchStrategy.SUPERCLASS).get(
+            SearchStrategy.SUPERCLASS).get(
             Transactional.class).getSource()).isEqualTo(
             InheritedAnnotationClass.class);
     assertThat(MergedAnnotations.from(SubInheritedAnnotationClass.class,
-                                      SearchStrategy.SUPERCLASS).get(
+            SearchStrategy.SUPERCLASS).get(
             Transactional.class).getSource()).isEqualTo(
             InheritedAnnotationClass.class);
     // non-inherited class-level annotation; note: @Order is not inherited,
     // but we should still find it on classes.
     assertThat(MergedAnnotations.from(NonInheritedAnnotationInterface.class,
-                                      SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isEqualTo(
+            SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isEqualTo(
             NonInheritedAnnotationInterface.class);
     assertThat(MergedAnnotations.from(SubNonInheritedAnnotationInterface.class,
-                                      SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isNull();
+            SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isNull();
     assertThat(MergedAnnotations.from(NonInheritedAnnotationClass.class,
-                                      SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isEqualTo(
+            SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isEqualTo(
             NonInheritedAnnotationClass.class);
     assertThat(MergedAnnotations.from(SubNonInheritedAnnotationClass.class,
-                                      SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isEqualTo(
+            SearchStrategy.SUPERCLASS).get(Order.class).getSource()).isEqualTo(
             NonInheritedAnnotationClass.class);
   }
 
@@ -1020,31 +1018,31 @@ class MergedAnnotationsTests {
     // no class-level annotation
     List<Class<? extends Annotation>> transactionalCandidateList = Collections.singletonList(Transactional.class);
     assertThat(getSuperClassSourceWithTypeIn(NonAnnotatedInterface.class,
-                                             transactionalCandidateList)).isNull();
+            transactionalCandidateList)).isNull();
     assertThat(getSuperClassSourceWithTypeIn(NonAnnotatedClass.class,
-                                             transactionalCandidateList)).isNull();
+            transactionalCandidateList)).isNull();
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(getSuperClassSourceWithTypeIn(InheritedAnnotationInterface.class,
-                                             transactionalCandidateList)).isEqualTo(
+            transactionalCandidateList)).isEqualTo(
             InheritedAnnotationInterface.class);
     assertThat(getSuperClassSourceWithTypeIn(SubInheritedAnnotationInterface.class,
-                                             transactionalCandidateList)).isNull();
+            transactionalCandidateList)).isNull();
     assertThat(getSuperClassSourceWithTypeIn(InheritedAnnotationClass.class,
-                                             transactionalCandidateList)).isEqualTo(InheritedAnnotationClass.class);
+            transactionalCandidateList)).isEqualTo(InheritedAnnotationClass.class);
     assertThat(getSuperClassSourceWithTypeIn(SubInheritedAnnotationClass.class,
-                                             transactionalCandidateList)).isEqualTo(InheritedAnnotationClass.class);
+            transactionalCandidateList)).isEqualTo(InheritedAnnotationClass.class);
     // non-inherited class-level annotation; note: @Order is not inherited,
     // but should still find it on classes.
     List<Class<? extends Annotation>> orderCandidateList = Collections.singletonList(
             Order.class);
     assertThat(getSuperClassSourceWithTypeIn(NonInheritedAnnotationInterface.class,
-                                             orderCandidateList)).isEqualTo(NonInheritedAnnotationInterface.class);
+            orderCandidateList)).isEqualTo(NonInheritedAnnotationInterface.class);
     assertThat(getSuperClassSourceWithTypeIn(SubNonInheritedAnnotationInterface.class,
-                                             orderCandidateList)).isNull();
+            orderCandidateList)).isNull();
     assertThat(getSuperClassSourceWithTypeIn(NonInheritedAnnotationClass.class,
-                                             orderCandidateList)).isEqualTo(NonInheritedAnnotationClass.class);
+            orderCandidateList)).isEqualTo(NonInheritedAnnotationClass.class);
     assertThat(getSuperClassSourceWithTypeIn(SubNonInheritedAnnotationClass.class,
-                                             orderCandidateList)).isEqualTo(NonInheritedAnnotationClass.class);
+            orderCandidateList)).isEqualTo(NonInheritedAnnotationClass.class);
   }
 
   @Test
@@ -1052,36 +1050,36 @@ class MergedAnnotationsTests {
     List<Class<? extends Annotation>> candidates = Arrays.asList(Transactional.class, Order.class);
     // no class-level annotation
     assertThat(getSuperClassSourceWithTypeIn(NonAnnotatedInterface.class,
-                                             candidates)).isNull();
+            candidates)).isNull();
     assertThat(getSuperClassSourceWithTypeIn(NonAnnotatedClass.class,
-                                             candidates)).isNull();
+            candidates)).isNull();
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(getSuperClassSourceWithTypeIn(InheritedAnnotationInterface.class,
-                                             candidates)).isEqualTo(InheritedAnnotationInterface.class);
+            candidates)).isEqualTo(InheritedAnnotationInterface.class);
     assertThat(getSuperClassSourceWithTypeIn(SubInheritedAnnotationInterface.class,
-                                             candidates)).isNull();
+            candidates)).isNull();
     assertThat(getSuperClassSourceWithTypeIn(InheritedAnnotationClass.class,
-                                             candidates)).isEqualTo(InheritedAnnotationClass.class);
+            candidates)).isEqualTo(InheritedAnnotationClass.class);
     assertThat(getSuperClassSourceWithTypeIn(SubInheritedAnnotationClass.class,
-                                             candidates)).isEqualTo(InheritedAnnotationClass.class);
+            candidates)).isEqualTo(InheritedAnnotationClass.class);
     // non-inherited class-level annotation; note: @Order is not inherited,
     // but findAnnotationDeclaringClassForTypes() should still find it on
     // classes.
     assertThat(getSuperClassSourceWithTypeIn(NonInheritedAnnotationInterface.class,
-                                             candidates)).isEqualTo(NonInheritedAnnotationInterface.class);
+            candidates)).isEqualTo(NonInheritedAnnotationInterface.class);
     assertThat(getSuperClassSourceWithTypeIn(SubNonInheritedAnnotationInterface.class,
-                                             candidates)).isNull();
+            candidates)).isNull();
     assertThat(getSuperClassSourceWithTypeIn(NonInheritedAnnotationClass.class,
-                                             candidates)).isEqualTo(NonInheritedAnnotationClass.class);
+            candidates)).isEqualTo(NonInheritedAnnotationClass.class);
     assertThat(getSuperClassSourceWithTypeIn(SubNonInheritedAnnotationClass.class,
-                                             candidates)).isEqualTo(NonInheritedAnnotationClass.class);
+            candidates)).isEqualTo(NonInheritedAnnotationClass.class);
     // class hierarchy mixed with @Transactional and @Order declarations
     assertThat(getSuperClassSourceWithTypeIn(TransactionalClass.class,
-                                             candidates)).isEqualTo(TransactionalClass.class);
+            candidates)).isEqualTo(TransactionalClass.class);
     assertThat(getSuperClassSourceWithTypeIn(TransactionalAndOrderedClass.class,
-                                             candidates)).isEqualTo(TransactionalAndOrderedClass.class);
+            candidates)).isEqualTo(TransactionalAndOrderedClass.class);
     assertThat(getSuperClassSourceWithTypeIn(SubTransactionalAndOrderedClass.class,
-                                             candidates)).isEqualTo(TransactionalAndOrderedClass.class);
+            candidates)).isEqualTo(TransactionalAndOrderedClass.class);
   }
 
   private Object getSuperClassSourceWithTypeIn(Class<?> clazz, List<Class<? extends Annotation>> annotationTypes) {
@@ -1150,35 +1148,35 @@ class MergedAnnotationsTests {
   void getAggregateIndexForAllScenarios() {
     // no class-level annotation
     assertThat(MergedAnnotations.from(NonAnnotatedInterface.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Transactional.class).getAggregateIndex()).isEqualTo(-1);
     assertThat(MergedAnnotations.from(NonAnnotatedClass.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Transactional.class).getAggregateIndex()).isEqualTo(-1);
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(MergedAnnotations.from(InheritedAnnotationInterface.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Transactional.class).getAggregateIndex()).isEqualTo(0);
     // Since we're not traversing interface hierarchies the following,
     // though perhaps counter intuitive, must be false:
     assertThat(MergedAnnotations.from(SubInheritedAnnotationInterface.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Transactional.class).getAggregateIndex()).isEqualTo(-1);
     assertThat(MergedAnnotations.from(InheritedAnnotationClass.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Transactional.class).getAggregateIndex()).isEqualTo(0);
     assertThat(MergedAnnotations.from(SubInheritedAnnotationClass.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Transactional.class).getAggregateIndex()).isEqualTo(1);
     // non-inherited class-level annotation; note: @Order is not inherited
     assertThat(MergedAnnotations.from(NonInheritedAnnotationInterface.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Order.class).getAggregateIndex()).isEqualTo(0);
     assertThat(MergedAnnotations.from(SubNonInheritedAnnotationInterface.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Order.class).getAggregateIndex()).isEqualTo(-1);
     assertThat(MergedAnnotations.from(NonInheritedAnnotationClass.class,
-                                      SearchStrategy.INHERITED_ANNOTATIONS).get(
+            SearchStrategy.INHERITED_ANNOTATIONS).get(
             Order.class).getAggregateIndex()).isEqualTo(0);
     assertThat(
             MergedAnnotations.from(
@@ -1223,7 +1221,7 @@ class MergedAnnotationsTests {
   void getDirectWithAttributeAliasesWithDifferentValues() throws Exception {
     Method method = WebController.class.getMethod("handleMappedWithDifferentPathAndValueAttributes");
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotations.from(method).get(RequestMapping.class))
+                    MergedAnnotations.from(method).get(RequestMapping.class))
             .withMessageContaining("attribute 'path' and its alias 'value'")
             .withMessageContaining("values of [{/test}] and [{/enigma}]");
   }
@@ -1288,9 +1286,9 @@ class MergedAnnotationsTests {
     assertThat(MergedAnnotations.from(HierarchyClass.class).stream(
             TestConfiguration.class)).isEmpty();
     RepeatableContainers containers = RepeatableContainers.valueOf(TestConfiguration.class,
-                                                              Hierarchy.class);
+            Hierarchy.class);
     MergedAnnotations annotations = MergedAnnotations.from(HierarchyClass.class,
-                                                           SearchStrategy.DIRECT, containers, AnnotationFilter.NONE);
+            SearchStrategy.DIRECT, containers, AnnotationFilter.NONE);
     assertThat(annotations.stream(TestConfiguration.class).map(
             annotation -> annotation.getString("location"))).containsExactly("A", "B");
     assertThat(annotations.stream(TestConfiguration.class).map(
@@ -1340,8 +1338,8 @@ class MergedAnnotationsTests {
   @Test
   void getDirectRepeatablesDeclaredOnSuperclass() {
     Class<?> element = SubMyRepeatableClass.class;
-    String[] expectedValuesJava = {};
-    String[] expectedValuesSpring = {};
+    String[] expectedValuesJava = { };
+    String[] expectedValuesSpring = { };
     testRepeatables(SearchStrategy.DIRECT, element, expectedValuesJava, expectedValuesSpring);
   }
 
@@ -1355,16 +1353,16 @@ class MergedAnnotationsTests {
 
   private void testJavaRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
     MyRepeatable[] annotations = searchStrategy == SearchStrategy.DIRECT ?
-                                 element.getDeclaredAnnotationsByType(MyRepeatable.class) :
-                                 element.getAnnotationsByType(MyRepeatable.class);
+            element.getDeclaredAnnotationsByType(MyRepeatable.class) :
+            element.getAnnotationsByType(MyRepeatable.class);
     assertThat(Arrays.stream(annotations).map(MyRepeatable::value)).containsExactly(
             expected);
   }
 
   private void testExplicitRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
     MergedAnnotations annotations = MergedAnnotations.from(element, searchStrategy,
-                                                           RepeatableContainers.valueOf(MyRepeatable.class, MyRepeatableContainer.class),
-                                                           AnnotationFilter.PLAIN);
+            RepeatableContainers.valueOf(MyRepeatable.class, MyRepeatableContainer.class),
+            AnnotationFilter.PLAIN);
     assertThat(annotations.stream(MyRepeatable.class).filter(
             MergedAnnotationPredicates.firstRunOf(
                     MergedAnnotation::getAggregateIndex)).map(
@@ -1466,7 +1464,7 @@ class MergedAnnotationsTests {
             AliasForWithMissingAttributeDeclarationClass.class.getAnnotation(
                     AliasForWithMissingAttributeDeclaration.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("@AliasFor declaration on attribute 'foo' in annotation")
             .withMessageContaining(AliasForWithMissingAttributeDeclaration.class.getName())
             .withMessageContaining("points to itself");
@@ -1477,7 +1475,7 @@ class MergedAnnotationsTests {
     AliasForWithDuplicateAttributeDeclaration annotation = AliasForWithDuplicateAttributeDeclarationClass.class.getAnnotation(
             AliasForWithDuplicateAttributeDeclaration.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("In @AliasFor declared on attribute 'foo' in annotation")
             .withMessageContaining(AliasForWithDuplicateAttributeDeclaration.class.getName())
             .withMessageContaining("attribute 'attribute' and its alias 'value' are present with values of 'baz' and 'bar'");
@@ -1488,7 +1486,7 @@ class MergedAnnotationsTests {
     AliasForNonexistentAttribute annotation = AliasForNonexistentAttributeClass.class.getAnnotation(
             AliasForNonexistentAttribute.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("@AliasFor declaration on attribute 'foo' in annotation")
             .withMessageContaining(AliasForNonexistentAttribute.class.getName())
             .withMessageContaining("declares an alias for 'bar' which is not present");
@@ -1500,10 +1498,10 @@ class MergedAnnotationsTests {
             AliasForWithMirroredAliasForWrongAttributeClass.class.getAnnotation(
                     AliasForWithMirroredAliasForWrongAttribute.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessage("@AliasFor declaration on attribute 'bar' in annotation ["
-                                 + AliasForWithMirroredAliasForWrongAttribute.class.getName()
-                                 + "] declares an alias for 'quux' which is not present.");
+                    + AliasForWithMirroredAliasForWrongAttribute.class.getName()
+                    + "] declares an alias for 'quux' which is not present.");
   }
 
   @Test
@@ -1511,7 +1509,7 @@ class MergedAnnotationsTests {
     AliasForAttributeOfDifferentType annotation = AliasForAttributeOfDifferentTypeClass.class.getAnnotation(
             AliasForAttributeOfDifferentType.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("Misconfigured aliases")
             .withMessageContaining(AliasForAttributeOfDifferentType.class.getName())
             .withMessageContaining("attribute 'foo'")
@@ -1524,7 +1522,7 @@ class MergedAnnotationsTests {
     AliasForWithMissingDefaultValues annotation = AliasForWithMissingDefaultValuesClass.class.getAnnotation(
             AliasForWithMissingDefaultValues.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("Misconfigured aliases")
             .withMessageContaining(AliasForWithMissingDefaultValues.class.getName())
             .withMessageContaining("attribute 'foo' in annotation")
@@ -1538,7 +1536,7 @@ class MergedAnnotationsTests {
             AliasForAttributeWithDifferentDefaultValueClass.class.getAnnotation(
                     AliasForAttributeWithDifferentDefaultValue.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("Misconfigured aliases")
             .withMessageContaining(AliasForAttributeWithDifferentDefaultValue.class.getName())
             .withMessageContaining("attribute 'foo' in annotation")
@@ -1552,7 +1550,7 @@ class MergedAnnotationsTests {
             AliasedComposedTestConfigurationNotMetaPresentClass.class.getAnnotation(
                     AliasedComposedTestConfigurationNotMetaPresent.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(annotation))
+                    MergedAnnotation.from(annotation))
             .withMessageStartingWith("@AliasFor declaration on attribute 'xmlConfigFile' in annotation")
             .withMessageContaining(AliasedComposedTestConfigurationNotMetaPresent.class.getName())
             .withMessageContaining("declares an alias for attribute 'location' in annotation")
@@ -1651,7 +1649,7 @@ class MergedAnnotationsTests {
     ImplicitAliasesWithMissingDefaultValuesTestConfiguration config = clazz.getAnnotation(
             annotationType);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(clazz, config))
+                    MergedAnnotation.from(clazz, config))
             .withMessageStartingWith("Misconfigured aliases:")
             .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getName() + "]")
             .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getName() + "]")
@@ -1667,7 +1665,7 @@ class MergedAnnotationsTests {
     ImplicitAliasesWithDifferentDefaultValuesTestConfiguration config = clazz.getAnnotation(
             annotationType);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(clazz, config))
+                    MergedAnnotation.from(clazz, config))
             .withMessageStartingWith("Misconfigured aliases:")
             .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getName() + "]")
             .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getName() + "]")
@@ -1682,7 +1680,7 @@ class MergedAnnotationsTests {
     ImplicitAliasesWithDuplicateValuesTestConfiguration config = clazz.getAnnotation(
             annotationType);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(clazz, config))
+                    MergedAnnotation.from(clazz, config))
             .withMessageStartingWith("Different @AliasFor mirror values for annotation")
             .withMessageContaining(annotationType.getName())
             .withMessageContaining("declared on class")
@@ -1769,9 +1767,9 @@ class MergedAnnotationsTests {
   @Test
   void synthesizeWhenAttributeAliasesWithDifferentValues() throws Exception {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
-                                                                                         MergedAnnotation.from(
-                                                                                                         TestConfigurationMismatch.class.getAnnotation(TestConfiguration.class))
-                                                                                                 .synthesize());
+            MergedAnnotation.from(
+                            TestConfigurationMismatch.class.getAnnotation(TestConfiguration.class))
+                    .synthesize());
   }
 
   @Test
@@ -1797,7 +1795,7 @@ class MergedAnnotationsTests {
   private void synthesizeFromMapWithAttributeAliasesThatOverrideArraysWithSingleElements(
           Map<String, Object> map) {
     MergedAnnotation<GetMapping> annotation = MergedAnnotation.valueOf(GetMapping.class,
-                                                                  map);
+            map);
     GetMapping synthesized = annotation.synthesize();
     assertThat(synthesized.value()).isEqualTo("/foo");
     assertThat(synthesized.path()).isEqualTo("/foo");
@@ -1816,7 +1814,7 @@ class MergedAnnotationsTests {
   private void testSynthesisFromMapWithImplicitAliases(String attributeNameAndValue)
           throws Exception {
     Map<String, Object> map = Collections.singletonMap(attributeNameAndValue,
-                                                       attributeNameAndValue);
+            attributeNameAndValue);
     MergedAnnotation<ImplicitAliasesTestConfiguration> annotation = MergedAnnotation.valueOf(
             ImplicitAliasesTestConfiguration.class, map);
     ImplicitAliasesTestConfiguration synthesized = annotation.synthesize();
@@ -1844,7 +1842,7 @@ class MergedAnnotationsTests {
     assertThatExceptionOfType(NoSuchElementException.class)
             .isThrownBy(() -> MergedAnnotation.valueOf(AnnotationWithoutDefaults.class, attributes).synthesize().text())
             .withMessage("No value found for attribute named 'text' in merged annotation " +
-                                 AnnotationWithoutDefaults.class.getName());
+                    AnnotationWithoutDefaults.class.getName());
   }
 
   @Test
@@ -1854,8 +1852,8 @@ class MergedAnnotationsTests {
     assertThatIllegalStateException()
             .isThrownBy(() -> annotation.synthesize().value())
             .withMessage("Attribute 'value' in annotation " +
-                                 "cn.taketoday.core.lang.Component should be " +
-                                 "compatible with [Ljava.lang.String; but a java.lang.Long value was returned");
+                    "cn.taketoday.lang.Component should be " +
+                    "compatible with [Ljava.lang.String; but a [Ljava.lang.Long; value was returned");
   }
 
   @Test
@@ -1886,7 +1884,7 @@ class MergedAnnotationsTests {
   private void assertToStringForWebMappingWithPathAndValue(RequestMapping webMapping) {
     String prefix = "@" + RequestMapping.class.getName() + "(";
     assertThat(webMapping.toString()).startsWith(prefix).contains("value=[/test]",
-                                                                  "path=[/test]", "name=bar", "method=", "[GET, POST]").endsWith(")");
+            "path=[/test]", "name=bar", "method=", "[GET, POST]").endsWith(")");
   }
 
   @Test
@@ -2088,7 +2086,8 @@ class MergedAnnotationsTests {
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ ElementType.TYPE, ElementType.METHOD })
-  @Inherited @interface Transactional {
+  @Inherited
+  @interface Transactional {
 
     String value() default "";
 
@@ -2099,11 +2098,13 @@ class MergedAnnotationsTests {
 
   @Transactional
   @Component
-  @Retention(RetentionPolicy.RUNTIME) @interface TransactionalComponent {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TransactionalComponent {
   }
 
   @TransactionalComponent
-  @Retention(RetentionPolicy.RUNTIME) @interface ComposedTransactionalComponent {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ComposedTransactionalComponent {
   }
 
   static class NonAnnotatedClass {
@@ -2139,7 +2140,8 @@ class MergedAnnotationsTests {
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ ElementType.TYPE, ElementType.METHOD })
-  @Inherited @interface AliasedTransactional {
+  @Inherited
+  @interface AliasedTransactional {
 
     @AliasFor(attribute = "qualifier")
     String value() default "";
@@ -2151,35 +2153,42 @@ class MergedAnnotationsTests {
   @Transactional(qualifier = "composed1")
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
-  @Inherited @interface InheritedComposed {
+  @Inherited
+  @interface InheritedComposed {
   }
 
   @Transactional(qualifier = "composed2", readOnly = true)
   @Retention(RetentionPolicy.RUNTIME)
-  @Target(ElementType.TYPE) @interface Composed {
+  @Target(ElementType.TYPE)
+  @interface Composed {
   }
 
   @Transactional
-  @Retention(RetentionPolicy.RUNTIME) @interface TxComposedWithOverride {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TxComposedWithOverride {
 
     String qualifier() default "txMgr";
   }
 
   @Transactional("TxInheritedComposed")
-  @Retention(RetentionPolicy.RUNTIME) @interface TxInheritedComposed {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TxInheritedComposed {
   }
 
   @Transactional("TxComposed")
-  @Retention(RetentionPolicy.RUNTIME) @interface TxComposed {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TxComposed {
   }
 
   @AliasedTransactional(value = "aliasForQualifier")
   @Component
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasedTransactionalComponent {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasedTransactionalComponent {
   }
 
   @AliasedTransactional
-  @Retention(RetentionPolicy.RUNTIME) @interface MyAliasedTransactional {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MyAliasedTransactional {
 
     @AliasFor(annotation = AliasedTransactional.class, attribute = "value")
     String value() default "defaultTransactionManager";
@@ -2187,7 +2196,8 @@ class MergedAnnotationsTests {
 
   @MyAliasedTransactional("anotherTransactionManager")
   @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD }) @interface ComposedMyAliasedTransactional {
+  @Target({ ElementType.TYPE, ElementType.METHOD })
+  @interface ComposedMyAliasedTransactional {
   }
 
   @ComposedMyAliasedTransactional
@@ -2195,11 +2205,13 @@ class MergedAnnotationsTests {
   }
 
   @AliasedTransactional("meta")
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaAliasedTransactional {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaAliasedTransactional {
   }
 
   @MetaAliasedTransactional
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaMetaAliasedTransactional {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaMetaAliasedTransactional {
   }
 
   @MetaMetaAliasedTransactional
@@ -2210,37 +2222,42 @@ class MergedAnnotationsTests {
   // Override default "txMgr" from @TxComposedWithOverride with "localTxMgr"
   @Transactional(qualifier = "localTxMgr")
   @Retention(RetentionPolicy.RUNTIME)
-  @Target(ElementType.TYPE) @interface MetaAndLocalTxConfig {
+  @Target(ElementType.TYPE)
+  @interface MetaAndLocalTxConfig {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface TestPropertySource {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TestPropertySource {
 
     @AliasFor("locations")
-    String[] value() default {};
+    String[] value() default { };
 
     @AliasFor("value")
-    String[] locations() default {};
+    String[] locations() default { };
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface ContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ContextConfiguration {
 
     @AliasFor(attribute = "locations")
-    String[] value() default {};
+    String[] value() default { };
 
     @AliasFor(attribute = "value")
-    String[] locations() default {};
+    String[] locations() default { };
 
-    Class<?>[] classes() default {};
+    Class<?>[] classes() default { };
   }
 
   @ContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ConventionBasedComposedContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ConventionBasedComposedContextConfiguration {
 
-    String[] locations() default {};
+    String[] locations() default { };
   }
 
   @ContextConfiguration(value = "duplicateDeclaration")
-  @Retention(RetentionPolicy.RUNTIME) @interface InvalidConventionBasedComposedContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface InvalidConventionBasedComposedContextConfiguration {
 
     String[] locations();
   }
@@ -2250,62 +2267,69 @@ class MergedAnnotationsTests {
    * aliases is unsupported. See SPR-13554 for details.
    */
   @ContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface HalfConventionBasedAndHalfAliasedComposedContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface HalfConventionBasedAndHalfAliasedComposedContextConfiguration {
 
-    String[] locations() default {};
+    String[] locations() default { };
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
-    String[] xmlConfigFiles() default {};
+    String[] xmlConfigFiles() default { };
   }
 
   @ContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasedComposedContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasedComposedContextConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
     String[] xmlConfigFiles();
   }
 
   @ContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasedValueComposedContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasedValueComposedContextConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "value")
     String[] locations();
   }
 
   @ContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ImplicitAliasesContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ImplicitAliasesContextConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
-    String[] groovyScripts() default {};
+    String[] groovyScripts() default { };
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
-    String[] xmlFiles() default {};
+    String[] xmlFiles() default { };
 
     // intentionally omitted: attribute = "locations"
     @AliasFor(annotation = ContextConfiguration.class)
-    String[] locations() default {};
+    String[] locations() default { };
 
     // intentionally omitted: attribute = "locations" (SPR-14069)
     @AliasFor(annotation = ContextConfiguration.class)
-    String[] value() default {};
+    String[] value() default { };
   }
 
   @ImplicitAliasesContextConfiguration(xmlFiles = { "A.xml", "B.xml" })
-  @Retention(RetentionPolicy.RUNTIME) @interface ComposedImplicitAliasesContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ComposedImplicitAliasesContextConfiguration {
   }
 
   @ImplicitAliasesContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface TransitiveImplicitAliasesContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TransitiveImplicitAliasesContextConfiguration {
 
     @AliasFor(annotation = ImplicitAliasesContextConfiguration.class, attribute = "xmlFiles")
-    String[] xml() default {};
+    String[] xml() default { };
 
     @AliasFor(annotation = ImplicitAliasesContextConfiguration.class, attribute = "groovyScripts")
-    String[] groovy() default {};
+    String[] groovy() default { };
   }
 
   @ImplicitAliasesContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface SingleLocationTransitiveImplicitAliasesContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface SingleLocationTransitiveImplicitAliasesContextConfiguration {
 
     @AliasFor(annotation = ImplicitAliasesContextConfiguration.class, attribute = "xmlFiles")
     String xml() default "";
@@ -2315,17 +2339,19 @@ class MergedAnnotationsTests {
   }
 
   @ImplicitAliasesContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface TransitiveImplicitAliasesWithSkippedLevelContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TransitiveImplicitAliasesWithSkippedLevelContextConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
-    String[] xml() default {};
+    String[] xml() default { };
 
     @AliasFor(annotation = ImplicitAliasesContextConfiguration.class, attribute = "groovyScripts")
-    String[] groovy() default {};
+    String[] groovy() default { };
   }
 
   @ImplicitAliasesContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface SingleLocationTransitiveImplicitAliasesWithSkippedLevelContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface SingleLocationTransitiveImplicitAliasesWithSkippedLevelContextConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
     String xml() default "";
@@ -2342,7 +2368,8 @@ class MergedAnnotationsTests {
    * not make sense.
    */
   @ContextConfiguration(value = "duplicateDeclaration")
-  @Retention(RetentionPolicy.RUNTIME) @interface ShadowedAliasComposedContextConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ShadowedAliasComposedContextConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
     String[] xmlConfigFiles();
@@ -2350,58 +2377,65 @@ class MergedAnnotationsTests {
 
   @ContextConfiguration(locations = "shadowed.xml")
   @TestPropertySource(locations = "test.properties")
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasedComposedContextConfigurationAndTestPropertySource {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasedComposedContextConfigurationAndTestPropertySource {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
     String[] xmlConfigFiles() default "default.xml";
   }
 
   @ContextConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface SpringApplicationConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface SpringApplicationConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
-    String[] locations() default {};
+    String[] locations() default { };
 
     @AliasFor("value")
-    Class<?>[] classes() default {};
+    Class<?>[] classes() default { };
 
     @AliasFor("classes")
-    Class<?>[] value() default {};
-  }
-
-  @Retention(RetentionPolicy.RUNTIME) @interface ComponentScan {
-
-    @AliasFor("basePackages")
-    String[] value() default {};
-
-    @AliasFor("value")
-    String[] basePackages() default {};
-
-    Filter[] excludeFilters() default {};
+    Class<?>[] value() default { };
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @Target({}) @interface Filter {
+  @interface ComponentScan {
+
+    @AliasFor("basePackages")
+    String[] value() default { };
+
+    @AliasFor("value")
+    String[] basePackages() default { };
+
+    Filter[] excludeFilters() default { };
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ })
+  @interface Filter {
 
     String pattern();
   }
 
   @ComponentScan(excludeFilters = { @Filter(pattern = "*Test"),
           @Filter(pattern = "*Tests") })
-  @Retention(RetentionPolicy.RUNTIME) @interface TestComponentScan {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TestComponentScan {
 
     @AliasFor(attribute = "basePackages", annotation = ComponentScan.class)
     String[] packages();
   }
 
   @ComponentScan
-  @Retention(RetentionPolicy.RUNTIME) @interface ConventionBasedSinglePackageComponentScan {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ConventionBasedSinglePackageComponentScan {
 
     String basePackages();
   }
 
   @ComponentScan
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForBasedSinglePackageComponentScan {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForBasedSinglePackageComponentScan {
 
     @AliasFor(attribute = "basePackages", annotation = ComponentScan.class)
     String pkg();
@@ -2630,32 +2664,39 @@ class MergedAnnotationsTests {
   @Component("meta1")
   @Order
   @Retention(RetentionPolicy.RUNTIME)
-  @Inherited @interface Meta1 {
+  @Inherited
+  @interface Meta1 {
   }
 
   @Component("meta2")
   @Transactional(readOnly = true)
-  @Retention(RetentionPolicy.RUNTIME) @interface Meta2 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface Meta2 {
   }
 
   @Meta2
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaMeta {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaMeta {
   }
 
   @MetaMeta
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaMetaMeta {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaMetaMeta {
   }
 
   @MetaCycle3
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaCycle1 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaCycle1 {
   }
 
   @MetaCycle1
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaCycle2 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaCycle2 {
   }
 
   @MetaCycle2
-  @Retention(RetentionPolicy.RUNTIME) @interface MetaCycle3 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaCycle3 {
   }
 
   @Meta1
@@ -2858,26 +2899,30 @@ class MergedAnnotationsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @Inherited @interface MyRepeatableContainer {
+  @Inherited
+  @interface MyRepeatableContainer {
 
     MyRepeatable[] value();
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
-  @Repeatable(MyRepeatableContainer.class) @interface MyRepeatable {
+  @Repeatable(MyRepeatableContainer.class)
+  @interface MyRepeatable {
 
     String value();
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
-  @MyRepeatable("meta1") @interface MyRepeatableMeta1 {
+  @MyRepeatable("meta1")
+  @interface MyRepeatableMeta1 {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
-  @MyRepeatable("meta2") @interface MyRepeatableMeta2 {
+  @MyRepeatable("meta2")
+  @interface MyRepeatableMeta2 {
   }
 
   interface InterfaceWithRepeated {
@@ -2912,7 +2957,8 @@ class MergedAnnotationsTests {
     GET, POST
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface RequestMapping {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface RequestMapping {
 
     String name();
 
@@ -2922,11 +2968,12 @@ class MergedAnnotationsTests {
     @AliasFor(attribute = "value")
     String[] path() default "";
 
-    RequestMethod[] method() default {};
+    RequestMethod[] method() default { };
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @RequestMapping(method = RequestMethod.GET, name = "") @interface GetMapping {
+  @RequestMapping(method = RequestMethod.GET, name = "")
+  @interface GetMapping {
 
     @AliasFor(annotation = RequestMapping.class)
     String value() default "";
@@ -2936,7 +2983,8 @@ class MergedAnnotationsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @RequestMapping(method = RequestMethod.POST, name = "") @interface PostMapping {
+  @RequestMapping(method = RequestMethod.POST, name = "")
+  @interface PostMapping {
 
     String path() default "";
   }
@@ -2978,13 +3026,15 @@ class MergedAnnotationsTests {
   /**
    * Mimics jakarta.persistence.Id
    */
-  @Retention(RUNTIME) @interface Id {
+  @Retention(RUNTIME)
+  @interface Id {
   }
 
   /**
    * Mimics jakarta.persistence.GeneratedValue
    */
-  @Retention(RUNTIME) @interface GeneratedValue {
+  @Retention(RUNTIME)
+  @interface GeneratedValue {
     String strategy();
   }
 
@@ -2994,7 +3044,8 @@ class MergedAnnotationsTests {
     return 42L;
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface TestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TestConfiguration {
 
     @AliasFor("location")
     String value() default "";
@@ -3005,7 +3056,8 @@ class MergedAnnotationsTests {
     Class<?> configClass() default Object.class;
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface Hierarchy {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface Hierarchy {
 
     TestConfiguration[] value();
   }
@@ -3018,20 +3070,22 @@ class MergedAnnotationsTests {
   static class TestConfigurationClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface CharsContainer {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface CharsContainer {
 
     @AliasFor(attribute = "chars")
-    char[] value() default {};
+    char[] value() default { };
 
     @AliasFor(attribute = "value")
-    char[] chars() default {};
+    char[] chars() default { };
   }
 
   @CharsContainer(chars = { 'x', 'y', 'z' })
   static class GroupOfCharsClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForWithMissingAttributeDeclaration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForWithMissingAttributeDeclaration {
 
     @AliasFor
     String foo() default "";
@@ -3041,7 +3095,8 @@ class MergedAnnotationsTests {
   static class AliasForWithMissingAttributeDeclarationClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForWithDuplicateAttributeDeclaration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForWithDuplicateAttributeDeclaration {
 
     @AliasFor(value = "bar", attribute = "baz")
     String foo() default "";
@@ -3051,7 +3106,8 @@ class MergedAnnotationsTests {
   static class AliasForWithDuplicateAttributeDeclarationClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForNonexistentAttribute {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForNonexistentAttribute {
 
     @AliasFor("bar")
     String foo() default "";
@@ -3061,7 +3117,8 @@ class MergedAnnotationsTests {
   static class AliasForNonexistentAttributeClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForWithoutMirroredAliasFor {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForWithoutMirroredAliasFor {
 
     @AliasFor("bar")
     String foo() default "";
@@ -3073,7 +3130,8 @@ class MergedAnnotationsTests {
   static class AliasForWithoutMirroredAliasForClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForWithMirroredAliasForWrongAttribute {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForWithMirroredAliasForWrongAttribute {
 
     @AliasFor(attribute = "bar")
     String[] foo() default "";
@@ -3086,7 +3144,8 @@ class MergedAnnotationsTests {
   static class AliasForWithMirroredAliasForWrongAttributeClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForAttributeOfDifferentType {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForAttributeOfDifferentType {
 
     @AliasFor("bar")
     String[] foo() default "";
@@ -3099,7 +3158,8 @@ class MergedAnnotationsTests {
   static class AliasForAttributeOfDifferentTypeClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForWithMissingDefaultValues {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForWithMissingDefaultValues {
 
     @AliasFor(attribute = "bar")
     String foo();
@@ -3112,7 +3172,8 @@ class MergedAnnotationsTests {
   static class AliasForWithMissingDefaultValuesClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasForAttributeWithDifferentDefaultValue {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasForAttributeWithDifferentDefaultValue {
 
     @AliasFor("bar")
     String foo() default "X";
@@ -3125,7 +3186,8 @@ class MergedAnnotationsTests {
   static class AliasForAttributeWithDifferentDefaultValueClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasedComposedTestConfigurationNotMetaPresent {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasedComposedTestConfigurationNotMetaPresent {
 
     @AliasFor(annotation = TestConfiguration.class, attribute = "location")
     String xmlConfigFile();
@@ -3136,7 +3198,8 @@ class MergedAnnotationsTests {
   }
 
   @TestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface AliasedComposedTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AliasedComposedTestConfiguration {
 
     @AliasFor(annotation = TestConfiguration.class, attribute = "location")
     String xmlConfigFile();
@@ -3195,7 +3258,8 @@ class MergedAnnotationsTests {
   }
 
   @TestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ImplicitAliasesWithImpliedAliasNamesOmittedTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ImplicitAliasesWithImpliedAliasNamesOmittedTestConfiguration {
 
     @AliasFor(annotation = TestConfiguration.class)
     String value() default "";
@@ -3208,7 +3272,8 @@ class MergedAnnotationsTests {
   }
 
   @ImplicitAliasesWithImpliedAliasNamesOmittedTestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface TransitiveImplicitAliasesWithImpliedAliasNamesOmittedTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TransitiveImplicitAliasesWithImpliedAliasNamesOmittedTestConfiguration {
 
     @AliasFor(annotation = ImplicitAliasesWithImpliedAliasNamesOmittedTestConfiguration.class, attribute = "xmlFile")
     String xml() default "";
@@ -3230,7 +3295,8 @@ class MergedAnnotationsTests {
   }
 
   @TestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ImplicitAliasesWithMissingDefaultValuesTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ImplicitAliasesWithMissingDefaultValuesTestConfiguration {
 
     @AliasFor(annotation = TestConfiguration.class, attribute = "location")
     String location1();
@@ -3244,7 +3310,8 @@ class MergedAnnotationsTests {
   }
 
   @TestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ImplicitAliasesWithDifferentDefaultValuesTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ImplicitAliasesWithDifferentDefaultValuesTestConfiguration {
 
     @AliasFor(annotation = TestConfiguration.class, attribute = "location")
     String location1() default "foo";
@@ -3258,7 +3325,8 @@ class MergedAnnotationsTests {
   }
 
   @TestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ImplicitAliasesWithDuplicateValuesTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ImplicitAliasesWithDuplicateValuesTestConfiguration {
 
     @AliasFor(annotation = TestConfiguration.class, attribute = "location")
     String location1() default "";
@@ -3272,7 +3340,8 @@ class MergedAnnotationsTests {
   }
 
   @TestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface ImplicitAliasesForAliasPairTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ImplicitAliasesForAliasPairTestConfiguration {
 
     @AliasFor(annotation = TestConfiguration.class, attribute = "location")
     String xmlFile() default "";
@@ -3286,7 +3355,8 @@ class MergedAnnotationsTests {
   }
 
   @ImplicitAliasesTestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface TransitiveImplicitAliasesTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TransitiveImplicitAliasesTestConfiguration {
 
     @AliasFor(annotation = ImplicitAliasesTestConfiguration.class, attribute = "xmlFile")
     String xml() default "";
@@ -3300,7 +3370,8 @@ class MergedAnnotationsTests {
   }
 
   @ImplicitAliasesForAliasPairTestConfiguration
-  @Retention(RetentionPolicy.RUNTIME) @interface TransitiveImplicitAliasesForAliasPairTestConfiguration {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TransitiveImplicitAliasesForAliasPairTestConfiguration {
 
     @AliasFor(annotation = ImplicitAliasesForAliasPairTestConfiguration.class, attribute = "xmlFile")
     String xml() default "";
@@ -3318,7 +3389,8 @@ class MergedAnnotationsTests {
   static class ComponentScanClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface ComponentScanSingleFilter {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ComponentScanSingleFilter {
 
     Filter value();
   }
@@ -3327,7 +3399,8 @@ class MergedAnnotationsTests {
   static class ComponentScanSingleFilterClass {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AnnotationWithDefaults {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AnnotationWithDefaults {
 
     String text() default "enigma";
 
@@ -3336,7 +3409,8 @@ class MergedAnnotationsTests {
     char[] characters() default { 'a', 'b', 'c' };
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AnnotationWithoutDefaults {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AnnotationWithoutDefaults {
 
     String text();
   }
@@ -3345,26 +3419,30 @@ class MergedAnnotationsTests {
   interface TestConfigurationMismatch {
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface DefaultOverrideRoot {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface DefaultOverrideRoot {
 
     String text() default "root";
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideRoot @interface DefaultOverrideMeta {
+  @DefaultOverrideRoot
+  @interface DefaultOverrideMeta {
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideMeta @interface DefaultOverrideMetaMeta {
+  @DefaultOverrideMeta
+  @interface DefaultOverrideMetaMeta {
 
     String text() default "metameta";
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideMetaMeta @interface DefaultOverrideMetaMetaMeta {
+  @DefaultOverrideMetaMeta
+  @interface DefaultOverrideMetaMetaMeta {
 
   }
 
@@ -3374,7 +3452,8 @@ class MergedAnnotationsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideRoot @interface DefaultOverrideImplicitAlias {
+  @DefaultOverrideRoot
+  @interface DefaultOverrideImplicitAlias {
 
     @AliasFor(annotation = DefaultOverrideRoot.class, attribute = "text")
     String text1() default "alias";
@@ -3385,12 +3464,14 @@ class MergedAnnotationsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideImplicitAlias(text1 = "alias-meta-1") @interface DefaultOverrideAliasImplicitMeta1 {
+  @DefaultOverrideImplicitAlias(text1 = "alias-meta-1")
+  @interface DefaultOverrideAliasImplicitMeta1 {
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideImplicitAlias(text2 = "alias-meta-2") @interface DefaultOverrideImplicitAliasMeta2 {
+  @DefaultOverrideImplicitAlias(text2 = "alias-meta-2")
+  @interface DefaultOverrideImplicitAliasMeta2 {
 
   }
 
@@ -3404,7 +3485,8 @@ class MergedAnnotationsTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface DefaultOverrideExplicitAliasRoot {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface DefaultOverrideExplicitAliasRoot {
 
     @AliasFor("value")
     String text() default "";
@@ -3415,12 +3497,14 @@ class MergedAnnotationsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideExplicitAliasRoot("meta") @interface DefaultOverrideExplicitAliasRootMeta {
+  @DefaultOverrideExplicitAliasRoot("meta")
+  @interface DefaultOverrideExplicitAliasRootMeta {
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @DefaultOverrideExplicitAliasRootMeta @interface DefaultOverrideExplicitAliasRootMetaMeta {
+  @DefaultOverrideExplicitAliasRootMeta
+  @interface DefaultOverrideExplicitAliasRootMetaMeta {
 
   }
 
@@ -3429,21 +3513,24 @@ class MergedAnnotationsTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface ValueAttribute {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ValueAttribute {
 
     String[] value();
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @ValueAttribute("FromValueAttributeMeta") @interface ValueAttributeMeta {
+  @ValueAttribute("FromValueAttributeMeta")
+  @interface ValueAttributeMeta {
 
-    String[] value() default {};
+    String[] value() default { };
 
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @ValueAttributeMeta("FromValueAttributeMetaMeta") @interface ValueAttributeMetaMeta {
+  @ValueAttributeMeta("FromValueAttributeMetaMeta")
+  @interface ValueAttributeMetaMeta {
 
   }
 

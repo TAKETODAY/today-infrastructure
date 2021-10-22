@@ -461,19 +461,6 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       }
       value = array;
     }
-    // TODO array to single value ?
-    if (ObjectUtils.isArray(value) && !type.isArray() && type == value.getClass().getComponentType()) {
-      int length = Array.getLength(value);
-      if (length == 1) {
-        value = Array.get(value, 0);
-      }
-      else {
-        throw new IllegalArgumentException(
-                "Unable to adapt value of type " +
-                        value.getClass().getName() + " to " +
-                        type.getName() + " cause multiple array values or zero element");
-      }
-    }
 
     if (!type.isInstance(value)) {
       throw new IllegalArgumentException(
@@ -487,6 +474,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   private Object adaptForAttribute(Method attribute, Object value) {
     Class<?> attributeType = ClassUtils.resolvePrimitiveIfNecessary(attribute.getReturnType());
     if (attributeType.isArray() && !value.getClass().isArray()) {
+      // adapt array to single value
       Object array = Array.newInstance(value.getClass(), 1);
       Array.set(array, 0, value);
       return adaptForAttribute(attribute, array);

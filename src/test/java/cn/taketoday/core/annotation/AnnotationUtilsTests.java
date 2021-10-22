@@ -227,7 +227,7 @@ class AnnotationUtilsTests {
 	void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverAnnotationsOnInterfaces() {
 		Component component = findAnnotation(ClassWithLocalMetaAnnotationAndMetaAnnotatedInterface.class, Component.class);
 		assertThat(component).isNotNull();
-		assertThat(component.value()).isEqualTo("meta2");
+		assertThat(component.value()).contains("meta2");
 	}
 
 	// @since 4.0.3
@@ -243,21 +243,21 @@ class AnnotationUtilsTests {
 	void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedComposedAnnotations() {
 		Component component = findAnnotation(SubSubClassWithInheritedMetaAnnotation.class, Component.class);
 		assertThat(component).isNotNull();
-		assertThat(component.value()).isEqualTo("meta2");
+		assertThat(component.value()).contains("meta2");
 	}
 
 	@Test
 	void findClassAnnotationOnMetaMetaAnnotatedClass() {
 		Component component = findAnnotation(MetaMetaAnnotatedClass.class, Component.class);
 		assertThat(component).as("Should find meta-annotation on composed annotation on class").isNotNull();
-		assertThat(component.value()).isEqualTo("meta2");
+		assertThat(component.value()).contains("meta2");
 	}
 
 	@Test
 	void findClassAnnotationOnMetaMetaMetaAnnotatedClass() {
 		Component component = findAnnotation(MetaMetaMetaAnnotatedClass.class, Component.class);
 		assertThat(component).as("Should find meta-annotation on meta-annotation on composed annotation on class").isNotNull();
-		assertThat(component.value()).isEqualTo("meta2");
+		assertThat(component.value()).contains("meta2");
 	}
 
 	@Test
@@ -439,7 +439,7 @@ class AnnotationUtilsTests {
 
 		AnnotationAttributes attributes = (AnnotationAttributes) getAnnotationAttributes(component);
 		assertThat(attributes).isNotNull();
-		assertThat(attributes.getString(VALUE)).as("value attribute: ").isEqualTo("webController");
+		assertThat(attributes.getStringArray(VALUE)).as("value attribute: ").contains("webController");
 		assertThat(attributes.annotationType()).isEqualTo(Component.class);
 	}
 
@@ -773,8 +773,8 @@ class AnnotationUtilsTests {
 		assertThat(synthesizedComponent).isNotNull();
 
 		assertThat(synthesizedComponent).isNotSameAs(component);
-		assertThat(component.value()).as("value from component: ").isEqualTo("webController");
-		assertThat(synthesizedComponent.value()).as("value from synthesized component: ").isEqualTo("webController");
+		assertThat(component.value()).as("value from component: ").contains("webController");
+		assertThat(synthesizedComponent.value()).as("value from synthesized component: ").contains("webController");
 	}
 
 	@Test
@@ -923,8 +923,8 @@ class AnnotationUtilsTests {
 		Map<String, Object> map = Collections.singletonMap(VALUE, 42L);
 		assertThatIllegalStateException().isThrownBy(() ->
 				synthesizeAnnotation(map, Component.class, null).value())
-			.withMessageContaining("Attribute 'value' in annotation cn.taketoday.core.testfixture.stereotype.Component "
-					+ "should be compatible with java.lang.String but a java.lang.Long value was returned");
+			.withMessageContaining("Attribute 'value' in annotation cn.taketoday.lang.Component "
+					+ "should be compatible with [Ljava.lang.String; but a [Ljava.lang.Long; value was returned");
 	}
 
 	@Test
@@ -944,8 +944,8 @@ class AnnotationUtilsTests {
 		// 4) Verify that the original and synthesized annotations are equivalent
 		assertThat(synthesizedComponent).isNotSameAs(component);
 		assertThat(synthesizedComponent).isEqualTo(component);
-		assertThat(component.value()).as("value from component: ").isEqualTo("webController");
-		assertThat(synthesizedComponent.value()).as("value from synthesized component: ").isEqualTo("webController");
+		assertThat(component.value()).as("value from component: ").contains("webController");
+		assertThat(synthesizedComponent.value()).as("value from synthesized component: ").contains("webController");
 	}
 
 	@Test  // gh-22702

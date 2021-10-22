@@ -61,6 +61,10 @@ class PathMatchingPatternResourceLoaderTests {
           "ResourceTests$2.class", //
           "ResourceTests$1.class", //
           "EncodedResourceTests.class", //
+          "PropertiesUtils.class", //
+          "ProtocolResolver.class",
+          "DefaultResourceLoader.class",
+          "PatternResourceLoader.class",
           "JarEntryResource$JarEntryInputStream.class", //
   };
 

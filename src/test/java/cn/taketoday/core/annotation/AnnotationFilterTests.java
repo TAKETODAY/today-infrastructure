@@ -69,7 +69,7 @@ class AnnotationFilterTests {
 
 	@Test
 	void plainWhenSpringLangAnnotationReturnsTrue() {
-		assertThat(AnnotationFilter.PLAIN.matches(Nullable.class)).isTrue();
+		assertThat(AnnotationFilter.PLAIN.matches(Nullable.class)).isFalse();
 	}
 
 	@Test

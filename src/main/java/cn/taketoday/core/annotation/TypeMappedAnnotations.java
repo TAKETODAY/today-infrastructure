@@ -16,6 +16,8 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -28,8 +30,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * {@link MergedAnnotations} implementation that searches for and adapts
@@ -121,7 +121,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return false;
     }
     return Boolean.TRUE.equals(scan(annotationType,
-                                    IsPresent.get(repeatableContainers, annotationFilter, true)));
+            IsPresent.get(repeatableContainers, annotationFilter, true)));
   }
 
   @Override
@@ -173,7 +173,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return MergedAnnotation.missing();
     }
     MergedAnnotation<A> result = scan(annotationType,
-                                      new MergedAnnotationFinder<>(annotationType, predicate, selector));
+            new MergedAnnotationFinder<>(annotationType, predicate, selector));
     return (result != null ? result : MergedAnnotation.missing());
   }
 
@@ -461,20 +461,19 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public List<Aggregate> doWithAnnotations(Object criteria, int aggregateIndex,
-                                             @Nullable Object source, Annotation[] annotations) {
-
+    public List<Aggregate> doWithAnnotations(
+            Object criteria, int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
       aggregates.add(createAggregate(aggregateIndex, source, annotations));
       return null;
     }
 
     private Aggregate createAggregate(int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
-      List<Annotation> aggregateAnnotations = getAggregateAnnotations(annotations);
+      ArrayList<Annotation> aggregateAnnotations = getAggregateAnnotations(annotations);
       return new Aggregate(aggregateIndex, source, aggregateAnnotations);
     }
 
-    private List<Annotation> getAggregateAnnotations(Annotation[] annotations) {
-      List<Annotation> result = new ArrayList<>(annotations.length);
+    private ArrayList<Annotation> getAggregateAnnotations(Annotation[] annotations) {
+      ArrayList<Annotation> result = new ArrayList<>(annotations.length);
       addAggregateAnnotations(result, annotations);
       return result;
     }
@@ -506,11 +505,11 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     @Nullable
     private final Object source;
 
-    private final List<Annotation> annotations;
+    private final ArrayList<Annotation> annotations;
 
     private final AnnotationTypeMappings[] mappings;
 
-    Aggregate(int aggregateIndex, @Nullable Object source, List<Annotation> annotations) {
+    Aggregate(int aggregateIndex, @Nullable Object source, ArrayList<Annotation> annotations) {
       this.aggregateIndex = aggregateIndex;
       this.source = source;
       this.annotations = annotations;

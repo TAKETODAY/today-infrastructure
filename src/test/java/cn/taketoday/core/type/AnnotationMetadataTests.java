@@ -290,7 +290,7 @@ class AnnotationMetadataTests {
 		assertThat(metadata.isConcrete()).isTrue();
 		assertThat(metadata.hasSuperClass()).isTrue();
 		assertThat(metadata.getSuperClassName()).isEqualTo(Object.class.getName());
-		assertThat(metadata.getInterfaceNames().length).isEqualTo(1);
+		assertThat(metadata.getInterfaceNames()).hasSize(1);
 		assertThat(metadata.getInterfaceNames()[0]).isEqualTo(Serializable.class.getName());
 
 		assertThat(metadata.isAnnotated(Component.class.getName())).isTrue();
