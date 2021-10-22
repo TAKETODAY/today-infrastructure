@@ -1188,6 +1188,7 @@ class MergedAnnotationsTests {
   @Test
   void getDirectWithoutAttributeAliases() {
     MergedAnnotation<?> annotation = MergedAnnotations.from(WebController.class).get(Component.class);
+    // adapt array to single value
     assertThat(annotation.getString("value")).isEqualTo("webController");
   }
 

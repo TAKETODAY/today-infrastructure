@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.type.filter;
 
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -133,7 +134,7 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
       try {
         Class<?> clazz = ClassUtils.forName(typeName, getClass().getClassLoader());
         return considerMetaAnnotations
-                ? AnnotationUtils.isPresent(clazz, annotationType)
+                ? AnnotatedElementUtils.isAnnotated(clazz, annotationType)
                 : clazz.isAnnotationPresent(annotationType);
       }
       catch (Throwable ex) {

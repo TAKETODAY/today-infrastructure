@@ -462,6 +462,20 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       value = array;
     }
 
+    // adapt array to single value
+    if (ObjectUtils.isArray(value) && !type.isArray() && type == value.getClass().getComponentType()) {
+      int length = Array.getLength(value);
+      if (length == 1) {
+        value = Array.get(value, 0);
+      }
+      else {
+        throw new IllegalArgumentException(
+                "Unable to adapt value of type " +
+                        value.getClass().getName() + " to " +
+                        type.getName() + " cause incorrect array length: " + length);
+      }
+    }
+
     if (!type.isInstance(value)) {
       throw new IllegalArgumentException(
               "Unable to adapt value of type " +

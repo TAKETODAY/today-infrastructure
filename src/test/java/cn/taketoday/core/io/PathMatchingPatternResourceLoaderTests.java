@@ -52,7 +52,7 @@ class PathMatchingPatternResourceLoaderTests {
           "InputStreamSource.class", //
           "Resource.class", //
           "ResourceFilter.class", //
-          "ResourceResolver.class", //
+          "ResourceLoader.class", //
           "UrlBasedResource.class", //
           "OutputStreamSource.class", //
           "WritableResource.class", //
@@ -65,6 +65,7 @@ class PathMatchingPatternResourceLoaderTests {
           "ProtocolResolver.class",
           "DefaultResourceLoader.class",
           "PatternResourceLoader.class",
+          "PropertiesUtilsTests.class",
           "JarEntryResource$JarEntryInputStream.class", //
   };
 
