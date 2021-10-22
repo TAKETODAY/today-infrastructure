@@ -19,6 +19,18 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -41,18 +53,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -127,7 +127,7 @@ public class DefaultBeanDefinition
   private boolean primary = false;
 
   /** @since 4.0  class name lazy load */
-  private String className;
+  private String beanClassName;
 
   /** source @since 4.0 source */
   @Nullable
@@ -139,9 +139,9 @@ public class DefaultBeanDefinition
     setBeanClass(beanClass);
   }
 
-  public DefaultBeanDefinition(String name, String className) {
+  public DefaultBeanDefinition(String name, String beanClassName) {
     this.name = name;
-    this.className = className;
+    this.beanClassName = beanClassName;
   }
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
@@ -184,15 +184,26 @@ public class DefaultBeanDefinition
 
   @Override
   public Class<?> getBeanClass() {
-    if (beanClass == null && className != null) {
+    if (beanClass == null && beanClassName != null) {
       try {
-        beanClass = ClassUtils.forName(className);
+        beanClass = ClassUtils.forName(beanClassName);
       }
       catch (ClassNotFoundException e) {
         throw ExceptionUtils.sneakyThrow(e);
       }
     }
     return beanClass;
+  }
+
+  @Nullable
+  @Override
+  public String getBeanClassName() {
+    return beanClassName;
+  }
+
+  @Override
+  public void setBeanClassName(@Nullable String beanClassName) {
+    this.beanClassName = beanClassName;
   }
 
   /**

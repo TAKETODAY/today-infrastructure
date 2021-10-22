@@ -397,4 +397,27 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    */
   boolean isAssignableTo(Class<?> typeToMatch);
 
+  /**
+   * Specify the bean class name of this bean definition.
+   * <p>The class name can be modified during bean factory post-processing,
+   * typically replacing the original class name with a parsed variant of it.
+   *
+   * @since 4.0
+   */
+  void setBeanClassName(@Nullable String beanClassName);
+
+  /**
+   * Return the current bean class name of this bean definition.
+   * <p>Note that this does not have to be the actual class name used at runtime, in
+   * case of a child definition overriding/inheriting the class name from its parent.
+   * Also, this may just be the class that a factory method is called on, or it may
+   * even be empty in case of a factory bean reference that a method is called on.
+   * Hence, do <i>not</i> consider this to be the definitive bean type at runtime but
+   * rather only use it for parsing purposes at the individual bean definition level.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  String getBeanClassName();
+
 }

@@ -29,6 +29,7 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.SingletonSupplier;
 
 /**
@@ -66,6 +67,17 @@ public class FactoryBeanDefinition<T>
   @Override
   public Class<T> getBeanClass() {
     return getFactory().getBeanClass();
+  }
+
+  @Nullable
+  @Override
+  public String getBeanClassName() {
+    return factoryDef.getBeanClassName();
+  }
+
+  @Override
+  public void setBeanClassName(@Nullable String beanClassName) {
+    factoryDef.setBeanClassName(beanClassName);
   }
 
   @Override
