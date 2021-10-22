@@ -40,11 +40,6 @@ public interface ImportAware {
   /**
    * Set the annotation metadata of the importing @{@code Configuration} class.
    */
-  void setImportBeanDefinition(BeanDefinition importDef);
-
-  /**
-   * Set the annotation metadata of the importing @{@code Configuration} class.
-   */
   void setImportMetadata(AnnotationMetadata importMetadata);
 
 }
