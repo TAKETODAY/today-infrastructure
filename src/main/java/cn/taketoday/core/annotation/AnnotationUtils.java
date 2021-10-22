@@ -20,19 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.BridgeMethodResolver;
@@ -45,6 +32,19 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -98,12 +98,12 @@ public abstract class AnnotationUtils {
    * @param annType Target annotation type
    * @return Whether it's present
    */
-
   public static <A extends Annotation> boolean isPresent(
           @Nullable AnnotatedElement element, @Nullable Class<A> annType) {
-    return annType != null && element != null
-            && (element.isAnnotationPresent(annType)
-            || ObjectUtils.isNotEmpty(AnnotatedElementUtils.getMergedAttributesArray(element, annType)));
+    return annType != null && element != null && (
+            element.isAnnotationPresent(annType)
+                    || ObjectUtils.isNotEmpty(AnnotatedElementUtils.getMergedAttributesArray(element, annType))
+    );
   }
 
   /**
@@ -147,8 +147,8 @@ public abstract class AnnotationUtils {
     }
     if (logger.isEnabled()) {
       String message = meta ?
-                       "Failed to meta-introspect annotation " :
-                       "Failed to introspect annotations on ";
+              "Failed to meta-introspect annotation " :
+              "Failed to introspect annotations on ";
       logger.log(message + element + ": " + ex);
     }
   }
@@ -404,8 +404,8 @@ public abstract class AnnotationUtils {
 
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
-            : RepeatableContainers.standard();
+                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+                    : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.SUPERCLASS, repeatableContainers)
             .stream(annotationType)
@@ -481,8 +481,8 @@ public abstract class AnnotationUtils {
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
-            : RepeatableContainers.standard();
+                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+                    : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.DIRECT, repeatableContainers)
             .stream(annotationType)
@@ -1088,7 +1088,7 @@ public abstract class AnnotationUtils {
     catch (InvocationTargetException ex) {
       rethrowAnnotationConfigurationException(ex.getTargetException());
       throw new IllegalStateException("Could not obtain value for annotation attribute '" +
-                                              attributeName + "' in " + annotation, ex);
+              attributeName + "' in " + annotation, ex);
     }
     catch (Throwable ex) {
       handleIntrospectionFailure(annotation.getClass(), ex);

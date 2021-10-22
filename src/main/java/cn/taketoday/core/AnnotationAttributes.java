@@ -50,7 +50,7 @@ import cn.taketoday.lang.Assert;
 @SuppressWarnings("rawtypes")
 public class AnnotationAttributes
         /*extends LinkedHashMap<String, Object>*/
-        implements Ordered, Serializable, Map<String, Object>, ArraySizeTrimmer {
+        implements Serializable, Map<String, Object>, ArraySizeTrimmer {
   private static final long serialVersionUID = 1L;
 
   private static final String UNKNOWN = "unknown";
@@ -660,11 +660,6 @@ public class AnnotationAttributes
               && Objects.equals(values, other.values);
     }
     return false;
-  }
-
-  @Override
-  public int getOrder() {
-    return OrderUtils.getOrderOrLowest(annotationType);
   }
 
   // package

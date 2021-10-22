@@ -46,6 +46,7 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
+  public static final AnnotationAttributes[] EMPTY_ARRAY = { };
 
   private static final String UNKNOWN = "unknown";
 

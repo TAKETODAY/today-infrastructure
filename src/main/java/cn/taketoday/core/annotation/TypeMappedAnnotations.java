@@ -204,7 +204,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   @Override
   public <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType) {
     if (annotationFilter == AnnotationFilter.ALL) {
-      return new AnnotationAttributes[0];
+      return AnnotationAttributes.EMPTY_ARRAY;
     }
     return StreamSupport.stream(spliterator(annotationType), false)
             .map(MergedAnnotation::asAnnotationAttributes)

@@ -16,6 +16,10 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
+
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,9 +29,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 
 /**
  * {@link MergedAnnotations} implementation backed by a {@link Collection} of
@@ -172,8 +173,8 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
         }
         MergedAnnotation<A> candidate =
                 mappingIndex == 0
-                ? (MergedAnnotation<A>) root
-                : TypeMappedAnnotation.createIfPossible(mapping, root, IntrospectionFailureLogger.INFO);
+                        ? (MergedAnnotation<A>) root
+                        : TypeMappedAnnotation.createIfPossible(mapping, root, IntrospectionFailureLogger.INFO);
         if (candidate != null && (predicate == null || predicate.test(candidate))) {
           if (selector.isBestCandidate(candidate)) {
             return candidate;
@@ -202,6 +203,9 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
 
   @Override
   public <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType) {
+    if (ObjectUtils.isEmpty(annotations)) {
+      return AnnotationAttributes.EMPTY_ARRAY;
+    }
     return StreamSupport.stream(spliterator(annotationType), false)
             .map(MergedAnnotation::asAnnotationAttributes)
             .toArray(AnnotationAttributes[]::new);
@@ -290,7 +294,7 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
         return (MergedAnnotation<A>) root;
       }
       IntrospectionFailureLogger logger = (this.requiredType != null ?
-                                           IntrospectionFailureLogger.INFO : IntrospectionFailureLogger.DEBUG);
+              IntrospectionFailureLogger.INFO : IntrospectionFailureLogger.DEBUG);
       return TypeMappedAnnotation.createIfPossible(
               mappings[annotationIndex].get(mappingIndex), root, logger);
     }
