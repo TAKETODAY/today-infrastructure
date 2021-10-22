@@ -30,7 +30,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.PatternResourceLoader;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -50,6 +55,11 @@ public class DefinitionLoadingContext {
   private final MissingBeanRegistry missingBeanRegistry;
 
   private BeanFactoryAwareBeanInstantiator instantiator;
+
+  private MetadataReaderFactory metadataReaderFactory;
+
+  @Nullable
+  private PatternResourceLoader resourceLoader;
 
   public DefinitionLoadingContext(BeanDefinitionRegistry registry, ApplicationContext context) {
     this.registry = registry;
@@ -169,6 +179,63 @@ public class DefinitionLoadingContext {
 
   public <T> T instantiate(Class<T> beanClass) {
     return instantiator().instantiate(beanClass);
+  }
+
+  //---------------------------------------------------------------------
+  // MetadataReaderFactory
+  //---------------------------------------------------------------------
+
+  /**
+   * Set the {@link ResourceLoader} to use for resource locations.
+   * This will typically be a {@link PatternResourceLoader} implementation.
+   * <p>Default is a {@code PathMatchingResourcePatternResolver}, also capable of
+   * resource pattern resolving through the {@code ResourcePatternResolver} interface.
+   *
+   * @see PatternResourceLoader
+   * @see PathMatchingPatternResourceLoader
+   */
+  public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
+    this.resourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
+    this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
+  }
+
+  public PatternResourceLoader getResourceLoader() {
+    if (this.resourceLoader == null) {
+      this.resourceLoader = new PathMatchingPatternResourceLoader();
+    }
+    return this.resourceLoader;
+  }
+
+  /**
+   * Set the {@link MetadataReaderFactory} to use.
+   * <p>Default is a {@link CachingMetadataReaderFactory} for the specified
+   * {@linkplain #setResourceLoader resource loader}.
+   * <p>Call this setter method <i>after</i> {@link #setResourceLoader} in order
+   * for the given MetadataReaderFactory to override the default factory.
+   */
+  public void setMetadataReaderFactory(@Nullable MetadataReaderFactory metadataReaderFactory) {
+    this.metadataReaderFactory = metadataReaderFactory;
+  }
+
+  /**
+   * Return the MetadataReaderFactory used by this component provider.
+   */
+  public final MetadataReaderFactory getMetadataReaderFactory() {
+    if (this.metadataReaderFactory == null) {
+      this.metadataReaderFactory = new CachingMetadataReaderFactory();
+    }
+    return this.metadataReaderFactory;
+  }
+
+  /**
+   * Clear the local metadata cache, if any, removing all cached class metadata.
+   */
+  public void clearCache() {
+    if (metadataReaderFactory instanceof CachingMetadataReaderFactory) {
+      // Clear cache in externally provided MetadataReaderFactory; this is a no-op
+      // for a shared cache since it'll be cleared by the ApplicationContext.
+      ((CachingMetadataReaderFactory) metadataReaderFactory).clearCache();
+    }
   }
 
 }

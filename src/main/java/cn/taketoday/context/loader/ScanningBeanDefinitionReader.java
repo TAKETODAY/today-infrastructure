@@ -20,21 +20,23 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
@@ -42,12 +44,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.annotation.Controller;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -61,18 +57,11 @@ public class ScanningBeanDefinitionReader {
 
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
-  @Nullable
-  private PatternResourceLoader resourceLoader;
-
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
 
   private final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
-
   private final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
-
-  @Nullable
-  private MetadataReaderFactory metadataReaderFactory;
 
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
     this.registry = loadingContext.getRegistry();
@@ -131,8 +120,8 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      Set<Resource> resources = getResourceLoader().getResources(patternLocation);
-      MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
+      MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
+      Set<Resource> resources = loadingContext.getResourceLoader().getResources(patternLocation);
       for (Resource resource : resources) {
         MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
         if (isCandidateComponent(metadataReader)) {
@@ -153,13 +142,14 @@ public class ScanningBeanDefinitionReader {
    * @return whether the class qualifies as a candidate component
    */
   protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
+    MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
     for (TypeFilter tf : this.excludeFilters) {
-      if (tf.match(metadataReader, getMetadataReaderFactory())) {
+      if (tf.match(metadataReader, metadataReaderFactory)) {
         return false;
       }
     }
     for (TypeFilter tf : this.includeFilters) {
-      if (tf.match(metadataReader, getMetadataReaderFactory())) {
+      if (tf.match(metadataReader, metadataReaderFactory)) {
         return isConditionMatch(metadataReader);
       }
     }
@@ -257,55 +247,6 @@ public class ScanningBeanDefinitionReader {
     catch (ClassNotFoundException ex) {
       // JSR-330 API not available - simply skip.
     }
-  }
-
-  /**
-   * Set the {@link ResourceLoader} to use for resource locations.
-   * This will typically be a {@link PatternResourceLoader} implementation.
-   * <p>Default is a {@code PathMatchingResourcePatternResolver}, also capable of
-   * resource pattern resolving through the {@code ResourcePatternResolver} interface.
-   *
-   * @see PatternResourceLoader
-   * @see PathMatchingPatternResourceLoader
-   */
-  public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
-    this.resourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
-    this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
-  }
-
-  public PatternResourceLoader getResourceLoader() {
-    return getResourcePatternResolver();
-  }
-
-  /**
-   * Return the ResourceLoader that this component provider uses.
-   */
-  private PatternResourceLoader getResourcePatternResolver() {
-    if (this.resourceLoader == null) {
-      this.resourceLoader = new PathMatchingPatternResourceLoader();
-    }
-    return this.resourceLoader;
-  }
-
-  /**
-   * Set the {@link MetadataReaderFactory} to use.
-   * <p>Default is a {@link CachingMetadataReaderFactory} for the specified
-   * {@linkplain #setResourceLoader resource loader}.
-   * <p>Call this setter method <i>after</i> {@link #setResourceLoader} in order
-   * for the given MetadataReaderFactory to override the default factory.
-   */
-  public void setMetadataReaderFactory(@Nullable MetadataReaderFactory metadataReaderFactory) {
-    this.metadataReaderFactory = metadataReaderFactory;
-  }
-
-  /**
-   * Return the MetadataReaderFactory used by this component provider.
-   */
-  public final MetadataReaderFactory getMetadataReaderFactory() {
-    if (this.metadataReaderFactory == null) {
-      this.metadataReaderFactory = new CachingMetadataReaderFactory();
-    }
-    return this.metadataReaderFactory;
   }
 
   /**

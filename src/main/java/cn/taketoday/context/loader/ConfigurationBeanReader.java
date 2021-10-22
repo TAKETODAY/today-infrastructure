@@ -188,7 +188,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     try {
       Object bean = context.getBean(importDef);
       if (bean instanceof ImportAware) {
-        ((ImportAware) bean).setImportBeanDefinition(importDef);
+        ((ImportAware) bean).setImportMetadata(importDef);
       }
       return target.cast(bean);
     }
@@ -198,6 +198,10 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   protected final void processImport(BeanDefinition annotated) {
+    String beanClassName = annotated.getBeanClassName();
+
+
+
     AnnotationAttributes[] mergedAttributesArray = AnnotatedElementUtils.getMergedAttributesArray(annotated, Import.class);
     for (AnnotationAttributes attr : mergedAttributesArray) {
       for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
