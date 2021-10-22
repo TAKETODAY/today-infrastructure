@@ -16,12 +16,12 @@
 
 package cn.taketoday.core.type;
 
+import cn.taketoday.util.StringUtils;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-
-import cn.taketoday.util.StringUtils;
 
 /**
  * A test group used to limit when certain tests are run.
@@ -61,7 +61,7 @@ public enum TestGroup {
     }
     catch (Exception ex) {
       throw new IllegalStateException("Failed to parse '" + TEST_GROUPS_SYSTEM_PROPERTY +
-                                              "' system property: " + ex.getMessage(), ex);
+              "' system property: " + ex.getMessage(), ex);
     }
   }
 
