@@ -20,16 +20,16 @@
 
 package cn.taketoday.core.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Repeatable;
+import java.lang.reflect.Method;
+import java.util.Objects;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Repeatable;
-import java.lang.reflect.Method;
-import java.util.Objects;
 
 /**
  * Strategy used to determine annotations that act as containers for other
@@ -91,6 +91,8 @@ public abstract class RepeatableContainers {
   public int hashCode() {
     return ObjectUtils.nullSafeHashCode(this.parent);
   }
+
+  // static
 
   /**
    * Create a {@link RepeatableContainers} instance that searches using Java's
@@ -203,10 +205,9 @@ public abstract class RepeatableContainers {
         }
         Class<?> returnType = valueMethod.getReturnType();
         if (!returnType.isArray() || returnType.getComponentType() != repeatable) {
-          throw new AnnotationConfigurationException("Container type [" +
-                  container.getName() +
-                  "] must declare a 'value' attribute for an array of type [" +
-                  repeatable.getName() + "]");
+          throw new AnnotationConfigurationException(
+                  "Container type [" + container.getName() +
+                          "] must declare a 'value' attribute for an array of type [" + repeatable.getName() + "]");
         }
       }
       catch (AnnotationConfigurationException ex) {

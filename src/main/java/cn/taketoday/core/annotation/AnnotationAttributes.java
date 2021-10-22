@@ -16,16 +16,16 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link LinkedHashMap} subclass representing annotation attribute
@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
-  public static final AnnotationAttributes[] EMPTY_ARRAY = { };
+  public static final AnnotationAttributes[] EMPTY_ARRAY = {};
 
   private static final String UNKNOWN = "unknown";
 
@@ -56,7 +56,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
   final String displayName;
 
   boolean validated = false;
-
 
   /**
    * Create a new, empty {@link AnnotationAttributes} instance.
@@ -162,7 +161,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
     }
     return null;
   }
-
 
   /**
    * Get the type of annotation represented by this {@code AnnotationAttributes}.
@@ -427,7 +425,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
     }
     return String.valueOf(value);
   }
-
 
   /**
    * Return an {@link AnnotationAttributes} instance based on the given map.

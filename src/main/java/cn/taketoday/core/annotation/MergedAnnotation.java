@@ -16,9 +16,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -29,6 +26,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A single merged annotation returned from a {@link MergedAnnotations}
@@ -173,7 +173,6 @@ public interface MergedAnnotation<A extends Annotation> {
    * @see #getMetaSource()
    */
   List<Class<? extends Annotation>> getMetaTypes();
-
 
   /**
    * Determine if the specified attribute name has a non-default value when
@@ -716,7 +715,7 @@ public interface MergedAnnotation<A extends Annotation> {
       return adapts;
     }
 
-    static final Adapt[] EMPTY = { };
+    static final Adapt[] EMPTY = {};
   }
 
 }

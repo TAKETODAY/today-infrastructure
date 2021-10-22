@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
  * @since 3.0
  */
 public interface AnnotationBeanDefinitionRegistrar<A extends Annotation>
-        extends AnnotationCapable<A>, BeanDefinitionImporter {
+        extends AnnotationProvider<A>, BeanDefinitionImporter {
 
   @Override
   default void registerBeanDefinitions(

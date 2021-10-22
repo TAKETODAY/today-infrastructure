@@ -22,23 +22,23 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/3/8 16:19
  * @since 3.0
  */
-public interface AnnotationImportSelector<A extends Annotation> extends AnnotationCapable<A>, ImportSelector {
+public interface AnnotationImportSelector<A extends Annotation> extends AnnotationProvider<A>, ImportSelector {
 
   @Override
-  default String[] selectImports(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
-    final A target = getAnnotation(annotatedMetadata);
-    return selectImports(target, annotatedMetadata, registry);
+  default String[] selectImports(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    final A target = getAnnotation(importingClassMetadata);
+    return selectImports(target, importingClassMetadata, registry);
   }
 
   @Nullable
-  String[] selectImports(A target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
+  String[] selectImports(A target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry);
 
 }

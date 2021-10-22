@@ -216,7 +216,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    */
   protected void doImport(BeanDefinition annotated, Class<?> importClass) {
     log.debug("Importing: [{}]", importClass);
-
+//AnnotationMetadata
     BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);
     importDef.setAttribute(ImportAware.ImportAnnotatedMetadata, annotated); // @since 3.0
     register(importDef);

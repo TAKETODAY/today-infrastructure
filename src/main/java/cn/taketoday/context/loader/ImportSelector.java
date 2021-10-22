@@ -19,17 +19,41 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 
 /**
- * Import classes according to user's Configuration
+ * Interface to be implemented by types that determine which @{@link Configuration}
+ * class(es) should be imported based on a given selection criteria, usually one or
+ * more annotation attributes.
  *
- * @author TODAY <br>
- * 2019-10-01 20:20
+ * <p>An {@link ImportSelector} may implement any of the following
+ * {@link cn.taketoday.beans.factory.Aware Aware} interfaces,
+ * and their respective methods will be called prior to {@link #selectImports}:
+ * <ul>
+ * <li>{@link cn.taketoday.context.aware.EnvironmentAware EnvironmentAware}</li>
+ * <li>{@link cn.taketoday.beans.factory.BeanFactoryAware BeanFactoryAware}</li>
+ * <li>{@link cn.taketoday.beans.factory.BeanClassLoaderAware BeanClassLoaderAware}</li>
+ * <li>{@link cn.taketoday.context.aware.ResourceLoaderAware ResourceLoaderAware}</li>
+ * </ul>
+ *
+ * <p>Alternatively, the class may provide a single constructor with one or more of
+ * the following supported parameter types:
+ * <ul>
+ * <li>{@link cn.taketoday.core.env.Environment Environment}</li>
+ * <li>{@link cn.taketoday.beans.factory.BeanFactory BeanFactory}</li>
+ * <li>{@link java.lang.ClassLoader ClassLoader}</li>
+ * <li>{@link cn.taketoday.core.io.ResourceLoader ResourceLoader}</li>
+ * </ul>
+ *
+ * @author Chris Beams
+ * @author Juergen Hoeller
+ * @author TODAY 2019-10-01 20:20
+ * @see Import
+ * @see Configuration
  */
 @FunctionalInterface
 public interface ImportSelector {
@@ -37,15 +61,10 @@ public interface ImportSelector {
   String[] NO_IMPORTS = Constant.EMPTY_STRING_ARRAY;
 
   /**
-   * Select and return the full names of which class(es) should be imported based
-   * on the importing @{@link Configuration} BeanDefinition.
+   * Select and return the names of which class(es) should be imported based on
+   * the {@link AnnotationMetadata} of the importing @{@link Configuration} class.
    *
-   * @param annotatedMetadata Target {@link BeanDefinition}
-   * @param registry BeanDefinitionRegistry
-   * @return import classes Never be null
-   * @see BeanDefinitionRegistry#isBeanNameInUse(String)
+   * @return the class names, or an empty array if none
    */
-  @Nullable
-  String[] selectImports(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
-
+  String[] selectImports(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry);
 }

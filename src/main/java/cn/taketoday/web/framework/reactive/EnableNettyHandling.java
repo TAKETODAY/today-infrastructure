@@ -22,13 +22,14 @@ package cn.taketoday.web.framework.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.AnnotationImportSelector;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -120,9 +121,10 @@ final class NettyConfig implements AnnotationImportSelector<EnableNettyHandling>
   /**
    * register a {@link NettyDispatcher} bean
    */
+  @Nullable
   @Override
   public String[] selectImports(
-          EnableNettyHandling target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+          EnableNettyHandling target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
     // replace context holder
     if (target.fastThreadLocal()) {
       RequestContextHolder.replaceContextHolder(new FastRequestThreadLocal());
@@ -138,4 +140,5 @@ final class NettyConfig implements AnnotationImportSelector<EnableNettyHandling>
     }
     return null;
   }
+
 }

@@ -34,8 +34,11 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Configuration;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +98,7 @@ class ImportTests {
   public static class TESTSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+    public String[] selectImports(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
       return NO_IMPORTS;
     }
   }
@@ -112,14 +115,17 @@ class ImportTests {
   static class AopSelector implements AnnotationImportSelector<EnableAop> {
 
     private EnableAop enableAop;
-    private BeanDefinition annotatedMetadata;
+    private AnnotationMetadata annotatedMetadata;
 
+    @Nullable
     @Override
-    public String[] selectImports(EnableAop enableAop, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
-      this.enableAop = enableAop;
+    public String[] selectImports(
+            EnableAop target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
+      this.enableAop = target;
       this.annotatedMetadata = annotatedMetadata;
       return NO_IMPORTS;
     }
+
   }
 
   @EnableAop(proxyTargetClass = true)
@@ -141,8 +147,10 @@ class ImportTests {
   @Test
   void importConfiguration() throws BeanDefinitionStoreException, ConfigurationException {
 
-    try (StandardApplicationContext context = //
-            new StandardApplicationContext("", "cn.taketoday.context.loader")) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      context.scan("cn.taketoday.context.loader");
+      context.refresh();
 
       Assertions.assertTrue(context.containsBeanDefinition("objTest"));
       Assertions.assertFalse(context.containsBeanDefinition(ErrorImportTESTBean.class));
@@ -151,16 +159,16 @@ class ImportTests {
 
       context.register(AopConfig.class);
 
-      final AopSelector bean = context.getBean(AopSelector.class);
-      final BeanDefinitionRegistrar beanDefinitionRegistrar = context.getBean(BeanDefinitionRegistrar.class);
+      AopSelector bean = context.getBean(AopSelector.class);
+      BeanDefinitionRegistrar beanDefinitionRegistrar = context.getBean(BeanDefinitionRegistrar.class);
 
       assertThat(bean.enableAop.proxyTargetClass())
               .isEqualTo(beanDefinitionRegistrar.enableAop.proxyTargetClass())
               .isTrue();
 
-      final BeanDefinition def = context.getBeanDefinition(AopConfig.class);
-
-      assertThat(def).isEqualTo(bean.annotatedMetadata);
+      BeanDefinition def = context.getBeanDefinition(AopConfig.class);
+      Object attribute = def.getAttribute(ImportAware.ImportAnnotatedMetadata);
+      assertThat(attribute).isEqualTo(bean.annotatedMetadata);
 
     }
   }

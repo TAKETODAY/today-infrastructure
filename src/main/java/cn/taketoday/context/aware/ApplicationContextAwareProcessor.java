@@ -25,6 +25,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -85,8 +86,8 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
     if (bean instanceof ImportAware) { // @since 3.0
       Object attribute = def.getAttribute(ImportAware.ImportAnnotatedMetadata);
-      if (attribute instanceof BeanDefinition) {
-        ((ImportAware) bean).setImportBeanDefinition((BeanDefinition) attribute);
+      if (attribute instanceof AnnotationMetadata) {
+        ((ImportAware) bean).setImportMetadata((AnnotationMetadata) attribute);
       }
     }
 

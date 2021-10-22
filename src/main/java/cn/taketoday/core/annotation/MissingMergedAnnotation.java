@@ -20,8 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +28,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * An {@link AbstractMergedAnnotation} used as the implementation of
@@ -131,7 +131,8 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
   }
 
   @Override
-  public <T extends Map<String, Object>> T asMap(Function<MergedAnnotation<?>, T> factory, MergedAnnotation.Adapt... adaptations) {
+  public <T extends Map<String, Object>> T asMap(
+          Function<MergedAnnotation<?>, T> factory, MergedAnnotation.Adapt... adaptations) {
     return factory.apply(this);
   }
 

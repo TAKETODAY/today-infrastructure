@@ -20,14 +20,15 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.DecoratingProxy;
-import cn.taketoday.core.Order;
-import cn.taketoday.core.OrderComparator;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.List;
+
+import cn.taketoday.core.DecoratingProxy;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.OrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@code AnnotationAwareOrderComparator} is an extension of
@@ -74,8 +75,9 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
 
   @Nullable
   private Integer findOrderFromAnnotation(Object obj) {
-    AnnotatedElement element = (obj instanceof AnnotatedElement ? (AnnotatedElement) obj : obj.getClass());
-    Integer order = OrderUtils.getOrder(element);
+    AnnotatedElement element = obj instanceof AnnotatedElement ? (AnnotatedElement) obj : obj.getClass();
+    MergedAnnotations annotations = MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY);
+    Integer order = OrderUtils.getOrderFromAnnotations(element, annotations);
     if (order == null && obj instanceof DecoratingProxy) {
       return findOrderFromAnnotation(((DecoratingProxy) obj).getDecoratedClass());
     }
