@@ -20,9 +20,6 @@
 
 package cn.taketoday.context.expression;
 
-import java.util.Map;
-import java.util.Properties;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextHolder;
 import cn.taketoday.core.conversion.ConversionService;
@@ -44,6 +41,9 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
+
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Expression Evaluator
@@ -119,7 +119,8 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     expression = resolvePlaceholders(expression, throwIfPropertyNotFound);
     if (expression.contains(EL_PREFIX)) {
       try {
-        expression = obtainProcessor().getValue(expression, null);
+        Object evaluated = obtainProcessor().getValue(expression, null);
+        return convertIfNecessary(evaluated, expectedType);
       }
       catch (ExpressionException e) {
         throw new ExpressionEvaluationException(e);
@@ -136,7 +137,8 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     expression = resolvePlaceholders(expression, resolver, throwIfPropertyNotFound);
     if (expression.contains(EL_PREFIX)) {
       try {
-        expression = obtainProcessor().getValue(expression, null);
+        Object evaluated = obtainProcessor().getValue(expression, null);
+        return convertIfNecessary(evaluated, expectedType);
       }
       catch (ExpressionException e) {
         throw new ExpressionEvaluationException(e);
@@ -153,7 +155,8 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     expression = resolvePlaceholders(expression, throwIfPropertyNotFound);
     if (expression.contains(EL_PREFIX)) {
       try {
-        expression = obtainProcessor().getValue(expression, context, null);
+        Object evaluated = obtainProcessor().getValue(expression, context, null);
+        return convertIfNecessary(evaluated, expectedType);
       }
       catch (ExpressionException e) {
         throw new ExpressionEvaluationException(e);
