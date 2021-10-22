@@ -67,7 +67,7 @@ class StandardEnvironmentTests {
   void activeProfile() throws IOException {
 
     try (ApplicationContext applicationContext
-            = new StandardApplicationContext("", "cn.taketoday.context.env")) {
+            = new StandardApplicationContext("info.properties", "cn.taketoday.context.env")) {
       Environment environment = applicationContext.getEnvironment();
 
       String[] activeProfiles = environment.getActiveProfiles();
@@ -96,7 +96,7 @@ class StandardEnvironmentTests {
   void test_AcceptsProfiles() throws IOException {
 
     try (ConfigurableApplicationContext applicationContext
-            = new StandardApplicationContext("", "cn.taketoday.context.env")) {
+            = new StandardApplicationContext("info.properties", "cn.taketoday.context.env")) {
       ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
       assert environment.acceptsProfiles("test");

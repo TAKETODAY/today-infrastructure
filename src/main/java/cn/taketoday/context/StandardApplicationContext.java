@@ -112,19 +112,20 @@ public class StandardApplicationContext
    * Start context with given properties location and base scan packages
    *
    * @param propertiesLocation a file or a directory contains
-   * @param locations scan classes from packages
+   * @param basePackages scan classes from packages
    * @see #refresh()
    */
-  public StandardApplicationContext(String propertiesLocation, String... locations) {
+  public StandardApplicationContext(String propertiesLocation, String... basePackages) {
     setPropertiesLocation(propertiesLocation);
-    scan(locations);
+    scan(basePackages);
     refresh();
   }
 
-  public void setPropertiesLocation(String propertiesLocation) {
+  public void setPropertiesLocation(@Nullable String propertiesLocation) {
     this.propertiesLocation = propertiesLocation;
   }
 
+  @Nullable
   public String getPropertiesLocation() {
     return propertiesLocation;
   }
