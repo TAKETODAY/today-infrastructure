@@ -19,20 +19,6 @@
  */
 package cn.taketoday.web.annotation;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.aware.AnnotationImportAware;
-import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
-
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.HandlesTypes;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -40,6 +26,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
+import javax.servlet.annotation.HandlesTypes;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.aware.AnnotationImportAware;
+import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
@@ -55,7 +55,7 @@ public @interface EnableServletContainerInitializer {
    *
    * @see HandlesTypes#value()
    */
-  String[] scanPackages() default { };
+  String[] scanPackages() default {};
 }
 
 class ServletContainerInitializerConfig
@@ -97,8 +97,9 @@ class ServletContainerInitializerConfig
   }
 
   @Override
-  public void setImportBeanDefinition(
-          EnableServletContainerInitializer target, BeanDefinition importDef) {
+  public void setImportMetadata(
+          EnableServletContainerInitializer target, AnnotationMetadata importMetadata) {
     this.target = target;
   }
+
 }
