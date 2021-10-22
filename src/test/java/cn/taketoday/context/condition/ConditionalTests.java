@@ -133,8 +133,12 @@ class ConditionalTests {
   @Test
   public void testConditionalOnProperty() throws Exception {
 
-    try (ApplicationContext context =
-            new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
+    try (StandardApplicationContext context =new StandardApplicationContext()) {
+      context.setPropertiesLocation("info.properties");
+      context.scan("cn.taketoday.context.condition");
+
+      context.refresh();
+
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnProperty_.class));

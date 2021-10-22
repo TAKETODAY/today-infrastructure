@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.AnnotationCapable;
+import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
  * @author TODAY 2021/4/3 12:23
@@ -38,4 +39,7 @@ public interface AnnotationImportAware<A extends Annotation> extends AnnotationC
   }
 
   void setImportBeanDefinition(A target, BeanDefinition importDef);
+
+  @Override
+  void setImportMetadata(AnnotationMetadata importMetadata);
 }

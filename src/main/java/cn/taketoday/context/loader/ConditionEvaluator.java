@@ -20,8 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Method;
-
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
@@ -33,6 +31,8 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.lang.Assert;
+
+import java.lang.reflect.Method;
 
 /**
  * Condition Evaluation
@@ -58,7 +58,9 @@ public class ConditionEvaluator {
     AnnotationAttributes[] attributes = metadata.getAnnotations().getAttributes(Conditional.class);
     for (AnnotationAttributes attribute : attributes) {
       Class<? extends Condition>[] classArray = attribute.getClassArray(MergedAnnotation.VALUE);
-      return passCondition(metadata, classArray);
+      if (!passCondition(metadata, classArray)) {
+        return false;
+      }
     }
     return true;
   }

@@ -21,6 +21,7 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Configuration;
 
 /**
@@ -40,5 +41,10 @@ public interface ImportAware {
    * Set the annotation metadata of the importing @{@code Configuration} class.
    */
   void setImportBeanDefinition(BeanDefinition importDef);
+
+  /**
+   * Set the annotation metadata of the importing @{@code Configuration} class.
+   */
+  void setImportMetadata(AnnotationMetadata importMetadata);
 
 }

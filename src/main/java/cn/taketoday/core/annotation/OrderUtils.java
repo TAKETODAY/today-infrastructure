@@ -19,17 +19,16 @@
  */
 package cn.taketoday.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * General utility for determining the order of an object based on its type declaration.
@@ -58,7 +57,8 @@ public abstract class OrderUtils {
    * @return The order
    */
   public static int getOrderOrLowest(final AnnotatedElement annotated) {
-    return getOrder(annotated, Ordered.LOWEST_PRECEDENCE);
+    Integer order = getOrder(annotated);
+    return order == null ? Ordered.LOWEST_PRECEDENCE : order;
   }
 
   /**
@@ -88,12 +88,12 @@ public abstract class OrderUtils {
    * default value if none can be found.
    * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
    *
-   * @param element the annotated element (e.g. type or method)
+   * @param type the type to handle
    * @return the priority value, or the specified default order if none can be found
-   * @see #getPriority(AnnotatedElement)
+   * @see #getPriority(Class)
    */
-  public static int getOrder(AnnotatedElement element, int defaultOrder) {
-    Integer order = getOrder(element);
+  public static int getOrder(Class<?> type, int defaultOrder) {
+    Integer order = getOrder(type);
     return (order != null ? order : defaultOrder);
   }
 
@@ -102,14 +102,27 @@ public abstract class OrderUtils {
    * default value if none can be found.
    * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
    *
-   * @param element the annotated element (e.g. type or method)
+   * @param type the type to handle
    * @return the priority value, or the specified default order if none can be found
-   * @see #getPriority(AnnotatedElement)
+   * @see #getPriority(Class)
    */
   @Nullable
-  public static Integer getOrder(AnnotatedElement element, @Nullable Integer defaultOrder) {
-    Integer order = getOrder(element);
+  public static Integer getOrder(Class<?> type, @Nullable Integer defaultOrder) {
+    Integer order = getOrder(type);
     return (order != null ? order : defaultOrder);
+  }
+
+  /**
+   * Return the order on the specified {@code type}.
+   * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
+   *
+   * @param type the type to handle
+   * @return the order value, or {@code null} if none can be found
+   * @see #getPriority(Class)
+   */
+  @Nullable
+  public static Integer getOrder(Class<?> type) {
+    return getOrder((AnnotatedElement) type);
   }
 
   /**
@@ -121,39 +134,56 @@ public abstract class OrderUtils {
    */
   @Nullable
   public static Integer getOrder(AnnotatedElement element) {
-    Assert.notNull(element, "AnnotatedElement must not be null");
+    return getOrderFromAnnotations(element, MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY));
+  }
+
+  /**
+   * Return the order from the specified annotation collection.
+   * <p>Takes care of {@link Order @Order} and
+   * {@code @javax.annotation.Priority}.
+   *
+   * @param element the source element
+   * @param annotations the annotation to consider
+   * @return the order value, or {@code null} if none can be found
+   */
+  @Nullable
+  static Integer getOrderFromAnnotations(AnnotatedElement element, MergedAnnotations annotations) {
+    if (!(element instanceof Class)) {
+      return findOrder(annotations);
+    }
     Object cached = orderCache.get(element);
     if (cached != null) {
       return (cached instanceof Integer ? (Integer) cached : null);
     }
-    Integer result;
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            element, Order.class);
-    if (attributes != null) {
-      result = attributes.getNumber(Constant.VALUE);
-    }
-    else {
-      result = getPriority(element);
-    }
+    Integer result = findOrder(annotations);
     orderCache.put(element, result != null ? result : NOT_ANNOTATED);
     return result;
+  }
+
+  @Nullable
+  private static Integer findOrder(MergedAnnotations annotations) {
+    MergedAnnotation<Order> orderAnnotation = annotations.get(Order.class);
+    if (orderAnnotation.isPresent()) {
+      return orderAnnotation.getInt(MergedAnnotation.VALUE);
+    }
+    MergedAnnotation<?> priorityAnnotation = annotations.get(JAVAX_PRIORITY_ANNOTATION);
+    if (priorityAnnotation.isPresent()) {
+      return priorityAnnotation.getInt(MergedAnnotation.VALUE);
+    }
+    return null;
   }
 
   /**
    * Return the value of the {@code javax.annotation.Priority} annotation
    * declared on the specified type, or {@code null} if none.
    *
-   * @param element the annotated element (e.g. type or method)
+   * @param type the type to handle
    * @return the priority value if the annotation is declared, or {@code null} if none
    */
   @Nullable
-  public static Integer getPriority(AnnotatedElement element) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            element, JAVAX_PRIORITY_ANNOTATION);
-    if (attributes != null) {
-      return attributes.getNumber(Constant.VALUE);
-    }
-    return null;
+  public static Integer getPriority(Class<?> type) {
+    return MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).get(JAVAX_PRIORITY_ANNOTATION)
+            .getValue(MergedAnnotation.VALUE, Integer.class).orElse(null);
   }
 
 }
