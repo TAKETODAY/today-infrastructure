@@ -197,7 +197,7 @@ class MergedAnnotationsCollectionTests {
 
 	@Test
 	void getMetaWhenRootHasAttributeValuesShouldAliasAttributes() {
-		MergedAnnotation<Aliased> root = MergedAnnotation.of(null, null, Aliased.class,
+		MergedAnnotation<Aliased> root = MergedAnnotation.valueOf(null, null, Aliased.class,
 				Collections.singletonMap("testAlias", "test"));
 		MergedAnnotations annotations = MergedAnnotationsCollection.of(
 				Collections.singleton(root));
@@ -207,7 +207,7 @@ class MergedAnnotationsCollectionTests {
 
 	@Test
 	void getMetaWhenRootHasNoAttributeValuesShouldAliasAttributes() {
-		MergedAnnotation<Aliased> root = MergedAnnotation.of(null, null, Aliased.class,
+		MergedAnnotation<Aliased> root = MergedAnnotation.valueOf(null, null, Aliased.class,
 				Collections.emptyMap());
 		MergedAnnotations annotations = MergedAnnotationsCollection.of(
 				Collections.singleton(root));
@@ -218,14 +218,14 @@ class MergedAnnotationsCollectionTests {
 
 	private MergedAnnotations getDirectAndSimple() {
 		List<MergedAnnotation<?>> list = new ArrayList<>();
-		list.add(MergedAnnotation.of(null, null, Direct.class, Collections.emptyMap()));
-		list.add(MergedAnnotation.of(null, null, Simple.class, Collections.emptyMap()));
+		list.add(MergedAnnotation.valueOf(null, null, Direct.class, Collections.emptyMap()));
+		list.add(MergedAnnotation.valueOf(null, null, Simple.class, Collections.emptyMap()));
 		return MergedAnnotationsCollection.of(list);
 	}
 
 	private MergedAnnotations getMultiRoute1() {
 		List<MergedAnnotation<?>> list = new ArrayList<>();
-		list.add(MergedAnnotation.of(null, null, MultiRoute1.class,
+		list.add(MergedAnnotation.valueOf(null, null, MultiRoute1.class,
 				Collections.emptyMap()));
 		return MergedAnnotationsCollection.of(list);
 	}

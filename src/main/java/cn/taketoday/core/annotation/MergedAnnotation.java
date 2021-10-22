@@ -603,8 +603,8 @@ public interface MergedAnnotation<A extends Annotation> {
    * @param annotationType the annotation type
    * @return a {@link MergedAnnotation} instance for the annotation
    */
-  static <A extends Annotation> MergedAnnotation<A> of(Class<A> annotationType) {
-    return of(null, annotationType, null);
+  static <A extends Annotation> MergedAnnotation<A> valueOf(Class<A> annotationType) {
+    return valueOf(null, annotationType, null);
   }
 
   /**
@@ -615,12 +615,12 @@ public interface MergedAnnotation<A extends Annotation> {
    * @param attributes the annotation attributes or {@code null} if just default
    * values should be used
    * @return a {@link MergedAnnotation} instance for the annotation and attributes
-   * @see #of(AnnotatedElement, Class, Map)
+   * @see #valueOf(AnnotatedElement, Class, Map)
    */
-  static <A extends Annotation> MergedAnnotation<A> of(
+  static <A extends Annotation> MergedAnnotation<A> valueOf(
           Class<A> annotationType, @Nullable Map<String, ?> attributes) {
 
-    return of(null, annotationType, attributes);
+    return valueOf(null, annotationType, attributes);
   }
 
   /**
@@ -635,10 +635,10 @@ public interface MergedAnnotation<A extends Annotation> {
    * values should be used
    * @return a {@link MergedAnnotation} instance for the annotation and attributes
    */
-  static <A extends Annotation> MergedAnnotation<A> of(
+  static <A extends Annotation> MergedAnnotation<A> valueOf(
           @Nullable AnnotatedElement source, Class<A> annotationType, @Nullable Map<String, ?> attributes) {
 
-    return of(null, source, annotationType, attributes);
+    return valueOf(null, source, annotationType, attributes);
   }
 
   /**
@@ -654,7 +654,7 @@ public interface MergedAnnotation<A extends Annotation> {
    * values should be used
    * @return a {@link MergedAnnotation} instance for the annotation and attributes
    */
-  static <A extends Annotation> MergedAnnotation<A> of(
+  static <A extends Annotation> MergedAnnotation<A> valueOf(
           @Nullable ClassLoader classLoader, @Nullable Object source,
           Class<A> annotationType, @Nullable Map<String, ?> attributes) {
 
@@ -679,7 +679,7 @@ public interface MergedAnnotation<A extends Annotation> {
      */
     ANNOTATION_TO_MAP;
 
-    final boolean isIn(Adapt... adaptations) {
+    final boolean containsIn(Adapt... adaptations) {
       for (Adapt candidate : adaptations) {
         if (candidate == this) {
           return true;

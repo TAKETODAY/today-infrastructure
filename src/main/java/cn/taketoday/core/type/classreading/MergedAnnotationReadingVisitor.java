@@ -88,7 +88,7 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
 
   @Override
   public void visitEnd() {
-    MergedAnnotation<A> annotation = MergedAnnotation.of(
+    MergedAnnotation<A> annotation = MergedAnnotation.valueOf(
             this.classLoader, this.source, this.annotationType, this.attributes);
     this.consumer.accept(annotation);
   }

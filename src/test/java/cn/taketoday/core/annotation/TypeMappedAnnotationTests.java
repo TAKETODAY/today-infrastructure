@@ -98,7 +98,7 @@ class TypeMappedAnnotationTests {
 
 	@Test
 	void adaptFromNestedMergedAnnotation() {
-		MergedAnnotation<Nested> nested = MergedAnnotation.of(Nested.class);
+		MergedAnnotation<Nested> nested = MergedAnnotation.valueOf(Nested.class);
 		MergedAnnotation<?> annotation = TypeMappedAnnotation.of(null, null,
 				NestedContainer.class, Collections.singletonMap("value", nested));
 		assertThat(annotation.getAnnotation("value", Nested.class)).isSameAs(nested);

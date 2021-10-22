@@ -328,7 +328,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * element annotations
    */
   static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy) {
-    return from(element, searchStrategy, RepeatableContainers.standardRepeatables());
+    return from(element, searchStrategy, RepeatableContainers.standard());
   }
 
   /**
@@ -397,7 +397,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see #from(AnnotatedElement)
    */
   static MergedAnnotations from(Object source, Annotation... annotations) {
-    return from(source, annotations, RepeatableContainers.standardRepeatables());
+    return from(source, annotations, RepeatableContainers.standard());
   }
 
   /**
@@ -453,7 +453,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    *
    * @param annotations the annotations to include
    * @return a {@link MergedAnnotations} instance containing the annotations
-   * @see MergedAnnotation#of(ClassLoader, Object, Class, java.util.Map)
+   * @see MergedAnnotation#valueOf(ClassLoader, Object, Class, java.util.Map)
    */
   static MergedAnnotations of(Collection<MergedAnnotation<?>> annotations) {
     return MergedAnnotationsCollection.of(annotations);

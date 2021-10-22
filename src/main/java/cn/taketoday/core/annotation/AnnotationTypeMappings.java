@@ -179,7 +179,7 @@ final class AnnotationTypeMappings {
   static AnnotationTypeMappings forAnnotationType(
           Class<? extends Annotation> annotationType, AnnotationFilter annotationFilter) {
 
-    return forAnnotationType(annotationType, RepeatableContainers.standardRepeatables(), annotationFilter);
+    return forAnnotationType(annotationType, RepeatableContainers.standard(), annotationFilter);
   }
 
   /**
@@ -192,10 +192,10 @@ final class AnnotationTypeMappings {
    * annotations are considered
    * @return type mappings for the annotation type
    */
-  static AnnotationTypeMappings forAnnotationType(Class<? extends Annotation> annotationType,
-                                                  RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  static AnnotationTypeMappings forAnnotationType(
+          Class<? extends Annotation> annotationType, RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
-    if (repeatableContainers == RepeatableContainers.standardRepeatables()) {
+    if (repeatableContainers == RepeatableContainers.standard()) {
       return standardRepeatablesCache.computeIfAbsent(annotationFilter, key -> new Cache(repeatableContainers, key)).get(annotationType);
     }
     if (repeatableContainers == RepeatableContainers.none()) {

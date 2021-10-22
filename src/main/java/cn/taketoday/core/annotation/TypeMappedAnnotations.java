@@ -298,8 +298,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       SHARED = new IsPresent[4];
       SHARED[0] = new IsPresent(RepeatableContainers.none(), AnnotationFilter.PLAIN, true);
       SHARED[1] = new IsPresent(RepeatableContainers.none(), AnnotationFilter.PLAIN, false);
-      SHARED[2] = new IsPresent(RepeatableContainers.standardRepeatables(), AnnotationFilter.PLAIN, true);
-      SHARED[3] = new IsPresent(RepeatableContainers.standardRepeatables(), AnnotationFilter.PLAIN, false);
+      SHARED[2] = new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, true);
+      SHARED[3] = new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, false);
     }
 
     private final RepeatableContainers repeatableContainers;
@@ -361,7 +361,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
         if (repeatableContainers == RepeatableContainers.none()) {
           return SHARED[directOnly ? 0 : 1];
         }
-        if (repeatableContainers == RepeatableContainers.standardRepeatables()) {
+        if (repeatableContainers == RepeatableContainers.standard()) {
           return SHARED[directOnly ? 2 : 3];
         }
       }

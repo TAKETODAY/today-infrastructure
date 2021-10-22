@@ -113,7 +113,7 @@ final class AnnotationTypeMapping {
     if (existing == null) {
       return Collections.singletonList(element);
     }
-    List<T> merged = new ArrayList<>(existing.size() + 1);
+    ArrayList<T> merged = new ArrayList<>(existing.size() + 1);
     merged.addAll(existing);
     merged.add(element);
     return Collections.unmodifiableList(merged);

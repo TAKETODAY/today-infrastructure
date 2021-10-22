@@ -404,8 +404,8 @@ public abstract class AnnotationUtils {
 
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-            ? RepeatableContainers.of(annotationType, containerAnnotationType)
-            : RepeatableContainers.standardRepeatables();
+            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+            : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.SUPERCLASS, repeatableContainers)
             .stream(annotationType)
@@ -481,8 +481,8 @@ public abstract class AnnotationUtils {
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-            ? RepeatableContainers.of(annotationType, containerAnnotationType)
-            : RepeatableContainers.standardRepeatables();
+            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+            : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.DIRECT, repeatableContainers)
             .stream(annotationType)
@@ -942,7 +942,7 @@ public abstract class AnnotationUtils {
     }
     else {
       // If we have nested annotations, we need them as nested maps
-      AnnotationAttributes attributes = MergedAnnotation.of(annotationType)
+      AnnotationAttributes attributes = MergedAnnotation.valueOf(annotationType)
               .asMap(annotation -> new AnnotationAttributes(annotation.getType(), true), Adapt.ANNOTATION_TO_MAP);
       for (Map.Entry<String, Object> element : attributes.entrySet()) {
         result.put(element.getKey(), new DefaultValueHolder(element.getValue()));
@@ -1151,7 +1151,7 @@ public abstract class AnnotationUtils {
     if (annotationType == null || !StringUtils.hasText(attributeName)) {
       return null;
     }
-    return MergedAnnotation.of(annotationType).getDefaultValue(attributeName).orElse(null);
+    return MergedAnnotation.valueOf(annotationType).getDefaultValue(attributeName).orElse(null);
   }
 
   /**
@@ -1231,7 +1231,7 @@ public abstract class AnnotationUtils {
                                                               Class<A> annotationType, @Nullable AnnotatedElement annotatedElement) {
 
     try {
-      return MergedAnnotation.of(annotatedElement, annotationType, attributes).synthesize();
+      return MergedAnnotation.valueOf(annotatedElement, annotationType, attributes).synthesize();
     }
     catch (NoSuchElementException | IllegalStateException ex) {
       throw new IllegalArgumentException(ex);

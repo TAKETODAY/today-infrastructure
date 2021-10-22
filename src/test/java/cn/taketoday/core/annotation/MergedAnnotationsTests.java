@@ -78,7 +78,7 @@ class MergedAnnotationsTests {
   @Test
   void fromPreconditions() {
     SearchStrategy strategy = SearchStrategy.DIRECT;
-    RepeatableContainers containers = RepeatableContainers.standardRepeatables();
+    RepeatableContainers containers = RepeatableContainers.standard();
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> MergedAnnotations.from(getClass(), strategy, null, AnnotationFilter.PLAIN))
@@ -1268,7 +1268,7 @@ class MergedAnnotationsTests {
 
   @Test
   void getDefaultValueFromAnnotationType() {
-    MergedAnnotation<?> annotation = MergedAnnotation.of(Order.class);
+    MergedAnnotation<?> annotation = MergedAnnotation.valueOf(Order.class);
     assertThat(annotation.getDefaultValue("value")).contains(Ordered.LOWEST_PRECEDENCE);
   }
 
@@ -1287,7 +1287,7 @@ class MergedAnnotationsTests {
   void getRepeatableDeclaredOnClassWithAttributeAliases() {
     assertThat(MergedAnnotations.from(HierarchyClass.class).stream(
             TestConfiguration.class)).isEmpty();
-    RepeatableContainers containers = RepeatableContainers.of(TestConfiguration.class,
+    RepeatableContainers containers = RepeatableContainers.valueOf(TestConfiguration.class,
                                                               Hierarchy.class);
     MergedAnnotations annotations = MergedAnnotations.from(HierarchyClass.class,
                                                            SearchStrategy.DIRECT, containers, AnnotationFilter.NONE);
@@ -1363,7 +1363,7 @@ class MergedAnnotationsTests {
 
   private void testExplicitRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
     MergedAnnotations annotations = MergedAnnotations.from(element, searchStrategy,
-                                                           RepeatableContainers.of(MyRepeatable.class, MyRepeatableContainer.class),
+                                                           RepeatableContainers.valueOf(MyRepeatable.class, MyRepeatableContainer.class),
                                                            AnnotationFilter.PLAIN);
     assertThat(annotations.stream(MyRepeatable.class).filter(
             MergedAnnotationPredicates.firstRunOf(
@@ -1695,7 +1695,7 @@ class MergedAnnotationsTests {
     Component component = WebController.class.getAnnotation(Component.class);
     assertThat(component).isNotNull();
     Map<String, Object> map = Collections.singletonMap("value", "webController");
-    MergedAnnotation<Component> annotation = MergedAnnotation.of(Component.class, map);
+    MergedAnnotation<Component> annotation = MergedAnnotation.valueOf(Component.class, map);
     Component synthesizedComponent = annotation.synthesize();
     assertThat(synthesizedComponent).isInstanceOf(SynthesizedAnnotation.class);
     assertThat(synthesizedComponent.value()).contains("webController");
@@ -1715,7 +1715,7 @@ class MergedAnnotationsTests {
     assertThat(filterMap.get("pattern")).isEqualTo("*Foo");
     filterMap.put("pattern", "newFoo");
     filterMap.put("enigma", 42);
-    MergedAnnotation<ComponentScanSingleFilter> annotation = MergedAnnotation.of(
+    MergedAnnotation<ComponentScanSingleFilter> annotation = MergedAnnotation.valueOf(
             ComponentScanSingleFilter.class, map);
     ComponentScanSingleFilter synthesizedComponentScan = annotation.synthesize();
     assertThat(synthesizedComponentScan).isInstanceOf(SynthesizedAnnotation.class);
@@ -1739,7 +1739,7 @@ class MergedAnnotationsTests {
     filters[0].put("enigma", 42);
     filters[1].put("pattern", "newBar");
     filters[1].put("enigma", 42);
-    MergedAnnotation<ComponentScan> annotation = MergedAnnotation.of(
+    MergedAnnotation<ComponentScan> annotation = MergedAnnotation.valueOf(
             ComponentScan.class, map);
     ComponentScan synthesizedComponentScan = annotation.synthesize();
     assertThat(synthesizedComponentScan).isInstanceOf(SynthesizedAnnotation.class);
@@ -1749,7 +1749,7 @@ class MergedAnnotationsTests {
 
   @Test
   void synthesizeFromDefaultsWithoutAttributeAliases() throws Exception {
-    MergedAnnotation<AnnotationWithDefaults> annotation = MergedAnnotation.of(
+    MergedAnnotation<AnnotationWithDefaults> annotation = MergedAnnotation.valueOf(
             AnnotationWithDefaults.class);
     AnnotationWithDefaults synthesized = annotation.synthesize();
     assertThat(synthesized.text()).isEqualTo("enigma");
@@ -1759,7 +1759,7 @@ class MergedAnnotationsTests {
 
   @Test
   void synthesizeFromDefaultsWithAttributeAliases() throws Exception {
-    MergedAnnotation<TestConfiguration> annotation = MergedAnnotation.of(
+    MergedAnnotation<TestConfiguration> annotation = MergedAnnotation.valueOf(
             TestConfiguration.class);
     TestConfiguration synthesized = annotation.synthesize();
     assertThat(synthesized.value()).isEqualTo("");
@@ -1778,7 +1778,7 @@ class MergedAnnotationsTests {
   void synthesizeFromMapWithMinimalAttributesWithAttributeAliases()
           throws Exception {
     Map<String, Object> map = Collections.singletonMap("location", "test.xml");
-    MergedAnnotation<TestConfiguration> annotation = MergedAnnotation.of(
+    MergedAnnotation<TestConfiguration> annotation = MergedAnnotation.valueOf(
             TestConfiguration.class, map);
     TestConfiguration synthesized = annotation.synthesize();
     assertThat(synthesized.value()).isEqualTo("test.xml");
@@ -1796,7 +1796,7 @@ class MergedAnnotationsTests {
 
   private void synthesizeFromMapWithAttributeAliasesThatOverrideArraysWithSingleElements(
           Map<String, Object> map) {
-    MergedAnnotation<GetMapping> annotation = MergedAnnotation.of(GetMapping.class,
+    MergedAnnotation<GetMapping> annotation = MergedAnnotation.valueOf(GetMapping.class,
                                                                   map);
     GetMapping synthesized = annotation.synthesize();
     assertThat(synthesized.value()).isEqualTo("/foo");
@@ -1817,7 +1817,7 @@ class MergedAnnotationsTests {
           throws Exception {
     Map<String, Object> map = Collections.singletonMap(attributeNameAndValue,
                                                        attributeNameAndValue);
-    MergedAnnotation<ImplicitAliasesTestConfiguration> annotation = MergedAnnotation.of(
+    MergedAnnotation<ImplicitAliasesTestConfiguration> annotation = MergedAnnotation.valueOf(
             ImplicitAliasesTestConfiguration.class, map);
     ImplicitAliasesTestConfiguration synthesized = annotation.synthesize();
     assertThat(synthesized.value()).isEqualTo(attributeNameAndValue);
@@ -1842,7 +1842,7 @@ class MergedAnnotationsTests {
 
   private void testMissingTextAttribute(Map<String, Object> attributes) {
     assertThatExceptionOfType(NoSuchElementException.class)
-            .isThrownBy(() -> MergedAnnotation.of(AnnotationWithoutDefaults.class, attributes).synthesize().text())
+            .isThrownBy(() -> MergedAnnotation.valueOf(AnnotationWithoutDefaults.class, attributes).synthesize().text())
             .withMessage("No value found for attribute named 'text' in merged annotation " +
                                  AnnotationWithoutDefaults.class.getName());
   }
@@ -1850,7 +1850,7 @@ class MergedAnnotationsTests {
   @Test
   void synthesizeFromMapWithAttributeOfIncorrectType() throws Exception {
     Map<String, Object> map = Collections.singletonMap("value", 42L);
-    MergedAnnotation<Component> annotation = MergedAnnotation.of(Component.class, map);
+    MergedAnnotation<Component> annotation = MergedAnnotation.valueOf(Component.class, map);
     assertThatIllegalStateException()
             .isThrownBy(() -> annotation.synthesize().value())
             .withMessage("Attribute 'value' in annotation " +
@@ -1863,7 +1863,7 @@ class MergedAnnotationsTests {
     Component component = WebController.class.getAnnotation(Component.class);
     assertThat(component).isNotNull();
     Map<String, Object> attributes = MergedAnnotation.from(component).asMap();
-    Component synthesized = MergedAnnotation.of(Component.class, attributes).synthesize();
+    Component synthesized = MergedAnnotation.valueOf(Component.class, attributes).synthesize();
     assertThat(synthesized).isInstanceOf(SynthesizedAnnotation.class);
     assertThat(synthesized).isEqualTo(component);
   }

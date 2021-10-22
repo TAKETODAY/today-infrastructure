@@ -756,7 +756,7 @@ public abstract class AnnotatedElementUtils {
 
   private static MergedAnnotations getRepeatableAnnotations(
           AnnotatedElement element, @Nullable Class<? extends Annotation> containerType, Class<? extends Annotation> annotationType) {
-    RepeatableContainers repeatableContainers = RepeatableContainers.of(annotationType, containerType);
+    RepeatableContainers repeatableContainers = RepeatableContainers.valueOf(annotationType, containerType);
     return MergedAnnotations.from(element, SearchStrategy.INHERITED_ANNOTATIONS, repeatableContainers);
   }
 
@@ -767,7 +767,7 @@ public abstract class AnnotatedElementUtils {
   private static MergedAnnotations findRepeatableAnnotations(
           AnnotatedElement element, @Nullable Class<? extends Annotation> containerType, Class<? extends Annotation> annotationType) {
 
-    RepeatableContainers repeatableContainers = RepeatableContainers.of(annotationType, containerType);
+    RepeatableContainers repeatableContainers = RepeatableContainers.valueOf(annotationType, containerType);
     return MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, repeatableContainers);
   }
 

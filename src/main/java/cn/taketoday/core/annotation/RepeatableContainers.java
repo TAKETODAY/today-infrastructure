@@ -29,16 +29,15 @@ import cn.taketoday.util.ReflectionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.Objects;
 
 /**
  * Strategy used to determine annotations that act as containers for other
- * annotations. The {@link #standardRepeatables()} method provides a default
+ * annotations. The {@link #standard()} method provides a default
  * strategy that respects Java's {@link Repeatable @Repeatable} support and
  * should be suitable for most situations.
  *
- * <p>The {@link #of} method can be used to register relationships for
+ * <p>The {@link #valueOf} method can be used to register relationships for
  * annotations that do not wish to use {@link Repeatable @Repeatable}.
  *
  * <p>To completely disable repeatable support use {@link #none()}.
@@ -64,9 +63,8 @@ public abstract class RepeatableContainers {
    * @param repeatable the contained repeatable type
    * @return a new {@link RepeatableContainers} instance
    */
-  public RepeatableContainers and(Class<? extends Annotation> container,
-                                  Class<? extends Annotation> repeatable) {
-
+  public RepeatableContainers and(
+          Class<? extends Annotation> container, Class<? extends Annotation> repeatable) {
     return new ExplicitRepeatableContainer(this, repeatable, container);
   }
 
@@ -77,7 +75,6 @@ public abstract class RepeatableContainers {
     }
     return this.parent.findRepeatedAnnotations(annotation);
   }
-
 
   @Override
   public boolean equals(@Nullable Object other) {
@@ -101,7 +98,7 @@ public abstract class RepeatableContainers {
    *
    * @return a {@link RepeatableContainers} instance
    */
-  public static RepeatableContainers standardRepeatables() {
+  public static RepeatableContainers standard() {
     return StandardRepeatableContainers.INSTANCE;
   }
 
@@ -117,7 +114,7 @@ public abstract class RepeatableContainers {
    * {@code repeatable}.
    * @return a {@link RepeatableContainers} instance
    */
-  public static RepeatableContainers of(
+  public static RepeatableContainers valueOf(
           Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
 
     return new ExplicitRepeatableContainer(null, repeatable, container);
@@ -218,11 +215,10 @@ public abstract class RepeatableContainers {
       catch (Throwable ex) {
         throw new AnnotationConfigurationException(
                 "Invalid declaration of container type [" + container.getName() +
-                        "] for repeatable annotation [" + repeatable.getName() + "]",
-                ex);
+                        "] for repeatable annotation [" + repeatable.getName() + "]", ex);
       }
-      this.repeatable = repeatable;
       this.container = container;
+      this.repeatable = repeatable;
       this.valueMethod = valueMethod;
     }
 

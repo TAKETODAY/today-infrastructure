@@ -232,7 +232,7 @@ class MergedAnnotationsRepeatableAnnotationTests {
 		assertThat(annotations).isEmpty();
 
 		MergedAnnotations mergedAnnotations = MergedAnnotations.from(element, searchStrategy,
-				RepeatableContainers.standardRepeatables(), annotationFilter);
+				RepeatableContainers.standard(), annotationFilter);
 		Stream<Class<? extends Annotation>> annotationTypes = mergedAnnotations.stream()
 				.map(MergedAnnotation::synthesize)
 				.map(Annotation::annotationType);
@@ -248,7 +248,7 @@ class MergedAnnotationsRepeatableAnnotationTests {
 	private <A extends Annotation> Set<A> getAnnotations(Class<? extends Annotation> container,
 			Class<A> repeatable, SearchStrategy searchStrategy, AnnotatedElement element, AnnotationFilter annotationFilter) {
 
-		RepeatableContainers containers = RepeatableContainers.of(repeatable, container);
+		RepeatableContainers containers = RepeatableContainers.valueOf(repeatable, container);
 		MergedAnnotations annotations = MergedAnnotations.from(element, searchStrategy, containers, annotationFilter);
 		return annotations.stream(repeatable).collect(MergedAnnotationCollectors.toAnnotationSet());
 	}
