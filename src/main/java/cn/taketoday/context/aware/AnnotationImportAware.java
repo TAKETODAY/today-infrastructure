@@ -22,24 +22,21 @@ package cn.taketoday.context.aware;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.loader.AnnotationCapable;
+import cn.taketoday.context.loader.AnnotationProvider;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
  * @author TODAY 2021/4/3 12:23
  * @since 3.0
  */
-public interface AnnotationImportAware<A extends Annotation> extends AnnotationCapable<A>, ImportAware {
+public interface AnnotationImportAware<A extends Annotation> extends AnnotationProvider<A>, ImportAware {
 
   @Override
-  default void setImportBeanDefinition(BeanDefinition importDef) {
-    final A annotation = getAnnotation(importDef);
-    setImportBeanDefinition(annotation, importDef);
+  default void setImportMetadata(AnnotationMetadata importMetadata) {
+    A annotation = getAnnotation(importMetadata);
+    setImportMetadata(annotation, importMetadata);
   }
 
-  void setImportBeanDefinition(A target, BeanDefinition importDef);
+  void setImportMetadata(A target, AnnotationMetadata importMetadata);
 
-  @Override
-  void setImportMetadata(AnnotationMetadata importMetadata);
 }
