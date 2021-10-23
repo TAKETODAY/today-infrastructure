@@ -59,14 +59,13 @@ public class BeanPropertyAccessor {
    */
   private boolean throwsWhenReadOnly = true;
 
+  @Nullable
   private ConversionService conversionService;
 
-  public BeanPropertyAccessor() {
-    conversionService = DefaultConversionService.getSharedInstance();
-  }
+  public BeanPropertyAccessor() { }
 
   public BeanPropertyAccessor(Class<?> beanClass) {
-    this(beanClass, DefaultConversionService.getSharedInstance());
+    this(beanClass, null);
   }
 
   public BeanPropertyAccessor(Class<?> beanClass, ConversionService conversionService) {
@@ -598,9 +597,8 @@ public class BeanPropertyAccessor {
   }
 
   public ConversionService getConversionService() {
-    ConversionService conversionService = this.conversionService;
     if (conversionService == null) {
-      this.conversionService = conversionService = DefaultConversionService.getSharedInstance();
+      this.conversionService = DefaultConversionService.getSharedInstance();
     }
     return conversionService;
   }
