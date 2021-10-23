@@ -24,6 +24,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
@@ -31,6 +33,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
@@ -75,13 +78,35 @@ public class MissingBeanRegistry {
     return false;
   }
 
+  LinkedHashSet<MissingInfo> mayBeMissingInfos = new LinkedHashSet<>();
+
+  static class MissingInfo {
+    final MethodMetadata metadata;
+    final Map<String, Object> missingBean;
+
+    MissingInfo(MethodMetadata metadata, Map<String, Object> missingBean) {
+      this.metadata = metadata;
+      this.missingBean = missingBean;
+    }
+  }
+
+  public void detectMissingBean(MethodMetadata metadata) {
+    Map<String, Object> missingBean = metadata.getAnnotationAttributes(MissingBean.class.getName());
+    // TODO passCondition 是否已经通过
+    if (missingBean != null && context.passCondition(metadata)) {
+      MissingInfo missingInfo = new MissingInfo(metadata, missingBean);
+      mayBeMissingInfos.add(missingInfo);
+    }
+  }
+
   public void detectMissingBean(Method method) {
+
+    // TODO 记录下来然后 统一注册
     AnnotationAttributes missingBean = AnnotatedElementUtils.getMergedAnnotationAttributes(
             method, MissingBean.class);
-    if (isMissingBeanInContext(missingBean, method)) {
-      // register directly @since 3.0
-      registerMissingBean(method, missingBean);
-    }
+//    if (missingBean != null && context.passCondition(annotated)) {
+//      missingInfos.add(new ScannedMissingInfo(classNode, missingBean));
+//    }
   }
 
   public void registerMissingBean(Method method, AnnotationAttributes attributes) {
