@@ -36,6 +36,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -116,7 +117,7 @@ public class DefinitionLoadingContext {
   }
 
   public BeanDefinitionBuilder createBuilder() {
-    return new BeanDefinitionBuilder(applicationContext);
+    return new BeanDefinitionBuilder();
   }
 
   public void registerBeanDefinition(BeanDefinition def) {
@@ -159,14 +160,6 @@ public class DefinitionLoadingContext {
     return applicationContext.getBean(def);
   }
 
-  public void detectMissingBean(Method method) {
-    missingBeanRegistry.detectMissingBean(method);
-  }
-
-  public void detectMissingBean(MethodMetadata method) {
-    missingBeanRegistry.detectMissingBean(method);
-  }
-
   public boolean isMissingBeanInContext(AnnotationAttributes missingBean, AnnotatedElement annotated) {
     return missingBeanRegistry.isMissingBeanInContext(missingBean, annotated);
   }
@@ -184,6 +177,23 @@ public class DefinitionLoadingContext {
 
   public <T> T instantiate(Class<T> beanClass) {
     return instantiator().instantiate(beanClass);
+  }
+
+
+  //---------------------------------------------------------------------
+  // detectMissingBean
+  //---------------------------------------------------------------------
+
+  public void detectMissingBean(Method method) {
+    missingBeanRegistry.detectMissingBean(method);
+  }
+
+  public void detectMissingBean(MethodMetadata method) {
+    missingBeanRegistry.detectMissingBean(method);
+  }
+
+  public void detectMissingBean(MetadataReader metadataReader) {
+    missingBeanRegistry.detectMissingBean(metadataReader);
   }
 
   //---------------------------------------------------------------------
@@ -242,6 +252,5 @@ public class DefinitionLoadingContext {
       ((CachingMetadataReaderFactory) metadataReaderFactory).clearCache();
     }
   }
-
 
 }

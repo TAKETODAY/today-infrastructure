@@ -28,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
@@ -80,6 +79,10 @@ public class MissingBeanRegistry {
 
   LinkedHashSet<MissingInfo> mayBeMissingInfos = new LinkedHashSet<>();
 
+  public void detectMissingBean(MetadataReader metadataReader) {
+
+  }
+
   static class MissingInfo {
     final MethodMetadata metadata;
     final Map<String, Object> missingBean;
@@ -109,18 +112,6 @@ public class MissingBeanRegistry {
 //    }
   }
 
-  public void registerMissingBean(Method method, AnnotationAttributes attributes) {
-    String defaultBeanName = method.getName();
-    String declaringBeanName = createBeanName(method.getDeclaringClass()); // @since v2.1.7
-
-    BeanDefinitionBuilder builder = context.createBuilder();
-    builder.factoryMethod(method);
-    builder.declaringName(declaringBeanName);
-    builder.beanClass(method.getReturnType());
-
-    builder.build(defaultBeanName, attributes, this::registerMissing);
-  }
-
   public void registerMissing(AnnotationAttributes missingBean, BeanDefinition def) {
     // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
     def.setAttribute(MissingBean.MissingBeanMetadata, missingBean);
@@ -128,17 +119,15 @@ public class MissingBeanRegistry {
     register(def);
   }
 
-  public void registerMissing(AnnotationAttributes missingBean, MetadataReader classNode) {
-    missingInfos.add(new ScannedMissingInfo(classNode, missingBean));
+  public void registerMissing(MetadataReader metadataReader) {
+    missingInfos.add(new ScannedMissingInfo(metadataReader));
   }
 
   static class ScannedMissingInfo {
     final MetadataReader metadata;
-    final AnnotationAttributes missingBean;
 
-    ScannedMissingInfo(MetadataReader metadata, AnnotationAttributes missingBean) {
+    ScannedMissingInfo(MetadataReader metadata) {
       this.metadata = metadata;
-      this.missingBean = missingBean;
     }
   }
 

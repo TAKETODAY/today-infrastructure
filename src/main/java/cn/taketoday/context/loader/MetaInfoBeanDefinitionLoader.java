@@ -20,19 +20,20 @@
 
 package cn.taketoday.context.loader;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author TODAY 2021/10/7 22:31
@@ -49,7 +50,12 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
    */
   @Override
   public void loadBeanDefinitions(DefinitionLoadingContext context) {
-    loadMetaInfoBeans(context);
+    try {
+      loadMetaInfoBeans(context);
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
   /**
@@ -59,43 +65,33 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
    * @see Constant#META_INFO_beans
    * @since 2.1.6
    */
-  public Set<Class<?>> loadMetaInfoBeans(DefinitionLoadingContext context) {
+  public void loadMetaInfoBeans(DefinitionLoadingContext context) throws IOException {
     log.debug("Loading META-INF/beans");
-
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
-    Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
+    Set<String> beans = ContextUtils.loadFromMetaInfoClass(Constant.META_INFO_beans);
     // @since 4.0 load from StrategiesLoader strategy file
-    beans.addAll(TodayStrategies.getDetector().getTypes(MissingBean.class));
+    beans.addAll(TodayStrategies.getDetector().getStrategies(MissingBean.class.getName()));
 
-    BeanDefinitionBuilder builder = context.createBuilder();
+    MetadataReaderFactory metadataReaderFactory = context.getMetadataReaderFactory();
+    for (String beanClassName : beans) {
+      MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(beanClassName);
+      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+      // pass the condition evaluation
+      if (context.passCondition(annotationMetadata)) {
+        context.detectMissingBean(metadataReader);
 
-    for (Class<?> beanClass : beans) {
-      AnnotationAttributes missingBean = AnnotatedElementUtils.getMergedAnnotationAttributes(
-              beanClass, MissingBean.class);
-      if (missingBean != null) {
-        if (context.isMissingBeanInContext(missingBean, beanClass)) {
-          // MissingBean in 'META-INF/beans' @since 3.0
-          String name = createBeanName(beanClass);
-          builder.build(name, missingBean, context.getMissingBeanRegistry()::registerMissing);
-        }
-        else {
-          log.info("@MissingBean -> '{}' cannot pass the condition " +
-                           "or contains its bean definition, dont register to the map", beanClass);
-        }
+        DefaultBeanDefinition definition = new DefaultBeanDefinition();
+
+        definition.setBeanClassName(annotationMetadata.getClassName());
+        definition.setSource(metadataReader.getResource());
+        definition.setName(context.createBeanName(annotationMetadata.getClassName()));
+
+        context.registerBeanDefinition(definition);
       }
-      else {
-        if (context.passCondition(beanClass)) {
-          // can't be a missed bean. MissingBean load after normal loading beans
-          List<BeanDefinition> defs = BeanDefinitionBuilder.from(beanClass);
-          for (BeanDefinition def : defs) {
-            context.registerBeanDefinition(def);
-          }
-        }
-      }
-
     }
-    return beans;
+
+    log.debug("Found {} META-INF/beans", beans.size());
   }
 
 }

@@ -107,7 +107,7 @@ public class BeanDefinitionReader {
   public void register(Class<?>... beans) {
     Assert.notNull(beans, "Cannot import null beans");
 
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
     for (Class<?> bean : beans) {
       String beanName = createBeanName(bean);
       builder.beanClass(bean)
@@ -273,7 +273,7 @@ public class BeanDefinitionReader {
     }
 
     String defaultName = createBeanName(clazz);
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(context);
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
     builder.instanceSupplier(supplier);
 
     if (prototype) {

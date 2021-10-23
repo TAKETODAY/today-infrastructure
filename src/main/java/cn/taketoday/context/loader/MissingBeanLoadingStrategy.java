@@ -24,7 +24,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.logging.Logger;
@@ -51,10 +50,8 @@ public class MissingBeanLoadingStrategy implements BeanDefinitionLoadingStrategy
     }
     // just collect scanning missing-bean info
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
-    AnnotationAttributes attributes = annotationMetadata.getAnnotations()
-            .get(MissingBean.class).asAnnotationAttributes();
-    if (attributes != null) {
-      missingBeanRegistry.registerMissing(attributes, metadata);
+    if (annotationMetadata.hasAnnotation(MissingBean.class.getName())) {
+      missingBeanRegistry.registerMissing(metadata);
     }
     return null;
   }

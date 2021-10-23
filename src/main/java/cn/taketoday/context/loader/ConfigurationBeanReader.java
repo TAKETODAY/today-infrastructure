@@ -77,6 +77,12 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     loadConfigurationBeans();
+    processMissingBean();
+  }
+
+  private void processMissingBean() {
+    MissingBeanRegistry missingBeanRegistry = context.getMissingBeanRegistry();
+    System.out.println(missingBeanRegistry);
   }
 
   /**
