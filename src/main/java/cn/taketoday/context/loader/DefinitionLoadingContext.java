@@ -34,6 +34,7 @@ import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.NonNull;
@@ -162,6 +163,10 @@ public class DefinitionLoadingContext {
     missingBeanRegistry.detectMissingBean(method);
   }
 
+  public void detectMissingBean(MethodMetadata method) {
+    missingBeanRegistry.detectMissingBean(method);
+  }
+
   public boolean isMissingBeanInContext(AnnotationAttributes missingBean, AnnotatedElement annotated) {
     return missingBeanRegistry.isMissingBeanInContext(missingBean, annotated);
   }
@@ -237,5 +242,6 @@ public class DefinitionLoadingContext {
       ((CachingMetadataReaderFactory) metadataReaderFactory).clearCache();
     }
   }
+
 
 }
