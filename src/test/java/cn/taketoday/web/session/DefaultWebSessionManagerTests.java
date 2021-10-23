@@ -44,32 +44,32 @@ class DefaultWebSessionManagerTests {
   @Test
   public void testWebSession() {
 
-    try (final StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.register(AppConfig.class);
+      applicationContext.refresh();
+      WebSessionManager sessionManager = applicationContext.getBean(WebSessionManager.class);
+      MockRequestContext context = new MockRequestContext();
 
-      final WebSessionManager sessionManager = applicationContext.getBean(WebSessionManager.class);
-      final MockRequestContext context = new MockRequestContext();
-
-      final WebSession noneExistingSession = sessionManager.getSession(context, false);
+      WebSession noneExistingSession = sessionManager.getSession(context, false);
 
       assertThat(noneExistingSession).isNull();
 
-      final WebSession createdSession = sessionManager.getSession(context);
+      WebSession createdSession = sessionManager.getSession(context);
       assertThat(createdSession).isNotNull();
 
       // CookieTokenResolver
-      final CookieTokenResolver cookieTokenResolver = applicationContext.getBean(CookieTokenResolver.class);
-      final List<HttpCookie> responseCookies = context.responseCookies();
-      final HttpCookie sessionCookie = cookieTokenResolver.cloneSessionCookie();
-      final String sessionId = createdSession.getId();
+      CookieTokenResolver cookieTokenResolver = applicationContext.getBean(CookieTokenResolver.class);
+      List<HttpCookie> responseCookies = context.responseCookies();
+      HttpCookie sessionCookie = cookieTokenResolver.cloneSessionCookie();
+      String sessionId = createdSession.getId();
       sessionCookie.setValue(sessionId);
 
       assertThat(responseCookies).hasSize(1);
       assertThat(responseCookies.get(0)).isEqualTo(sessionCookie);
 
       // WebSessionStorage
-      final WebSessionStorage sessionStorage = applicationContext.getBean(WebSessionStorage.class);
-      final WebSession webSession = sessionStorage.get(sessionId);
+      WebSessionStorage sessionStorage = applicationContext.getBean(WebSessionStorage.class);
+      WebSession webSession = sessionStorage.get(sessionId);
 
       assertThat(webSession).isEqualTo(createdSession);
       assertThat(sessionStorage.contains(sessionId)).isTrue();

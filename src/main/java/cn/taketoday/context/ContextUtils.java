@@ -27,6 +27,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -86,6 +87,38 @@ public abstract class ContextUtils {
           }
           catch (ClassNotFoundException e) {
             throw new IllegalStateException("Class file: '" + className + "' not in " + url);
+          }
+        }
+        return ret;
+      }
+      catch (IOException e) {
+        throw new ApplicationContextException("Exception occurred when load from '" + resource + '\'', e);
+      }
+    }
+    throw new IllegalArgumentException("Resource must start with 'META-INF'");
+  }
+
+  public static Set<String> loadFromMetaInfoClass(final String resource) {
+    Assert.notNull(resource, "META-INF resource must not be null");
+
+    if (resource.startsWith("META-INF")) {
+      LinkedHashSet<String> ret = new LinkedHashSet<>();
+      ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+      if (classLoader == null) {
+        classLoader = ContextUtils.class.getClassLoader();
+      }
+      try {
+        Enumeration<URL> resources = classLoader.getResources(resource);
+        while (resources.hasMoreElements()) {
+          URL url = resources.nextElement();
+          String className;
+          try (BufferedReader reader =
+                  new BufferedReader(new InputStreamReader(url.openStream(), Constant.DEFAULT_CHARSET))) {
+            while ((className = reader.readLine()) != null) {
+              if (StringUtils.isNotEmpty(className)) { // @since 3.0 FIX empty lines
+                ret.add(className);
+              }
+            }
           }
         }
         return ret;
