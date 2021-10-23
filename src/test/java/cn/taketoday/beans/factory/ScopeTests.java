@@ -56,7 +56,7 @@ class ScopeTests {
               .registerScope("thread", thread);
 
       final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
-      context.registerBean(def);
+      context.registerSingleton(def);
 
       def.setScope("thread");
       final Object bean = context.getBean(def);
@@ -88,7 +88,7 @@ class ScopeTests {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
       final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
-      context.registerBean(def);
+      context.registerSingleton(def);
 
       def.setScope("thread");
       try {

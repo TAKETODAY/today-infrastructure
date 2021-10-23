@@ -110,7 +110,7 @@ class CacheableInterceptorTests {
       AnnotationMatchingPointcut matchingPointcut
               = AnnotationMatchingPointcut.forMethodAnnotation(Cacheable.class);
       DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-      context.registerBean(pointcutAdvisor);
+      context.registerSingleton(pointcutAdvisor);
 
       context.refresh();
 

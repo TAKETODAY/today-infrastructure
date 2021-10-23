@@ -280,7 +280,7 @@ class BeanFactoryTests {
     // System.err.println(beanFactory);
 
     RegisterBean obj = new RegisterBean();
-    context.registerBean("registerBean", obj);
+    context.registerSingleton("registerBean", obj);
 
     Interface singleton = beanFactory.getBean("registerBean", Interface.class);
 

@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +67,7 @@ class InstantiationAwareBeanPostProcessorTests {
     }
   }
 
+  @Configuration
   static class InstantiationAwareBeanPostProcessorConfig {
 
     @Singleton
@@ -85,12 +87,12 @@ class InstantiationAwareBeanPostProcessorTests {
       context.register(InstantiationAwareBeanPostProcessorBean.class);
       context.register(InstantiationAwareBeanPostProcessorConfig.class);
 
-      final InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
+      InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
       beanFactory.addBeanPostProcessor(postProcessor);
 
-      final InstantiationAwareBeanPostProcessorBean bean = context.getBean(InstantiationAwareBeanPostProcessorBean.class);
+      InstantiationAwareBeanPostProcessorBean bean = context.getBean(InstantiationAwareBeanPostProcessorBean.class);
 
-      final Object instantiationBean = context.getBean("instantiationBean");
+      Object instantiationBean = context.getBean("instantiationBean");
 
       assertThat(instantiationBean).isInstanceOf(InstantiationAwareBeanPostProcessorBean.class);
       assertThat(instantiationBean).isNotEqualTo(bean);

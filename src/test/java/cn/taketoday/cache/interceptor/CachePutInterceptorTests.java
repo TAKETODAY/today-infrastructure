@@ -72,7 +72,7 @@ class CachePutInterceptorTests {
       AnnotationMatchingPointcut matchingPointcut
               = AnnotationMatchingPointcut.forMethodAnnotation(CachePut.class);
       DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-      context.registerBean(pointcutAdvisor);
+      context.registerSingleton(pointcutAdvisor);
 
       context.refresh();
 
@@ -122,7 +122,7 @@ class CachePutInterceptorTests {
       AnnotationMatchingPointcut matchingPointcut
               = AnnotationMatchingPointcut.forMethodAnnotation(CachePut.class);
       DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-      context.registerBean(pointcutAdvisor);
+      context.registerSingleton(pointcutAdvisor);
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
       CacheUserService userService = context.getBean(CacheUserService.class);

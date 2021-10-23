@@ -60,9 +60,9 @@ class BeanDefinitionTests {
       beanDefinition.setDestroyMethods("destory")//
               .setInitMethods(BeanDefinitionTests.class.getDeclaredMethod("init"));
 
-      final Field test = BeanDefinitionTests.class.getDeclaredField("test");
-      final Field testInt = BeanDefinitionTests.class.getDeclaredField("testInt");
-      final Field testDouble = BeanDefinitionTests.class.getDeclaredField("testDouble");
+      Field test = BeanDefinitionTests.class.getDeclaredField("test");
+      Field testInt = BeanDefinitionTests.class.getDeclaredField("testInt");
+      Field testDouble = BeanDefinitionTests.class.getDeclaredField("testDouble");
 
       HashSet<PropertySetter> propertySetters = new HashSet<>();
       beanDefinition.addPropertySetter(propertySetters);
@@ -100,11 +100,11 @@ class BeanDefinitionTests {
 
       beanDefinition.addPropertySetter(propertySetters);
 
-      applicationContext.registerBean("testBean", beanDefinition);
+      applicationContext.registerBeanDefinition("testBean", beanDefinition);
 
-      final Object bean = applicationContext.getBean("testBean");
+      Object bean = applicationContext.getBean("testBean");
 
-      final BeanDefinitionTests beanDefinitionTest = applicationContext.getBean(getClass());
+      BeanDefinitionTests beanDefinitionTest = applicationContext.getBean(getClass());
 
       assert beanDefinitionTest.testInt == 123;
       assert beanDefinitionTest.testDouble == 123.123;
