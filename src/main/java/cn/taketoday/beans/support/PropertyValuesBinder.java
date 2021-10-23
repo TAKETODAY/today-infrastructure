@@ -37,24 +37,24 @@ import cn.taketoday.lang.Assert;
  * @see PropertyValue
  * @since 3.0
  */
-public class DataBinder extends BeanPropertyAccessor {
+public class PropertyValuesBinder extends BeanPropertyAccessor {
   protected ArrayList<PropertyValue> propertyValues;
 
-  public DataBinder() { }
+  public PropertyValuesBinder() { }
 
-  public DataBinder(Class<?> beanClass) {
+  public PropertyValuesBinder(Class<?> beanClass) {
     super(beanClass);
   }
 
-  public DataBinder(Class<?> beanClass, ConversionService conversionService) {
+  public PropertyValuesBinder(Class<?> beanClass, ConversionService conversionService) {
     super(beanClass, conversionService);
   }
 
-  public DataBinder(Object object) {
+  public PropertyValuesBinder(Object object) {
     super(BeanMetadata.ofClass(object.getClass()), object);
   }
 
-  public DataBinder(BeanMetadata metadata, Object object) {
+  public PropertyValuesBinder(BeanMetadata metadata, Object object) {
     super(metadata, object);
   }
 

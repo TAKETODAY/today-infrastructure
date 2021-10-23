@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.beans.support.DataBinder;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -267,7 +267,7 @@ public class ParameterResolvingRegistry
   }
 
   /**
-   * config ParameterResolver using {@link DataBinder}
+   * config ParameterResolver using {@link PropertyValuesBinder}
    */
   public void configureDataBinder(ParameterResolvingStrategies strategies) {
     BeanDefinitionRegistry registry = obtainApplicationContext().unwrapFactory(

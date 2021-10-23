@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.PropertyValue;
-import cn.taketoday.beans.support.DataBinder;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -151,7 +151,7 @@ public class DataBinderParameterResolver
   public Object resolveParameter(
           final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
-    final DataBinder dataBinder = new DataBinder(parameterClass, conversionService);
+    final PropertyValuesBinder dataBinder = new PropertyValuesBinder(parameterClass, conversionService);
 
     final Map<String, String[]> parameters = context.getParameters();
     for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
@@ -191,7 +191,7 @@ public class DataBinderParameterResolver
    * @since 4.0
    */
   static void resolveAnnotatedProperty(
-          RequestContext context, MethodParameter parameter, DataBinder dataBinder) throws Throwable {
+          RequestContext context, MethodParameter parameter, PropertyValuesBinder dataBinder) throws Throwable {
     Object attribute = parameter.getAttribute(ANNOTATED_RESOLVERS_KEY);
     if (attribute instanceof List) {
       @SuppressWarnings("unchecked")

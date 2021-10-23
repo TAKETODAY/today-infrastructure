@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.support.DataBinder;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -69,7 +69,7 @@ public class DataBinderTests {
 
   @Test
   public void bind() {
-    final DataBinder dataBinder = new DataBinder(Nested.class);
+    final PropertyValuesBinder dataBinder = new PropertyValuesBinder(Nested.class);
 
     final HashMap<String, String> map = new HashMap<>();
     map.put("age", "23");
@@ -108,13 +108,13 @@ public class DataBinderTests {
     propertyValues.put("nested.nested.name", "nested-nested-TODAY");
     propertyValues.put("nested.list", list);
 
-    final DataBinder binder = new DataBinder(Nested.class);
+    final PropertyValuesBinder binder = new PropertyValuesBinder(Nested.class);
 
     binder.addPropertyValues(propertyValues);
     assertNested(binder, (Nested) binder.bind());
   }
 
-  private void assertNested(DataBinder dataBinder, Nested base) {
+  private void assertNested(PropertyValuesBinder dataBinder, Nested base) {
     // array
     assertThat(base.doubles[0]).isEqualTo(10d).isEqualTo(dataBinder.getProperty("doubles[0]"));
     assertThat(base.doubles[1]).isEqualTo(20d).isEqualTo(dataBinder.getProperty("doubles[1]"));
@@ -144,10 +144,10 @@ public class DataBinderTests {
 
   @Test
   public void ignoreUnknownProperty() {
-    final DataBinder ignore = new DataBinder(UnknownProperty.class);
+    final PropertyValuesBinder ignore = new PropertyValuesBinder(UnknownProperty.class);
     ignore.setProperty("name", "TODAY");
 
-    final DataBinder throwsDataBinder = new DataBinder(UnknownProperty.class);
+    final PropertyValuesBinder throwsDataBinder = new PropertyValuesBinder(UnknownProperty.class);
     throwsDataBinder.setIgnoreUnknownProperty(false);
 
     assertThatThrownBy(() -> {

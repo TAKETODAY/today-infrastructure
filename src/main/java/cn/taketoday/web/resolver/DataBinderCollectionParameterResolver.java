@@ -27,7 +27,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.DataBinder;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.MethodParameter;
@@ -84,7 +84,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     final boolean isList = collection instanceof List;
 
     final int maxValueIndex = getMaxValueIndex();
-    final DataBinder dataBinder = new DataBinder();
+    final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
     final Class<?> parameterClass = getComponentType(parameter);
     final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
 

@@ -25,7 +25,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.DataBinder;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.MethodParameter;
@@ -59,7 +59,7 @@ public class DataBinderMapParameterResolver
   protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
     final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterClass(), propertyValues.size());
 
-    final DataBinder dataBinder = new DataBinder();
+    final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
     final Class<?> parameterClass = (Class<?>) parameter.getGeneric(1);
     final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
     for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
