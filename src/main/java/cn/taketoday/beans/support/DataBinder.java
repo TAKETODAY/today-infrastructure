@@ -28,6 +28,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Assert;
 
 /**
  * Bind PropertyValues to target bean
@@ -37,7 +38,7 @@ import cn.taketoday.core.conversion.ConversionService;
  * @since 3.0
  */
 public class DataBinder extends BeanPropertyAccessor {
-  protected final ArrayList<PropertyValue> propertyValues = new ArrayList<>();
+  protected ArrayList<PropertyValue> propertyValues;
 
   public DataBinder() { }
 
@@ -61,25 +62,26 @@ public class DataBinder extends BeanPropertyAccessor {
    * Bind {@link #propertyValues} to {@link #rootObject} object
    */
   public Object bind() {
+    Assert.state(propertyValues != null, "No property values");
     return bind(propertyValues);
   }
 
   /**
    * Bind {@code propertyValues} to {@link #rootObject} object
    */
-  public Object bind(List<PropertyValue> propertyValues) {
+  public Object bind(Iterable<PropertyValue> propertyValues) {
     return bind(getRootObject(), propertyValues);
   }
 
   /**
    * Bind {@code propertyValues} to {@code rootObject} object
    */
-  public Object bind(Object rootObject, List<PropertyValue> propertyValues) {
+  public Object bind(Object rootObject, Iterable<PropertyValue> propertyValues) {
     return bind(rootObject, getMetadata(), propertyValues);
   }
 
-  public Object bind(Object rootObject, BeanMetadata metadata, List<PropertyValue> propertyValues) {
-    for (final PropertyValue propertyValue : propertyValues) {
+  public Object bind(Object rootObject, BeanMetadata metadata, Iterable<PropertyValue> propertyValues) {
+    for (PropertyValue propertyValue : propertyValues) {
       setProperty(rootObject, metadata, propertyValue);
     }
     return rootObject;
@@ -114,15 +116,15 @@ public class DataBinder extends BeanPropertyAccessor {
   }
 
   public void addPropertyValue(PropertyValue propertyValue) {
-    propertyValues.add(propertyValue);
+    getPropertyValues().add(propertyValue);
   }
 
   public void addPropertyValues(PropertyValue... propertyValues) {
-    Collections.addAll(this.propertyValues, propertyValues);
+    Collections.addAll(getPropertyValues(), propertyValues);
   }
 
   public void addPropertyValues(List<PropertyValue> propertyValues) {
-    this.propertyValues.addAll(propertyValues);
+    getPropertyValues().addAll(propertyValues);
   }
 
   public void addPropertyValues(Map<String, Object> propertyValues) {
@@ -130,6 +132,9 @@ public class DataBinder extends BeanPropertyAccessor {
   }
 
   public List<PropertyValue> getPropertyValues() {
+    if (propertyValues == null) {
+      propertyValues = new ArrayList<>();
+    }
     return propertyValues;
   }
 }
