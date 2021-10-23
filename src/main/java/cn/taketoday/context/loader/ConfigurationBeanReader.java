@@ -20,11 +20,12 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Method;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
@@ -36,15 +37,22 @@ import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/10/16 23:17
@@ -76,27 +84,34 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    */
   public void loadConfigurationBeans() {
     log.debug("Loading Configuration Beans");
-
-    for (BeanDefinition definition : context.getRegistry()) {
-      processConfiguration(definition);
-      processImport(definition);
-      processComponentScan(definition);
+    try {
+      for (BeanDefinition definition : context.getRegistry()) {
+        MetadataReader metadataReader = getMetadataReader(definition);
+        processConfiguration(metadataReader, definition);
+        processImport(metadataReader, definition);
+        processComponentScan(metadataReader, definition);
+      }
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
-  private void processConfiguration(BeanDefinition definition) {
-    if (isConfiguration(definition)) {
+  private void processConfiguration(MetadataReader metadataReader, BeanDefinition definition) {
+    if (hasAnnotation(metadataReader, Configuration.class)) {
       // @Configuration bean
-      loadConfigurationBeans(definition);
+      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+      loadConfigurationBeans(definition, annotationMetadata);
     }
   }
 
-  protected boolean isConfiguration(BeanDefinition definition) {
-    return definition.isAnnotationPresent(Configuration.class);
+  protected boolean hasAnnotation(MetadataReader metadataReader, Class<?> annType) {
+    return metadataReader.getAnnotationMetadata().hasAnnotation(annType.getName());
   }
 
-  private void processComponentScan(BeanDefinition definition) {
-    if (definition.isAnnotationPresent(ComponentScan.class)) {
+  private void processComponentScan(MetadataReader metadataReader, BeanDefinition definition) {
+    if (hasAnnotation(metadataReader, ComponentScan.class)) {
+
       ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
       AnnotationAttributes[] annotations = AnnotatedElementUtils.getMergedAttributesArray(definition, ComponentScan.class);
 
@@ -125,55 +140,50 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   public void importing(Class<?> component) {
     DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(component);
-    loadConfigurationBeans(defaults);
+    loadConfigurationBeans(defaults, getMetadataReader(defaults).getAnnotationMetadata());
   }
 
-  /**
-   * Load {@link Configuration} beans from input bean class
-   *
-   * @param config current {@link Configuration} bean
-   * @since 2.1.7
-   */
-  protected void loadConfigurationBeans(BeanDefinition config) {
+  private void loadConfigurationBeans(BeanDefinition config, AnnotationMetadata importMetadata) {
     // process local declared methods first
-    for (Method method : ReflectionUtils.getDeclaredMethods(config.getBeanClass())) {
-      AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(method, Component.class);
-      if (ObjectUtils.isEmpty(components)) {
-        // detect missed bean
-        context.detectMissingBean(method);
-      } // is a Component
-      else if (context.passCondition(method)) { // pass the condition
-        registerConfigurationBean(config, method, components);
+    Set<MethodMetadata> annotatedMethods = importMetadata.getAnnotatedMethods(Component.class.getName());
+    for (MethodMetadata beanMethod : annotatedMethods) {
+      // pass the condition
+      if (context.passCondition(beanMethod)) {
+        context.detectMissingBean(beanMethod);
+
+        String defaultBeanName = beanMethod.getMethodName();
+        String declaringBeanName = config.getName();
+
+        BeanDefinitionBuilder builder = context.createBuilder();
+
+        builder.declaringName(declaringBeanName);
+        builder.beanClassName(beanMethod.getReturnTypeName());
+
+        AnnotationAttributes[] components = beanMethod.getAnnotations().getAttributes(Component.class);
+        builder.build(defaultBeanName, components, (component, definition) -> {
+          register(definition);
+        });
       }
     }
   }
 
-  /**
-   * Create {@link Configuration} bean definition, and register it
-   *
-   * @param method factory method
-   * @param components {@link AnnotationAttributes}
-   */
-  protected void registerConfigurationBean(
-          BeanDefinition declaringDef, Method method, AnnotationAttributes[] components
-  ) {
-    String defaultBeanName = method.getName(); // @since v2.1.7
-    String declaringBeanName = declaringDef.getName(); // @since v2.1.7
+  static class ConfigBeanDefinition extends DefaultBeanDefinition {
+    BeanDefinition declaringDef;
+    AnnotationMetadata importMetadata;
 
-    BeanDefinitionBuilder builder = context.createBuilder();
-    builder.factoryMethod(method);
-    builder.declaringName(declaringBeanName);
-    builder.beanClass(method.getReturnType());
-    builder.build(defaultBeanName, components, (component, definition) -> {
-      register(definition);
-    });
   }
 
   public void register(BeanDefinition definition) {
-    context.registerBeanDefinition(definition);
-    processImport(definition);
-    if (definition.isAnnotationPresent(Configuration.class)) {
-      loadConfigurationBeans(definition); //  scan config bean
+    try {
+      context.registerBeanDefinition(definition);
+      MetadataReader metadataReader = getMetadataReader(definition);
+      processImport(metadataReader, definition);
+      if (definition.isAnnotationPresent(Configuration.class)) {
+        loadConfigurationBeans(definition, metadataReader.getAnnotationMetadata()); //  scan config bean
+      }
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
@@ -184,31 +194,50 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    * @param target Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
    * @return {@link ImportSelector} object
    */
-  protected final <T> T createImporter(BeanDefinition importDef, Class<T> target) {
-    try {
-      Object bean = context.getBean(importDef);
-      if (bean instanceof ImportAware) {
-        ((ImportAware) bean).setImportMetadata(importDef);
-      }
-      return target.cast(bean);
+  protected final <T> T createImporter(AnnotationMetadata importMetadata, Class<T> target) {
+    T importer = context.instantiate(target);
+    if (importer instanceof ImportAware) {
+      ((ImportAware) importer).setImportMetadata(importMetadata);
     }
-    catch (Throwable e) {
-      throw new BeanDefinitionStoreException("Can't initialize a target: [" + importDef + "]");
+    return importer;
+  }
+
+  protected final void processImport(MetadataReader metadataReader, BeanDefinition annotated) throws IOException {
+    AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+
+    for (MergedAnnotation<Annotation> annotation : annotationMetadata.getAnnotations()) {
+
+    }
+
+    AnnotationAttributes[] attributes = annotationMetadata.getAnnotations().getAttributes(Import.class);
+    for (AnnotationAttributes attr : attributes) {
+      for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
+        if (!context.containsBeanDefinition(importClass, true)) {
+          doImport(annotated, annotationMetadata, importClass);
+        }
+      }
     }
   }
 
-  protected final void processImport(BeanDefinition annotated) {
-    String beanClassName = annotated.getBeanClassName();
-
-
-
-    AnnotationAttributes[] mergedAttributesArray = AnnotatedElementUtils.getMergedAttributesArray(annotated, Import.class);
-    for (AnnotationAttributes attr : mergedAttributesArray) {
-      for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
-        if (!context.containsBeanDefinition(importClass, true)) {
-          doImport(annotated, importClass);
+  @NonNull
+  private MetadataReader getMetadataReader(BeanDefinition annotated) {
+    try {
+      MetadataReaderFactory metadataFactory = context.getMetadataReaderFactory();
+      if (annotated instanceof DefaultBeanDefinition) {
+        Object source = ((DefaultBeanDefinition) annotated).getSource();
+        if (source instanceof Resource) {
+          return metadataFactory.getMetadataReader((Resource) source);
+        }
+        else {
+          return metadataFactory.getMetadataReader(annotated.getBeanClassName());
         }
       }
+      else {
+        return metadataFactory.getMetadataReader(annotated.getBeanClassName());
+      }
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
@@ -216,19 +245,21 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    * Select import
    *
    * @param annotated Target {@link BeanDefinition}
+   * @param importMetadata
    * @since 2.1.7
    */
-  protected void doImport(BeanDefinition annotated, Class<?> importClass) {
+  protected void doImport(BeanDefinition annotated, AnnotationMetadata importMetadata, Class<?> importClass) {
     log.debug("Importing: [{}]", importClass);
-//AnnotationMetadata
+
     BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);
-    importDef.setAttribute(ImportAware.ImportAnnotatedMetadata, annotated); // @since 3.0
+    importDef.setAttribute(ImportAware.ImportAnnotatedMetadata, importMetadata); // @since 3.0
     register(importDef);
-    loadConfigurationBeans(importDef); // scan config bean
+    loadConfigurationBeans(importDef, importMetadata); // scan config bean
+
     // use import selector to select bean to register
     if (ImportSelector.class.isAssignableFrom(importClass)) {
-      String[] imports = createImporter(importDef, ImportSelector.class)
-              .selectImports(annotated, context.getRegistry());
+      String[] imports = createImporter(importMetadata, ImportSelector.class)
+              .selectImports(importMetadata, context.getRegistry());
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
           Class<Object> beanClass = ClassUtils.load(select);
@@ -241,11 +272,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
     // for BeanDefinitionImporter to imports beans
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
-      createImporter(importDef, BeanDefinitionImporter.class)
+      createImporter(importMetadata, BeanDefinitionImporter.class)
               .registerBeanDefinitions(annotated, context.getRegistry());
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
-      context.addApplicationListener(createImporter(importDef, ApplicationListener.class));
+      context.addApplicationListener(createImporter(importMetadata, ApplicationListener.class));
     }
   }
 
