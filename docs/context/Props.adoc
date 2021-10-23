@@ -6,10 +6,11 @@ Harry Yang
 :toclevels: 2
 :tabsize: 2
 :docinfo1:
-:doctype: article
+:doctype: book
 :encoding: utf-8
 :lang: zh_CN
 :numbered:
+:toc: left
 
 
 == value()
@@ -26,8 +27,10 @@ Harry Yang
 一般用在外层级别, 没有声明并且,如果类的内部也没有 使用 Props 注解 则忽略 (停止递归或迭代)。
 
 == 支持占位符 ${key}
-include::ExpressionEvaluator.adoc[]
+参见 link:ExpressionEvaluator.adoc[ExpressionEvaluator]
 
+
+== Props 使用示例
 [source=java]
 ----
   @Data
@@ -88,3 +91,5 @@ include::ExpressionEvaluator.adoc[]
     assertThat(none).isNotNull().isEmpty();
   }
 ----
+
+WARNING: @Props 不能使用在 simple-type 上, 比如 String, int 或数组等
