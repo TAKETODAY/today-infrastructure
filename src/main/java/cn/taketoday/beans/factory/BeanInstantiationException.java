@@ -34,7 +34,6 @@ import cn.taketoday.lang.Nullable;
  * @since 2.17
  */
 public class BeanInstantiationException extends BeansException {
-
   private static final long serialVersionUID = 1L;
 
   private final Class<?> beanClass;
@@ -46,10 +45,6 @@ public class BeanInstantiationException extends BeansException {
     this.beanClass = null;
     this.constructor = null;
     this.constructingMethod = null;
-  }
-
-  public BeanInstantiationException(BeanDefinition def, String msg) {
-    this(def.getBeanClass(), msg, null);
   }
 
   public BeanInstantiationException(Class<?> beanClass, String msg) {

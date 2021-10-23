@@ -175,7 +175,9 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   private BeanDefinition getPrototypeBeanDefinition(Object existingBean, String beanName) {
-    return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
+    BeanDefinition def = getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean));
+    def.setName(beanName);
+    return def;
   }
 
   //---------------------------------------------------------------------
@@ -184,8 +186,9 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   protected BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
-    return BeanDefinitionBuilder.defaults(beanClass)
-            .setScope(Scope.PROTOTYPE);
+    DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(beanClass);
+    defaults.setScope(Scope.PROTOTYPE);
+    return defaults;
   }
 
   public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {

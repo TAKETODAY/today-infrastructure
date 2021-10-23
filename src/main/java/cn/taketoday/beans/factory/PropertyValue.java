@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.Objects;
+
 /**
  * @author TODAY 2021/3/21 15:49
  */
@@ -51,4 +53,26 @@ public class PropertyValue {
     this.value = value;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof PropertyValue))
+      return false;
+    PropertyValue that = (PropertyValue) o;
+    return Objects.equals(name, that.name) && Objects.equals(value, that.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, value);
+  }
+
+  @Override
+  public String toString() {
+    return "PropertyValue{" +
+            "name='" + name + '\'' +
+            ", value=" + value +
+            '}';
+  }
 }

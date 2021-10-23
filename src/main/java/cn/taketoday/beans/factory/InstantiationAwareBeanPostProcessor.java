@@ -20,7 +20,10 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.Set;
+
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Sub-interface of {@link BeanPostProcessor} that adds a before-instantiation callback,
@@ -82,6 +85,11 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    */
   default boolean postProcessAfterInstantiation(Object bean, BeanDefinition def) throws BeansException {
     return true;
+  }
+
+  @Nullable
+  default Set<PropertySetter> postProcessPropertyValues(Object bean, String beanName) {
+    return null;
   }
 
 }

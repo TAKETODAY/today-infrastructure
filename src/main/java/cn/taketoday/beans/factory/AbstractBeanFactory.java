@@ -48,11 +48,13 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.SmartFactoryBean;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
@@ -74,6 +76,7 @@ public abstract class AbstractBeanFactory
   /** object factories */
   private Map<Class<?>, Object> objectFactories;
   /** dependencies */
+  @Deprecated
   private final HashSet<BeanReferencePropertySetter> dependencies = new HashSet<>(128);
   /** Bean Post Processors */
   protected final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
@@ -95,6 +98,12 @@ public abstract class AbstractBeanFactory
   /** Parent bean factory, for bean inheritance support. @since 4.0 */
   @Nullable
   private BeanFactory parentBeanFactory;
+
+  /** ClassLoader to resolve bean class names with, if necessary. @since 4.0 */
+  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+
+  // @since 4.0 for bean-property conversion
+  private ConversionService conversionService;
 
   //
 
@@ -349,6 +358,37 @@ public abstract class AbstractBeanFactory
     return def.newInstance(this);
   }
 
+  /**
+   * Resolve the bean class for the specified bean definition,
+   * resolving a bean class name into a Class reference (if necessary)
+   * and storing the resolved Class in the bean definition for further use.
+   *
+   * @param def the merged bean definition to determine the class for
+   * @return the resolved bean class (or {@code null} if none)
+   * @throws BeanClassLoadFailedException if we failed to load the class
+   */
+  @Nullable
+  protected Class<?> resolveBeanClass(BeanDefinition def) throws BeanClassLoadFailedException {
+    if (def.hasBeanClass()) {
+      return def.getBeanClass();
+    }
+
+    try {
+      ClassLoader beanClassLoader = getBeanClassLoader();
+      if (def instanceof DefaultBeanDefinition) {
+        return ((DefaultBeanDefinition) def).resolveBeanClass(beanClassLoader);
+      }
+      String beanClassName = def.getBeanClassName();
+      return ClassUtils.forName(beanClassName, beanClassLoader);
+    }
+    catch (ClassNotFoundException ex) {
+      throw new BeanClassLoadFailedException(def, ex);
+    }
+    catch (LinkageError err) {
+      throw new BeanClassLoadFailedException(def, err);
+    }
+  }
+
   protected Object createBeanInstance(BeanDefinition def, @Nullable Object[] args) {
     return def.newInstance(this, args);
   }
@@ -364,9 +404,41 @@ public abstract class AbstractBeanFactory
    * this {@link BeanFactory}
    */
   protected void applyPropertyValues(Object bean, BeanDefinition def) {
-    for (PropertySetter propertySetter : def.getPropertySetters()) {
-      propertySetter.applyValue(bean, this);
+    Set<PropertySetter> propertySetters = null;
+    if (!def.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
+      String beanName = def.getName();
+      for (BeanPostProcessor postProcessor : postProcessors) {
+        if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
+          Set<PropertySetter> ret = ((InstantiationAwareBeanPostProcessor) postProcessor).postProcessPropertyValues(bean, beanName);
+          if (CollectionUtils.isNotEmpty(ret)) {
+            if (propertySetters == null) {
+              propertySetters = new LinkedHashSet<>();
+            }
+            propertySetters.addAll(ret);
+          }
+        }
+      }
     }
+
+    // apply simple property-values
+    Set<PropertyValue> propertyValues = def.getPropertyValues();
+    if (CollectionUtils.isNotEmpty(propertyValues)) {
+      PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
+      initPropertyValuesBinder(dataBinder);
+      dataBinder.bind(bean, propertyValues);
+    }
+
+    if (CollectionUtils.isNotEmpty(propertySetters)) {
+      for (PropertySetter propertySetter : propertySetters) {
+        propertySetter.applyValue(bean, this);
+      }
+    }
+
+  }
+
+  /** @since 4.0 */
+  protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {
+    dataBinder.setConversionService(getConversionService());
   }
 
   /**
@@ -696,14 +768,7 @@ public abstract class AbstractBeanFactory
    * @param targetDef Target {@link BeanDefinition}
    */
   protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-    PropertySetter[] propertySetters = targetDef.getPropertySetters();
-    if (ObjectUtils.isNotEmpty(propertySetters)) {
-      for (PropertySetter propertySetter : propertySetters) {
-        if (propertySetter instanceof BeanReferencePropertySetter && !dependencies.contains(propertySetter)) {
-          dependencies.add((BeanReferencePropertySetter) propertySetter);
-        }
-      }
-    }
+
   }
 
   /**
@@ -1437,6 +1502,25 @@ public abstract class AbstractBeanFactory
       throw new IllegalStateException("Cannot set parent bean factory to self");
     }
     this.parentBeanFactory = parentBeanFactory;
+  }
+
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  //  @since 4.0 for bean-property conversion
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
+  //
+
+  public void setBeanClassLoader(@Nullable ClassLoader beanClassLoader) {
+    this.beanClassLoader = (beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader());
+  }
+
+  public ClassLoader getBeanClassLoader() {
+    return beanClassLoader;
   }
 
   @Override
