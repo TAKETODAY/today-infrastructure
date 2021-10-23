@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
@@ -73,6 +74,11 @@ public class FactoryBeanDefinition<T>
   @Override
   public String getBeanClassName() {
     return factoryDef.getBeanClassName();
+  }
+
+  @Override
+  public boolean hasBeanClass() {
+    return factoryDef.hasBeanClass();
   }
 
   @Override
@@ -148,8 +154,18 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public PropertySetter getPropertyValue(String name) throws NoSuchPropertyException {
+  public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
     return factoryDef.getPropertyValue(name);
+  }
+
+  @Override
+  public Set<PropertyValue> getPropertyValues() {
+    return factoryDef.getPropertyValues();
+  }
+
+  @Override
+  public void addPropertyValues(PropertyValue... propertyValues) {
+    factoryDef.addPropertyValues(propertyValues);
   }
 
   @Override
@@ -188,65 +204,47 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public PropertySetter[] getPropertySetters() {
-    return factoryDef.getPropertySetters();
-  }
-
-  @Override
   public void addPropertyValue(String name, Object value) {
     factoryDef.addPropertyValue(name, value);
   }
 
   @Override
-  public void addPropertySetter(PropertySetter... propertySetters) {
-    factoryDef.addPropertySetter(propertySetters);
-  }
-
-  @Override
-  public void addPropertySetter(Collection<PropertySetter> propertySetters) {
-    factoryDef.addPropertySetter(propertySetters);
-  }
-
-  @Override
-  public FactoryBeanDefinition<T> setInitialized(boolean initialized) {
+  public void setInitialized(boolean initialized) {
     factoryDef.setInitialized(initialized);
-    return this;
   }
 
   @Override
-  public BeanDefinition setName(String name) {
+  public void setName(String name) {
     factoryDef.setName(name);
-    return this;
   }
 
   @Override
-  public FactoryBeanDefinition<T> setScope(String scope) {
+  public void setScope(String scope) {
     factoryDef.setScope(scope);
-    return this;
   }
 
   @Override
-  public BeanDefinition setInitMethods(Method... initMethods) {
+  public void setInitMethods(Method... initMethods) {
     factoryDef.setInitMethods(initMethods);
-    return this;
   }
 
   @Override
-  public FactoryBeanDefinition<T> setDestroyMethods(String... destroyMethods) {
+  public void setDestroyMethods(String... destroyMethods) {
     factoryDef.setDestroyMethods(destroyMethods);
-    return this;
   }
 
   @Override
-  public FactoryBeanDefinition<T> setPropertyValues(PropertySetter... propertySetters) {
-    factoryDef.setPropertyValues(propertySetters);
-    return this;
+  public void setPropertyValues(PropertyValue... propertyValues) {
+    factoryDef.setPropertyValues(propertyValues);
   }
 
   @Override
-  public FactoryBeanDefinition<T> setFactoryBean(boolean factoryBean) {
-    return this;
+  public void setPropertyValues(Collection<PropertyValue> propertyValues) {
+    factoryDef.setPropertyValues(propertyValues);
   }
+
+  @Override
+  public void setFactoryBean(boolean factoryBean) { }
 
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {

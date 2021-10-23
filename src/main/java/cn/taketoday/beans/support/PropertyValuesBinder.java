@@ -87,13 +87,13 @@ public class PropertyValuesBinder extends BeanPropertyAccessor {
     return rootObject;
   }
 
-  public void setProperty(final Object root, final BeanMetadata metadata, final PropertyValue propertyValue) {
+  public void setProperty(Object root, BeanMetadata metadata, PropertyValue propertyValue) {
     setProperty(root, metadata, propertyValue.getName(), propertyValue.getValue());
   }
 
   @Override
-  protected Object doConvertInternal(final Object value, final BeanProperty beanProperty) {
-    final PropertyEditor editor = findEditor(beanProperty);
+  protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
+    PropertyEditor editor = findEditor(beanProperty);
     if (editor != null && value instanceof String) {
       try {
         editor.setAsText((String) value);

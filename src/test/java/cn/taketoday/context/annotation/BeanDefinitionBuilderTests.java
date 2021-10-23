@@ -59,7 +59,7 @@ class BeanDefinitionBuilderTests {
       beanDefinition.setDestroyMethods(null);
       beanDefinition.setInitMethods((Method[]) null);
       beanDefinition.setScope(null);
-      beanDefinition.setPropertyValues(null);
+      beanDefinition.setPropertyValues();
       beanDefinition.setName(null);
 
       try {
@@ -70,7 +70,7 @@ class BeanDefinitionBuilderTests {
         assert true;
       }
 
-      BeanDefinitionBuilder builder = new BeanDefinitionBuilder(applicationContext);
+      BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
 
       builder.factoryMethod(getClass().getMethod("toString"));
       FactoryMethodBeanDefinition factoryMethodBeanDefinition = (FactoryMethodBeanDefinition) builder.build();

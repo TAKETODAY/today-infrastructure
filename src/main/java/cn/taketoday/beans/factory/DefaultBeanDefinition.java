@@ -23,12 +23,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
@@ -36,7 +35,6 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Ordered;
@@ -50,7 +48,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -66,7 +63,7 @@ public class DefaultBeanDefinition
   /** bean name. */
   private String name;
   /** bean class. */
-  private Class<?> beanClass;
+  private Object beanClass;
   /** bean scope. */
   private String scope;
 
@@ -81,9 +78,6 @@ public class DefaultBeanDefinition
    * @since 2.3.3
    */
   private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
-
-  /** property values */
-  private PropertySetter[] propertySetters = EMPTY_PROPERTY_SETTER;
 
   /**
    * <p>
@@ -126,12 +120,12 @@ public class DefaultBeanDefinition
   /** @since 4.0 */
   private boolean primary = false;
 
-  /** @since 4.0  class name lazy load */
-  private String beanClassName;
-
   /** source @since 4.0 source */
   @Nullable
   private Object source;
+
+  @Nullable
+  private LinkedHashSet<PropertyValue> propertyValues;
 
   public DefaultBeanDefinition() { }
 
@@ -141,7 +135,7 @@ public class DefaultBeanDefinition
 
   public DefaultBeanDefinition(String name, String beanClassName) {
     this.name = name;
-    this.beanClassName = beanClassName;
+    this.beanClass = beanClassName;
   }
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
@@ -162,10 +156,12 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public PropertySetter getPropertyValue(String name) {
-    for (PropertySetter propertySetter : propertySetters) {
-      if (propertySetter.getName().equals(name)) {
-        return propertySetter;
+  public PropertyValue getPropertyValue(String name) {
+    if (propertyValues != null) {
+      for (PropertyValue propertySetter : propertyValues) {
+        if (propertySetter.getName().equals(name)) {
+          return propertySetter;
+        }
       }
     }
     throw new NoSuchPropertyException("No such property named: [" + name + "]");
@@ -182,38 +178,103 @@ public class DefaultBeanDefinition
     return Scope.PROTOTYPE.equals(scope);
   }
 
+  /**
+   * Return the specified class of the bean definition (assuming it is resolved already).
+   * <p><b>NOTE:</b> This is an initial class reference as declared in the bean metadata
+   * definition, potentially combined with a declared factory method or a
+   * {@link cn.taketoday.beans.FactoryBean} which may lead to a different
+   * runtime type of the bean, or not being set at all in case of an instance-level
+   * factory method (which is resolved via {@link FactoryMethodBeanDefinition} instead).
+   * <b>Do not use this for runtime type introspection of arbitrary bean definitions.</b>
+   * The recommended way to find out about the actual runtime type of a particular bean
+   * is a {@link cn.taketoday.beans.factory.BeanFactory#getType} call for the
+   * specified bean name; this takes all of the above cases into account and returns the
+   * type of object that a {@link cn.taketoday.beans.factory.BeanFactory#getBean}
+   * call is going to return for the same bean name.
+   *
+   * @return the resolved bean class (never {@code null})
+   * @throws IllegalStateException if the bean definition does not define a bean class,
+   * or a specified bean class name has not been resolved into an actual Class yet
+   * @see #getBeanClassName()
+   * @see #hasBeanClass()
+   * @see #setBeanClass(Class)
+   * @see #resolveBeanClass(ClassLoader)
+   */
   @Override
-  public Class<?> getBeanClass() {
-    if (beanClass == null && beanClassName != null) {
-      try {
-        beanClass = ClassUtils.forName(beanClassName);
-      }
-      catch (ClassNotFoundException e) {
-        throw ExceptionUtils.sneakyThrow(e);
-      }
+  public Class<?> getBeanClass() throws IllegalStateException {
+    Object beanClassObject = this.beanClass;
+    if (beanClassObject == null) {
+      throw new IllegalStateException("No bean class specified on bean definition");
     }
-    return beanClass;
-  }
-
-  @Nullable
-  @Override
-  public String getBeanClassName() {
-    if (beanClassName == null && beanClass != null) {
-      beanClassName = beanClass.getName();
+    if (!(beanClassObject instanceof Class)) {
+      throw new IllegalStateException(
+              "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
     }
-    return beanClassName;
-  }
-
-  @Override
-  public void setBeanClassName(@Nullable String beanClassName) {
-    this.beanClassName = beanClassName;
+    return (Class<?>) beanClassObject;
   }
 
   /**
+   * Specify the bean class name of this bean definition.
+   */
+  @Override
+  public void setBeanClassName(@Nullable String beanClassName) {
+    this.beanClass = beanClassName;
+  }
+
+  /**
+   * Return the current bean class name of this bean definition.
+   */
+  @Override
+  @Nullable
+  public String getBeanClassName() {
+    Object beanClassObject = this.beanClass;
+    if (beanClassObject instanceof Class) {
+      return ((Class<?>) beanClassObject).getName();
+    }
+    else {
+      return (String) beanClassObject;
+    }
+  }
+
+  /**
+   * Return whether this definition specifies a bean class.
+   *
+   * @see #getBeanClass()
+   * @see #setBeanClass(Class)
+   * @see #resolveBeanClass(ClassLoader)
    * @since 4.0
    */
   public boolean hasBeanClass() {
-    return beanClass != null;
+    return beanClass instanceof Class;
+  }
+
+  /**
+   * Determine the class of the wrapped bean, resolving it from a
+   * specified class name if necessary. Will also reload a specified
+   * Class from its name when called with the bean class already resolved.
+   *
+   * @param classLoader the ClassLoader to use for resolving a (potential) class name
+   * @return the resolved bean class
+   * @throws ClassNotFoundException if the class name could be resolved
+   */
+  @Nullable
+  public Class<?> resolveBeanClass(@Nullable ClassLoader classLoader) throws ClassNotFoundException {
+    String className = getBeanClassName();
+    if (className == null) {
+      return null;
+    }
+    Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
+    this.beanClass = resolvedClass;
+    return resolvedClass;
+  }
+
+  /**
+   * Return a description of the resource that this bean definition
+   * came from (for the purpose of showing context in case of errors).
+   */
+  @Nullable
+  public String getResourceDescription() {
+    return this.source != null ? this.source.toString() : null;
   }
 
   public void setBeanClass(Class<?> beanClass) {
@@ -230,6 +291,7 @@ public class DefaultBeanDefinition
     return destroyMethods;
   }
 
+  @Nullable
   @Override
   public String getScope() {
     return scope;
@@ -255,39 +317,30 @@ public class DefaultBeanDefinition
     return childDef != null;
   }
 
-  @Override
-  public PropertySetter[] getPropertySetters() {
-    return propertySetters;
-  }
-
   // -----------------------
 
   @Override
-  public BeanDefinition setInitialized(boolean initialized) {
+  public void setInitialized(boolean initialized) {
     this.initialized = initialized;
-    return this;
   }
 
   @Override
-  public BeanDefinition setFactoryBean(boolean factoryBean) {
+  public void setFactoryBean(boolean factoryBean) {
     this.factoryBean = factoryBean;
-    return this;
   }
 
   @Override
-  public BeanDefinition setName(String name) {
+  public void setName(String name) {
     this.name = name;
-    return this;
   }
 
   @Override
-  public BeanDefinition setScope(String scope) {
+  public void setScope(String scope) {
     this.scope = scope;
-    return this;
   }
 
   @Override
-  public BeanDefinition setInitMethods(Method... initMethods) {
+  public void setInitMethods(Method... initMethods) {
     if (ObjectUtils.isNotEmpty(initMethods)) {
       this.initMethods = initMethods;
       AccessibleObject.setAccessible(initMethods, true);
@@ -301,70 +354,58 @@ public class DefaultBeanDefinition
       this.initMethods = EMPTY_METHOD;
       this.methodInvokers = null;
     }
-    return this;
   }
 
   @Override
-  public BeanDefinition setDestroyMethods(String... destroyMethods) {
+  public void setDestroyMethods(String... destroyMethods) {
     this.destroyMethods = destroyMethods;
-    return this;
-  }
-
-  /**
-   * @param propertySetters collection of PropertySetter
-   * @since 4.0
-   */
-  public void setPropertyValues(@Nullable Collection<PropertySetter> propertySetters) {
-    if (CollectionUtils.isNotEmpty(propertySetters)) {
-      this.propertySetters = propertySetters.toArray(EMPTY_PROPERTY_SETTER);
-    }
-    else {
-      this.propertySetters = EMPTY_PROPERTY_SETTER;
-    }
-  }
-
-  public BeanDefinition setPropertyValues(PropertySetter... propertySetters) {
-    this.propertySetters = propertySetters;
-    return this;
   }
 
   @Override
   public void addPropertyValue(String name, Object value) {
     Assert.notNull(name, "property name must not be null");
-
-    BeanProperty beanProperty = BeanProperty.valueOf(obtainBeanClass(), name);
-    DefaultPropertySetter propertyValue = new DefaultPropertySetter(value, beanProperty);
-    addPropertySetter(propertyValue);
+    addPropertyValues(new PropertyValue(name, value));
   }
 
   @Override
-  public void addPropertySetter(PropertySetter... setters) {
-    if (ObjectUtils.isNotEmpty(setters)) {
-      PropertySetter[] propertySetters = getPropertySetters();
-      if (ObjectUtils.isEmpty(propertySetters)) {
-        setPropertyValues(setters);
-      }
-      else {
-        List<PropertySetter> pool = new ArrayList<>(setters.length + propertySetters.length);
+  public void addPropertyValues(PropertyValue... propertyValue) {
+    if (propertyValues == null) {
+      propertyValues = new LinkedHashSet<>();
+    }
+    CollectionUtils.addAll(propertyValues, propertyValue);
+  }
 
-        Collections.addAll(pool, setters);
-        Collections.addAll(pool, propertySetters);
-
-        setPropertyValues(pool.toArray(new PropertySetter[pool.size()]));
+  @Override
+  public void setPropertyValues(PropertyValue... propertyValues) {
+    if (this.propertyValues == null) {
+      if (ObjectUtils.isNotEmpty(propertyValues)) {
+        this.propertyValues = new LinkedHashSet<>();
+        CollectionUtils.addAll(this.propertyValues, propertyValues);
       }
+    }
+    else {
+      this.propertyValues.clear();
+      CollectionUtils.addAll(this.propertyValues, propertyValues);
     }
   }
 
   @Override
-  public void addPropertySetter(Collection<PropertySetter> newValues) {
-    if (CollectionUtils.isEmpty(newValues)) {
-      return;
+  public void setPropertyValues(Collection<PropertyValue> propertyValues) {
+    if (this.propertyValues == null) {
+      if (CollectionUtils.isNotEmpty(propertyValues)) {
+        this.propertyValues = new LinkedHashSet<>();
+        CollectionUtils.addAll(this.propertyValues, propertyValues);
+      }
     }
-    PropertySetter[] propertySetters = getPropertySetters();
-    if (ObjectUtils.isNotEmpty(propertySetters)) {
-      Collections.addAll(newValues, propertySetters);
+    else {
+      this.propertyValues.clear();
+      CollectionUtils.addAll(this.propertyValues, propertyValues);
     }
-    setPropertyValues(newValues.toArray(new PropertySetter[newValues.size()]));
+  }
+
+  @Override
+  public Set<PropertyValue> getPropertyValues() {
+    return propertyValues;
   }
 
   /**
@@ -516,7 +557,7 @@ public class DefaultBeanDefinition
     setBeanClass(newDef.getBeanClass());
     setFactoryBean(newDef.isFactoryBean());
     setDestroyMethods(newDef.getDestroyMethods());
-    setPropertyValues(newDef.getPropertySetters());
+    setPropertyValues(newDef.getPropertyValues());
 
     setLazyInit(newDef.isLazyInit());
     setInitialized(newDef.isInitialized());
@@ -527,13 +568,17 @@ public class DefaultBeanDefinition
 
     if (newDef instanceof DefaultBeanDefinition) {
       DefaultBeanDefinition defaultBeanDefinition = (DefaultBeanDefinition) newDef;
-      setSupplier(defaultBeanDefinition.instanceSupplier);
+
+      this.source = defaultBeanDefinition.source;
+      this.beanClass = defaultBeanDefinition.beanClass;
       this.executable = defaultBeanDefinition.executable;
       this.initMethods = defaultBeanDefinition.initMethods;
       this.constructor = defaultBeanDefinition.constructor;
       this.methodInvokers = defaultBeanDefinition.methodInvokers;
+      this.instanceSupplier = defaultBeanDefinition.instanceSupplier;
     }
     else {
+      setBeanClassName(newDef.getBeanClassName());
       setInitMethods(newDef.getInitMethods());
     }
 
@@ -546,8 +591,7 @@ public class DefaultBeanDefinition
   }
 
   protected Class<?> obtainBeanClass() {
-    Assert.state(beanClass != null, "Bean Class is Null");
-    return beanClass;
+    return getBeanClass();
   }
 
   /**
@@ -667,7 +711,7 @@ public class DefaultBeanDefinition
               && Objects.equals(childDef, other.childDef)
               && Objects.deepEquals(initMethods, other.initMethods)
               && Objects.deepEquals(destroyMethods, other.destroyMethods)
-              && Objects.deepEquals(propertySetters, other.propertySetters);
+              && Objects.equals(propertyValues, other.propertyValues);
     }
     return false;
   }

@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.logging.Logger;
@@ -57,35 +56,20 @@ class BeanDefinitionTests {
 
       BeanDefinition beanDefinition = new DefaultBeanDefinition("testBean", BeanDefinitionTests.class);
 
-      beanDefinition.setDestroyMethods("destory")//
-              .setInitMethods(BeanDefinitionTests.class.getDeclaredMethod("init"));
+      beanDefinition.setDestroyMethods("destory");
+      beanDefinition.setInitMethods(BeanDefinitionTests.class.getDeclaredMethod("init"));
 
       Field test = BeanDefinitionTests.class.getDeclaredField("test");
       Field testInt = BeanDefinitionTests.class.getDeclaredField("testInt");
       Field testDouble = BeanDefinitionTests.class.getDeclaredField("testDouble");
 
-      HashSet<PropertySetter> propertySetters = new HashSet<>();
-      beanDefinition.addPropertySetter(propertySetters);
+      beanDefinition.addPropertyValue("testInt", 123);
 
-      beanDefinition.setPropertyValues(null);
+      beanDefinition.addPropertyValue("TEST_STRING", test);
+      beanDefinition.addPropertyValue("testDouble", 123.123);
 
-      propertySetters.add(new DefaultPropertySetter(123, testInt));
-
-      beanDefinition.addPropertySetter(propertySetters);
-
-      beanDefinition.setPropertyValues(null);
-
-      beanDefinition.addPropertySetter();
-
-      beanDefinition.addPropertySetter(
-              new DefaultPropertySetter("TEST_STRING", test),
-              new DefaultPropertySetter(123.123, testDouble)//
-      );
-
-      beanDefinition.addPropertySetter(
-              new DefaultPropertySetter("TEST_STRING", test), //
-              new DefaultPropertySetter(123.123, testDouble)//
-      );
+      beanDefinition.addPropertyValue("TEST_STRING", test);
+      beanDefinition.addPropertyValue("testDouble", 123.123);
 
       beanDefinition.getPropertyValue("test");
       assert beanDefinition.isSingleton();
@@ -97,8 +81,6 @@ class BeanDefinitionTests {
       catch (Exception e) {
         assert true;
       }
-
-      beanDefinition.addPropertySetter(propertySetters);
 
       applicationContext.registerBeanDefinition("testBean", beanDefinition);
 

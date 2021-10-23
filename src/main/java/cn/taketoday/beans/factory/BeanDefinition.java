@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
@@ -47,8 +48,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
 
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
-  PropertySetter[] EMPTY_PROPERTY_SETTER = PropertySetter.EMPTY_ARRAY;
-
   /**
    * Role hint indicating that a {@code BeanDefinition} is a major part
    * of the application. Typically， corresponds to a user-defined bean.
@@ -69,7 +68,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @return Property value object
    * @throws NoSuchPropertyException If there is no property with given name
    */
-  PropertySetter getPropertyValue(String name) throws NoSuchPropertyException;
+  PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
 
   /**
    * Indicates that If the bean is a {@link Singleton}.
@@ -148,94 +147,80 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    */
   boolean isAbstract();
 
-  /**
-   * Get all the {@link PropertySetter}s
-   *
-   * @return The bean's all {@link PropertySetter}
-   */
-  PropertySetter[] getPropertySetters();
-
   // ----------------- Configurable
 
   /**
    * Add PropertyValue to list.
    *
-   * @param propertySetters {@link PropertySetter} object
-   */
-  void addPropertySetter(PropertySetter... propertySetters);
-
-  /**
-   * Add PropertyValue to list.
-   *
+   * @param name supports property-path like 'user.name'
    * @since 3.0
    */
   void addPropertyValue(String name, Object value);
 
+  /** @since 4.0 */
+  void addPropertyValues(PropertyValue... propertyValues);
+
   /**
-   * Add a collection of {@link PropertySetter}s
+   * Apply bean' {@link PropertySetter}s
    *
-   * @param propertySetters The {@link Collection} of {@link PropertySetter}s
+   * @param propertyValues The array of the bean's {@link PropertySetter}s
    */
-  void addPropertySetter(Collection<PropertySetter> propertySetters);
+  void setPropertyValues(PropertyValue... propertyValues);
+
+  void setPropertyValues(Collection<PropertyValue> propertyValues);
+
+  /**
+   * get simple properties
+   *
+   * @since 4.0
+   */
+  @Nullable
+  Set<PropertyValue> getPropertyValues();
 
   /**
    * Apply bean If its initialized
    *
    * @param initialized The state of bean
-   * @return The {@link BeanDefinition}
    */
-  BeanDefinition setInitialized(boolean initialized);
+  void setInitialized(boolean initialized);
 
   /**
    * Apply bean' name
    *
    * @param name The bean's name
-   * @return The {@link BeanDefinition}
    */
-  BeanDefinition setName(String name);
+  void setName(String name);
 
   /**
    * Apply bean' scope
    *
    * @param scope The scope of the bean
-   * @return The {@link BeanDefinition}
    * @see Scope#PROTOTYPE
    * @see Scope#SINGLETON
    */
-  BeanDefinition setScope(String scope);
+  void setScope(String scope);
 
   /**
    * Apply bean' initialize {@link Method}s
    *
    * @param initMethods The array of the bean's initialize {@link Method}s
-   * @return The {@link BeanDefinition}
    */
   @Deprecated
-  BeanDefinition setInitMethods(Method... initMethods);
+  void setInitMethods(Method... initMethods);
 
   /**
    * Apply bean' destroy {@link Method}s
    *
    * @param destroyMethods The array of the bean's destroy {@link Method}s
-   * @return The {@link BeanDefinition}
    */
-  BeanDefinition setDestroyMethods(String... destroyMethods);
-
-  /**
-   * Apply bean' {@link PropertySetter}s
-   *
-   * @param propertySetters The array of the bean's {@link PropertySetter}s
-   * @return The {@link BeanDefinition}
-   */
-  BeanDefinition setPropertyValues(PropertySetter... propertySetters);
+  void setDestroyMethods(String... destroyMethods);
 
   /**
    * Indicates that If the bean is a {@link FactoryBean}.
    *
    * @param factoryBean If its a {@link FactoryBean}
-   * @return The {@link BeanDefinition}
    */
-  BeanDefinition setFactoryBean(boolean factoryBean);
+  void setFactoryBean(boolean factoryBean);
 
   /**
    * If An {@link Annotation} present on this bean
@@ -244,6 +229,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @return If An {@link Annotation} present on this bean
    * @since 2.1.7
    */
+  @Deprecated
   @Override
   boolean isAnnotationPresent(Class<? extends Annotation> annotation);
 
@@ -420,4 +406,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   @Nullable
   String getBeanClassName();
 
+  /** @since 4.0 */
+  boolean hasBeanClass();
 }

@@ -26,7 +26,7 @@ import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,13 +43,13 @@ class AutoProxyConfigurationTests {
 
   @Test
   void testEnableAspectAutoProxy() {
-    try (final StandardApplicationContext context = new StandardApplicationContext()) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(AopConfig.class);
 
-      final BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
+      BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
 
-      final PropertySetter exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
-      final PropertySetter proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
+      PropertyValue exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
+      PropertyValue proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
 
       assertThat(exposeProxy).isInstanceOf(DefaultPropertySetter.class);
       assertThat(proxyTargetClass).isInstanceOf(DefaultPropertySetter.class);
@@ -57,13 +57,10 @@ class AutoProxyConfigurationTests {
       assertThat(exposeProxy.getName()).isEqualTo("exposeProxy");
       assertThat(proxyTargetClass.getName()).isEqualTo("proxyTargetClass");
 
-      DefaultPropertySetter _exposeProxy = (DefaultPropertySetter) exposeProxy;
-      DefaultPropertySetter _proxyTargetClass = (DefaultPropertySetter) proxyTargetClass;
+      ProxyConfig proxyCreator = context.getBean(ProxyConfig.class);
 
-      final ProxyConfig proxyCreator = context.getBean(ProxyConfig.class);
-
-      assertThat(_exposeProxy.getValue()).isInstanceOf(Boolean.class).isEqualTo(true).isEqualTo(proxyCreator.isExposeProxy());
-      assertThat(_proxyTargetClass.getValue()).isInstanceOf(Boolean.class).isEqualTo(false).isEqualTo(proxyCreator.isProxyTargetClass());
+      assertThat(exposeProxy.getValue()).isInstanceOf(Boolean.class).isEqualTo(true).isEqualTo(proxyCreator.isExposeProxy());
+      assertThat(proxyTargetClass.getValue()).isInstanceOf(Boolean.class).isEqualTo(false).isEqualTo(proxyCreator.isProxyTargetClass());
 
     }
   }
