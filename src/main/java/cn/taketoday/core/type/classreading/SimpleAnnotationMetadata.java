@@ -145,7 +145,7 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
 
   @Override
   public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
-    Set<MethodMetadata> annotatedMethods = null;
+    LinkedHashSet<MethodMetadata> annotatedMethods = null;
     for (MethodMetadata annotatedMethod : this.annotatedMethods) {
       if (annotatedMethod.isAnnotated(annotationName)) {
         if (annotatedMethods == null) {

@@ -51,7 +51,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
    */
   @Nullable
   @Override
-  public PropertySetter resolveProperty(
+  public DefaultPropertySetter resolveProperty(
           PropertyResolvingContext context, Field field) {
     AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
             field, Value.class);
@@ -68,7 +68,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
     }
   }
 
-  private PropertySetter resolve(PropertyResolvingContext context, Field field, ExpressionInfo expr) {
+  private DefaultPropertySetter resolve(PropertyResolvingContext context, Field field, ExpressionInfo expr) {
     ExpressionEvaluator evaluator = context.getExpressionEvaluator();
 
     String expression = expr.getExpression();
