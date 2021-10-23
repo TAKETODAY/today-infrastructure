@@ -680,7 +680,7 @@ public class DefaultBeanDefinition
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("class [");
-    sb.append(beanClass.getName()).append(']');
+    sb.append(getBeanClassName()).append(']');
     sb.append("; scope=").append(this.scope);
     sb.append("; abstract=").append(isAbstract());
     sb.append("; lazyInit=").append(this.lazyInit);

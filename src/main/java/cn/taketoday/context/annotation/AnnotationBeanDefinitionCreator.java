@@ -54,12 +54,10 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStr
     for (Class<? extends Annotation> annotationType : annotationTypes) {
       if (annotationMetadata.isAnnotated(annotationType.getName())) {
         AnnotationAttributes[] annotations = annotationMetadata.getAnnotations().getAttributes(annotationType);
-        for (AnnotationAttributes attributes : annotations) {
-          BeanDefinitionBuilder builder = loadingContext.createBuilder();
-          builder.beanClassName(annotationMetadata.getClassName());
-          builder.attributes(attributes);
-          builder.build(loadingContext.createBeanName(annotationMetadata.getClassName()), definitions::add);
-        }
+
+        BeanDefinitionBuilder builder = loadingContext.createBuilder();
+        builder.beanClassName(annotationMetadata.getClassName());
+        builder.build(loadingContext.createBeanName(annotationMetadata.getClassName()), annotations, definitions::add);
       }
     }
     return definitions;

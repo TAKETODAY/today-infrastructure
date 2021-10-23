@@ -123,10 +123,7 @@ public class ScanningBeanDefinitionReader {
       MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
       Set<Resource> resources = loadingContext.getResourceLoader().getResources(patternLocation);
       for (Resource resource : resources) {
-        MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-        if (isCandidateComponent(metadataReader)) {
-          process(metadataReader);
-        }
+        process(resource, metadataReaderFactory);
       }
     }
     catch (IOException e) {
@@ -141,8 +138,8 @@ public class ScanningBeanDefinitionReader {
    * @param metadataReader the ASM ClassReader for the class
    * @return whether the class qualifies as a candidate component
    */
-  protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
-    MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
+  protected boolean isCandidateComponent(
+          MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
     for (TypeFilter tf : this.excludeFilters) {
       if (tf.match(metadataReader, metadataReaderFactory)) {
         return false;
@@ -167,11 +164,14 @@ public class ScanningBeanDefinitionReader {
     return loadingContext.passCondition(metadataReader.getAnnotationMetadata());
   }
 
-  protected void process(MetadataReader metadata) {
-    Set<BeanDefinition> beanDefinitions = scanningStrategies.loadBeanDefinitions(metadata, loadingContext);
-    if (CollectionUtils.isNotEmpty(beanDefinitions)) {
-      for (BeanDefinition beanDefinition : beanDefinitions) {
-        registry.registerBeanDefinition(beanDefinition);
+  protected void process(Resource resource, MetadataReaderFactory metadataReaderFactory) throws IOException {
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
+    if (isCandidateComponent(metadataReader, metadataReaderFactory)) {
+      Set<BeanDefinition> beanDefinitions = scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
+      if (CollectionUtils.isNotEmpty(beanDefinitions)) {
+        for (BeanDefinition beanDefinition : beanDefinitions) {
+          registry.registerBeanDefinition(beanDefinition);
+        }
       }
     }
   }
