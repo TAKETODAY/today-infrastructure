@@ -809,15 +809,6 @@ public class ReflectionUtilsTest {
 
   // --------------------
 
-  public void testGetFields() {
-
-    Collection<Field> fields = ReflectionUtils.getFields(StandardApplicationContext.class);
-
-    final Field[] fieldArray = ReflectionUtils.getFieldArray(StandardApplicationContext.class);
-    assert fields.size() == fieldArray.length;
-
-  }
-
   @Test
   public void getterPropertyName() {
 

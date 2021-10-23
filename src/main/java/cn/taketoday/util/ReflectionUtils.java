@@ -33,7 +33,6 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -1139,49 +1138,6 @@ public abstract class ReflectionUtils {
   public static boolean isPublicStaticFinal(Field field) {
     int modifiers = field.getModifiers();
     return (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers));
-  }
-
-  /**
-   * Get bean instance's {@link Field}
-   *
-   * @param target target instance
-   * @return all {@link Field}
-   * @since 2.1.5
-   */
-  @Deprecated
-  public static Collection<Field> getFields(Object target) {
-    return getFields(target.getClass());
-  }
-
-  /**
-   * Get all {@link Field} list, including superclass's Field
-   *
-   * @param targetClass target class
-   * @return get all the {@link Field}
-   * @since 2.1.2
-   */
-  @Deprecated
-  public static Collection<Field> getFields(Class<?> targetClass) {
-    final ArrayList<Field> list = new ArrayList<>(64);
-    do {
-      Collections.addAll(list, getDeclaredFields(targetClass));
-    }
-    while ((targetClass = targetClass.getSuperclass()) != Object.class && targetClass != null);
-
-    return list;
-  }
-
-  /**
-   * Get all {@link Field} array
-   *
-   * @param targetClass target class
-   * @return get all the {@link Field} array
-   * @since 2.1.2
-   */
-  @Deprecated
-  public static Field[] getFieldArray(Class<?> targetClass) {
-    final Collection<Field> fields = getFields(targetClass);
-    return toFieldArray(fields);
   }
 
   /**
