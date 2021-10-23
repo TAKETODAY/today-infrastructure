@@ -295,8 +295,8 @@ public class DefaultApplicationContext
    * @param obj bean instance
    * @throws BeanDefinitionStoreException If can't store a bean
    */
-  public void registerBean(Object obj) {
-    registerBean(createBeanName(obj.getClass()), obj);
+  public void registerSingleton(Object obj) {
+    registerSingleton(createBeanName(obj.getClass()), obj);
   }
 
   /**
@@ -306,7 +306,7 @@ public class DefaultApplicationContext
    * @param obj bean instance (must not be null)
    * @throws BeanDefinitionStoreException If can't store a bean
    */
-  public void registerBean(String name, Object obj) {
+  public void registerSingleton(String name, Object obj) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(obj, "bean-instance must not be null");
     getBeanFactory().registerSingleton(name, obj);
