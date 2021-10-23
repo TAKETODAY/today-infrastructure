@@ -198,6 +198,9 @@ public class DefaultBeanDefinition
   @Nullable
   @Override
   public String getBeanClassName() {
+    if (beanClassName == null && beanClass != null) {
+      beanClassName = beanClass.getName();
+    }
     return beanClassName;
   }
 
