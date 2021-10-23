@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.PropertyValueException;
+import cn.taketoday.beans.PropertyException;
 
 /**
  * Invalid property value
@@ -28,7 +28,7 @@ import cn.taketoday.beans.PropertyValueException;
  * @author TODAY 2021/1/29 16:43
  * @since 3.0
  */
-public class InvalidPropertyValueException extends PropertyValueException {
+public class InvalidPropertyValueException extends PropertyException {
   private static final long serialVersionUID = 1L;
 
   public InvalidPropertyValueException() { }

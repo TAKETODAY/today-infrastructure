@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.DefaultProps;
@@ -30,6 +31,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2018-08-04 16:01
@@ -40,17 +42,22 @@ public class PropsPropertyResolver implements PropertyValueResolver {
    * Resolve {@link Props} annotation property.
    */
   @Override
-  public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
+  public DefaultPropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
     AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
             field, Props.class);
     if (attributes != null) {
+      Class<?> propertyClass = field.getType();
+      if (ClassUtils.isSimpleType(propertyClass)) {
+        // not support simple type
+        throw new PropertyException(
+                "Props usage error, cannot declare it on simple-type property, Use @Value instead");
+      }
       DefaultProps props = new DefaultProps(attributes);
 
       PropsReader propsReader = context.getPropsReader();
       Properties properties = propsReader.readMap(props);
 
       // feat: Enhance `Props`
-      final Class<?> propertyClass = field.getType();
       if (!Map.class.isAssignableFrom(propertyClass)) {
         return new DefaultPropertySetter(propsReader.read(props, propertyClass), field);
       }

@@ -23,7 +23,7 @@ package cn.taketoday.beans;
  * @author TODAY <br>
  * 2018-08-05 10:08
  */
-public class NoSuchPropertyException extends PropertyValueException {
+public class NoSuchPropertyException extends PropertyException {
   private static final long serialVersionUID = 1L;
 
   public NoSuchPropertyException() { }

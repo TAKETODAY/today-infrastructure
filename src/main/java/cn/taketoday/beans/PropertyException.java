@@ -27,20 +27,20 @@ import cn.taketoday.core.NestedRuntimeException;
  * @author TODAY <br>
  * 2020-02-18 19:03
  */
-public class PropertyValueException extends NestedRuntimeException {
+public class PropertyException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public PropertyValueException() { }
+  public PropertyException() { }
 
-  public PropertyValueException(Throwable cause) {
+  public PropertyException(Throwable cause) {
     super(cause);
   }
 
-  public PropertyValueException(String message) {
+  public PropertyException(String message) {
     super(message);
   }
 
-  public PropertyValueException(String message, Throwable cause) {
+  public PropertyException(String message, Throwable cause) {
     super(message, cause);
   }
 

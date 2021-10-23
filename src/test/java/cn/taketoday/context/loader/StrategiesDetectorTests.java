@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.PropertyValueException;
+import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.StrategiesDetector;
@@ -88,7 +88,7 @@ class StrategiesDetectorTests {
 
     @Nullable
     @Override
-    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyValueException {
+    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyException {
       return null;
     }
   }
@@ -97,7 +97,7 @@ class StrategiesDetectorTests {
 
     @Nullable
     @Override
-    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyValueException {
+    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyException {
       return null;
     }
   }

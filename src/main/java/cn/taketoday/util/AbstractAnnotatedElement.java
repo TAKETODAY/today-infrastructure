@@ -60,7 +60,7 @@ public abstract class AbstractAnnotatedElement implements AnnotatedElement, Seri
     return getAnnotations();
   }
 
-  public boolean isEmpty() {
+  public boolean isAnnotationEmpty() {
     return ObjectUtils.isEmpty(getAnnotations());
   }
 

@@ -124,9 +124,11 @@ public class PropsReader {
 
     ArrayList<PropertySetter> propertySetters = new ArrayList<>();
     for (BeanProperty property : BeanMetadata.ofClass(type)) {
-      Object converted = read(property, defaultProps, propertyResolver);
-      if (converted != null) {
-        propertySetters.add(new DefaultPropertySetter(converted, property));
+      if (!property.isReadOnly()) {
+        Object converted = read(property, defaultProps, propertyResolver);
+        if (converted != null) {
+          propertySetters.add(new DefaultPropertySetter(converted, property));
+        }
       }
     }
     propertySetters.trimToSize();
@@ -273,7 +275,7 @@ public class PropsReader {
    * Resolve target object with {@link Props} and target object's class
    *
    * @param props {@link Props}
-   * @param beanClass Target class, must have default {@link Constructor}
+   * @param beanClass Target class, must have default {@link Constructor}, cannot be simple type
    * @since 2.1.5
    */
   public <T> T read(Props props, Class<T> beanClass) {
@@ -301,9 +303,11 @@ public class PropsReader {
 
   public <T> T read(Props props, T bean, PropertyResolver propertyResolver) {
     for (BeanProperty property : BeanMetadata.ofObject(bean)) {
-      Object converted = read(property, props, propertyResolver);
-      if (converted != null) {
-        property.setValue(bean, converted);
+      if (!property.isReadOnly()) {
+        Object converted = read(property, props, propertyResolver);
+        if (converted != null) {
+          property.setValue(bean, converted);
+        }
       }
     }
     return bean;

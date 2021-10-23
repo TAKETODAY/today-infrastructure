@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.PropertyValueException;
+import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AbstractPropertySetter;
 import cn.taketoday.beans.factory.ObjectSupplier;
@@ -55,7 +55,7 @@ public class ObjectSupplierPropertyResolver
       return new ObjectSupplierPropertySetter(field, generic);
     }
     // Usage error
-    throw new PropertyValueException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
+    throw new PropertyException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }
 
   /**

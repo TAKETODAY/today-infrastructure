@@ -20,13 +20,13 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.PropertyValueException;
+import cn.taketoday.beans.PropertyException;
 
 /**
  * @author TODAY 2021/5/28 22:46
  * @since 3.0.2
  */
-public class PropertyReadOnlyException extends PropertyValueException {
+public class PropertyReadOnlyException extends PropertyException {
   private static final long serialVersionUID = 1L;
 
   public PropertyReadOnlyException() { }

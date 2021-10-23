@@ -23,11 +23,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Props;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Today <br>
@@ -49,13 +54,34 @@ class PropsPropertyResolverTests {
       PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
-      DefaultPropertySetter resolveProperty = //
-              (DefaultPropertySetter) propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("properties"));
+      DefaultPropertySetter resolveProperty =
+              propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("properties"));
 
-      assert resolveProperty.getValue() != null;
+      assertThat(resolveProperty).isNotNull();
 
-      System.out.println("====================");
-      System.out.println(resolveProperty.getValue());
+      BeanProperty property = resolveProperty.getProperty();
+      assertThat(property).isNotNull();
+      assertThat(property.getPropertyName()).isNotNull()
+              .isEqualTo("properties").isEqualTo(property.getName());
+
+      assertThat(property.isReadOnly()).isFalse();
+      assertThat(property.isArray()).isFalse();
+      assertThat(property.isList()).isFalse();
+      assertThat(property.isMap()).isTrue();
+      assertThat(property.isAnnotationEmpty()).isFalse();
+      assertThat(property.isAnnotationPresent(Props.class)).isTrue();
+
+      Object value = resolveProperty.getValue();
+      assertThat(property.isInstance(value)).isTrue();
+
+      assertThat(value).isNotNull()
+              .isInstanceOf(Properties.class);
+
+      Properties properties = (Properties) value;
+      assertThat(properties).isNotEmpty();
+      for (String stringPropertyName : properties.stringPropertyNames()) {
+        assertThat(stringPropertyName).startsWith("site.");
+      }
     }
   }
 
@@ -66,7 +92,9 @@ class PropsPropertyResolverTests {
       PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
-      propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("name"));
+      assertThatThrownBy(() -> propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("name")))
+              .hasMessage("Props usage error, cannot declare it on simple-type property, Use @Value instead")
+              .isInstanceOf(PropertyException.class);
     }
 
   }

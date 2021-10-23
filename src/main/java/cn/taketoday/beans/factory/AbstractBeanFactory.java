@@ -46,7 +46,7 @@ import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.PropertyValueException;
+import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.ResolvableType;
@@ -358,7 +358,7 @@ public abstract class AbstractBeanFactory
    *
    * @param bean Bean instance
    * @param def use {@link BeanDefinition}
-   * @throws PropertyValueException If any {@link Exception} occurred when apply
+   * @throws PropertyException If any {@link Exception} occurred when apply
    * {@link PropertySetter}
    * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
    * this {@link BeanFactory}
