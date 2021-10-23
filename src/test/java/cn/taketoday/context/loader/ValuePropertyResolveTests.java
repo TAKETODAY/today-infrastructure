@@ -53,10 +53,11 @@ class ValuePropertyResolveTests {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
-
+      applicationContext.setPropertiesLocation("info.properties");
+      applicationContext.refresh();
       // host
       // ----------------------------
-      DefaultPropertySetter host = (DefaultPropertySetter) propertyResolver.resolveProperty(
+      DefaultPropertySetter host = propertyResolver.resolveProperty(
               resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("host"));
 
       assert host.getValue() != null;
@@ -65,7 +66,7 @@ class ValuePropertyResolveTests {
 
       // name
       // ----------------------------
-      DefaultPropertySetter name = (DefaultPropertySetter) propertyResolver.resolveProperty(
+      DefaultPropertySetter name = propertyResolver.resolveProperty(
               resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("name"));
 
       assert name.getValue() != null;
@@ -81,9 +82,9 @@ class ValuePropertyResolveTests {
       Properties properties = new Properties();
       propertySources.addLast(new PropertiesPropertySource("Test", properties));
 
-      properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
+      properties.put("cn.taketoday.context.loader.ValuePropertyResolveTests.test", "TEST");
 
-      DefaultPropertySetter test = (DefaultPropertySetter) propertyResolver.resolveProperty(
+      DefaultPropertySetter test = propertyResolver.resolveProperty(
               resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("test"));
       assert "TEST".equals(test.getValue());
 
