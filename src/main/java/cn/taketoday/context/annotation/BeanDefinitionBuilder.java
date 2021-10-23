@@ -20,21 +20,27 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
-import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
-import cn.taketoday.context.loader.PropertyResolvingContext;
-import cn.taketoday.context.loader.PropertyValueResolverComposite;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -45,19 +51,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import static cn.taketoday.lang.Constant.VALUE;
 
 /**
@@ -67,18 +60,6 @@ import static cn.taketoday.lang.Constant.VALUE;
 public class BeanDefinitionBuilder {
   public static final Class<? extends Annotation>
           PostConstruct = ClassUtils.load("javax.annotation.PostConstruct");
-
-  @Nullable
-  private ApplicationContext context;
-
-  @Nullable
-  private PropsReader propsReader;
-
-  @Nullable
-  private PropertyResolvingContext resolvingContext;
-
-  @Nullable
-  private PropertyValueResolverComposite resolvingStrategies;
 
   /** bean name. */
   private String name;
@@ -130,17 +111,7 @@ public class BeanDefinitionBuilder {
   /** Declaring name @since 2.1.2 */
   private String declaringName;
 
-  private boolean resolveProps = true;
-
-  private boolean resolveInitMethods = true;
-
-  private boolean autowire = true;
-
-  public BeanDefinitionBuilder() { }
-
-  public BeanDefinitionBuilder(@Nullable ApplicationContext context) {
-    this.context = context;
-  }
+  private boolean resolveInitMethods = false;
 
   public BeanDefinitionBuilder name(String name) {
     this.name = name;
@@ -240,19 +211,6 @@ public class BeanDefinitionBuilder {
   }
 
   /**
-   * Enable resolving {@link Props}?
-   *
-   * @param resolveProps resolve {@link Props}
-   * @return this
-   * @see Props
-   * @see PropsReader
-   */
-  public BeanDefinitionBuilder resolveProps(boolean resolveProps) {
-    this.resolveProps = resolveProps;
-    return this;
-  }
-
-  /**
    * Enable resolving init-method
    *
    * @param computeInitMethod compute InitMethod
@@ -262,17 +220,6 @@ public class BeanDefinitionBuilder {
    */
   public BeanDefinitionBuilder resolveInitMethods(boolean computeInitMethod) {
     this.resolveInitMethods = computeInitMethod;
-    return this;
-  }
-
-  /**
-   * Enable resolving autowire property-values
-   *
-   * @param autowire resolve {@link PropertySetter} ?
-   * @return this
-   */
-  public BeanDefinitionBuilder resolvePropertyValues(boolean autowire) {
-    this.autowire = autowire;
     return this;
   }
 
@@ -292,26 +239,6 @@ public class BeanDefinitionBuilder {
       this.initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
       this.destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
     }
-  }
-
-  public BeanDefinitionBuilder context(ApplicationContext context) {
-    this.context = context;
-    return this;
-  }
-
-  public BeanDefinitionBuilder propsReader(PropsReader propsReader) {
-    this.propsReader = propsReader;
-    return this;
-  }
-
-  public BeanDefinitionBuilder resolving(PropertyResolvingContext resolvingContext) {
-    this.resolvingContext = resolvingContext;
-    return this;
-  }
-
-  public BeanDefinitionBuilder resolvingStrategies(PropertyValueResolverComposite resolvingStrategies) {
-    this.resolvingStrategies = resolvingStrategies;
-    return this;
   }
 
   // reset
@@ -334,9 +261,7 @@ public class BeanDefinitionBuilder {
     this.synthetic = false;
     this.factoryBean = false;
 
-    this.resolveProps = false;
     this.resolveInitMethods = true;
-    this.autowire = true;
 
   }
 
@@ -347,26 +272,6 @@ public class BeanDefinitionBuilder {
   }
 
   // getter
-
-  @Nullable
-  public ApplicationContext getContext() {
-    return context;
-  }
-
-  @Nullable
-  public PropsReader getPropsReader() {
-    return propsReader;
-  }
-
-  @Nullable
-  public PropertyResolvingContext getResolvingContext() {
-    return resolvingContext;
-  }
-
-  @Nullable
-  public PropertyValueResolverComposite getResolvingStrategies() {
-    return resolvingStrategies;
-  }
 
   //---------------------------------------------------------------------
   // build
@@ -406,25 +311,6 @@ public class BeanDefinitionBuilder {
     definition.setFactoryBean(factoryBean);
     definition.setSupplier(instanceSupplier);
     definition.setDestroyMethods(destroyMethods);
-
-    LinkedHashSet<PropertySetter> propertySetters = null;
-
-    if (autowire && beanClass != null) {
-      propertySetters = resolvePropertyValue(beanClass);
-    }
-
-    if (resolveProps) {
-      if (propertySetters == null) {
-        propertySetters = new LinkedHashSet<>();
-      }
-      // fix missing @Props injection
-      List<PropertySetter> resolvedProps = propsReader().read(definition);
-      propertySetters.addAll(resolvedProps);
-    }
-
-    if (propertySetters != null) {
-      definition.setPropertyValues(propertySetters);
-    }
 
     return definition;
   }
@@ -504,55 +390,6 @@ public class BeanDefinitionBuilder {
   }
 
   //---------------------------------------------------------------------
-  // PropertyValue (PropertySetter) resolving @since 3.0
-  //---------------------------------------------------------------------
-
-  /**
-   * Process bean's property (field)
-   *
-   * @param beanClass Bean class
-   * @since 3.0
-   */
-  public LinkedHashSet<PropertySetter> resolvePropertyValue(Class<?> beanClass) {
-    LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
-    ReflectionUtils.doWithFields(beanClass, field -> {
-      // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-      PropertySetter created = resolveProperty(field);
-      // not required
-      if (created != null) {
-        propertySetters.add(created);
-      }
-    });
-
-    return propertySetters;
-  }
-
-  /**
-   * Create property value
-   *
-   * @param field Property
-   * @return A new {@link PropertySetter}
-   */
-  @Nullable
-  public PropertySetter resolveProperty(Field field) {
-    if (resolvingStrategies == null) {
-      resolvingStrategies = new PropertyValueResolverComposite();
-    }
-    if (resolvingContext == null) {
-      resolvingContext = new PropertyResolvingContext(context, propsReader());
-    }
-    return resolvingStrategies.resolveProperty(resolvingContext, field);
-  }
-
-  public PropsReader propsReader() {
-    if (propsReader == null) {
-      Assert.state(context != null, "No Application Context");
-      propsReader = new PropsReader(context.getEnvironment());
-    }
-    return propsReader;
-  }
-
-  //---------------------------------------------------------------------
   // static utils
   //---------------------------------------------------------------------
 
@@ -587,7 +424,6 @@ public class BeanDefinitionBuilder {
 
   /**
    * Add a method which annotated with {@link javax.annotation.PostConstruct}
-   * or {@link  Autowired}
    *
    * @param beanClass Bean class
    * @param initMethods Init Method name
@@ -599,8 +435,7 @@ public class BeanDefinitionBuilder {
     boolean initMethodsNotEmpty = ObjectUtils.isNotEmpty(initMethods);
     // @since 4.0 use ReflectionUtils.doWithMethods
     ReflectionUtils.doWithMethods(beanClass, method -> {
-      if (AnnotationUtils.isPresent(method, PostConstruct)
-              || AutowiredPropertyResolver.isInjectable(method)) { // method Injection
+      if (AnnotationUtils.isPresent(method, PostConstruct)) {
         methods.add(method);
       }
       else if (initMethodsNotEmpty) {
