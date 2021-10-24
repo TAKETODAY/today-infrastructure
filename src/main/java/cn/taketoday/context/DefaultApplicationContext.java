@@ -236,7 +236,7 @@ public class DefaultApplicationContext
   }
 
   @Override
-  public Set<String> getBeanDefinitionNames() {
+  public String[] getBeanDefinitionNames() {
     return beanFactory.getBeanDefinitionNames();
   }
 

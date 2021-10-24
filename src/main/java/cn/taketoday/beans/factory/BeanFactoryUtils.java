@@ -21,15 +21,22 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.Primary;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Convenience methods operating on bean factories, in particular
@@ -47,6 +54,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public abstract class BeanFactoryUtils {
+  private static final Logger log = LoggerFactory.getLogger(BeanFactoryUtils.class);
 
   /**
    * Separator for generated bean names. If a class name or parent name is not
@@ -70,7 +78,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#FACTORY_BEAN_PREFIX
    */
   public static boolean isFactoryDereference(@Nullable String name) {
-    return (name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
+    return (name != null && StringUtils.matchesFirst(name, BeanFactory.FACTORY_BEAN_PREFIX_CHAR));
   }
 
   /**
@@ -553,6 +561,34 @@ public abstract class BeanFactoryUtils {
     else {
       throw new NoSuchBeanDefinitionException(type);
     }
+  }
+
+  //
+
+  /**
+   * Get {@link Primary} {@link BeanDefinition}
+   *
+   * @param defs All suitable {@link BeanDefinition}s
+   * @return A {@link Primary} {@link BeanDefinition}
+   */
+  public static BeanDefinition getPrimaryBeanDefinition(List<BeanDefinition> defs) {
+    if (defs.size() > 1) {
+      log.debug("Finding primary bean which annotated @Primary or primary flag is set, in {}", defs);
+      ArrayList<BeanDefinition> primaries = new ArrayList<>(defs.size());
+      for (BeanDefinition def : defs) {
+        if (def.isPrimary()) {
+          primaries.add(def);
+        }
+      }
+      if (!primaries.isEmpty()) {
+        AnnotationAwareOrderComparator.sort(primaries); // size > 1 sort
+        log.debug("Found primary beans {} use first one", primaries);
+        return primaries.get(0);
+      }
+      // not found sort bean-defs
+      AnnotationAwareOrderComparator.sort(defs);
+    }
+    return defs.get(0);
   }
 
 }

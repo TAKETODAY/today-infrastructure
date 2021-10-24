@@ -73,7 +73,7 @@ final class ResolvableTypeObjectSupplier<T>
       }
     }
     else {
-      BeanDefinition primary = beanFactory.getPrimaryBeanDefinition(list);
+      BeanDefinition primary = BeanFactoryUtils.getPrimaryBeanDefinition(list);
       return (T) beanFactory.getBean(primary);
     }
   }

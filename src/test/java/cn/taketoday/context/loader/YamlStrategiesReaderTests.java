@@ -47,7 +47,7 @@ class YamlStrategiesReaderTests {
 
     assertThat(strings)
             .hasSize(4)
-            .contains("cn.taketoday.context.loader.StrategiesDetectorTests$MyPropertyValueResolver");
+            .contains("cn.taketoday.context.autowire.StrategiesDetectorTests$MyPropertyValueResolver");
   }
 
 }

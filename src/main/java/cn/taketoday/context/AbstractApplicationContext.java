@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
@@ -389,16 +388,6 @@ public abstract class AbstractApplicationContext
     beanFactory.addBeanPostProcessor(new AutowiredPropertyValuesBeanPostProcessor(this));
 
     beanFactory.registerBeanPostProcessors();
-
-    if (beanFactory.isFullPrototype()) {
-      for (BeanReferencePropertySetter reference : beanFactory.getDependencies()) {
-        BeanDefinition def = beanFactory.getBeanDefinition(reference.getReferenceName());
-        if (def != null && def.isPrototype()) {
-          reference.applyPrototype();
-        }
-      }
-    }
-
   }
 
   /**
@@ -433,9 +422,6 @@ public abstract class AbstractApplicationContext
 
       postProcessBeanFactory();
 
-      // handle dependency : register bean dependencies definition
-      handleDependency();
-
       registerApplicationListeners();
 
       // Initialization singletons that has already in context
@@ -466,11 +452,6 @@ public abstract class AbstractApplicationContext
             || state == State.CLOSING) && !refreshable) {
       throw new IllegalStateException("cannot refresh again");
     }
-  }
-
-  protected void handleDependency() {
-    // handle dependency : register bean dependencies definition
-    getBeanFactory().handleDependency();
   }
 
   protected void onRefresh() {

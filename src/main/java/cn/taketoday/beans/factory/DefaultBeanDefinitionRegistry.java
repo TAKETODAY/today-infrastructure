@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -30,6 +29,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Default implementation of the {@link BeanDefinitionRegistry} interface.
@@ -109,8 +109,8 @@ public class DefaultBeanDefinitionRegistry
   }
 
   @Override
-  public Set<String> getBeanDefinitionNames() {
-    return this.beanDefinitionMap.keySet();
+  public String[] getBeanDefinitionNames() {
+    return StringUtils.toStringArray(this.beanDefinitionMap.keySet());
   }
 
   @Override

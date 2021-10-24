@@ -96,11 +96,16 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
   /**
-   * Get bean type
+   * Determine the type of the bean with the given name. More specifically,
+   * determine the type of object that {@link #getBean} would return for the given name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name Bean name
-   * @return Target bean type
+   * @param name the name of the bean to query
+   * @return the type of the bean, or {@code null} if not determinable
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
    * @throws NoSuchBeanDefinitionException If a bean does not exist
+   * @see #getBean
+   * @see #isTypeMatch
    */
   @Nullable
   Class<?> getType(String name) throws NoSuchBeanDefinitionException;
@@ -112,6 +117,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return Get bane name
    * @since 2.1.2
    */
+  @Deprecated
   String getBeanName(Class<?> beanType) throws NoSuchBeanDefinitionException;
 
   /**
@@ -635,7 +641,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * or an empty array if none defined
    * @since 4.0
    */
-  Set<String> getBeanDefinitionNames();
+  String[] getBeanDefinitionNames();
 
   /**
    * Return a unified view over all bean names managed by this factory.

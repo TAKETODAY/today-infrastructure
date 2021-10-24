@@ -38,18 +38,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.PropertyValuesBinder;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -75,9 +71,6 @@ public abstract class AbstractBeanFactory
 
   /** object factories */
   private Map<Class<?>, Object> objectFactories;
-  /** dependencies */
-  @Deprecated
-  private final HashSet<BeanReferencePropertySetter> dependencies = new HashSet<>(128);
   /** Bean Post Processors */
   protected final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   private final HashMap<String, Scope> scopes = new HashMap<>();
@@ -709,51 +702,6 @@ public abstract class AbstractBeanFactory
     AnnotationAwareOrderComparator.sort(postProcessors);
   }
 
-  // handleDependency
-  // ---------------------------------------
-
-  /**
-   * Handle abstract dependencies
-   */
-  public void handleDependency() {
-    // @since 3.0.3 fix ConcurrentModificationException
-    LinkedHashSet<BeanReferencePropertySetter> dependencies = new LinkedHashSet<>(getDependencies());
-    for (BeanReferencePropertySetter reference : dependencies) {
-      String beanName = reference.getReferenceName();
-      // fix: #2 when handle dependency some bean definition has already exist
-      if (containsBeanDefinition(beanName)) {
-        reference.setReference(getBeanDefinition(beanName));
-        continue;
-      }
-      // handle dependency which is special bean like List<?> or Set<?>...
-      // ----------------------------------------------------------------
-      BeanDefinition handleDef = handleDependency(reference);
-      if (handleDef != null) {
-        registerBeanDefinition(beanName, handleDef);
-        reference.setReference(handleDef);
-        continue;
-      }
-      // handle dependency which is interface and parent object
-      // --------------------------------------------------------
-      Class<?> propertyType = reference.getReferenceClass();
-      // find child beans
-      List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
-      if (CollectionUtils.isNotEmpty(childDefs)) {
-        BeanDefinition childDef = getPrimaryBeanDefinition(childDefs);
-        if (log.isDebugEnabled()) {
-          log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
-        }
-        DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, childDef);
-        registerBeanDefinition(beanName, def);
-        reference.setReference(def);
-        continue;
-      }
-      if (reference.isRequired()) {
-        throw new ConfigurationException("Context does not exist for this reference:[" + reference + "] of bean");
-      }
-    }
-  }
-
   @Override
   public abstract Map<String, BeanDefinition> getBeanDefinitions();
 
@@ -761,147 +709,6 @@ public abstract class AbstractBeanFactory
    * register bean-def for
    */
   protected abstract void registerBeanDefinition(String beanName, BeanDefinition def);
-
-  /**
-   * Process after register {@link BeanDefinition}
-   *
-   * @param targetDef Target {@link BeanDefinition}
-   */
-  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-
-  }
-
-  /**
-   * Get {@link Primary} {@link BeanDefinition}
-   *
-   * @param defs All suitable {@link BeanDefinition}s
-   * @return A {@link Primary} {@link BeanDefinition}
-   */
-  protected BeanDefinition getPrimaryBeanDefinition(List<BeanDefinition> defs) {
-    if (defs.size() > 1) {
-      log.debug("Finding primary bean which annotated @Primary or primary flag is set, in {}", defs);
-      ArrayList<BeanDefinition> primaries = new ArrayList<>(defs.size());
-      for (BeanDefinition def : defs) {
-        if (def.isPrimary()) {
-          primaries.add(def);
-        }
-      }
-      if (!primaries.isEmpty()) {
-        AnnotationAwareOrderComparator.sort(primaries); // size > 1 sort
-        log.debug("Found primary beans {} use first one", primaries);
-        return primaries.get(0);
-      }
-      // not found sort bean-defs
-      AnnotationAwareOrderComparator.sort(defs);
-    }
-    return defs.get(0);
-  }
-
-  /**
-   * Get child {@link BeanDefinition}s
-   *
-   * @param beanName Bean name
-   * @param beanClass Bean class
-   * @return A list of {@link BeanDefinition}s, Never be null
-   */
-  protected List<BeanDefinition> doGetChildDefinition(String beanName, Class<?> beanClass) {
-    LinkedHashSet<BeanDefinition> ret = new LinkedHashSet<>();
-
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition childDef = entry.getValue();
-      Class<?> clazz = childDef.getBeanClass();
-
-      if (beanClass != clazz
-              && beanClass.isAssignableFrom(clazz)
-              && !beanName.equals(childDef.getName())) {
-
-        ret.add(childDef); // is beanClass's Child Bean
-      }
-    }
-
-    return ret.isEmpty() ? null : new ArrayList<>(ret);
-  }
-
-  /**
-   * Handle dependency {@link BeanDefinition}
-   *
-   * @param ref BeanReference
-   * @return Dependency {@link BeanDefinition}
-   */
-  protected BeanDefinition handleDependency(BeanReferencePropertySetter ref) {
-    // from objectFactories
-    Map<Class<?>, Object> objectFactories = getObjectFactories();
-    if (CollectionUtils.isNotEmpty(objectFactories)) {
-      Object objectFactory = objectFactories.get(ref.getReferenceClass());
-      if (objectFactory != null) {
-        DefaultBeanDefinition def = new DefaultBeanDefinition(ref.getName(), ref.getReferenceClass());
-        def.setSupplier(new Supplier<Object>() {
-          @Override
-          public Object get() {
-            return createDependencyInstance(def.getBeanClass(), objectFactory);
-          }
-        });
-        return def;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Create dependency object
-   *
-   * @param type dependency type
-   * @param objectFactory Object factory
-   * @return Dependency object
-   */
-  protected Object createDependencyInstance(Class<?> type, Object objectFactory) {
-    if (type.isInstance(objectFactory)) {
-      return objectFactory;
-    }
-    if (objectFactory instanceof Supplier) {
-      return createObjectFactoryDependencyProxy(type, (Supplier<?>) objectFactory);
-    }
-    return null;
-  }
-
-  protected Object createObjectFactoryDependencyProxy(
-          Class<?> type, Supplier<?> objectFactory) {
-    // fixed @since 3.0.1
-    ProxyFactory proxyFactory = createProxyFactory();
-    proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
-    proxyFactory.setOpaque(true);
-    return proxyFactory.getProxy(type.getClassLoader());
-  }
-
-  protected ProxyFactory createProxyFactory() {
-    return new ProxyFactory();
-  }
-
-  static final class ObjectFactoryTargetSource implements TargetSource {
-    private final Class<?> targetType;
-    private final Supplier<?> objectFactory;
-
-    ObjectFactoryTargetSource(Supplier<?> objectFactory, Class<?> targetType) {
-      this.targetType = targetType;
-      this.objectFactory = objectFactory;
-    }
-
-    @Override
-    public Class<?> getTargetClass() {
-      return targetType;
-    }
-
-    @Override
-    public boolean isStatic() {
-      return false;
-    }
-
-    @Override
-    public Object getTarget() throws Exception {
-      return objectFactory.get();
-    }
-  }
 
   /**
    * Get object {@link Supplier}s
@@ -960,8 +767,72 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public Class<?> getType(String name) {
-    return obtainBeanDefinition(name).getBeanClass();
+  public Class<?> getType(String beanName) {
+    // Check manually registered singletons.
+    Object beanInstance = getSingleton(beanName);
+    if (beanInstance != null) {
+      if (beanInstance instanceof FactoryBean && !BeanFactoryUtils.isFactoryDereference(beanName)) {
+        return getTypeForFactoryBean((FactoryBean<?>) beanInstance);
+      }
+      else {
+        return beanInstance.getClass();
+      }
+    }
+
+    // No singleton instance found -> check bean definition.
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+      // No bean definition found in this factory -> delegate to parent.
+      return parentBeanFactory.getType(beanName);
+    }
+
+    BeanDefinition definition = obtainBeanDefinition(beanName);
+    return predictBeanType(definition);
+  }
+
+  /**
+   * Determine the type for the given FactoryBean.
+   *
+   * @param factoryBean the FactoryBean instance to check
+   * @return the FactoryBean's object type,
+   * or {@code null} if the type cannot be determined yet
+   */
+  @Nullable
+  protected Class<?> getTypeForFactoryBean(FactoryBean<?> factoryBean) {
+    try {
+      return factoryBean.getBeanClass();
+    }
+    catch (Throwable ex) {
+      // Thrown from the FactoryBean's getObjectType implementation.
+      log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
+                       "that it should return null if the type of its object cannot be determined yet", ex);
+      return null;
+    }
+  }
+
+  /**
+   * Predict the eventual bean type (of the processed bean instance) for the
+   * specified bean. Called by {@link #getType} and {@link #isTypeMatch}.
+   * Does not need to handle FactoryBeans specifically, since it is only
+   * supposed to operate on the raw bean type.
+   * <p>This implementation is simplistic in that it is not able to
+   * handle factory methods and InstantiationAwareBeanPostProcessors.
+   * It only predicts the bean type correctly for a standard bean.
+   * To be overridden in subclasses, applying more sophisticated type detection.
+   *
+   * @param definition the bean definition to determine the type for
+   * @return the type of the bean, or {@code null} if not predictable
+   */
+  @Nullable
+  protected Class<?> predictBeanType(BeanDefinition definition) {
+    if (definition instanceof FactoryBeanDefinition) {
+      return definition.getBeanClass();
+    }
+    if (definition instanceof FactoryMethodBeanDefinition) {
+      Method factoryMethod = ((FactoryMethodBeanDefinition) definition).getFactoryMethod();
+      return factoryMethod.getReturnType();
+    }
+    return resolveBeanClass(definition);
   }
 
   @Override
@@ -976,10 +847,10 @@ public abstract class AbstractBeanFactory
 
   @Override
   public String getBeanName(Class<?> targetClass) {
-
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      if (entry.getValue().getBeanClass() == targetClass) {
-        return entry.getKey();
+    String[] beanNames = getBeanDefinitionNames();
+    for (String beanName : beanNames) {
+      if (isTypeMatch(beanName, targetClass)) {
+        return beanName;
       }
     }
     throw new NoSuchBeanDefinitionException(targetClass);
@@ -993,10 +864,6 @@ public abstract class AbstractBeanFactory
     // Not found -> check parent.
     BeanFactory parentBeanFactory = getParentBeanFactory();
     return parentBeanFactory != null && parentBeanFactory.containsBean(beanName);
-  }
-
-  public Set<BeanReferencePropertySetter> getDependencies() {
-    return dependencies;
   }
 
   // -----------------------------
@@ -1528,7 +1395,7 @@ public abstract class AbstractBeanFactory
     // ObjectUtils.toHexString(this)
     StringBuilder sb = new StringBuilder(ObjectUtils.identityToString(this));
     sb.append(": defining beans [");
-    sb.append(StringUtils.collectionToString(getBeanDefinitionNames()));
+    sb.append(StringUtils.arrayToString(getBeanDefinitionNames()));
     sb.append("]; ");
     BeanFactory parent = getParentBeanFactory();
     if (parent == null) {

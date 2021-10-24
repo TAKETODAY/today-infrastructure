@@ -20,7 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import java.util.Map;
-import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
 
@@ -122,10 +121,10 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
   /**
    * Return the names of all beans defined in this registry.
    *
-   * @return the names of all beans defined in this registry, or an empty set if
+   * @return the names of all beans defined in this registry, or an empty array if
    * none defined
    */
-  Set<String> getBeanDefinitionNames();
+  String[] getBeanDefinitionNames();
 
   /**
    * Return the number of beans defined in the registry.

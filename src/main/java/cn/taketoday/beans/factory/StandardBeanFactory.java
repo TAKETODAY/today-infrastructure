@@ -19,10 +19,10 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -34,6 +34,7 @@ import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -56,6 +57,9 @@ public class StandardBeanFactory
 
   /** Map of bean definition objects, keyed by bean name */
   private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
+
+  /** List of bean definition names, in registration order. */
+  private final ArrayList<String> beanDefinitionNames = new ArrayList<>(256);
 
   /**
    * Preventing Cycle Dependency expected {@link Prototype} beans
@@ -169,8 +173,8 @@ public class StandardBeanFactory
   }
 
   @Override
-  public Set<String> getBeanDefinitionNames() {
-    return beanDefinitionMap.keySet();
+  public String[] getBeanDefinitionNames() {
+    return StringUtils.toStringArray(beanDefinitionNames);
   }
 
   @Override
@@ -317,9 +321,13 @@ public class StandardBeanFactory
     return def;
   }
 
-  @Override
+  /**
+   * Process after register {@link BeanDefinition}
+   *
+   * @param targetDef Target {@link BeanDefinition}
+   */
   protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-    super.postProcessRegisterBeanDefinition(targetDef);
+
   }
 
   //---------------------------------------------------------------------
