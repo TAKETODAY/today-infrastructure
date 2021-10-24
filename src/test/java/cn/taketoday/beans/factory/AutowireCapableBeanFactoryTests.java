@@ -187,7 +187,7 @@ class AutowireCapableBeanFactoryTests {
     }
 
     @Override
-    public void postProcessBeforeDestruction(Object bean, BeanDefinition def) {
+    public void postProcessBeforeDestruction(Object bean, String beanName) {
       if (bean instanceof AutowireTestBean) {
         ((AutowireTestBean) bean).postProcessBeforeDestruction = true;
       }

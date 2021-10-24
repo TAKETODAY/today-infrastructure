@@ -184,11 +184,6 @@ public abstract class ClassUtils {
   }
 
   /**
-   * clear cache
-   */
-  public static void clearCache() { }
-
-  /**
    * Return the default ClassLoader to use: typically the thread context
    * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
    * class will be used as fallback.

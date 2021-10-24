@@ -38,14 +38,14 @@ import java.util.Set;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.lang.Env;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Value;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.lang.Env;
+import cn.taketoday.lang.Value;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -86,7 +86,6 @@ public class ContextUtilsTest {
   @SuppressWarnings("unchecked")
   public void testResolveParameter() throws Exception {
 
-    ClassUtils.clearCache();
     try (StandardApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.util")) {
       final BeanFactory beanFactory = applicationContext.getBeanFactory();
       final ConfigurableEnvironment environment = applicationContext.getEnvironment();

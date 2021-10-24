@@ -195,4 +195,14 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    */
   void preInitialization() throws BeansException;
 
+  /**
+   * Destroy all singleton beans in this factory, including inner beans that have
+   * been registered as disposable. To be called on shutdown of a factory.
+   * <p>Any exception that arises during destruction should be caught
+   * and logged instead of propagated to the caller of this method.
+   *
+   * @since 4.0
+   */
+  void destroySingletons();
+
 }

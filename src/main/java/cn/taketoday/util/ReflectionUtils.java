@@ -87,6 +87,14 @@ public abstract class ReflectionUtils {
   private static final ConcurrentReferenceHashMap<Class<?>, Method[]>
           DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
 
+  /**
+   * Cache for equivalent methods on an interface implemented by the declaring class.
+   *
+   * @since 4.0
+   */
+  private static final ConcurrentReferenceHashMap<Method, Method>
+          interfaceMethodCache = new ConcurrentReferenceHashMap<>(256);
+
   private static final Method defineClass;
 
   static {
@@ -421,6 +429,38 @@ public abstract class ReflectionUtils {
       }
     }
     return method;
+  }
+
+  /**
+   * Determine a corresponding interface method for the given method handle, if possible.
+   * <p>This is particularly useful for arriving at a public exported type on Jigsaw
+   * which can be reflectively invoked without an illegal access warning.
+   *
+   * @param method the method to be invoked, potentially from an implementation class
+   * @return the corresponding interface method, or the original method if none found
+   * @see #getMostSpecificMethod
+   * @since 4.0
+   */
+  public static Method getInterfaceMethodIfPossible(Method method) {
+    if (!Modifier.isPublic(method.getModifiers()) || method.getDeclaringClass().isInterface()) {
+      return method;
+    }
+    return interfaceMethodCache.computeIfAbsent(method, key -> {
+      Class<?> current = key.getDeclaringClass();
+      while (current != null && current != Object.class) {
+        Class<?>[] ifcs = current.getInterfaces();
+        for (Class<?> ifc : ifcs) {
+          try {
+            return ifc.getMethod(key.getName(), key.getParameterTypes());
+          }
+          catch (NoSuchMethodException ex) {
+            // ignore
+          }
+        }
+        current = current.getSuperclass();
+      }
+      return key;
+    });
   }
 
   /**

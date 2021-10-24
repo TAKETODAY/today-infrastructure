@@ -79,7 +79,7 @@ public class DisposableBeanAdapter implements DisposableBean {
         if (postProcessor instanceof DestructionBeanPostProcessor) {
           final DestructionBeanPostProcessor destruction = (DestructionBeanPostProcessor) postProcessor;
           if (destruction.requiresDestruction(obj)) {
-            destruction.postProcessBeforeDestruction(obj, def);
+            destruction.postProcessBeforeDestruction(obj, def.getName());
           }
         }
       }

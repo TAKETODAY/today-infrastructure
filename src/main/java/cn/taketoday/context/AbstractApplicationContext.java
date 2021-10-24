@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -46,7 +48,6 @@ import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.context.event.ContextCloseListener;
 import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DefaultApplicationEventPublisher;
@@ -77,6 +78,8 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import static cn.taketoday.util.ExceptionUtils.unwrapThrowable;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -137,6 +140,9 @@ public abstract class AbstractApplicationContext
 
   /** @since 4.0 */
   private ExpressionEvaluator expressionEvaluator;
+
+  /** Flag that indicates whether this context has been closed already.  @since 4.0 */
+  private final AtomicBoolean closed = new AtomicBoolean();
 
   public AbstractApplicationContext() { }
 
@@ -474,9 +480,111 @@ public abstract class AbstractApplicationContext
   @Override
   public void close() {
     applyState(State.CLOSING);
-    publishEvent(new ContextCloseEvent(this));
+    doClose();
     applyState(State.CLOSED);
     ApplicationContextHolder.remove(this);
+  }
+
+  /**
+   * Actually performs context closing: publishes a ContextClosedEvent and
+   * destroys the singletons in the bean factory of this application context.
+   * <p>Called by both {@code close()} and a JVM shutdown hook, if any.
+   *
+   * @see ContextCloseEvent
+   * @see #destroyBeans()
+   * @see #close()
+   * @since 4.0
+   */
+  protected void doClose() {
+    // Check whether an actual close attempt is necessary...
+    if (this.closed.compareAndSet(false, true)) {
+      log.info("Closing: [{}] at [{}]", this,
+               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+
+      try {
+        // Publish shutdown event.
+        publishEvent(new ContextCloseEvent(this));
+      }
+      catch (Throwable ex) {
+        log.warn("Exception thrown from ApplicationListener handling ContextCloseEvent", ex);
+      }
+
+      // Destroy all cached singletons in the context's BeanFactory.
+      destroyBeans();
+
+      // Close the state of this context itself.
+      closeBeanFactory();
+
+      // Let subclasses do some final clean-up if they wish...
+      onClose();
+    }
+  }
+
+  /**
+   * Template method which can be overridden to add context-specific shutdown work.
+   * The default implementation is empty.
+   * <p>Called at the end of {@link #doClose}'s shutdown procedure, after
+   * this context's BeanFactory has been closed. If custom shutdown logic
+   * needs to execute while the BeanFactory is still active, override
+   * the {@link #destroyBeans()} method instead.
+   *
+   * @since 4.0
+   */
+  protected void onClose() {
+    // For subclasses: do nothing by default.
+  }
+
+  /**
+   * Subclasses must implement this method to release their internal bean factory.
+   * This method gets invoked by {@link #close()} after all other shutdown work.
+   * <p>Should never throw an exception but rather log shutdown failures.
+   *
+   * @since 4.0
+   */
+  protected void closeBeanFactory() { }
+
+  /**
+   * Template method for destroying all beans that this context manages.
+   * The default implementation destroy all cached singletons in this context,
+   * invoking {@code DisposableBean.destroy()} and/or the specified
+   * "destroy-method".
+   * <p>Can be overridden to add context-specific bean destruction steps
+   * right before or right after standard singleton destruction,
+   * while the context's BeanFactory is still active.
+   *
+   * @see #getBeanFactory()
+   * @see ConfigurableBeanFactory#destroySingletons()
+   * @since 4.0
+   */
+  protected void destroyBeans() {
+    AbstractBeanFactory beanFactory = getBeanFactory();
+//    beanFactory.destroySingletons();
+
+    for (final String name : beanFactory.getBeanDefinitions().keySet()) {
+      try {
+        beanFactory.destroyBean(name);
+        // remove bean in this context
+        beanFactory.removeBean(name);
+      }
+      catch (final Throwable e) {
+        log.error(e.getMessage(), e);
+      }
+    }
+    final Map<String, Object> singletons = beanFactory.getSingletons();
+    for (final Map.Entry<String, Object> entry : singletons.entrySet()) {
+      try {
+        DisposableBeanAdapter.destroyBean(entry.getValue());
+      }
+      catch (Throwable e) {
+        e = unwrapThrowable(e);
+        log.error(e.getMessage(), e);
+      }
+    }
+    // remove bean in this context
+    singletons.clear();
+
+    beanFactory.getPostProcessors().clear();
+
   }
 
   @NonNull
@@ -791,7 +899,6 @@ public abstract class AbstractApplicationContext
 
   protected void registerApplicationListeners() {
     log.info("Loading Application Listeners.");
-    addApplicationListener(new ContextCloseListener());
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Set<String> beanNamesOfType = beanFactory.getBeanNamesOfType(

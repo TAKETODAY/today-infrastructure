@@ -20,7 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.context.ApplicationContextException;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-destruction
@@ -46,11 +45,10 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * lifecycle for. This is usually the case for singletons and scoped beans.
    *
    * @param bean the bean instance to be destroyed
-   * @param def the BeanDefinition of the bean , BeanDefinition may be null
-   * @throws ApplicationContextException in case of errors
+   * @param beanName the Bean name of the bean
    * @see DisposableBean#destroy()
    */
-  void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ApplicationContextException;
+  void postProcessBeforeDestruction(Object bean, String beanName);
 
   /**
    * Determine whether the given bean instance requires destruction by this

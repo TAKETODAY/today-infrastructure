@@ -21,16 +21,20 @@
 package cn.taketoday.beans.factory;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Default SingletonBeanRegistry implementation
@@ -43,6 +47,12 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   /** Map of bean instance, keyed by bean name */
   private final HashMap<String, Object> singletons = new HashMap<>(128);
+
+  /** Disposable bean instances: bean name to disposable instance. @since 4.0 */
+  private final LinkedHashMap<String, Object> disposableBeans = new LinkedHashMap<>();
+
+  /** Flag that indicates whether we're currently within destroySingletons. @since 4.0 */
+  private boolean singletonsCurrentlyInDestruction = false;
 
   @Override
   public void registerSingleton(final String name, final Object singleton) {
@@ -100,6 +110,13 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     Object singletonObject = singletons.get(beanName);
     if (singletonObject == null) {
       synchronized(singletons) {
+        if (this.singletonsCurrentlyInDestruction) {
+          throw new BeanCreationNotAllowedException(
+                  beanName,
+                  "Singleton bean creation not allowed while singletons of this factory" +
+                          " are in destruction (Do not request a bean from a BeanFactory " +
+                          "in a destroy method implementation!)");
+        }
         singletonObject = singletons.get(beanName);
         if (singletonObject == null) {
           log.debug("Creating shared instance of singleton bean '{}'", beanName);
@@ -198,8 +215,90 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    *
    * @since 4.0
    */
-  public void clear() {
-    singletons.clear();
+  protected void clearSingletonCache() {
+    synchronized(singletons) {
+      singletons.clear();
+      singletonsCurrentlyInDestruction = false;
+    }
+  }
+
+  /**
+   * Destroy the given bean. Delegates to {@code destroyBean}
+   * if a corresponding disposable bean instance is found.
+   *
+   * @param beanName the name of the bean
+   * @see #destroyBean
+   * @since 4.0
+   */
+  public void destroySingleton(String beanName) {
+    // Remove a registered singleton of the given name, if any.
+    removeSingleton(beanName);
+
+    // Destroy the corresponding DisposableBean instance.
+    DisposableBean disposableBean;
+    synchronized(this.disposableBeans) {
+      disposableBean = (DisposableBean) this.disposableBeans.remove(beanName);
+    }
+    destroyBean(beanName, disposableBean);
+  }
+
+  /**
+   * Destroy the given bean. Must destroy beans that depend on the given
+   * bean before the bean itself. Should not throw any exceptions.
+   *
+   * @param beanName the name of the bean
+   * @param bean the bean instance to destroy
+   * @since 4.0
+   */
+  protected void destroyBean(String beanName, @Nullable DisposableBean bean) {
+    // Actually destroy the bean now...
+    if (bean != null) {
+      try {
+        bean.destroy();
+      }
+      catch (Throwable ex) {
+        log.warn("Destruction of bean with name '{}' threw an exception", beanName, ex);
+      }
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public void destroySingletons() {
+    if (log.isTraceEnabled()) {
+      log.trace("Destroying singletons in {}", this);
+    }
+    synchronized(this.singletons) {
+      this.singletonsCurrentlyInDestruction = true;
+    }
+
+    String[] disposableBeanNames;
+    synchronized(this.disposableBeans) {
+      disposableBeanNames = StringUtils.toStringArray(this.disposableBeans.keySet());
+    }
+    for (int i = disposableBeanNames.length - 1; i >= 0; i--) {
+      destroySingleton(disposableBeanNames[i]);
+    }
+
+    clearSingletonCache();
+  }
+
+  /**
+   * Add the given bean to the list of disposable beans in this registry.
+   * <p>Disposable beans usually correspond to registered singletons,
+   * matching the bean name but potentially being a different instance
+   * (for example, a DisposableBean adapter for a singleton that does not
+   * naturally implement Spring's DisposableBean interface).
+   *
+   * @param beanName the name of the bean
+   * @param bean the bean instance
+   * @since 4.0
+   */
+  public void registerDisposableBean(String beanName, DisposableBean bean) {
+    synchronized(this.disposableBeans) {
+      this.disposableBeans.put(beanName, bean);
+    }
   }
 
 }
