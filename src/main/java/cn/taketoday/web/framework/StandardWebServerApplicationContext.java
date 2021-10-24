@@ -19,16 +19,22 @@
  */
 package cn.taketoday.web.framework;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.StandardWebBeanFactory;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.framework.server.WebServer;
 import cn.taketoday.web.framework.utils.WebApplicationUtils;
+import cn.taketoday.web.session.WebSession;
+import cn.taketoday.web.session.WebSessionManager;
 
 /**
  * @author TODAY <br>
@@ -46,7 +52,6 @@ public class StandardWebServerApplicationContext
   private String contextPath = Constant.BLANK;
 
   public StandardWebServerApplicationContext() {
-    super(new StandardWebBeanFactory());
     this.startupClass = null;
   }
 
@@ -72,6 +77,33 @@ public class StandardWebServerApplicationContext
   @Override
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     beanFactory.registerSingleton(this);
+
+    // @since 3.0
+    final class WebSessionFactory implements Supplier<WebSession> {
+      WebSessionManager sessionManager;
+
+      private WebSessionManager obtainWebSessionManager() {
+        WebSessionManager sessionManager = this.sessionManager;
+        if (sessionManager == null) {
+          sessionManager = getBean(WebSessionManager.class);
+          Assert.state(sessionManager != null, "You must enable web session -> @EnableWebSession");
+          this.sessionManager = sessionManager;
+        }
+        return sessionManager;
+      }
+
+      @Override
+      public WebSession get() {
+        final RequestContext context = RequestContextHolder.currentContext();
+        return obtainWebSessionManager().getSession(context);
+      }
+    }
+    beanFactory.registerResolvableDependency(WebSession.class, new WebSessionFactory());
+    beanFactory.registerResolvableDependency(RequestContext.class, factory(RequestContextHolder::currentContext));
+  }
+
+  private static <T> Supplier<T> factory(Supplier<T> objectFactory) {
+    return objectFactory;
   }
 
   @Override

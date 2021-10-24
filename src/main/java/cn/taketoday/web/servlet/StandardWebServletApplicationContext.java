@@ -20,14 +20,19 @@
 package cn.taketoday.web.servlet;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebUtils;
 
 /**
@@ -90,14 +95,28 @@ public class StandardWebServletApplicationContext
     scan(locations);
   }
 
-  protected StandardBeanFactory createBeanFactory() {
-    return new StandardWebServletBeanFactory(this);
-  }
-
   @Override
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     super.registerFrameworkComponents(beanFactory);
     beanFactory.registerSingleton(this);
+
+    // @since 3.0
+    final class HttpSessionFactory implements Supplier<HttpSession> {
+      @Override
+      public HttpSession get() {
+        return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
+      }
+    }
+
+    beanFactory.registerResolvableDependency(HttpSession.class, new HttpSessionFactory());
+    beanFactory.registerResolvableDependency(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
+    beanFactory.registerResolvableDependency(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
+    beanFactory.registerResolvableDependency(ServletContext.class, factory(this::getServletContext));
+
+  }
+
+  private static <T> Supplier<T> factory(Supplier<T> objectFactory) {
+    return objectFactory;
   }
 
   @Override
