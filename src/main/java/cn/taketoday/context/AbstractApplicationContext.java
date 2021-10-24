@@ -42,6 +42,7 @@ import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.context.autowire.AutowiredPropertyValuesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
@@ -384,8 +385,10 @@ public abstract class AbstractApplicationContext
     }
 
     // register bean post processors
-    beanFactory.registerBeanPostProcessors();
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+    beanFactory.addBeanPostProcessor(new AutowiredPropertyValuesBeanPostProcessor(this));
+
+    beanFactory.registerBeanPostProcessors();
 
     if (beanFactory.isFullPrototype()) {
       for (BeanReferencePropertySetter reference : beanFactory.getDependencies()) {

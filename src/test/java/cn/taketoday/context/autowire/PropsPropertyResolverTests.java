@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.context.autowire;
 
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +55,7 @@ class PropsPropertyResolverTests {
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
       DefaultPropertySetter resolveProperty =
-              propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("properties"));
+              propertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "properties"));
 
       assertThat(resolveProperty).isNotNull();
 
@@ -92,7 +92,7 @@ class PropsPropertyResolverTests {
       PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
-      assertThatThrownBy(() -> propertyResolver.resolveProperty(resolvingContext, PropsPropertyResolverTests.class.getDeclaredField("name")))
+      assertThatThrownBy(() -> propertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name")))
               .hasMessage("Props usage error, cannot declare it on simple-type property, Use @Value instead")
               .isInstanceOf(PropertyException.class);
     }

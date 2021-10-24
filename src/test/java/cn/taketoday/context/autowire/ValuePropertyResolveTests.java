@@ -15,21 +15,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.context.autowire;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.lang.Env;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Value;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.lang.Env;
+import cn.taketoday.lang.Value;
 
 /**
  * @author Today <br>
@@ -58,7 +59,7 @@ class ValuePropertyResolveTests {
       // host
       // ----------------------------
       DefaultPropertySetter host = propertyResolver.resolveProperty(
-              resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("host"));
+              resolvingContext, BeanProperty.valueOf(getClass(), "host"));
 
       assert host.getValue() != null;
 
@@ -66,8 +67,10 @@ class ValuePropertyResolveTests {
 
       // name
       // ----------------------------
-      DefaultPropertySetter name = propertyResolver.resolveProperty(
-              resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("name"));
+
+      BeanProperty property = BeanProperty.valueOf(getClass(), "name");
+
+      DefaultPropertySetter name = propertyResolver.resolveProperty(resolvingContext, property);
 
       assert name.getValue() != null;
 
@@ -82,10 +85,10 @@ class ValuePropertyResolveTests {
       Properties properties = new Properties();
       propertySources.addLast(new PropertiesPropertySource("Test", properties));
 
-      properties.put("cn.taketoday.context.loader.ValuePropertyResolveTests.test", "TEST");
+      properties.put("cn.taketoday.context.autowire.ValuePropertyResolveTests.test", "TEST");
 
       DefaultPropertySetter test = propertyResolver.resolveProperty(
-              resolvingContext, ValuePropertyResolveTests.class.getDeclaredField("test"));
+              resolvingContext, BeanProperty.valueOf(getClass(), "test"));
       assert "TEST".equals(test.getValue());
 
     }

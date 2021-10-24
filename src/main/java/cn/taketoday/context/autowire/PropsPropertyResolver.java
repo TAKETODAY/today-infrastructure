@@ -15,17 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.context.autowire;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
@@ -42,11 +41,11 @@ public class PropsPropertyResolver implements PropertyValueResolver {
    * Resolve {@link Props} annotation property.
    */
   @Override
-  public DefaultPropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
+  public DefaultPropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            field, Props.class);
+            property, Props.class);
     if (attributes != null) {
-      Class<?> propertyClass = field.getType();
+      Class<?> propertyClass = property.getType();
       if (ClassUtils.isSimpleType(propertyClass)) {
         // not support simple type
         throw new PropertyException(
@@ -59,9 +58,9 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 
       // feat: Enhance `Props`
       if (!Map.class.isAssignableFrom(propertyClass)) {
-        return new DefaultPropertySetter(propsReader.read(props, propertyClass), field);
+        return new DefaultPropertySetter(propsReader.read(props, propertyClass), property);
       }
-      return new DefaultPropertySetter(properties, field);
+      return new DefaultPropertySetter(properties, property);
     }
     return null; // next resolver
   }

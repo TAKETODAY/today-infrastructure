@@ -157,6 +157,33 @@ public class PropsReader {
     return read(property, props, propertyResolver);
   }
 
+  public List<PropertySetter> read(Class<?> type) {
+    Assert.notNull(type, "Class must not be null");
+    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(type, Props.class);
+    if (attributes == null) {
+      return Collections.emptyList();
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("Loading Properties For: [{}]", type.getName());
+    }
+
+    DefaultProps defaultProps = new DefaultProps(attributes);
+    PropertyResolver propertyResolver = getResolver(defaultProps);
+
+    ArrayList<PropertySetter> propertySetters = new ArrayList<>();
+    for (BeanProperty property : BeanMetadata.ofClass(type)) {
+      if (!property.isReadOnly()) {
+        Object converted = read(property, defaultProps, propertyResolver);
+        if (converted != null) {
+          propertySetters.add(new DefaultPropertySetter(converted, property));
+        }
+      }
+    }
+    propertySetters.trimToSize();
+    return propertySetters;
+  }
+
   /**
    * resolve nestedly
    */

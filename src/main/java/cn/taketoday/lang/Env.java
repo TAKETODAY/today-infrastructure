@@ -24,6 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.autowire.PropertyValueResolver;
+import cn.taketoday.context.autowire.ValuePropertyResolver;
+
 /**
  * Annotation used at the field or method/constructor parameter level
  * that indicates a default value expression for the annotated element.
@@ -36,18 +39,18 @@ import java.lang.annotation.Target;
  * style property placeholders.
  *
  * <p>Note that actual processing of the {@code @Env} annotation is performed
- * by a {@link cn.taketoday.context.loader.ValuePropertyResolver ValuePropertyResolver}
+ * by a {@link ValuePropertyResolver ValuePropertyResolver}
  * which in turn means that you <em>cannot</em> use {@code @Env} within
- * {@link cn.taketoday.context.loader.ValuePropertyResolver ValuePropertyResolver} or
- * {@link cn.taketoday.context.loader.PropertyValueResolver PropertyValueResolver}
+ * {@link ValuePropertyResolver ValuePropertyResolver} or
+ * {@link PropertyValueResolver PropertyValueResolver}
  * types.
  *
  * @author TODAY 2019-07-14 11:37
  * @see Autowired
  * @see Value
  * @see cn.taketoday.context.expression.ExpressionEvaluator
- * @see cn.taketoday.context.loader.ValuePropertyResolver
- * @see cn.taketoday.context.loader.PropertyValueResolver
+ * @see ValuePropertyResolver
+ * @see PropertyValueResolver
  */
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)

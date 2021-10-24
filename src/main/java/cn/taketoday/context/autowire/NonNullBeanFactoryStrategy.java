@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.autowire;
+package cn.taketoday.context.autowire;
 
 import java.lang.reflect.Parameter;
 

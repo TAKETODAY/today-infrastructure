@@ -18,14 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.context.autowire;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
@@ -49,9 +49,9 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
 
   @Nullable
   @Override
-  public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
+  public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     for (PropertyValueResolver propertyValueResolver : getResolvers(context)) {
-      PropertySetter propertySetter = propertyValueResolver.resolveProperty(context, field);
+      PropertySetter propertySetter = propertyValueResolver.resolveProperty(context, property);
       if (propertySetter != null) {
         return propertySetter;
       }

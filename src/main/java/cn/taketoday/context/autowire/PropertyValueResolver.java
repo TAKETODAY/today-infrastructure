@@ -15,13 +15,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
-
-import java.lang.reflect.Field;
+package cn.taketoday.context.autowire;
 
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -37,10 +36,10 @@ public interface PropertyValueResolver {
    * Resolve {@link PropertySetter}.
    *
    * @param context resolving context
-   * @param field bean's field
+   * @param property bean's field
    * @return property value
    */
   @Nullable
-  PropertySetter resolveProperty(PropertyResolvingContext context, Field field);
+  PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property);
 
 }

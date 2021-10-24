@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.context.autowire;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;

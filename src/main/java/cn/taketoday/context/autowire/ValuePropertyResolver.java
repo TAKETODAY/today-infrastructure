@@ -15,14 +15,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
-
-import java.lang.reflect.Field;
+package cn.taketoday.context.autowire;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ConfigurationException;
@@ -52,45 +50,45 @@ public class ValuePropertyResolver implements PropertyValueResolver {
   @Nullable
   @Override
   public DefaultPropertySetter resolveProperty(
-          PropertyResolvingContext context, Field field) {
+          PropertyResolvingContext context, BeanProperty property) {
     AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            field, Value.class);
+            property, Value.class);
     if (attributes != null) {
       ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
-      return resolve(context, field, expressionInfo);
+      return resolve(context, property, expressionInfo);
     }
-    else if ((attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(field, Env.class)) != null) {
+    else if ((attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(property, Env.class)) != null) {
       ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
-      return resolve(context, field, expressionInfo);
+      return resolve(context, property, expressionInfo);
     }
     else {
       return null;
     }
   }
 
-  private DefaultPropertySetter resolve(PropertyResolvingContext context, Field field, ExpressionInfo expr) {
+  private DefaultPropertySetter resolve(PropertyResolvingContext context, BeanProperty property, ExpressionInfo expr) {
     ExpressionEvaluator evaluator = context.getExpressionEvaluator();
 
     String expression = expr.getExpression();
     if (StringUtils.isEmpty(expression)) {
       // use class full name and field name
       expression = PropertyPlaceholderHandler.PLACEHOLDER_PREFIX +
-              field.getDeclaringClass().getName() +
+              property.getDeclaringClass().getName() +
               Constant.PACKAGE_SEPARATOR +
-              field.getName() +
+              property.getName() +
               PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX;
       expr.setPlaceholderOnly(false);
       expr.setExpression(expression);
     }
 
-    Object value = evaluator.evaluate(expr, field.getType());
-    if (value == null && AnnotatedElementUtils.isAnnotated(field, Required.class)) {
+    Object value = evaluator.evaluate(expr, property.getType());
+    if (value == null && AnnotatedElementUtils.isAnnotated(property, Required.class)) {
       // perform @Required Annotation
       throw new ConfigurationException(
-              "Can't resolve expression of field: [" + field +
+              "Can't resolve expression of field: [" + property +
                       "] with expression: [" + expr.getExpression() + "].");
     }
-    return new DefaultPropertySetter(value, field);
+    return new DefaultPropertySetter(value, property);
   }
 
 }

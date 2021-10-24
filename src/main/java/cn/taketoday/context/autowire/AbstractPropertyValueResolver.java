@@ -18,11 +18,10 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
-
-import java.lang.reflect.Field;
+package cn.taketoday.context.autowire;
 
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -34,16 +33,17 @@ public abstract class AbstractPropertyValueResolver implements PropertyValueReso
   /**
    * Whether the given field is supported by this resolver.
    */
-  protected abstract boolean supportsProperty(PropertyResolvingContext context, Field field);
+  protected abstract boolean supportsProperty(PropertyResolvingContext context, BeanProperty property);
 
   @Nullable
   @Override
-  public final PropertySetter resolveProperty(PropertyResolvingContext context, Field field) {
-    if (supportsProperty(context, field)) {
-      return resolveInternal(context, field);
+  public final PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+    if (supportsProperty(context, property)) {
+      return resolveInternal(context, property);
     }
     return null;
   }
 
-  protected abstract PropertySetter resolveInternal(PropertyResolvingContext context, Field field);
+  protected abstract PropertySetter resolveInternal(PropertyResolvingContext context, BeanProperty property);
+
 }

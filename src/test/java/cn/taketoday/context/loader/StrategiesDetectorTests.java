@@ -22,12 +22,14 @@ package cn.taketoday.context.loader;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.context.autowire.PropertyResolvingContext;
+import cn.taketoday.context.autowire.PropertyValueResolver;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.YamlStrategiesReader;
@@ -52,10 +54,10 @@ class StrategiesDetectorTests {
             .hasSize(1);
 
     assertThat(loader.getStrategies())
-            .containsKey("cn.taketoday.context.loader.PropertyValueResolver")
+            .containsKey("cn.taketoday.context.autowire.PropertyValueResolver")
             .hasSize(3);
 
-    final Collection<String> strategies = loader.getStrategies("cn.taketoday.context.loader.PropertyValueResolver");
+    final Collection<String> strategies = loader.getStrategies("cn.taketoday.context.autowire.PropertyValueResolver");
 
     assertThat(strategies)
             .hasSize(4);
@@ -75,9 +77,9 @@ class StrategiesDetectorTests {
 
     assertThat(strategies)
             .hasSize(1)
-            .containsKey("cn.taketoday.context.loader.PropertyValueResolver");
+            .containsKey("cn.taketoday.context.autowire.PropertyValueResolver");
 
-    final List<String> strings = strategies.get("cn.taketoday.context.loader.PropertyValueResolver");
+    final List<String> strings = strategies.get("cn.taketoday.context.autowire.PropertyValueResolver");
 
     assertThat(strings)
             .hasSize(4)
@@ -88,7 +90,7 @@ class StrategiesDetectorTests {
 
     @Nullable
     @Override
-    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyException {
+    public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
       return null;
     }
   }
@@ -97,7 +99,7 @@ class StrategiesDetectorTests {
 
     @Nullable
     @Override
-    public PropertySetter resolveProperty(PropertyResolvingContext context, Field field) throws PropertyException {
+    public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
       return null;
     }
   }

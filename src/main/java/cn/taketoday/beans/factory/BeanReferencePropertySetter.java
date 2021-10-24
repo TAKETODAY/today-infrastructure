@@ -20,9 +20,9 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -44,12 +44,12 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   private BeanDefinition reference;
 
   /** @since 3.0.2 */
-  public BeanReferencePropertySetter(String referenceName, boolean required, Field field) {
-    super(field);
+  public BeanReferencePropertySetter(String referenceName, boolean required, BeanProperty property) {
+    super(property);
     Assert.notNull(referenceName, "Bean name can't be null");
-    this.referenceName = referenceName;
     this.required = required;
-    this.referenceClass = field.getType();
+    this.referenceName = referenceName;
+    this.referenceClass = property.getType();
   }
 
   @Override

@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.context.autowire;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
@@ -58,14 +59,14 @@ class AutowiredPropertyResolverTests {
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(context, propsReader);
       PropertySetter resolveProperty = autowiredPropertyResolver.resolveProperty(
               resolvingContext,
-              AutowiredPropertyResolverTests.class.getDeclaredField("name")//
+              BeanProperty.valueOf(getClass(), "name")//
       );
 
       System.err.println(resolveProperty);
       assert resolveProperty != null;
 
-      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTests.class.getDeclaredField("name1")) != null;
-      assert autowiredPropertyResolver.resolveProperty(resolvingContext, AutowiredPropertyResolverTests.class.getDeclaredField("name2")) != null;
+      assert autowiredPropertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name1")) != null;
+      assert autowiredPropertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name2")) != null;
 
     }
   }

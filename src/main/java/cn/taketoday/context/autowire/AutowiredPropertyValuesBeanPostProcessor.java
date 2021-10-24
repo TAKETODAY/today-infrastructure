@@ -18,22 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.autowire;
+package cn.taketoday.context.autowire;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.context.loader.PropertyResolvingContext;
-import cn.taketoday.context.loader.PropertyValueResolverComposite;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/10/23 22:59
@@ -43,8 +41,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
 
-  @Nullable
-  private ApplicationContext context;
+  private final ApplicationContext context;
 
   @Nullable
   private PropsReader propsReader;
@@ -55,6 +52,10 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   @Nullable
   private PropertyValueResolverComposite resolvingStrategies;
 
+  public AutowiredPropertyValuesBeanPostProcessor(ApplicationContext context) {
+    this.context = context;
+  }
+
   //---------------------------------------------------------------------
   // Implementation of InstantiationAwareBeanPostProcessor interface
   //---------------------------------------------------------------------
@@ -63,13 +64,14 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   @Override
   public Set<PropertySetter> postProcessPropertyValues(Object bean, String beanName) {
 
-    LinkedHashSet<PropertySetter> propertySetters = resolvePropertyValues(bean.getClass());
+    Class<?> beanClass = bean.getClass();
+    LinkedHashSet<PropertySetter> propertySetters = resolvePropertyValues(beanClass);
 
     // fix missing @Props injection
-//    List<PropertySetter> resolvedProps = propsReader().read(definition);
-//    propertySetters.addAll(resolvedProps);
+    List<PropertySetter> resolvedProps = propsReader().read(beanClass);
+    propertySetters.addAll(resolvedProps);
 
-    return null;
+    return propertySetters;
   }
 
   //---------------------------------------------------------------------
@@ -84,14 +86,15 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
    */
   public LinkedHashSet<PropertySetter> resolvePropertyValues(Class<?> beanClass) {
     LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
-    ReflectionUtils.doWithFields(beanClass, field -> {
+    BeanMetadata beanMetadata = BeanMetadata.ofClass(beanClass);
+    for (BeanProperty beanProperty : beanMetadata) {
       // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-      PropertySetter created = resolveProperty(field);
+      PropertySetter created = resolveProperty(beanProperty);
       // not required
       if (created != null) {
         propertySetters.add(created);
       }
-    });
+    }
 
     return propertySetters;
   }
@@ -99,18 +102,18 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   /**
    * Create property value
    *
-   * @param field Property
+   * @param property Property
    * @return A new {@link PropertySetter}
    */
   @Nullable
-  public PropertySetter resolveProperty(Field field) {
+  public PropertySetter resolveProperty(BeanProperty property) {
     if (resolvingStrategies == null) {
       resolvingStrategies = new PropertyValueResolverComposite();
     }
     if (resolvingContext == null) {
       resolvingContext = new PropertyResolvingContext(context, propsReader());
     }
-    return resolvingStrategies.resolveProperty(resolvingContext, field);
+    return resolvingStrategies.resolveProperty(resolvingContext, property);
   }
 
   public PropsReader propsReader() {
@@ -123,7 +126,6 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
 
   //
 
-  @Nullable
   public ApplicationContext getContext() {
     return context;
   }
