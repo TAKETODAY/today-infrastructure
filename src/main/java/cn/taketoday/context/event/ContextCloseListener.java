@@ -83,7 +83,6 @@ public class ContextCloseListener
     singletons.clear();
 
     if (beanFactory instanceof AbstractBeanFactory) {
-      ((AbstractBeanFactory) beanFactory).getDependencies().clear();
       ((AbstractBeanFactory) beanFactory).getPostProcessors().clear();
     }
     ClassUtils.clearCache();
