@@ -39,6 +39,7 @@ import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -118,7 +119,7 @@ public class HibernateConfiguration extends Configuration
 
   @Override
   public void registerBeanDefinitions(
-          EnableHibernate target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+          EnableHibernate target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
 
     applySettings(target);
 

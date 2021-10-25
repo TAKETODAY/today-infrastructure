@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
  * @author TODAY <br>
@@ -33,9 +33,9 @@ public interface BeanDefinitionImporter {
   /**
    * Register bean definitions
    *
-   * @param annotatedMetadata The BeanDefinition that annotated {@link Import}
+   * @param importMetadata The BeanDefinition that annotated {@link Import}
    * @param registry Bean definition registry
    */
-  void registerBeanDefinitions(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
+  void registerBeanDefinitions(AnnotationMetadata importMetadata, BeanDefinitionRegistry registry);
 
 }

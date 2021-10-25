@@ -138,7 +138,7 @@ class ImportTests {
     private EnableAop enableAop;
 
     @Override
-    public void registerBeanDefinitions(EnableAop enableAop, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(EnableAop enableAop, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
       this.enableAop = enableAop;
     }
 

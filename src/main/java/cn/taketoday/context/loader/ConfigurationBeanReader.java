@@ -280,7 +280,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     // for BeanDefinitionImporter to imports beans
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
       createImporter(importMetadata, BeanDefinitionImporter.class)
-              .registerBeanDefinitions(annotated, context.getRegistry());
+              .registerBeanDefinitions(importMetadata, context.getRegistry());
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
       context.addApplicationListener(createImporter(importMetadata, ApplicationListener.class));
