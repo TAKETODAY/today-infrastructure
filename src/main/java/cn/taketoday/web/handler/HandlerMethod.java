@@ -48,7 +48,6 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * Annotation handler
  *
  * @author TODAY 2018-06-25 20:03:11
- * @see cn.taketoday.web.registry.HandlerMethodRegistry#isController(BeanDefinition)
  */
 public class HandlerMethod
         extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {

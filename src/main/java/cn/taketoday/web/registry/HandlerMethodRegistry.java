@@ -39,8 +39,10 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -116,39 +118,34 @@ public class HandlerMethodRegistry
     // @since 2.3.3
     for (Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
       BeanDefinition def = entry.getValue();
-      if (!def.isAbstract() && isController(def)) { // ActionMapping on the class is ok
-        buildHandlerMethod(def);
+
+      if (!def.isAbstract()) {
+        // ActionMapping on the class is ok
+        MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotationOnBean(def.getName(), ActionMapping.class);
+        MergedAnnotation<RootController> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
+
+        AnnotationAttributes controllerMapping = null;
+        if (actionMapping.isPresent()) {
+          controllerMapping = actionMapping.asAnnotationAttributes();
+        }
+        // build
+        if (rootController.isPresent() || actionMapping.isPresent()) {
+          if (def.hasBeanClass()) {
+            buildHandlerMethod(def.getBeanClass(), controllerMapping);
+          }
+          else {
+            Class<?> type = beanFactory.getType(def.getName());
+            buildHandlerMethod(type, controllerMapping);
+          }
+        }
       }
     }
   }
 
-  /**
-   * Whether the given type is a handler with handler methods.
-   *
-   * @param def the definition of the bean being checked
-   * @return "true" if this a handler type, "false" otherwise.
-   */
-  protected boolean isController(BeanDefinition def) {
-    return def.isAnnotationPresent(RootController.class)
-            || def.isAnnotationPresent(ActionMapping.class);
-  }
-
-  private void buildHandlerMethod(Class<?> beanClass, AnnotationAttributes controllerMapping) {
+  private void buildHandlerMethod(Class<?> beanClass, @Nullable AnnotationAttributes controllerMapping) {
     for (Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);
     }
-  }
-
-  /**
-   * @param def the definition of the bean
-   * @since 3.0.3
-   */
-  public void buildHandlerMethod(BeanDefinition def) {
-    // find mapping on BeanDefinition
-    AnnotationAttributes controllerMapping = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            def, ActionMapping.class);
-
-    buildHandlerMethod(def.getBeanClass(), controllerMapping);
   }
 
   /**
@@ -160,7 +157,7 @@ public class HandlerMethodRegistry
    */
   protected void buildHandlerMethod(Method method,
                                     Class<?> beanClass,
-                                    AnnotationAttributes controllerMapping) {
+                                    @Nullable AnnotationAttributes controllerMapping) {
     AnnotationAttributes actionMapping = // find mapping on method
             AnnotatedElementUtils.getMergedAnnotationAttributes(method, ActionMapping.class);
 
@@ -179,7 +176,7 @@ public class HandlerMethodRegistry
    * methods on class
    */
   protected void mappingHandlerMethod(HandlerMethod handler,
-                                      AnnotationAttributes controllerMapping,
+                                      @Nullable AnnotationAttributes controllerMapping,
                                       AnnotationAttributes handlerMethodMapping) {
     boolean emptyNamespaces = true;
     boolean addClassRequestMethods = false;
