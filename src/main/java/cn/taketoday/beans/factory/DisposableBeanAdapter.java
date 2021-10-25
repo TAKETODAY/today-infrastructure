@@ -20,6 +20,13 @@
 
 package cn.taketoday.beans.factory;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -28,13 +35,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Adapter that implements the {@link DisposableBean} and {@link Runnable}
@@ -239,11 +239,11 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     }
     catch (InvocationTargetException ex) {
       log.warn("Custom destroy method '{}' on bean with name '{}' threw an exception: {}",
-              this.destroyMethodName, this.beanName, ex.getTargetException(), ex);
+               this.destroyMethodName, this.beanName, ex.getTargetException(), ex);
     }
     catch (Throwable ex) {
       log.warn("Failed to invoke custom destroy method '{}' on bean with name '{}'",
-              this.destroyMethodName, this.beanName, ex);
+               this.destroyMethodName, this.beanName, ex);
     }
   }
 
@@ -361,7 +361,6 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     return null;
   }
 
-
   /**
    * Destroy bean instance
    *
@@ -390,6 +389,14 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
                                  List<BeanPostProcessor> postProcessors) {
 
     Assert.notNull(obj, "bean instance must not be null");
+    ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = getFilteredPostProcessors(obj, postProcessors);
+    new DisposableBeanAdapter(true, obj, def, filteredPostProcessors)
+            .destroy();
+  }
+
+  @Nullable
+  static ArrayList<DestructionBeanPostProcessor> getFilteredPostProcessors(
+          Object obj, List<BeanPostProcessor> postProcessors) {
     ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = null;
     if (CollectionUtils.isNotEmpty(postProcessors)) {
       filteredPostProcessors = new ArrayList<>(postProcessors.size());
@@ -402,10 +409,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
         }
       }
     }
-
-    new DisposableBeanAdapter(true, obj, def, filteredPostProcessors)
-            .destroy();
+    return filteredPostProcessors;
   }
-
 
 }
