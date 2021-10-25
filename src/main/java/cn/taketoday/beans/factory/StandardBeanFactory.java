@@ -335,6 +335,14 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
 
   @Override
+  public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
+    super.copyConfigurationFrom(otherFactory);
+    if (otherFactory instanceof StandardBeanFactory) {
+      this.allowBeanDefinitionOverriding = ((StandardBeanFactory) otherFactory).allowBeanDefinitionOverriding;
+    }
+  }
+
+  @Override
   public void removeBean(String name) {
     removeBeanDefinition(name);
     super.removeBean(name);

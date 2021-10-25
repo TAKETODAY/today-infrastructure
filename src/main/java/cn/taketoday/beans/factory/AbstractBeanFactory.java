@@ -19,8 +19,28 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyException;
@@ -44,25 +64,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -88,7 +89,7 @@ public abstract class AbstractBeanFactory
   private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
 
   /** @since 4.0 */
-  private final ArgumentsResolver argumentsResolver = new ArgumentsResolver(this);
+  private ArgumentsResolver argumentsResolver;
 
   /** Parent bean factory, for bean inheritance support. @since 4.0 */
   @Nullable
@@ -99,6 +100,17 @@ public abstract class AbstractBeanFactory
 
   // @since 4.0 for bean-property conversion
   private ConversionService conversionService;
+
+  // @since 4.0
+  private boolean autoInferDestroyMethod = true;
+
+  /**
+   * Return whether this factory holds a DestructionAwareBeanPostProcessor
+   * that will get applied to singleton beans on shutdown.
+   *
+   * @since 4.0
+   */
+  protected boolean hasDestructionBeanPostProcessors;
 
   //
 
@@ -259,7 +271,6 @@ public abstract class AbstractBeanFactory
     return MergedAnnotation.missing();
   }
 
-
   @Override
   public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
     return isTypeMatch(name, ResolvableType.fromClass(typeToMatch));
@@ -390,7 +401,7 @@ public abstract class AbstractBeanFactory
    */
   protected Object createBeanInstance(BeanDefinition def) {
     if (hasInstantiationAwareBeanPostProcessors) {
-      for (BeanPostProcessor processor : getPostProcessors()) {
+      for (BeanPostProcessor processor : postProcessors) {
         if (processor instanceof InstantiationAwareBeanPostProcessor) {
           Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
           if (bean != null) {
@@ -661,8 +672,7 @@ public abstract class AbstractBeanFactory
         ((BeanNameAware) bean).setBeanName(def.getName());
       }
       if (bean instanceof BeanClassLoaderAware) {
-        // FIXME
-        ((BeanClassLoaderAware) bean).setBeanClassLoader(bean.getClass().getClassLoader());
+        ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
       }
       if (bean instanceof BeanFactoryAware) {
         ((BeanFactoryAware) bean).setBeanFactory(this);
@@ -751,6 +761,68 @@ public abstract class AbstractBeanFactory
     log.info("Loading BeanPostProcessor.");
     postProcessors.addAll(getBeans(BeanPostProcessor.class));
     AnnotationAwareOrderComparator.sort(postProcessors);
+  }
+
+  /**
+   * Determine whether the given bean requires destruction on shutdown.
+   * <p>The default implementation checks the DisposableBean interface as well as
+   * a specified destroy method and registered DestructionAwareBeanPostProcessors.
+   *
+   * @param bean the bean instance to check
+   * @param mbd the corresponding bean definition
+   * @see DisposableBean
+   * @see DestructionBeanPostProcessor
+   */
+  protected boolean requiresDestruction(Object bean, BeanDefinition mbd) {
+    if (DisposableBeanAdapter.hasDestroyMethod(bean, mbd)) {
+      if (hasDestructionBeanPostProcessors) {
+        if (!CollectionUtils.isEmpty(postProcessors)) {
+          for (BeanPostProcessor processor : postProcessors) {
+            if (processor instanceof DestructionBeanPostProcessor) {
+              if (((DestructionBeanPostProcessor) processor).requiresDestruction(bean)) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Add the given bean to the list of disposable beans in this factory,
+   * registering its DisposableBean interface and/or the given destroy method
+   * to be called on factory shutdown (if applicable). Only applies to singletons.
+   *
+   * @param beanName the name of the bean
+   * @param bean the bean instance
+   * @param mbd the bean definition for the bean
+   * @see BeanDefinition#isSingleton
+   * @see #registerDisposableBean
+   */
+  protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition mbd) {
+    if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
+      if (mbd.isSingleton()) {
+        // Register a DisposableBean implementation that performs all destruction
+        // work for the given bean: DestructionAwareBeanPostProcessors,
+        // DisposableBean interface, custom destroy method.
+        registerDisposableBean(beanName, new DisposableBeanAdapter(
+                autoInferDestroyMethod,
+                bean, mbd, DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors)));
+      }
+      else {
+        // A bean with a custom scope...
+        Scope scope = this.scopes.get(mbd.getScope());
+        if (scope == null) {
+          throw new IllegalStateException("No Scope registered for scope name '" + mbd.getScope() + "'");
+        }
+        scope.registerDestructionCallback(
+                beanName, new DisposableBeanAdapter(
+                        autoInferDestroyMethod, bean, mbd,
+                        DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors)));
+      }
+    }
   }
 
   @Override
@@ -856,7 +928,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-              "that it should return null if the type of its object cannot be determined yet", ex);
+                       "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -1210,6 +1282,9 @@ public abstract class AbstractBeanFactory
   @NonNull
   @Override
   public ArgumentsResolver getArgumentsResolver() {
+    if (argumentsResolver == null) {
+      this.argumentsResolver = new ArgumentsResolver(this);
+    }
     return argumentsResolver;
   }
 
@@ -1287,7 +1362,7 @@ public abstract class AbstractBeanFactory
     if (beanInstance == null || def == null) {
       return;
     }
-    DisposableBeanAdapter.destroyBean(beanInstance, def, getPostProcessors());
+    DisposableBeanAdapter.destroyBean(beanInstance, def, postProcessors);
   }
 
   @Override
@@ -1345,6 +1420,8 @@ public abstract class AbstractBeanFactory
     }
   }
 
+  // BeanPostProcessor
+
   @Override
   public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
     Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
@@ -1357,18 +1434,41 @@ public abstract class AbstractBeanFactory
     if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
       this.hasInstantiationAwareBeanPostProcessors = true;
     }
+
+    if (beanPostProcessor instanceof DestructionBeanPostProcessor) {
+      this.hasDestructionBeanPostProcessors = true;
+    }
+  }
+
+  /**
+   * Add new BeanPostProcessors that will get applied to beans created
+   * by this factory. To be invoked during factory configuration.
+   *
+   * @see #addBeanPostProcessor
+   * @since 4.0
+   */
+  public void addBeanPostProcessors(Collection<? extends BeanPostProcessor> beanPostProcessors) {
+    this.postProcessors.removeAll(beanPostProcessors);
+    this.postProcessors.addAll(beanPostProcessors);
   }
 
   @Override
   public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    getPostProcessors().remove(beanPostProcessor);
+    postProcessors.remove(beanPostProcessor);
 
-    for (BeanPostProcessor postProcessor : getPostProcessors()) {
+    for (BeanPostProcessor postProcessor : postProcessors) {
       if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
         this.hasInstantiationAwareBeanPostProcessors = true;
-        break;
+      }
+      else if (beanPostProcessor instanceof DestructionBeanPostProcessor) {
+        this.hasDestructionBeanPostProcessors = true;
       }
     }
+  }
+
+  @Override
+  public int getBeanPostProcessorCount() {
+    return this.postProcessors.size();
   }
 
   @Override
@@ -1382,10 +1482,31 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerScope(String name, Scope scope) {
-    Assert.notNull(name, "scope name must not be null");
+  public void registerScope(String scopeName, Scope scope) {
+    Assert.notNull(scopeName, "scope name must not be null");
     Assert.notNull(scope, "scope object must not be null");
-    scopes.put(name, scope);
+    if (Scope.SINGLETON.equals(scopeName) || Scope.PROTOTYPE.equals(scopeName)) {
+      throw new IllegalArgumentException("Cannot replace existing scopes 'singleton' and 'prototype'");
+    }
+    Scope previous = this.scopes.put(scopeName, scope);
+    if (previous != null && previous != scope) {
+      log.debug("Replacing scope '{}' from [{}] to [{}]", scopeName, previous, scope);
+    }
+    else if (log.isTraceEnabled()) {
+      log.trace("Registering scope '{}' with implementation [{}]", scopeName, scope);
+    }
+  }
+
+  @Override
+  public String[] getRegisteredScopeNames() {
+    return StringUtils.toStringArray(this.scopes.keySet());
+  }
+
+  @Override
+  @Nullable
+  public Scope getRegisteredScope(String scopeName) {
+    Assert.notNull(scopeName, "Scope identifier must not be null");
+    return this.scopes.get(scopeName);
   }
 
   @Override
@@ -1416,23 +1537,67 @@ public abstract class AbstractBeanFactory
     this.parentBeanFactory = parentBeanFactory;
   }
 
+  @Override
   public void setConversionService(ConversionService conversionService) {
     this.conversionService = conversionService;
   }
 
   //  @since 4.0 for bean-property conversion
+  @Override
+  @Nullable
   public ConversionService getConversionService() {
     return conversionService;
   }
 
+  public boolean isAutoInferDestroyMethod() {
+    return autoInferDestroyMethod;
+  }
+
+  @Override
+  public void setAutoInferDestroyMethod(boolean autoInferDestroyMethod) {
+    this.autoInferDestroyMethod = autoInferDestroyMethod;
+  }
+
   //
 
+  @Override
   public void setBeanClassLoader(@Nullable ClassLoader beanClassLoader) {
     this.beanClassLoader = (beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader());
   }
 
+  @Override
   public ClassLoader getBeanClassLoader() {
     return beanClassLoader;
+  }
+
+  @Override
+  public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
+    Assert.notNull(otherFactory, "BeanFactory must not be null");
+    setBeanClassLoader(otherFactory.getBeanClassLoader());
+    setConversionService(otherFactory.getConversionService());
+    if (otherFactory instanceof AbstractBeanFactory) {
+      AbstractBeanFactory beanFactory = (AbstractBeanFactory) otherFactory;
+      setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
+      this.scopes.putAll(beanFactory.scopes);
+      this.beanSupplier.putAll(beanFactory.beanSupplier);
+      this.postProcessors.addAll(beanFactory.postProcessors);
+
+
+
+      this.fullLifecycle = beanFactory.fullLifecycle;
+      this.fullPrototype = beanFactory.fullPrototype;
+      this.objectFactories = beanFactory.objectFactories;
+      this.argumentsResolver = beanFactory.argumentsResolver;
+      this.hasDestructionBeanPostProcessors = beanFactory.hasDestructionBeanPostProcessors;
+      this.hasInstantiationAwareBeanPostProcessors = beanFactory.hasInstantiationAwareBeanPostProcessors;
+
+    }
+    else {
+      String[] otherScopeNames = otherFactory.getRegisteredScopeNames();
+      for (String scopeName : otherScopeNames) {
+        this.scopes.put(scopeName, otherFactory.getRegisteredScope(scopeName));
+      }
+    }
   }
 
   @Override

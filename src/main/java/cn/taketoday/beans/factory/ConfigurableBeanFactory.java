@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 
@@ -100,14 +101,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   void initializeSingletons() throws Throwable;
 
   /**
-   * Add a {@link BeanPostProcessor}
-   *
-   * @param beanPostProcessor bean post processor instance
-   * @since 2.1.2
-   */
-  void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
-
-  /**
    * Remove a {@link BeanPostProcessor}
    *
    * @param beanPostProcessor bean post processor instance
@@ -140,6 +133,28 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @since 2.1.7
    */
   void registerScope(String name, Scope scope);
+
+  /**
+   * Return the names of all currently registered scopes.
+   * <p>This will only return the names of explicitly registered scopes.
+   * Built-in scopes such as "singleton" and "prototype" won't be exposed.
+   *
+   * @return the array of scope names, or an empty array if none
+   * @see #registerScope
+   */
+  String[] getRegisteredScopeNames();
+
+  /**
+   * Return the Scope implementation for the given scope name, if any.
+   * <p>This will only return explicitly registered scopes.
+   * Built-in scopes such as "singleton" and "prototype" won't be exposed.
+   *
+   * @param scopeName the name of the scope
+   * @return the registered Scope implementation, or {@code null} if none
+   * @see #registerScope
+   */
+  @Nullable
+  Scope getRegisteredScope(String scopeName);
 
   /**
    * Destroy the specified scoped bean in the current target scope, if any.
@@ -204,5 +219,82 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @since 4.0
    */
   void destroySingletons();
+
+  /**
+   * @param autoInferDestroyMethod autodetect destroy-method of bean
+   * @since 4.0
+   */
+  void setAutoInferDestroyMethod(boolean autoInferDestroyMethod);
+
+  /**
+   * Specify a 4.0 ConversionService to use for converting property values
+   *
+   * @param conversionService conversionService
+   * @since 4.0
+   */
+  void setConversionService(@Nullable ConversionService conversionService);
+
+  /**
+   * Return the associated ConversionService, if any.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  ConversionService getConversionService();
+
+  /**
+   * Set the class loader to use for loading bean classes.
+   * Default is the thread context class loader.
+   * <p>Note that this class loader will only apply to bean definitions
+   * that do not carry a resolved bean class yet. This is the case as of 4.0
+   * by default: Bean definitions only carry bean class names,
+   * to be resolved once the factory processes the bean definition.
+   *
+   * @param beanClassLoader the class loader to use,
+   * or {@code null} to suggest the default class loader
+   * @since 4.0
+   */
+  void setBeanClassLoader(@Nullable ClassLoader beanClassLoader);
+
+  /**
+   * Return this factory's class loader for loading bean classes
+   * (only {@code null} if even the system ClassLoader isn't accessible).
+   *
+   * @see cn.taketoday.util.ClassUtils#forName(String, ClassLoader)
+   * @since 4.0
+   */
+  @Nullable
+  ClassLoader getBeanClassLoader();
+
+  /**
+   * Copy all relevant configuration from the given other factory.
+   * <p>Should include all standard configuration settings as well as
+   * BeanPostProcessors, Scopes, and factory-specific internal settings.
+   * Should not include any metadata of actual bean definitions,
+   * such as BeanDefinition objects and bean name aliases.
+   *
+   * @param otherFactory the other BeanFactory to copy from
+   * @since 4.0
+   */
+  void copyConfigurationFrom(ConfigurableBeanFactory otherFactory);
+
+  /**
+   * Add a new BeanPostProcessor that will get applied to beans created
+   * by this factory. To be invoked during factory configuration.
+   * <p>Note: Post-processors submitted here will be applied in the order of
+   * registration; any ordering semantics expressed through implementing the
+   * {@link cn.taketoday.core.Ordered} interface will be ignored. Note that
+   * autodetected post-processors (e.g. as beans in an ApplicationContext)
+   * will always be applied after programmatically registered ones.
+   *
+   * @param beanPostProcessor the post-processor to register
+   * @since 2.1.2
+   */
+  void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
+
+  /**
+   * Return the current number of registered BeanPostProcessors, if any.
+   */
+  int getBeanPostProcessorCount();
 
 }
