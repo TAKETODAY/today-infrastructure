@@ -20,8 +20,38 @@
 package cn.taketoday.beans.factory;
 
 /**
- * @author TODAY <br>
- * 2018-07-02 22:38:57
+ * Strategy interface used by a {@link ConfigurableBeanFactory},
+ * representing a target scope to hold bean instances in.
+ * This allows for extending the BeanFactory's standard scopes
+ * {@link Scope#SINGLETON "singleton"} and {@link Scope#PROTOTYPE "prototype"}
+ * with custom further scopes, registered for a
+ * {@link ConfigurableBeanFactory#registerScope(String, Scope) specific key}.
+ *
+ * <p>{@link cn.taketoday.context.ApplicationContext} implementations
+ * such as a {@link cn.taketoday.web.WebApplicationContext}
+ * may register additional standard scopes specific to their environment,
+ * e.g. {@link cn.taketoday.web.WebApplicationContext#SCOPE_REQUEST "request"}
+ * and {@link cn.taketoday.web.WebApplicationContext#SCOPE_SESSION "session"},
+ * based on this Scope SPI.
+ *
+ * <p>Even if its primary use is for extended scopes in a web environment,
+ * this SPI is completely generic: It provides the ability to get and put
+ * objects from any underlying storage mechanism, such as an HTTP session
+ * or a custom conversation mechanism. The name passed into this class's
+ * {@code get} and {@code remove} methods will identify the
+ * target object in the current scope.
+ *
+ * <p>{@code Scope} implementations are expected to be thread-safe.
+ * One {@code Scope} instance can be used with multiple bean factories
+ * at the same time, if desired (unless it explicitly wants to be aware of
+ * the containing BeanFactory), with any number of threads accessing
+ * the {@code Scope} concurrently from any number of factories.
+ *
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author TODAY 2018-07-02 22:38:57
+ * @see ConfigurableBeanFactory#registerScope
+ * @see CustomScopeConfigurer
  * @since 3.0
  */
 public interface Scope {
@@ -51,7 +81,55 @@ public interface Scope {
    */
   Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
 
+  /**
+   * Remove the object with the given {@code name} from the underlying scope.
+   * <p>Returns {@code null} if no object was found; otherwise
+   * returns the removed {@code Object}.
+   * <p>Note that an implementation should also remove a registered destruction
+   * callback for the specified object, if any. It does, however, <i>not</i>
+   * need to <i>execute</i> a registered destruction callback in this case,
+   * since the object will be destroyed by the caller (if appropriate).
+   * <p><b>Note: This is an optional operation.</b> Implementations may throw
+   * {@link UnsupportedOperationException} if they do not support explicitly
+   * removing an object.
+   *
+   * @param name the name of the object to remove
+   * @return the removed object, or {@code null} if no object was present
+   * @throws IllegalStateException if the underlying scope is not currently active
+   * @see #registerDestructionCallback
+   */
   Object remove(String name);
+
+  /**
+   * Register a callback to be executed on destruction of the specified
+   * object in the scope (or at destruction of the entire scope, if the
+   * scope does not destroy individual objects but rather only terminates
+   * in its entirety).
+   * <p><b>Note: This is an optional operation.</b> This method will only
+   * be called for scoped beans with actual destruction configuration
+   * (DisposableBean, destroy-method, DestructionAwareBeanPostProcessor).
+   * Implementations should do their best to execute a given callback
+   * at the appropriate time. If such a callback is not supported by the
+   * underlying runtime environment at all, the callback <i>must be
+   * ignored and a corresponding warning should be logged</i>.
+   * <p>Note that 'destruction' refers to automatic destruction of
+   * the object as part of the scope's own lifecycle, not to the individual
+   * scoped object having been explicitly removed by the application.
+   * If a scoped object gets removed via this facade's {@link #remove(String)}
+   * method, any registered destruction callback should be removed as well,
+   * assuming that the removed object will be reused or manually destroyed.
+   *
+   * @param name the name of the object to execute the destruction callback for
+   * @param callback the destruction callback to be executed.
+   * Note that the passed-in Runnable will never throw an exception,
+   * so it can safely be executed without an enclosing try-catch block.
+   * Furthermore, the Runnable will usually be serializable, provided
+   * that its target object is serializable as well.
+   * @throws IllegalStateException if the underlying scope is not currently active
+   * @see cn.taketoday.beans.DisposableBean
+   * @see DestructionBeanPostProcessor
+   */
+  void registerDestructionCallback(String name, Runnable callback);
 
   interface ScopeObjectFactory {
 
