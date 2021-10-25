@@ -48,6 +48,11 @@ public class SimpleThreadScope implements Scope {
   }
 
   @Override
+  public void registerDestructionCallback(String name, Runnable callback) {
+    // TODO
+  }
+
+  @Override
   public Object get(final BeanDefinition def, final ScopeObjectFactory objectFactory) {
     Map<String, Object> scope = this.threadScope.get();
     final String name = def.getName();
