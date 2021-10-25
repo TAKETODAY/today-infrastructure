@@ -41,7 +41,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author TODAY 2018-06-23 11:23:45
  */
-public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
+public interface BeanDefinition extends AttributeAccessor {
   String SCOPE = "scope";
   String INIT_METHODS = "initMethods";
   String DESTROY_METHOD = "destroyMethod";
@@ -231,7 +231,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @since 2.1.7
    */
   @Deprecated
-  @Override
   boolean isAnnotationPresent(Class<? extends Annotation> annotation);
 
   /**

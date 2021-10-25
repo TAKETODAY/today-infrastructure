@@ -20,19 +20,12 @@
 
 package cn.taketoday.aop.support.annotation;
 
-import org.aopalliance.intercept.MethodInterceptor;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.SuppliedMethodInterceptor;
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -46,14 +39,19 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.annotation.RepeatableContainers;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import org.aopalliance.intercept.MethodInterceptor;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Aspect annotated aspect or MethodInterceptor ProxyCreator
@@ -86,16 +84,14 @@ public class AspectAutoProxyCreator
     log.info("Loading aspect bean definitions");
     setAspectsLoaded(true);
 
-    for (BeanDefinition beanDefinition : beanFactory.getBeanDefinitions().values()) {
-      if (beanDefinition.isAnnotationPresent(Aspect.class)) {
-        // fix use beanDefinition.getName()
-        String aspectName = beanDefinition.getName();
-        log.info("Found Aspect: [{}]", aspectName);
-
-        aspectDefs.add(beanDefinition);
-      }
+    Set<String> aspectBeanNames = beanFactory.getBeanNamesForAnnotation(Aspect.class);
+    for (String name : aspectBeanNames) {
+      BeanDefinition beanDefinition = beanFactory.getBeanDefinition(name);
+      // fix use beanDefinition.getName()
+      String aspectName = beanDefinition.getName();
+      log.info("Found Aspect: [{}]", aspectName);
+      aspectDefs.add(beanDefinition);
     }
-
     sortAspects();
   }
 
@@ -223,8 +219,15 @@ public class AspectAutoProxyCreator
     }
   }
 
-  private AnnotationAttributes[] getAdviceAttributes(AnnotatedElement annotated) {
-    return AnnotatedElementUtils.getMergedAttributesArray(annotated, Advice.class);
+  private AnnotationAttributes[] getAdviceAttributes(BeanDefinition definition) {
+    if (definition instanceof AnnotatedBeanDefinition) {
+      AnnotationMetadata metadata = ((AnnotatedBeanDefinition) definition).getMetadata();
+      return metadata.getAnnotations().getAttributes(Advice.class);
+    }
+
+    BeanFactory beanFactory = getBeanFactory();
+    MergedAnnotation<Advice> mergedAnnotationOnBean = beanFactory.getMergedAnnotationOnBean(definition.getName(), Advice.class);
+    return new AnnotationAttributes[] { mergedAnnotationOnBean.asAnnotationAttributes() };
   }
 
 }

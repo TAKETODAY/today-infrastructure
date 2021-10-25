@@ -442,21 +442,6 @@ public class DefaultBeanDefinition
     return AnnotatedElementUtils.isAnnotated(getBeanClass(), annotation);
   }
 
-  @Override
-  public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-    return AnnotationUtils.getAnnotation(getBeanClass(), annotationClass);
-  }
-
-  @Override
-  public Annotation[] getAnnotations() {
-    return getBeanClass().getAnnotations();
-  }
-
-  @Override
-  public Annotation[] getDeclaredAnnotations() {
-    return getBeanClass().getDeclaredAnnotations();
-  }
-
   public BeanInstantiator getConstructor(BeanFactory factory) {
     if (constructor == null) {
       this.constructor = createConstructor(factory);

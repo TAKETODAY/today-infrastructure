@@ -181,15 +181,6 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
   }
 
   @Override
-  public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-    T ret = AnnotationUtils.getAnnotation(getFactoryMethod(), annotationClass);
-    if (ret == null) {
-      return super.getAnnotation(annotationClass);
-    }
-    return ret;
-  }
-
-  @Override
   public Annotation[] getAnnotations() {
     return mergeAnnotations(getFactoryMethod().getAnnotations(), super.getAnnotations());
   }

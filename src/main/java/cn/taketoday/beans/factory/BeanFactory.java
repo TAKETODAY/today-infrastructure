@@ -19,18 +19,19 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.ArgumentsResolverProvider;
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Bean factory
@@ -135,6 +136,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    */
   @Nullable
   <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType)
+          throws NoSuchBeanDefinitionException;
+
+  <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(String beanName, Class<A> annotationType)
           throws NoSuchBeanDefinitionException;
 
   /**

@@ -47,6 +47,7 @@ import cn.taketoday.context.expression.ValueExpressionContext;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -701,6 +702,11 @@ public abstract class AbstractApplicationContext
   @Override
   public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
     return getBeanFactory().getAnnotationOnBean(beanName, annotationType);
+  }
+
+  @Override
+  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
+    return getBeanFactory().getMergedAnnotationOnBean(beanName, annotationType);
   }
 
   @Override

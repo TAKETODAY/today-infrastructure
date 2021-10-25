@@ -29,6 +29,9 @@ import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
@@ -205,8 +208,57 @@ public abstract class AbstractBeanFactory
 
   @Override
   public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
-    return obtainBeanDefinition(beanName).getAnnotation(annotationType);
+    return findMergedAnnotationOnBean(beanName, annotationType)
+            .synthesize(MergedAnnotation::isPresent).orElse(null);
   }
+
+  @Override
+  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(
+          String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
+    return findMergedAnnotationOnBean(beanName, annotationType);
+  }
+
+  private <A extends Annotation> MergedAnnotation<A> findMergedAnnotationOnBean(
+          String beanName, Class<A> annotationType) {
+
+    Class<?> beanType = getType(beanName);
+    if (beanType != null) {
+      MergedAnnotation<A> annotation =
+              MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+
+    if (containsBeanDefinition(beanName)) {
+      BeanDefinition bd = getBeanDefinition(beanName);
+      if (bd instanceof FactoryMethodBeanDefinition) {
+        // Check annotations declared on factory method, if any.
+        Method factoryMethod = ((FactoryMethodBeanDefinition) bd).getFactoryMethod();
+        if (factoryMethod != null) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+      }
+
+      // Check raw bean class, e.g. in case of a proxy.
+      if (bd.hasBeanClass()) {
+        Class<?> beanClass = bd.getBeanClass();
+        if (beanClass != beanType) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+      }
+    }
+    return MergedAnnotation.missing();
+  }
+
 
   @Override
   public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
