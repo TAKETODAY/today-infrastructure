@@ -1,7 +1,7 @@
 cn:
   taketoday:
     context:
-      loader:
+      autowire:
         PropertyValueResolver:
           - 111111w
           - 222222w
