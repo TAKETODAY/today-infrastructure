@@ -32,9 +32,10 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.loader.AnnotationProvider;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
 
@@ -61,7 +62,7 @@ public @interface EnableAspectAutoProxy {
   boolean proxyTargetClass() default true;
 }
 
-class AutoProxyConfiguration implements BeanDefinitionImporter {
+class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvider<EnableAspectAutoProxy> {
 
   /**
    * ProxyCreator Bean
@@ -79,13 +80,12 @@ class AutoProxyConfiguration implements BeanDefinitionImporter {
   }
 
   @Override
-  public void registerBeanDefinitions(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BeanDefinitionRegistry registry) {
     BeanDefinition proxyCreatorDef = registry.getBeanDefinition(ProxyCreator.class);
     Assert.state(proxyCreatorDef != null, "No ProxyCreator bean definition.");
 
     if (ProxyConfig.class.isAssignableFrom(proxyCreatorDef.getBeanClass())) {
-      AnnotationAttributes aspectAutoProxy = AnnotatedElementUtils.getMergedAnnotationAttributes(
-              annotatedMetadata, EnableAspectAutoProxy.class);
+      AnnotationAttributes aspectAutoProxy = getAttributes(importMetadata);
       if (aspectAutoProxy != null) {
         proxyCreatorDef.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));
         proxyCreatorDef.addPropertyValue("proxyTargetClass", aspectAutoProxy.getBoolean("proxyTargetClass"));
