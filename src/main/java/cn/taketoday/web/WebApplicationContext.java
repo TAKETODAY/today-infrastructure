@@ -22,10 +22,31 @@ package cn.taketoday.web;
 import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
- * @author TODAY <br>
- * 2019-07-10 22:03
+ * Interface to provide configuration for a web application. This is read-only while
+ * the application is running, but may be reloaded if the implementation supports this.
+ *
+ * @author TODAY 2019-07-10 22:03
+ * @see ServletContextAware#setServletContext
  */
 public interface WebApplicationContext extends ConfigurableApplicationContext {
+
+  /**
+   * Scope identifier for request scope: "request".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  String SCOPE_REQUEST = "request";
+
+  /**
+   * Scope identifier for session scope: "session".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  String SCOPE_SESSION = "session";
+
+  /**
+   * Scope identifier for the global web application scope: "application".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  String SCOPE_APPLICATION = "application";
 
   /**
    * Returns the portion of the request URI that indicates the context of the
