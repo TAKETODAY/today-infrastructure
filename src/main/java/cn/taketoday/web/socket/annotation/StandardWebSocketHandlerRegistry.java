@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import javax.websocket.server.ServerEndpoint;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 /**
@@ -66,8 +67,18 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
   }
 
   @Override
-  protected boolean isEndpoint(BeanDefinition definition) {
-    return super.isEndpoint(definition) || definition.isAnnotationPresent(ServerEndpoint.class);
+  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
+    return super.isEndpoint(context, definition) || context.getAnnotationOnBean(
+            definition.getName(), ServerEndpoint.class) != null;
   }
 
+  @Override
+  protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
+    ServerEndpoint annotationOnBean = context.getAnnotationOnBean(
+            definition.getName(), ServerEndpoint.class);
+    if (annotationOnBean != null) {
+      return new String[] { annotationOnBean.value() };
+    }
+    return super.getPath(definition, context);
+  }
 }

@@ -67,10 +67,10 @@ public class WebSocketHandlerRegistry
       annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
     }
 
-    final Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
-    for (final Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
-      final BeanDefinition definition = entry.getValue();
-      if (isEndpoint(definition)) {
+    Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
+    for (Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
+      BeanDefinition definition = entry.getValue();
+      if (isEndpoint(context, definition)) {
         registerEndpoint(definition, context);
       }
     }
@@ -82,24 +82,25 @@ public class WebSocketHandlerRegistry
    * @param beanFactory {@link ConfigurableBeanFactory}
    * @return Returns a handler bean of target beanClass
    */
-  protected Object createHandler(final BeanDefinition def, final BeanFactory beanFactory) {
+  protected Object createHandler(BeanDefinition def, BeanFactory beanFactory) {
     return def.isSingleton()
            ? beanFactory.getBean(def)
            : Prototypes.newProxyInstance(def.getBeanClass(), def, beanFactory);
   }
 
-  protected boolean isEndpoint(BeanDefinition definition) {
-    return definition.isAnnotationPresent(EndpointMapping.class);
+  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
+    return context.getAnnotationOnBean(
+            definition.getName(), EndpointMapping.class) != null;
   }
 
   protected void registerEndpoint(BeanDefinition definition, WebApplicationContext context) {
-    final Object handlerBean = createHandler(definition, context);
+    Object handlerBean = createHandler(definition, context);
 
-    final Class<?> endpointClass = definition.getBeanClass();
-    final EndpointMapping endpointMapping = definition.getAnnotation(EndpointMapping.class);
-    final String[] path = endpointMapping.value();
+    Class<?> endpointClass = definition.getBeanClass();
 
-    final Method[] declaredMethods = endpointClass.getDeclaredMethods();
+    String[] path = getPath(definition, context);
+
+    Method[] declaredMethods = endpointClass.getDeclaredMethods();
 
     HandlerMethod afterHandshake = null;
     WebSocketHandlerMethod onOpen = null;
@@ -107,9 +108,9 @@ public class WebSocketHandlerRegistry
     WebSocketHandlerMethod onError = null;
     WebSocketHandlerMethod onMessage = null;
 
-    final MethodParametersBuilder parameterBuilder = new MethodParametersBuilder();
+    MethodParametersBuilder parameterBuilder = new MethodParametersBuilder();
     HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
-    for (final Method declaredMethod : declaredMethods) {
+    for (Method declaredMethod : declaredMethods) {
       if (isOnOpenHandler(declaredMethod, definition)) {
         onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
       }
@@ -128,12 +129,19 @@ public class WebSocketHandlerRegistry
     }
     AnnotationWebSocketHandlerBuilder handlerBuilder = getAnnotationHandlerBuilder();
     Assert.state(handlerBuilder != null, "No annotationHandlerBuilder in this registry");
-    for (final String pathPattern : path) {
-      final AnnotationHandlerDelegate annotationHandler
+    for (String pathPattern : path) {
+      AnnotationHandlerDelegate annotationHandler
               = new AnnotationHandlerDelegate(pathPattern, onOpen, onClose, onError, onMessage, afterHandshake);
       WebSocketHandler handler = handlerBuilder.build(definition, context, annotationHandler);
       registerHandler(pathPattern, handler);
     }
+  }
+
+  protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
+    EndpointMapping endpointMapping = context.getAnnotationOnBean(
+            definition.getName(), EndpointMapping.class);
+
+    return endpointMapping.value();
   }
 
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {
@@ -163,7 +171,7 @@ public class WebSocketHandlerRegistry
    */
   @Override
   protected Object lookupInternal(RequestContext context) {
-    final Object handler = super.lookupInternal(context);
+    Object handler = super.lookupInternal(context);
     if (handler != null) {
       context.setAttribute(WebSocketSession.PATH_MATCHER, getPathMatcher());
     }
