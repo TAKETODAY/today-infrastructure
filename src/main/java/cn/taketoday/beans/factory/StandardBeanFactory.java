@@ -19,20 +19,30 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -123,15 +133,28 @@ public class StandardBeanFactory
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
     BeanDefinition def = getBeanDefinition(createBeanName(beanClass));
-    if (def != null && def.isAssignableTo(beanClass)) {
-      return def;
+    if (def != null) {
+      if (isAssignableTo(def, beanClass)) {
+        return def;
+      }
     }
-    for (BeanDefinition definition : getBeanDefinitions().values()) {
-      if (definition.isAssignableTo(beanClass)) {
-        return definition;
+
+    for (BeanDefinition definition : beanDefinitionMap.values()) {
+      if (isAssignableTo(definition, beanClass)) {
+        return def;
       }
     }
     return null;
+  }
+
+  private boolean isAssignableTo(BeanDefinition definition, Class<?> beanClass) {
+    if (definition.hasBeanClass()) {
+      return definition.isAssignableTo(beanClass);
+    }
+    else {
+      Class<?> candidateClass = resolveBeanClass(definition);
+      return candidateClass != null && beanClass.isAssignableFrom(candidateClass);
+    }
   }
 
   @Override
@@ -248,13 +271,13 @@ public class StandardBeanFactory
 
     def.validate();
     String nameToUse = name;
-    Class<?> beanClass = def.getBeanClass();
     BeanDefinition existBeanDef = getBeanDefinition(name);
 
     if (existBeanDef != null && !def.hasAttribute(MissingBean.MissingBeanMetadata)) {
       // has same name
-      Class<?> existClass = existBeanDef.getBeanClass();
-      if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
+      String beanClassName = def.getBeanClassName();
+      if (Objects.equals(existBeanDef.getBeanClassName(), beanClassName)
+              && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
         return null; // ignore registering
       }
 
@@ -272,13 +295,14 @@ public class StandardBeanFactory
 
       log.info("=====================|repeat bean definition START|=====================");
       log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
-      if (beanClass == existClass) {
-        log.warn("They have same bean class: [{}]. We will override it.", beanClass);
+      if (Objects.equals(existBeanDef.getBeanClassName(), beanClassName)) {
+        log.warn("They have same bean class: [{}]. We will override it.", beanClassName);
       }
       else {
-        nameToUse = beanClass.getName();
+        nameToUse = beanClassName;
         def.setName(nameToUse);
-        log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.", beanClass);
+        log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.",
+                 beanClassName);
         log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
       }
       log.info("======================|END|======================");
@@ -328,6 +352,98 @@ public class StandardBeanFactory
    */
   protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
 
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of BeanFactory interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public Map<String, Object> getBeansOfAnnotation(
+          Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+    Assert.notNull(annotationType, "annotationType must not be null");
+
+    Set<String> beanNames = getBeanNamesForAnnotation(annotationType);
+    Map<String, Object> result = CollectionUtils.newLinkedHashMap(beanNames.size());
+    for (String beanName : beanNames) {
+      Object beanInstance = getBean(beanName);
+      result.put(beanName, beanInstance);
+    }
+    return result;
+  }
+
+  @Override
+  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+    Assert.notNull(annotationType, "annotationType must not be null");
+    LinkedHashSet<String> names = new LinkedHashSet<>();
+
+    for (String beanName : beanDefinitionNames) {
+      BeanDefinition bd = beanDefinitionMap.get(beanName);
+      if (bd != null && !bd.isAbstract() && getMergedAnnotationOnBean(beanName, annotationType).isPresent()) {
+        names.add(beanName);
+      }
+    }
+
+    for (String beanName : getSingletonNames()) {
+      if (!names.contains(beanName) && getMergedAnnotationOnBean(beanName, annotationType).isPresent()) {
+        names.add(beanName);
+      }
+    }
+
+    return names;
+  }
+
+  @Override
+  public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
+    return getMergedAnnotationOnBean(beanName, annotationType)
+            .synthesize(MergedAnnotation::isPresent).orElse(null);
+  }
+
+  @Override
+  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(
+          String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
+    return findMergedAnnotationOnBean(beanName, annotationType);
+  }
+
+  private <A extends Annotation> MergedAnnotation<A> findMergedAnnotationOnBean(
+          String beanName, Class<A> annotationType) {
+
+    Class<?> beanType = getType(beanName);
+    if (beanType != null) {
+      MergedAnnotation<A> annotation =
+              MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+
+    if (containsBeanDefinition(beanName)) {
+      BeanDefinition definition = beanDefinitionMap.get(beanName);
+      if (definition instanceof FactoryMethodBeanDefinition) {
+        // Check annotations declared on factory method, if any.
+        Method factoryMethod = ((FactoryMethodBeanDefinition) definition).getFactoryMethod();
+        if (factoryMethod != null) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+      }
+
+      // Check raw bean class, e.g. in case of a proxy.
+      if (definition.hasBeanClass()) {
+        Class<?> beanClass = definition.getBeanClass();
+        if (beanClass != beanType) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+      }
+    }
+    return MergedAnnotation.missing();
   }
 
   //---------------------------------------------------------------------

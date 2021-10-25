@@ -139,21 +139,6 @@ public class FactoryBeanDefinition<T>
   //---------------------------------------------------------------------
 
   @Override
-  public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-    return factoryDef.getAnnotation(annotationClass);
-  }
-
-  @Override
-  public Annotation[] getAnnotations() {
-    return factoryDef.getAnnotations();
-  }
-
-  @Override
-  public Annotation[] getDeclaredAnnotations() {
-    return factoryDef.getDeclaredAnnotations();
-  }
-
-  @Override
   public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
     return factoryDef.getPropertyValue(name);
   }

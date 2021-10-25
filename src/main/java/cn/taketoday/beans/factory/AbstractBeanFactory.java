@@ -48,7 +48,6 @@ import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
@@ -216,59 +215,6 @@ public abstract class AbstractBeanFactory
   public <T> T getBean(String name, Class<T> requiredType) {
     Object bean = getBean(name);
     return requiredType.isInstance(bean) ? (T) bean : null;
-  }
-
-  @Override
-  public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
-    return findMergedAnnotationOnBean(beanName, annotationType)
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
-  }
-
-  @Override
-  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(
-          String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
-    return findMergedAnnotationOnBean(beanName, annotationType);
-  }
-
-  private <A extends Annotation> MergedAnnotation<A> findMergedAnnotationOnBean(
-          String beanName, Class<A> annotationType) {
-
-    Class<?> beanType = getType(beanName);
-    if (beanType != null) {
-      MergedAnnotation<A> annotation =
-              MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-      if (annotation.isPresent()) {
-        return annotation;
-      }
-    }
-
-    if (containsBeanDefinition(beanName)) {
-      BeanDefinition bd = getBeanDefinition(beanName);
-      if (bd instanceof FactoryMethodBeanDefinition) {
-        // Check annotations declared on factory method, if any.
-        Method factoryMethod = ((FactoryMethodBeanDefinition) bd).getFactoryMethod();
-        if (factoryMethod != null) {
-          MergedAnnotation<A> annotation =
-                  MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-        }
-      }
-
-      // Check raw bean class, e.g. in case of a proxy.
-      if (bd.hasBeanClass()) {
-        Class<?> beanClass = bd.getBeanClass();
-        if (beanClass != beanType) {
-          MergedAnnotation<A> annotation =
-                  MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-        }
-      }
-    }
-    return MergedAnnotation.missing();
   }
 
   @Override
@@ -1222,50 +1168,6 @@ public abstract class AbstractBeanFactory
       }
     }
     return beanNames;
-  }
-
-  @Override
-  public Map<String, Object> getBeansOfAnnotation(
-          Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
-    Assert.notNull(annotationType, "annotationType must not be null");
-
-    HashMap<String, Object> beans = new HashMap<>();
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if ((includeNonSingletons || def.isSingleton()) && def.isAnnotationPresent(annotationType)) {
-        Object bean = getBean(def);
-        if (bean != null) {
-          beans.put(entry.getKey(), bean);
-        }
-      }
-    }
-    return beans;
-  }
-
-  @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
-    Assert.notNull(annotationType, "annotationType must not be null");
-
-    LinkedHashSet<String> names = new LinkedHashSet<>();
-
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (def.isAnnotationPresent(annotationType)) {
-        names.add(entry.getKey());
-      }
-    }
-
-    HashMap<String, Object> singletons = new HashMap<>(getSingletons());
-    for (Entry<String, Object> entry : singletons.entrySet()) {
-      String key = entry.getKey();
-      if (!names.contains(key)) {
-        Object value = entry.getValue();
-        if (value != null && AnnotationUtils.isPresent(value.getClass(), annotationType)) {
-          names.add(key);
-        }
-      }
-    }
-    return names;
   }
 
   //---------------------------------------------------------------------
