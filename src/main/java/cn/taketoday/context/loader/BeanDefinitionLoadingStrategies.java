@@ -36,7 +36,7 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0
  */
 public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStrategy {
-  private final ArrayList<BeanDefinitionLoadingStrategy> creationStrategies = new ArrayList<>();
+  private final ArrayList<BeanDefinitionLoadingStrategy> loadingStrategies = new ArrayList<>();
 
   public BeanDefinitionLoadingStrategies() {
     TodayStrategies detector = TodayStrategies.getDetector();
@@ -49,7 +49,7 @@ public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStr
   public Set<BeanDefinition> loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
-    for (BeanDefinitionLoadingStrategy strategy : creationStrategies) {
+    for (BeanDefinitionLoadingStrategy strategy : loadingStrategies) {
       Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(metadata, loadingContext);
       if (CollectionUtils.isNotEmpty(beanDefinitions)) {
         definitions.addAll(beanDefinitions);
@@ -59,22 +59,22 @@ public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStr
   }
 
   public void addStrategies(@Nullable BeanDefinitionLoadingStrategy... strategies) {
-    CollectionUtils.addAll(creationStrategies, strategies);
-    creationStrategies.trimToSize();
+    CollectionUtils.addAll(loadingStrategies, strategies);
+    loadingStrategies.trimToSize();
   }
 
   public void addStrategies(@Nullable List<BeanDefinitionLoadingStrategy> strategies) {
-    CollectionUtils.addAll(creationStrategies, strategies);
-    creationStrategies.trimToSize();
+    CollectionUtils.addAll(loadingStrategies, strategies);
+    loadingStrategies.trimToSize();
   }
 
   public void setStrategies(@Nullable BeanDefinitionLoadingStrategy... strategies) {
-    creationStrategies.clear();
+    loadingStrategies.clear();
     addStrategies(strategies);
   }
 
   public void setStrategies(@Nullable List<BeanDefinitionLoadingStrategy> strategies) {
-    creationStrategies.clear();
+    loadingStrategies.clear();
     addStrategies(strategies);
   }
 

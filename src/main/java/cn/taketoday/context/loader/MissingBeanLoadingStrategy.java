@@ -20,14 +20,15 @@
 
 package cn.taketoday.context.loader;
 
-import java.util.Set;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/19 22:42
@@ -36,13 +37,9 @@ import cn.taketoday.logging.LoggerFactory;
  */
 public class MissingBeanLoadingStrategy implements BeanDefinitionLoadingStrategy {
   private static final Logger log = LoggerFactory.getLogger(MissingBeanLoadingStrategy.class);
-  private final MissingBeanRegistry missingBeanRegistry;
-
-  public MissingBeanLoadingStrategy(MissingBeanRegistry missingBeanRegistry) {
-    this.missingBeanRegistry = missingBeanRegistry;
-  }
 
   @Override
+  @Nullable
   public Set<BeanDefinition> loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     if (metadata.getAnnotationMetadata().isAbstract()) {
@@ -51,7 +48,7 @@ public class MissingBeanLoadingStrategy implements BeanDefinitionLoadingStrategy
     // just collect scanning missing-bean info
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
     if (annotationMetadata.hasAnnotation(MissingBean.class.getName())) {
-      missingBeanRegistry.registerMissing(metadata);
+      loadingContext.getMissingBeanRegistry().registerMissing(metadata);
     }
     return null;
   }
