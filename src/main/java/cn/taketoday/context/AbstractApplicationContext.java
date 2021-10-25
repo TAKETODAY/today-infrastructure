@@ -353,24 +353,21 @@ public abstract class AbstractApplicationContext
    */
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.info("Registering framework beans");
-    ExpressionProcessor elProcessor = beanFactory.getBean(ExpressionProcessor.class);
-    if (elProcessor == null) {
-      // create shared elProcessor to singletons
-      ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-      ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
-      elContext.defineBean(ExpressionEvaluator.ENV, getEnvironment()); // @since 2.1.6
+    // create shared elProcessor to singletons
+    ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+    ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
+    elContext.defineBean(ExpressionEvaluator.ENV, getEnvironment()); // @since 2.1.6
 
-      ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
-      elProcessor = new ExpressionProcessor(elManager);
+    ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
+    ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);
 
-      // register ELManager @since 2.1.5
-      // fix @since 2.1.6 elManager my be null
-      beanFactory.registerSingleton(elManager);
+    // register ELManager @since 2.1.5
+    // fix @since 2.1.6 elManager my be null
+    beanFactory.registerSingleton(elManager);
 
-      beanFactory.registerSingleton(elContext);
-      beanFactory.registerSingleton(exprFactory);
-      beanFactory.registerSingleton(elProcessor);
-    }
+    beanFactory.registerSingleton(elContext);
+    beanFactory.registerSingleton(exprFactory);
+    beanFactory.registerSingleton(elProcessor);
 
     // register Environment
     beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
