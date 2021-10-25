@@ -70,6 +70,6 @@ public @interface Prototype {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String[] destroyMethods() default {};
+  String destroyMethod() default Constant.BLANK;
 
 }

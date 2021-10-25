@@ -19,14 +19,14 @@
  */
 package cn.taketoday.lang;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.Scope;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
 
 /**
  * This annotation indicates that an annotated element is a bean component in
@@ -45,7 +45,7 @@ public @interface Component {
    *
    * @return the suggested component name, if any (or empty String otherwise)
    */
-  String[] value() default {};
+  String[] value() default { };
 
   /**
    * Specifies the name of the scope to use for the annotated component/bean.
@@ -65,7 +65,7 @@ public @interface Component {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default {};
+  String[] initMethods() default { };
 
   /**
    * The optional names of a method to call on the bean instance upon closing the
@@ -80,5 +80,5 @@ public @interface Component {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String[] destroyMethods() default {};
+  String destroyMethod() default Constant.BLANK;
 }

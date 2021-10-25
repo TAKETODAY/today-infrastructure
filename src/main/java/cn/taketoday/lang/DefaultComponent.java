@@ -35,7 +35,7 @@ public final class DefaultComponent implements Component {
   private String scope = Scope.SINGLETON;
   private String[] value = Constant.EMPTY_STRING_ARRAY;
   private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
-  private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
+  private String destroyMethod ;
 
   @Override
   public Class<? extends Annotation> annotationType() {
@@ -58,13 +58,13 @@ public final class DefaultComponent implements Component {
   }
 
   @Override
-  public String[] destroyMethods() {
-    return destroyMethods;
+  public String destroyMethod() {
+    return destroyMethod;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(scope, value, initMethods, destroyMethods);
+    return Objects.hash(scope, value, initMethods, destroyMethod);
   }
 
   @Override
@@ -77,7 +77,7 @@ public final class DefaultComponent implements Component {
     return Objects.equals(scope, that.scope())
             && Arrays.equals(value, that.value())
             && Arrays.equals(initMethods, that.initMethods())
-            && Arrays.equals(destroyMethods, that.destroyMethods());
+            && Objects.equals(destroyMethod, that.destroyMethod());
   }
 
   @Override
@@ -92,7 +92,7 @@ public final class DefaultComponent implements Component {
             .append(", initMethods=")//
             .append(Arrays.toString(initMethods))//
             .append(", destroyMethods=")//
-            .append(Arrays.toString(destroyMethods))//
+            .append(destroyMethod)//
             .append(")")//
             .toString();
   }
