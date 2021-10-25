@@ -19,7 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,9 +47,6 @@ import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
@@ -1080,9 +1076,16 @@ public abstract class AbstractBeanFactory
    * or just singletons (also applies to FactoryBeans)
    * @return the bean matching the given object type (including subclasses)
    */
-  static boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
-    return (includeNonSingletons || def.isSingleton())
-            && (requiredType == null || def.isAssignableTo(requiredType));
+  boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
+    if (!(includeNonSingletons || def.isSingleton())) {
+      return false;
+    }
+
+    if (requiredType != null) {
+      Class<?> type = getType(def.getName());
+      return requiredType.isAssignableFrom(type);
+    }
+    return true;
   }
 
   @Override
