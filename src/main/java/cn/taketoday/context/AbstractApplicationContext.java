@@ -19,6 +19,15 @@
  */
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -29,7 +38,6 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
@@ -54,6 +62,7 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -69,15 +78,6 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -324,8 +324,21 @@ public abstract class AbstractApplicationContext
     getBeanFactory().preInitialization();
   }
 
-  public void prepareBeanFactory() {
+  public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
     log.info("Preparing internal bean-factory");
+    // Tell the internal bean factory to use the context's class loader etc.
+    beanFactory.setBeanClassLoader(getClassLoader());
+
+    // register bean post processors
+    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+    beanFactory.addBeanPostProcessor(new AutowiredPropertyValuesBeanPostProcessor(this));
+
+    // BeanFactory interface not registered as resolvable type in a plain factory.
+    // MessageSource registered (and found for autowiring) as a bean.
+    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerResolvableDependency(ResourceLoader.class, this);
+    beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
   }
 
   /**
@@ -361,49 +374,61 @@ public abstract class AbstractApplicationContext
 
     // register Environment
     beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
-    // register ApplicationContext
-    beanFactory.registerSingleton(createBeanName(ApplicationContext.class), this);
-    // register BeanFactory @since 2.1.7
-    beanFactory.registerSingleton(createBeanName(BeanFactory.class), beanFactory);
     // @since 4.0 ArgumentsResolver
     beanFactory.registerSingleton(getArgumentsResolver());
-
   }
 
   public String createBeanName(Class<?> clazz) {
     return BeanDefinitionBuilder.defaultBeanName(clazz);
   }
 
-  /**
-   * Process after {@link #prepareBeanFactory}
-   */
-  protected void postProcessBeanFactory() {
-    registerBeanFactoryPostProcessor();
-    AbstractBeanFactory beanFactory = getBeanFactory();
+  // post-processor
 
+  /**
+   * Modify the application context's internal bean factory after its standard
+   * initialization. All bean definitions will have been loaded, but no beans
+   * will have been instantiated yet. This allows for registering special
+   * BeanPostProcessors etc in certain ApplicationContext implementations.
+   *
+   * @param beanFactory the bean factory used by the application context
+   */
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    log.info("Loading BeanFactoryPostProcessor.");
+    List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
+    if (!postProcessors.isEmpty()) {
+      getFactoryPostProcessors().addAll(postProcessors);
+      AnnotationAwareOrderComparator.sort(factoryPostProcessors);
+    }
+  }
+
+  /**
+   * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
+   * respecting explicit order if given.
+   * <p>Must be called before singleton instantiation.
+   */
+  protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
     if (CollectionUtils.isNotEmpty(factoryPostProcessors)) {
       for (BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
         postProcessor.postProcessBeanFactory(beanFactory);
       }
     }
-
-    // register bean post processors
-    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
-    beanFactory.addBeanPostProcessor(new AutowiredPropertyValuesBeanPostProcessor(this));
-
-    beanFactory.registerBeanPostProcessors();
   }
 
   /**
-   * Register {@link BeanFactoryPostProcessor}s
+   * Instantiate and register all BeanPostProcessor beans,
+   * respecting explicit order if given.
+   * <p>Must be called before any instantiation of application beans.
    */
-  public void registerBeanFactoryPostProcessor() {
-    log.info("Loading BeanFactoryPostProcessor.");
-
-    List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
-    if (!postProcessors.isEmpty()) {
-      getFactoryPostProcessors().addAll(postProcessors);
-      AnnotationAwareOrderComparator.sort(factoryPostProcessors);
+  protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
+    log.info("Loading BeanPostProcessor.");
+    List<BeanPostProcessor> postProcessors = beanFactory.getBeans(BeanPostProcessor.class);
+    if (beanFactory instanceof AbstractBeanFactory) {
+      ((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors);
+    }
+    else {
+      for (BeanPostProcessor postProcessor : postProcessors) {
+        beanFactory.addBeanPostProcessor(postProcessor);
+      }
     }
   }
 
@@ -418,13 +443,21 @@ public abstract class AbstractApplicationContext
       // Prepare refresh
       prepareRefresh();
 
+      ConfigurableBeanFactory beanFactory = getBeanFactory();
+
       // register framework beans
-      registerFrameworkComponents();
+      registerFrameworkComponents(beanFactory);
 
       // Prepare BeanFactory
-      prepareBeanFactory();
+      prepareBeanFactory(beanFactory);
 
-      postProcessBeanFactory();
+      postProcessBeanFactory(beanFactory);
+
+      // Invoke factory processors registered as beans in the context.
+      invokeBeanFactoryPostProcessors(beanFactory);
+
+      // Register bean processors that intercept bean creation.
+      registerBeanPostProcessors(beanFactory);
 
       registerApplicationListeners();
 
@@ -497,7 +530,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.
@@ -884,21 +917,13 @@ public abstract class AbstractApplicationContext
       addApplicationListener(beanName);
     }
 
-    for (BeanDefinition definition : beanFactory.getBeanDefinitions().values()) {
-      if (AnnotationUtils.isPresent(definition, EventListener.class)) {
-        Object listener;
-        if (definition.isSingleton()) {
-          listener = getBean(definition);
-        }
-        else {
-          listener = Prototypes.newProxyInstance(definition, beanFactory);
-        }
-
-        Assert.isInstanceOf(
-                ApplicationListener.class, listener, "@EventListener bean must be a 'ApplicationListener'");
-        addApplicationListener((ApplicationListener<?>) listener);
+    Set<String> beanNames = beanFactory.getBeanNamesForAnnotation(EventListener.class);
+    for (String beanName : beanNames) {
+      if (!beanNamesOfType.contains(beanName)) {
+        addApplicationListener(beanName);
       }
     }
+
     // fixed #9 Some listener in a jar can't be load
     log.info("Loading META-INF/listeners");
 

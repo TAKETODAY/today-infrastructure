@@ -24,6 +24,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ConfigurationBeanReader;
@@ -135,10 +136,10 @@ public class StandardApplicationContext
   //---------------------------------------------------------------------
 
   @Override
-  public void prepareBeanFactory() {
-    super.prepareBeanFactory();
+  public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
+    super.prepareBeanFactory(beanFactory);
     List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
-            BeanDefinitionLoader.class, this);
+            BeanDefinitionLoader.class, beanFactory);
 
     DefinitionLoadingContext loadingContext = loadingContext();
     for (BeanDefinitionLoader loader : strategies) {
@@ -147,10 +148,9 @@ public class StandardApplicationContext
   }
 
   @Override
-  public void registerBeanFactoryPostProcessor() {
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     addFactoryPostProcessors(new ConfigurationBeanReader(loadingContext()));
-
-    super.registerBeanFactoryPostProcessor();
+    super.postProcessBeanFactory(beanFactory);
   }
 
   @Override

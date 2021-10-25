@@ -755,15 +755,6 @@ public abstract class AbstractBeanFactory
   }
 
   /**
-   * Register {@link BeanPostProcessor}s
-   */
-  public void registerBeanPostProcessors() {
-    log.info("Loading BeanPostProcessor.");
-    postProcessors.addAll(getBeans(BeanPostProcessor.class));
-    AnnotationAwareOrderComparator.sort(postProcessors);
-  }
-
-  /**
    * Determine whether the given bean requires destruction on shutdown.
    * <p>The default implementation checks the DisposableBean interface as well as
    * a specified destroy method and registered DestructionAwareBeanPostProcessors.
@@ -1450,6 +1441,7 @@ public abstract class AbstractBeanFactory
   public void addBeanPostProcessors(Collection<? extends BeanPostProcessor> beanPostProcessors) {
     this.postProcessors.removeAll(beanPostProcessors);
     this.postProcessors.addAll(beanPostProcessors);
+    AnnotationAwareOrderComparator.sort(postProcessors);
   }
 
   @Override
