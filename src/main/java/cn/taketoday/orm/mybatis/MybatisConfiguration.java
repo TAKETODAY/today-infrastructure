@@ -19,21 +19,6 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import org.apache.ibatis.builder.xml.XMLConfigBuilder;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
-import org.apache.ibatis.transaction.TransactionFactory;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
@@ -56,6 +41,19 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.transaction.TransactionFactory;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author TODAY 2018-10-05 19:03
@@ -85,7 +83,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
       log.debug("Found Mapper: [{}]", className);
       String[] names = attributes.getStringArray(Constant.VALUE);
       String name = ObjectUtils.isNotEmpty(names)
-                    ? names[0] : loadingContext.createBeanName(className);
+              ? names[0] : loadingContext.createBeanName(className);
 
       return Collections.singleton(createBeanDefinition(className, name));
     }
@@ -96,7 +94,6 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
     DefaultBeanDefinition ret = new DefaultBeanDefinition(name, className);
     ret.setSynthetic(true);
     ret.setInitMethods(initMethods);
-    ret.setDestroyMethod(Constant.EMPTY_STRING_ARRAY);
     ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
     return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(className));
   }
