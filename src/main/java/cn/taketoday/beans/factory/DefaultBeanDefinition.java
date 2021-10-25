@@ -77,7 +77,7 @@ public class DefaultBeanDefinition
   /**
    * @since 2.3.3
    */
-  private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
+  private String destroyMethod;
 
   /**
    * <p>
@@ -287,8 +287,8 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public String[] getDestroyMethods() {
-    return destroyMethods;
+  public String getDestroyMethod() {
+    return destroyMethod;
   }
 
   @Nullable
@@ -357,8 +357,8 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public void setDestroyMethods(String... destroyMethods) {
-    this.destroyMethods = destroyMethods;
+  public void setDestroyMethod(String destroyMethod) {
+    this.destroyMethod = destroyMethod;
   }
 
   @Override
@@ -556,7 +556,7 @@ public class DefaultBeanDefinition
 
     setBeanClass(newDef.getBeanClass());
     setFactoryBean(newDef.isFactoryBean());
-    setDestroyMethods(newDef.getDestroyMethods());
+    setDestroyMethod(newDef.getDestroyMethod());
     setPropertyValues(newDef.getPropertyValues());
 
     setLazyInit(newDef.isLazyInit());
@@ -710,7 +710,7 @@ public class DefaultBeanDefinition
               && Objects.equals(scope, other.scope)
               && Objects.equals(childDef, other.childDef)
               && Objects.deepEquals(initMethods, other.initMethods)
-              && Objects.deepEquals(destroyMethods, other.destroyMethods)
+              && Objects.deepEquals(destroyMethod, other.destroyMethod)
               && Objects.equals(propertyValues, other.propertyValues);
     }
     return false;
@@ -732,7 +732,7 @@ public class DefaultBeanDefinition
     sb.append("; initialized=").append(this.initialized);
     sb.append("; factoryBean=").append(this.factoryBean);
     sb.append("; initMethods=").append(Arrays.toString(initMethods));
-    sb.append("; destroyMethods=").append(Arrays.toString(destroyMethods));
+    sb.append("; destroyMethod=").append(destroyMethod);
     sb.append("; child=").append(this.childDef);
     return sb.toString();
   }

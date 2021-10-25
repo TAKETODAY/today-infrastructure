@@ -144,7 +144,7 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
     sb.append("; factoryMethod=").append(this.factoryMethod);
     sb.append("; declaringName=").append(this.declaringName);
     sb.append("; initMethods=").append(Arrays.toString(getInitMethods()));
-    sb.append("; destroyMethods=").append(Arrays.toString(getDestroyMethods()));
+    sb.append("; destroyMethod=").append(getDestroyMethod());
     sb.append("; child=").append(getChild());
     return sb.toString();
   }

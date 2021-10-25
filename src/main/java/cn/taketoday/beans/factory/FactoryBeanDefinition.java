@@ -184,8 +184,8 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public String[] getDestroyMethods() {
-    return factoryDef.getDestroyMethods();
+  public String getDestroyMethod() {
+    return factoryDef.getDestroyMethod();
   }
 
   @Override
@@ -229,8 +229,8 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public void setDestroyMethods(String... destroyMethods) {
-    factoryDef.setDestroyMethods(destroyMethods);
+  public void setDestroyMethod(String destroyMethod) {
+    factoryDef.setDestroyMethod(destroyMethod);
   }
 
   @Override

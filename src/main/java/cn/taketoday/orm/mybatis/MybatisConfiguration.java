@@ -96,7 +96,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
     DefaultBeanDefinition ret = new DefaultBeanDefinition(name, className);
     ret.setSynthetic(true);
     ret.setInitMethods(initMethods);
-    ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
+    ret.setDestroyMethod(Constant.EMPTY_STRING_ARRAY);
     ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
     return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(className));
   }

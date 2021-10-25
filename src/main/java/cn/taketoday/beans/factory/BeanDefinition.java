@@ -106,7 +106,8 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *
    * @return all the destroy methods name, never be null
    */
-  String[] getDestroyMethods();
+  @Nullable
+  String getDestroyMethod();
 
   /**
    * Get Bean {@link Scope}
@@ -211,9 +212,9 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   /**
    * Apply bean' destroy {@link Method}s
    *
-   * @param destroyMethods The array of the bean's destroy {@link Method}s
+   * @param destroyMethod The array of the bean's destroy {@link Method}s
    */
-  void setDestroyMethods(String... destroyMethods);
+  void setDestroyMethod(String destroyMethod);
 
   /**
    * Indicates that If the bean is a {@link FactoryBean}.
@@ -305,9 +306,6 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
     }
     if (getBeanClass() == null) {
       throw new BeanDefinitionValidationException("Definition's bean class can't be null");
-    }
-    if (getDestroyMethods() == null) {
-      setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
     }
     if (getInitMethods() == null) {
       setInitMethods(EMPTY_METHOD);

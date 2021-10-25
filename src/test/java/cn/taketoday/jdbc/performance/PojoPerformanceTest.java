@@ -467,7 +467,7 @@ public class PojoPerformanceTest {
   static class DataSourceConfig {
 
     @Primary
-    @Singleton(destroyMethods = "close")
+    @Singleton(destroyMethod = "close")
     public DataSource h2DataSource() {
       final HikariDataSource hikariDataSource = new HikariDataSource();
       hikariDataSource.setPassword(DB_PASSWORD);

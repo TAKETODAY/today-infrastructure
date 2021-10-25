@@ -93,5 +93,5 @@ public @interface MissingBean {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String[] destroyMethods() default {};
+  String[] destroyMethod() default {};
 }

@@ -80,7 +80,7 @@ public class BeanDefinitionBuilder {
   /**
    * @since 2.3.3
    */
-  private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
+  private String destroyMethod;
 
   /**
    * Mark as a {@link cn.taketoday.beans.FactoryBean}.
@@ -205,8 +205,8 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
-  public BeanDefinitionBuilder destroyMethods(String... destroyMethods) {
-    this.destroyMethods = destroyMethods;
+  public BeanDefinitionBuilder destroyMethod(String destroyMethod) {
+    this.destroyMethod = destroyMethod;
     return this;
   }
 
@@ -231,13 +231,13 @@ public class BeanDefinitionBuilder {
    * @param component AnnotationAttributes
    * @see #scope(String)
    * @see #initMethods(String...)
-   * @see #destroyMethods(String...)
+   * @see #destroyMethod(String)
    */
   public void attributes(AnnotationAttributes component) {
     if (CollectionUtils.isNotEmpty(component)) {
       this.scope = component.getString(BeanDefinition.SCOPE);
       this.initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
-      this.destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
+      this.destroyMethod = component.getString(BeanDefinition.DESTROY_METHODS);
     }
   }
 
@@ -246,7 +246,7 @@ public class BeanDefinitionBuilder {
   public void reset() {
     this.role = BeanDefinition.ROLE_APPLICATION;
     this.initMethods = Constant.EMPTY_STRING_ARRAY;
-    this.destroyMethods = Constant.EMPTY_STRING_ARRAY;
+    this.destroyMethod = null;
 
     this.name = null;
     this.scope = null;
@@ -268,7 +268,7 @@ public class BeanDefinitionBuilder {
   public void resetAttributes() {
     this.scope = null;
     this.initMethods = Constant.EMPTY_STRING_ARRAY;
-    this.destroyMethods = Constant.EMPTY_STRING_ARRAY;
+    this.destroyMethod = null;
   }
 
   // getter
@@ -310,7 +310,7 @@ public class BeanDefinitionBuilder {
     definition.setSynthetic(synthetic);
     definition.setFactoryBean(factoryBean);
     definition.setSupplier(instanceSupplier);
-    definition.setDestroyMethods(destroyMethods);
+    definition.setDestroyMethod(destroyMethod);
 
     return definition;
   }
@@ -476,12 +476,11 @@ public class BeanDefinitionBuilder {
 
     DefaultBeanDefinition def = new DefaultBeanDefinition(name, beanClass);
     if (attributes == null) {
-      def.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
       def.setInitMethods(computeInitMethod(null, beanClass));
     }
     else {
       def.setScope(attributes.getString(BeanDefinition.SCOPE));
-      def.setDestroyMethods(attributes.getStringArray(BeanDefinition.DESTROY_METHODS));
+      def.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHODS));
       def.setInitMethods(computeInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
     }
     return def;

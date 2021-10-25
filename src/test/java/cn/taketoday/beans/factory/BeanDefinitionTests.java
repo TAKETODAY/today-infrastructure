@@ -56,7 +56,7 @@ class BeanDefinitionTests {
 
       BeanDefinition beanDefinition = new DefaultBeanDefinition("testBean", BeanDefinitionTests.class);
 
-      beanDefinition.setDestroyMethods("destory");
+      beanDefinition.setDestroyMethod("destory");
       beanDefinition.setInitMethods(BeanDefinitionTests.class.getDeclaredMethod("init"));
 
       Field test = BeanDefinitionTests.class.getDeclaredField("test");

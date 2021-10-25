@@ -56,7 +56,7 @@ class BeanDefinitionBuilderTests {
       assert beanDefinitions.size() == 1;
 
       final BeanDefinition beanDefinition = beanDefinitions.get(0);
-      beanDefinition.setDestroyMethods(null);
+      beanDefinition.setDestroyMethod(null);
       beanDefinition.setInitMethods((Method[]) null);
       beanDefinition.setScope(null);
       beanDefinition.setPropertyValues();
