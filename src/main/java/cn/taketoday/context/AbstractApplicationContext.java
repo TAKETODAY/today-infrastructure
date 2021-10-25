@@ -19,17 +19,7 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.DisposableBeanAdapter;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -79,7 +69,14 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.util.ExceptionUtils.unwrapThrowable;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -499,7 +496,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.
@@ -557,34 +554,7 @@ public abstract class AbstractApplicationContext
    * @since 4.0
    */
   protected void destroyBeans() {
-    AbstractBeanFactory beanFactory = getBeanFactory();
-//    beanFactory.destroySingletons();
-
-    for (final String name : beanFactory.getBeanDefinitions().keySet()) {
-      try {
-        beanFactory.destroyBean(name);
-        // remove bean in this context
-        beanFactory.removeBean(name);
-      }
-      catch (final Throwable e) {
-        log.error(e.getMessage(), e);
-      }
-    }
-    final Map<String, Object> singletons = beanFactory.getSingletons();
-    for (final Map.Entry<String, Object> entry : singletons.entrySet()) {
-      try {
-        DisposableBeanAdapter.destroyBean(entry.getValue());
-      }
-      catch (Throwable e) {
-        e = unwrapThrowable(e);
-        log.error(e.getMessage(), e);
-      }
-    }
-    // remove bean in this context
-    singletons.clear();
-
-    beanFactory.getPostProcessors().clear();
-
+    getBeanFactory().destroySingletons();
   }
 
   @NonNull
