@@ -20,6 +20,13 @@
 
 package cn.taketoday.aop.support.annotation;
 
+import org.aopalliance.intercept.MethodInterceptor;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Set;
+
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
@@ -32,26 +39,19 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import org.aopalliance.intercept.MethodInterceptor;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Aspect annotated aspect or MethodInterceptor ProxyCreator
@@ -60,63 +60,21 @@ import java.util.Set;
  * @see Aspect
  * @since 3.0
  */
-public class AspectAutoProxyCreator
-        extends DefaultAutoProxyCreator implements ApplicationListener<ContextCloseEvent> {
+public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
   private static final long serialVersionUID = 1L;
-
-  private boolean aspectsLoaded;
-
-  private final List<BeanDefinition> aspectDefs = new ArrayList<>();
-
-  public void sortAspects() {
-    AnnotationAwareOrderComparator.sort(aspectDefs);
-  }
-
-  public boolean isAspectsLoaded() {
-    return aspectsLoaded;
-  }
-
-  public void setAspectsLoaded(boolean aspectsLoaded) {
-    this.aspectsLoaded = aspectsLoaded;
-  }
-
-  public void loadAspects(BeanFactory beanFactory) {
-    log.info("Loading aspect bean definitions");
-    setAspectsLoaded(true);
-
-    Set<String> aspectBeanNames = beanFactory.getBeanNamesForAnnotation(Aspect.class);
-    for (String name : aspectBeanNames) {
-      BeanDefinition beanDefinition = beanFactory.getBeanDefinition(name);
-      // fix use beanDefinition.getName()
-      String aspectName = beanDefinition.getName();
-      log.info("Found Aspect: [{}]", aspectName);
-      aspectDefs.add(beanDefinition);
-    }
-    sortAspects();
-  }
-
-  @Override
-  public void onApplicationEvent(ContextCloseEvent event) {
-    log.info("Removing aspects");
-
-    aspectDefs.clear();
-    setAspectsLoaded(false);
-  }
-
-  //
-  private void loadAspects() {
-    if (!aspectsLoaded) {
-      loadAspects(getBeanFactory());
-    }
-  }
 
   @Override
   protected void addCandidateAdvisors(List<Advisor> candidateAdvisors) {
     super.addCandidateAdvisors(candidateAdvisors);
-    loadAspects();
 
-    for (BeanDefinition aspectDef : aspectDefs) {
-      Class<?> aspectClass = aspectDef.getBeanClass();
+    BeanFactory beanFactory = getBeanFactory();
+    Set<String> aspectBeanNames = beanFactory.getBeanNamesForAnnotation(Aspect.class);
+    for (String name : aspectBeanNames) {
+      log.info("Found Aspect: [{}]", name);
+      Class<?> aspectClass = beanFactory.getType(name);
+      Assert.state(aspectClass != null, "Cannot determine bean type");
+      BeanDefinition aspectDef = beanFactory.getBeanDefinition(name);
+
       // around
       if (MethodInterceptor.class.isAssignableFrom(aspectClass)) {
         AnnotationAttributes[] adviceAttributes = getAdviceAttributes(aspectDef);
@@ -217,6 +175,11 @@ public class AspectAutoProxyCreator
       ObjectSupplier<MethodInterceptor> supplier = beanFactory.getObjectSupplier(interceptorDef);
       return new SuppliedMethodInterceptor(supplier); // lazy load or prototype
     }
+  }
+
+  private AnnotationAttributes[] getAdviceAttributes(Method aspectMethod) {
+    MergedAnnotations annotations = MergedAnnotations.from(aspectMethod);
+    return annotations.getAttributes(Advice.class);
   }
 
   private AnnotationAttributes[] getAdviceAttributes(BeanDefinition definition) {
