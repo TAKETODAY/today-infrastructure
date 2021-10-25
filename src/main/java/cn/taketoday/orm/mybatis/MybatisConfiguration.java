@@ -35,6 +35,7 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -67,6 +68,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
           BeanDefinitionBuilder.computeInitMethod(null, MapperFactoryBean.class);
 
   @Override
+  @Nullable
   public Set<BeanDefinition> loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     log.info("Loading Mybatis Mapper Bean Definitions");

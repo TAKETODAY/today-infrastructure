@@ -44,7 +44,7 @@ import cn.taketoday.util.StringUtils;
 public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   String SCOPE = "scope";
   String INIT_METHODS = "initMethods";
-  String DESTROY_METHODS = "destroyMethods";
+  String DESTROY_METHOD = "destroyMethod";
 
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
