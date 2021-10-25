@@ -431,7 +431,10 @@ public abstract class AbstractBeanFactory
     try {
       ClassLoader beanClassLoader = getBeanClassLoader();
       if (def instanceof DefaultBeanDefinition) {
-        return ((DefaultBeanDefinition) def).resolveBeanClass(beanClassLoader);
+        Class<?> beanClass = ((DefaultBeanDefinition) def).resolveBeanClass(beanClassLoader);
+        if (beanClass != null) {
+          return beanClass;
+        }
       }
       String beanClassName = def.getBeanClassName();
       return ClassUtils.forName(beanClassName, beanClassLoader);
@@ -1573,8 +1576,6 @@ public abstract class AbstractBeanFactory
       this.scopes.putAll(beanFactory.scopes);
       this.beanSupplier.putAll(beanFactory.beanSupplier);
       this.postProcessors.addAll(beanFactory.postProcessors);
-
-
 
       this.fullLifecycle = beanFactory.fullLifecycle;
       this.fullPrototype = beanFactory.fullPrototype;

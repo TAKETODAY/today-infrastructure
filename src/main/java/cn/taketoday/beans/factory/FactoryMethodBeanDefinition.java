@@ -24,12 +24,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.ResolvableType;
@@ -37,7 +32,6 @@ import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -178,40 +172,6 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
     return AnnotationUtils.isPresent(getFactoryMethod(), annotation) || super.isAnnotationPresent(annotation);
-  }
-
-  @Override
-  public Annotation[] getAnnotations() {
-    return mergeAnnotations(getFactoryMethod().getAnnotations(), super.getAnnotations());
-  }
-
-  @Override
-  public Annotation[] getDeclaredAnnotations() {
-    return mergeAnnotations(getFactoryMethod().getDeclaredAnnotations(), super.getDeclaredAnnotations());
-  }
-
-  protected Annotation[] mergeAnnotations(Annotation[] methodAnns, Annotation[] classAnns) {
-
-    if (ObjectUtils.isEmpty(methodAnns)) {
-      return classAnns;
-    }
-
-    if (ObjectUtils.isNotEmpty(classAnns)) {
-      Set<Annotation> rets = new HashSet<>();
-      Set<Class<?>> clazz = Stream.of(methodAnns)
-              .map(Annotation::annotationType)
-              .collect(Collectors.toSet());
-
-      Collections.addAll(rets, methodAnns);
-
-      for (Annotation annotation : classAnns) {
-        if (!clazz.contains(annotation.annotationType())) {
-          rets.add(annotation);
-        }
-      }
-      return rets.toArray(new Annotation[rets.size()]);
-    }
-    return methodAnns;
   }
 
 }
