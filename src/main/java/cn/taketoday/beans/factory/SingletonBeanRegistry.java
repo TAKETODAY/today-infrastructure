@@ -158,6 +158,6 @@ public interface SingletonBeanRegistry {
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionNames
    * @since 4.0
    */
-  Set<String> getSingletonNames();
+  String[] getSingletonNames();
 
 }

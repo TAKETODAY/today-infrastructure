@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import cn.taketoday.aop.DerivedTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,11 +45,33 @@ class DefaultSingletonBeanRegistryTests {
     assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
     assertThat(beanRegistry.getSingleton("tb2")).isSameAs(tb2);
     assertThat(beanRegistry.getSingletonCount()).isEqualTo(2);
-    Set<String> names = beanRegistry.getSingletonNames();
+    String[] names = beanRegistry.getSingletonNames();
     assertThat(names).hasSize(2).contains("tb", "tb2");
 
     assertThat(beanRegistry.getSingletonCount()).isEqualTo(2);
-    assertThat(beanRegistry.getSingletonNames().size()).isEqualTo(2);
+    assertThat(beanRegistry.getSingletonNames()).hasSize(2);
+  }
+
+  @Test
+  public void testDisposableBean() {
+    DefaultSingletonBeanRegistry beanRegistry = new DefaultSingletonBeanRegistry();
+
+    DerivedTestBean tb = new DerivedTestBean();
+    beanRegistry.registerSingleton("tb", tb);
+    beanRegistry.registerDisposableBean("tb", tb);
+    assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
+
+    assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
+    assertThat(beanRegistry.getSingletonCount()).isEqualTo(1);
+    String[] names = beanRegistry.getSingletonNames();
+    assertThat(names.length).isEqualTo(1);
+    assertThat(names[0]).isEqualTo("tb");
+    assertThat(tb.wasDestroyed()).isFalse();
+
+    beanRegistry.destroySingletons();
+    assertThat(beanRegistry.getSingletonCount()).isEqualTo(0);
+    assertThat(beanRegistry.getSingletonNames().length).isEqualTo(0);
+    assertThat(tb.wasDestroyed()).isTrue();
   }
 
 }

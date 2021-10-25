@@ -23,7 +23,6 @@ package cn.taketoday.beans.factory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.DisposableBean;
@@ -206,8 +205,8 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
   }
 
   @Override
-  public Set<String> getSingletonNames() {
-    return singletons.keySet();
+  public String[] getSingletonNames() {
+    return StringUtils.toStringArray(singletons.keySet());
   }
 
   /**
