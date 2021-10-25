@@ -49,12 +49,13 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
   @Override
   public WebSocketHandler build(
           BeanDefinition definition, WebApplicationContext context, AnnotationHandlerDelegate annotationHandler) {
-    final StandardAnnotationWebSocketDispatcher socketDispatcher
+    StandardAnnotationWebSocketDispatcher socketDispatcher
             = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
-    final ServerEndpoint serverEndpoint = definition.getAnnotation(ServerEndpoint.class);
+
+    ServerEndpoint serverEndpoint = context.getAnnotationOnBean(definition.getName(), ServerEndpoint.class);
     if (serverEndpoint != null) {
       ServerEndpointConfig.Configurator configuratorObject = null;
-      final Class<? extends ServerEndpointConfig.Configurator> configurator = serverEndpoint.configurator();
+      Class<? extends ServerEndpointConfig.Configurator> configurator = serverEndpoint.configurator();
       if (!configurator.equals(ServerEndpointConfig.Configurator.class)) {
         configuratorObject = BeanUtils.newInstance(configurator);
       }
