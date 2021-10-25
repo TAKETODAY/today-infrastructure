@@ -35,7 +35,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.Resource;
@@ -119,7 +118,9 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     if (hasAnnotation(metadataReader, ComponentScan.class)) {
 
       ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
-      AnnotationAttributes[] annotations = AnnotatedElementUtils.getMergedAttributesArray(definition, ComponentScan.class);
+
+      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+      AnnotationAttributes[] annotations = annotationMetadata.getAnnotations().getAttributes(ComponentScan.class);
 
       LinkedHashSet<String> basePackages = new LinkedHashSet<>();
       LinkedHashSet<String> patternLocations = new LinkedHashSet<>();
