@@ -338,7 +338,7 @@ public class StandardBeanFactory
             && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) {
       // Have a corresponding missed bean
       // copy all state
-      def.copy(missedDef);
+      def.copyFrom(missedDef);
       def.setName(name); // fix bean name update error
     }
     // nothing

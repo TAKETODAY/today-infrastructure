@@ -25,6 +25,8 @@ import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
+import java.util.Objects;
+
 /**
  * Extension of the {@link DefaultBeanDefinition} class, adding support
  * for annotation metadata exposed through the {@link AnnotatedBeanDefinition} interface.
@@ -93,4 +95,35 @@ public class DefaultAnnotatedBeanDefinition extends DefaultBeanDefinition implem
     return this.factoryMethodMetadata;
   }
 
+  @Override
+  public BeanDefinition cloneDefinition() {
+    DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(metadata);
+    definition.copyFrom(this);
+    return definition;
+  }
+
+  @Override
+  public void copyFrom(BeanDefinition from) {
+    super.copyFrom(from);
+    if (from instanceof AnnotatedBeanDefinition) {
+      this.factoryMethodMetadata = ((AnnotatedBeanDefinition) from).getFactoryMethodMetadata();
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+    DefaultAnnotatedBeanDefinition that = (DefaultAnnotatedBeanDefinition) o;
+    return Objects.equals(metadata, that.metadata) && Objects.equals(factoryMethodMetadata, that.factoryMethodMetadata);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), metadata, factoryMethodMetadata);
+  }
 }

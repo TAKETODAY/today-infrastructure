@@ -148,7 +148,7 @@ public class DefaultBeanDefinition
    * @param childDef Child {@link BeanDefinition}
    */
   public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
-    copy(childDef);
+    copyFrom(childDef);
     setName(beanName);
     setChild(childDef);
   }
@@ -532,25 +532,25 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public void copy(BeanDefinition newDef) {
-    setName(newDef.getName());
-    setChild(newDef.getChild());
-    setScope(newDef.getScope());
+  public void copyFrom(BeanDefinition from) {
+    setName(from.getName());
+    setChild(from.getChild());
+    setScope(from.getScope());
 
-    setBeanClass(newDef.getBeanClass());
-    setFactoryBean(newDef.isFactoryBean());
-    setDestroyMethod(newDef.getDestroyMethod());
-    setPropertyValues(newDef.getPropertyValues());
+    setBeanClass(from.getBeanClass());
+    setFactoryBean(from.isFactoryBean());
+    setDestroyMethod(from.getDestroyMethod());
+    setPropertyValues(from.getPropertyValues());
 
-    setLazyInit(newDef.isLazyInit());
-    setInitialized(newDef.isInitialized());
+    setLazyInit(from.isLazyInit());
+    setInitialized(from.isInitialized());
 
-    setRole(newDef.getRole());
-    setSynthetic(newDef.isSynthetic());
-    setPrimary(newDef.isPrimary());
+    setRole(from.getRole());
+    setSynthetic(from.isSynthetic());
+    setPrimary(from.isPrimary());
 
-    if (newDef instanceof DefaultBeanDefinition) {
-      DefaultBeanDefinition defaultBeanDefinition = (DefaultBeanDefinition) newDef;
+    if (from instanceof DefaultBeanDefinition) {
+      DefaultBeanDefinition defaultBeanDefinition = (DefaultBeanDefinition) from;
 
       this.source = defaultBeanDefinition.source;
       this.beanClass = defaultBeanDefinition.beanClass;
@@ -561,11 +561,18 @@ public class DefaultBeanDefinition
       this.instanceSupplier = defaultBeanDefinition.instanceSupplier;
     }
     else {
-      setBeanClassName(newDef.getBeanClassName());
-      setInitMethods(newDef.getInitMethods());
+      setBeanClassName(from.getBeanClassName());
+      setInitMethods(from.getInitMethods());
     }
 
-    copyAttributesFrom(newDef);
+    copyAttributesFrom(from);
+  }
+
+  @Override
+  public BeanDefinition cloneDefinition() {
+    DefaultBeanDefinition definition = new DefaultBeanDefinition();
+    definition.copyFrom(this);
+    return definition;
   }
 
   @Override
@@ -701,7 +708,7 @@ public class DefaultBeanDefinition
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, beanClass, lazyInit, scope, synthetic, role);
+    return Objects.hash(name, beanClass, lazyInit, scope, synthetic, role, primary);
   }
 
   @Override
