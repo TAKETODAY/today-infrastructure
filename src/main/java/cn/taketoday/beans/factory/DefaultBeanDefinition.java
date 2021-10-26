@@ -19,17 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -40,16 +29,25 @@ import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link BeanDefinition}
