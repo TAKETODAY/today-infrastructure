@@ -41,7 +41,6 @@ import java.util.function.Supplier;
  * @author TODAY 2018-06-23 11:23:45
  */
 public interface BeanDefinition extends AttributeAccessor {
-  String SCOPE = "scope";
   String INIT_METHODS = "initMethods";
   String DESTROY_METHOD = "destroyMethod";
 

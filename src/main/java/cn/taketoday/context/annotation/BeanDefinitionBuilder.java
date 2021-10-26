@@ -235,7 +235,6 @@ public class BeanDefinitionBuilder {
    */
   public void attributes(AnnotationAttributes component) {
     if (CollectionUtils.isNotEmpty(component)) {
-      this.scope = component.getString(BeanDefinition.SCOPE);
       this.initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
       this.destroyMethod = component.getString(BeanDefinition.DESTROY_METHOD);
     }
@@ -479,7 +478,6 @@ public class BeanDefinitionBuilder {
       def.setInitMethods(computeInitMethod(null, beanClass));
     }
     else {
-      def.setScope(attributes.getString(BeanDefinition.SCOPE));
       def.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHOD));
       def.setInitMethods(computeInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
     }
