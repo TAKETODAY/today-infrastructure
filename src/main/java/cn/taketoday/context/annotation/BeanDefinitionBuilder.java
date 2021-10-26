@@ -265,7 +265,6 @@ public class BeanDefinitionBuilder {
   }
 
   public void resetAttributes() {
-    this.scope = null;
     this.initMethods = Constant.EMPTY_STRING_ARRAY;
     this.destroyMethod = null;
   }
