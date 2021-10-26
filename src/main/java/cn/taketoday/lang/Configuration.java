@@ -24,15 +24,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.Scope;
-
 /**
  * @author TODAY <br>
  * 2018-09-06 14:05
  */
+@Scope
+@Component
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.SINGLETON)
 public @interface Configuration {
 
 }

@@ -21,7 +21,6 @@ package cn.taketoday.lang;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -32,7 +31,8 @@ import java.lang.annotation.Target;
  * @author TODAY <br>
  * 2018-07-02 22:46:11
  */
-@Component(scope = Scope.SINGLETON)
+@Scope
+@Component
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Singleton {

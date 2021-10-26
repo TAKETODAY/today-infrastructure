@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.Scope;
 @SuppressWarnings("all")
 public final class DefaultComponent implements Component {
 
-  private String scope = Scope.SINGLETON;
   private String[] value = Constant.EMPTY_STRING_ARRAY;
   private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
   private String destroyMethod ;
@@ -48,11 +47,6 @@ public final class DefaultComponent implements Component {
   }
 
   @Override
-  public String scope() {
-    return scope;
-  }
-
-  @Override
   public String[] initMethods() {
     return initMethods;
   }
@@ -64,7 +58,7 @@ public final class DefaultComponent implements Component {
 
   @Override
   public int hashCode() {
-    return Objects.hash(scope, value, initMethods, destroyMethod);
+    return Objects.hash(value, initMethods, destroyMethod);
   }
 
   @Override
@@ -74,8 +68,7 @@ public final class DefaultComponent implements Component {
     if (!(o instanceof Component))
       return false;
     final Component that = (Component) o;
-    return Objects.equals(scope, that.scope())
-            && Arrays.equals(value, that.value())
+    return Arrays.equals(value, that.value())
             && Arrays.equals(initMethods, that.initMethods())
             && Objects.equals(destroyMethod, that.destroyMethod());
   }
@@ -87,8 +80,6 @@ public final class DefaultComponent implements Component {
             .append(Component.class.getName())//
             .append("(value=")//
             .append(Arrays.toString(value))//
-            .append(", scope=")//
-            .append(scope)//
             .append(", initMethods=")//
             .append(Arrays.toString(initMethods))//
             .append(", destroyMethods=")//

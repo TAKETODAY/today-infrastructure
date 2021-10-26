@@ -21,7 +21,6 @@ package cn.taketoday.lang;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -46,14 +45,6 @@ public @interface Component {
    * @return the suggested component name, if any (or empty String otherwise)
    */
   String[] value() default { };
-
-  /**
-   * Specifies the name of the scope to use for the annotated component/bean.
-   * <p>
-   * Defaults to an empty string ({@code ""}) which implies {@link Scope#SINGLETON
-   * SINGLETON}.
-   */
-  String scope() default Scope.SINGLETON;
 
   /**
    * The optional name of a method to call on the bean instance during
