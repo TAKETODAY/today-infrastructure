@@ -19,29 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.SmartFactoryBean;
-import cn.taketoday.beans.support.PropertyValuesBinder;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.bytecode.Type;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -59,6 +36,31 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.PropertyException;
+import cn.taketoday.beans.SmartFactoryBean;
+import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -136,6 +138,13 @@ public abstract class AbstractBeanFactory
     if (parentBeanFactory != null) {
       return parentBeanFactory.getBean(name);
     }
+    if (objectFactories != null) {
+      Object obj = objectFactories.get(name);
+      if (obj instanceof Supplier) {
+        return ((Supplier<?>) obj).get();
+      }
+      return obj;
+    }
     return null;
   }
 
@@ -186,7 +195,33 @@ public abstract class AbstractBeanFactory
   @SuppressWarnings("unchecked")
   public <T> T getBean(String name, Class<T> requiredType) {
     Object bean = getBean(name);
-    return requiredType.isInstance(bean) ? (T) bean : null;
+    return adaptBeanInstance(name, bean, requiredType);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
+    // Check if required type matches the type of the actual bean instance.
+    if (requiredType != null && !requiredType.isInstance(bean)) {
+      try {
+        ConversionService conversionService = getConversionService();
+        if (conversionService == null) {
+          conversionService = DefaultConversionService.getSharedInstance();
+        }
+        Object convertedBean = conversionService.convert(bean, requiredType);
+        if (convertedBean == null) {
+          throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+        }
+        return (T) convertedBean;
+      }
+      catch (ConversionException ex) {
+        if (log.isTraceEnabled()) {
+          log.trace("Failed to convert bean '{}' to required type '{}'",
+                    name, ClassUtils.getQualifiedName(requiredType), ex);
+        }
+        throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+      }
+    }
+    return (T) bean;
   }
 
   @Override
@@ -840,7 +875,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-              "that it should return null if the type of its object cannot be determined yet", ex);
+                       "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -920,7 +955,6 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
   // Listing Get operations for type-lookup
   //---------------------------------------------------------------------
-
 
   @Override
   @SuppressWarnings("unchecked")
@@ -1009,35 +1043,6 @@ public abstract class AbstractBeanFactory
     return beans;
   }
 
-  @Override
-  public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
-    return getBeanNamesOfType(requiredType, true, includeNonSingletons);
-  }
-
-  @Override
-  public Set<String> getBeanNamesOfType(
-          Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
-
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
-        beanNames.add(entry.getKey());
-      }
-    }
-    if (includeNoneRegistered) {
-      synchronized(getSingletons()) {
-        for (Entry<String, Object> entry : getSingletons().entrySet()) {
-          Object bean = entry.getValue();
-          if (requiredType == null || requiredType.isInstance(bean)) {
-            beanNames.add(entry.getKey());
-          }
-        }
-      }
-    }
-    return beanNames;
-  }
-
   /**
    * Return bean matching the given type (including subclasses), judging from bean definitions
    *
@@ -1047,14 +1052,17 @@ public abstract class AbstractBeanFactory
    * or just singletons (also applies to FactoryBeans)
    * @return the bean matching the given object type (including subclasses)
    */
-  boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
+  protected boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
     if (!(includeNonSingletons || def.isSingleton())) {
       return false;
     }
 
     if (requiredType != null) {
       Class<?> type = getType(def.getName());
-      return requiredType.isAssignableFrom(type);
+      if (type != null) {
+        return requiredType.isAssignableFrom(type);
+      }
+      return false;
     }
     return true;
   }

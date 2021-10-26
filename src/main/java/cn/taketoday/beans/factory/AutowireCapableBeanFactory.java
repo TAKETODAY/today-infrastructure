@@ -212,4 +212,20 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    */
   void destroyBean(Object existingBean);
 
+  /**
+   * Resolve the bean instance that uniquely matches the given object type, if any,
+   * including its bean name.
+   * <p>This is effectively a variant of {@link #getBean(Class)} which preserves the
+   * bean name of the matching instance.
+   *
+   * @param requiredType type the bean must match; can be an interface or superclass
+   * @return the bean name plus bean instance
+   * @throws NoSuchBeanDefinitionException if no matching bean was found
+   * @throws NoUniqueBeanException if more than one matching bean was found
+   * @throws BeansException if the bean could not be created
+   * @see #getBean(Class)
+   * @since 4.0
+   */
+  <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException;
+
 }

@@ -19,21 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.IgnoreDuplicates;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -45,6 +30,25 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.IgnoreDuplicates;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -100,8 +104,8 @@ public class StandardBeanFactory
 
     final FactoryBeanDefinition<?> def = //
             factoryDef instanceof FactoryBeanDefinition
-                    ? (FactoryBeanDefinition<?>) factoryDef
-                    : new FactoryBeanDefinition<>(factoryDef, this);
+            ? (FactoryBeanDefinition<?>) factoryDef
+            : new FactoryBeanDefinition<>(factoryDef, this);
 
     registerBeanDefinition(oldBeanName, def);
   }
@@ -181,8 +185,8 @@ public class StandardBeanFactory
 
   private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
     return equals
-            ? beanDef -> type == beanDef.getBeanClass()
-            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+           ? beanDef -> type == beanDef.getBeanClass()
+           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
   }
 
   @Override
@@ -288,8 +292,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition for bean '" + name +
-                  "' with a framework-generated bean definition: replacing [" +
-                  existBeanDef + "] with [" + def + "]");
+                           "' with a framework-generated bean definition: replacing [" +
+                           existBeanDef + "] with [" + def + "]");
         }
       }
 
@@ -302,7 +306,7 @@ public class StandardBeanFactory
         nameToUse = beanClassName;
         def.setName(nameToUse);
         log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.",
-                beanClassName);
+                 beanClassName);
         log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
       }
       log.info("======================|END|======================");
@@ -359,33 +363,231 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
 
   @Override
+  public <T> T getBean(Class<T> requiredType) throws BeansException {
+    Assert.notNull(requiredType, "Required type must not be null");
+    return resolveBean(ResolvableType.fromClass(requiredType), false);
+  }
+
+  @Nullable
+  private <T> T resolveBean(ResolvableType requiredType, boolean nonUniqueAsNull) {
+    NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, nonUniqueAsNull);
+    if (namedBean != null) {
+      return namedBean.getBeanInstance();
+    }
+    BeanFactory parent = getParentBeanFactory();
+    if (parent instanceof StandardBeanFactory) {
+      return ((StandardBeanFactory) parent).resolveBean(requiredType, nonUniqueAsNull);
+    }
+    else if (parent != null) {
+      ObjectSupplier<T> parentProvider = parent.getObjectSupplier(requiredType);
+      return parentProvider.get();
+    }
+    return null;
+  }
+
+  @Nullable
   @SuppressWarnings("unchecked")
-  public <T> T getBean(Class<T> requiredType) {
-    return (T) doGetBeanForType(requiredType);
+  private <T> NamedBeanHolder<T> resolveNamedBean(
+          ResolvableType requiredType, boolean nonUniqueAsNull) throws BeansException {
+    Assert.notNull(requiredType, "Required type must not be null");
+    Set<String> candidateNames = getBeanNamesOfType(requiredType, true, true);
+
+    int size = candidateNames.size();
+    if (size == 1) {
+      return resolveNamedBean(candidateNames.iterator().next(), requiredType);
+    }
+    else if (size > 1) {
+      String primaryCandidate = determinePrimaryCandidate(candidateNames, requiredType.toClass());
+      if (primaryCandidate == null) {
+        Map<String, Object> candidates = CollectionUtils.newLinkedHashMap(size);
+        for (String beanName : candidateNames) {
+          if (containsSingleton(beanName)) {
+            Object beanInstance = getBean(beanName);
+            candidates.put(beanName, beanInstance);
+          }
+          else {
+            candidates.put(beanName, getType(beanName));
+          }
+        }
+        primaryCandidate = determineHighestPriorityCandidate(candidates, requiredType.toClass());
+        if (primaryCandidate != null) {
+          Object beanInstance = candidates.get(primaryCandidate);
+          if (beanInstance == null) {
+            return null;
+          }
+          if (beanInstance instanceof Class) {
+            return resolveNamedBean(primaryCandidate, requiredType);
+          }
+          return new NamedBeanHolder<>(primaryCandidate, (T) beanInstance);
+        }
+      }
+      if (primaryCandidate != null) {
+        return resolveNamedBean(primaryCandidate, requiredType);
+      }
+      // fall
+      if (!nonUniqueAsNull) {
+        throw new NoUniqueBeanException(requiredType, candidateNames);
+      }
+    }
+
+    return null;
+  }
+
+  @Nullable
+  private <T> NamedBeanHolder<T> resolveNamedBean(
+          String beanName, ResolvableType requiredType) throws BeansException {
+    Object bean = getBean(beanName, null);
+    if (bean == null) {
+      return null;
+    }
+    return new NamedBeanHolder<>(beanName, adaptBeanInstance(beanName, bean, requiredType.toClass()));
   }
 
   /**
-   * Get bean for required type
+   * Determine the primary candidate in the given set of beans.
    *
-   * @param requiredType Bean type
-   * @since 2.1.2
+   * @param candidates a set of candidate names
+   * @param requiredType the target dependency type to match against
+   * @return the name of the primary candidate, or {@code null} if none found
+   * @see #isPrimary(String)
    */
-  protected <T> Object doGetBeanForType(Class<T> requiredType) {
-    for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      if (entry.getValue().isAssignableTo(requiredType)) {
-        Object bean = getBean(entry.getValue());
-        if (bean != null) {
-          return bean;
+  @Nullable
+  protected String determinePrimaryCandidate(Set<String> candidates, Class<?> requiredType) {
+    String primaryBeanName = null;
+    for (String candidateBeanName : candidates) {
+      if (isPrimary(candidateBeanName)) {
+        if (primaryBeanName != null) {
+          boolean candidateLocal = containsBeanDefinition(candidateBeanName);
+          boolean primaryLocal = containsBeanDefinition(primaryBeanName);
+          if (candidateLocal && primaryLocal) {
+            throw new NoUniqueBeanException(
+                    requiredType, candidates.size(),
+                    "more than one 'primary' bean found among candidates: " + candidates);
+          }
+          else if (candidateLocal) {
+            primaryBeanName = candidateBeanName;
+          }
+        }
+        else {
+          primaryBeanName = candidateBeanName;
         }
       }
     }
-    // fix
-    for (Object entry : getSingletons().values()) {
-      if (requiredType.isAssignableFrom(entry.getClass())) {
-        return entry;
+    return primaryBeanName;
+  }
+
+  /**
+   * Determine the candidate with the highest priority in the given set of beans.
+   * <p>Based on {@code @jakarta.annotation.Priority}. As defined by the related
+   * {@link Ordered} interface, the lowest value has the highest priority.
+   *
+   * @param candidates a set of candidate names
+   * @param requiredType the target dependency type to match against
+   * @return the name of the candidate with the highest priority,
+   * or {@code null} if none found
+   * @see #getPriority(Object)
+   */
+  @Nullable
+  protected String determineHighestPriorityCandidate(Map<String, Object> candidates, Class<?> requiredType) {
+    String highestPriorityBeanName = null;
+    Integer highestPriority = null;
+    for (Map.Entry<String, Object> entry : candidates.entrySet()) {
+      String candidateBeanName = entry.getKey();
+      Object beanInstance = entry.getValue();
+      if (beanInstance != null) {
+        Integer candidatePriority = getPriority(beanInstance);
+        if (candidatePriority != null) {
+          if (highestPriorityBeanName != null) {
+            if (candidatePriority.equals(highestPriority)) {
+              throw new NoUniqueBeanException(
+                      requiredType, candidates.size(),
+                      "Multiple beans found with the same priority ('" + highestPriority +
+                              "') among candidates: " + candidates.keySet());
+            }
+            else if (candidatePriority < highestPriority) {
+              highestPriorityBeanName = candidateBeanName;
+              highestPriority = candidatePriority;
+            }
+          }
+          else {
+            highestPriorityBeanName = candidateBeanName;
+            highestPriority = candidatePriority;
+          }
+        }
       }
     }
-    return null;
+    return highestPriorityBeanName;
+  }
+
+  /**
+   * Return whether the bean definition for the given bean name has been
+   * marked as a primary bean.
+   *
+   * @param beanName the name of the bean
+   * @return whether the given bean qualifies as primary
+   */
+  protected boolean isPrimary(String beanName) {
+    if (containsBeanDefinition(beanName)) {
+      return beanDefinitionMap.get(beanName).isPrimary();
+    }
+    BeanFactory parent = getParentBeanFactory();
+    return (parent instanceof StandardBeanFactory &&
+            ((StandardBeanFactory) parent).isPrimary(beanName));
+  }
+
+  /**
+   * Return the priority assigned for the given bean instance by
+   * the {@code jakarta.annotation.Priority} annotation.
+   *
+   * @param beanInstance the bean instance to check (can be {@code null})
+   * @return the priority assigned to that bean or {@code null} if none is set
+   */
+  @Nullable
+  protected Integer getPriority(Object beanInstance) {
+    return AnnotationAwareOrderComparator.INSTANCE.getPriority(beanInstance);
+  }
+
+  @Override
+  public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
+    Assert.notNull(requiredType, "Required type must not be null");
+    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), false);
+    if (namedBean != null) {
+      return namedBean;
+    }
+    BeanFactory parent = getParentBeanFactory();
+    if (parent instanceof AutowireCapableBeanFactory) {
+      return ((AutowireCapableBeanFactory) parent).resolveNamedBean(requiredType);
+    }
+    throw new NoSuchBeanDefinitionException(requiredType);
+  }
+
+  @Override
+  public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
+    return getBeanNamesOfType(requiredType, true, includeNonSingletons);
+  }
+
+  @Override
+  public Set<String> getBeanNamesOfType(
+          Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
+
+    for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
+        beanNames.add(entry.getKey());
+      }
+    }
+    if (includeNoneRegistered) {
+      synchronized(getSingletons()) {
+        for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
+          Object bean = entry.getValue();
+          if (requiredType == null || requiredType.isInstance(bean)) {
+            beanNames.add(entry.getKey());
+          }
+        }
+      }
+    }
+    return beanNames;
   }
 
   @Override
