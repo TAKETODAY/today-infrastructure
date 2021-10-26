@@ -22,7 +22,6 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
@@ -34,12 +33,12 @@ public interface AnnotationBeanDefinitionRegistrar<A extends Annotation>
 
   @Override
   default void registerBeanDefinitions(
-          AnnotationMetadata importMetadata, BeanDefinitionRegistry registry) {
+          AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
     final A target = getAnnotation(importMetadata);
-    registerBeanDefinitions(target, importMetadata, registry);
+    registerBeanDefinitions(target, importMetadata, context);
   }
 
   void registerBeanDefinitions(
-          A target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry);
+          A target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context);
 
 }

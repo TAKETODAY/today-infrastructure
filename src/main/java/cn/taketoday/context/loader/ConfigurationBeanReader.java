@@ -266,7 +266,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     // use import selector to select bean to register
     if (ImportSelector.class.isAssignableFrom(importClass)) {
       String[] imports = createImporter(importMetadata, ImportSelector.class)
-              .selectImports(importMetadata, context.getRegistry());
+              .selectImports(importMetadata, context);
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
           Class<Object> beanClass = ClassUtils.load(select);
@@ -280,7 +280,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     // for BeanDefinitionImporter to imports beans
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
       createImporter(importMetadata, BeanDefinitionImporter.class)
-              .registerBeanDefinitions(importMetadata, context.getRegistry());
+              .registerBeanDefinitions(importMetadata, context);
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
       context.addApplicationListener(createImporter(importMetadata, ApplicationListener.class));

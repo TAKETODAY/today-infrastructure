@@ -34,6 +34,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.loader.AnnotationProvider;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
@@ -80,8 +81,8 @@ class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvid
   }
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BeanDefinitionRegistry registry) {
-    BeanDefinition proxyCreatorDef = registry.getBeanDefinition(ProxyCreator.class);
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    BeanDefinition proxyCreatorDef = context.getRegistry().getBeanDefinition(ProxyCreator.class);
     Assert.state(proxyCreatorDef != null, "No ProxyCreator bean definition.");
 
     if (ProxyConfig.class.isAssignableFrom(proxyCreatorDef.getBeanClass())) {

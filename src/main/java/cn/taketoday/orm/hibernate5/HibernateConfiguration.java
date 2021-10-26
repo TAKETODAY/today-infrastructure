@@ -19,25 +19,14 @@
  */
 package cn.taketoday.orm.hibernate5;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Configuration;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
-
-import javax.persistence.Entity;
-import javax.sql.DataSource;
-
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
@@ -48,6 +37,15 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.Configuration;
+
+import javax.persistence.Entity;
+import javax.sql.DataSource;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Properties;
 
 /**
  * @author TODAY 2019-11-05 22:11
@@ -107,19 +105,18 @@ public class HibernateConfiguration extends Configuration
     return properties;
   }
 
-  protected void registerSessionFactoryBean(
+  protected void registerSessionFactoryBean(// FIXME
           Collection<Class<?>> candidates, ApplicationContext context) {
     for (Class<?> entityClass : candidates) {
       if (entityClass.isAnnotationPresent(Entity.class)) {
         addAnnotatedClass(entityClass);
       }
     }
-
   }
 
   @Override
   public void registerBeanDefinitions(
-          EnableHibernate target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
+          EnableHibernate target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context) {
 
     applySettings(target);
 
@@ -133,7 +130,7 @@ public class HibernateConfiguration extends Configuration
 
     log.info("Register 'SessionFactory' bean definition {}", definition);
 
-    registry.registerBeanDefinition(definition);
+    context.registerBeanDefinition(definition);
   }
 
   private void applySettings(EnableHibernate target) {
