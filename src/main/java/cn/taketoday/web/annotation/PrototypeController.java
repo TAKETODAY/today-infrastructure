@@ -31,8 +31,9 @@ import cn.taketoday.lang.Component;
  * @author TODAY <br>
  * 2019-09-01 16:14
  */
+@cn.taketoday.lang.Scope(Scope.PROTOTYPE)
 @RootController
-@Component(scope = Scope.PROTOTYPE)
+@Component
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface PrototypeController {

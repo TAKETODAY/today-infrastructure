@@ -20,11 +20,10 @@
 
 package cn.taketoday.beans.factory;
 
-import org.junit.jupiter.api.Test;
-
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,6 +85,7 @@ class InstantiationAwareBeanPostProcessorTests {
 
       context.register(InstantiationAwareBeanPostProcessorBean.class);
       context.register(InstantiationAwareBeanPostProcessorConfig.class);
+      context.refresh();
 
       InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
       beanFactory.addBeanPostProcessor(postProcessor);
