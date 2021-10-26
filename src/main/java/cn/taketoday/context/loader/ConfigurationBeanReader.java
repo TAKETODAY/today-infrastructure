@@ -21,13 +21,14 @@
 package cn.taketoday.context.loader;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
@@ -36,7 +37,6 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
@@ -69,6 +69,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private final DefinitionLoadingContext context;
 
+  private final HashSet<Class<?>> importedClass = new HashSet<>();
+
   public ConfigurationBeanReader(DefinitionLoadingContext context) {
     this.context = context;
   }
@@ -92,8 +94,14 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     try {
       for (BeanDefinition definition : context.getRegistry()) {
         MetadataReader metadataReader = getMetadataReader(definition);
+
+        // @Configuration
         processConfiguration(metadataReader, definition);
+
+        // @Import
         processImport(metadataReader, definition);
+
+        // @ComponentScan
         processComponentScan(metadataReader, definition);
       }
     }
@@ -167,6 +175,9 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         builder.beanClassName(beanMethod.getReturnTypeName());
 
         AnnotationAttributes[] components = beanMethod.getAnnotations().getAttributes(Component.class);
+
+//        DefaultAnnotatedBeanDefinition def = new DefaultAnnotatedBeanDefinition();
+
         builder.build(defaultBeanName, components, (component, definition) -> {
           register(definition);
         });
@@ -209,17 +220,13 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     return importer;
   }
 
-  protected final void processImport(MetadataReader metadataReader, BeanDefinition annotated) throws IOException {
+  protected void processImport(MetadataReader metadataReader, BeanDefinition annotated) throws IOException {
     AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
-
-    for (MergedAnnotation<Annotation> annotation : annotationMetadata.getAnnotations()) {
-
-    }
-
     AnnotationAttributes[] attributes = annotationMetadata.getAnnotations().getAttributes(Import.class);
+
     for (AnnotationAttributes attr : attributes) {
       for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
-        if (!context.containsBeanDefinition(importClass, true)) {
+        if (!importedClass.contains(importClass)) {
           doImport(annotated, annotationMetadata, importClass);
         }
       }
@@ -251,11 +258,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   /**
    * Select import
    *
-   * @param annotated Target {@link BeanDefinition}
+   * @param from Target {@link BeanDefinition}
    * @param importMetadata
    * @since 2.1.7
    */
-  protected void doImport(BeanDefinition annotated, AnnotationMetadata importMetadata, Class<?> importClass) {
+  protected void doImport(BeanDefinition from, AnnotationMetadata importMetadata, Class<?> importClass) {
     log.debug("Importing: [{}]", importClass);
 
     BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);

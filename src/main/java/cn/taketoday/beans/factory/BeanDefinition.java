@@ -19,6 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessor;
@@ -28,12 +34,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Bean definition
@@ -97,7 +97,7 @@ public interface BeanDefinition extends AttributeAccessor {
    *
    * @return Get all the init methods, never be null
    */
-  Method[] getInitMethods();
+  String[] getInitMethods();
 
   /**
    * Get all the destroy methods name
@@ -204,8 +204,7 @@ public interface BeanDefinition extends AttributeAccessor {
    *
    * @param initMethods The array of the bean's initialize {@link Method}s
    */
-  @Deprecated
-  void setInitMethods(Method... initMethods);
+  void setInitMethods(String... initMethods);
 
   /**
    * Apply bean' destroy {@link Method}s
@@ -300,12 +299,6 @@ public interface BeanDefinition extends AttributeAccessor {
   default void validate() throws BeanDefinitionValidationException {
     if (StringUtils.isEmpty(getName())) {
       throw new BeanDefinitionValidationException("Definition's bean name can't be null");
-    }
-    if (getBeanClass() == null) {
-      throw new BeanDefinitionValidationException("Definition's bean class can't be null");
-    }
-    if (getInitMethods() == null) {
-      setInitMethods(EMPTY_METHOD);
     }
   }
 

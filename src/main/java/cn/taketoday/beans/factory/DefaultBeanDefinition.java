@@ -19,7 +19,15 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.ArgumentsResolver;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
@@ -30,24 +38,12 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.OrderUtils;
-import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -70,7 +66,7 @@ public class DefaultBeanDefinition
    *
    * @since 2.3.3
    */
-  private Method[] initMethods = EMPTY_METHOD;
+  private String[] initMethods;
 
   /**
    * @since 2.3.3
@@ -104,8 +100,6 @@ public class DefaultBeanDefinition
   private BeanInstantiator constructor;
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
-  /** @since 3.0 fast invoke init methods */
-  private MethodInvoker[] methodInvokers;
   /** @since 3.0 bean instance supplier */
   private Supplier<?> instanceSupplier;
 
@@ -280,7 +274,7 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public Method[] getInitMethods() {
+  public String[] getInitMethods() {
     return initMethods;
   }
 
@@ -338,20 +332,8 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public void setInitMethods(Method... initMethods) {
-    if (ObjectUtils.isNotEmpty(initMethods)) {
-      this.initMethods = initMethods;
-      AccessibleObject.setAccessible(initMethods, true);
-      this.methodInvokers = new MethodInvoker[initMethods.length];
-      int i = 0;
-      for (Method initMethod : initMethods) {
-        methodInvokers[i++] = MethodInvoker.fromMethod(initMethod);
-      }
-    }
-    else {
-      this.initMethods = EMPTY_METHOD;
-      this.methodInvokers = null;
-    }
+  public void setInitMethods(String... initMethods) {
+    this.initMethods = initMethods;
   }
 
   @Override
@@ -481,22 +463,6 @@ public class DefaultBeanDefinition
   }
 
   /**
-   * use {@link MethodInvoker} fast invoke init methods
-   *
-   * @param bean target bean
-   * @param beanFactory target factory
-   */
-  public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
-    if (ObjectUtils.isNotEmpty(methodInvokers)) {
-      ArgumentsResolver resolver = beanFactory.getArgumentsResolver();
-      for (MethodInvoker methodInvoker : methodInvokers) {
-        Object[] args = resolver.resolve(methodInvoker.getMethod(), beanFactory);
-        methodInvoker.invoke(bean, args);
-      }
-    }
-  }
-
-  /**
    * Set whether this bean should be lazily initialized.
    * <p>If {@code false}, the bean will get instantiated on startup by bean
    * factories that perform eager initialization of singletons.
@@ -557,7 +523,6 @@ public class DefaultBeanDefinition
       this.executable = defaultBeanDefinition.executable;
       this.initMethods = defaultBeanDefinition.initMethods;
       this.constructor = defaultBeanDefinition.constructor;
-      this.methodInvokers = defaultBeanDefinition.methodInvokers;
       this.instanceSupplier = defaultBeanDefinition.instanceSupplier;
     }
     else {

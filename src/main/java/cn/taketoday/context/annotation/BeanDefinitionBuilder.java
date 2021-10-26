@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.Scope;
@@ -110,8 +111,6 @@ public class BeanDefinitionBuilder {
   private Method factoryMethod;
   /** Declaring name @since 2.1.2 */
   private String declaringName;
-
-  private boolean resolveInitMethods = false;
 
   public BeanDefinitionBuilder name(String name) {
     this.name = name;
@@ -210,19 +209,6 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
-  /**
-   * Enable resolving init-method
-   *
-   * @param computeInitMethod compute InitMethod
-   * @return this
-   * @see BeanDefinition#getInitMethods()
-   * @see #computeInitMethod(Class, String...)
-   */
-  public BeanDefinitionBuilder resolveInitMethods(boolean computeInitMethod) {
-    this.resolveInitMethods = computeInitMethod;
-    return this;
-  }
-
   //
 
   /**
@@ -260,8 +246,6 @@ public class BeanDefinitionBuilder {
     this.synthetic = false;
     this.factoryBean = false;
 
-    this.resolveInitMethods = true;
-
   }
 
   public void resetAttributes() {
@@ -279,7 +263,6 @@ public class BeanDefinitionBuilder {
   private DefaultBeanDefinition create() {
     if (factoryMethod != null) {
       FactoryMethodBeanDefinition factoryMethodDef = new FactoryMethodBeanDefinition(factoryMethod);
-      factoryMethodDef.setName(name);
       factoryMethodDef.setDeclaringName(declaringName);
       if (beanClass != null) {
         factoryMethodDef.setBeanClass(beanClass);
@@ -287,25 +270,22 @@ public class BeanDefinitionBuilder {
       return factoryMethodDef;
     }
     if (beanClass != null) {
-      return new DefaultBeanDefinition(name, beanClass);
+      return new DefaultAnnotatedBeanDefinition(beanClass);
     }
-    return new DefaultBeanDefinition(name, beanClassName);
+    return new DefaultAnnotatedBeanDefinition(beanClassName);
   }
 
   public BeanDefinition build() {
     DefaultBeanDefinition definition = create();
 
-    if (resolveInitMethods) {
-      Method[] initMethod = computeInitMethod(initMethods, definition.getBeanClass());
-      definition.setInitMethods(initMethod);
-    }
-
+    definition.setName(name);
     definition.setRole(role);
     definition.setScope(scope);
     definition.setChild(childDef);
     definition.setPrimary(primary);
     definition.setLazyInit(lazyInit);
     definition.setSynthetic(synthetic);
+    definition.setInitMethods(initMethods);
     definition.setFactoryBean(factoryBean);
     definition.setSupplier(instanceSupplier);
     definition.setDestroyMethod(destroyMethod);
@@ -457,29 +437,27 @@ public class BeanDefinitionBuilder {
     return new DefaultBeanDefinition();
   }
 
-  public static DefaultBeanDefinition defaults(Class<?> candidate) {
+  public static DefaultAnnotatedBeanDefinition defaults(Class<?> candidate) {
     Assert.notNull(candidate, "bean-class must not be null");
     String defaultBeanName = defaultBeanName(candidate);
     return defaults(defaultBeanName, candidate, null);
   }
 
-  public static DefaultBeanDefinition defaults(String name, Class<?> beanClass) {
+  public static DefaultAnnotatedBeanDefinition defaults(String name, Class<?> beanClass) {
     return defaults(name, beanClass, null);
   }
 
-  public static DefaultBeanDefinition defaults(
+  public static DefaultAnnotatedBeanDefinition defaults(
           String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(beanClass, "bean-class must not be null");
 
-    DefaultBeanDefinition def = new DefaultBeanDefinition(name, beanClass);
-    if (attributes == null) {
-      def.setInitMethods(computeInitMethod(null, beanClass));
-    }
-    else {
+    DefaultAnnotatedBeanDefinition def = new DefaultAnnotatedBeanDefinition(beanClass);
+    if (attributes != null) {
       def.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHOD));
-      def.setInitMethods(computeInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
+      def.setInitMethods(attributes.getStringArray(BeanDefinition.INIT_METHODS));
     }
+    def.setName(name);
     return def;
   }
 

@@ -19,6 +19,11 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -26,12 +31,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.SingletonSupplier;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * FactoryBean's BeanDefinition
@@ -164,7 +163,7 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public Method[] getInitMethods() {
+  public String[] getInitMethods() {
     return factoryDef.getInitMethods();
   }
 
@@ -209,7 +208,7 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public void setInitMethods(Method... initMethods) {
+  public void setInitMethods(String... initMethods) {
     factoryDef.setInitMethods(initMethods);
   }
 

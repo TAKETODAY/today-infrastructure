@@ -45,6 +45,7 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;
@@ -463,13 +464,13 @@ public abstract class AbstractBeanFactory
    * @see javax.annotation.PostConstruct
    */
   protected void invokeInitMethods(Object bean, BeanDefinition def) {
-    // invoke @PostConstruct or initMethods defined in @Component
-    if (def instanceof DefaultBeanDefinition) {
-      ((DefaultBeanDefinition) def).fastInvokeInitMethods(bean, this);
-    }
-    else {
+    String[] initMethods = def.getInitMethods();
+    Method[] methods = BeanDefinitionBuilder.computeInitMethod(initMethods, bean.getClass());
+
+    if (ObjectUtils.isNotEmpty(methods)) {
       ArgumentsResolver resolver = getArgumentsResolver();
-      for (Method method : def.getInitMethods()) { /*never be null*/
+      // invoke @PostConstruct or initMethods defined in @Component
+      for (Method method : methods) {
         try {
           Object[] args = resolver.resolve(method, this);
           method.invoke(bean, args);
@@ -481,6 +482,7 @@ public abstract class AbstractBeanFactory
         }
       }
     }
+
     // InitializingBean#afterPropertiesSet
     if (bean instanceof InitializingBean) {
       try {
