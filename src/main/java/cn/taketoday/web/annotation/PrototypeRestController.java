@@ -19,21 +19,22 @@
  */
 package cn.taketoday.web.annotation;
 
+import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.lang.Component;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.lang.Component;
-
 /**
  * @author TODAY <br>
  * 2019-09-01 16:21
  */
+@Component
+@cn.taketoday.lang.Scope(Scope.PROTOTYPE)
 @ResponseBody
 @RootController
-@Component(scope = Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface PrototypeRestController {

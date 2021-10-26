@@ -19,21 +19,20 @@
  */
 package cn.taketoday.lang;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
-
 /**
  * @author TODAY<br>
  * 2018-07-02 20:45:00
  */
+@Component
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Repository {
 
@@ -43,7 +42,7 @@ public @interface Repository {
    *
    * @return the suggested component name, if any (or empty String otherwise)
    */
-  String[] value() default {};
+  String[] value() default { };
 
   /**
    * The optional name of a method to call on the bean instance during
@@ -55,7 +54,7 @@ public @interface Repository {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default {};
+  String[] initMethods() default { };
 
   /**
    * The optional names of a method to call on the bean instance upon closing the

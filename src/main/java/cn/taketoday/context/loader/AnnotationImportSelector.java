@@ -22,7 +22,6 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 
@@ -33,12 +32,12 @@ import cn.taketoday.lang.Nullable;
 public interface AnnotationImportSelector<A extends Annotation> extends AnnotationProvider<A>, ImportSelector {
 
   @Override
-  default String[] selectImports(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+  default String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
     final A target = getAnnotation(importingClassMetadata);
-    return selectImports(target, importingClassMetadata, registry);
+    return selectImports(target, importingClassMetadata, context);
   }
 
   @Nullable
-  String[] selectImports(A target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry);
+  String[] selectImports(A target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context);
 
 }

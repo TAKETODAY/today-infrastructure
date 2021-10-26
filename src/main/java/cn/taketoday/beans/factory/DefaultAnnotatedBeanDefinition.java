@@ -20,8 +20,12 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+
+import java.util.Objects;
 
 /**
  * Extension of the {@link DefaultBeanDefinition} class, adding support
@@ -36,6 +40,9 @@ import cn.taketoday.lang.Assert;
 public class DefaultAnnotatedBeanDefinition extends DefaultBeanDefinition implements AnnotatedBeanDefinition {
 
   private final AnnotationMetadata metadata;
+
+  @Nullable
+  private MethodMetadata factoryMethodMetadata;
 
   /**
    * Create a new AnnotatedGenericBeanDefinition for the given bean class.
@@ -64,9 +71,59 @@ public class DefaultAnnotatedBeanDefinition extends DefaultBeanDefinition implem
     this.metadata = metadata;
   }
 
+  /**
+   * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
+   * based on an annotated class and a factory method on that class.
+   *
+   * @param metadata the annotation metadata for the bean class in question
+   * @param factoryMethodMetadata metadata for the selected factory method
+   */
+  public DefaultAnnotatedBeanDefinition(AnnotationMetadata metadata, @Nullable MethodMetadata factoryMethodMetadata) {
+    this(metadata);
+    Assert.notNull(factoryMethodMetadata, "MethodMetadata must not be null");
+    this.factoryMethodMetadata = factoryMethodMetadata;
+  }
+
   @Override
   public final AnnotationMetadata getMetadata() {
     return this.metadata;
   }
 
+  @Override
+  @Nullable
+  public final MethodMetadata getFactoryMethodMetadata() {
+    return this.factoryMethodMetadata;
+  }
+
+  @Override
+  public BeanDefinition cloneDefinition() {
+    DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(metadata);
+    definition.copyFrom(this);
+    return definition;
+  }
+
+  @Override
+  public void copyFrom(BeanDefinition from) {
+    super.copyFrom(from);
+    if (from instanceof AnnotatedBeanDefinition) {
+      this.factoryMethodMetadata = ((AnnotatedBeanDefinition) from).getFactoryMethodMetadata();
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+    DefaultAnnotatedBeanDefinition that = (DefaultAnnotatedBeanDefinition) o;
+    return Objects.equals(metadata, that.metadata) && Objects.equals(factoryMethodMetadata, that.factoryMethodMetadata);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), metadata, factoryMethodMetadata);
+  }
 }

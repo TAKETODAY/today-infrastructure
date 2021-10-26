@@ -19,12 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -32,6 +26,12 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.SingletonSupplier;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * FactoryBean's BeanDefinition
@@ -257,8 +257,15 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public void copy(BeanDefinition newDef) {
-    factoryDef.copy(newDef);
+  public void copyFrom(BeanDefinition newDef) {
+    factoryDef.copyFrom(newDef);
+  }
+
+  @Override
+  public BeanDefinition cloneDefinition() {
+    FactoryBeanDefinition<T> definition = new FactoryBeanDefinition<>(factoryDef, factoryBean);
+    definition.factorySupplier = this.factorySupplier;
+    return definition;
   }
 
   @Override

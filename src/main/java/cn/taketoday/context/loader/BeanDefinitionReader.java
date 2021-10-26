@@ -20,39 +20,38 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
-import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -60,8 +59,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author TODAY 2021/10/1 16:46
  * @since 4.0
  */
-public class BeanDefinitionReader {
-  private static final Logger log = LoggerFactory.getLogger(BeanDefinitionReader.class);
+public class BeanDefinitionReader implements BeanDefinitionRegistrar {
 
   private BeanDefinitionRegistry registry;
 
@@ -77,6 +75,8 @@ public class BeanDefinitionReader {
    * enable
    */
   private boolean enableConditionEvaluation = true;
+
+  private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
   public BeanDefinitionReader() { }
 
@@ -95,224 +95,7 @@ public class BeanDefinitionReader {
   }
 
   //---------------------------------------------------------------------
-  // Implementation of BeanDefinitionLoader interface
-  //---------------------------------------------------------------------
-
-  public void register(BeanDefinition def) {
-    obtainRegistry().registerBeanDefinition(def);
-  }
-
-  // import
-
-  public void register(Class<?>... beans) {
-    Assert.notNull(beans, "Cannot import null beans");
-
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
-    for (Class<?> bean : beans) {
-      String beanName = createBeanName(bean);
-      builder.beanClass(bean)
-              .name(beanName);
-
-      BeanDefinition def = builder.build();
-      register(def);
-    }
-  }
-
-  //
-
-  /**
-   * default is use {@link ClassUtils#getShortName(Class)}
-   *
-   * <p>
-   * sub-classes can overriding this method to provide a strategy to create bean name
-   * </p>
-   *
-   * @param type type
-   * @return bean name
-   * @see ClassUtils#getShortName(Class)
-   */
-  protected String createBeanName(Class<?> type) {
-    return BeanDefinitionBuilder.defaultBeanName(type);
-  }
-
-  public BeanDefinition registerBean(String name, BeanDefinition beanDefinition) {
-    return register(name, beanDefinition);
-  }
-
-  //---------------------------------------------------------------------
-  // register name -> Class
-  //---------------------------------------------------------------------
-
-  /**
-   * register a bean with the given bean class
-   *
-   * @see #enableConditionEvaluation
-   * @since 3.0
-   */
-  public void registerBean(Class<?> clazz) {
-    if (!shouldSkip(clazz)) {
-      registerBean(createBeanName(clazz), clazz);
-    }
-  }
-
-  /**
-   * @see #enableConditionEvaluation
-   */
-  public void registerBean(Class<?>... candidates) {
-    for (Class<?> candidate : candidates) {
-      registerBean(candidate);
-    }
-  }
-
-  /**
-   * @see #enableConditionEvaluation
-   */
-  public BeanDefinition registerBean(String name, Class<?> clazz) {
-    return getRegistered(name, clazz, null);
-  }
-
-  //---------------------------------------------------------------------
-  // register name -> object singleton
-  //---------------------------------------------------------------------
-
-  /**
-   * Register a bean with the bean instance
-   * <p>
-   *
-   * @param obj bean instance
-   * @throws BeanDefinitionStoreException If can't store a bean
-   */
-  public void registerBean(Object obj) {
-    registerBean(createBeanName(obj.getClass()), obj);
-  }
-
-  public void registerBean(Set<Class<?>> candidates) {
-    for (Class<?> candidate : candidates) {
-      registerBean(candidate);
-    }
-  }
-
-  /**
-   * Register a bean with the given name and bean instance
-   *
-   * @param name bean name (must not be null)
-   * @param obj bean instance (must not be null)
-   * @throws BeanDefinitionStoreException If can't store a bean
-   */
-  public void registerBean(String name, Object obj) {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(obj, "bean-instance must not be null");
-    SingletonBeanRegistry singletonRegistry = context.unwrapFactory(SingletonBeanRegistry.class);
-
-    DefaultBeanDefinition definition = new DefaultBeanDefinition(name, obj.getClass());
-    register(definition);
-    definition.setSynthetic(true);
-    definition.setInitialized(true);
-    singletonRegistry.registerSingleton(name, obj);
-  }
-
-  //---------------------------------------------------------------------
-  // register Class -> Supplier
-  //---------------------------------------------------------------------
-
-  /**
-   * Register a bean with the given type and instance supplier
-   * <p>
-   * default register as singleton
-   * </p>
-   *
-   * @param clazz bean class
-   * @param supplier bean instance supplier
-   * @throws BeanDefinitionStoreException If can't store a bean
-   * @see #enableConditionEvaluation
-   * @since 4.0
-   */
-  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    registerBean(clazz, supplier, false);
-  }
-
-  /**
-   * Register a bean with the given type and instance supplier
-   *
-   * @param clazz bean class
-   * @param supplier bean instance supplier
-   * @param prototype register as prototype?
-   * @throws BeanDefinitionStoreException If can't store a bean
-   * @see #enableConditionEvaluation
-   * @since 4.0
-   */
-  public <T> void registerBean(
-          Class<T> clazz, Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
-    registerBean(clazz, supplier, prototype, true);
-  }
-
-  /**
-   * Register a bean with the given type and instance supplier
-   * <p>
-   * If the provided bean class annotated {@link Component} annotation will
-   * register beans with given {@link Component} metadata.
-   * <p>
-   *
-   * @param clazz bean class
-   * @param supplier bean instance supplier
-   * @param prototype register as prototype?
-   * @param ignoreAnnotation ignore {@link Component} scanning
-   * @throws BeanDefinitionStoreException If BeanDefinition could not be store
-   * @see #enableConditionEvaluation
-   * @since 4.0
-   */
-  public <T> void registerBean(
-          Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
-          throws BeanDefinitionStoreException //
-  {
-    Assert.notNull(clazz, "bean-class must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-
-    if (shouldSkip(clazz)) {
-      return;
-    }
-
-    String defaultName = createBeanName(clazz);
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
-    builder.instanceSupplier(supplier);
-
-    if (prototype) {
-      builder.prototype();
-    }
-    if (AnnotatedElementUtils.isAnnotated(clazz, Primary.class)) {
-      builder.primary(true);
-    }
-
-    AnnotationAttributes lazy = AnnotatedElementUtils.getMergedAnnotationAttributes(clazz, Lazy.class);
-    if (lazy != null) {
-      builder.lazyInit(lazy.getBoolean(Constant.VALUE));
-    }
-
-    AnnotationAttributes role = AnnotatedElementUtils.getMergedAnnotationAttributes(clazz, Role.class);
-    if (role != null) {
-      builder.role(role.getNumber(Constant.VALUE));
-    }
-
-    if (ignoreAnnotation) {
-      BeanDefinition definition = builder.build();
-      register(definition);
-    }
-    else {
-      builder.build(defaultName, clazz, this::doRegister);
-    }
-  }
-
-  private void doRegister(@Nullable AnnotationAttributes attributes, BeanDefinition definition) {
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      for (BeanDefinitionCustomizer customizer : customizers) {
-        customizer.customize(attributes, definition);
-      }
-    }
-    register(definition);
-  }
-
-  //---------------------------------------------------------------------
-  // register name -> Supplier
+  // Implementation of BeanDefinitionRegistrar interface
   //---------------------------------------------------------------------
 
   /**
@@ -335,66 +118,265 @@ public class BeanDefinitionReader {
   }
 
   /**
-   * Load bean definition with given bean class and bean name.
+   * this method requires application-context {@code obtainContext()}
+   *
+   * @param beanName the name of the bean (may be {@code null})
+   * @param beanClass the class of the bean
+   * @param constructorArgs custom argument values to be fed into constructor
+   * resolution algorithm, resolving either all arguments or just
+   * specific ones, with the rest to be resolved through regular autowiring
+   */
+  @Override
+  public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
+    registerBean(beanName, beanClass, (Supplier<T>) null,
+            (a, bd) -> bd.setSupplier(() -> bd.newInstance(obtainContext(), constructorArgs)));
+  }
+
+  @Override
+  public <T> void registerBean(
+          @Nullable String beanName, Class<T> beanClass,
+          @Nullable Supplier<T> supplier, @Nullable BeanDefinitionCustomizer... customizers) {
+    Assert.notNull(beanClass, "bean-class must not be null");
+
+    if (shouldSkip(beanClass)) {
+      return;
+    }
+
+    DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(beanClass);
+    ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
+    definition.setScope(scopeMetadata.getScopeName());
+
+    String defaultName = createBeanName(beanClass);
+    definition.setSupplier(supplier);
+    definition.setName(defaultName);
+
+    doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, customizers);
+  }
+
+  // BeanDefinitionRegistrar end
+
+  public void register(BeanDefinition def) {
+    obtainRegistry().registerBeanDefinition(def);
+  }
+
+  //
+
+  /**
+   * default is use {@link ClassUtils#getShortName(Class)}
+   *
+   * <p>
+   * sub-classes can overriding this method to provide a strategy to create bean name
+   * </p>
+   *
+   * @param type type
+   * @return bean name
+   * @see ClassUtils#getShortName(Class)
+   */
+  protected String createBeanName(Class<?> type) {
+    return BeanDefinitionBuilder.defaultBeanName(type);
+  }
+
+  //---------------------------------------------------------------------
+  // register name -> Class
+  //---------------------------------------------------------------------
+
+
+  /**
+   * Register a bean with the bean instance
+   * <p>
+   * just register to {@code SingletonBeanRegistry}
+   *
+   * @param obj bean instance
+   */
+  @Override
+  public void registerSingleton(Object obj) {
+    registerSingleton(createBeanName(obj.getClass()), obj);
+  }
+
+  /**
+   * Register a bean with the given name and bean instance
+   * <p>
+   * just register to {@code SingletonBeanRegistry}
+   *
+   * @param name bean name (must not be null)
+   * @param obj bean instance (must not be null)
+   */
+  @Override
+  public void registerSingleton(String name, Object obj) {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(obj, "bean-instance must not be null");
+    obtainContext().unwrapFactory(SingletonBeanRegistry.class).registerSingleton(name, obj);
+  }
+
+  //---------------------------------------------------------------------
+  // register name -> object singleton
+  //---------------------------------------------------------------------
+
+  /**
+   * Register a bean with the bean instance
+   * <p>
+   *
+   * register a BeanDefinition and its' singleton
+   *
+   * @param obj bean instance
+   * @throws BeanDefinitionStoreException If can't store a bean
+   */
+  @Override
+  public void registerBean(Object obj) {
+    registerBean(createBeanName(obj.getClass()), obj);
+  }
+
+  /**
+   * Register a bean with the given name and bean instance
+   *
+   * @param name bean name (must not be null)
+   * @param obj bean instance (must not be null)
+   * @throws BeanDefinitionStoreException If can't store a bean
+   */
+  @Override
+  public void registerBean(String name, Object obj) {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(obj, "bean-instance must not be null");
+    SingletonBeanRegistry singletonRegistry = context.unwrapFactory(SingletonBeanRegistry.class);
+
+    DefaultBeanDefinition definition = new DefaultBeanDefinition(name, obj.getClass());
+    definition.setSynthetic(true);
+    definition.setInitialized(true);
+    register(definition);
+
+    singletonRegistry.registerSingleton(name, obj);
+  }
+
+  //---------------------------------------------------------------------
+  // register Class -> Supplier
+  //---------------------------------------------------------------------
+
+  /**
+   * Register a bean with the given type and instance supplier
+   *
+   * @param clazz bean class
+   * @param supplier bean instance supplier
+   * @param prototype register as prototype?
+   * @throws BeanDefinitionStoreException If can't store a bean
+   * @see #enableConditionEvaluation
+   * @since 4.0
+   */
+  @Override
+  public <T> void registerBean(
+          Class<T> clazz, Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
+    registerBean(clazz, supplier, prototype, true);
+  }
+
+  /**
+   * Register a bean with the given type and instance supplier
    * <p>
    * If the provided bean class annotated {@link Component} annotation will
    * register beans with given {@link Component} metadata.
    * <p>
-   * Otherwise register a bean will given default metadata: use the default bean
-   * name creator create the default bean name, use default bean scope
-   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
-   * empty destroy method.
    *
-   * @param name Bean name
-   * @param beanClass Bean class
-   * @return returns a new BeanDefinition
+   * @param clazz bean class
+   * @param supplier bean instance supplier
+   * @param prototype register as prototype?
+   * @param ignoreAnnotation ignore {@link Component} scanning
    * @throws BeanDefinitionStoreException If BeanDefinition could not be store
+   * @see #enableConditionEvaluation
    * @since 4.0
    */
-  public List<BeanDefinition> load(String name, Class<?> beanClass) {
-    return Collections.singletonList(getRegistered(name, beanClass, null));
-  }
+  @Override
+  public <T> void registerBean(
+          Class<T> clazz, @Nullable Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException //
+  {
+    Assert.notNull(clazz, "bean-class must not be null");
+    if (!shouldSkip(clazz)) {
+      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(clazz);
+      ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
+      definition.setScope(scopeMetadata.getScopeName());
 
-  private BeanDefinition getRegistered(
-          String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
-    BeanDefinition newDef = BeanDefinitionBuilder.defaults(name, beanClass, attributes);
-    return register(name, newDef);
-  }
+      String defaultName = createBeanName(clazz);
+      definition.setSupplier(supplier);
+      definition.setName(defaultName);
 
-  private BeanDefinition register(String name, BeanDefinition newDef) {
-    obtainRegistry().registerBeanDefinition(name, newDef);
-    return newDef;
-  }
-
-  public List<BeanDefinition> register(Class<?> candidate) {
-    ArrayList<BeanDefinition> defs = new ArrayList<>();
-    doRegister(candidate, defs::add);
-    return defs;
-  }
-
-  private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
-    AnnotationAttributes[] annotationAttributes = AnnotatedElementUtils.getMergedAttributesArray(candidate, Component.class);
-    if (ObjectUtils.isNotEmpty(annotationAttributes)) {
-      String defaultBeanName = createBeanName(candidate);
-      for (AnnotationAttributes attributes : annotationAttributes) {
-        doRegister(candidate, defaultBeanName, attributes, registeredConsumer);
+      if (ignoreAnnotation) {
+        register(definition);
+      }
+      else {
+        doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, null);
       }
     }
   }
 
-  private void doRegister(
-          Class<?> candidate, String defaultBeanName,
-          AnnotationAttributes attributes, Consumer<BeanDefinition> registeredConsumer) {
-    for (String name : BeanDefinitionBuilder.determineName(
-            defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-      BeanDefinition registered = getRegistered(name, candidate, attributes);
-      if (registered != null && registeredConsumer != null) { // none null BeanDefinition
-        registeredConsumer.accept(registered);
-      }
+  public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition) {
+    AnnotationMetadata metadata = definition.getMetadata();
+    MergedAnnotations annotations = metadata.getAnnotations();
+    applyAnnotationMetadata(annotations, definition);
+  }
+
+  public static void applyAnnotationMetadata(AnnotatedElement annotated, BeanDefinition definition) {
+    MergedAnnotations annotations = MergedAnnotations.from(annotated);
+    applyAnnotationMetadata(annotations, definition);
+  }
+
+  public static void applyAnnotationMetadata(MergedAnnotations annotations, BeanDefinition definition) {
+    if (annotations.isPresent(Primary.class)) {
+      definition.setPrimary(true);
+    }
+
+    MergedAnnotation<Lazy> lazyMergedAnnotation = annotations.get(Lazy.class);
+    if (lazyMergedAnnotation.isPresent()) {
+      definition.setLazyInit(lazyMergedAnnotation.getBoolean(Constant.VALUE));
+    }
+
+    MergedAnnotation<Role> roleMergedAnnotation = annotations.get(Role.class);
+    if (roleMergedAnnotation.isPresent()) {
+      definition.setRole(roleMergedAnnotation.getInt(Constant.VALUE));
     }
   }
 
-  //
+  private void doRegisterWithAnnotationMetadata(
+          AnnotationMetadata metadata, BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
+    MergedAnnotations annotations = metadata.getAnnotations();
+    applyAnnotationMetadata(annotations, definition);
+
+    AnnotationAttributes attributes = null;
+    MergedAnnotation<Component> annotation = annotations.get(Component.class);
+    if (annotation.isPresent()) {
+      attributes = annotation.asAnnotationAttributes();
+    }
+
+    // dynamic customize
+    if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
+      for (BeanDefinitionCustomizer dynamicCustomizer : dynamicCustomizers) {
+        dynamicCustomizer.customize(attributes, definition);
+      }
+    }
+
+    // static customize
+    if (CollectionUtils.isNotEmpty(customizers)) {
+      for (BeanDefinitionCustomizer customizer : customizers) {
+        customizer.customize(attributes, definition);
+      }
+    }
+
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      // compute bean names, maybe register multiple beans
+      String[] candidateNames = annotation.getStringArray(MergedAnnotation.VALUE);
+      String[] realNames = BeanDefinitionBuilder.determineName(definition.getName(), candidateNames);
+      if (realNames.length == 1) {
+        register(definition);
+      }
+      else {
+        for (String name : realNames) {
+          BeanDefinition clone = definition.cloneDefinition();
+          clone.setName(name);
+          register(clone);
+        }
+      }
+    }
+    else {
+      register(definition);
+    }
+  }
 
   @Nullable
   public List<BeanDefinitionCustomizer> getCustomizers() {
@@ -516,5 +498,15 @@ public class BeanDefinitionReader {
     }
     return conditionEvaluator;
   }
+
+  public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
+    Assert.notNull(scopeMetadataResolver, "ScopeMetadataResolver must not be null");
+    this.scopeMetadataResolver = scopeMetadataResolver;
+  }
+
+  public ScopeMetadataResolver getScopeMetadataResolver() {
+    return scopeMetadataResolver;
+  }
+
 
 }

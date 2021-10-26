@@ -21,7 +21,6 @@ package cn.taketoday.lang;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,8 +34,8 @@ import java.lang.annotation.Target;
  * @see Component
  * @see Repository
  */
+@Component
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Service {
 

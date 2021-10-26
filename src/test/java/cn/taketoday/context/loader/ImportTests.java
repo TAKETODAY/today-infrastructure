@@ -19,18 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.annotation.PreDestroy;
-
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
@@ -40,6 +29,14 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.PreDestroy;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -98,7 +95,7 @@ class ImportTests {
   public static class TESTSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    public String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
       return NO_IMPORTS;
     }
   }
@@ -120,7 +117,7 @@ class ImportTests {
     @Nullable
     @Override
     public String[] selectImports(
-            EnableAop target, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
+            EnableAop target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context) {
       this.enableAop = target;
       this.annotatedMetadata = annotatedMetadata;
       return NO_IMPORTS;
@@ -138,7 +135,7 @@ class ImportTests {
     private EnableAop enableAop;
 
     @Override
-    public void registerBeanDefinitions(EnableAop enableAop, AnnotationMetadata annotatedMetadata, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(EnableAop enableAop, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context) {
       this.enableAop = enableAop;
     }
 

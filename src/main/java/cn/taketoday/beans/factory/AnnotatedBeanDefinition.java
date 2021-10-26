@@ -21,6 +21,8 @@ package cn.taketoday.beans.factory;
 
 
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Extended {@link BeanDefinition} interface that exposes {@link AnnotationMetadata}
@@ -39,5 +41,13 @@ public interface AnnotatedBeanDefinition extends BeanDefinition {
    * @return the annotation metadata object (never {@code null})
    */
   AnnotationMetadata getMetadata();
+
+
+	/**
+	 * Obtain metadata for this bean definition's factory method, if any.
+	 * @return the factory method metadata, or {@code null} if none
+	 */
+	@Nullable
+  MethodMetadata getFactoryMethodMetadata();
 
 }

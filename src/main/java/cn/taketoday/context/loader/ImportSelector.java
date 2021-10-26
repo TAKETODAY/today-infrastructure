@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Configuration;
@@ -66,5 +65,5 @@ public interface ImportSelector {
    *
    * @return the class names, or an empty array if none
    */
-  String[] selectImports(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry);
+  String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context);
 }

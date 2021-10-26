@@ -32,8 +32,9 @@ import cn.taketoday.beans.factory.Scope;
  * @author TODAY <br>
  * 2018-07-2 20:44:15
  */
+@Component
+@cn.taketoday.lang.Scope(Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.PROTOTYPE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Prototype {
 

@@ -307,12 +307,15 @@ public class ExpressionProcessor {
     elManager.defineBean(name, bean);
   }
 
-  private String bracket(String expression) {
+  private static String bracket(String expression) {
     if (expression == null) {
       return "${null}";
     }
-    for (char c : expression.toCharArray()) {
-      if ('#' == c || '$' == c) {
+
+    int length = expression.length();
+    for (int i = 0; i < length; i++) {
+      char c = expression.charAt(i);
+      if (('#' == c || '$' == c) && i + 1 < length && expression.charAt(i + 1) == '{') {
         return expression;
       }
     }

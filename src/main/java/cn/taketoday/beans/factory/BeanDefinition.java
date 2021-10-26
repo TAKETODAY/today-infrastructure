@@ -19,13 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessor;
@@ -36,13 +29,18 @@ import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.StringUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.Supplier;
+
 /**
  * Bean definition
  *
  * @author TODAY 2018-06-23 11:23:45
  */
 public interface BeanDefinition extends AttributeAccessor {
-  String SCOPE = "scope";
   String INIT_METHODS = "initMethods";
   String DESTROY_METHOD = "destroyMethod";
 
@@ -282,7 +280,7 @@ public interface BeanDefinition extends AttributeAccessor {
   /**
    * @since 3.0
    */
-  void copy(BeanDefinition newDef);
+  void copyFrom(BeanDefinition newDef);
 
   /**
    * Set a bean instance supplier
@@ -405,4 +403,7 @@ public interface BeanDefinition extends AttributeAccessor {
 
   /** @since 4.0 */
   boolean hasBeanClass();
+
+  /** @since 4.0 */
+  BeanDefinition cloneDefinition();
 }
