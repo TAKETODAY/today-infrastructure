@@ -19,24 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
@@ -59,6 +41,24 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -180,30 +180,6 @@ public abstract class AbstractBeanFactory
       }
       return bean;
     }
-  }
-
-  /**
-   * Get bean for required type
-   *
-   * @param requiredType Bean type
-   * @since 2.1.2
-   */
-  protected <T> Object doGetBeanForType(Class<T> requiredType) {
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      if (entry.getValue().isAssignableTo(requiredType)) {
-        Object bean = getBean(entry.getValue());
-        if (bean != null) {
-          return bean;
-        }
-      }
-    }
-    // fix
-    for (Object entry : getSingletons().values()) {
-      if (requiredType.isAssignableFrom(entry.getClass())) {
-        return entry;
-      }
-    }
-    return null;
   }
 
   @Override
@@ -864,7 +840,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                       "that it should return null if the type of its object cannot be determined yet", ex);
+              "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -945,11 +921,6 @@ public abstract class AbstractBeanFactory
   // Listing Get operations for type-lookup
   //---------------------------------------------------------------------
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T getBean(Class<T> requiredType) {
-    return (T) doGetBeanForType(requiredType);
-  }
 
   @Override
   @SuppressWarnings("unchecked")

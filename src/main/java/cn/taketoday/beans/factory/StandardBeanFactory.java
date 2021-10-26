@@ -19,18 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.MissingBean;
@@ -45,6 +33,18 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -100,8 +100,8 @@ public class StandardBeanFactory
 
     final FactoryBeanDefinition<?> def = //
             factoryDef instanceof FactoryBeanDefinition
-            ? (FactoryBeanDefinition<?>) factoryDef
-            : new FactoryBeanDefinition<>(factoryDef, this);
+                    ? (FactoryBeanDefinition<?>) factoryDef
+                    : new FactoryBeanDefinition<>(factoryDef, this);
 
     registerBeanDefinition(oldBeanName, def);
   }
@@ -181,8 +181,8 @@ public class StandardBeanFactory
 
   private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
     return equals
-           ? beanDef -> type == beanDef.getBeanClass()
-           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+            ? beanDef -> type == beanDef.getBeanClass()
+            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
   }
 
   @Override
@@ -288,8 +288,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition for bean '" + name +
-                           "' with a framework-generated bean definition: replacing [" +
-                           existBeanDef + "] with [" + def + "]");
+                  "' with a framework-generated bean definition: replacing [" +
+                  existBeanDef + "] with [" + def + "]");
         }
       }
 
@@ -302,7 +302,7 @@ public class StandardBeanFactory
         nameToUse = beanClassName;
         def.setName(nameToUse);
         log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.",
-                 beanClassName);
+                beanClassName);
         log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
       }
       log.info("======================|END|======================");
@@ -357,6 +357,36 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getBean(Class<T> requiredType) {
+    return (T) doGetBeanForType(requiredType);
+  }
+
+  /**
+   * Get bean for required type
+   *
+   * @param requiredType Bean type
+   * @since 2.1.2
+   */
+  protected <T> Object doGetBeanForType(Class<T> requiredType) {
+    for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      if (entry.getValue().isAssignableTo(requiredType)) {
+        Object bean = getBean(entry.getValue());
+        if (bean != null) {
+          return bean;
+        }
+      }
+    }
+    // fix
+    for (Object entry : getSingletons().values()) {
+      if (requiredType.isAssignableFrom(entry.getClass())) {
+        return entry;
+      }
+    }
+    return null;
+  }
 
   @Override
   public Map<String, Object> getBeansOfAnnotation(

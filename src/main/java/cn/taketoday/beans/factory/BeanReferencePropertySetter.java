@@ -100,7 +100,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
       return beanFactory.getBean(reference);
     }
     Object bean = beanFactory.getBean(name, type);
-    return bean != null ? bean : beanFactory.doGetBeanForType(type);
+    return bean != null ? bean : beanFactory.getBean(type);
   }
 
   /**
