@@ -19,24 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
@@ -62,6 +44,24 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -193,16 +193,16 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> T getBean(String name, Class<T> requiredType) {
     Object bean = getBean(name);
     return adaptBeanInstance(name, bean, requiredType);
   }
 
   @SuppressWarnings("unchecked")
+  @Nullable
   protected <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
     // Check if required type matches the type of the actual bean instance.
-    if (requiredType != null && !requiredType.isInstance(bean)) {
+    if (bean != null && requiredType != null && !requiredType.isInstance(bean)) {
       try {
         ConversionService conversionService = getConversionService();
         if (conversionService == null) {
@@ -217,7 +217,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                    name, ClassUtils.getQualifiedName(requiredType), ex);
+                  name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -877,7 +877,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                       "that it should return null if the type of its object cannot be determined yet", ex);
+              "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
