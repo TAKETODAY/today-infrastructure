@@ -357,6 +357,16 @@ public class DefaultBeanDefinition
   }
 
   @Override
+  public void addPropertyValues(Map<String, Object> propertyValues) {
+    if (CollectionUtils.isNotEmpty(propertyValues)) {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      this.propertyValues.putAll(propertyValues);
+    }
+  }
+
+  @Override
   public void setPropertyValues(PropertyValue... propertyValues) {
     if (this.propertyValues == null) {
       if (ObjectUtils.isNotEmpty(propertyValues)) {
@@ -386,14 +396,6 @@ public class DefaultBeanDefinition
         this.propertyValues.put(property.getName(), property.getValue());
       }
     }
-  }
-
-  @Override
-  public void addPropertyValues(Map<String, Object> propertyValues) {
-    if (this.propertyValues == null) {
-      this.propertyValues = new LinkedHashMap<>();
-    }
-    this.propertyValues.putAll(propertyValues);
   }
 
   @Override

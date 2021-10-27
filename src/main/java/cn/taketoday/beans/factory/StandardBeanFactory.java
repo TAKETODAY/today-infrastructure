@@ -26,14 +26,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -47,7 +45,6 @@ import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -126,14 +123,65 @@ public class StandardBeanFactory
 
   @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
-      registerFactoryBean(beanName, def);
+    def = transformBeanDefinition(beanName, def);
+    if (def == null) {
+      return;
     }
-    else {
-      register(beanName, def);
-      postProcessRegisterBeanDefinition(def);
-      beanDefinitionNames.add(beanName);
+    try {
+      def.validate();
     }
+    catch (BeanDefinitionValidationException ex) {
+      throw new BeanDefinitionStoreException("Validation of bean definition '" + def + "' failed", ex);
+    }
+
+    BeanDefinition existBeanDef = getBeanDefinition(beanName);
+    if (existBeanDef != null && !def.hasAttribute(MissingBean.MissingBeanMetadata)) {
+      if (!isAllowBeanDefinitionOverriding()) {
+        throw new BeanDefinitionOverrideException(beanName, def, existBeanDef);
+      }
+      else if (existBeanDef.getRole() < def.getRole()) {
+        // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+        if (log.isInfoEnabled()) {
+          log.info("Overriding user-defined bean definition " +
+                           "for bean '{}' with a framework-generated bean " +
+                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+        }
+      }
+    }
+
+//    registerFactoryBean(beanName, def);
+
+    beanDefinitionMap.put(beanName, def);
+    beanDefinitionNames.add(beanName);
+    postProcessRegisterBeanDefinition(def);
+  }
+
+  /**
+   * @since 3.0
+   */
+  protected BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
+    BeanDefinition missedDef = null;
+    if (containsBeanDefinition(name)) {
+      missedDef = getBeanDefinition(name);
+    }
+
+    if (missedDef != null && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) {
+      // Have a corresponding missed bean
+      // copy all state
+      def.copyFrom(missedDef);
+      def.setName(name); // fix bean name update error
+    }
+    // nothing
+    return def;
+  }
+
+  /**
+   * Process after register {@link BeanDefinition}
+   *
+   * @param targetDef Target {@link BeanDefinition}
+   */
+  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
+
   }
 
   @Override
@@ -258,105 +306,6 @@ public class StandardBeanFactory
   @Override
   public boolean isAllowBeanDefinitionOverriding() {
     return this.allowBeanDefinitionOverriding;
-  }
-
-  /**
-   * Register bean definition with given name
-   *
-   * @param name Bean name
-   * @param def Bean definition
-   * @throws BeanDefinitionStoreException If can't store bean
-   */
-  @Nullable
-  public BeanDefinition register(String name, BeanDefinition def) {
-    def = transformBeanDefinition(name, def);
-    if (def == null) {
-      return null;
-    }
-
-    def.validate();
-    String nameToUse = name;
-    BeanDefinition existBeanDef = getBeanDefinition(name);
-
-    if (existBeanDef != null && !def.hasAttribute(MissingBean.MissingBeanMetadata)) {
-      // has same name
-      String beanClassName = def.getBeanClassName();
-      if (Objects.equals(existBeanDef.getBeanClassName(), beanClassName)
-              && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
-        return null; // ignore registering
-      }
-
-      if (!isAllowBeanDefinitionOverriding()) {
-        throw new BeanDefinitionOverrideException(name, def, existBeanDef);
-      }
-      else if (existBeanDef.getRole() < def.getRole()) {
-        // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
-        if (log.isInfoEnabled()) {
-          log.info("Overriding user-defined bean definition for bean '" + name +
-                           "' with a framework-generated bean definition: replacing [" +
-                           existBeanDef + "] with [" + def + "]");
-        }
-      }
-
-      log.info("=====================|repeat bean definition START|=====================");
-      log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
-      if (Objects.equals(existBeanDef.getBeanClassName(), beanClassName)) {
-        log.warn("They have same bean class: [{}]. We will override it.", beanClassName);
-      }
-      else {
-        nameToUse = beanClassName;
-        def.setName(nameToUse);
-        log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.",
-                 beanClassName);
-        log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
-      }
-      log.info("======================|END|======================");
-    }
-
-    try {
-      this.beanDefinitionMap.put(nameToUse, def);
-      postProcessRegisterBeanDefinition(def);
-      return def;
-    }
-    catch (Throwable ex) {
-      ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new BeanDefinitionStoreException(
-              "An Exception Occurred When Register Bean Definition: [" + def + "]", ex);
-    }
-  }
-
-  /**
-   * @since 3.0
-   */
-  protected BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
-    Class<?> beanClass = def.getBeanClass();
-
-    BeanDefinition missedDef = null;
-    if (containsBeanDefinition(name)) {
-      missedDef = getBeanDefinition(name);
-    }
-    else if (containsBeanDefinition(beanClass)) {
-      missedDef = getBeanDefinition(beanClass);
-    }
-
-    if (missedDef != null
-            && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) {
-      // Have a corresponding missed bean
-      // copy all state
-      def.copyFrom(missedDef);
-      def.setName(name); // fix bean name update error
-    }
-    // nothing
-    return def;
-  }
-
-  /**
-   * Process after register {@link BeanDefinition}
-   *
-   * @param targetDef Target {@link BeanDefinition}
-   */
-  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-
   }
 
   //---------------------------------------------------------------------

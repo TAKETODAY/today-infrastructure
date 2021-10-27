@@ -19,6 +19,24 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
@@ -45,24 +63,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * @author TODAY 2018-06-23 11:20:58
  */
@@ -71,7 +71,7 @@ public abstract class AbstractBeanFactory
   private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
   /** object factories */
-  private Map<Class<?>, Object> objectFactories;
+  protected Map<Class<?>, Object> objectFactories;
   /** Bean Post Processors */
   protected final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   private final HashMap<String, Scope> scopes = new HashMap<>();
@@ -217,7 +217,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                  name, ClassUtils.getQualifiedName(requiredType), ex);
+                    name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -877,7 +877,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-              "that it should return null if the type of its object cannot be determined yet", ex);
+                       "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
