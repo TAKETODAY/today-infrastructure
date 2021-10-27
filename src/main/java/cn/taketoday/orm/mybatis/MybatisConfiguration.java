@@ -22,7 +22,6 @@ package cn.taketoday.orm.mybatis;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
@@ -51,7 +50,6 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
@@ -64,8 +62,6 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
-  public static final Method[] initMethods =
-          BeanDefinitionBuilder.computeInitMethod(null, MapperFactoryBean.class);
 
   @Override
   @Nullable
@@ -95,7 +91,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   protected FactoryBeanDefinition<?> createBeanDefinition(String className, String name) {
     DefaultBeanDefinition ret = new DefaultBeanDefinition(name, className);
     ret.setSynthetic(true);
-    ret.setInitMethods(initMethods);
+    ret.setInitMethods("applySqlSession");
     ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
     return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(className));
   }
