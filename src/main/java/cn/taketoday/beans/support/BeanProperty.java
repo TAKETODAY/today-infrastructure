@@ -20,19 +20,6 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
@@ -48,6 +35,19 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * @author TODAY
  * 2021/1/27 22:28
@@ -60,25 +60,25 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   private final Field field;
   private final Class<?> fieldType;
-  private BeanInstantiator constructor;
-  private PropertyAccessor propertyAccessor;
+  private transient BeanInstantiator constructor;
+  private transient PropertyAccessor propertyAccessor;
 
   @Nullable
-  private Type[] genericClass;
+  private transient Type[] genericClass;
 
   @Nullable
-  private Type componentType;
+  private transient Type componentType;
   private boolean componentResolved;
   /** if this property is array or */
-  private BeanInstantiator componentConstructor;
+  private transient BeanInstantiator componentConstructor;
 
   @Nullable
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+  private transient ConversionService conversionService;
 
-  private Annotation[] annotations;
+  private transient Annotation[] annotations;
 
   /** @since 3.0.4 */
-  private TypeDescriptor typeDescriptor;
+  private transient TypeDescriptor typeDescriptor;
   private final String alias;
 
   BeanProperty(String alias, Field field) {
@@ -106,10 +106,10 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @param args arguments objects
    * @return new object
    */
-  public Object newInstance(@Nullable final Object[] args) {
+  public Object newInstance(@Nullable Object[] args) {
     BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
-      final Class<?> fieldType = this.fieldType;
+      Class<?> fieldType = this.fieldType;
       if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
@@ -122,7 +122,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   /**
    * new a array object with given length
    */
-  public Object newArrayInstance(final int length) {
+  public Object newArrayInstance(int length) {
     Class<?> type = this.fieldType;
     if (type.isArray()) {
       type = type.getComponentType();
@@ -135,7 +135,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   }
 
   public Object getValue(Object object, Class<?> requiredType) {
-    final Object value = getValue(object);
+    Object value = getValue(object);
     if (requiredType.isInstance(value)) {
       return value;
     }
@@ -151,7 +151,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @throws PropertyReadOnlyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
-  public final void setValue(final Object obj, Object value) {
+  public final void setValue(Object obj, Object value) {
     if (!fieldType.isInstance(value)) {
       ConversionService conversionService = getConversionService();
       if (conversionService == null) {
@@ -173,7 +173,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    * @since 3.0.2
    */
-  public final void setDirectly(final Object obj, final Object value) {
+  public final void setDirectly(Object obj, Object value) {
     obtainAccessor().set(obj, value);
   }
 
@@ -187,10 +187,8 @@ public class BeanProperty extends AbstractAnnotatedElement {
   // PropertyAccessor
 
   public PropertyAccessor obtainAccessor() {
-    PropertyAccessor propertyAccessor = this.propertyAccessor;
     if (propertyAccessor == null) {
-      propertyAccessor = createAccessor();
-      this.propertyAccessor = propertyAccessor;
+      this.propertyAccessor = createAccessor();
     }
     return propertyAccessor;
   }
@@ -207,6 +205,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    *
    * @return component object
    */
+  @Nullable
   public Object newComponentInstance() {
     return newComponentInstance(null);
   }
@@ -216,12 +215,13 @@ public class BeanProperty extends AbstractAnnotatedElement {
    *
    * @return component object
    */
-  public Object newComponentInstance(Object[] args) {
+  @Nullable
+  public Object newComponentInstance(@Nullable Object[] args) {
     if (componentConstructor == null) {
-      final Class<?> componentClass = getComponentClass();
+      Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-                             ? NullInstantiator.INSTANCE
-                             : BeanInstantiator.fromConstructor(componentClass);
+              ? NullInstantiator.INSTANCE
+              : BeanInstantiator.fromConstructor(componentClass);
     }
     return componentConstructor.instantiate(args);
   }
@@ -229,16 +229,15 @@ public class BeanProperty extends AbstractAnnotatedElement {
   //
   @Nullable
   public Type[] getGenerics() {
-    Type[] genericClass = this.genericClass;
     if (genericClass == null) {
-      genericClass = ClassUtils.getGenericTypes(field);
-      this.genericClass = genericClass;
+      this.genericClass = ClassUtils.getGenericTypes(field);
     }
     return genericClass;
   }
 
-  public Type getGeneric(final int index) {
-    final Type[] generics = getGenerics();
+  @Nullable
+  public Type getGeneric(int index) {
+    Type[] generics = getGenerics();
     if (generics != null && generics.length > index) {
       return generics[index];
     }
@@ -254,7 +253,6 @@ public class BeanProperty extends AbstractAnnotatedElement {
     if (componentResolved) {
       return componentType;
     }
-    final Class<?> fieldType = this.fieldType;
     if (fieldType.isArray()) {
       setComponentType(fieldType.getComponentType());
     }
@@ -274,12 +272,12 @@ public class BeanProperty extends AbstractAnnotatedElement {
    */
   @Nullable
   public Class<?> getComponentClass() {
-    final Type componentType = getComponentType();
+    Type componentType = getComponentType();
     if (componentType instanceof Class) {
       return (Class<?>) componentType;
     }
     else if (componentType instanceof ParameterizedType) {
-      final Type rawType = ((ParameterizedType) componentType).getRawType();
+      Type rawType = ((ParameterizedType) componentType).getRawType();
       if (rawType instanceof Class) {
         return (Class<?>) rawType;
       }
@@ -392,12 +390,13 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   private Annotation[] resolveAnnotations() {
     return annotationsCache.get(this, k -> {
-      final ArrayList<Annotation> annotations = new ArrayList<>();
-      final Method readMethod = obtainAccessor().getReadMethod();
-      final Method writeMethod = obtainAccessor().getWriteMethod();
-
-      if (writeMethod != null) {
-        Collections.addAll(annotations, writeMethod.getAnnotations());
+      ArrayList<Annotation> annotations = new ArrayList<>();
+      Method readMethod = obtainAccessor().getReadMethod();
+      if (!((BeanProperty) k).isReadOnly()) {
+        Method writeMethod = obtainAccessor().getWriteMethod();
+        if (writeMethod != null) {
+          Collections.addAll(annotations, writeMethod.getAnnotations());
+        }
       }
       if (readMethod != null) {
         Collections.addAll(annotations, readMethod.getAnnotations());
@@ -419,7 +418,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       return false;
     if (!super.equals(o))
       return false;
-    final BeanProperty that = (BeanProperty) o;
+    BeanProperty that = (BeanProperty) o;
     return Objects.equals(field, that.field);
   }
 
@@ -447,7 +446,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @throws NoSuchPropertyException No property in target class
    */
   public static BeanProperty valueOf(Class<?> targetClass, String name) {
-    final Field field = ReflectionUtils.findField(targetClass, name);
+    Field field = ReflectionUtils.findField(targetClass, name);
     if (field == null) {
       throw new NoSuchPropertyException(targetClass, name);
     }
