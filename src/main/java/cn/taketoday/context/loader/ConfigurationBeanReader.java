@@ -25,10 +25,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
@@ -46,6 +46,7 @@ import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -185,19 +186,38 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  static class ConfigBeanDefinition extends DefaultBeanDefinition {
+  static class ConfigBeanDefinition extends DefaultBeanDefinition implements AnnotatedBeanDefinition {
     BeanDefinition declaringDef;
-    AnnotationMetadata importMetadata;
+    MethodMetadata componentMethod;
 
+    private final AnnotationMetadata annotationMetadata;
+
+    ConfigBeanDefinition(AnnotationMetadata annotationMetadata) {
+      this.annotationMetadata = annotationMetadata;
+    }
+
+    @Override
+    public AnnotationMetadata getMetadata() {
+      return annotationMetadata;
+    }
+
+    @Nullable
+    @Override
+    public MethodMetadata getFactoryMethodMetadata() {
+      return componentMethod;
+    }
   }
 
   public void register(BeanDefinition definition) {
     try {
       context.registerBeanDefinition(definition);
       MetadataReader metadataReader = getMetadataReader(definition);
+
       processImport(metadataReader, definition);
-      if (definition.isAnnotationPresent(Configuration.class)) {
-        loadConfigurationBeans(definition, metadataReader.getAnnotationMetadata()); //  scan config bean
+
+      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+      if (annotationMetadata.isAnnotated(Configuration.class.getName())) {
+        loadConfigurationBeans(definition, annotationMetadata); //  scan config bean
       }
     }
     catch (IOException e) {
