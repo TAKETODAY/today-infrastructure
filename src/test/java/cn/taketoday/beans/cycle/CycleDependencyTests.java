@@ -19,13 +19,6 @@
  */
 package cn.taketoday.beans.cycle;
 
-import org.aopalliance.intercept.Joinpoint;
-import org.junit.jupiter.api.Test;
-
-import java.util.function.Supplier;
-
-import javax.annotation.PostConstruct;
-
 import cn.taketoday.aop.EnableAspectAutoProxy;
 import cn.taketoday.aop.Logger;
 import cn.taketoday.aop.support.annotation.Around;
@@ -37,6 +30,11 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Order;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Singleton;
+import org.aopalliance.intercept.Joinpoint;
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.PostConstruct;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,6 +52,7 @@ class CycleDependencyTests {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.scan("cn.taketoday.beans.cycle");
       assertEquals(8, applicationContext.getBeanDefinitionCount());
+      applicationContext.refresh();
 
       final BeanA beanA = applicationContext.getBean(BeanA.class);
       final BeanB beanB = applicationContext.getBean(BeanB.class);

@@ -1465,7 +1465,7 @@ public abstract class AbstractBeanFactory
 
       this.fullLifecycle = beanFactory.fullLifecycle;
       this.fullPrototype = beanFactory.fullPrototype;
-      this.objectFactories = beanFactory.objectFactories;
+      this.objectFactories = beanFactory.objectFactories; // FIXME copy?
       this.argumentsResolver = beanFactory.argumentsResolver;
       this.hasDestructionBeanPostProcessors = beanFactory.hasDestructionBeanPostProcessors;
       this.hasInstantiationAwareBeanPostProcessors = beanFactory.hasInstantiationAwareBeanPostProcessors;

@@ -19,12 +19,10 @@
  */
 package cn.taketoday.web.view.template;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -37,9 +35,13 @@ import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.RequestContext;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 
 /**
  * @author TODAY <br>
@@ -47,14 +49,19 @@ import cn.taketoday.web.RequestContext;
  */
 @Props(prefix = "web.mvc.view.")
 public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
+  public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.view.template.DefaultTemplateRenderer";
 
   private final StandardExpressionContext sharedContext;
-  private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
+  private ExpressionFactory expressionFactory;
   /** @since 3.0 */
   private ResolversSupplier resolversSupplier;
 
+  @Nullable
+  private ResourceLoader resourceLoader;
+
   public DefaultTemplateRenderer() {
     this(ExpressionProcessor.getSharedInstance().getManager());
+    this.resourceLoader = new DefaultResourceLoader();
   }
 
   public DefaultTemplateRenderer(ExpressionManager elManager) {
@@ -67,13 +74,13 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   }
 
   @Override
-  public void render(final String templateName, final RequestContext context) throws IOException {
+  public void render(String templateName, RequestContext context) throws IOException {
     // prepare full template path to load template
-    final String template = prepareTemplate(templateName);
+    String template = prepareTemplate(templateName);
     // read template as text
-    final String text = readTemplate(template);
+    String text = readTemplate(template);
     // render template as text
-    final String rendered = renderTemplate(text, context);
+    String rendered = renderTemplate(text, context);
     // write to client
     write(context, rendered);
   }
@@ -87,9 +94,9 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
    * @throws IllegalStateException For Servlet Environment if the <code>getOutputStream</code>
    * method has already been called for this response object
    */
-  protected void write(final RequestContext context, final String rendered) throws IOException {
+  protected void write(RequestContext context, String rendered) throws IOException {
     if (rendered != null) {
-      final PrintWriter writer = context.getWriter();
+      PrintWriter writer = context.getWriter();
       writer.write(rendered);
     }
   }
@@ -101,9 +108,12 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
    * @param context Current {@link RequestContext}
    * @return Rendered text string
    */
-  protected String renderTemplate(final String text, RequestContext context) {
-    final ExpressionContext elContext = prepareContext(sharedContext, context);
-    final ValueExpression expression =
+  protected String renderTemplate(String text, RequestContext context) {
+    ExpressionContext elContext = prepareContext(sharedContext, context);
+    if (expressionFactory == null) {
+      expressionFactory = ExpressionFactory.getSharedInstance();
+    }
+    ValueExpression expression =
             expressionFactory.createValueExpression(elContext, text, String.class);
     return expression.getValue(elContext).toString();
   }
@@ -115,8 +125,11 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
    * @return template source text string
    * @throws IOException If an input or output exception occurred
    */
-  protected String readTemplate(final String template) throws IOException {
-    final Resource resource = ResourceUtils.getResource(template);
+  protected String readTemplate(String template) throws IOException {
+    if (resourceLoader == null) {
+      resourceLoader = new DefaultResourceLoader();
+    }
+    Resource resource = resourceLoader.getResource(template);
     return StreamUtils.copyToString(resource.getInputStream());
   }
 
@@ -125,8 +138,25 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
     this.resolversSupplier = resolversSupplier;
   }
 
+  public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
+
+  @Nullable
+  public ResourceLoader getResourceLoader() {
+    return resourceLoader;
+  }
+
+  public void setExpressionFactory(ExpressionFactory expressionFactory) {
+    this.expressionFactory = expressionFactory;
+  }
+
+  public ExpressionFactory getExpressionFactory() {
+    return expressionFactory;
+  }
+
   protected ExpressionContext prepareContext(ExpressionContext sharedContext, RequestContext context) {
-    final ExpressionResolver resolver = resolversSupplier.getResolvers(sharedContext, context);
+    ExpressionResolver resolver = resolversSupplier.getResolvers(sharedContext, context);
     return new TemplateViewResolverELContext(sharedContext, resolver);
   }
 
