@@ -20,10 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import org.junit.jupiter.api.Test;
-
-import javax.annotation.PostConstruct;
-
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
@@ -34,6 +30,9 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Value;
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -126,37 +125,16 @@ class AutowireCapableBeanFactoryTests {
   @Test
   void testAutowireBean() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.refresh();
+
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
       CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
       beanFactory.addBeanPostProcessor(new PostProcessor());
+      context.refresh();
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
       beanFactory.autowireBean(autowireTestBean);
 
-      assertThat(autowireTestBean.name).isEqualTo("autowireTestBean");
-      assertThat(autowireTestBean.property).isEqualTo(2);
-      assertThat(autowireTestBean.initMethod).isTrue();
-      assertThat(autowireTestBean.postConstruct).isTrue();
-      assertThat(autowireTestBean.afterPropertiesSet).isTrue();
-      assertThat(autowireTestBean.afterPostProcessor).isFalse();
-      assertThat(autowireTestBean.beforePostProcessor).isFalse();
-      assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
-    }
-  }
-
-  @Test
-  void testAutowireBeanProperties() {
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.refresh();
-      StandardBeanFactory beanFactory = context.getBeanFactory();
-
-      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
-      beanFactory.addBeanPostProcessor(new PostProcessor());
-
-      AutowireTestBean autowireTestBean = new AutowireTestBean();
-      beanFactory.autowireBeanProperties(autowireTestBean);
       assertThat(autowireTestBean.name).isNull();
       assertThat(autowireTestBean.property).isEqualTo(2);
       assertThat(autowireTestBean.initMethod).isFalse();

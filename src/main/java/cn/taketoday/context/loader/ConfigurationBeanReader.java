@@ -155,7 +155,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   public void importing(Class<?> component) {
-    DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(component);
+    BeanDefinition defaults = BeanDefinitionBuilder.defaults(component);
     loadConfigurationBeans(defaults, getMetadataReader(defaults).getAnnotationMetadata());
   }
 

@@ -20,17 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
@@ -41,6 +30,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
@@ -51,6 +41,17 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static cn.taketoday.lang.Constant.VALUE;
 
@@ -219,11 +220,20 @@ public class BeanDefinitionBuilder {
    * @see #initMethods(String...)
    * @see #destroyMethod(String)
    */
-  public void attributes(AnnotationAttributes component) {
+  public BeanDefinitionBuilder attributes(AnnotationAttributes component) {
     if (CollectionUtils.isNotEmpty(component)) {
       this.initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
       this.destroyMethod = component.getString(BeanDefinition.DESTROY_METHOD);
     }
+    return this;
+  }
+
+  public BeanDefinitionBuilder annotation(MergedAnnotation<Component> annotation) {
+    if (annotation.isPresent()) {
+      this.initMethods = annotation.getStringArray(BeanDefinition.INIT_METHODS);
+      this.destroyMethod = annotation.getString(BeanDefinition.DESTROY_METHOD);
+    }
+    return this;
   }
 
   // reset
@@ -270,10 +280,16 @@ public class BeanDefinitionBuilder {
       return factoryMethodDef;
     }
     if (beanClass != null) {
-      return new DefaultAnnotatedBeanDefinition(beanClass);
+      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(beanClass);
+      MergedAnnotation<Component> annotation = definition.getMetadata().getAnnotations().get(Component.class);
+      annotation(annotation);
+      return definition;
     }
     DefaultBeanDefinition definition = new DefaultBeanDefinition();
     definition.setBeanClassName(beanClassName);
+    if (name == null) {
+      name = defaultBeanName(beanClassName);
+    }
     return definition;
   }
 
@@ -439,28 +455,31 @@ public class BeanDefinitionBuilder {
     return new DefaultBeanDefinition();
   }
 
-  public static DefaultAnnotatedBeanDefinition defaults(Class<?> candidate) {
+  public static BeanDefinition defaults(Class<?> candidate) {
     Assert.notNull(candidate, "bean-class must not be null");
     String defaultBeanName = defaultBeanName(candidate);
     return defaults(defaultBeanName, candidate, null);
   }
 
-  public static DefaultAnnotatedBeanDefinition defaults(String name, Class<?> beanClass) {
+  public static BeanDefinition defaults(String name, Class<?> beanClass) {
     return defaults(name, beanClass, null);
   }
 
-  public static DefaultAnnotatedBeanDefinition defaults(
+  public static BeanDefinition defaults(
           String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(beanClass, "bean-class must not be null");
 
-    DefaultAnnotatedBeanDefinition def = new DefaultAnnotatedBeanDefinition(beanClass);
+    BeanDefinition definition = new BeanDefinitionBuilder()
+            .beanClass(beanClass)
+            .name(name)
+            .build();
+
     if (attributes != null) {
-      def.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHOD));
-      def.setInitMethods(attributes.getStringArray(BeanDefinition.INIT_METHODS));
+      definition.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHOD));
+      definition.setInitMethods(attributes.getStringArray(BeanDefinition.INIT_METHODS));
     }
-    def.setName(name);
-    return def;
+    return definition;
   }
 
   public static List<BeanDefinition> from(Class<?> candidate) {

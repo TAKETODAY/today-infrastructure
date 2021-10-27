@@ -117,17 +117,6 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   Object configureBean(Object existingBean, String beanName) throws BeansException;
 
   /**
-   * Autowire the bean properties of the given bean instance by name or type.
-   * <p>
-   * Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
-   * callbacks or perform any further initialization of the bean.
-   *
-   * @param existingBean the existing bean instance
-   * @throws BeansException if wiring failed
-   */
-  void autowireBeanProperties(Object existingBean) throws BeansException;
-
-  /**
    * Initialize the given raw bean, applying factory callbacks such as
    * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
    * processors (including ones which might wrap the given raw bean).

@@ -74,18 +74,27 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // apply properties
     applyPropertyValues(existingBean, prototypeDef);
-    // invoke initialize methods
-    invokeInitMethods(existingBean, prototypeDef);
   }
 
   @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
-    return null;
+    BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
+    Object existingBean = instantiationStrategy.instantiate(prototypeDef, this);
+    applyPropertyValues(existingBean, prototypeDef);
+    return existingBean;
   }
 
   @Override
   public Object configureBean(Object existingBean, String beanName) throws BeansException {
-    return null;
+    BeanDefinition definition = getBeanDefinition(beanName);
+    if (definition == null) {
+      definition = getPrototypeBeanDefinition(existingBean.getClass());
+    }
+    else {
+      definition = definition.cloneDefinition();
+      definition.setScope(Scope.PROTOTYPE);
+    }
+    return initializeBean(existingBean, definition);
   }
 
   public void populateBean(Object bean, BeanDefinition definition) {
@@ -107,17 +116,6 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     applyPropertyValues(bean, definition);
 
-  }
-
-  @Override
-  public void autowireBeanProperties(Object existingBean) {
-    Class<Object> userClass = ClassUtils.getUserClass(existingBean);
-    BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
-    if (log.isDebugEnabled()) {
-      log.debug("Autowiring bean properties named: [{}].", prototypeDef.getName());
-    }
-    // apply properties
-    applyPropertyValues(existingBean, prototypeDef);
   }
 
   @Override
@@ -186,7 +184,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   protected BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
-    DefaultBeanDefinition defaults = BeanDefinitionBuilder.defaults(beanClass);
+    BeanDefinition defaults = BeanDefinitionBuilder.defaults(beanClass);
     defaults.setScope(Scope.PROTOTYPE);
     return defaults;
   }

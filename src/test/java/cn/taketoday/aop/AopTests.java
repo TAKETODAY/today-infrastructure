@@ -19,16 +19,6 @@
  */
 package cn.taketoday.aop;
 
-import org.aopalliance.intercept.Joinpoint;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.junit.jupiter.api.Test;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
@@ -52,6 +42,15 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.aopalliance.intercept.Joinpoint;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.junit.jupiter.api.Test;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -236,6 +235,7 @@ class AopTests {
       beanFactory.addBeanPostProcessor(proxyCreator);
 
       context.register(TimerAspect.class, PrinterBean.class);
+      context.refresh();
 
       PrinterBean bean = context.getBean(PrinterBean.class);
       bean.print();
@@ -321,6 +321,7 @@ class AopTests {
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       context.register(LoggingConfig.class, PrinterBean.class);
+      context.refresh();
 //      DebuggingClassWriter.setDebugLocation("~/temp/debug");
       // TODO 调试 构造器问题
 //      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
