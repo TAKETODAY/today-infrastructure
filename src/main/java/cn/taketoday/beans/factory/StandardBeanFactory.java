@@ -383,6 +383,25 @@ public class StandardBeanFactory
     return null;
   }
 
+  @Override
+  public String getPrimaryCandidate(Set<String> candidateNames, Class<?> requiredType) {
+    String primaryCandidate = determinePrimaryCandidate(candidateNames, requiredType);
+    if (primaryCandidate == null) {
+      Map<String, Object> candidates = CollectionUtils.newLinkedHashMap(candidateNames.size());
+      for (String beanName : candidateNames) {
+        if (containsSingleton(beanName)) {
+          Object beanInstance = getBean(beanName);
+          candidates.put(beanName, beanInstance);
+        }
+        else {
+          candidates.put(beanName, getType(beanName));
+        }
+      }
+      primaryCandidate = determineHighestPriorityCandidate(candidates, requiredType);
+    }
+    return primaryCandidate;
+  }
+
   @Nullable
   private <T> NamedBeanHolder<T> resolveNamedBean(
           String beanName, ResolvableType requiredType) throws BeansException {

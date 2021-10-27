@@ -581,7 +581,7 @@ public abstract class BeanFactoryUtils {
         }
       }
       if (!primaries.isEmpty()) {
-        AnnotationAwareOrderComparator.sort(primaries); // size > 1 sort
+        AnnotationAwareOrderComparator.sort(primaries); // size > 1 sort  FIXME BeanDefinition cannot sort
         log.debug("Found primary beans {} use first one", primaries);
         return primaries.get(0);
       }

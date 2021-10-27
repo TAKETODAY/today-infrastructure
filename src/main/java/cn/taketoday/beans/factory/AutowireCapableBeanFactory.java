@@ -19,6 +19,8 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.Set;
+
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
 
@@ -216,5 +218,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @since 4.0
    */
   <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException;
+
+  /**
+   * @since 4.0
+   */
+  String getPrimaryCandidate(Set<String> candidateNames, Class<?> requiredType);
 
 }

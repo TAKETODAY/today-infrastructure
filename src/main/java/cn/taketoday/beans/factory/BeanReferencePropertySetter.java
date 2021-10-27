@@ -25,16 +25,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Use BeanReference to resolve value
@@ -46,6 +47,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   private static final Logger log = LoggerFactory.getLogger(BeanReferencePropertySetter.class);
 
   /** reference name */
+  @Nullable
   private final String referenceName;
   /** property is required? **/
   private final boolean required;
@@ -59,7 +61,6 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   /** @since 3.0.2 */
   public BeanReferencePropertySetter(String referenceName, boolean required, BeanProperty property) {
     super(property);
-    Assert.notNull(referenceName, "Bean name can't be null");
     this.required = required;
     this.referenceName = referenceName;
     this.referenceClass = property.getType();
@@ -89,9 +90,23 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     String name = referenceName;
     Class<?> type = getReferenceClass();
 
-    if (beanFactory.isFullPrototype() && prototype && beanFactory.containsBeanDefinition(name)) {
+    if (!StringUtils.hasText(name)) {
+      Set<String> beanNamesOfType = beanFactory.getBeanNamesOfType(type);
+      if (beanNamesOfType.isEmpty()) {
+        throw new NoSuchBeanDefinitionException(type);
+      }
+      if (beanNamesOfType.size() > 1) {
+        name = beanFactory.getPrimaryCandidate(beanNamesOfType, type);
+      }
+      else {
+        name = beanNamesOfType.iterator().next();
+      }
+    }
+
+    if (prototype && beanFactory.isFullPrototype() && beanFactory.containsBeanDefinition(name)) {
       return Prototypes.newProxyInstance(type, beanFactory.getBeanDefinition(name), beanFactory);
     }
+
     BeanDefinition reference = getReference();
     if (reference == null) {
       handleDependency(beanFactory);
@@ -99,8 +114,13 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     if (reference != null) {
       return beanFactory.getBean(reference);
     }
-    Object bean = beanFactory.getBean(name, type);
-    return bean != null ? bean : beanFactory.getBean(type);
+
+    if (StringUtils.hasText(name)) {
+      // by-name
+      return beanFactory.getBean(name, type);
+    }
+    // by-type
+    return beanFactory.getBean(type);
   }
 
   /**
