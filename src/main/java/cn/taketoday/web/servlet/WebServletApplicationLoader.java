@@ -19,29 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EventListener;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.Filter;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletSecurityElement;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.annotation.ServletSecurity;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebListener;
-import javax.servlet.annotation.WebServlet;
-
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
@@ -63,6 +40,28 @@ import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
+
+import javax.servlet.Filter;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletSecurityElement;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.ServletSecurity;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebListener;
+import javax.servlet.annotation.WebServlet;
+import java.io.File;
+import java.io.FileFilter;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EventListener;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
@@ -157,7 +156,7 @@ public class WebServletApplicationLoader
     if (ret == null) {
       long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
+              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
       WebServletApplicationContext context = createContext();
       ret = context;
       context.setServletContext(servletContext);
@@ -214,8 +213,8 @@ public class WebServletApplicationLoader
     BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
     if (!registry.containsBeanDefinition(TemplateRenderer.class)) {
       // use default view resolver
-      definitionReader().registerBean(DefaultTemplateRenderer.class);
-      log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateRenderer.class));
+      definitionReader().registerBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME, DefaultTemplateRenderer.class);
+      log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME));
     }
     super.checkFrameworkComponents(context);
   }

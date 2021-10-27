@@ -19,18 +19,6 @@
  */
 package cn.taketoday.web.registry;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
@@ -39,13 +27,22 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.view.ReturnValueHandler;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Method;
 
 import static cn.taketoday.core.ConfigurationException.nonNull;
 
@@ -54,6 +51,8 @@ import static cn.taketoday.core.ConfigurationException.nonNull;
  * 2019-12-23 22:10
  */
 public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
+  public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.registry.ViewControllerHandlerRegistry";
+
   // the dtd
   public static final String DTD_NAME = "web-configuration";
 
@@ -188,8 +187,9 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       return null;
     });
 
+    WebApplicationContext context = obtainApplicationContext();
     for (String file : StringUtils.split(webMvcConfigLocation)) {
-      Resource resource = ResourceUtils.getResource(file);
+      Resource resource = context.getResource(file);
       if (!resource.exists()) {
         throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
       }

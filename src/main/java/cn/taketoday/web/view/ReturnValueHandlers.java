@@ -19,11 +19,6 @@
  */
 package cn.taketoday.web.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.ArraySizeTrimmer;
@@ -40,6 +35,11 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * return-value handlers
@@ -165,9 +165,9 @@ public class ReturnValueHandlers
   protected TemplateRenderer getTemplateRenderer(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     TemplateRenderer templateResolver = context.getBean(TemplateRenderer.class);
     if (templateResolver == null) {
-      BeanDefinitionReader beanDefinitionReader = new BeanDefinitionReader(context, context.unwrapFactory(BeanDefinitionRegistry.class));
+      BeanDefinitionReader beanDefinitionReader = new BeanDefinitionReader(context, unwrapFactory(BeanDefinitionRegistry.class));
       beanDefinitionReader.setEnableConditionEvaluation(false);
-      beanDefinitionReader.registerBean(DefaultTemplateRenderer.class);
+      beanDefinitionReader.registerBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME, DefaultTemplateRenderer.class);
       templateResolver = context.getBean(TemplateRenderer.class);
     }
 

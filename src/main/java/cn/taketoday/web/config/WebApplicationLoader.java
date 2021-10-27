@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.config;
 
-import java.util.Collections;
-import java.util.List;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.Ordered;
@@ -54,6 +51,9 @@ import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
 import cn.taketoday.web.view.SelectableReturnValueHandler;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -105,7 +105,7 @@ public class WebApplicationLoader
   protected void logStartup(WebApplicationContext context) {
     if (TodayStrategies.getFlag(ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-               System.currentTimeMillis() - context.getStartupDate()//
+              System.currentTimeMillis() - context.getStartupDate()//
       );
     }
   }
@@ -125,8 +125,8 @@ public class WebApplicationLoader
     mvcConfiguration.configureHandlerRegistry(registries);
 
     obtainDispatcher.setHandlerRegistry(registries.size() == 1
-                                        ? registries.get(0)
-                                        : new CompositeHandlerRegistry(registries));
+            ? registries.get(0)
+            : new CompositeHandlerRegistry(registries));
   }
 
   private void configureHandlerAdapter(
@@ -401,8 +401,8 @@ public class WebApplicationLoader
       return registry;
     }
     if (registry == null) {
-      definitionReader().registerBean(ViewControllerHandlerRegistry.class);
-      registry = obtainApplicationContext().getBean(ViewControllerHandlerRegistry.class);
+      definitionReader().registerBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
+      registry = obtainApplicationContext().getBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
     }
     registry.configure(webMvcConfigLocation);
     return registry;
