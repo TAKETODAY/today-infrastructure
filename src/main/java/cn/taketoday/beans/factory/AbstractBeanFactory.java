@@ -432,12 +432,12 @@ public abstract class AbstractBeanFactory
       }
     }
 
-    // apply simple property-values
-    Set<PropertyValue> propertyValues = def.getPropertyValues();
+    // apply map of property-values
+    Map<String, Object> propertyValues = def.getPropertyValues();
     if (CollectionUtils.isNotEmpty(propertyValues)) {
       PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
       initPropertyValuesBinder(dataBinder);
-      dataBinder.bind(bean, propertyValues);
+      dataBinder.bind(propertyValues);
     }
 
     if (CollectionUtils.isNotEmpty(propertySetters)) {

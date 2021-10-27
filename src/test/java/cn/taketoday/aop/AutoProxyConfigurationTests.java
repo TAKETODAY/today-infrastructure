@@ -48,19 +48,13 @@ class AutoProxyConfigurationTests {
 
       BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
 
-      PropertyValue exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
-      PropertyValue proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
-
-      assertThat(exposeProxy).isInstanceOf(DefaultPropertySetter.class);
-      assertThat(proxyTargetClass).isInstanceOf(DefaultPropertySetter.class);
-
-      assertThat(exposeProxy.getName()).isEqualTo("exposeProxy");
-      assertThat(proxyTargetClass.getName()).isEqualTo("proxyTargetClass");
+      Object exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
+      Object proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
 
       ProxyConfig proxyCreator = context.getBean(ProxyConfig.class);
 
-      assertThat(exposeProxy.getValue()).isInstanceOf(Boolean.class).isEqualTo(true).isEqualTo(proxyCreator.isExposeProxy());
-      assertThat(proxyTargetClass.getValue()).isInstanceOf(Boolean.class).isEqualTo(false).isEqualTo(proxyCreator.isProxyTargetClass());
+      assertThat(exposeProxy).isInstanceOf(Boolean.class).isEqualTo(true).isEqualTo(proxyCreator.isExposeProxy());
+      assertThat(proxyTargetClass).isInstanceOf(Boolean.class).isEqualTo(false).isEqualTo(proxyCreator.isProxyTargetClass());
 
     }
   }

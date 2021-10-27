@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
@@ -66,7 +66,7 @@ public interface BeanDefinition extends AttributeAccessor {
    * @return Property value object
    * @throws NoSuchPropertyException If there is no property with given name
    */
-  PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
+  Object getPropertyValue(String name) throws NoSuchPropertyException;
 
   /**
    * Indicates that If the bean is a {@link Singleton}.
@@ -146,7 +146,7 @@ public interface BeanDefinition extends AttributeAccessor {
    */
   boolean isAbstract();
 
-  // ----------------- Configurable
+  // ----------------- PropertyValue
 
   /**
    * Add PropertyValue to list.
@@ -159,12 +159,18 @@ public interface BeanDefinition extends AttributeAccessor {
   /** @since 4.0 */
   void addPropertyValues(PropertyValue... propertyValues);
 
+  /** @since 4.0 */
+  void addPropertyValues(Map<String, Object> propertyValues);
+
   /**
    * Apply bean' {@link PropertySetter}s
    *
    * @param propertyValues The array of the bean's {@link PropertySetter}s
    */
   void setPropertyValues(PropertyValue... propertyValues);
+
+  /** @since 4.0 */
+  void setPropertyValues(Map<String, Object> propertyValues);
 
   void setPropertyValues(Collection<PropertyValue> propertyValues);
 
@@ -174,7 +180,7 @@ public interface BeanDefinition extends AttributeAccessor {
    * @since 4.0
    */
   @Nullable
-  Set<PropertyValue> getPropertyValues();
+  Map<String, Object> getPropertyValues();
 
   /**
    * Apply bean If its initialized

@@ -42,7 +42,7 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
    *
    * @param def Bean definition
    * @throws BeanDefinitionOverrideException if there is already a BeanDefinition
-   * * for the specified bean name and we are not allowed to override it
+   * for the specified bean name and we are not allowed to override it
    * @since 1.2.0
    */
   void registerBeanDefinition(String name, BeanDefinition def);
@@ -79,6 +79,7 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
    *
    * @param beanClass Bean definition bean class
    */
+  @Nullable
   BeanDefinition getBeanDefinition(Class<?> beanClass);
 
   /**

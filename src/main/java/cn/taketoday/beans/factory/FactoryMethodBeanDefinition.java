@@ -29,7 +29,6 @@ import java.util.Objects;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
@@ -59,18 +58,6 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
   public FactoryMethodBeanDefinition setDeclaringName(String declaringName) {
     this.declaringName = declaringName;
     return this;
-  }
-
-  /**
-   * {@link BeanDefinition}'s Order
-   */
-  @Override
-  public int getOrder() {
-    int order = super.getOrder();
-    if (LOWEST_PRECEDENCE == order) {
-      return OrderUtils.getOrderOrLowest(getFactoryMethod());
-    }
-    return order - OrderUtils.getOrderOrLowest(getFactoryMethod());
   }
 
   public Method getFactoryMethod() {

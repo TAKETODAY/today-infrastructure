@@ -21,7 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
@@ -138,12 +138,12 @@ public class FactoryBeanDefinition<T>
   //---------------------------------------------------------------------
 
   @Override
-  public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
+  public Object getPropertyValue(String name) throws NoSuchPropertyException {
     return factoryDef.getPropertyValue(name);
   }
 
   @Override
-  public Set<PropertyValue> getPropertyValues() {
+  public Map<String, Object> getPropertyValues() {
     return factoryDef.getPropertyValues();
   }
 
@@ -224,6 +224,16 @@ public class FactoryBeanDefinition<T>
 
   @Override
   public void setPropertyValues(Collection<PropertyValue> propertyValues) {
+    factoryDef.setPropertyValues(propertyValues);
+  }
+
+  @Override
+  public void addPropertyValues(Map<String, Object> propertyValues) {
+    factoryDef.addPropertyValues(propertyValues);
+  }
+
+  @Override
+  public void setPropertyValues(Map<String, Object> propertyValues) {
     factoryDef.setPropertyValues(propertyValues);
   }
 

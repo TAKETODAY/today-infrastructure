@@ -23,9 +23,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
@@ -34,10 +34,8 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.AttributeAccessorSupport;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -52,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  * 2019-02-01 12:23
  */
 public class DefaultBeanDefinition
-        extends AttributeAccessorSupport implements BeanDefinition, Ordered {
+        extends AttributeAccessorSupport implements BeanDefinition {
 
   /** bean name. */
   private String name;
@@ -117,7 +115,7 @@ public class DefaultBeanDefinition
   private Object source;
 
   @Nullable
-  private LinkedHashSet<PropertyValue> propertyValues;
+  private LinkedHashMap<String, Object> propertyValues;
 
   public DefaultBeanDefinition() { }
 
@@ -148,12 +146,11 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public PropertyValue getPropertyValue(String name) {
+  public Object getPropertyValue(String name) {
     if (propertyValues != null) {
-      for (PropertyValue propertySetter : propertyValues) {
-        if (propertySetter.getName().equals(name)) {
-          return propertySetter;
-        }
+      Object value = propertyValues.get(name);
+      if (value != null) {
+        return value;
       }
     }
     throw new NoSuchPropertyException("No such property named: [" + name + "]");
@@ -348,24 +345,28 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public void addPropertyValues(PropertyValue... propertyValue) {
-    if (propertyValues == null) {
-      propertyValues = new LinkedHashSet<>();
+  public void addPropertyValues(PropertyValue... propertyValues) {
+    if (ObjectUtils.isNotEmpty(propertyValues)) {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      for (PropertyValue property : propertyValues) {
+        this.propertyValues.put(property.getName(), property.getValue());
+      }
     }
-    CollectionUtils.addAll(propertyValues, propertyValue);
   }
 
   @Override
   public void setPropertyValues(PropertyValue... propertyValues) {
     if (this.propertyValues == null) {
       if (ObjectUtils.isNotEmpty(propertyValues)) {
-        this.propertyValues = new LinkedHashSet<>();
-        CollectionUtils.addAll(this.propertyValues, propertyValues);
+        this.propertyValues = new LinkedHashMap<>();
+        addPropertyValues(propertyValues);
       }
     }
     else {
       this.propertyValues.clear();
-      CollectionUtils.addAll(this.propertyValues, propertyValues);
+      addPropertyValues(propertyValues);
     }
   }
 
@@ -373,29 +374,43 @@ public class DefaultBeanDefinition
   public void setPropertyValues(Collection<PropertyValue> propertyValues) {
     if (this.propertyValues == null) {
       if (CollectionUtils.isNotEmpty(propertyValues)) {
-        this.propertyValues = new LinkedHashSet<>();
-        CollectionUtils.addAll(this.propertyValues, propertyValues);
+        this.propertyValues = new LinkedHashMap<>();
+        for (PropertyValue property : propertyValues) {
+          this.propertyValues.put(property.getName(), property.getValue());
+        }
       }
     }
     else {
       this.propertyValues.clear();
-      CollectionUtils.addAll(this.propertyValues, propertyValues);
+      for (PropertyValue property : propertyValues) {
+        this.propertyValues.put(property.getName(), property.getValue());
+      }
     }
   }
 
   @Override
-  public Set<PropertyValue> getPropertyValues() {
-    return propertyValues;
+  public void addPropertyValues(Map<String, Object> propertyValues) {
+    if (this.propertyValues == null) {
+      this.propertyValues = new LinkedHashMap<>();
+    }
+    this.propertyValues.putAll(propertyValues);
   }
 
-  /**
-   * {@link BeanDefinition}'s Order
-   *
-   * @since 2.1.7
-   */
   @Override
-  public int getOrder() {
-    return OrderUtils.getOrderOrLowest(getBeanClass());
+  public void setPropertyValues(Map<String, Object> propertyValues) {
+    if (this.propertyValues == null) {
+      this.propertyValues = new LinkedHashMap<>();
+    }
+    else {
+      this.propertyValues.clear();
+    }
+    this.propertyValues.putAll(propertyValues);
+  }
+
+  @Nullable
+  @Override
+  public Map<String, Object> getPropertyValues() {
+    return propertyValues;
   }
 
   @Override
@@ -506,7 +521,8 @@ public class DefaultBeanDefinition
     setBeanClass(from.getBeanClass());
     setFactoryBean(from.isFactoryBean());
     setDestroyMethod(from.getDestroyMethod());
-    setPropertyValues(from.getPropertyValues());
+    // copy
+    addPropertyValues(from.getPropertyValues());
 
     setLazyInit(from.isLazyInit());
     setInitialized(from.isInitialized());
