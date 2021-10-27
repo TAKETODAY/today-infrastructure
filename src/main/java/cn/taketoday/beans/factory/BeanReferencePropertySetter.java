@@ -93,9 +93,13 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     if (!StringUtils.hasText(name)) {
       Set<String> beanNamesOfType = beanFactory.getBeanNamesOfType(type);
       if (beanNamesOfType.isEmpty()) {
-        throw new NoSuchBeanDefinitionException(type);
+        // find type of bean def
+        this.reference = handleDependency(beanFactory);
+        if (reference == null) {
+          throw new NoSuchBeanDefinitionException(type);
+        }
       }
-      if (beanNamesOfType.size() > 1) {
+      else if (beanNamesOfType.size() > 1) {
         name = beanFactory.getPrimaryCandidate(beanNamesOfType, type);
       }
       else {
@@ -103,16 +107,15 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
       }
     }
 
-    if (prototype && beanFactory.isFullPrototype() && beanFactory.containsBeanDefinition(name)) {
-      return Prototypes.newProxyInstance(type, beanFactory.getBeanDefinition(name), beanFactory);
+    if (reference != null) {
+      if (prototype && beanFactory.isFullPrototype()) {
+        return Prototypes.newProxyInstance(type, reference, beanFactory);
+      }
+      return beanFactory.getBean(reference);
     }
 
-    BeanDefinition reference = getReference();
-    if (reference == null) {
-      handleDependency(beanFactory);
-    }
-    if (reference != null) {
-      return beanFactory.getBean(reference);
+    if (prototype && beanFactory.isFullPrototype() && beanFactory.containsBeanDefinition(name)) {
+      return Prototypes.newProxyInstance(type, beanFactory.getBeanDefinition(name), beanFactory);
     }
 
     if (StringUtils.hasText(name)) {
@@ -126,55 +129,42 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   /**
    * Handle abstract dependencies
    */
-  public void handleDependency(AbstractBeanFactory beanFactory) {
-    String beanName = getReferenceName();
-    // fix: #2 when handle dependency some bean definition has already exist
-    if (beanFactory.containsBeanDefinition(beanName)) {
-      setReference(beanFactory.getBeanDefinition(beanName), beanFactory);
-      return;
-    }
+  public BeanDefinition handleDependency(AbstractBeanFactory beanFactory) {
     // handle dependency which is special bean like List<?> or Set<?>...
     // ----------------------------------------------------------------
     BeanDefinition handleDef = resolveDependency(beanFactory);
     if (handleDef != null) {
-      beanFactory.registerBeanDefinition(beanName, handleDef);
-      setReference(handleDef, beanFactory);
+      return handleDef;
     }
     else {
       // handle dependency which is interface and parent object
       // --------------------------------------------------------
       Class<?> propertyType = getReferenceClass();
       // find child beans
-      List<BeanDefinition> childDefs = doGetChildDefinition(beanFactory, beanName, propertyType);
+      List<BeanDefinition> childDefs = doGetChildDefinition(beanFactory, propertyType);
       if (CollectionUtils.isNotEmpty(childDefs)) {
         BeanDefinition childDef = BeanFactoryUtils.getPrimaryBeanDefinition(childDefs);
         if (log.isDebugEnabled()) {
-          log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
+          log.debug("Found The Implementation Of [{}] Bean: [{}].", propertyType, childDef.getName());
         }
-        DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, childDef);
-        beanFactory.registerBeanDefinition(beanName, def);
-        setReference(def, beanFactory);
+        return new DefaultBeanDefinition(propertyType.getName(), childDef);
       }
     }
+    return null;
   }
 
   /**
    * Get child {@link BeanDefinition}s
    *
    * @param beanFactory Bean Factory
-   * @param beanName Bean name
    * @param beanClass Bean class
    * @return A list of {@link BeanDefinition}s, Never be null
    */
-  protected List<BeanDefinition> doGetChildDefinition(BeanFactory beanFactory, String beanName, Class<?> beanClass) {
+  protected List<BeanDefinition> doGetChildDefinition(BeanFactory beanFactory, Class<?> beanClass) {
     LinkedHashSet<BeanDefinition> ret = new LinkedHashSet<>();
     for (String name : beanFactory.getBeanDefinitionNames()) {
-      if (Objects.equals(beanName, name)) {
-        continue;
-      }
-      BeanDefinition childDef = beanFactory.getBeanDefinition(name);
       if (beanFactory.isTypeMatch(name, beanClass)) {
-        ret.add(childDef); // is beanClass's Child Bean
+        ret.add(beanFactory.getBeanDefinition(name)); // is beanClass's Child Bean
       }
     }
 
