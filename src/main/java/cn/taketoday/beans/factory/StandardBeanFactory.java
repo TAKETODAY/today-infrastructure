@@ -121,7 +121,19 @@ public class StandardBeanFactory
 
   @Override
   public void registerBeanDefinition(BeanDefinition def) {
-    beanDefinitionMap.put(def.getName(), def);
+    registerBeanDefinition(def.getName(), def);
+  }
+
+  @Override
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
+      registerFactoryBean(beanName, def);
+    }
+    else {
+      register(beanName, def);
+      postProcessRegisterBeanDefinition(def);
+      beanDefinitionNames.add(beanName);
+    }
   }
 
   @Override
@@ -246,17 +258,6 @@ public class StandardBeanFactory
   @Override
   public boolean isAllowBeanDefinitionOverriding() {
     return this.allowBeanDefinitionOverriding;
-  }
-
-  @Override
-  public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
-      registerFactoryBean(beanName, def);
-    }
-    else {
-      register(beanName, def);
-      postProcessRegisterBeanDefinition(def);
-    }
   }
 
   /**

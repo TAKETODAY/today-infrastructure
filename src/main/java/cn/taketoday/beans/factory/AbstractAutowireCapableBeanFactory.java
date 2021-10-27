@@ -51,7 +51,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (cacheBeanDef) {
       if ((defToUse = getBeanDefinition(beanClass)) == null) {
         defToUse = getPrototypeBeanDefinition(beanClass);
-        registerBeanDefinition(defToUse);
+        registerBeanDefinition(defToUse.getName(), defToUse);
       }
     }
     else {
@@ -61,8 +61,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
-
-  protected abstract void registerBeanDefinition(BeanDefinition def);
 
   @Override
   public void autowireBean(Object existingBean) {
