@@ -48,7 +48,7 @@ class PropsTests {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
       applicationContext.registerBean("testBean", PropsBean.class);
-//			applicationContext.refresh();
+			applicationContext.refresh();
 
       PropsBean bean = applicationContext.getBean(PropsBean.class);
 

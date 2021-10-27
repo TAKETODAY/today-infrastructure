@@ -19,6 +19,15 @@
  */
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -52,7 +61,6 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -64,15 +72,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -328,12 +327,8 @@ public abstract class AbstractApplicationContext
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     beanFactory.addBeanPostProcessor(new AutowiredPropertyValuesBeanPostProcessor(this));
 
-    // BeanFactory interface not registered as resolvable type in a plain factory.
-    // MessageSource registered (and found for autowiring) as a bean.
-    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
-    beanFactory.registerResolvableDependency(ResourceLoader.class, this);
-    beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
-    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+    beanFactory.registerSingleton(this);
+    beanFactory.registerSingleton(beanFactory);
   }
 
   /**
@@ -515,7 +510,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.
@@ -806,7 +801,6 @@ public abstract class AbstractApplicationContext
 
   @Override
   public Map<String, BeanDefinition> getBeanDefinitions() {
-    assertBeanFactoryActive();
     return getBeanFactory().getBeanDefinitions();
   }
 

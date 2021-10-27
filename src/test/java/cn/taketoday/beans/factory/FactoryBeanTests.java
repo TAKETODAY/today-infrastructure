@@ -80,8 +80,8 @@ class FactoryBeanTests {
   public void testFactoryBean() throws NoSuchBeanDefinitionException {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-
       applicationContext.registerBean("testFactoryBean", TESTFactoryBean.class);
+      applicationContext.refresh();
 
       Map<String, BeanDefinition> beanDefinitions = applicationContext.getBeanDefinitions();
 

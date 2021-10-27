@@ -131,6 +131,7 @@ class ParameterResolverRegistryTests {
   void registerDefaults() {
 
     try (StandardWebServletApplicationContext context = new StandardWebServletApplicationContext()) {
+      context.refresh();
 
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);
@@ -156,6 +157,7 @@ class ParameterResolverRegistryTests {
   void lookupStrategy() {
 
     try (StandardWebServletApplicationContext context = new StandardWebServletApplicationContext()) {
+      context.refresh();
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);
       registry.setMessageConverter(new JacksonMessageBodyConverter());
