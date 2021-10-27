@@ -51,7 +51,7 @@ public class PropertyValuesBinder extends BeanPropertyAccessor {
   }
 
   public PropertyValuesBinder(Object object) {
-    super(BeanMetadata.ofClass(object.getClass()), object);
+    super(BeanMetadata.ofObject(object), object);
   }
 
   public PropertyValuesBinder(BeanMetadata metadata, Object object) {
@@ -85,6 +85,20 @@ public class PropertyValuesBinder extends BeanPropertyAccessor {
       setProperty(rootObject, metadata, propertyValue);
     }
     return rootObject;
+  }
+
+  // Map
+
+  /**
+   * bind map of property-values to root object
+   *
+   * @param propertyValues map of property values
+   * @since 4.0
+   */
+  public void bind(Map<String, Object> propertyValues) {
+    for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
+      setProperty(rootObject, metadata, entry.getKey(), entry.getValue());
+    }
   }
 
   public void setProperty(Object root, BeanMetadata metadata, PropertyValue propertyValue) {
