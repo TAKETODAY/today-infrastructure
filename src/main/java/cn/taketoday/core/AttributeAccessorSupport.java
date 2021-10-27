@@ -51,7 +51,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   protected HashMap<String, Object> attributes;
 
   @Override
-  public void setAttribute(final String name, final Object value) {
+  public void setAttribute(String name, final Object value) {
     if (value != null) {
       getAttributes().put(name, value);
     }
@@ -70,7 +70,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T computeAttribute(final String name, final Function<String, T> computeFunction) {
+  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(computeFunction, "Compute function must not be null");
     Object value = getAttributes().computeIfAbsent(name, computeFunction);
@@ -80,7 +80,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   }
 
   @Override
-  public Object removeAttribute(final String name) {
+  public Object removeAttribute(String name) {
     if (attributes != null) {
       return attributes.remove(name);
     }
@@ -88,7 +88,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   }
 
   @Override
-  public boolean hasAttribute(final String name) {
+  public boolean hasAttribute(String name) {
     if (attributes != null) {
       return attributes.containsKey(name);
     }
@@ -108,12 +108,21 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
    *
    * @param source the AttributeAccessor to copy from
    */
-  public void copyAttributesFrom(final AttributeAccessor source) {
+  public void copyAttributesFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source must not be null");
+    Map<String, Object> attributes;
+    if (source instanceof AttributeAccessorSupport) {
+      attributes = ((AttributeAccessorSupport) source).attributes;
+      if (attributes == null) {
+        return;
+      }
+    }
+    else {
+      attributes = source.getAttributes();
+    }
 
-    final Map<String, Object> attributes = source.getAttributes();
     if (CollectionUtils.isNotEmpty(attributes)) {
-      for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+      for (Map.Entry<String, Object> entry : attributes.entrySet()) {
         setAttribute(entry.getKey(), entry.getValue());
       }
     }
@@ -134,7 +143,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   }
 
   @Override
-  public boolean equals(final Object other) {
+  public boolean equals(Object other) {
     return (this == other
             || (other instanceof AttributeAccessorSupport &&
             Objects.equals(attributes, (((AttributeAccessorSupport) other).attributes))));
@@ -143,7 +152,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   @Override
   public Map<String, Object> getAttributes() {
     if (attributes == null) {
-      return this.attributes = createAttributes();
+      this.attributes = createAttributes();
     }
     return attributes;
   }
