@@ -122,8 +122,15 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   void setRefreshable(boolean refreshable);
 
   /**
-   * Refresh factory, initialize singleton
+   * Load or refresh the persistent representation of the configuration, which
+   * might be from Java-based configuration or some other format.
+   * <p>As this is a startup method, it should destroy already created singletons
+   * if it fails, to avoid dangling resources. In other words, after invocation
+   * of this method, either all or no singletons at all should be instantiated.
    *
+   * @throws ApplicationContextException if the bean factory could not be initialized
+   * @throws IllegalStateException if already initialized and multiple refresh
+   * attempts are not supported
    * @since 2.0.1
    */
   void refresh() throws ApplicationContextException;

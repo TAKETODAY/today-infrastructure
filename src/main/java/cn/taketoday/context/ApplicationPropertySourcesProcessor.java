@@ -20,16 +20,6 @@
 
 package cn.taketoday.context;
 
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
@@ -41,8 +31,16 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/8 22:47
@@ -138,12 +136,9 @@ public class ApplicationPropertySourcesProcessor {
     LinkedHashSet<String> locations = new LinkedHashSet<>(8); // loaded locations
     loadDefaultResources(locations);
 
-    if (locations.isEmpty()) {
-      // scan class path properties files
-      if (propertiesLocation != null) {
-        for (String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
-          loadProperties(propertiesLocation);
-        }
+    if (StringUtils.hasText(propertiesLocation)) {
+      for (String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
+        loadProperties(propertiesLocation);
       }
     }
     // load other files
@@ -179,7 +174,7 @@ public class ApplicationPropertySourcesProcessor {
     };
 
     for (String location : defaultLocations) {
-      Resource propertiesResource = ResourceUtils.getResource(location);
+      Resource propertiesResource = resourceLoader.getResource(location);
       if (propertiesResource.exists()) {
         loadProperties(propertiesResource); // loading
         locations.add(location);

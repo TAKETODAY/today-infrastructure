@@ -19,9 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.util.List;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
@@ -34,6 +31,9 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Standard {@link ApplicationContext}
@@ -154,21 +154,25 @@ public class StandardApplicationContext
   }
 
   @Override
-  protected void initPropertySources(ConfigurableEnvironment environment) throws IOException {
+  protected void initPropertySources(ConfigurableEnvironment environment) {
     super.initPropertySources(environment);
+    try {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
+      if (StringUtils.isNotEmpty(propertiesLocation)) {
+        processor.setPropertiesLocation(propertiesLocation);
+      }
+      processor.postProcessEnvironment();
 
-    ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
-    if (StringUtils.isNotEmpty(propertiesLocation)) {
-      processor.setPropertiesLocation(propertiesLocation);
+      // prepare properties
+      TodayStrategies detector = TodayStrategies.getDetector();
+      List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(
+              EnvironmentPostProcessor.class, getBeanFactory());
+      for (EnvironmentPostProcessor postProcessor : postProcessors) {
+        postProcessor.postProcessEnvironment(environment, this);
+      }
     }
-    processor.postProcessEnvironment();
-
-    // prepare properties
-    TodayStrategies detector = TodayStrategies.getDetector();
-    List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(
-            EnvironmentPostProcessor.class, getBeanFactory());
-    for (EnvironmentPostProcessor postProcessor : postProcessors) {
-      postProcessor.postProcessEnvironment(environment, this);
+    catch (IOException e) {
+      throw new ApplicationContextException("Environment properties loading failed", e);
     }
   }
 

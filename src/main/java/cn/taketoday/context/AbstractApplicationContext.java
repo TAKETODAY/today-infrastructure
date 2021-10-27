@@ -65,7 +65,6 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -274,7 +273,7 @@ public abstract class AbstractApplicationContext
   /**
    * Prepare to load context
    */
-  protected void prepareRefresh() throws IOException {
+  protected void prepareRefresh() {
     this.startupDate = System.currentTimeMillis();
     log.info("Starting Application Context at [{}].", formatStartupDate());
 
@@ -434,7 +433,7 @@ public abstract class AbstractApplicationContext
   //---------------------------------------------------------------------
 
   @Override
-  public void refresh() {
+  public void refresh() throws IllegalStateException {
     assertRefreshable();
     try {
       // Prepare refresh
@@ -469,22 +468,29 @@ public abstract class AbstractApplicationContext
       // Finish refresh
       postRefresh();
     }
-    catch (Throwable ex) {
-      close();
+    catch (Exception ex) {
       applyState(State.FAILED);
-      ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ApplicationContextException("An Exception Occurred When Loading Context", ex);
+      cancelRefresh(ex);
+      throw new ApplicationContextException("context refresh failed", ex);
     }
     finally {
       resetCommonCaches();
     }
   }
 
+  /**
+   * Cancel this context's refresh attempt, after an exception got thrown.
+   *
+   * @param ex the exception that led to the cancellation
+   */
+  protected void cancelRefresh(Exception ex) {
+    close();
+  }
+
   private void assertRefreshable() {
-    if ((state == State.STARTED
-            || state == State.STARTING
-            || state == State.CLOSING) && !refreshable) {
-      throw new IllegalStateException("cannot refresh again");
+    if (!refreshable &&
+            (state == State.STARTED || state == State.STARTING || state == State.CLOSING)) {
+      throw new IllegalStateException("this context not supports refresh again");
     }
   }
 
@@ -498,7 +504,7 @@ public abstract class AbstractApplicationContext
    *
    * @param environment ConfigurableEnvironment
    */
-  protected void initPropertySources(ConfigurableEnvironment environment) throws IOException {
+  protected void initPropertySources(ConfigurableEnvironment environment) throws ApplicationContextException {
     // for sub-class loading properties or prepare property-source
   }
 
