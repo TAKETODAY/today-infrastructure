@@ -32,12 +32,9 @@ import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
@@ -63,8 +60,6 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   public static final String ENV = "env";
   public static final String EL_PREFIX = "#{";
 
-  private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
-
   @Nullable
   private ConversionService conversionService;
 
@@ -87,16 +82,6 @@ public class ExpressionEvaluator implements PlaceholderResolver {
 
   public ExpressionEvaluator(Properties variables) {
     this.variablesResolver = new PropertiesPropertyResolver(variables);
-  }
-
-  public ExpressionEvaluator(ExpressionProcessor expressionProcessor) {
-    this(expressionProcessor, System.getProperties());
-  }
-
-  public ExpressionEvaluator(ExpressionProcessor expressionProcessor, Properties variables) {
-    this(variables);
-    Assert.notNull(expressionProcessor, "ExpressionProcessor must not be null");
-    this.expressionProcessor = expressionProcessor;
   }
 
   /**
@@ -315,9 +300,11 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   private ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
       Assert.state(context != null, "No Application Context");
-      ExpressionProcessor processor = context.getBean(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+      ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
+      ExpressionProcessor processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
       if (processor == null) {
-        processor = register(context.unwrapFactory(ConfigurableBeanFactory.class), variablesResolver);
+        register(beanFactory, variablesResolver);
+        processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
       }
       this.expressionProcessor = processor;
     }
@@ -326,20 +313,21 @@ public class ExpressionEvaluator implements PlaceholderResolver {
 
   // static
 
-  public static ExpressionProcessor register(ConfigurableBeanFactory beanFactory, PropertyResolver variablesResolver) {
-    // create shared elProcessor to singletons
-    ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-    ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
-    elContext.defineBean(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
+  public static void register(ConfigurableBeanFactory beanFactory, PropertyResolver variablesResolver) {
+    if (!beanFactory.containsLocalBean(EXPRESSION_PROCESSOR_NAME)) {
+      // create shared elProcessor to singletons
+      ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+      ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
+      elContext.defineBean(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
 
-    ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
-    ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);
+      ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
+      ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);
 
-    registerSingleton(beanFactory, EXPRESSION_CONTEXT_NAME, elContext);
-    registerSingleton(beanFactory, EXPRESSION_MANAGER_NAME, elManager);
-    registerSingleton(beanFactory, EXPRESSION_FACTORY_NAME, exprFactory);
-    registerSingleton(beanFactory, EXPRESSION_PROCESSOR_NAME, elProcessor);
-    return elProcessor;
+      registerSingleton(beanFactory, EXPRESSION_CONTEXT_NAME, elContext);
+      registerSingleton(beanFactory, EXPRESSION_MANAGER_NAME, elManager);
+      registerSingleton(beanFactory, EXPRESSION_FACTORY_NAME, exprFactory);
+      registerSingleton(beanFactory, EXPRESSION_PROCESSOR_NAME, elProcessor);
+    }
   }
 
   private static void registerSingleton(ConfigurableBeanFactory beanFactory, String name, Object obj) {

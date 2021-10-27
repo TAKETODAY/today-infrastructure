@@ -19,11 +19,10 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import cn.taketoday.lang.Nullable;
+
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Interface that defines a registry for shared bean instances.
@@ -92,6 +91,25 @@ public interface SingletonBeanRegistry {
    */
   @Nullable
   Object getSingleton(String name);
+
+  /**
+   * Return the (raw) singleton object registered under the given name.
+   * <p>
+   * singleton must be instance of required type
+   * </p>
+   *
+   * @param name the name of the bean to look for
+   * @param requiredType required type
+   * @param <T> required type
+   * @return the registered singleton object, or {@code null} if none found
+   */
+  default <T> T getSingleton(String name, Class<T> requiredType) {
+    Object singleton = getSingleton(name);
+    if (requiredType.isInstance(singleton)) {
+      return requiredType.cast(singleton);
+    }
+    return null;
+  }
 
   /**
    * Return the (raw) singleton object registered under the given name,
