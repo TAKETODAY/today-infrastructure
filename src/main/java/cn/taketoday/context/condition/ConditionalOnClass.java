@@ -66,7 +66,7 @@ final class OnClassCondition implements Condition {
       }
     }
 
-    MergedAnnotation<ConditionalOnClass> onMissingClass = metadata.getAnnotations().get(ConditionalOnClass.class);
+    MergedAnnotation<ConditionalOnMissingClass> onMissingClass = metadata.getAnnotations().get(ConditionalOnMissingClass.class);
     if (onMissingClass.isPresent()) {
       String[] classArray = onMissingClass.getStringArray(MergedAnnotation.VALUE);
       for (String name : classArray) {
