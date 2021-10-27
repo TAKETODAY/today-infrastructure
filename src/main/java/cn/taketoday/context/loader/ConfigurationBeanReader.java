@@ -245,6 +245,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
         if (!importedClass.contains(importClass)) {
           doImport(annotated, annotationMetadata, importClass);
+          importedClass.add(importClass);
         }
       }
     }
