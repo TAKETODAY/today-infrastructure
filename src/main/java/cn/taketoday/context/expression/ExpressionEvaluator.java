@@ -20,6 +20,9 @@
 
 package cn.taketoday.context.expression;
 
+import java.util.Map;
+import java.util.Properties;
+
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.conversion.ConversionService;
@@ -38,9 +41,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
-
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Expression Evaluator
@@ -299,14 +299,18 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   @NonNull
   private ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
-      Assert.state(context != null, "No Application Context");
-      ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
-      ExpressionProcessor processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
-      if (processor == null) {
-        register(beanFactory, variablesResolver);
-        processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+      if (context != null) {
+        ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
+        ExpressionProcessor processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+        if (processor == null) {
+          register(beanFactory, variablesResolver);
+          processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+        }
+        this.expressionProcessor = processor;
       }
-      this.expressionProcessor = processor;
+      else {
+        return ExpressionProcessor.getSharedInstance();
+      }
     }
     return expressionProcessor;
   }

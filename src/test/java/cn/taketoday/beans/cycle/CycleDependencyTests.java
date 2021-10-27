@@ -50,16 +50,16 @@ class CycleDependencyTests {
       assertEquals(8, applicationContext.getBeanDefinitionCount());
       applicationContext.refresh();
 
-      final BeanA beanA = applicationContext.getBean(BeanA.class);
-      final BeanB beanB = applicationContext.getBean(BeanB.class);
+      BeanA beanA = applicationContext.getBean(BeanA.class);
+      BeanB beanB = applicationContext.getBean(BeanB.class);
       applicationContext.getBean(BeanC.class);
 
       assertEquals(beanA, beanB.beanA);
       assertEquals(beanB, beanA.beanB);
       assertEquals(beanB, beanB.beanB);
 
-      final ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
-      final ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
+      ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
+      ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
 
       assertEquals(two, one.two);
       assertEquals(one, two.one.get());
@@ -144,8 +144,8 @@ class CycleDependencyTests {
       applicationContext.scan("cn.taketoday.beans.cycle");
       applicationContext.refresh();
 
-      final LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
-      final LoggingBeanB beanB = applicationContext.getBean(LoggingBeanB.class);
+      LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
+      LoggingBeanB beanB = applicationContext.getBean(LoggingBeanB.class);
       applicationContext.getBean(LoggingBeanC.class);
 
       System.out.println(beanA.getClass());
