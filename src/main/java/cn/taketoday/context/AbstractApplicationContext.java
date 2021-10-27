@@ -19,15 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -78,6 +69,15 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -527,7 +527,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.
@@ -689,125 +689,166 @@ public abstract class AbstractApplicationContext
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
+  /**
+   * Assert that this context's BeanFactory is currently active,
+   * throwing an {@link IllegalStateException} if it isn't.
+   * <p>Invoked by all {@link BeanFactory} delegation methods that depend
+   * on an active context, i.e. in particular all bean accessor methods.
+   */
+  protected void assertBeanFactoryActive() {
+    if (!refreshable && !(state == State.STARTING || state == State.STARTED)) {
+      if (this.closed.get()) {
+        throw new IllegalStateException(getApplicationName() + " has been closed already");
+      }
+      else {
+        throw new IllegalStateException(getApplicationName() + " has not been refreshed yet");
+      }
+    }
+  }
+
   @Override
   public Object getBean(String name) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBean(name);
   }
 
   @Override
   public Object getBean(BeanDefinition def) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBean(def);
   }
 
   @Override
   public <T> T getBean(Class<T> requiredType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType);
   }
 
   @Override
   public <T> T getBean(String name, Class<T> requiredType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBean(name, requiredType);
   }
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def) {
+    assertBeanFactoryActive();
     return getBeanFactory().getObjectSupplier(def);
   }
 
   @Override
   public Object getScopeBean(BeanDefinition def, Scope scope) {
+    assertBeanFactoryActive();
     return getBeanFactory().getScopeBean(def, scope);
   }
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getObjectSupplier(requiredType);
   }
 
   @Override
   public <T> List<T> getBeans(Class<T> requiredType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeans(requiredType);
   }
 
   @Override
   public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getAnnotationOnBean(beanName, annotationType);
   }
 
   @Override
   public <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
+    assertBeanFactoryActive();
     return getBeanFactory().getMergedAnnotationOnBean(beanName, annotationType);
   }
 
   @Override
   public <T> List<T> getAnnotatedBeans(Class<? extends Annotation> annotationType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getAnnotatedBeans(annotationType);
   }
 
   @Override
   public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesOfType(requiredType, includeNonSingletons);
   }
 
   @Override
   public Set<String> getBeanNamesOfType(
           Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesOfType(requiredType, includeNoneRegistered, includeNonSingletons);
   }
 
   @Override
   public <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType);
   }
 
   @Override
   public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType, includeNonSingletons);
   }
 
   @Override
   public <T> Map<String, T> getBeansOfType(
           Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType, includeNoneRegistered, includeNonSingletons);
   }
 
   @Override
   public Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeansOfAnnotation(annotationType);
   }
 
   @Override
   public Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeansOfAnnotation(annotationType, includeNonSingletons);
   }
 
   @Override
   public Map<String, BeanDefinition> getBeanDefinitions() {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeanDefinitions();
   }
 
   @Override
   public boolean isSingleton(String name) {
+    assertBeanFactoryActive();
     return getBeanFactory().isSingleton(name);
   }
 
   @Override
   public boolean isPrototype(String name) {
+    assertBeanFactoryActive();
     return getBeanFactory().isPrototype(name);
   }
 
   @Override
   public Class<?> getType(String name) {
+    assertBeanFactoryActive();
     return getBeanFactory().getType(name);
   }
 
   @Override
   public Set<String> getAliases(Class<?> type) {
+    assertBeanFactoryActive();
     return getBeanFactory().getAliases(type);
   }
 
   @Override
   public String getBeanName(Class<?> targetClass) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeanName(targetClass);
   }
 
@@ -824,17 +865,20 @@ public abstract class AbstractApplicationContext
   @Override
   public <T> Map<String, T> getBeansOfType(
           ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType, includeNoneRegistered, includeNonSingletons);
   }
 
   @Override
   public Set<String> getBeanNamesOfType(
           ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesOfType(requiredType, includeNoneRegistered, includeNonSingletons);
   }
 
   @Override
   public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForAnnotation(annotationType);
   }
 
@@ -845,22 +889,26 @@ public abstract class AbstractApplicationContext
 
   @Override
   public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
+    assertBeanFactoryActive();
     return getBeanFactory().isTypeMatch(name, typeToMatch);
   }
 
   @Override
   public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    assertBeanFactoryActive();
     return getBeanFactory().isTypeMatch(name, typeToMatch);
   }
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+    assertBeanFactoryActive();
     return getBeanFactory().getObjectSupplier(requiredType);
   }
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(
           ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    assertBeanFactoryActive();
     return getBeanFactory().getObjectSupplier(requiredType, includeNoneRegistered, includeNonSingletons);
   }
   // ArgumentsResolverProvider
