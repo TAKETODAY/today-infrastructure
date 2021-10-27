@@ -272,7 +272,9 @@ public class BeanDefinitionBuilder {
     if (beanClass != null) {
       return new DefaultAnnotatedBeanDefinition(beanClass);
     }
-    return new DefaultAnnotatedBeanDefinition(beanClassName);
+    DefaultBeanDefinition definition = new DefaultBeanDefinition();
+    definition.setBeanClassName(beanClassName);
+    return definition;
   }
 
   public BeanDefinition build() {

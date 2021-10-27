@@ -20,17 +20,13 @@
 
 package cn.taketoday.context.annotation;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-import java.util.List;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Singleton;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.fail;
 
@@ -46,48 +42,46 @@ class BeanDefinitionBuilderTests {
 
   @Test
   void testBuildBeanDefinitions() throws Exception {
-    try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
 
-      List<BeanDefinition> beanDefinitions = BeanDefinitionBuilder.from(getClass());
+    List<BeanDefinition> beanDefinitions = BeanDefinitionBuilder.from(getClass());
 
-      assert beanDefinitions.size() == 1;
+    assert beanDefinitions.size() == 1;
 
-      beanDefinitions = BeanDefinitionBuilder.from(TestBean.class);
-      assert beanDefinitions.size() == 1;
+    beanDefinitions = BeanDefinitionBuilder.from(TestBean.class);
+    assert beanDefinitions.size() == 1;
 
-      final BeanDefinition beanDefinition = beanDefinitions.get(0);
-      beanDefinition.setDestroyMethod(null);
-      beanDefinition.setInitMethods((Method[]) null);
-      beanDefinition.setScope(null);
-      beanDefinition.setPropertyValues();
-      beanDefinition.setName(null);
+    final BeanDefinition beanDefinition = beanDefinitions.get(0);
+    beanDefinition.setDestroyMethod(null);
+    beanDefinition.setInitMethods((String[]) null);
+    beanDefinition.setScope(null);
+    beanDefinition.setPropertyValues();
+    beanDefinition.setName(null);
 
-      try {
-        beanDefinition.validate();
-        fail("beanDefinition");
-      }
-      catch (ConfigurationException e) {
-        assert true;
-      }
+    try {
+      beanDefinition.validate();
+      fail("beanDefinition");
+    }
+    catch (ConfigurationException e) {
+      assert true;
+    }
 
-      BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
 
-      builder.factoryMethod(getClass().getMethod("toString"));
-      FactoryMethodBeanDefinition factoryMethodBeanDefinition = (FactoryMethodBeanDefinition) builder.build();
-      try {
-        factoryMethodBeanDefinition.validate();
-        fail("standardBeanDefinition");
-      }
-      catch (ConfigurationException e) {
-        assert true;
-      }
-      try {
-        factoryMethodBeanDefinition.setDeclaringName("test").validate();
-        fail("setDeclaringName");
-      }
-      catch (ConfigurationException e) {
-        assert true;
-      }
+    builder.factoryMethod(getClass().getMethod("toString"));
+    FactoryMethodBeanDefinition factoryMethodBeanDefinition = (FactoryMethodBeanDefinition) builder.build();
+    try {
+      factoryMethodBeanDefinition.validate();
+      fail("standardBeanDefinition");
+    }
+    catch (ConfigurationException e) {
+      assert true;
+    }
+    try {
+      factoryMethodBeanDefinition.setDeclaringName("test").validate();
+      fail("setDeclaringName");
+    }
+    catch (ConfigurationException e) {
+      assert true;
     }
 
   }
