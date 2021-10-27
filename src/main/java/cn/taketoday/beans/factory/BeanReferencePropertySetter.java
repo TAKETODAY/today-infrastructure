@@ -71,7 +71,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     Object value = resolveBeanReference(beanFactory);
     if (value == null) {
       if (required) {
-        throw new NoSuchBeanDefinitionException(reference.getName(), referenceClass);
+        throw new NoSuchBeanDefinitionException(referenceName, referenceClass);
       }
       return DO_NOT_SET; // if reference bean is null, and it is not required ,do nothing,default value
     }

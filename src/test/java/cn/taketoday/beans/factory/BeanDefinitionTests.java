@@ -71,7 +71,6 @@ class BeanDefinitionTests {
       beanDefinition.addPropertyValue("TEST_STRING", test);
       beanDefinition.addPropertyValue("testDouble", 123.123);
 
-      beanDefinition.getPropertyValue("test");
       assert beanDefinition.isSingleton();
 
       try {
@@ -83,6 +82,7 @@ class BeanDefinitionTests {
       }
 
       applicationContext.registerBeanDefinition("testBean", beanDefinition);
+      applicationContext.refresh();
 
       Object bean = applicationContext.getBean("testBean");
 
