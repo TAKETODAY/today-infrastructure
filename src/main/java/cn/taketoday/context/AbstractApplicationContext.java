@@ -42,7 +42,6 @@ import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.context.expression.ValueExpressionContext;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -54,9 +53,6 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.ExpressionManager;
-import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -352,26 +348,12 @@ public abstract class AbstractApplicationContext
    */
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.info("Registering framework beans");
-    // create shared elProcessor to singletons
-    ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-    ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
-    elContext.defineBean(ExpressionEvaluator.ENV, getEnvironment()); // @since 2.1.6
-
-    ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
-    ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);
-
-    // register ELManager @since 2.1.5
-    // fix @since 2.1.6 elManager my be null
-    beanFactory.registerSingleton(elManager);
-
-    beanFactory.registerSingleton(elContext);
-    beanFactory.registerSingleton(exprFactory);
-    beanFactory.registerSingleton(elProcessor);
-
     // register Environment
     beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
     // @since 4.0 ArgumentsResolver
     beanFactory.registerSingleton(getArgumentsResolver());
+
+    ExpressionEvaluator.register(beanFactory, getEnvironment());
   }
 
   public String createBeanName(Class<?> clazz) {

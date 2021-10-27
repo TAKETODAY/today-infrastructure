@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.expression;
 
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextHolder;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
@@ -52,6 +52,11 @@ import java.util.Properties;
  * @since 3.0
  */
 public class ExpressionEvaluator implements PlaceholderResolver {
+  public static final String EXPRESSION_FACTORY_NAME = "expressionFactory";
+  public static final String EXPRESSION_MANAGER_NAME = "expressionManager";
+  public static final String EXPRESSION_PROCESSOR_NAME = "expressionProcessor";
+  public static final String EXPRESSION_CONTEXT_NAME = "valueExpressionContext";
+
   // @since 4.0
   private static volatile ExpressionEvaluator sharedInstance;
 
@@ -309,37 +314,39 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   @NonNull
   private ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
-      ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-      ApplicationContext context = this.context;
-      if (context == null) {
-        context = ApplicationContextHolder.getLastStartupContext();
-        if (context == null) {
-          log.info("There isn't a global ApplicationContext");
-        }
-        else {
-          log.info("Using global ApplicationContext {}", context);
-        }
+      Assert.state(context != null, "No Application Context");
+      ExpressionProcessor processor = context.getBean(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+      if (processor == null) {
+        processor = register(context.unwrapFactory(ConfigurableBeanFactory.class), variablesResolver);
       }
-      StandardExpressionContext globalContext;
-      if (context == null) {
-        globalContext = new StandardExpressionContext(exprFactory);
-      }
-      else {
-        ExpressionProcessor processor = context.getBean(ExpressionProcessor.class);
-        if (processor != null) {
-          this.expressionProcessor = processor;
-          return processor;
-        }
-        globalContext = new ValueExpressionContext(exprFactory, context.getBeanFactory());
-      }
-
-      globalContext.defineBean(ENV, variablesResolver);
-      this.expressionProcessor = new ExpressionProcessor(new ExpressionManager(globalContext, exprFactory));
+      this.expressionProcessor = processor;
     }
     return expressionProcessor;
   }
 
   // static
+
+  public static ExpressionProcessor register(ConfigurableBeanFactory beanFactory, PropertyResolver variablesResolver) {
+    // create shared elProcessor to singletons
+    ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+    ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
+    elContext.defineBean(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
+
+    ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
+    ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);
+
+    registerSingleton(beanFactory, EXPRESSION_CONTEXT_NAME, elContext);
+    registerSingleton(beanFactory, EXPRESSION_MANAGER_NAME, elManager);
+    registerSingleton(beanFactory, EXPRESSION_FACTORY_NAME, exprFactory);
+    registerSingleton(beanFactory, EXPRESSION_PROCESSOR_NAME, elProcessor);
+    return elProcessor;
+  }
+
+  private static void registerSingleton(ConfigurableBeanFactory beanFactory, String name, Object obj) {
+    if (!beanFactory.containsLocalBean(name)) {
+      beanFactory.registerSingleton(name, obj);
+    }
+  }
 
   /**
    * @since 4.0

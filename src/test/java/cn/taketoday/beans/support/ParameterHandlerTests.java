@@ -20,14 +20,13 @@
 
 package cn.taketoday.beans.support;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-
 import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.context.StandardApplicationContext;
 import lombok.Data;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -55,7 +54,8 @@ class ParameterHandlerTests {
       argumentsResolver.resolve(test);
       fail("ArgumentsResolvingStrategy");
     }
-    catch (ArgumentsNotSupportedException ignored) { }
+    catch (ArgumentsNotSupportedException ignored) {
+    }
   }
 
   @Test
@@ -63,6 +63,7 @@ class ParameterHandlerTests {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(ParameterHandlerBean.class);
+      context.refresh();
 
       ArgumentsResolver argumentsResolver = new ArgumentsResolver(context);
       Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);

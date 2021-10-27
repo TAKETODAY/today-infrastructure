@@ -135,9 +135,6 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
         beanFactory.registerBeanDefinition(beanName, def);
         setReference(def, beanFactory);
       }
-      if (isRequired()) {
-        throw new ConfigurationException("Context does not exist for this reference:[" + reference + "] of bean");
-      }
     }
   }
 
