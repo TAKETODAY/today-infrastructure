@@ -134,7 +134,7 @@ class ConditionalTests {
   public void testConditionalOnProperty() throws Exception {
 
     try (StandardApplicationContext context =new StandardApplicationContext()) {
-      context.setPropertiesLocation("info.properties");
+      context.setPropertiesLocation("info.properties");// FIXME properties 加载延后
       context.scan("cn.taketoday.context.condition");
 
       context.refresh();
