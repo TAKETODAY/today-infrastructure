@@ -66,7 +66,7 @@ class AutowireCapableBeanFactoryTests {
 
       assertThat(beanDefinition.getBeanClass()).isEqualTo(CreateTestBean.class);
       assertThat(beanDefinition.getScope()).isEqualTo(Scope.PROTOTYPE);
-      assertThat(beanDefinition.getPropertyValues()).isEmpty();
+      assertThat(beanDefinition.getPropertyValues()).isNull();
     }
   }
 
