@@ -20,15 +20,15 @@
 
 package cn.taketoday.core.io;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Default implementation of the {@link ResourceLoader} interface.
@@ -45,7 +45,10 @@ public class DefaultResourceLoader implements ResourceLoader {
 
   @Nullable
   private ClassLoader classLoader;
-  private final LinkedHashSet<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
+
+  @Nullable
+  private LinkedHashSet<ProtocolResolver> protocolResolvers;
+
   private final ConcurrentHashMap<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
 
   /**
@@ -101,6 +104,9 @@ public class DefaultResourceLoader implements ResourceLoader {
    */
   public void addProtocolResolver(ProtocolResolver resolver) {
     Assert.notNull(resolver, "ProtocolResolver must not be null");
+    if (protocolResolvers == null) {
+      this.protocolResolvers = new LinkedHashSet<>(4);
+    }
     this.protocolResolvers.add(resolver);
   }
 
@@ -108,6 +114,7 @@ public class DefaultResourceLoader implements ResourceLoader {
    * Return the collection of currently registered protocol resolvers,
    * allowing for introspection as well as modification.
    */
+  @Nullable
   public Collection<ProtocolResolver> getProtocolResolvers() {
     return this.protocolResolvers;
   }
@@ -136,7 +143,7 @@ public class DefaultResourceLoader implements ResourceLoader {
   public Resource getResource(String location) {
     Assert.notNull(location, "Location must not be null");
 
-    if (!protocolResolvers.isEmpty()) {
+    if (protocolResolvers != null) {
       for (ProtocolResolver protocolResolver : protocolResolvers) {
         Resource resource = protocolResolver.resolve(location, this);
         if (resource != null) {
