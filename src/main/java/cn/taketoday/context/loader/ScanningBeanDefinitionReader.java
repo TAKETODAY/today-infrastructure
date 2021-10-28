@@ -20,12 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -42,8 +36,13 @@ import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.annotation.Controller;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -167,12 +166,7 @@ public class ScanningBeanDefinitionReader {
   protected void process(Resource resource, MetadataReaderFactory metadataReaderFactory) throws IOException {
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
     if (isCandidateComponent(metadataReader, metadataReaderFactory)) {
-      Set<BeanDefinition> beanDefinitions = scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
-      if (CollectionUtils.isNotEmpty(beanDefinitions)) {
-        for (BeanDefinition beanDefinition : beanDefinitions) {
-          registry.registerBeanDefinition(beanDefinition);
-        }
-      }
+      scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
     }
   }
 

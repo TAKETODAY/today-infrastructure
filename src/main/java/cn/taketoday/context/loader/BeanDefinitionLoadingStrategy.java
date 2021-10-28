@@ -20,11 +20,7 @@
 
 package cn.taketoday.context.loader;
 
-import java.util.Set;
-
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.lang.Nullable;
 
 /**
  * scanning BeanDefinition loading strategy
@@ -35,8 +31,7 @@ import cn.taketoday.lang.Nullable;
 @FunctionalInterface
 public interface BeanDefinitionLoadingStrategy {
 
-  @Nullable
-  Set<BeanDefinition> loadBeanDefinitions(
+  void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext);
 
 }

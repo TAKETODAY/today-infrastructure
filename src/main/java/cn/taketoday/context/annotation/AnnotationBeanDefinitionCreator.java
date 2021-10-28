@@ -20,18 +20,16 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Component;
+
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/10 22:20
@@ -46,21 +44,19 @@ public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStr
   }
 
   @Override
-  public Set<BeanDefinition> loadBeanDefinitions(
+  public void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
 
-    LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
     for (Class<? extends Annotation> annotationType : annotationTypes) {
       if (annotationMetadata.isAnnotated(annotationType.getName())) {
         AnnotationAttributes[] annotations = annotationMetadata.getAnnotations().getAttributes(annotationType);
 
         BeanDefinitionBuilder builder = loadingContext.createBuilder();
         builder.beanClassName(annotationMetadata.getClassName());
-        builder.build(loadingContext.createBeanName(annotationMetadata.getClassName()), annotations, definitions::add);
+        builder.build(loadingContext.createBeanName(annotationMetadata.getClassName()), annotations, loadingContext::registerBeanDefinition);
       }
     }
-    return definitions;
   }
 
 }

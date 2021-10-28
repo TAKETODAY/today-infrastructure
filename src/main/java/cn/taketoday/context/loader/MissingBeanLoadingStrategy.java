@@ -20,15 +20,12 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/19 22:42
@@ -39,18 +36,15 @@ public class MissingBeanLoadingStrategy implements BeanDefinitionLoadingStrategy
   private static final Logger log = LoggerFactory.getLogger(MissingBeanLoadingStrategy.class);
 
   @Override
-  @Nullable
-  public Set<BeanDefinition> loadBeanDefinitions(
+  public void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
-    if (metadata.getAnnotationMetadata().isAbstract()) {
-      return null;
+    if (!metadata.getAnnotationMetadata().isAbstract()) {
+      // just collect scanning missing-bean info
+      AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
+      if (annotationMetadata.hasAnnotation(MissingBean.class.getName())) {
+        loadingContext.getMissingBeanRegistry().registerMissing(metadata);
+      }
     }
-    // just collect scanning missing-bean info
-    AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
-    if (annotationMetadata.hasAnnotation(MissingBean.class.getName())) {
-      loadingContext.getMissingBeanRegistry().registerMissing(metadata);
-    }
-    return null;
   }
 
 }

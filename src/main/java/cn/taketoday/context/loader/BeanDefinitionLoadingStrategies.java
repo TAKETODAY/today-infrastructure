@@ -20,16 +20,13 @@
 
 package cn.taketoday.context.loader;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author TODAY 2021/10/10 22:06
@@ -46,16 +43,11 @@ public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStr
   }
 
   @Override
-  public Set<BeanDefinition> loadBeanDefinitions(
+  public void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
-    LinkedHashSet<BeanDefinition> definitions = new LinkedHashSet<>();
     for (BeanDefinitionLoadingStrategy strategy : loadingStrategies) {
-      Set<BeanDefinition> beanDefinitions = strategy.loadBeanDefinitions(metadata, loadingContext);
-      if (CollectionUtils.isNotEmpty(beanDefinitions)) {
-        definitions.addAll(beanDefinitions);
-      }
+      strategy.loadBeanDefinitions(metadata, loadingContext);
     }
-    return definitions;
   }
 
   public void addStrategies(@Nullable BeanDefinitionLoadingStrategy... strategies) {

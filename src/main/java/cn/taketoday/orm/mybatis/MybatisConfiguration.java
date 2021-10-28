@@ -19,7 +19,6 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
@@ -34,7 +33,6 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -50,9 +48,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author TODAY 2018-10-05 19:03
@@ -64,28 +60,25 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
 
   @Override
-  @Nullable
-  public Set<BeanDefinition> loadBeanDefinitions(
+  public void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     log.info("Loading Mybatis Mapper Bean Definitions");
 
-    if (!metadata.getClassMetadata().isInterface()) {
-      return null;
+    if (metadata.getClassMetadata().isInterface()) {
+      // must be an interface
+      MergedAnnotations annotations = metadata.getAnnotationMetadata().getAnnotations();
+      AnnotationAttributes attributes = annotations.get(Repository.class).asAnnotationAttributes();
+      if (attributes != null) {
+        String className = metadata.getAnnotationMetadata().getClassName();
+        log.debug("Found Mapper: [{}]", className);
+        String[] names = attributes.getStringArray(Constant.VALUE);
+        String name = ObjectUtils.isNotEmpty(names)
+                ? names[0] : loadingContext.createBeanName(className);
+
+        loadingContext.registerBeanDefinition(createBeanDefinition(className, name));
+      }
     }
 
-    // must be an interface
-    MergedAnnotations annotations = metadata.getAnnotationMetadata().getAnnotations();
-    AnnotationAttributes attributes = annotations.get(Repository.class).asAnnotationAttributes();
-    if (attributes != null) {
-      String className = metadata.getAnnotationMetadata().getClassName();
-      log.debug("Found Mapper: [{}]", className);
-      String[] names = attributes.getStringArray(Constant.VALUE);
-      String name = ObjectUtils.isNotEmpty(names)
-              ? names[0] : loadingContext.createBeanName(className);
-
-      return Collections.singleton(createBeanDefinition(className, name));
-    }
-    return null;
   }
 
   protected FactoryBeanDefinition<?> createBeanDefinition(String className, String name) {
