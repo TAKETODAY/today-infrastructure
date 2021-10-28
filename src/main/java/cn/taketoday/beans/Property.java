@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
@@ -40,6 +41,10 @@ import cn.taketoday.lang.Constant;
 public @interface Property {
 
   /** Property name */
+  @AliasFor("name")
   String value() default Constant.BLANK;
+
+  @AliasFor("value")
+  String name() default Constant.BLANK;
 
 }

@@ -34,10 +34,9 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -231,10 +230,10 @@ public class BeanMetadata implements Iterable<BeanProperty> {
 
   protected String getAnnotatedPropertyName(Field propertyElement) {
     // just alias name, cannot override its getter,setter
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            propertyElement, Property.class);
-    if (attributes != null) {
-      final String name = attributes.getString(Constant.VALUE);
+    MergedAnnotation<Property> annotation = MergedAnnotations.from(propertyElement)
+            .get(Property.class);
+    if (annotation.isPresent()) {
+      String name = annotation.getString(MergedAnnotation.VALUE);
       if (StringUtils.isNotEmpty(name)) {
         return name;
       }
