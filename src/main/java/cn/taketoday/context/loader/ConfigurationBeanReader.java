@@ -20,6 +20,15 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
@@ -59,15 +68,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/16 23:17
@@ -192,6 +192,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
         AnnotationAttributes[] components = beanMethod.getAnnotations().getAttributes(Component.class);
         builder.build(defaultBeanName, components, (component, definition) -> {
+          definition.setScope(context.resolveScopeName(definition));
           register(definition);
         });
       }
@@ -343,7 +344,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-
   /**
    * Process the given <code>@PropertySource</code> annotation metadata.
    *
@@ -364,7 +364,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
     Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
     PropertySourceFactory factory = factoryClass == PropertySourceFactory.class
-            ? getPropertySourceFactory() : context.instantiate(factoryClass);
+                                    ? getPropertySourceFactory() : context.instantiate(factoryClass);
 
     for (String location : locations) {
       try {
@@ -398,7 +398,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
         PropertySource<?> newSource = (propertySource instanceof ResourcePropertySource ?
-                ((ResourcePropertySource) propertySource).withResourceName() : propertySource);
+                                       ((ResourcePropertySource) propertySource).withResourceName() : propertySource);
         if (existing instanceof CompositePropertySource) {
           ((CompositePropertySource) existing).addFirstPropertySource(newSource);
         }
@@ -440,6 +440,5 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
     return propertySourceFactory;
   }
-
 
 }

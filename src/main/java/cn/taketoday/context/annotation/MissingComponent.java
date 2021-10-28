@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
@@ -47,16 +47,19 @@ public @interface MissingComponent {
    * this attr determine the bean definition
    * </p>
    */
+  @AliasFor(annotation = MissingBean.class)
   String value() default Constant.BLANK;
 
   /**
    * this attr determine the bean definition
    */
+  @AliasFor(annotation = MissingBean.class)
   Class<?> type() default void.class;
 
   /**
    * equals {@link #type()} ?
    */
+  @AliasFor(annotation = MissingBean.class)
   boolean equals() default false;
 
   /**
@@ -69,6 +72,7 @@ public @interface MissingComponent {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
+  @AliasFor(annotation = MissingBean.class)
   String[] initMethods() default {};
 
   /**
@@ -84,5 +88,6 @@ public @interface MissingComponent {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String[] destroyMethods() default {};
+  @AliasFor(annotation = MissingBean.class)
+  String destroyMethods() default "";
 }

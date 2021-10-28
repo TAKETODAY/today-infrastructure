@@ -26,14 +26,14 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * @author TODAY <br>
  * 2018-07-2 20:44:15
  */
 @Component
-@cn.taketoday.lang.Scope(Scope.PROTOTYPE)
+@Scope(Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Prototype {
@@ -44,6 +44,7 @@ public @interface Prototype {
    *
    * @return the suggested component name, if any (or empty String otherwise)
    */
+  @AliasFor(annotation = Component.class)
   String[] value() default {};
 
   /**
@@ -56,6 +57,7 @@ public @interface Prototype {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
+  @AliasFor(annotation = Component.class)
   String[] initMethods() default {};
 
   /**
@@ -71,6 +73,7 @@ public @interface Prototype {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
+  @AliasFor(annotation = Component.class)
   String destroyMethod() default Constant.BLANK;
 
 }

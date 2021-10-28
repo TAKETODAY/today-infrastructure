@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.condition.WindowsCondition;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ProfileTests {
 
+  @Configuration
   static class ProfileTestConfig {
 
     @Profile("test")
@@ -75,7 +77,6 @@ class ProfileTests {
       context.refresh();
 
       User user = context.getBean("user", User.class);
-      System.out.println(user);
       assert "TEST".equals(user.getUserName());
     }
   }

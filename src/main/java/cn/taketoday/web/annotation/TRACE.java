@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.http.HttpMethod;
 
@@ -37,8 +38,10 @@ import cn.taketoday.web.http.HttpMethod;
 public @interface TRACE {
 
   /** urls */
+  @AliasFor(annotation = ActionMapping.class)
   String[] value() default Constant.BLANK;
 
   /** Exclude url on class */
+  @AliasFor(annotation = ActionMapping.class)
   boolean exclude() default false;
 }

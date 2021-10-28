@@ -24,20 +24,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Scope;
 
 /**
  * @author TODAY <br>
  * 2019-09-01 16:14
  */
-@cn.taketoday.lang.Scope(Scope.PROTOTYPE)
-@RootController
 @Component
+@RootController
+@Scope(Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface PrototypeController {
 
   /** Controller name or a bean name */
+  @AliasFor(annotation = Component.class)
   String[] value() default {};
 }

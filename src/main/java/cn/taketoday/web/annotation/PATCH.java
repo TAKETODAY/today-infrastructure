@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.http.HttpMethod;
 
@@ -36,9 +37,11 @@ import cn.taketoday.web.http.HttpMethod;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface PATCH {
 
+  @AliasFor(annotation = ActionMapping.class)
   String[] value() default Constant.BLANK;
 
   /** Exclude url on class */
+  @AliasFor(annotation = ActionMapping.class)
   boolean exclude() default false;
 
 }

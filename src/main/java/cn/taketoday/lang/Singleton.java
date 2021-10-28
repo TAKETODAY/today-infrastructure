@@ -19,13 +19,14 @@
  */
 package cn.taketoday.lang;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * @author TODAY <br>
@@ -43,7 +44,8 @@ public @interface Singleton {
    *
    * @return the suggested component name, if any (or empty String otherwise)
    */
-  String[] value() default { };
+  @AliasFor(annotation = Component.class)
+  String[] value() default {};
 
   /**
    * The optional name of a method to call on the bean instance during
@@ -55,7 +57,8 @@ public @interface Singleton {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default { };
+  @AliasFor(annotation = Component.class)
+  String[] initMethods() default {};
 
   /**
    * The optional names of a method to call on the bean instance upon closing the
@@ -70,5 +73,6 @@ public @interface Singleton {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
+  @AliasFor(annotation = Component.class)
   String destroyMethod() default Constant.BLANK;
 }

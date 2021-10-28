@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
+
 /**
  * @author TODAY <br>
  * 2018-08-09 18:50
@@ -38,15 +40,19 @@ public @interface Before {
   int DEFAULT_ORDER = 2;
 
   /** Annotated with */
+  @AliasFor(annotation = Advice.class)
   Class<? extends Annotation>[] value() default {};
 
   /** Package name */
+  @AliasFor(annotation = Advice.class)
   String[] pointcut() default {};
 
   /** Target classes */
+  @AliasFor(annotation = Advice.class)
   Class<?>[] target() default {};
 
   /** Method in class */
+  @AliasFor(annotation = Advice.class)
   String[] method() default {};
 
 }

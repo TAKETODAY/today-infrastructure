@@ -20,10 +20,16 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -36,14 +42,10 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/19 22:22
@@ -61,6 +63,8 @@ public class DefinitionLoadingContext {
 
   @Nullable
   private PatternResourceLoader resourceLoader;
+
+  private ScopeMetadataResolver scopeMetadataResolver;
 
   public DefinitionLoadingContext(BeanDefinitionRegistry registry, @NonNull ApplicationContext context) {
     this.registry = registry;
@@ -176,7 +180,6 @@ public class DefinitionLoadingContext {
     return instantiator().instantiate(beanClass);
   }
 
-
   //---------------------------------------------------------------------
   // detectMissingBean
   //---------------------------------------------------------------------
@@ -287,6 +290,24 @@ public class DefinitionLoadingContext {
 
   public Set<Resource> getResources(String locationPattern) throws IOException {
     return getResourceLoader().getResources(locationPattern);
+  }
+
+  // ScopeMetadataResolver
+
+  public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
+    Assert.notNull(scopeMetadataResolver, "ScopeMetadataResolver is required");
+    this.scopeMetadataResolver = scopeMetadataResolver;
+  }
+
+  public ScopeMetadataResolver getScopeMetadataResolver() {
+    if (scopeMetadataResolver == null) {
+      scopeMetadataResolver = new AnnotationScopeMetadataResolver();
+    }
+    return scopeMetadataResolver;
+  }
+
+  public String resolveScopeName(BeanDefinition definition) {
+    return getScopeMetadataResolver().resolveScopeMetadata(definition).getScopeName();
   }
 
 }

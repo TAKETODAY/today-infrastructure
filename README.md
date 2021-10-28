@@ -208,7 +208,7 @@ public @interface Component {
 
   String[] initMethods() default {};
 
-  String[] destroyMethods() default {};
+  String destroyMethods() default "";
 
 }
 ```
@@ -225,7 +225,7 @@ public @interface Singleton {
 
   String[] initMethods() default {};
 
-  String[] destroyMethods() default {};
+  String destroyMethods() default "";
 }
 
 ```
@@ -243,7 +243,7 @@ public @interface Prototype {
 
   String[] initMethods() default {};
 
-  String[] destroyMethods() default {};
+  String destroyMethods() default "";
 }
 ```
 

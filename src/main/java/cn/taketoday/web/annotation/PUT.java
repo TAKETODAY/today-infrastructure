@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.HttpMethod;
@@ -39,9 +40,11 @@ import cn.taketoday.web.http.HttpMethod;
 public @interface PUT {
 
   /** urls */
+  @AliasFor(annotation = ActionMapping.class)
   String[] value() default Constant.BLANK;
 
   /** Exclude url on class */
+  @AliasFor(annotation = ActionMapping.class)
   boolean exclude() default false;
 
   /**
@@ -65,6 +68,7 @@ public @interface PUT {
    * @see MediaType
    * @since 3.0
    */
+  @AliasFor(annotation = ActionMapping.class)
   String[] consumes() default {};
 
   /**
@@ -88,6 +92,7 @@ public @interface PUT {
    *
    * @since 3.0
    */
+  @AliasFor(annotation = ActionMapping.class)
   String[] params() default {};
 
   /**
@@ -129,6 +134,7 @@ public @interface PUT {
    *
    * @since 3.0
    */
+  @AliasFor(annotation = ActionMapping.class)
   String[] produces() default {};
 
 }
