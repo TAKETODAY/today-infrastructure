@@ -25,7 +25,8 @@ import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
@@ -51,19 +52,18 @@ public class ValuePropertyResolver implements PropertyValueResolver {
   @Override
   public DefaultPropertySetter resolveProperty(
           PropertyResolvingContext context, BeanProperty property) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            property, Value.class);
-    if (attributes != null) {
-      ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
+    MergedAnnotations annotations = MergedAnnotations.from(property);
+    MergedAnnotation<Value> annotation = annotations.get(Value.class);
+    if (annotation.isPresent()) {
+      ExpressionInfo expressionInfo = new ExpressionInfo(annotation, false);
       return resolve(context, property, expressionInfo);
     }
-    else if ((attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(property, Env.class)) != null) {
-      ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
+    MergedAnnotation<Env> env = annotations.get(Env.class);
+    if (env.isPresent()) {
+      ExpressionInfo expressionInfo = new ExpressionInfo(env, true);
       return resolve(context, property, expressionInfo);
     }
-    else {
-      return null;
-    }
+    return null;
   }
 
   private DefaultPropertySetter resolve(PropertyResolvingContext context, BeanProperty property, ExpressionInfo expr) {
