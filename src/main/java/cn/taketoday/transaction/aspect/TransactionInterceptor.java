@@ -34,8 +34,8 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.logging.Logger;
@@ -191,19 +191,16 @@ public class TransactionInterceptor implements MethodInterceptor {
   }
 
   static TransactionDefinition getTransaction(Method method) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            method, Transactional.class);
-    if (attributes == null) {
-      attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-              method.getDeclaringClass(), Transactional.class);
+    MergedAnnotation<Transactional> transactional = MergedAnnotations.from(method).get(Transactional.class);
+    if (!transactional.isPresent()) {
+      transactional = MergedAnnotations.from(method.getDeclaringClass()).get(Transactional.class);
     }
-    if (attributes == null) {
+    if (transactional == null) {
       throw new IllegalStateException(
               "'cn.taketoday.transaction.Transactional' must present on: ["
                       + method + "] or on its class");
     }
-
-    return new DefaultTransactionDefinition(attributes).setName(ClassUtils.getQualifiedMethodName(method));
+    return new DefaultTransactionDefinition(transactional).setName(ClassUtils.getQualifiedMethodName(method));
   }
 
   protected TransactionManager obtainTransactionManager(TransactionDefinition definition) {

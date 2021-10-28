@@ -23,6 +23,7 @@ import java.io.Serializable;
 
 import cn.taketoday.core.Constants;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 
 /**
  * @author TODAY <br>
@@ -62,30 +63,35 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
 
   public DefaultTransactionDefinition() { }
 
+  public DefaultTransactionDefinition(MergedAnnotation<Transactional> transactional) {
+    setTimeout(transactional.getInt("timeout"));
+    setQualifier(transactional.getString("txManager"));
+    setReadOnly(transactional.getBoolean(READ_ONLY_MARKER));
+    setRollbackOn(transactional.getClassArray("rollbackOn"));
+    setIsolationLevel(transactional.getEnum("isolation", Isolation.class).value());
+    setPropagationBehavior(transactional.getEnum("propagation", Propagation.class).value());
+  }
+
   public DefaultTransactionDefinition(AnnotationAttributes attributes) {
+    setQualifier(attributes.getString("txManager"));
+    setReadOnly(attributes.getBoolean(READ_ONLY_MARKER));
+    setRollbackOn(attributes.getClassArray("rollbackOn"));
     setTimeout(attributes.getNumber("timeout").intValue());
 
-    setReadOnly(attributes.getBoolean(READ_ONLY_MARKER));
-    setQualifier(attributes.getString("txManager"));
-
-    Class<?>[] rollbackOn = attributes.getClassArray("rollbackOn");
-    setRollbackOn(rollbackOn);
-
     Isolation isolation = attributes.getEnum("isolation");
-    setIsolationLevel(isolation.value());
-
     Propagation propagation = attributes.getEnum("propagation");
+    setIsolationLevel(isolation.value());
     setPropagationBehavior(propagation.value());
   }
 
   public DefaultTransactionDefinition(DefaultTransactionDefinition other) {
-    this.setName(other.getName());
-    this.setTimeout(other.getTimeout());
-    this.setReadOnly(other.isReadOnly());
-    this.setQualifier(other.getQualifier());
-    this.setRollbackOn(other.getRollbackOn());
-    this.setIsolationLevel(other.getIsolationLevel());
-    this.setPropagationBehavior(other.getPropagationBehavior());
+    setName(other.getName());
+    setTimeout(other.getTimeout());
+    setReadOnly(other.isReadOnly());
+    setQualifier(other.getQualifier());
+    setRollbackOn(other.getRollbackOn());
+    setIsolationLevel(other.getIsolationLevel());
+    setPropagationBehavior(other.getPropagationBehavior());
   }
 
   public DefaultTransactionDefinition(int propagationBehavior) {
