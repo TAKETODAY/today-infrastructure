@@ -25,8 +25,9 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.InvalidMediaTypeException;
@@ -96,7 +97,7 @@ final class AnnotationMappingInfo implements Ordered {
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
-    this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),
+    this(attributes.getStringArray(MergedAnnotation.VALUE), attributes.getStringArray("produces"),
          attributes.getStringArray("consumes"), attributes.getStringArray("params"),
          attributes.getRequiredAttribute("method", HttpMethod[].class), handler);
   }

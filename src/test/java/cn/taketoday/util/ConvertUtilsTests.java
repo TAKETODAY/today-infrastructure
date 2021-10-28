@@ -176,7 +176,7 @@ class ConvertUtilsTests {
     assertEquals(1, convertUtilsTestResources.length);
     assertTrue(convertUtilsTestResources[0].exists());
     assertEquals(1, convertUtilsTestResources.length);
-    assertTrue(convertUtilsTestResources[0].equals(resources[0]));
+    assertEquals(convertUtilsTestResources[0], resources[0]);
   }
 
   public static class TEST_THROW {

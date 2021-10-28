@@ -42,6 +42,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -101,7 +102,10 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private void processMissingBean() {
     MissingBeanRegistry missingBeanRegistry = context.getMissingBeanRegistry();
-    System.out.println(missingBeanRegistry);
+
+
+
+
   }
 
   /**
@@ -146,7 +150,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       LinkedHashSet<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies = new LinkedHashSet<>();
 
       for (AnnotationAttributes annotation : annotations) {
-        CollectionUtils.addAll(basePackages, annotation.getStringArray(Constant.VALUE));
+        CollectionUtils.addAll(basePackages, annotation.getStringArray(MergedAnnotation.VALUE));
         CollectionUtils.addAll(patternLocations, annotation.getStringArray("patternLocations"));
         CollectionUtils.addAll(loadingStrategies, annotation.getClassArray("loadingStrategies"));
       }
@@ -192,7 +196,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
         AnnotationAttributes[] components = beanMethod.getAnnotations().getAttributes(Component.class);
         builder.build(defaultBeanName, components, (component, definition) -> {
-          definition.setScope(context.resolveScopeName(definition));
           register(definition);
         });
       }
@@ -263,7 +266,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   protected void processImport(AnnotationMetadata annotationMetadata, BeanDefinition annotated) {
     AnnotationAttributes[] attributes = annotationMetadata.getAnnotations().getAttributes(Import.class);
     for (AnnotationAttributes attr : attributes) {
-      for (Class<?> importClass : attr.getClassArray(Constant.VALUE)) {
+      for (Class<?> importClass : attr.getClassArray(MergedAnnotation.VALUE)) {
         if (!importedClass.contains(importClass)) {
           doImport(annotated, annotationMetadata, importClass);
           importedClass.add(importClass);

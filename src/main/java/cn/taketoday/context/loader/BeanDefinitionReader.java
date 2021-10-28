@@ -20,6 +20,11 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
@@ -41,17 +46,11 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -324,12 +323,12 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
 
     MergedAnnotation<Lazy> lazyMergedAnnotation = annotations.get(Lazy.class);
     if (lazyMergedAnnotation.isPresent()) {
-      definition.setLazyInit(lazyMergedAnnotation.getBoolean(Constant.VALUE));
+      definition.setLazyInit(lazyMergedAnnotation.getBoolean(MergedAnnotation.VALUE));
     }
 
     MergedAnnotation<Role> roleMergedAnnotation = annotations.get(Role.class);
     if (roleMergedAnnotation.isPresent()) {
-      definition.setRole(roleMergedAnnotation.getInt(Constant.VALUE));
+      definition.setRole(roleMergedAnnotation.getInt(MergedAnnotation.VALUE));
     }
   }
 

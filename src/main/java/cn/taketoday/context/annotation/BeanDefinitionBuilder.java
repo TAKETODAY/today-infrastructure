@@ -52,8 +52,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.lang.Constant.VALUE;
-
 /**
  * @author TODAY 2021/10/2 22:45
  * @since 4.0
@@ -337,7 +335,7 @@ public class BeanDefinitionBuilder {
     else {
       for (AnnotationAttributes component : components) {
         attributes(component);
-        for (String name : determineName(defaultName, component.getStringArray(VALUE))) {
+        for (String name : determineName(defaultName, component.getStringArray(MergedAnnotation.VALUE))) {
           name(name);
           BeanDefinition definition = build();
           consumer.accept(component, definition);

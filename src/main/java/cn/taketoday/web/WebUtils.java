@@ -365,11 +365,11 @@ public abstract class WebUtils {
   public static boolean isResponseBody(Method method) {
     MergedAnnotation<ResponseBody> annotation = MergedAnnotations.from(method).get(ResponseBody.class);
     if (annotation.isPresent()) {
-      return annotation.getBoolean(Constant.VALUE);
+      return annotation.getBoolean(MergedAnnotation.VALUE);
     }
     annotation = MergedAnnotations.from(method.getDeclaringClass()).get(ResponseBody.class);
     if (annotation.isPresent()) {
-      return annotation.getBoolean(Constant.VALUE);
+      return annotation.getBoolean(MergedAnnotation.VALUE);
     }
     return false;
   }

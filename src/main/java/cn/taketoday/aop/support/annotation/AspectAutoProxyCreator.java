@@ -39,7 +39,6 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -48,7 +47,6 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -101,7 +99,7 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
         }
 
         // Annotations
-        Class<? extends Annotation>[] annotations = advice.getClassArray(Constant.VALUE);
+        Class<? extends Annotation>[] annotations = advice.getClassArray(MergedAnnotation.VALUE);
         if (ObjectUtils.isNotEmpty(annotations)) {
           for (Class<? extends Annotation> annotation : annotations) {
             AnnotationMatchingPointcut matchingPointcut

@@ -19,6 +19,18 @@
  */
 package cn.taketoday.orm.mybatis;
 
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.transaction.TransactionFactory;
+
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
@@ -28,10 +40,10 @@ import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.logging.Logger;
@@ -39,16 +51,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import org.apache.ibatis.builder.xml.XMLConfigBuilder;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
-import org.apache.ibatis.transaction.TransactionFactory;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * @author TODAY 2018-10-05 19:03
@@ -71,7 +73,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
       if (attributes != null) {
         String className = metadata.getAnnotationMetadata().getClassName();
         log.debug("Found Mapper: [{}]", className);
-        String[] names = attributes.getStringArray(Constant.VALUE);
+        String[] names = attributes.getStringArray(MergedAnnotation.VALUE);
         String name = ObjectUtils.isNotEmpty(names)
                 ? names[0] : loadingContext.createBeanName(className);
 

@@ -22,7 +22,6 @@ package cn.taketoday.context.expression;
 
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Value;
 
@@ -52,14 +51,14 @@ public class ExpressionInfo {
 
   public ExpressionInfo(AnnotationAttributes attributes, boolean placeholderOnly) {
     this.required = attributes.getBoolean("required");
-    this.expression = attributes.getString(Constant.VALUE);
+    this.expression = attributes.getString(MergedAnnotation.VALUE);
     this.defaultValue = attributes.getString("defaultValue");
     this.placeholderOnly = placeholderOnly;
   }
 
   public ExpressionInfo(MergedAnnotation<?> attributes, boolean placeholderOnly) {
     this.required = attributes.getBoolean("required");
-    this.expression = attributes.getString(Constant.VALUE);
+    this.expression = attributes.getString(MergedAnnotation.VALUE);
     this.defaultValue = attributes.getString("defaultValue");
     this.placeholderOnly = placeholderOnly;
   }

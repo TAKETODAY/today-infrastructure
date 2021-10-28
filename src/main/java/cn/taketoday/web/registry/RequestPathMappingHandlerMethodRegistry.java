@@ -29,7 +29,6 @@ import java.util.Objects;
 
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
@@ -125,7 +124,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     }
 
     AnnotationAttributes controllerAttr = controllerMapping.asAnnotationAttributes();
-    doMergeMapping(mapping, actionAttr, controllerAttr, Constant.VALUE, String[].class, true);
+    doMergeMapping(mapping, actionAttr, controllerAttr, MergedAnnotation.VALUE, String[].class, true);
     doMergeMapping(mapping, actionAttr, controllerAttr, "params", String[].class, false);
     doMergeMapping(mapping, actionAttr, controllerAttr, "produces", String[].class, false);
     doMergeMapping(mapping, actionAttr, controllerAttr, "consumes", String[].class, false);

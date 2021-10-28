@@ -125,8 +125,9 @@ public class DefinitionLoadingContext {
     return new BeanDefinitionBuilder();
   }
 
-  public void registerBeanDefinition(BeanDefinition def) {
-    registry.registerBeanDefinition(def);
+  public void registerBeanDefinition(BeanDefinition definition) {
+    definition.setScope(resolveScopeName(definition));
+    registry.registerBeanDefinition(definition);
   }
 
   public boolean containsBeanDefinition(Class<?> beanClass) {
@@ -183,10 +184,6 @@ public class DefinitionLoadingContext {
   //---------------------------------------------------------------------
   // detectMissingBean
   //---------------------------------------------------------------------
-
-  public void detectMissingBean(Method method) {
-    missingBeanRegistry.detectMissingBean(method);
-  }
 
   public void detectMissingBean(MethodMetadata method) {
     missingBeanRegistry.detectMissingBean(method);

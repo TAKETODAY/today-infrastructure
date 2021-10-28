@@ -41,7 +41,6 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -182,7 +181,7 @@ public class HandlerMethodRegistry
     if (controllerMapping != null) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
-      for (String value : controllerMapping.getStringArray(Constant.VALUE)) {
+      for (String value : controllerMapping.getStringArray(MergedAnnotation.VALUE)) {
         namespaces.add(StringUtils.formatURL(value));
       }
       Collections.addAll(classRequestMethods, controllerMapping.getEnum("method", HttpMethod.class));
