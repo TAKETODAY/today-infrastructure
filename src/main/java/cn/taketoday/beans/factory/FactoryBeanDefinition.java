@@ -91,7 +91,7 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public final boolean isFactoryBean() {
+  public final Boolean isFactoryBean() {
     return true;
   }
 

@@ -471,7 +471,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * judging from either bean definitions or the value of {@code getBeanClass}
    * in the case of FactoryBeans.
    *
-   * @param requiredType the ResolvableType or interface to match, or {@code null} for all concrete beans
+   * @param requiredType the generically typed class or interface to match
    * @param includeNonSingletons whether to include prototype or scoped beans too
    * or just singletons (also applies to FactoryBeans)
    * @param includeNoneRegistered whether to include singletons already in {@code singletons}
@@ -482,7 +482,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 4.0
    */
   Set<String> getBeanNamesOfType(
-          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
   /**
    * Find all names of beans which are annotated with the supplied {@link Annotation}

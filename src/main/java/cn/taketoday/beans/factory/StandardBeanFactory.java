@@ -19,17 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.annotation.MissingBean;
@@ -46,6 +35,20 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -76,17 +79,17 @@ public class StandardBeanFactory
    * Preventing Cycle Dependency expected {@link Prototype} beans
    */
   @Override
-  public Object initializeBean(final Object bean, final BeanDefinition def) {
+  public Object initializeBean(Object bean, BeanDefinition def) {
     if (def.isPrototype()) {
       return super.initializeBean(bean, def);
     }
 
-    final String name = def.getName();
+    String name = def.getName();
     if (currentInitializingBeanName.contains(name)) {
       return bean;
     }
     currentInitializingBeanName.add(name);
-    final Object initializingBean = super.initializeBean(bean, def);
+    Object initializingBean = super.initializeBean(bean, def);
     currentInitializingBeanName.remove(name);
     return initializingBean;
   }
@@ -97,12 +100,12 @@ public class StandardBeanFactory
    * @param oldBeanName Target old bean name
    * @param factoryDef {@link FactoryBean} Bean definition
    */
-  protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) {
+  protected void registerFactoryBean(String oldBeanName, BeanDefinition factoryDef) {
 
-    final FactoryBeanDefinition<?> def = //
+    FactoryBeanDefinition<?> def = //
             factoryDef instanceof FactoryBeanDefinition
-            ? (FactoryBeanDefinition<?>) factoryDef
-            : new FactoryBeanDefinition<>(factoryDef, this);
+                    ? (FactoryBeanDefinition<?>) factoryDef
+                    : new FactoryBeanDefinition<>(factoryDef, this);
 
     registerBeanDefinition(oldBeanName, def);
   }
@@ -143,8 +146,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                           "for bean '{}' with a framework-generated bean " +
-                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                  "for bean '{}' with a framework-generated bean " +
+                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -245,8 +248,8 @@ public class StandardBeanFactory
 
   private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
     return equals
-           ? beanDef -> type == beanDef.getBeanClass()
-           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+            ? beanDef -> type == beanDef.getBeanClass()
+            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
   }
 
   @Override
@@ -530,6 +533,182 @@ public class StandardBeanFactory
     throw new NoSuchBeanDefinitionException(requiredType);
   }
 
+  //---------------------------------------------------------------------
+  // Listing Get operations for type-lookup
+  //---------------------------------------------------------------------
+
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def) {
+    Assert.notNull(def, "BeanDefinition must not be null");
+
+    if (def.isSingleton()) {
+      final class SingletonObjectSupplier implements ObjectSupplier<T> {
+        volatile T targetSingleton;
+
+        @Override
+        public T getIfAvailable() throws BeansException {
+          T ret = targetSingleton;
+          if (ret == null) {
+            synchronized(this) {
+              ret = targetSingleton;
+              if (ret == null) {
+                ret = targetSingleton = (T) getBean(def);
+              }
+            }
+          }
+          return ret;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+          return CollectionUtils.singletonIterator(get());
+        }
+
+        @Override
+        public T get() { return getIfAvailable(); }
+
+        @Override
+        public Stream<T> orderedStream() { return stream(); }
+
+        @Override
+        public Stream<T> stream() { return Stream.of(targetSingleton); }
+      }
+      return new SingletonObjectSupplier();
+    }
+
+    return new DefaultObjectSupplier<T>(def.getBeanClass(), this) {
+
+      @Override
+      public T getIfAvailable() throws BeansException {
+        return (T) getBean(def);
+      }
+    };
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+    Assert.notNull(requiredType, "requiredType must not be null");
+    return new DefaultObjectSupplier<>(requiredType, this);
+  }
+
+  @Override
+  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
+    return getBeansOfType(requiredType, true, includeNonSingletons);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Map<String, T> getBeansOfType(
+          Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    HashMap<String, T> beans = new HashMap<>();
+    for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
+        Object bean = getBean(def);
+        if (bean != null) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
+        if (!beans.containsKey(entry.getKey())
+                && (requiredType == null || requiredType.isInstance(bean))) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
+    return beans;
+  }
+
+  /**
+   * Return bean matching the given type (including subclasses), judging from bean definitions
+   *
+   * @param def the BeanDefinition to check
+   * @param requiredType the class or interface to match, or {@code null} for all bean names
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @return the bean matching the given object type (including subclasses)
+   */
+  protected boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
+    if (!(includeNonSingletons || def.isSingleton())) {
+      return false;
+    }
+
+    if (requiredType != null) {
+      Class<?> type = getType(def.getName());
+      if (type != null) {
+        return requiredType.isAssignableFrom(type);
+      }
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Map<String, T> getBeansOfType(
+          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    HashMap<String, T> beans = new HashMap<>();
+    for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (includeNonSingletons || def.isSingleton()) {
+        if (requiredType == null || def.isAssignableTo(requiredType)) {
+          Object bean = getBean(def);
+          if (bean != null) {
+            beans.put(entry.getKey(), (T) bean);
+          }
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
+        if (!beans.containsKey(entry.getKey())
+                && (requiredType == null || isInstance(requiredType, bean))) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
+    return beans;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> void getBeansOfType(
+          @Nullable ResolvableType requiredType,
+          boolean includeNoneRegistered, boolean includeNonSingletons, BiConsumer<String, T> consumer) {
+    HashSet<String> accepted = new HashSet<>();
+    for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+      BeanDefinition def = entry.getValue();
+      if (includeNonSingletons || def.isSingleton()) {
+        if (requiredType == null || def.isAssignableTo(requiredType)) {
+          Object bean = getBean(def);
+          if (bean != null) {
+            accepted.add(entry.getKey());
+            consumer.accept(entry.getKey(), (T) bean);
+          }
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
+        Object bean = entry.getValue();
+        if (!accepted.contains(entry.getKey())
+                && (requiredType == null || isInstance(requiredType, bean))) {
+          consumer.accept(entry.getKey(), (T) bean);
+        }
+      }
+    }
+  }
+
+  // getBeanNamesOfType
+
   @Override
   public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
     return getBeanNamesOfType(requiredType, true, includeNonSingletons);
@@ -551,6 +730,45 @@ public class StandardBeanFactory
         for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
           Object bean = entry.getValue();
           if (requiredType == null || requiredType.isInstance(bean)) {
+            beanNames.add(entry.getKey());
+          }
+        }
+      }
+    }
+    return beanNames;
+  }
+
+  @Override
+  public Set<String> getBeanNamesOfType(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
+
+    for (String beanName : beanDefinitionNames) {
+      BeanDefinition definition = beanDefinitionMap.get(beanName);
+      if (!definition.isAbstract()) {
+        boolean matchFound = false;
+        if (includeNonSingletons || definition.isSingleton()) {
+          matchFound = isTypeMatch(beanName, requiredType);
+        }
+        if (!matchFound && isFactoryBean(definition)) {
+          // In case of FactoryBean, try to match FactoryBean instance itself next.
+          beanName = FACTORY_BEAN_PREFIX + beanName;
+          matchFound = isTypeMatch(beanName, requiredType);
+        }
+        if (matchFound) {
+          beanNames.add(beanName);
+        }
+      }
+    }
+
+    if (includeNoneRegistered) {
+      synchronized(getSingletons()) {
+        for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
+          if (beanNames.contains(entry.getKey())) {
+            continue;
+          }
+          Object bean = entry.getValue();
+          if (requiredType == null || isInstance(requiredType, bean)) {
             beanNames.add(entry.getKey());
           }
         }

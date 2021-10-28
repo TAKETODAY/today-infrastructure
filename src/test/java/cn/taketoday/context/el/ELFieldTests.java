@@ -19,18 +19,17 @@
  */
 package cn.taketoday.context.el;
 
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.lang.Singleton;
+import cn.taketoday.lang.Value;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
-
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Value;
-import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.lang.Singleton;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  * @author TODAY <br>
@@ -39,7 +38,7 @@ import lombok.ToString;
 @ToString
 @Singleton
 public class ELFieldTests {
-  StandardApplicationContext applicationContext = new StandardApplicationContext("");
+  StandardApplicationContext applicationContext = new StandardApplicationContext();
 
   @AfterEach
   public void ends() {
@@ -77,7 +76,7 @@ public class ELFieldTests {
   public void test_Number() {
 
     applicationContext.scan("cn.taketoday.context.el");
-
+    applicationContext.refresh();
     ELFieldTests bean = applicationContext.getBean(getClass());
     System.err.println(bean.testFloat);
     System.err.println(bean.testDouble);
@@ -93,6 +92,7 @@ public class ELFieldTests {
     user.setAge(20)//
             .setBrithday(new Date())//
             .setId(1);
+    applicationContext.refresh();
     ExpressionProcessor processor = applicationContext.getBean(ExpressionProcessor.class);
     processor.defineBean("user", user);
 
@@ -111,7 +111,7 @@ public class ELFieldTests {
     user.setAge(20)//
             .setBrithday(new Date())//
             .setId(1);
-
+    applicationContext.refresh();
     ExpressionProcessor processor = applicationContext.getBean(ExpressionProcessor.class);
     processor.defineBean("user", user);
 

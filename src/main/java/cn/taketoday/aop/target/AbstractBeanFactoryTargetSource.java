@@ -124,7 +124,7 @@ public abstract class AbstractBeanFactoryTargetSource
                 = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(targetBeanName);
       }
       else {
-        this.targetBeanDefinition = beanFactory.getBeanDefinitions().get(targetBeanName);
+        this.targetBeanDefinition = beanFactory.getBeanDefinition(targetBeanName);
       }
     }
     this.beanFactory = beanFactory;
@@ -166,7 +166,7 @@ public abstract class AbstractBeanFactoryTargetSource
         definition = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(targetBeanName);
       }
       else {
-        definition = beanFactory.getBeanDefinitions().get(targetBeanName);
+        definition = beanFactory.getBeanDefinition(targetBeanName);
       }
       Assert.state(definition != null, "Property 'targetBeanDefinition' is required");
       this.targetBeanDefinition = definition;

@@ -32,8 +32,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
  * @author TODAY 2021/10/16 22:23
  * @since 4.0
  */
-final class ResolvableTypeObjectSupplier<T>
-        extends AbstractResolvableTypeObjectSupplier<T> {
+final class ResolvableTypeObjectSupplier<T> extends AbstractResolvableTypeObjectSupplier<T> {
 
   private final AbstractBeanFactory beanFactory;
 

@@ -19,26 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -62,6 +43,20 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -154,7 +149,7 @@ public abstract class AbstractBeanFactory
    */
   @Override
   public Object getBean(BeanDefinition def) {
-    if (def.isFactoryBean()) {
+    if (isFactoryBean(def)) {
       return getFactoryBean(def).getBean();
     }
     if (def.isInitialized()) { // fix #7
@@ -217,7 +212,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                    name, ClassUtils.getQualifiedName(requiredType), ex);
+                  name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -232,10 +227,61 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    // Check manually registered singletons.
+    Object beanInstance = getSingleton(name);
+    if (beanInstance != null) {
+      boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
+      if (beanInstance instanceof FactoryBean) {
+        if (!isFactoryDereference) {
+          Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
+          return type != null && typeToMatch.isAssignableFrom(type);
+        }
+        else {
+          return typeToMatch.isInstance(beanInstance);
+        }
+      }
+      else if (!isFactoryDereference) {
+        if (typeToMatch.isInstance(beanInstance)) {
+          // Direct match for exposed instance?
+          return true;
+        }
+        else if (typeToMatch.hasGenerics() && containsBeanDefinition(name)) {
+          // Generics potentially only match on the target class, not on the proxy...
+          BeanDefinition mbd = getBeanDefinition(name);
+          Class<?> targetType = null;
+          if (mbd.hasBeanClass()) {
+            targetType = mbd.getBeanClass();
+          }
+          if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance)) {
+            // Check raw class match as well, making sure it's exposed on the proxy.
+            Class<?> classToMatch = typeToMatch.resolve();
+            if (classToMatch != null && !classToMatch.isInstance(beanInstance)) {
+              return false;
+            }
+            return typeToMatch.isAssignableFrom(targetType);
+          }
+        }
+      }
+      return false;
+    }
+    else if (containsSingleton(name) && !containsBeanDefinition(name)) {
+      // null instance registered
+      return false;
+    }
 
-    // 单例 父容器
-    BeanDefinition beanDefinition = obtainBeanDefinition(name);
-    return beanDefinition.isAssignableTo(typeToMatch);
+    // No singleton instance found -> check bean definition.
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    if (parentBeanFactory != null && !containsBeanDefinition(name)) {
+      // No bean definition found in this factory -> delegate to parent.
+      return parentBeanFactory.isTypeMatch(name, typeToMatch);
+    }
+    BeanDefinition definition = obtainBeanDefinition(name);
+    Class<?> type = predictBeanType(definition);
+    if (type != null) {
+      return ResolvableType.fromClass(type)
+              .isAssignableFrom(typeToMatch);
+    }
+    return false;
   }
 
   @Override
@@ -306,7 +352,7 @@ public abstract class AbstractBeanFactory
     }
 
     // find like Bean<String>
-    return new ResolvableTypeObjectSupplier<T>(this, requiredType, includeNoneRegistered, includeNonSingletons);
+    return new ResolvableTypeObjectSupplier<>(this, requiredType, includeNoneRegistered, includeNonSingletons);
   }
 
   static boolean isInstance(ResolvableType type, Object obj) {
@@ -687,7 +733,7 @@ public abstract class AbstractBeanFactory
   protected Object createSingleton(BeanDefinition def) {
     Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
 
-    if (def.isFactoryBean()) {
+    if (isFactoryBean(def)) {
       Object bean = getFactoryBean(def).getBean();
       if (!containsSingleton(def.getName())) {
         registerSingleton(def.getName(), bean);
@@ -812,14 +858,20 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isSingleton(String name) {
-    BeanDefinition def = getBeanDefinition(name);
-    if (def == null) {
-      if (getSingleton(name) == null) {
-        throw new NoSuchBeanDefinitionException(name);
-      }
+    Object beanInstance = getSingleton(name);
+    if (beanInstance != null) {
       return true;
     }
-    return def.isSingleton();
+
+    // No singleton instance found -> check bean definition.
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    if (parentBeanFactory != null && !containsBeanDefinition(name)) {
+      // No bean definition found in this factory -> delegate to parent.
+      return parentBeanFactory.isSingleton(name);
+    }
+
+    BeanDefinition definition = getBeanDefinition(name);
+    return definition.isSingleton();
   }
 
   /**
@@ -835,7 +887,19 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isPrototype(String name) {
-    return !isSingleton(name);
+    Object beanInstance = getSingleton(name);
+    if (beanInstance != null) {
+      return false;
+    }
+
+    // No singleton instance found -> check bean definition.
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    if (parentBeanFactory != null && !containsBeanDefinition(name)) {
+      // No bean definition found in this factory -> delegate to parent.
+      return parentBeanFactory.isPrototype(name);
+    }
+    BeanDefinition definition = getBeanDefinition(name);
+    return definition.isPrototype();
   }
 
   @Override
@@ -877,7 +941,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                       "that it should return null if the type of its object cannot be determined yet", ex);
+              "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -906,6 +970,37 @@ public abstract class AbstractBeanFactory
     }
     return resolveBeanClass(definition);
   }
+
+  @Override
+  public boolean isFactoryBean(String beanName) throws NoSuchBeanDefinitionException {
+    Object beanInstance = getSingleton(beanName);
+    if (beanInstance != null) {
+      return beanInstance instanceof FactoryBean;
+    }
+    // No singleton instance found -> check bean definition.
+    if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
+      // No bean definition found in this factory -> delegate to parent.
+      return ((ConfigurableBeanFactory) getParentBeanFactory()).isFactoryBean(beanName);
+    }
+    return isFactoryBean(getBeanDefinition(beanName));
+  }
+
+
+  /**
+   * Check whether the given bean is defined as a {@link FactoryBean}.
+   *
+   * @param def the corresponding bean definition
+   */
+  protected boolean isFactoryBean(BeanDefinition def) {
+    Boolean result = def.isFactoryBean();
+    if (result == null) {
+      Class<?> beanType = predictBeanType(def);
+      result = beanType != null && FactoryBean.class.isAssignableFrom(beanType);
+      def.setFactoryBean(result);
+    }
+    return result;
+  }
+
 
   @Override
   public Set<String> getAliases(Class<?> type) {
@@ -952,206 +1047,6 @@ public abstract class AbstractBeanFactory
   @Override
   public boolean isFullLifecycle() {
     return fullLifecycle;
-  }
-
-  //---------------------------------------------------------------------
-  // Listing Get operations for type-lookup
-  //---------------------------------------------------------------------
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> ObjectSupplier<T> getObjectSupplier(final BeanDefinition def) {
-    Assert.notNull(def, "BeanDefinition must not be null");
-
-    if (def.isSingleton()) {
-      final class SingletonObjectSupplier implements ObjectSupplier<T> {
-        volatile T targetSingleton;
-
-        @Override
-        public T getIfAvailable() throws BeansException {
-          T ret = targetSingleton;
-          if (ret == null) {
-            synchronized(this) {
-              ret = targetSingleton;
-              if (ret == null) {
-                ret = targetSingleton = (T) getBean(def);
-              }
-            }
-          }
-          return ret;
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-          return CollectionUtils.singletonIterator(get());
-        }
-
-        @Override
-        public T get() { return getIfAvailable(); }
-
-        @Override
-        public Stream<T> orderedStream() { return stream(); }
-
-        @Override
-        public Stream<T> stream() { return Stream.of(targetSingleton); }
-      }
-      return new SingletonObjectSupplier();
-    }
-
-    return new DefaultObjectSupplier<T>(def.getBeanClass(), this) {
-
-      @Override
-      public T getIfAvailable() throws BeansException {
-        return (T) getBean(def);
-      }
-    };
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    Assert.notNull(requiredType, "requiredType must not be null");
-    return new DefaultObjectSupplier<>(requiredType, this);
-  }
-
-  @Override
-  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
-    return getBeansOfType(requiredType, true, includeNonSingletons);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> Map<String, T> getBeansOfType(
-          Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    HashMap<String, T> beans = new HashMap<>();
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (isEligibleBean(def, requiredType, includeNonSingletons)) {
-        Object bean = getBean(def);
-        if (bean != null) {
-          beans.put(entry.getKey(), (T) bean);
-        }
-      }
-    }
-
-    if (includeNoneRegistered) {
-      for (Entry<String, Object> entry : getSingletons().entrySet()) {
-        Object bean = entry.getValue();
-        if (!beans.containsKey(entry.getKey())
-                && (requiredType == null || requiredType.isInstance(bean))) {
-          beans.put(entry.getKey(), (T) bean);
-        }
-      }
-    }
-    return beans;
-  }
-
-  /**
-   * Return bean matching the given type (including subclasses), judging from bean definitions
-   *
-   * @param def the BeanDefinition to check
-   * @param requiredType the class or interface to match, or {@code null} for all bean names
-   * @param includeNonSingletons whether to include prototype or scoped beans too
-   * or just singletons (also applies to FactoryBeans)
-   * @return the bean matching the given object type (including subclasses)
-   */
-  protected boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
-    if (!(includeNonSingletons || def.isSingleton())) {
-      return false;
-    }
-
-    if (requiredType != null) {
-      Class<?> type = getType(def.getName());
-      if (type != null) {
-        return requiredType.isAssignableFrom(type);
-      }
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> Map<String, T> getBeansOfType(
-          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    HashMap<String, T> beans = new HashMap<>();
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (includeNonSingletons || def.isSingleton()) {
-        if (requiredType == null || def.isAssignableTo(requiredType)) {
-          Object bean = getBean(def);
-          if (bean != null) {
-            beans.put(entry.getKey(), (T) bean);
-          }
-        }
-      }
-    }
-
-    if (includeNoneRegistered) {
-      for (Entry<String, Object> entry : getSingletons().entrySet()) {
-        Object bean = entry.getValue();
-        if (!beans.containsKey(entry.getKey())
-                && (requiredType == null || isInstance(requiredType, bean))) {
-          beans.put(entry.getKey(), (T) bean);
-        }
-      }
-    }
-    return beans;
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> void getBeansOfType(
-          @Nullable ResolvableType requiredType,
-          boolean includeNoneRegistered, boolean includeNonSingletons, BiConsumer<String, T> consumer) {
-    HashSet<String> accepted = new HashSet<>();
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (includeNonSingletons || def.isSingleton()) {
-        if (requiredType == null || def.isAssignableTo(requiredType)) {
-          Object bean = getBean(def);
-          if (bean != null) {
-            accepted.add(entry.getKey());
-            consumer.accept(entry.getKey(), (T) bean);
-          }
-        }
-      }
-    }
-
-    if (includeNoneRegistered) {
-      for (Entry<String, Object> entry : getSingletons().entrySet()) {
-        Object bean = entry.getValue();
-        if (!accepted.contains(entry.getKey())
-                && (requiredType == null || isInstance(requiredType, bean))) {
-          consumer.accept(entry.getKey(), (T) bean);
-        }
-      }
-    }
-  }
-
-  @Override
-  public Set<String> getBeanNamesOfType(
-          @Nullable ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
-
-    for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-      if (includeNonSingletons || def.isSingleton()) {
-        if (requiredType == null || def.isAssignableTo(requiredType)) {
-          beanNames.add(entry.getKey());
-        }
-      }
-    }
-
-    if (includeNoneRegistered) {
-      synchronized(getSingletons()) {
-        for (Entry<String, Object> entry : getSingletons().entrySet()) {
-          Object bean = entry.getValue();
-          if (requiredType == null || isInstance(requiredType, bean)) {
-            beanNames.add(entry.getKey());
-          }
-        }
-      }
-    }
-    return beanNames;
   }
 
   //---------------------------------------------------------------------
@@ -1251,7 +1146,7 @@ public abstract class AbstractBeanFactory
     for (BeanDefinition def : getBeanDefinitions().values()) {
       // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
-        if (def.isFactoryBean()) {
+        if (isFactoryBean(def)) {
           FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
           boolean isEagerInit = factoryBean instanceof SmartFactoryBean
                   && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
@@ -1267,18 +1162,15 @@ public abstract class AbstractBeanFactory
 
     // Trigger post-initialization callback for all applicable beans...
     for (Object singleton : getSingletons().values()) {
-      postSingletonInitialization(singleton);
+      // SmartInitializingSingleton
+      if (singleton instanceof SmartInitializingSingleton) {
+        ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
+      }
     }
 
     log.debug("The singleton objects are initialized.");
   }
 
-  protected void postSingletonInitialization(Object singleton) {
-    // SmartInitializingSingleton
-    if (singleton instanceof SmartInitializingSingleton) {
-      ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
-    }
-  }
 
   /**
    * Initialization singletons that has already in context

@@ -19,12 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessor;
@@ -34,6 +28,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Bean definition
@@ -126,7 +126,7 @@ public interface BeanDefinition extends AttributeAccessor {
    *
    * @return If Bean is a {@link FactoryBean}
    */
-  boolean isFactoryBean();
+  Boolean isFactoryBean();
 
   /**
    * If a {@link Singleton} has initialized
@@ -366,6 +366,7 @@ public interface BeanDefinition extends AttributeAccessor {
   /**
    * check type
    *
+   * @see #hasBeanClass()
    * @since 4.0
    */
   boolean isAssignableTo(ResolvableType typeToMatch);
@@ -373,6 +374,7 @@ public interface BeanDefinition extends AttributeAccessor {
   /**
    * check type
    *
+   * @see #hasBeanClass()
    * @since 4.0
    */
   boolean isAssignableTo(Class<?> typeToMatch);
@@ -405,4 +407,5 @@ public interface BeanDefinition extends AttributeAccessor {
 
   /** @since 4.0 */
   BeanDefinition cloneDefinition();
+
 }

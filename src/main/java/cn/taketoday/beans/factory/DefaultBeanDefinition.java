@@ -87,7 +87,7 @@ public class DefaultBeanDefinition
    *
    * @since 2.0.0
    */
-  private boolean factoryBean = false;
+  private Boolean factoryBean;
 
   /** Child implementation */
   private BeanDefinition childDef;
@@ -292,7 +292,7 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public boolean isFactoryBean() {
+  public Boolean isFactoryBean() {
     return factoryBean;
   }
 

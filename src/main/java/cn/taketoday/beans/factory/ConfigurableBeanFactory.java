@@ -294,7 +294,21 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 
   /**
    * Return the current number of registered BeanPostProcessors, if any.
+   *
+   * @since 4.0
    */
   int getBeanPostProcessorCount();
+
+  /**
+   * Determine whether the bean with the given name is a FactoryBean.
+   *
+   * @param name the name of the bean to check
+   * @return whether the bean is a FactoryBean
+   * ({@code false} means the bean exists but is not a FactoryBean)
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @since 4.0
+   */
+  boolean isFactoryBean(String name) throws NoSuchBeanDefinitionException;
+
 
 }
