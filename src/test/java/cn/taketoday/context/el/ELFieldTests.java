@@ -20,13 +20,11 @@
 package cn.taketoday.context.el;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.lang.Singleton;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.lang.Value;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -36,16 +34,7 @@ import java.util.Date;
  * 2019-02-23 20:58
  */
 @ToString
-@Singleton
-public class ELFieldTests {
-  StandardApplicationContext applicationContext = new StandardApplicationContext();
-
-  @AfterEach
-  public void ends() {
-    if (applicationContext != null) {
-      applicationContext.close();
-    }
-  }
+class ELFieldTests {
 
   @Value("#{235.1}")
   private double testDouble;
@@ -56,7 +45,7 @@ public class ELFieldTests {
   @Value(required = false, value = "#{user}")
   private User user;
 
-  @Value(value = "#{env['site.name']}")
+  @Value(value = "#{env.getProperty('site.name')}")
   private String siteName;
 
   @Getter
@@ -73,54 +62,62 @@ public class ELFieldTests {
   }
 
   @Test
-  public void test_Number() {
+  void number() {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-    applicationContext.scan("cn.taketoday.context.el");
-    applicationContext.refresh();
-    ELFieldTests bean = applicationContext.getBean(getClass());
-    System.err.println(bean.testFloat);
-    System.err.println(bean.testDouble);
+      applicationContext.register(ELFieldTests.class);
+      applicationContext.refresh();
+      ELFieldTests bean = applicationContext.getBean(getClass());
+      System.err.println(bean.testFloat);
+      System.err.println(bean.testDouble);
 
-    assert bean.testFloat == 235.1f;
-    assert bean.testDouble == 235.1;
+      assert bean.testFloat == 235.1f;
+      assert bean.testDouble == 235.1;
+    }
   }
 
   @Test
-  public void testEnv() {
+  void testEnv() {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-    User user = new User();
-    user.setAge(20)//
-            .setBrithday(new Date())//
-            .setId(1);
-    applicationContext.refresh();
-    ExpressionProcessor processor = applicationContext.getBean(ExpressionProcessor.class);
-    processor.defineBean("user", user);
+      User user = new User();
+      user.setAge(20)//
+              .setBrithday(new Date())//
+              .setId(1);
 
-    applicationContext.scan("cn.taketoday.context.el");
+      ExpressionEvaluator expressionEvaluator = applicationContext.getExpressionEvaluator();
+      expressionEvaluator.obtainProcessor().defineBean("user", user);
+      applicationContext.setPropertiesLocation("info.properties");
 
-    ELFieldTests bean = applicationContext.getBean(getClass());
-    System.err.println(bean);
-    assert bean.user == user;
-    assert bean.siteName.equals("TODAY BLOG");
+      applicationContext.register(ELFieldTests.class);
+      applicationContext.refresh();
+
+      ELFieldTests bean = applicationContext.getBean(getClass());
+      System.err.println(bean);
+      assert bean.user == user;
+      assert bean.siteName.equals("TODAY BLOG");
+    }
   }
 
   @Test
-  public void testDefineBean() {
+  void defineBean() {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-    User user = new User();
-    user.setAge(20)//
-            .setBrithday(new Date())//
-            .setId(1);
-    applicationContext.refresh();
-    ExpressionProcessor processor = applicationContext.getBean(ExpressionProcessor.class);
-    processor.defineBean("user", user);
+      User user = new User();
+      user.setAge(20)//
+              .setBrithday(new Date())//
+              .setId(1);
 
-    applicationContext.scan("cn.taketoday.context.el");
-    applicationContext.refresh();
+      ExpressionEvaluator expressionEvaluator = applicationContext.getExpressionEvaluator();
+      expressionEvaluator.obtainProcessor().defineBean("user", user);
 
-    ELFieldTests bean = applicationContext.getBean(getClass());
-    System.err.println(bean);
-    assert bean.user == user;
+      applicationContext.register(ELFieldTests.class);
+      applicationContext.refresh();
+
+      ELFieldTests bean = applicationContext.getBean(getClass());
+      System.err.println(bean);
+      assert bean.user == user;
+    }
   }
 
 }

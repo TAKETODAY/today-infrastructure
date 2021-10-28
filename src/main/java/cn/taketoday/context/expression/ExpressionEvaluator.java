@@ -297,7 +297,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   }
 
   @NonNull
-  private ExpressionProcessor obtainProcessor() {
+  public ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
       if (context != null) {
         ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);

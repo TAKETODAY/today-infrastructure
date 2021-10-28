@@ -19,13 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
-
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author TODAY <br>
@@ -59,26 +58,18 @@ class BeanDefinitionTests {
       beanDefinition.setDestroyMethod("destory");
       beanDefinition.setInitMethods("init");
 
-      Field test = BeanDefinitionTests.class.getDeclaredField("test");
-      Field testInt = BeanDefinitionTests.class.getDeclaredField("testInt");
-      Field testDouble = BeanDefinitionTests.class.getDeclaredField("testDouble");
-
       beanDefinition.addPropertyValue("testInt", 123);
-
-      beanDefinition.addPropertyValue("TEST_STRING", test);
+      beanDefinition.addPropertyValue("test", "TEST_STRING");
       beanDefinition.addPropertyValue("testDouble", 123.123);
-
-      beanDefinition.addPropertyValue("TEST_STRING", test);
       beanDefinition.addPropertyValue("testDouble", 123.123);
 
       assert beanDefinition.isSingleton();
 
       try {
         beanDefinition.getPropertyValue("test1");
-        assert false;
+        fail("getPropertyValue failed");
       }
       catch (Exception e) {
-        assert true;
       }
 
       applicationContext.registerBeanDefinition("testBean", beanDefinition);
