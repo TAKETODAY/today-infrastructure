@@ -100,10 +100,7 @@ public abstract class AnnotationUtils {
    */
   public static <A extends Annotation> boolean isPresent(
           @Nullable AnnotatedElement element, @Nullable Class<A> annType) {
-    return annType != null && element != null && (
-            element.isAnnotationPresent(annType)
-                    || ObjectUtils.isNotEmpty(AnnotatedElementUtils.getMergedAttributesArray(element, annType))
-    );
+    return AnnotatedElementUtils.isAnnotated(element, annType);
   }
 
   /**

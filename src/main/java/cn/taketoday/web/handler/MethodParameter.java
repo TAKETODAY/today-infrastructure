@@ -28,9 +28,9 @@ import java.util.Objects;
 import cn.taketoday.core.AnnotationSupport;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
@@ -130,12 +130,11 @@ public class MethodParameter
    * @since 4.0
    */
   protected void initRequestParam(AnnotatedElement element) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            element, RequestParam.class);
-    if (attributes != null) {
-      this.name = attributes.getString(Constant.VALUE);
-      this.required = attributes.getBoolean("required");
-      this.defaultValue = attributes.getString("defaultValue");
+    MergedAnnotation<RequestParam> requestParam = MergedAnnotations.from(element).get(RequestParam.class);
+    if (requestParam.isPresent()) {
+      this.name = requestParam.getString(Constant.VALUE);
+      this.required = requestParam.getBoolean("required");
+      this.defaultValue = requestParam.getString("defaultValue");
     }
     if (!this.required) { // @since 3.0 Required
       this.required = AnnotationUtils.isPresent(element, Required.class);
