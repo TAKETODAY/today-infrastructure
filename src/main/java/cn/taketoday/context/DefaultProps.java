@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Constant;
 
 /**
@@ -48,6 +49,13 @@ public class DefaultProps implements Props, Annotation {
   }
 
   public DefaultProps(AnnotationAttributes props) {
+    this.replace = props.getBoolean("replace");
+    this.nested = props.getClassArray("nested");
+    this.prefix = props.getStringArray("prefix");
+    this.value = props.getStringArray(Constant.VALUE);
+  }
+
+  public DefaultProps(MergedAnnotation<Props> props) {
     this.replace = props.getBoolean("replace");
     this.nested = props.getClassArray("nested");
     this.prefix = props.getStringArray("prefix");

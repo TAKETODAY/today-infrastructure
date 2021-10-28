@@ -43,8 +43,8 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.IterablePropertyResolver;
@@ -109,8 +109,9 @@ public class PropsReader {
 
   public List<PropertySetter> read(AnnotatedElement annotated) {
     Assert.notNull(annotated, "AnnotatedElement must not be null");
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(annotated, Props.class);
-    if (attributes == null) {
+
+    MergedAnnotation<Props> annotation = MergedAnnotations.from(annotated).get(Props.class);
+    if (!annotation.isPresent()) {
       return Collections.emptyList();
     }
 
@@ -119,7 +120,7 @@ public class PropsReader {
       log.debug("Loading Properties For: [{}]", type.getName());
     }
 
-    DefaultProps defaultProps = new DefaultProps(attributes);
+    DefaultProps defaultProps = new DefaultProps(annotation);
     PropertyResolver propertyResolver = getResolver(defaultProps);
 
     ArrayList<PropertySetter> propertySetters = new ArrayList<>();
@@ -159,8 +160,9 @@ public class PropsReader {
 
   public List<PropertySetter> read(Class<?> type) {
     Assert.notNull(type, "Class must not be null");
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(type, Props.class);
-    if (attributes == null) {
+
+    MergedAnnotation<Props> annotation = MergedAnnotations.from(type).get(Props.class);
+    if (!annotation.isPresent()) {
       return Collections.emptyList();
     }
 
@@ -168,7 +170,7 @@ public class PropsReader {
       log.debug("Loading Properties For: [{}]", type.getName());
     }
 
-    DefaultProps defaultProps = new DefaultProps(attributes);
+    DefaultProps defaultProps = new DefaultProps(annotation);
     PropertyResolver propertyResolver = getResolver(defaultProps);
 
     ArrayList<PropertySetter> propertySetters = new ArrayList<>();
