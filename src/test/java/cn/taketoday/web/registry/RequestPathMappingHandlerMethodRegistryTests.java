@@ -24,8 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.http.HttpMethod;
@@ -57,10 +58,8 @@ public class RequestPathMappingHandlerMethodRegistryTests {
     AnnotationAttributes mapping = new AnnotationAttributes();
     Method method = TEST.class.getDeclaredMethod("mapping");
 
-    AnnotationAttributes actionMapping = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            method, ActionMapping.class);
-    AnnotationAttributes controllerMapping = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            TEST.class, ActionMapping.class);
+    MergedAnnotation<ActionMapping> actionMapping = MergedAnnotations.from(method).get(ActionMapping.class);
+    MergedAnnotation<ActionMapping> controllerMapping = MergedAnnotations.from(method).get(ActionMapping.class);
 
     RequestPathMappingHandlerMethodRegistry registry = new RequestPathMappingHandlerMethodRegistry();
     registry.mergeMappingAttributes(mapping, actionMapping, controllerMapping);

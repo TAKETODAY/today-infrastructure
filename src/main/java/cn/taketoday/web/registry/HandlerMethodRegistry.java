@@ -38,8 +38,8 @@ import cn.taketoday.context.loader.BeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -123,10 +123,9 @@ public class HandlerMethodRegistry
         // ActionMapping on the class is ok
         MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotationOnBean(def.getName(), ActionMapping.class);
         MergedAnnotation<RootController> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
-
-        AnnotationAttributes controllerMapping = null;
+        MergedAnnotation<ActionMapping> controllerMapping = null;
         if (actionMapping.isPresent()) {
-          controllerMapping = actionMapping.asAnnotationAttributes();
+          controllerMapping = actionMapping;
         }
         // build
         if (rootController.isPresent() || actionMapping.isPresent()) {
@@ -142,7 +141,7 @@ public class HandlerMethodRegistry
     }
   }
 
-  private void buildHandlerMethod(Class<?> beanClass, @Nullable AnnotationAttributes controllerMapping) {
+  private void buildHandlerMethod(Class<?> beanClass, @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
     for (Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);
     }
@@ -155,17 +154,15 @@ public class HandlerMethodRegistry
    * @param method Action or Handler
    * @param controllerMapping find mapping on class
    */
-  protected void buildHandlerMethod(Method method,
-                                    Class<?> beanClass,
-                                    @Nullable AnnotationAttributes controllerMapping) {
-    AnnotationAttributes actionMapping = // find mapping on method
-            AnnotatedElementUtils.getMergedAnnotationAttributes(method, ActionMapping.class);
-
-    if (actionMapping != null) {
+  protected void buildHandlerMethod(
+          Method method, Class<?> beanClass,
+          @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
+    MergedAnnotation<ActionMapping> annotation = MergedAnnotations.from(method).get(ActionMapping.class);
+    if (annotation.isPresent()) {
       // build HandlerMethod
       HandlerMethod handler = createHandlerMethod(beanClass, method);
       // do mapping url
-      mappingHandlerMethod(handler, controllerMapping, actionMapping);
+      mappingHandlerMethod(handler, controllerMapping, annotation);
     }
   }
 
@@ -176,26 +173,26 @@ public class HandlerMethodRegistry
    * methods on class
    */
   protected void mappingHandlerMethod(HandlerMethod handler,
-                                      @Nullable AnnotationAttributes controllerMapping,
-                                      AnnotationAttributes handlerMethodMapping) {
+                                      @Nullable MergedAnnotation<ActionMapping> controllerMapping,
+                                      MergedAnnotation<ActionMapping> handlerMethodMapping) {
     boolean emptyNamespaces = true;
     boolean addClassRequestMethods = false;
     Set<String> namespaces = Collections.emptySet();
     Set<HttpMethod> classRequestMethods = Collections.emptySet();
-    if (CollectionUtils.isNotEmpty(controllerMapping)) {
+    if (controllerMapping != null) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
       for (String value : controllerMapping.getStringArray(Constant.VALUE)) {
         namespaces.add(StringUtils.formatURL(value));
       }
-      Collections.addAll(classRequestMethods, controllerMapping.getEnum("method"));
+      Collections.addAll(classRequestMethods, controllerMapping.getEnum("method", HttpMethod.class));
       emptyNamespaces = namespaces.isEmpty();
       addClassRequestMethods = !classRequestMethods.isEmpty();
     }
 
     boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
     Set<HttpMethod> requestMethods = // http request method on method(action/handler)
-            CollectionUtils.newHashSet(handlerMethodMapping.getEnum("method"));
+            CollectionUtils.newHashSet(handlerMethodMapping.getEnum("method", HttpMethod.class));
 
     if (addClassRequestMethods)
       requestMethods.addAll(classRequestMethods);

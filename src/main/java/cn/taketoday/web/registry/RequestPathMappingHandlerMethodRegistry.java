@@ -20,8 +20,17 @@
 
 package cn.taketoday.web.registry;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.MimeType;
@@ -32,13 +41,6 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
 import cn.taketoday.web.http.HttpMethod;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -84,8 +86,8 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   @Override
   protected void mappingHandlerMethod(HandlerMethod handler,
-                                      AnnotationAttributes controllerMapping,
-                                      AnnotationAttributes handlerMethodMapping) {
+                                      @Nullable MergedAnnotation<ActionMapping> controllerMapping,
+                                      MergedAnnotation<ActionMapping> handlerMethodMapping) {
     AnnotationAttributes mapping = new AnnotationAttributes(ActionMapping.class);
     mergeMappingAttributes(mapping, handlerMethodMapping, controllerMapping);
     for (String path : mapping.getStringArray("value")) { // url on method
@@ -114,18 +116,20 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   /*private for testing */
   void mergeMappingAttributes(AnnotationAttributes mapping,
-                              AnnotationAttributes actionMapping,
-                              AnnotationAttributes controllerMapping) {
-    if (CollectionUtils.isEmpty(controllerMapping) || actionMapping.getBoolean("exclude")) {
-      mapping.putAll(actionMapping);
+                              MergedAnnotation<ActionMapping> actionMapping,
+                              @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
+    AnnotationAttributes actionAttr = actionMapping.asAnnotationAttributes();
+    if (controllerMapping == null || actionMapping.getBoolean("exclude")) {
+      mapping.putAll(actionAttr);
       return;
     }
 
-    doMergeMapping(mapping, actionMapping, controllerMapping, Constant.VALUE, String[].class, true);
-    doMergeMapping(mapping, actionMapping, controllerMapping, "params", String[].class, false);
-    doMergeMapping(mapping, actionMapping, controllerMapping, "produces", String[].class, false);
-    doMergeMapping(mapping, actionMapping, controllerMapping, "consumes", String[].class, false);
-    doMergeMapping(mapping, actionMapping, controllerMapping, "method", HttpMethod[].class, false);
+    AnnotationAttributes controllerAttr = controllerMapping.asAnnotationAttributes();
+    doMergeMapping(mapping, actionAttr, controllerAttr, Constant.VALUE, String[].class, true);
+    doMergeMapping(mapping, actionAttr, controllerAttr, "params", String[].class, false);
+    doMergeMapping(mapping, actionAttr, controllerAttr, "produces", String[].class, false);
+    doMergeMapping(mapping, actionAttr, controllerAttr, "consumes", String[].class, false);
+    doMergeMapping(mapping, actionAttr, controllerAttr, "method", HttpMethod[].class, false);
   }
 
   private <T> void doMergeMapping(AnnotationAttributes mapping,
