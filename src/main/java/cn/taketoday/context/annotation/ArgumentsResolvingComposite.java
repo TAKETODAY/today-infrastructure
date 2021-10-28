@@ -20,6 +20,11 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
@@ -31,9 +36,9 @@ import cn.taketoday.context.autowire.ObjectSupplierArgumentsResolver;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.StrategiesDetector;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.NullValue;
@@ -44,11 +49,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author TODAY 2021/10/3 22:38
@@ -120,13 +120,13 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
       BeanFactory beanFactory = resolvingContext.getBeanFactory();
       List<ArgumentsResolvingStrategy> strategies = getStrategies(strategiesDetector, beanFactory);
       Collections.addAll(strategies,
-              new MapArgumentsResolver(),
-              new ArrayArgumentsResolver(),
-              new CollectionArgumentsResolver(),
-              new ObjectSupplierArgumentsResolver(),
-              new EnvExecutableArgumentsResolver(),
-              new ValueExecutableArgumentsResolver(),
-              new AutowiredArgumentsResolver()
+                         new MapArgumentsResolver(),
+                         new ArrayArgumentsResolver(),
+                         new CollectionArgumentsResolver(),
+                         new ObjectSupplierArgumentsResolver(),
+                         new EnvExecutableArgumentsResolver(),
+                         new ValueExecutableArgumentsResolver(),
+                         new AutowiredArgumentsResolver()
       );
       setResolvingStrategies(strategies);
     }
@@ -184,9 +184,10 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
     @Nullable
     @Override
     public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(parameter, Env.class);
-      if (attributes != null) {
-        ExpressionInfo expressionInfo = new ExpressionInfo(attributes, true);
+      MergedAnnotations annotations = MergedAnnotations.from(parameter);
+      MergedAnnotation<Env> annotation = annotations.get(Env.class);
+      if (annotation.isPresent()) {
+        ExpressionInfo expressionInfo = new ExpressionInfo(annotation, true);
         return expressionEvaluator.evaluate(expressionInfo, parameter.getType());
       }
       return null;
@@ -199,9 +200,10 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
     @Nullable
     @Override
     public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-      AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(parameter, Value.class);
-      if (attributes != null) {
-        ExpressionInfo expressionInfo = new ExpressionInfo(attributes, false);
+      MergedAnnotations annotations = MergedAnnotations.from(parameter);
+      MergedAnnotation<Value> annotation = annotations.get(Value.class);
+      if (annotation.isPresent()) {
+        ExpressionInfo expressionInfo = new ExpressionInfo(annotation, false);
         return expressionEvaluator.evaluate(expressionInfo, parameter.getType());
       }
       return null; // next resolver
