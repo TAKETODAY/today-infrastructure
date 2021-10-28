@@ -26,9 +26,10 @@ import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.MethodMetadata;
@@ -39,8 +40,10 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
+import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/19 22:22
@@ -263,6 +266,27 @@ public class DefinitionLoadingContext {
       // for a shared cache since it'll be cleared by the ApplicationContext.
       ((CachingMetadataReaderFactory) metadataReaderFactory).clearCache();
     }
+  }
+
+  // ExpressionEvaluator
+
+  public String evaluateExpression(String expression) {
+    return evaluateExpression(expression, String.class);
+  }
+
+  public <T> T evaluateExpression(String expression, Class<T> requiredType) {
+    ExpressionEvaluator expressionEvaluator = applicationContext.getExpressionEvaluator();
+    return expressionEvaluator.evaluate(expression, requiredType);
+  }
+
+  // PatternResourceLoader
+
+  public Resource getResource(String location) {
+    return getResourceLoader().getResource(location);
+  }
+
+  public Set<Resource> getResources(String locationPattern) throws IOException {
+    return getResourceLoader().getResources(locationPattern);
   }
 
 }

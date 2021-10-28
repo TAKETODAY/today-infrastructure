@@ -33,11 +33,21 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.env.CompositePropertySource;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.io.DefaultPropertySourceFactory;
+import cn.taketoday.core.io.EncodedResource;
+import cn.taketoday.core.io.PropertySourceFactory;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourcePropertySource;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
@@ -48,8 +58,13 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -71,6 +86,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private final DefinitionLoadingContext context;
 
   private final HashSet<Class<?>> importedClass = new HashSet<>();
+
+  private PropertySourceFactory propertySourceFactory;
 
   public ConfigurationBeanReader(DefinitionLoadingContext context) {
     this.context = context;
@@ -325,5 +342,105 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       context.addApplicationListener(this.createImporter(importMetadata, importClass));
     }
   }
+
+
+  /**
+   * Process the given <code>@PropertySource</code> annotation metadata.
+   *
+   * @param propertySource metadata for the <code>@PropertySource</code> annotation found
+   * @throws IOException if loading a property source failed
+   */
+  private void processPropertySource(AnnotationAttributes propertySource) throws IOException {
+    String name = propertySource.getString("name");
+    if (StringUtils.isNotEmpty(name)) {
+      name = null;
+    }
+    String encoding = propertySource.getString("encoding");
+    if (StringUtils.isNotEmpty(encoding)) {
+      encoding = null;
+    }
+    String[] locations = propertySource.getStringArray("value");
+    Assert.isTrue(locations.length > 0, "At least one @PropertySource(value) location is required");
+    boolean ignoreResourceNotFound = propertySource.getBoolean("ignoreResourceNotFound");
+
+    Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
+    PropertySourceFactory factory = factoryClass == PropertySourceFactory.class
+            ? getPropertySourceFactory() : context.instantiate(factoryClass);
+
+    for (String location : locations) {
+      try {
+        String resolvedLocation = context.evaluateExpression(location);
+        Resource resource = context.getResource(resolvedLocation);
+        addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
+      }
+      catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
+        // Placeholders not resolvable or resource not found when trying to open it
+        if (ignoreResourceNotFound) {
+          if (log.isInfoEnabled()) {
+            log.info("Properties location [" + location + "] not resolvable: " + ex.getMessage());
+          }
+        }
+        else {
+          throw ex;
+        }
+      }
+    }
+  }
+
+  private final ArrayList<String> propertySourceNames = new ArrayList<>();
+
+  private void addPropertySource(PropertySource<?> propertySource) {
+    String name = propertySource.getName();
+    Environment environment = context.getApplicationContext().getEnvironment();
+    PropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
+
+    if (this.propertySourceNames.contains(name)) {
+      // We've already added a version, we need to extend it
+      PropertySource<?> existing = propertySources.get(name);
+      if (existing != null) {
+        PropertySource<?> newSource = (propertySource instanceof ResourcePropertySource ?
+                ((ResourcePropertySource) propertySource).withResourceName() : propertySource);
+        if (existing instanceof CompositePropertySource) {
+          ((CompositePropertySource) existing).addFirstPropertySource(newSource);
+        }
+        else {
+          if (existing instanceof ResourcePropertySource) {
+            existing = ((ResourcePropertySource) existing).withResourceName();
+          }
+          CompositePropertySource composite = new CompositePropertySource(name);
+          composite.addPropertySource(newSource);
+          composite.addPropertySource(existing);
+          propertySources.replace(name, composite);
+        }
+        return;
+      }
+    }
+
+    if (this.propertySourceNames.isEmpty()) {
+      propertySources.addLast(propertySource);
+    }
+    else {
+      String firstProcessed = this.propertySourceNames.get(this.propertySourceNames.size() - 1);
+      propertySources.addBefore(firstProcessed, propertySource);
+    }
+    this.propertySourceNames.add(name);
+  }
+
+  /**
+   * setting default PropertySourceFactory
+   *
+   * @param propertySourceFactory PropertySourceFactory
+   */
+  public void setPropertySourceFactory(@Nullable PropertySourceFactory propertySourceFactory) {
+    this.propertySourceFactory = propertySourceFactory;
+  }
+
+  public PropertySourceFactory getPropertySourceFactory() {
+    if (propertySourceFactory == null) {
+      propertySourceFactory = new DefaultPropertySourceFactory();
+    }
+    return propertySourceFactory;
+  }
+
 
 }
