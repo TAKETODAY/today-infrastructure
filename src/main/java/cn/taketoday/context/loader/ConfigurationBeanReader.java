@@ -361,7 +361,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
     String[] locations = propertySource.getStringArray("value");
     Assert.isTrue(locations.length > 0, "At least one @PropertySource(value) location is required");
-    boolean ignoreResourceNotFound = propertySource.getBoolean("ignoreResourceNotFound");
 
     Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
     PropertySourceFactory factory = factoryClass == PropertySourceFactory.class
@@ -375,7 +374,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       }
       catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
         // Placeholders not resolvable or resource not found when trying to open it
-        if (ignoreResourceNotFound) {
+        if (propertySource.getBoolean("ignoreResourceNotFound")) {
           if (log.isInfoEnabled()) {
             log.info("Properties location [" + location + "] not resolvable: " + ex.getMessage());
           }
