@@ -171,7 +171,7 @@ class ConvertUtilsTests {
     assertEquals(1, resources.length);
     assertTrue(resources[0].exists());
 
-    Resource[] convertUtilsTestResources = convert(Resource[].class, "cn/taketoday/util/ConvertUtilsTest.class");
+    Resource[] convertUtilsTestResources = convert(Resource[].class, "cn/taketoday/util/ConvertUtilsTests.class");
 
     assertEquals(1, convertUtilsTestResources.length);
     assertTrue(convertUtilsTestResources[0].exists());
