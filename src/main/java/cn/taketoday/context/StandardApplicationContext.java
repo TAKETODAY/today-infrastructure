@@ -136,6 +136,14 @@ public class StandardApplicationContext
   //---------------------------------------------------------------------
 
   @Override
+  protected void resetCommonCaches() {
+    super.resetCommonCaches();
+    if (loadingContext != null) {
+      loadingContext.clearCache();
+    }
+  }
+
+  @Override
   public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.prepareBeanFactory(beanFactory);
     List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(

@@ -229,6 +229,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     return resourceLoader.getClassLoader();
   }
 
+  /** @since 4.0 */
+  public ResourceLoader getRootLoader() {
+    return resourceLoader;
+  }
+
   /**
    * Set the PathMatcher implementation to use for this resource pattern resolver.
    * Default is AntPathMatcher.

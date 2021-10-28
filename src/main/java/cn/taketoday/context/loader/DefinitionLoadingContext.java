@@ -20,9 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
@@ -42,6 +39,9 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+
 /**
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
@@ -49,29 +49,27 @@ import cn.taketoday.util.ClassUtils;
 public class DefinitionLoadingContext {
 
   private final BeanDefinitionRegistry registry;
-
-  private ConditionEvaluator conditionEvaluator;
-
   private final ApplicationContext applicationContext;
-
   private final MissingBeanRegistry missingBeanRegistry;
 
+  private ConditionEvaluator conditionEvaluator;
   private BeanFactoryAwareBeanInstantiator instantiator;
-
   private MetadataReaderFactory metadataReaderFactory;
 
   @Nullable
   private PatternResourceLoader resourceLoader;
 
-  public DefinitionLoadingContext(BeanDefinitionRegistry registry, ApplicationContext context) {
+  public DefinitionLoadingContext(BeanDefinitionRegistry registry, @NonNull ApplicationContext context) {
     this.registry = registry;
+    this.resourceLoader = context;
     this.applicationContext = context;
     this.missingBeanRegistry = new MissingBeanRegistry(this);
   }
 
   public DefinitionLoadingContext(
-          BeanDefinitionRegistry registry, @Nullable ConditionEvaluator conditionEvaluator, ApplicationContext context) {
+          BeanDefinitionRegistry registry, @Nullable ConditionEvaluator conditionEvaluator, @NonNull ApplicationContext context) {
     this.registry = registry;
+    this.resourceLoader = context;
     this.applicationContext = context;
     this.conditionEvaluator = conditionEvaluator;
     this.missingBeanRegistry = new MissingBeanRegistry(this);
@@ -216,7 +214,11 @@ public class DefinitionLoadingContext {
 
   public PatternResourceLoader getResourceLoader() {
     if (this.resourceLoader == null) {
-      this.resourceLoader = new PathMatchingPatternResourceLoader();
+      this.resourceLoader = applicationContext;
+      // try to bind ResourceLoader to MetadataReaderFactory
+      if (this.metadataReaderFactory == null) {
+        this.metadataReaderFactory = new CachingMetadataReaderFactory(applicationContext);
+      }
     }
     return this.resourceLoader;
   }
@@ -237,7 +239,21 @@ public class DefinitionLoadingContext {
    */
   public final MetadataReaderFactory getMetadataReaderFactory() {
     if (this.metadataReaderFactory == null) {
-      this.metadataReaderFactory = new CachingMetadataReaderFactory();
+      // try to bind ResourceLoader to MetadataReaderFactory
+      if (this.resourceLoader == null) {
+        this.metadataReaderFactory = new CachingMetadataReaderFactory(applicationContext);
+        this.resourceLoader = applicationContext;
+      }
+      else {
+        ResourceLoader resourceLoader;
+        if (this.resourceLoader instanceof PathMatchingPatternResourceLoader) {
+          resourceLoader = ((PathMatchingPatternResourceLoader) this.resourceLoader).getRootLoader();
+        }
+        else {
+          resourceLoader = this.resourceLoader;
+        }
+        this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
+      }
     }
     return this.metadataReaderFactory;
   }

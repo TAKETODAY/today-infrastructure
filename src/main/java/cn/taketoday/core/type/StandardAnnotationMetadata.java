@@ -26,7 +26,6 @@ import java.util.Set;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
@@ -73,10 +72,6 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
    * @param nestedAnnotationsAsMap return nested annotations and annotation arrays as
    * {@link cn.taketoday.core.annotation.AnnotationAttributes} for compatibility
    * with ASM-based {@link AnnotationMetadata} implementations
-   * @deprecated since 4.0 in favor of the factory method {@link AnnotationMetadata#introspect(Class)}.
-   * Use {@link MergedAnnotation#asMap(MergedAnnotation.Adapt...) MergedAnnotation.asMap}
-   * from {@link #getAnnotations()} rather than {@link #getAnnotationAttributes(String)}
-   * if {@code nestedAnnotationsAsMap} is {@code false}
    */
   public StandardAnnotationMetadata(Class<?> introspectedClass, boolean nestedAnnotationsAsMap) {
     super(introspectedClass);

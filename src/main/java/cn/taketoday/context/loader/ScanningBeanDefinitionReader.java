@@ -120,8 +120,8 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
       Set<Resource> resources = loadingContext.getResourceLoader().getResources(patternLocation);
+      MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
       for (Resource resource : resources) {
         process(resource, metadataReaderFactory);
       }

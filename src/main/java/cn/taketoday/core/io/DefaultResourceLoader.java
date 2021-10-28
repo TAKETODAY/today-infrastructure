@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/10/7 17:06
- * @since 10.03.2004
+ * @since 4.0
  */
 public class DefaultResourceLoader implements ResourceLoader {
 
