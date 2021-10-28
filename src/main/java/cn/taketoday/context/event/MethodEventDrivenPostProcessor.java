@@ -31,12 +31,10 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -60,23 +58,21 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
     ReflectionUtils.doWithMethods(beanClass, method -> {
-      if (AnnotatedElementUtils.isAnnotated(method, EventListener.class)) {
-        AnnotationAttributes[] attributes =
-                AnnotatedElementUtils.getMergedAttributesArray(method, EventListener.class);
-        for (AnnotationAttributes attribute : attributes) {
-          Class<?>[] eventTypes = getEventTypes(attribute, method);
-          // use ContextUtils#resolveParameter to resolve method arguments
-          addListener(def, beanFactory, method, eventTypes);
-        }
-      }
+      MergedAnnotations.from(method).stream(EventListener.class).forEach(eventListener -> {
+        Class<?>[] eventTypes = getEventTypes(eventListener, method);
+        // use ContextUtils#resolveParameter to resolve method arguments
+        addListener(def, beanFactory, method, eventTypes);
+      });
     });
 
     return bean;
   }
 
-  protected Class<?>[] getEventTypes(AnnotationAttributes attribute, Method declaredMethod) {
-    Class<?>[] eventTypes = attribute.getClassArray(Constant.VALUE);
+  protected Class<?>[] getEventTypes(MergedAnnotation<EventListener> eventListener, Method declaredMethod) {
+    return getEventTypes(eventListener.getClassArray(MergedAnnotation.VALUE), declaredMethod);
+  }
 
+  protected Class<?>[] getEventTypes(Class<?>[] eventTypes, Method declaredMethod) {
     if (ObjectUtils.isNotEmpty(eventTypes)) {
       return eventTypes;
     }
