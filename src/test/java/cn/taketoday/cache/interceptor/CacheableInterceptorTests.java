@@ -99,6 +99,7 @@ class CacheableInterceptorTests {
       context.register(AspectAutoProxyCreator.class);
       context.register(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
+      context.setRefreshable(true);
 
       CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
 

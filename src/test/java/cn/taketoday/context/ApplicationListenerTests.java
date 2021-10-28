@@ -19,14 +19,13 @@
  */
 package cn.taketoday.context;
 
-import org.junit.jupiter.api.Test;
-
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.core.Ordered;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Today <br>
@@ -45,12 +44,10 @@ class ApplicationListenerTests {
         @Override
         public void onApplicationEvent(ContextStartedEvent event) {
           i = true;
-          System.err.println(i);
         }
       });
-
-      applicationContext.scan("");
-
+      applicationContext.register(ContextCloseMetaInfoListener.class);
+      applicationContext.refresh();
       assert i;
     }
   }
@@ -58,7 +55,9 @@ class ApplicationListenerTests {
   @Test
   void testLoadMetaInfoListeners() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.scan("");
+      applicationContext.register(ContextCloseMetaInfoListener.class);
+      applicationContext.refresh();
+
     }
     // auto close
     assert testLoadedMetaInfoListener;

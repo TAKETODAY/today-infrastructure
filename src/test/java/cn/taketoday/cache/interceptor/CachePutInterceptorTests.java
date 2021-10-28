@@ -20,11 +20,6 @@
 
 package cn.taketoday.cache.interceptor;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-import java.util.Date;
-
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
@@ -33,7 +28,11 @@ import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.context.StandardApplicationContext;
+import org.junit.jupiter.api.Test;
 import test.demo.config.User;
+
+import java.lang.reflect.Method;
+import java.util.Date;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +59,7 @@ class CachePutInterceptorTests {
       context.register(AspectAutoProxyCreator.class);
       context.register(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
+      context.setRefreshable(true);
 
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
 
@@ -110,6 +110,7 @@ class CachePutInterceptorTests {
       context.register(AspectAutoProxyCreator.class);
       context.register(DefaultCacheExceptionResolver.class);
       context.registerFrameworkComponents();
+      context.setRefreshable(true);
 
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
 

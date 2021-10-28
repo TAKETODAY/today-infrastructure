@@ -20,11 +20,6 @@
 
 package cn.taketoday.context.event;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -36,6 +31,11 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * @author TODAY 2021/10/7 15:20
@@ -67,7 +67,7 @@ public class DefaultApplicationEventPublisher implements ApplicationEventPublish
       log.debug("Publish event: [{}]", event);
     }
 
-    List<ApplicationListener> listeners = getApplicationListeners(event);
+    List<ApplicationListener> listeners = filterApplicationListeners(event);
     if (CollectionUtils.isNotEmpty(listeners)) {
       for (ApplicationListener applicationListener : listeners) {
         applicationListener.onApplicationEvent(event);
@@ -75,75 +75,96 @@ public class DefaultApplicationEventPublisher implements ApplicationEventPublish
     }
   }
 
-  private List<ApplicationListener> getApplicationListeners(Object event) {
+  private List<ApplicationListener> filterApplicationListeners(Object event) {
     Class<?> eventClass = event.getClass();
     List<ApplicationListener> listenerList = applicationListenerCache.get(eventClass);
     if (listenerList == null) {
-      listenerList = new ArrayList<>();
-      for (ApplicationListener listener : this.applicationListeners) {
-        if (listener instanceof EventProvider) { // @since 2.1.7
-          Class<?>[] supportedEvent = ((EventProvider) listener).getSupportedEvent();
-          if (ObjectUtils.containsElement(supportedEvent, eventClass)) {
-            listenerList.add(listener);
+      synchronized(applicationListenerCache) {
+        listenerList = applicationListenerCache.get(eventClass);
+        if (listenerList == null) {
+          // find listeners
+          if (CollectionUtils.isNotEmpty(listenerBeanNames)) {
+            Assert.state(beanFactory != null, "No BeanFactory");
+            for (String listenerBeanName : listenerBeanNames) {
+              ApplicationListener listener = beanFactory.getBean(listenerBeanName, ApplicationListener.class);
+              applicationListeners.add(listener);
+            }
+            listenerBeanNames.clear();
           }
-        }
-        else {
-          Class<?> supportedEvent = GenericTypeResolver.resolveTypeArgument(listener.getClass(), ApplicationListener.class);
-          if (ClassUtils.isAssignable(supportedEvent, eventClass)) {
-            listenerList.add(listener);
+
+          listenerList = new ArrayList<>();
+          for (ApplicationListener listener : applicationListeners) {
+            if (isTargetEvent(listener, eventClass)) {
+              listenerList.add(listener);
+            }
           }
+
+          if (listenerList.isEmpty()) {
+            listenerList = Collections.emptyList();
+          }
+
+          applicationListenerCache.put(eventClass, listenerList);
+          applicationListenerCache.trimToSize();
         }
       }
-
-      if (CollectionUtils.isNotEmpty(listenerBeanNames)) {
-        Assert.state(beanFactory != null, "No BeanFactory");
-        for (String listenerBeanName : listenerBeanNames) {
-
-          ApplicationListener listener = beanFactory.getBean(listenerBeanName, ApplicationListener.class);
-          listenerList.add(listener);
-        }
-      }
-
-      if (listenerList.isEmpty()) {
-        listenerList = Collections.emptyList();
-      }
-      applicationListenerCache.putIfAbsent(eventClass, listenerList);
     }
     return listenerList;
+  }
+
+  private boolean isTargetEvent(ApplicationListener listener, Class<?> eventClass) {
+    if (listener instanceof EventProvider) { // @since 2.1.7
+      Class<?>[] supportedEvent = ((EventProvider) listener).getSupportedEvent();
+      return ObjectUtils.containsElement(supportedEvent, eventClass);
+    }
+    else {
+      Class<?> supportedEvent = GenericTypeResolver.resolveTypeArgument(listener.getClass(), ApplicationListener.class);
+      return ClassUtils.isAssignable(supportedEvent, eventClass);
+    }
   }
 
   @Override
   public void addApplicationListener(ApplicationListener<?> listener) {
     Assert.notNull(listener, "listener can't be null");
-    invalidateCache();
-    applicationListeners.add(listener);
+    synchronized(applicationListenerCache) {
+      invalidateCache();
+      applicationListeners.add(listener);
+    }
   }
 
   @Override
   public void addApplicationListener(String listenerBeanName) {
-    invalidateCache();
-    listenerBeanNames.add(listenerBeanName);
+    synchronized(applicationListenerCache) {
+      invalidateCache();
+      listenerBeanNames.add(listenerBeanName);
+    }
   }
 
   @Override
   public void removeAllListeners() {
-    invalidateCache();
-    listenerBeanNames.clear();
-    applicationListeners.clear();
+    synchronized(applicationListenerCache) {
+      invalidateCache();
+      listenerBeanNames.clear();
+      applicationListeners.clear();
+    }
   }
 
   @Override
   public void removeApplicationListener(String listenerBeanName) {
-    invalidateCache();
-    listenerBeanNames.remove(listenerBeanName);
+    synchronized(applicationListenerCache) {
+      invalidateCache();
+      listenerBeanNames.remove(listenerBeanName);
+    }
   }
 
   @Override
   public void removeApplicationListener(ApplicationListener<?> listener) {
-    invalidateCache();
-    applicationListeners.remove(listener);
+    synchronized(applicationListenerCache) {
+      invalidateCache();
+      applicationListeners.remove(listener);
+    }
   }
 
+  @Override
   public void setBeanFactory(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }

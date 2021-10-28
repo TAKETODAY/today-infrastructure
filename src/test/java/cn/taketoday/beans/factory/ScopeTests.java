@@ -19,13 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.PreDestroy;
-
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -57,6 +56,7 @@ class ScopeTests {
 
       final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
       context.registerBeanDefinition(def);
+      context.refresh();
 
       def.setScope("thread");
       final Object bean = context.getBean(def);
@@ -99,7 +99,7 @@ class ScopeTests {
       }
       context.addBeanFactoryPostProcessor(configurer);
 
-      context.scan();
+      context.refresh();
 
       final Object bean = context.getBean(def);
       final Object bean2 = context.getBean(def);

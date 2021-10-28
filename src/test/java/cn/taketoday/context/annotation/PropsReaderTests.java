@@ -32,6 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ class PropsReaderTests {
     assertThrows(IllegalArgumentException.class, () -> new PropsReader((ApplicationContext) null));
 
     PropsReader propsReader = new PropsReader();
-    assertThatThrownBy(() -> propsReader.read(null)).hasMessage("AnnotatedElement must not be null");
+    assertThatThrownBy(() -> propsReader.read((AnnotatedElement)null)).hasMessage("AnnotatedElement must not be null");
   }
 
   @Data
