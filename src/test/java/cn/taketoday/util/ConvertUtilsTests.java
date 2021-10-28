@@ -163,7 +163,7 @@ class ConvertUtilsTests {
       assert e.getCause().getClass().equals(ConfigurationException.class);
     }
 
-    final Object convertUtilsTestResource = convert("cn/taketoday/util/ConvertUtilsTest.class", Resource[].class);
+    final Object convertUtilsTestResource = convert("cn/taketoday/util/ConvertUtilsTests.class", Resource[].class);
 
     assertTrue(convertUtilsTestResource instanceof Resource[]);
 

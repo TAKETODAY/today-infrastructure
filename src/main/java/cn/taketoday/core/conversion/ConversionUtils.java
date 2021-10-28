@@ -29,6 +29,7 @@ import cn.taketoday.lang.Assert;
  * @author TODAY <br>
  * 2018-07-12 20:43:53
  */
+@Deprecated
 public abstract class ConversionUtils {
 
   public static boolean supports(Object source, Class<?> targetClass) {
