@@ -33,6 +33,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 import cn.taketoday.util.ClassUtils;
 
+import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
+
 /**
  * This {@link PropertyValueResolver} supports field that annotated
  * {@link Autowired}, {@link javax.annotation.Resource Resource},
@@ -49,8 +51,15 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 
   // @since 3.0 Required
   public static boolean isRequired(AnnotatedElement element, @Nullable MergedAnnotation<Autowired> autowired) {
-    return (autowired == null || autowired.getBoolean("required"))
+    return (autowired == null || !autowired.isPresent() || autowired.getBoolean("required"))
             || AnnotatedElementUtils.isAnnotated(element, Required.class);
+  }
+
+  public static boolean isInjectable(AnnotatedElement element) {
+    return isPresent(element, Autowired.class)
+            || isPresent(element, RESOURCE_CLASS)
+            || isPresent(element, NAMED_CLASS)
+            || isPresent(element, INJECT_CLASS);
   }
 
   @Nullable
