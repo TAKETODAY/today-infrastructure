@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -153,11 +154,16 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private void loadConfigurationBeans(BeanDefinition config, AnnotationMetadata importMetadata) {
     // process local declared methods first
+
+    Set<MethodMetadata> annotatedMissingBeanMethods = importMetadata.getAnnotatedMethods(MissingBean.class.getName());
+    for (MethodMetadata missingBeanMethod : annotatedMissingBeanMethods) {
+      context.detectMissingBean(missingBeanMethod);
+    }
+
     Set<MethodMetadata> annotatedMethods = importMetadata.getAnnotatedMethods(Component.class.getName());
     for (MethodMetadata beanMethod : annotatedMethods) {
       // pass the condition
       if (context.passCondition(beanMethod)) {
-        context.detectMissingBean(beanMethod);
 
         String defaultBeanName = beanMethod.getMethodName();
         String declaringBeanName = config.getName();
@@ -168,9 +174,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         builder.beanClassName(beanMethod.getReturnTypeName());
 
         AnnotationAttributes[] components = beanMethod.getAnnotations().getAttributes(Component.class);
-
-//        DefaultAnnotatedBeanDefinition def = new DefaultAnnotatedBeanDefinition();
-
         builder.build(defaultBeanName, components, (component, definition) -> {
           register(definition);
         });

@@ -60,14 +60,6 @@ public @interface MissingComponent {
   boolean equals() default false;
 
   /**
-   * Specifies the name of the scope to use for the annotated component/bean.
-   * <p>
-   * Defaults to an empty string ({@code ""}) which implies {@link Scope#SINGLETON
-   * SINGLETON}.
-   */
-  String scope() default Scope.SINGLETON;
-
-  /**
    * The optional name of a method to call on the bean instance during
    * initialization. Not commonly used, given that the method may be called
    * programmatically directly within the body of a Bean-annotated method.

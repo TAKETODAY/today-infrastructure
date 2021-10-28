@@ -19,15 +19,14 @@
  */
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.lang.Constant;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.lang.Constant;
 
 /**
  * Context will create a bean definition when current context were missing
@@ -61,14 +60,6 @@ public @interface MissingBean {
   boolean equals() default false;
 
   /**
-   * Specifies the name of the scope to use for the annotated component/bean.
-   * <p>
-   * Defaults to an empty string ({@code ""}) which implies {@link Scope#SINGLETON
-   * SINGLETON}.
-   */
-  String scope() default Scope.SINGLETON;
-
-  /**
    * The optional name of a method to call on the bean instance during
    * initialization. Not commonly used, given that the method may be called
    * programmatically directly within the body of a Bean-annotated method.
@@ -78,7 +69,7 @@ public @interface MissingBean {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default {};
+  String[] initMethods() default { };
 
   /**
    * The optional names of a method to call on the bean instance upon closing the
@@ -93,5 +84,5 @@ public @interface MissingBean {
    * @see DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String[] destroyMethod() default {};
+  String destroyMethod() default "";
 }

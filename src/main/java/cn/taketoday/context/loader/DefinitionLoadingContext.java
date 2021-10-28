@@ -158,10 +158,6 @@ public class DefinitionLoadingContext {
     return applicationContext.getBean(def);
   }
 
-  public boolean isMissingBeanInContext(AnnotationAttributes missingBean, AnnotatedElement annotated) {
-    return missingBeanRegistry.isMissingBeanInContext(missingBean, annotated);
-  }
-
   //---------------------------------------------------------------------
   // BeanFactoryAwareBeanInstantiator
   //---------------------------------------------------------------------
