@@ -25,14 +25,13 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.context.annotation.AutowiredArgumentsResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Required;
 import cn.taketoday.util.ClassUtils;
-
-import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
 
 /**
  * This {@link PropertyValueResolver} supports field that annotated
@@ -42,52 +41,42 @@ import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
  * @author TODAY <br>
  * 2018-08-04 15:56
  */
-public class AutowiredPropertyResolver
-        extends AbstractPropertyValueResolver implements PropertyValueResolver {
+public class AutowiredPropertyResolver implements PropertyValueResolver {
 
   private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.load("javax.inject.Named");
   private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.load("javax.inject.Inject");
   private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.load("javax.annotation.Resource");
 
-  @Override
-  protected boolean supportsProperty(PropertyResolvingContext context, BeanProperty property) {
-    return isInjectable(property);
+  // @since 3.0 Required
+  public static boolean isRequired(AnnotatedElement element, @Nullable MergedAnnotation<Autowired> autowired) {
+    return (autowired == null || autowired.getBoolean("required"))
+            || AnnotatedElementUtils.isAnnotated(element, Required.class);
   }
 
-  public static boolean isInjectable(AnnotatedElement element) {
-    return isPresent(element, Autowired.class)
-            || isPresent(element, RESOURCE_CLASS)
-            || isPresent(element, NAMED_CLASS)
-            || isPresent(element, INJECT_CLASS);
-  }
-
+  @Nullable
   @Override
-  protected PropertySetter resolveInternal(PropertyResolvingContext context, BeanProperty property) {
-    Autowired autowired = property.getAnnotation(Autowired.class); // auto wired
-    String name = null;
-    Class<?> propertyClass = property.getType();
-    if (autowired != null) {
-      name = autowired.value();
+  public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+    MergedAnnotations annotations = MergedAnnotations.from(property);
+    MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class);
+    if (autowired.isPresent()) {
+      boolean required = isRequired(property, autowired);
+      String referenceName = autowired.getString(MergedAnnotation.VALUE);
+      return new BeanReferencePropertySetter(referenceName, required, property);
     }
-    else {
-      // @Resource
-      AnnotationAttributes resource = AnnotatedElementUtils.getMergedAnnotationAttributes(
-              property, RESOURCE_CLASS);
-      if (resource != null) {
-        name = resource.getString("name");
-      }
-      else {
-        // @Named
-        AnnotationAttributes named = AnnotatedElementUtils.getMergedAnnotationAttributes(
-                property, NAMED_CLASS);
-        if (named != null) {
-          name = named.getString(Constant.VALUE);
-        }
-      }
+    // @Resource
+    MergedAnnotation<? extends Annotation> resource = annotations.get(RESOURCE_CLASS);
+    if (resource.isPresent()) {
+      String referenceName = resource.getString("name");
+      return new BeanReferencePropertySetter(referenceName, isRequired(property, null), property);
     }
-    // @since 3.0
-    boolean required = AutowiredArgumentsResolver.isRequired(property, autowired);
-    return new BeanReferencePropertySetter(name, required, property);
+    // @Named
+    MergedAnnotation<? extends Annotation> named = annotations.get(NAMED_CLASS);
+    if (named.isPresent()) {
+      // @since 3.0
+      String referenceName = named.getString(MergedAnnotation.VALUE);
+      return new BeanReferencePropertySetter(referenceName, isRequired(property, null), property);
+    }
+    return null;
   }
 
 }

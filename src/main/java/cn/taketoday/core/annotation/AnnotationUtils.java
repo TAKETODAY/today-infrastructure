@@ -20,19 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -44,7 +31,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -86,6 +86,26 @@ public abstract class AnnotationUtils {
                 "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
       }
       beanProperty.setValue(instance, source.get(name));
+    }
+    return instance;
+  }
+
+  public static <A> A injectAttributes(
+          MergedAnnotation<?> source, Class<?> annotationClass, A instance) {
+    Class<?> implClass = instance.getClass();
+    BeanMetadata metadata = BeanMetadata.ofClass(implClass);
+    for (Method method : annotationClass.getDeclaredMethods()) {
+      // method name must == field name
+      String name = method.getName();
+      BeanProperty beanProperty = metadata.getBeanProperty(name);
+      if (beanProperty == null) {
+        throw new ReflectionException(
+                "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
+      }
+      Optional<Object> optional = source.getValue(name);
+      if (optional.isPresent()) {
+        beanProperty.setValue(instance, optional);
+      }
     }
     return instance;
   }
@@ -144,8 +164,8 @@ public abstract class AnnotationUtils {
     }
     if (logger.isEnabled()) {
       String message = meta ?
-              "Failed to meta-introspect annotation " :
-              "Failed to introspect annotations on ";
+                       "Failed to meta-introspect annotation " :
+                       "Failed to introspect annotations on ";
       logger.log(message + element + ": " + ex);
     }
   }
@@ -401,8 +421,8 @@ public abstract class AnnotationUtils {
 
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
-                    : RepeatableContainers.standard();
+            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+            : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.SUPERCLASS, repeatableContainers)
             .stream(annotationType)
@@ -478,8 +498,8 @@ public abstract class AnnotationUtils {
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
-                    : RepeatableContainers.standard();
+            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+            : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.DIRECT, repeatableContainers)
             .stream(annotationType)
@@ -1085,7 +1105,7 @@ public abstract class AnnotationUtils {
     catch (InvocationTargetException ex) {
       rethrowAnnotationConfigurationException(ex.getTargetException());
       throw new IllegalStateException("Could not obtain value for annotation attribute '" +
-              attributeName + "' in " + annotation, ex);
+                                              attributeName + "' in " + annotation, ex);
     }
     catch (Throwable ex) {
       handleIntrospectionFailure(annotation.getClass(), ex);

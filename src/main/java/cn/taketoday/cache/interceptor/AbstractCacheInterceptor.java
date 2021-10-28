@@ -43,9 +43,9 @@ import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
@@ -158,17 +158,17 @@ public abstract class AbstractCacheInterceptor
       Class<? extends Annotation> annClass = target.annotationClass;
 
       // Find target method [annClass] AnnotationAttributes
-      AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(method, annClass);
       Class<?> declaringClass = method.getDeclaringClass();
-      if (attributes == null) {
-        attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(declaringClass, annClass);
-        if (attributes == null) {
+      MergedAnnotation<? extends Annotation> annotation = MergedAnnotations.from(method).get(annClass);
+      if (!annotation.isPresent()) {
+        annotation = MergedAnnotations.from(declaringClass).get(annClass);
+        if (!annotation.isPresent()) {
           throw new IllegalStateException("Unexpected exception has occurred, may be it's a bug");
         }
       }
 
       CacheConfiguration configuration =
-              AnnotationUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
+              AnnotationUtils.injectAttributes(annotation, annClass, new CacheConfiguration(annClass));
 
       CacheConfig cacheConfig = AnnotationUtils.getAnnotation(declaringClass, CacheConfig.class);
       if (cacheConfig != null) {

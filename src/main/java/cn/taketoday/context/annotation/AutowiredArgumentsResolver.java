@@ -19,19 +19,20 @@
  */
 package cn.taketoday.context.annotation;
 
+import java.lang.reflect.Parameter;
+
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.context.autowire.AutowiredPropertyResolver;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Parameter;
 
 /**
  * Resolve {@link Autowired} on {@link Parameter}
@@ -46,14 +47,15 @@ public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
   public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
     BeanFactory beanFactory = resolvingContext.getBeanFactory();
     if (beanFactory != null) {
-      Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
-      Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
+      MergedAnnotations annotations = MergedAnnotations.from(parameter);
+      MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class); // @Autowired on parameter
+      Object bean = resolveBean(autowired, parameter.getType(), beanFactory);
       // @Props on a bean (pojo) which has already annotated @Autowired or not
       if (parameter.isAnnotationPresent(Props.class)) {
         bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
       }
       if (bean == null) {
-        if (isRequired(parameter, autowired)) { // if it is required
+        if (AutowiredPropertyResolver.isRequired(parameter, autowired)) { // if it is required
           throw new NoSuchBeanDefinitionException(
                   "[" + parameter + "] on executable: [" + parameter.getDeclaringExecutable()
                           + "] is required and there isn't a [" + parameter.getType() + "] bean", (Throwable) null);
@@ -65,16 +67,14 @@ public class AutowiredArgumentsResolver implements ArgumentsResolvingStrategy {
     return null; // next resolver
   }
 
-  // @since 3.0 Required
-  public static boolean isRequired(AnnotatedElement element, @Nullable Autowired autowired) {
-    return (autowired == null || autowired.required())
-            || AnnotatedElementUtils.isAnnotated(element, Required.class);
-  }
-
-  protected Object resolveBean(@Nullable String name, Class<?> type, BeanFactory beanFactory) {
-    if (StringUtils.isNotEmpty(name)) {
-      // use name and bean type to get bean
-      return beanFactory.getBean(name, type);
+  protected Object resolveBean(
+          MergedAnnotation<Autowired> autowired, Class<?> type, BeanFactory beanFactory) {
+    if (autowired.isPresent()) {
+      String name = autowired.getString(MergedAnnotation.VALUE);
+      if (StringUtils.isNotEmpty(name)) {
+        // use name and bean type to get bean
+        return beanFactory.getBean(name, type);
+      }
     }
     return beanFactory.getBean(type);
   }

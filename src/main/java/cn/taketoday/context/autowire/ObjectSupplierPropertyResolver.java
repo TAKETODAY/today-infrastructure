@@ -43,8 +43,7 @@ public class ObjectSupplierPropertyResolver
   @Override
   protected boolean supportsProperty(PropertyResolvingContext context, BeanProperty property) {
     return (property.getType() == Supplier.class
-            || property.getType() == ObjectSupplier.class)
-            && AutowiredPropertyResolver.isInjectable(property);
+            || property.getType() == ObjectSupplier.class);
   }
 
   @Override
