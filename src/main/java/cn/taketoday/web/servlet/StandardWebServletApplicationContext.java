@@ -33,7 +33,6 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -59,12 +58,10 @@ public class StandardWebServletApplicationContext
    */
   public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
     setEnvironment(env);
-    WebUtils.setLastStartupWebContext(this);
   }
 
   public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-    WebUtils.setLastStartupWebContext(this);
   }
 
   public StandardWebServletApplicationContext(ServletContext servletContext) {

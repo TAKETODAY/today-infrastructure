@@ -27,9 +27,9 @@ import java.util.StringTokenizer;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
@@ -52,21 +52,6 @@ import cn.taketoday.web.http.HttpStatus;
  * @since 2.3.7
  */
 public abstract class WebUtils {
-
-  private static WebApplicationContext lastStartupContext;
-
-  /**
-   * Get last startup {@link WebApplicationContext}
-   *
-   * @return WebApplicationContext
-   */
-  public static WebApplicationContext getLastStartupWebContext() {
-    return lastStartupContext;
-  }
-
-  public static void setLastStartupWebContext(WebApplicationContext applicationContext) {
-    WebUtils.lastStartupContext = applicationContext;
-  }
 
   /**
    * Resolves the content type of the file.
@@ -378,16 +363,13 @@ public abstract class WebUtils {
    * @since 4.0
    */
   public static boolean isResponseBody(Method method) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            method, ResponseBody.class);
-    if (attributes != null) {
-      return attributes.getBoolean(Constant.VALUE);
+    MergedAnnotation<ResponseBody> annotation = MergedAnnotations.from(method).get(ResponseBody.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean(Constant.VALUE);
     }
-    Class<?> declaringClass = method.getDeclaringClass();
-    attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            declaringClass, ResponseBody.class);
-    if (attributes != null) {
-      return attributes.getBoolean(Constant.VALUE);
+    annotation = MergedAnnotations.from(method.getDeclaringClass()).get(ResponseBody.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean(Constant.VALUE);
     }
     return false;
   }
