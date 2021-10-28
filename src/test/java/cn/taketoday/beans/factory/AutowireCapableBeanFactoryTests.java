@@ -47,7 +47,7 @@ class AutowireCapableBeanFactoryTests {
   }
 
   @Test
-  public void testCreateBean() {
+  void testCreateBean() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
 
@@ -70,11 +70,11 @@ class AutowireCapableBeanFactoryTests {
     }
   }
 
+  // 防止外部的扫描到
   static class AutowireTestBeanCondition implements Condition {
     @Override
     public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-      final ApplicationContext.State state = context.getContext().getState();
-      return state == ApplicationContext.State.NONE;
+      return false;
     }
 
   }

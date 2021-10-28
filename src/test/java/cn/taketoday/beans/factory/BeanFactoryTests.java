@@ -52,7 +52,7 @@ class BeanFactoryTests {
   private static Logger log = LoggerFactory.getLogger(BeanFactoryTests.class);
 
   private StandardApplicationContext context = //
-          new StandardApplicationContext("", "cn.taketoday.beans.factory", "test.demo.config");
+          new StandardApplicationContext("info.properties", "cn.taketoday.beans.factory", "test.demo.config");
 
   private ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
@@ -153,22 +153,6 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetBeanName() throws NoSuchBeanDefinitionException {
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
-
-    String name = beanFactory.getBeanName(Implements1.class);
-    try {
-      beanFactory.getBeanName(Interface.class);
-      assert false;
-    }
-    catch (Exception e) {
-      assert true;
-    }
-
-    assert "implements1".equals(name);
-  }
-
-  @Test
   void test_IsPrototype() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
@@ -223,7 +207,7 @@ class BeanFactoryTests {
   // @Singleton("test.beans.factory.BeanFactoryTest.FactoryBeanTestBean")
   public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
-    @Value("#{env['upload.maxFileSize']}")
+    @Value("#{env.getProperty('upload.maxFileSize')}")
 //    private int testInt;
     private DataSize testInt;
 

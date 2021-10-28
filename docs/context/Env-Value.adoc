@@ -33,7 +33,7 @@ NOTE: 该属性可以被 @Required 覆盖，@Required 存在的时候就代表 (
 [source,java]
 ----
 
-@Value("#{env['upload.maxFileSize']}")
+@Value("#{env.getProperty('upload.maxFileSize')}")
 private int maxFileSize;
 
 @Value("#{1+1}")
