@@ -20,15 +20,15 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
+
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Scope;
-
-import java.lang.annotation.Annotation;
 
 /**
  * @author TODAY 2021/10/26 15:57
@@ -53,9 +53,9 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
     ScopeMetadata metadata = new ScopeMetadata();
     if (definition instanceof AnnotatedBeanDefinition) {
       AnnotatedBeanDefinition annDef = (AnnotatedBeanDefinition) definition;
-      AnnotationAttributes attributes = AnnotationAttributes.fromMetadata(annDef.getMetadata(), this.scopeAnnotationType);
-      if (attributes != null) {
-        metadata.setScopeName(attributes.getString("value"));
+      MergedAnnotation<? extends Annotation> annotation = annDef.getMetadata().getAnnotations().get(scopeAnnotationType);
+      if (annotation.isPresent()) {
+        metadata.setScopeName(annotation.getString("value"));
       }
     }
     return metadata;
