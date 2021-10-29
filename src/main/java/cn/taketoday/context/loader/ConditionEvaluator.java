@@ -20,19 +20,18 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.lang.Assert;
-
-import java.lang.reflect.Method;
 
 /**
  * Condition Evaluation
@@ -55,14 +54,10 @@ public class ConditionEvaluator {
    * @return if the item should be skipped
    */
   public boolean passCondition(AnnotatedTypeMetadata metadata) {
-    AnnotationAttributes[] attributes = metadata.getAnnotations().getAttributes(Conditional.class);
-    for (AnnotationAttributes attribute : attributes) {
-      Class<? extends Condition>[] classArray = attribute.getClassArray(MergedAnnotation.VALUE);
-      if (!passCondition(metadata, classArray)) {
-        return false;
-      }
-    }
-    return true;
+    return metadata.getAnnotations().stream(Conditional.class).allMatch(conditional -> {
+      Class<? extends Condition>[] condition = conditional.getClassArray(MergedAnnotation.VALUE);
+      return passCondition(metadata, condition);
+    });
   }
 
   /**

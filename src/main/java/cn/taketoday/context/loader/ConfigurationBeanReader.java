@@ -43,7 +43,6 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.env.CompositePropertySource;
@@ -254,15 +253,14 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   protected void processImport(AnnotationMetadata annotationMetadata, BeanDefinition annotated) {
-    AnnotationAttributes[] attributes = annotationMetadata.getAnnotations().getAttributes(Import.class);
-    for (AnnotationAttributes attr : attributes) {
-      for (Class<?> importClass : attr.getClassArray(MergedAnnotation.VALUE)) {
+    annotationMetadata.getAnnotations().stream(Import.class).forEach(importAnnotation -> {
+      for (Class<?> importClass : importAnnotation.getClassArray(MergedAnnotation.VALUE)) {
         if (!importedClass.contains(importClass)) {
           doImport(annotated, annotationMetadata, importClass);
           importedClass.add(importClass);
         }
       }
-    }
+    });
   }
 
   @NonNull
