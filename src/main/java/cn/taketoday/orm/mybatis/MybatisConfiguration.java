@@ -39,7 +39,6 @@ import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -69,13 +68,13 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
     if (metadata.getClassMetadata().isInterface()) {
       // must be an interface
       MergedAnnotations annotations = metadata.getAnnotationMetadata().getAnnotations();
-      AnnotationAttributes attributes = annotations.get(Repository.class).asAnnotationAttributes();
-      if (attributes != null) {
+      MergedAnnotation<Repository> repository = annotations.get(Repository.class);
+      if (repository.isPresent()) {
         String className = metadata.getAnnotationMetadata().getClassName();
         log.debug("Found Mapper: [{}]", className);
-        String[] names = attributes.getStringArray(MergedAnnotation.VALUE);
+        String[] names = repository.getStringArray(MergedAnnotation.VALUE);
         String name = ObjectUtils.isNotEmpty(names)
-                ? names[0] : loadingContext.createBeanName(className);
+                      ? names[0] : loadingContext.createBeanName(className);
 
         loadingContext.registerBeanDefinition(createBeanDefinition(className, name));
       }
