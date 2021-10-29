@@ -178,22 +178,18 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       // pass the condition
       if (context.passCondition(beanMethod)) {
 
-        final String defaultBeanName = beanMethod.getMethodName();
-        String declaringBeanName = config.getName();
-
-        BeanDefinitionBuilder builder = context.createBuilder();
-
-        builder.declaringName(declaringBeanName);
-        builder.beanClassName(beanMethod.getReturnTypeName());
-
         beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
-          builder.annotation(component);
 
-          for (String name : BeanDefinitionBuilder.determineName(defaultBeanName, component.getStringArray(MergedAnnotation.VALUE))) {
-            builder.name(name);
+          for (String name : BeanDefinitionBuilder.determineName(
+                  beanMethod.getMethodName(), component.getStringArray(MergedAnnotation.VALUE))) {
+
             AnnotationMetadata annotationMetadata = getAnnotationMetadata(beanMethod.getReturnTypeName());
             ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, annotationMetadata);
-            builder.build(definition);
+            definition.setName(name);
+            definition.setBeanClassName(beanMethod.getReturnTypeName());
+            definition.setDestroyMethod(component.getString(BeanDefinition.DESTROY_METHOD));
+            definition.setInitMethods(component.getStringArray(BeanDefinition.INIT_METHODS));
+
             register(definition);
           }
         });
