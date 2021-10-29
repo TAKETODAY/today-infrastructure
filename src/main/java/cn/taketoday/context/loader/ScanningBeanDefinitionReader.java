@@ -20,6 +20,12 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -37,12 +43,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.Controller;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -257,11 +257,17 @@ public class ScanningBeanDefinitionReader {
     return ClassUtils.convertClassNameToResourcePath(basePackage);
   }
 
+  public void addLoadingStrategies(Class<? extends BeanDefinitionLoadingStrategy>... loadingStrategies) {
+    for (Class<? extends BeanDefinitionLoadingStrategy> loadingStrategy : loadingStrategies) {
+      BeanDefinitionLoadingStrategy strategy = loadingContext.instantiate(loadingStrategy);
+      scanningStrategies.addStrategies(strategy);
+    }
+  }
+
   public void addLoadingStrategies(Set<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies) {
     for (Class<? extends BeanDefinitionLoadingStrategy> loadingStrategy : loadingStrategies) {
       BeanDefinitionLoadingStrategy strategy = loadingContext.instantiate(loadingStrategy);
       scanningStrategies.addStrategies(strategy);
     }
-
   }
 }

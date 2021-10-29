@@ -20,6 +20,9 @@
 
 package cn.taketoday.core.type;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
@@ -28,9 +31,6 @@ import cn.taketoday.core.annotation.MergedAnnotationPredicates;
 import cn.taketoday.core.annotation.MergedAnnotationSelectors;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Nullable;
-
-import java.lang.annotation.Annotation;
-import java.util.Map;
 
 /**
  * Defines access to the annotations of a specific type ({@link AnnotationMetadata class}
@@ -152,8 +152,7 @@ public interface AnnotatedTypeMetadata {
     return getAnnotations().stream(annotationName)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
             .map(MergedAnnotation::withNonMergedAttributes)
-            .collect(MergedAnnotationCollectors.toMultiValueMap(
-                    map -> map.isEmpty() ? null : map, adaptations));
+            .collect(MergedAnnotationCollectors.toMultiValueMap(map -> map.isEmpty() ? null : map, adaptations));
   }
 
 }

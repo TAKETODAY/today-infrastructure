@@ -25,10 +25,8 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
@@ -42,14 +40,15 @@ import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.DefaultPropertySourceFactory;
 import cn.taketoday.core.io.EncodedResource;
@@ -63,12 +62,10 @@ import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -141,33 +138,26 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private void processComponentScan(MetadataReader metadataReader, BeanDefinition definition) {
     if (hasAnnotation(metadataReader, ComponentScan.class)) {
-
-      ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
-
       AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
-      AnnotationAttributes[] annotations = annotationMetadata.getAnnotations().getAttributes(ComponentScan.class);
 
-      LinkedHashSet<String> basePackages = new LinkedHashSet<>();
-      LinkedHashSet<String> patternLocations = new LinkedHashSet<>();
-      LinkedHashSet<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies = new LinkedHashSet<>();
+      annotationMetadata.getAnnotations().stream(ComponentScan.class).forEach(componentScan -> {
+        ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
 
-      for (AnnotationAttributes annotation : annotations) {
-        CollectionUtils.addAll(basePackages, annotation.getStringArray(MergedAnnotation.VALUE));
-        CollectionUtils.addAll(patternLocations, annotation.getStringArray("patternLocations"));
-        CollectionUtils.addAll(loadingStrategies, annotation.getClassArray("loadingStrategies"));
-      }
+        String[] basePackages = componentScan.getStringArray(MergedAnnotation.VALUE);
+        String[] patternLocations = componentScan.getStringArray("patternLocations");
+        Class<BeanDefinitionLoadingStrategy>[] strategies = componentScan.getClassArray("loadingStrategies");
 
-      scanningReader.addLoadingStrategies(loadingStrategies);
+        scanningReader.addLoadingStrategies(strategies);
+        if (ObjectUtils.isNotEmpty(basePackages)) {
+          scanningReader.scanPackages(basePackages);
+        }
 
-      if (CollectionUtils.isNotEmpty(basePackages)) {
-        scanningReader.scanPackages(basePackages.toArray(Constant.EMPTY_STRING_ARRAY));
-      }
+        if (ObjectUtils.isNotEmpty(patternLocations)) {
+          scanningReader.scan(patternLocations);
+        }
+      });
 
-      if (ObjectUtils.isNotEmpty(patternLocations)) {
-        scanningReader.scan(patternLocations.toArray(Constant.EMPTY_STRING_ARRAY));
-      }
     }
-
   }
 
   public void importing(Class<?> component) {
@@ -354,10 +344,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     ApplicationContext applicationContext = context.getApplicationContext();
     Environment environment = applicationContext.getEnvironment();
     // Process any @PropertySource annotations
-    for (AnnotationAttributes propertySource : attributesForRepeatable(
-            metadataReader.getAnnotationMetadata(), PropertySources.class,
-            cn.taketoday.context.annotation.PropertySource.class)) {
-
+    for (MergedAnnotation<PropertySource> propertySource
+            : attributesForRepeatable(metadataReader.getAnnotationMetadata())) {
       if (environment instanceof ConfigurableEnvironment) {
         processPropertySource(propertySource);
       }
@@ -374,7 +362,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    *
    * @param propertySource metadata for the <code>@PropertySource</code> annotation found
    */
-  private void processPropertySource(AnnotationAttributes propertySource) {
+  private void processPropertySource(MergedAnnotation<PropertySource> propertySource) {
     String name = propertySource.getString("name");
     if (StringUtils.isNotEmpty(name)) {
       name = null;
@@ -395,7 +383,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         String resolvedLocation = context.evaluateExpression(location);
         Resource resource = context.getResource(resolvedLocation);
         addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
-
       }
       catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
         // Placeholders not resolvable or resource not found when trying to open it
@@ -416,17 +403,19 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private final ArrayList<String> propertySourceNames = new ArrayList<>();
 
-  private void addPropertySource(PropertySource<?> propertySource) {
+  private void addPropertySource(cn.taketoday.core.env.PropertySource<?> propertySource) {
     String name = propertySource.getName();
     Environment environment = context.getApplicationContext().getEnvironment();
     PropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
 
     if (this.propertySourceNames.contains(name)) {
       // We've already added a version, we need to extend it
-      PropertySource<?> existing = propertySources.get(name);
+      cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
-        PropertySource<?> newSource = (propertySource instanceof ResourcePropertySource ?
-                                       ((ResourcePropertySource) propertySource).withResourceName() : propertySource);
+        cn.taketoday.core.env.PropertySource<?> newSource = propertySource instanceof ResourcePropertySource
+                                                            ? ((ResourcePropertySource) propertySource).withResourceName()
+                                                            : propertySource;
+
         if (existing instanceof CompositePropertySource) {
           ((CompositePropertySource) existing).addFirstPropertySource(newSource);
         }
@@ -469,39 +458,29 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     return propertySourceFactory;
   }
 
-  static Set<AnnotationAttributes> attributesForRepeatable(
-          AnnotationMetadata metadata,
-          Class<?> containerClass, Class<?> annotationClass) {
+  static Set<MergedAnnotation<PropertySource>> attributesForRepeatable(AnnotationMetadata metadata) {
+    MergedAnnotations annotations = metadata.getAnnotations();
 
-    return attributesForRepeatable(metadata, containerClass.getName(), annotationClass.getName());
-  }
-
-  @SuppressWarnings("unchecked")
-  static Set<AnnotationAttributes> attributesForRepeatable(
-          AnnotationMetadata metadata, String containerClassName, String annotationClassName) {
-
-    Set<AnnotationAttributes> result = new LinkedHashSet<>();
-
+    LinkedHashSet<MergedAnnotation<PropertySource>> result = new LinkedHashSet<>();
     // Direct annotation present?
-    addAttributesIfNotNull(result, metadata.getAnnotationAttributes(annotationClassName, false));
+    addAttributesIfNotNull(result, annotations.get(PropertySource.class));
+    MergedAnnotation<cn.taketoday.context.annotation.PropertySources> annotation
+            = annotations.get(cn.taketoday.context.annotation.PropertySources.class);
 
-    // Container annotation present?
-    Map<String, Object> container = metadata.getAnnotationAttributes(containerClassName, false);
-    if (container != null && container.containsKey("value")) {
-      for (Map<String, Object> containedAttributes : (Map<String, Object>[]) container.get("value")) {
-        addAttributesIfNotNull(result, containedAttributes);
-      }
+    if (annotation.isPresent()) {
+      MergedAnnotation<PropertySource> mergedAnnotation = annotation.getAnnotation(MergedAnnotation.VALUE, PropertySource.class);
+      addAttributesIfNotNull(result, mergedAnnotation);
     }
-
     // Return merged result
-    return Collections.unmodifiableSet(result);
+    return result;
   }
 
   private static void addAttributesIfNotNull(
-          Set<AnnotationAttributes> result, @Nullable Map<String, Object> attributes) {
+          Set<MergedAnnotation<PropertySource>> result, MergedAnnotation<PropertySource> propertySource) {
 
-    if (attributes != null) {
-      result.add(AnnotationAttributes.fromMap(attributes));
+    if (propertySource.isPresent()) {
+      result.add(propertySource);
     }
   }
+
 }
