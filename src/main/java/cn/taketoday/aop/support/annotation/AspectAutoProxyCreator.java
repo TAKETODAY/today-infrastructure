@@ -26,6 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
@@ -41,7 +42,6 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -75,13 +75,13 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
 
       // around
       if (MethodInterceptor.class.isAssignableFrom(aspectClass)) {
-        AnnotationAttributes[] adviceAttributes = getAdviceAttributes(aspectDef);
+        Stream<MergedAnnotation<Advice>> adviceAttributes = getAdviceAttributes(aspectDef);
         addCandidateAdvisors(candidateAdvisors, aspectDef, null, adviceAttributes);
       }
       // annotations: @AfterReturning @Around @Before @After @AfterThrowing
       Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(aspectClass);
       for (Method aspectMethod : declaredMethods) {
-        AnnotationAttributes[] adviceAttributes = getAdviceAttributes(aspectMethod);
+        Stream<MergedAnnotation<Advice>> adviceAttributes = getAdviceAttributes(aspectMethod);
         addCandidateAdvisors(candidateAdvisors, aspectDef, aspectMethod, adviceAttributes);
       }
     }
@@ -89,32 +89,32 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
 
   private void addCandidateAdvisors(
           List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
-          @Nullable Method aspectMethod, AnnotationAttributes[] adviceAttributes) {
+          @Nullable Method aspectMethod, Stream<MergedAnnotation<Advice>> adviceAttributes) {
     // fix Standard Bean def
-    if (ObjectUtils.isNotEmpty(adviceAttributes)) {
-      for (AnnotationAttributes advice : adviceAttributes) {
-        MethodInterceptor interceptor = getInterceptor(aspectDef, aspectMethod, advice);
-        if (log.isTraceEnabled()) {
-          log.trace("Found Interceptor: [{}]", interceptor);
-        }
 
-        // Annotations
-        Class<? extends Annotation>[] annotations = advice.getClassArray(MergedAnnotation.VALUE);
-        if (ObjectUtils.isNotEmpty(annotations)) {
-          for (Class<? extends Annotation> annotation : annotations) {
-            AnnotationMatchingPointcut matchingPointcut
-                    = AnnotationMatchingPointcut.forMethodAnnotation(annotation);
+    adviceAttributes.forEach(advice -> {
+      MethodInterceptor interceptor = getInterceptor(aspectDef, aspectMethod, advice);
+      if (log.isTraceEnabled()) {
+        log.trace("Found Interceptor: [{}]", interceptor);
+      }
 
-            DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-            candidateAdvisors.add(pointcutAdvisor);
-          }
+      // Annotations
+      Class<? extends Annotation>[] annotations = advice.getClassArray(MergedAnnotation.VALUE);
+      if (ObjectUtils.isNotEmpty(annotations)) {
+        for (Class<? extends Annotation> annotation : annotations) {
+          AnnotationMatchingPointcut matchingPointcut
+                  = AnnotationMatchingPointcut.forMethodAnnotation(annotation);
+
+          DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
+          candidateAdvisors.add(pointcutAdvisor);
         }
       }
-    }
+    });
+
   }
 
   private MethodInterceptor getInterceptor(
-          BeanDefinition aspectDef, @Nullable Method aspectMethod, AnnotationAttributes advice) {
+          BeanDefinition aspectDef, @Nullable Method aspectMethod, MergedAnnotation<Advice> advice) {
     BeanFactory beanFactory = getBeanFactory();
 
     if (aspectMethod == null) { // method interceptor
@@ -175,20 +175,21 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
     }
   }
 
-  private AnnotationAttributes[] getAdviceAttributes(Method aspectMethod) {
+  private Stream<MergedAnnotation<Advice>> getAdviceAttributes(Method aspectMethod) {
     MergedAnnotations annotations = MergedAnnotations.from(aspectMethod);
-    return annotations.getAttributes(Advice.class);
+    return annotations.stream(Advice.class);
   }
 
-  private AnnotationAttributes[] getAdviceAttributes(BeanDefinition definition) {
+  private Stream<MergedAnnotation<Advice>> getAdviceAttributes(BeanDefinition definition) {
     if (definition instanceof AnnotatedBeanDefinition) {
       AnnotationMetadata metadata = ((AnnotatedBeanDefinition) definition).getMetadata();
-      return metadata.getAnnotations().getAttributes(Advice.class);
+      return metadata.getAnnotations().stream(Advice.class);
     }
 
     BeanFactory beanFactory = getBeanFactory();
-    MergedAnnotation<Advice> mergedAnnotationOnBean = beanFactory.getMergedAnnotationOnBean(definition.getName(), Advice.class);
-    return new AnnotationAttributes[] { mergedAnnotationOnBean.asAnnotationAttributes() };
+
+    //stream
+    return Stream.of(beanFactory.getMergedAnnotationOnBean(definition.getName(), Advice.class));
   }
 
 }
