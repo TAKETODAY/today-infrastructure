@@ -30,8 +30,8 @@ import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -90,15 +90,15 @@ public class MapArgumentsResolver
   }
 
   private DefaultProps getProps(Parameter parameter) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(parameter, Props.class);
-    if (attributes == null) {
+    MergedAnnotation<Props> annotation = MergedAnnotations.from(parameter).get(Props.class);
+    if (annotation.isPresent()) {
+      return new DefaultProps(annotation);
+    }
+    else {
       if (Properties.class.isAssignableFrom(parameter.getType())) {
         return new DefaultProps();
       }
       return null;
-    }
-    else {
-      return new DefaultProps(attributes);
     }
   }
 

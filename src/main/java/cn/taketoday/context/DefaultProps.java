@@ -21,6 +21,7 @@ package cn.taketoday.context;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import cn.taketoday.context.annotation.Props;
@@ -55,6 +56,10 @@ public class DefaultProps implements Props, Annotation {
     this.value = props.getStringArray(MergedAnnotation.VALUE);
   }
 
+  /**
+   * @param props
+   * @throws NoSuchElementException if there is no matching attribute
+   */
   public DefaultProps(MergedAnnotation<Props> props) {
     this.replace = props.getBoolean("replace");
     this.nested = props.getClassArray("nested");
