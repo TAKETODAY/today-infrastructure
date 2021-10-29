@@ -20,17 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
@@ -42,6 +31,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
@@ -52,6 +42,17 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author TODAY 2021/10/2 22:45
@@ -111,6 +112,8 @@ public class BeanDefinitionBuilder {
   /** Declaring name @since 2.1.2 */
   private String declaringName;
 
+  private AnnotationMetadata annotationMetadata;
+
   public BeanDefinitionBuilder name(String name) {
     this.name = name;
     return this;
@@ -153,6 +156,11 @@ public class BeanDefinitionBuilder {
 
   public BeanDefinitionBuilder beanClassName(String beanClassName) {
     this.beanClassName = beanClassName;
+    return this;
+  }
+
+  public BeanDefinitionBuilder annotationMetadata(AnnotationMetadata annotationMetadata) {
+    this.annotationMetadata = annotationMetadata;
     return this;
   }
 
@@ -276,6 +284,16 @@ public class BeanDefinitionBuilder {
         factoryMethodDef.setBeanClass(beanClass);
       }
       return factoryMethodDef;
+    }
+
+    if (annotationMetadata != null) {
+      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
+      MergedAnnotation<Component> annotation = annotationMetadata.getAnnotations().get(Component.class);
+      annotation(annotation);
+      if (beanClass != null) {
+        definition.setBeanClass(beanClass);
+      }
+      return definition;
     }
     if (beanClass != null) {
       DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(beanClass);

@@ -223,7 +223,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       DefaultAnnotatedBeanDefinition definition = new ConfigBeanDefinition(
               declaringDef, getFactoryMethodMetadata(), getMetadata());
       definition.copyFrom(this);
-      return super.cloneDefinition();
+      return definition;
     }
   }
 

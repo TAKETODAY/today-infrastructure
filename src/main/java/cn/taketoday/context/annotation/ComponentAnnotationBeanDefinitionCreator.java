@@ -20,42 +20,29 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Component;
-
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/10 22:20
  * @since 4.0
  */
-public class AnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStrategy {
-  private final Set<Class<? extends Annotation>> annotationTypes;
-
-  public AnnotationBeanDefinitionCreator() {
-    this.annotationTypes = new HashSet<>();
-    annotationTypes.add(Component.class);
-  }
+public class ComponentAnnotationBeanDefinitionCreator implements BeanDefinitionLoadingStrategy {
 
   @Override
   public void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
 
-    for (Class<? extends Annotation> annotationType : annotationTypes) {
-      if (annotationMetadata.isAnnotated(annotationType.getName())) {
-        AnnotationAttributes[] annotations = annotationMetadata.getAnnotations().getAttributes(annotationType);
-
-        BeanDefinitionBuilder builder = loadingContext.createBuilder();
-        builder.beanClassName(annotationMetadata.getClassName());
-        builder.build(loadingContext.createBeanName(annotationMetadata.getClassName()), annotations, loadingContext::registerBeanDefinition);
-      }
+    if (annotationMetadata.isAnnotated(Component.class.getName())) {
+      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
+      definition.setBeanClassName(annotationMetadata.getClassName());
+      definition.setName(loadingContext.createBeanName(annotationMetadata.getClassName()));
+      loadingContext.registerBeanDefinition(definition);
     }
   }
 
