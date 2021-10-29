@@ -19,13 +19,14 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.Objects;
+
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-
-import java.util.Objects;
 
 /**
  * Extension of the {@link DefaultBeanDefinition} class, adding support
@@ -93,6 +94,21 @@ public class DefaultAnnotatedBeanDefinition extends DefaultBeanDefinition implem
   @Nullable
   public final MethodMetadata getFactoryMethodMetadata() {
     return this.factoryMethodMetadata;
+  }
+
+  @Override
+  protected BeanInstantiator createConstructor(BeanFactory factory) {
+    MethodMetadata factoryMethodMetadata = getFactoryMethodMetadata();
+    if (factoryMethodMetadata != null) {
+      String methodName = factoryMethodMetadata.getMethodName();
+      Class<?> beanClass = getBeanClass();
+
+
+
+
+    }
+
+    return super.createConstructor(factory);
   }
 
   @Override

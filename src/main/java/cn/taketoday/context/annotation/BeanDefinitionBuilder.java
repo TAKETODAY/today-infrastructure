@@ -41,6 +41,7 @@ import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
@@ -291,12 +292,13 @@ public class BeanDefinitionBuilder {
   }
 
   public BeanDefinition build() {
-    DefaultBeanDefinition definition = create();
+    return build(create());
+  }
 
+  public BeanDefinition build(BeanDefinition definition) {
     definition.setName(name);
     definition.setRole(role);
     definition.setScope(scope);
-    definition.setChild(childDef);
     definition.setPrimary(primary);
     definition.setLazyInit(lazyInit);
     definition.setSynthetic(synthetic);
@@ -379,6 +381,12 @@ public class BeanDefinitionBuilder {
   public void build(
           String defaultName, AnnotatedElement annotated, Consumer<BeanDefinition> consumer) {
     AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(annotated, Component.class);
+    build(defaultName, components, consumer);
+  }
+
+  public void build(
+          String defaultName, MergedAnnotations annotated, Consumer<BeanDefinition> consumer) {
+    AnnotationAttributes[] components = annotated.getAttributes(Component.class);
     build(defaultName, components, consumer);
   }
 

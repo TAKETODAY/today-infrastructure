@@ -20,21 +20,16 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -50,34 +45,68 @@ public class MissingBeanRegistry {
     this.context = context;
   }
 
-  /**
-   * Is a context missed bean?
-   *
-   * @param missingBean The {@link Annotation} declared on the class or a method
-   * @param annotated Missed bean class or method
-   * @return If the bean is missed in context
-   * @since 3.0
-   */
-  public boolean isMissingBeanInContext(AnnotationAttributes missingBean, AnnotatedElement annotated) {
-    if (missingBean != null && context.passCondition(annotated)) {
-      // find by bean name
-      String beanName = missingBean.getString(Constant.VALUE);
-      if (StringUtils.isNotEmpty(beanName) && context.containsBeanDefinition(beanName)) {
-        return false;
-      }
-      // find by type
-      Class<?> type = missingBean.getClass("type");
-      if (type != void.class) {
-        return !context.containsBeanDefinition(type, missingBean.getBoolean("equals"));
-      }
-      else {
-        return !context.containsBeanDefinition(PropsReader.getBeanClass(annotated));
+  LinkedHashSet<MissingInfo> mayBeMissingInfos = new LinkedHashSet<>();
+
+  public void process() {
+    for (MissingInfo missingInfo : mayBeMissingInfos) {
+      if (isMissingBeanInFactory(missingInfo)) {
+        registerMissing(missingInfo);
       }
     }
-    return false;
   }
 
-  LinkedHashSet<MissingInfo> mayBeMissingInfos = new LinkedHashSet<>();
+  public void registerMissing(MissingInfo missingInfo) {
+    MethodMetadata beanMethod = missingInfo.metadata;
+
+    String defaultBeanName = beanMethod.getMethodName();
+    String declaringBeanName = missingInfo.config.getName();
+
+    BeanDefinitionBuilder builder = context.createBuilder();
+
+    builder.declaringName(declaringBeanName);
+    builder.beanClassName(beanMethod.getReturnTypeName());
+
+    AnnotationAttributes components = missingInfo.missingBean.asAnnotationAttributes();
+    builder.build(defaultBeanName, components, (component, definition) -> {
+      registerMissing(missingInfo.missingBean, definition);
+    });
+  }
+
+  public void registerMissing(MergedAnnotation<MissingBean> missingBean, BeanDefinition def) {
+    // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
+    def.setAttribute(MissingBean.MissingBeanMetadata, missingBean);
+    // register missed bean
+    register(def);
+  }
+
+  public boolean isMissingBeanInFactory(MissingInfo missingInfo) {
+    MergedAnnotation<MissingBean> missingBean = missingInfo.missingBean;
+    // find by bean name
+    String beanName = missingBean.getString(MergedAnnotation.VALUE);
+    if (StringUtils.hasText(beanName)) {
+      if (context.containsBeanDefinition(beanName)) {
+        return false;
+      }
+    }
+    else {
+      // use default name -> method-name
+      String methodName = missingInfo.metadata.getMethodName();
+      if (context.containsBeanDefinition(methodName)) {
+        return false;
+      }
+    }
+
+    // find by type
+    Class<?> type = missingBean.getClass("type");
+    if (type != void.class) {
+      return !context.containsBeanDefinition(type, missingBean.getBoolean("equals"));
+    }
+    // check method return-type
+    String returnTypeName = missingInfo.metadata.getReturnTypeName();
+    Class<?> returnType = ClassUtils.resolveClassName(
+            returnTypeName, context.getApplicationContext().getClassLoader());
+    return !context.containsBeanDefinition(returnType);
+  }
 
   public void detectMissingBean(MetadataReader metadataReader) {
 
@@ -85,38 +114,22 @@ public class MissingBeanRegistry {
 
   static class MissingInfo {
     final MethodMetadata metadata;
-    final Map<String, Object> missingBean;
+    final BeanDefinition config;
+    final MergedAnnotation<MissingBean> missingBean;
 
-    MissingInfo(MethodMetadata metadata, Map<String, Object> missingBean) {
+    MissingInfo(MethodMetadata metadata, BeanDefinition config, MergedAnnotation<MissingBean> missingBean) {
       this.metadata = metadata;
+      this.config = config;
       this.missingBean = missingBean;
     }
   }
 
-  public void detectMissingBean(MethodMetadata metadata) {
-    Map<String, Object> missingBean = metadata.getAnnotationAttributes(MissingBean.class.getName());
-    // TODO passCondition 是否已经通过
-    if (missingBean != null && context.passCondition(metadata)) {
-      MissingInfo missingInfo = new MissingInfo(metadata, missingBean);
+  public void detectMissingBean(MethodMetadata metadata, BeanDefinition config) {
+    MergedAnnotation<MissingBean> missingBean = metadata.getAnnotations().get(MissingBean.class);
+    if (missingBean.isPresent() && context.passCondition(metadata)) {
+      MissingInfo missingInfo = new MissingInfo(metadata, config, missingBean);
       mayBeMissingInfos.add(missingInfo);
     }
-  }
-
-  public void detectMissingBean(Method method) {
-
-    // TODO 记录下来然后 统一注册
-    AnnotationAttributes missingBean = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            method, MissingBean.class);
-//    if (missingBean != null && context.passCondition(annotated)) {
-//      missingInfos.add(new ScannedMissingInfo(classNode, missingBean));
-//    }
-  }
-
-  public void registerMissing(AnnotationAttributes missingBean, BeanDefinition def) {
-    // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
-    def.setAttribute(MissingBean.MissingBeanMetadata, missingBean);
-    // register missed bean
-    register(def);
   }
 
   public void registerMissing(MetadataReader metadataReader) {

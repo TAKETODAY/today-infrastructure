@@ -19,23 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -49,6 +32,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -104,8 +106,8 @@ public class StandardBeanFactory
 
     FactoryBeanDefinition<?> def = //
             factoryDef instanceof FactoryBeanDefinition
-                    ? (FactoryBeanDefinition<?>) factoryDef
-                    : new FactoryBeanDefinition<>(factoryDef, this);
+            ? (FactoryBeanDefinition<?>) factoryDef
+            : new FactoryBeanDefinition<>(factoryDef, this);
 
     registerBeanDefinition(oldBeanName, def);
   }
@@ -146,8 +148,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                  "for bean '{}' with a framework-generated bean " +
-                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                           "for bean '{}' with a framework-generated bean " +
+                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -248,8 +250,8 @@ public class StandardBeanFactory
 
   private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
     return equals
-            ? beanDef -> type == beanDef.getBeanClass()
-            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+           ? beanDef -> type == beanDef.getBeanClass()
+           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
   }
 
   @Override
@@ -536,7 +538,6 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
   // Listing Get operations for type-lookup
   //---------------------------------------------------------------------
-
 
   @Override
   @SuppressWarnings("unchecked")
@@ -847,6 +848,23 @@ public class StandardBeanFactory
           if (annotation.isPresent()) {
             return annotation;
           }
+        }
+      }
+
+      if (definition instanceof AnnotatedBeanDefinition) {
+        MethodMetadata methodMetadata = ((AnnotatedBeanDefinition) definition).getFactoryMethodMetadata();
+
+        if (methodMetadata != null) {
+          MergedAnnotation<A> annotation = methodMetadata.getAnnotations().get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+
+        AnnotationMetadata annotationMetadata = ((AnnotatedBeanDefinition) definition).getMetadata();
+        MergedAnnotation<A> annotation = annotationMetadata.getAnnotations().get(annotationType);
+        if (annotation.isPresent()) {
+          return annotation;
         }
       }
 

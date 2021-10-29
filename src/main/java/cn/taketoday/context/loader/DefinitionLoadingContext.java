@@ -185,8 +185,8 @@ public class DefinitionLoadingContext {
   // detectMissingBean
   //---------------------------------------------------------------------
 
-  public void detectMissingBean(MethodMetadata method) {
-    missingBeanRegistry.detectMissingBean(method);
+  public void detectMissingBean(MethodMetadata method, BeanDefinition config) {
+    missingBeanRegistry.detectMissingBean(method, config);
   }
 
   public void detectMissingBean(MetadataReader metadataReader) {

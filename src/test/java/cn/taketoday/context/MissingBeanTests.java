@@ -19,10 +19,8 @@
  */
 package cn.taketoday.context;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.logging.Logger;
@@ -38,52 +36,20 @@ import test.demo.config.User;
 @Setter
 @Getter
 @Configuration
-public class MissingBeanTest {
-  private static final Logger log = LoggerFactory.getLogger(MissingBeanTest.class);
-
-  private long start;
-
-  private static ConfigurableApplicationContext applicationContext = ///
-          new StandardApplicationContext(MissingBeanTest.class);
-
-  private String process;
-
-  @Setter
-  @Getter
-  private static ConfigurableBeanFactory beanFactory;
-
-  static {
-    setBeanFactory(getApplicationContext().getBeanFactory());
-  }
-
-  public static ConfigurableApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
-
-  @AfterAll
-  public static void endClass() {
-    ConfigurableApplicationContext applicationContext = getApplicationContext();
-    if (applicationContext != null) {
-      applicationContext.close();
-    }
-  }
+class MissingBeanTests {
+  private static final Logger log = LoggerFactory.getLogger(MissingBeanTests.class);
 
   @Test
   void missingBeanName() {
+    try (StandardApplicationContext context =
+            new StandardApplicationContext(MissingBeanTests.class)) {
 
-    setProcess("test missing user bean");
+      User bean = context.getBean("user", User.class);
 
-    ConfigurableApplicationContext applicationContext = getApplicationContext();
+      assert context.getBeanDefinitions().size() == 2;
+      assert bean.getUserName().equals("default user");
+    }
 
-    User bean = applicationContext.getBean("user", User.class);
-
-    System.err.println(applicationContext.getBeanDefinitions());
-
-    assert applicationContext.getBeanDefinitions().size() == 2;
-    assert bean.getUserName().equals("default user");
-
-    System.err.println(bean);
-    System.err.println(bean.getUserName());
   }
 
   @MissingBean("user")

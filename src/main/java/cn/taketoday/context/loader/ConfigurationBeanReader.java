@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
@@ -35,6 +37,7 @@ import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Import;
@@ -102,10 +105,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private void processMissingBean() {
     MissingBeanRegistry missingBeanRegistry = context.getMissingBeanRegistry();
-
-
-
-
+    missingBeanRegistry.process();
   }
 
   /**
@@ -122,6 +122,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       processImport(metadataReader, definition);
       // @ComponentScan
       processComponentScan(metadataReader, definition);
+
+      processPropertySource(metadataReader, definition);
     }
   }
 
@@ -178,7 +180,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
     Set<MethodMetadata> annotatedMissingBeanMethods = importMetadata.getAnnotatedMethods(MissingBean.class.getName());
     for (MethodMetadata missingBeanMethod : annotatedMissingBeanMethods) {
-      context.detectMissingBean(missingBeanMethod);
+      context.detectMissingBean(missingBeanMethod, config);
     }
 
     Set<MethodMetadata> annotatedMethods = importMetadata.getAnnotatedMethods(Component.class.getName());
@@ -186,7 +188,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       // pass the condition
       if (context.passCondition(beanMethod)) {
 
-        String defaultBeanName = beanMethod.getMethodName();
+        final String defaultBeanName = beanMethod.getMethodName();
         String declaringBeanName = config.getName();
 
         BeanDefinitionBuilder builder = context.createBuilder();
@@ -194,33 +196,34 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         builder.declaringName(declaringBeanName);
         builder.beanClassName(beanMethod.getReturnTypeName());
 
-        AnnotationAttributes[] components = beanMethod.getAnnotations().getAttributes(Component.class);
-        builder.build(defaultBeanName, components, (component, definition) -> {
-          register(definition);
+        beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
+          builder.annotation(component);
+
+          for (String name : BeanDefinitionBuilder.determineName(defaultBeanName, component.getStringArray(MergedAnnotation.VALUE))) {
+            builder.name(name);
+            ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, importMetadata);
+            builder.build(definition);
+            register(definition);
+          }
         });
       }
     }
   }
 
-  static class ConfigBeanDefinition extends DefaultBeanDefinition implements AnnotatedBeanDefinition {
-    BeanDefinition declaringDef;
-    MethodMetadata componentMethod;
+  static class ConfigBeanDefinition extends DefaultAnnotatedBeanDefinition implements AnnotatedBeanDefinition {
+    final BeanDefinition declaringDef;
 
-    private final AnnotationMetadata annotationMetadata;
-
-    ConfigBeanDefinition(AnnotationMetadata annotationMetadata) {
-      this.annotationMetadata = annotationMetadata;
+    ConfigBeanDefinition(BeanDefinition declaringDef, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
+      super(annotationMetadata, componentMethod);
+      this.declaringDef = declaringDef;
     }
 
     @Override
-    public AnnotationMetadata getMetadata() {
-      return annotationMetadata;
-    }
-
-    @Nullable
-    @Override
-    public MethodMetadata getFactoryMethodMetadata() {
-      return componentMethod;
+    public BeanDefinition cloneDefinition() {
+      DefaultAnnotatedBeanDefinition definition = new ConfigBeanDefinition(
+              declaringDef, getFactoryMethodMetadata(), getMetadata());
+      definition.copyFrom(this);
+      return super.cloneDefinition();
     }
   }
 
@@ -347,13 +350,31 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
+  private void processPropertySource(MetadataReader metadataReader, BeanDefinition definition) {
+    ApplicationContext applicationContext = context.getApplicationContext();
+    Environment environment = applicationContext.getEnvironment();
+    // Process any @PropertySource annotations
+    for (AnnotationAttributes propertySource : attributesForRepeatable(
+            metadataReader.getAnnotationMetadata(), PropertySources.class,
+            cn.taketoday.context.annotation.PropertySource.class)) {
+
+      if (environment instanceof ConfigurableEnvironment) {
+        processPropertySource(propertySource);
+      }
+      else {
+        log.info("Ignoring @PropertySource annotation on [" + metadataReader.getClassMetadata().getClassName() +
+                         "]. Reason: Environment must implement ConfigurableEnvironment");
+      }
+    }
+
+  }
+
   /**
    * Process the given <code>@PropertySource</code> annotation metadata.
    *
    * @param propertySource metadata for the <code>@PropertySource</code> annotation found
-   * @throws IOException if loading a property source failed
    */
-  private void processPropertySource(AnnotationAttributes propertySource) throws IOException {
+  private void processPropertySource(AnnotationAttributes propertySource) {
     String name = propertySource.getString("name");
     if (StringUtils.isNotEmpty(name)) {
       name = null;
@@ -374,6 +395,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         String resolvedLocation = context.evaluateExpression(location);
         Resource resource = context.getResource(resolvedLocation);
         addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
+
       }
       catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
         // Placeholders not resolvable or resource not found when trying to open it
@@ -383,8 +405,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
           }
         }
         else {
-          throw ex;
+          throw ExceptionUtils.sneakyThrow(ex);
         }
+      }
+      catch (IOException e) {
+        throw ExceptionUtils.sneakyThrow(e);
       }
     }
   }
@@ -444,4 +469,39 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     return propertySourceFactory;
   }
 
+  static Set<AnnotationAttributes> attributesForRepeatable(
+          AnnotationMetadata metadata,
+          Class<?> containerClass, Class<?> annotationClass) {
+
+    return attributesForRepeatable(metadata, containerClass.getName(), annotationClass.getName());
+  }
+
+  @SuppressWarnings("unchecked")
+  static Set<AnnotationAttributes> attributesForRepeatable(
+          AnnotationMetadata metadata, String containerClassName, String annotationClassName) {
+
+    Set<AnnotationAttributes> result = new LinkedHashSet<>();
+
+    // Direct annotation present?
+    addAttributesIfNotNull(result, metadata.getAnnotationAttributes(annotationClassName, false));
+
+    // Container annotation present?
+    Map<String, Object> container = metadata.getAnnotationAttributes(containerClassName, false);
+    if (container != null && container.containsKey("value")) {
+      for (Map<String, Object> containedAttributes : (Map<String, Object>[]) container.get("value")) {
+        addAttributesIfNotNull(result, containedAttributes);
+      }
+    }
+
+    // Return merged result
+    return Collections.unmodifiableSet(result);
+  }
+
+  private static void addAttributesIfNotNull(
+          Set<AnnotationAttributes> result, @Nullable Map<String, Object> attributes) {
+
+    if (attributes != null) {
+      result.add(AnnotationAttributes.fromMap(attributes));
+    }
+  }
 }

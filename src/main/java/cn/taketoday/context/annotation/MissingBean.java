@@ -19,20 +19,20 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.lang.Constant;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.lang.Constant;
+
 /**
  * Context will create a bean definition when current context were missing
  *
- * @author TODAY <br>
- * 2019-01-31 14:36
+ * @author TODAY 2019-01-31 14:36
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -40,12 +40,23 @@ public @interface MissingBean {
   String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   /**
+   * Missing bean name alias
+   */
+  @AliasFor("name")
+  String value() default Constant.BLANK;
+
+  /**
    * Missing bean name
    * <p>
    * this attr determine the bean definition
    * </p>
+   *
+   * <p>
+   * when its declare on a method default bean name is method-name
+   * </p>
    */
-  String value() default Constant.BLANK;
+  @AliasFor("value")
+  String name() default Constant.BLANK;
 
   /**
    * this attr determine the bean definition
@@ -69,7 +80,7 @@ public @interface MissingBean {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default { };
+  String[] initMethods() default {};
 
   /**
    * The optional names of a method to call on the bean instance upon closing the
