@@ -191,7 +191,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
           for (String name : BeanDefinitionBuilder.determineName(defaultBeanName, component.getStringArray(MergedAnnotation.VALUE))) {
             builder.name(name);
-            ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, importMetadata);
+            AnnotationMetadata annotationMetadata = getAnnotationMetadata(beanMethod.getReturnTypeName());
+            ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, annotationMetadata);
             builder.build(definition);
             register(definition);
           }
@@ -291,6 +292,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   @NonNull
+  private AnnotationMetadata getAnnotationMetadata(String className) {
+    return getMetadataReader(className).getAnnotationMetadata();
+  }
+
+  @NonNull
   private MetadataReader getMetadataReader(String className) {
     try {
       MetadataReaderFactory metadataFactory = context.getMetadataReaderFactory();
@@ -321,8 +327,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
               .selectImports(importMetadata, context);
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
-          MetadataReader metadataReader = getMetadataReader(select);
-          AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+          AnnotationMetadata annotationMetadata = getAnnotationMetadata(select);
           DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
           String beanName = context.createBeanName(select);
           definition.setName(beanName);
