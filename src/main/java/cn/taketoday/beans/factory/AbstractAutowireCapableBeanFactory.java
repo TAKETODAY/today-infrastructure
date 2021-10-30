@@ -37,9 +37,6 @@ public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
 
-  // @since 4.0
-  private InstantiationStrategy instantiationStrategy = new DefaultInstantiationStrategy();
-
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
   //---------------------------------------------------------------------
@@ -200,15 +197,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     BeanDefinition defaults = BeanDefinitionBuilder.defaults(beanClass);
     defaults.setScope(Scope.PROTOTYPE);
     return defaults;
-  }
-
-  public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
-    Assert.notNull(instantiationStrategy, "InstantiationStrategy is required");
-    this.instantiationStrategy = instantiationStrategy;
-  }
-
-  public InstantiationStrategy getInstantiationStrategy() {
-    return instantiationStrategy;
   }
 
 }
