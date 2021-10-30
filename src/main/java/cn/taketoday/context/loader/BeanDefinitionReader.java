@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -50,6 +49,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * read bean-definition
@@ -144,9 +144,11 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
     definition.setScope(scopeMetadata.getScopeName());
 
-    String defaultName = createBeanName(beanClass);
+    if (!StringUtils.hasText(beanName)) {
+      beanName = createBeanName(beanClass);
+    }
     definition.setInstanceSupplier(supplier);
-    definition.setName(defaultName);
+    definition.setName(beanName);
 
     doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, customizers);
   }
