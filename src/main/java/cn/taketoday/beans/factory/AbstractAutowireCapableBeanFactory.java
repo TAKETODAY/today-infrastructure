@@ -164,10 +164,12 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       executable = constructor;
     }
-
-    Object[] args = getArgumentsResolver().resolve(executable, this);
-
-    return instantiator.instantiate(args);
+    
+    Object[] constructorArgs = def.getConstructorArgs();
+    if (constructorArgs == null) {
+      constructorArgs = getArgumentsResolver().resolve(executable, this);
+    }
+    return instantiator.instantiate(constructorArgs);
   }
 
   @NonNull
