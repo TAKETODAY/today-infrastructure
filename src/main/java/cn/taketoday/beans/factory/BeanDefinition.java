@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -135,11 +136,11 @@ public class BeanDefinition
   @Nullable
   private String factoryMethodName;
 
-  Method factoryMethod;
-
-  BeanInstantiator instantiator;
-
   private Object[] constructorArgs;
+
+  // cache for fast access
+  Executable executable;
+  BeanInstantiator instantiator;
 
   public BeanDefinition() { }
 

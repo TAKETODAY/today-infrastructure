@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -103,77 +102,79 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
-
-    BeanInstantiator instantiator;
-    Executable executable;
-    String factoryMethodName = def.getFactoryMethodName();
-    // instantiate using factory-method
-    if (factoryMethodName != null) {
-      String factoryBeanName = def.getFactoryBeanName();
-
-      Class<?> factoryClass;
-      // a static factory-method ?
-      boolean isStatic = false;
-      if (factoryBeanName != null) {
-        // instance method
-        factoryClass = getType(factoryBeanName);
-        if (factoryClass == null) {
-          throw new IllegalStateException(
-                  "factory-method: '" + factoryMethodName + "' its factory bean: '" +
-                          factoryBeanName + "' not found in this factory: " + this);
-        }
-      }
-      else {
-        // bean class is its factory-class
-        factoryClass = resolveBeanClass(def); ;
-        isStatic = true;
-      }
-
-      Method factoryMethod = getFactoryMethod(def, factoryClass, factoryMethodName);
-      MethodInvoker factoryMethodInvoker;
-      if (def.isSingleton()) {
-        // use java-reflect invoking
-        factoryMethodInvoker = MethodInvoker.formReflective(factoryMethod);
-      }
-      else {
-        // provide fast access the method
-        factoryMethodInvoker = MethodInvoker.fromMethod(factoryMethod);
-      }
-
-      if (Modifier.isStatic(factoryMethod.getModifiers())) {
-        instantiator = BeanInstantiator.fromStaticMethod(factoryMethodInvoker);
-      }
-      else {
-        // this is not a FactoryBean just a factory
-        Object factoryBean = getBean(factoryBeanName);
-        instantiator = BeanInstantiator.fromMethod(factoryMethodInvoker, factoryBean);
-      }
-      executable = factoryMethod;
-    }
-    else {
-      // use a suitable constructor
-      Class<?> beanClass = resolveBeanClass(def);
-      Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
-      if (def.isSingleton()) {
-        // use java-reflect invoking
-        instantiator = BeanInstantiator.fromReflective(constructor);
-      }
-      else {
-        // provide fast access the method
-        instantiator = BeanInstantiator.fromConstructor(constructor);
-      }
-      executable = constructor;
-    }
-    
+    BeanInstantiator instantiator = resolveBeanInstantiator(def);
     Object[] constructorArgs = def.getConstructorArgs();
     if (constructorArgs == null) {
-      constructorArgs = getArgumentsResolver().resolve(executable, this);
+      constructorArgs = getArgumentsResolver().resolve(def.executable, this);
     }
     return instantiator.instantiate(constructorArgs);
   }
 
+  private BeanInstantiator resolveBeanInstantiator(BeanDefinition definition) {
+    if (definition.instantiator == null) {
+      String factoryMethodName = definition.getFactoryMethodName();
+      // instantiate using factory-method
+      if (factoryMethodName != null) {
+        String factoryBeanName = definition.getFactoryBeanName();
+        Class<?> factoryClass;
+        // a static factory-method ?
+        boolean isStatic = false;
+        if (factoryBeanName != null) {
+          // instance method
+          factoryClass = getType(factoryBeanName);
+          if (factoryClass == null) {
+            throw new IllegalStateException(
+                    "factory-method: '" + factoryMethodName + "' its factory bean: '" +
+                            factoryBeanName + "' not found in this factory: " + this);
+          }
+        }
+        else {
+          // bean class is its factory-class
+          factoryClass = resolveBeanClass(definition); ;
+          isStatic = true;
+        }
+
+        Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
+        MethodInvoker factoryMethodInvoker;
+        if (definition.isSingleton()) {
+          // use java-reflect invoking
+          factoryMethodInvoker = MethodInvoker.formReflective(factoryMethod);
+        }
+        else {
+          // provide fast access the method
+          factoryMethodInvoker = MethodInvoker.fromMethod(factoryMethod);
+        }
+
+        if (Modifier.isStatic(factoryMethod.getModifiers())) {
+          definition.instantiator = BeanInstantiator.fromStaticMethod(factoryMethodInvoker);
+        }
+        else {
+          // this is not a FactoryBean just a factory
+          Object factoryBean = getBean(factoryBeanName);
+          definition.instantiator = BeanInstantiator.fromMethod(factoryMethodInvoker, factoryBean);
+        }
+        definition.executable = factoryMethod;
+      }
+      else {
+        // use a suitable constructor
+        Class<?> beanClass = resolveBeanClass(definition);
+        Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
+        if (definition.isSingleton()) {
+          // use java-reflect invoking
+          definition.instantiator = BeanInstantiator.fromReflective(constructor);
+        }
+        else {
+          // provide fast access the method
+          definition.instantiator = BeanInstantiator.fromConstructor(constructor);
+        }
+        definition.executable = constructor;
+      }
+    }
+    return definition.instantiator;
+  }
+
   @NonNull
-  private Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryName) {
+  protected Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryName) {
     ArrayList<Method> candidates = new ArrayList<>();
     ReflectionUtils.doWithMethods(factoryClass, method -> {
       if (def.isFactoryMethod(method)) {
