@@ -178,10 +178,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       if (context.passCondition(beanMethod)) {
 
         beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
-
           for (String name : BeanDefinitionBuilder.determineName(
                   beanMethod.getMethodName(), component.getStringArray(MergedAnnotation.VALUE))) {
-
             AnnotationMetadata annotationMetadata = getAnnotationMetadata(beanMethod.getReturnTypeName());
             ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, annotationMetadata);
             definition.setName(name);

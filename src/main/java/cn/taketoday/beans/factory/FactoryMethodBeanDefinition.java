@@ -19,7 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,7 +27,6 @@ import java.util.Objects;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
@@ -151,14 +149,6 @@ public class FactoryMethodBeanDefinition extends DefaultBeanDefinition implement
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), declaringName, factoryMethod);
-  }
-
-  // AnnotatedElement
-  // -----------------------------
-
-  @Override
-  public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-    return AnnotationUtils.isPresent(getFactoryMethod(), annotation) || super.isAnnotationPresent(annotation);
   }
 
 }

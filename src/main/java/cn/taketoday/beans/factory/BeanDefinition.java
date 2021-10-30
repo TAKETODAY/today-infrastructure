@@ -19,6 +19,11 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessor;
@@ -28,12 +33,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Bean definition
@@ -227,16 +226,6 @@ public interface BeanDefinition extends AttributeAccessor {
   void setFactoryBean(boolean factoryBean);
 
   /**
-   * If An {@link Annotation} present on this bean
-   *
-   * @param annotation target {@link Annotation}
-   * @return If An {@link Annotation} present on this bean
-   * @since 2.1.7
-   */
-  @Deprecated
-  boolean isAnnotationPresent(Class<? extends Annotation> annotation);
-
-  /**
    * Indicates that the abstract bean's child implementation
    *
    * @return Child implementation bean, returns {@code null} indicates that this
@@ -253,6 +242,7 @@ public interface BeanDefinition extends AttributeAccessor {
    * @return new bean instance
    * @since 3.0
    */
+  @Deprecated
   Object newInstance(BeanFactory factory);
 
   /**
@@ -263,6 +253,7 @@ public interface BeanDefinition extends AttributeAccessor {
    * @return new bean instance
    * @since 3.0
    */
+  @Deprecated
   Object newInstance(BeanFactory factory, Object... args);
 
   /**

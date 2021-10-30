@@ -19,7 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -93,8 +91,10 @@ public class DefaultBeanDefinition
   private BeanDefinition childDef;
 
   /** @since 3.0 */
+  @Deprecated
   private Executable executable;
   /** @since 3.0 */
+  @Deprecated
   private BeanInstantiator constructor;
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
@@ -431,14 +431,6 @@ public class DefaultBeanDefinition
     return this;
   }
 
-  // AnnotatedElement
-  // -----------------------------
-
-  @Override
-  public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-    return AnnotatedElementUtils.isAnnotated(getBeanClass(), annotation);
-  }
-
   public BeanInstantiator getConstructor(BeanFactory factory) {
     if (constructor == null) {
       this.constructor = createConstructor(factory);
@@ -500,7 +492,7 @@ public class DefaultBeanDefinition
    */
   @Override
   public boolean isLazyInit() {
-    return (this.lazyInit != null && this.lazyInit);
+    return this.lazyInit != null && this.lazyInit;
   }
 
   /**
@@ -561,10 +553,6 @@ public class DefaultBeanDefinition
   @Override
   public <T> void setSupplier(Supplier<T> instanceSupplier) {
     this.instanceSupplier = instanceSupplier;
-  }
-
-  protected Class<?> obtainBeanClass() {
-    return getBeanClass();
   }
 
   /**

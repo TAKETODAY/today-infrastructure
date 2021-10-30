@@ -19,7 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -239,11 +238,6 @@ public class FactoryBeanDefinition<T>
 
   @Override
   public void setFactoryBean(boolean factoryBean) { }
-
-  @Override
-  public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-    return factoryDef.isAnnotationPresent(annotation);
-  }
 
   @Override
   public BeanDefinition getChild() {

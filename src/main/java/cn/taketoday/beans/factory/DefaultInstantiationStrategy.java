@@ -30,6 +30,8 @@ public class DefaultInstantiationStrategy implements InstantiationStrategy {
 
   @Override
   public Object instantiate(BeanDefinition def, BeanFactory owner) throws BeansException {
+
+
     return def.newInstance(owner);
   }
 
