@@ -26,6 +26,7 @@ import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.core.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.core.bytecode.proxy.Callback;
 import cn.taketoday.core.bytecode.proxy.CallbackFilter;
 import cn.taketoday.core.bytecode.proxy.Dispatcher;
@@ -124,6 +125,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     }
     enhancer.setSuperclass(proxySuperClass);
     enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
+    enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
 
     Callback[] callbacks = getCallbacks(rootClass);
     Class<?>[] types = new Class<?>[callbacks.length];
@@ -139,6 +141,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
             )
     );
     enhancer.setCallbackTypes(types);
+
 
     // Generate the proxy class and create a proxy instance.
     return createProxyClassAndInstance(enhancer, callbacks);

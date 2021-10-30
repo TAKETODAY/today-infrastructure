@@ -37,15 +37,22 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.objects.DerivedTestObject;
+import cn.taketoday.context.objects.ITestInterface;
+import cn.taketoday.context.objects.ITestObject;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.bytecode.proxy.Enhancer;
 import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
@@ -545,6 +552,67 @@ class ClassUtilsTests {
   })
   void resolvePrimitiveClassName(String input, Class<?> output) {
     assertThat(ClassUtils.resolvePrimitiveClassName(input)).isEqualTo(output);
+  }
+
+  @Test
+  void getAllInterfaces() {
+    DerivedTestObject testBean = new DerivedTestObject();
+    List<Class<?>> ifcs = Arrays.asList(ClassUtils.getAllInterfaces(testBean));
+    assertThat(ifcs.size()).as("Correct number of interfaces").isEqualTo(4);
+    assertThat(ifcs.contains(Serializable.class)).as("Contains Serializable").isTrue();
+    assertThat(ifcs.contains(ITestObject.class)).as("Contains ITestBean").isTrue();
+    assertThat(ifcs.contains(ITestInterface.class)).as("Contains IOther").isTrue();
+  }
+
+  @Test
+  void classNamesToString() {
+    List<Class<?>> ifcs = new ArrayList<>();
+    ifcs.add(Serializable.class);
+    ifcs.add(Runnable.class);
+    assertThat(ifcs.toString()).isEqualTo("[interface java.io.Serializable, interface java.lang.Runnable]");
+    assertThat(ClassUtils.classNamesToString(ifcs)).isEqualTo("[java.io.Serializable, java.lang.Runnable]");
+
+    List<Class<?>> classes = new ArrayList<>();
+    classes.add(ArrayList.class);
+    classes.add(Integer.class);
+    assertThat(classes.toString()).isEqualTo("[class java.util.ArrayList, class java.lang.Integer]");
+    assertThat(ClassUtils.classNamesToString(classes)).isEqualTo("[java.util.ArrayList, java.lang.Integer]");
+
+    assertThat(Collections.singletonList(List.class).toString()).isEqualTo("[interface java.util.List]");
+    assertThat(ClassUtils.classNamesToString(List.class)).isEqualTo("[java.util.List]");
+
+    assertThat(Collections.EMPTY_LIST.toString()).isEqualTo("[]");
+    assertThat(ClassUtils.classNamesToString(Collections.emptyList())).isEqualTo("[]");
+  }
+
+  @Test
+  void determineCommonAncestor() {
+    assertThat(ClassUtils.determineCommonAncestor(Integer.class, Number.class)).isEqualTo(Number.class);
+    assertThat(ClassUtils.determineCommonAncestor(Number.class, Integer.class)).isEqualTo(Number.class);
+    assertThat(ClassUtils.determineCommonAncestor(Number.class, null)).isEqualTo(Number.class);
+    assertThat(ClassUtils.determineCommonAncestor(null, Integer.class)).isEqualTo(Integer.class);
+    assertThat(ClassUtils.determineCommonAncestor(Integer.class, Integer.class)).isEqualTo(Integer.class);
+
+    assertThat(ClassUtils.determineCommonAncestor(Integer.class, Float.class)).isEqualTo(Number.class);
+    assertThat(ClassUtils.determineCommonAncestor(Float.class, Integer.class)).isEqualTo(Number.class);
+    assertThat(ClassUtils.determineCommonAncestor(Integer.class, String.class)).isNull();
+    assertThat(ClassUtils.determineCommonAncestor(String.class, Integer.class)).isNull();
+
+    assertThat(ClassUtils.determineCommonAncestor(List.class, Collection.class)).isEqualTo(Collection.class);
+    assertThat(ClassUtils.determineCommonAncestor(Collection.class, List.class)).isEqualTo(Collection.class);
+    assertThat(ClassUtils.determineCommonAncestor(Collection.class, null)).isEqualTo(Collection.class);
+    assertThat(ClassUtils.determineCommonAncestor(null, List.class)).isEqualTo(List.class);
+    assertThat(ClassUtils.determineCommonAncestor(List.class, List.class)).isEqualTo(List.class);
+
+    assertThat(ClassUtils.determineCommonAncestor(List.class, Set.class)).isNull();
+    assertThat(ClassUtils.determineCommonAncestor(Set.class, List.class)).isNull();
+    assertThat(ClassUtils.determineCommonAncestor(List.class, Runnable.class)).isNull();
+    assertThat(ClassUtils.determineCommonAncestor(Runnable.class, List.class)).isNull();
+
+    assertThat(ClassUtils.determineCommonAncestor(List.class, ArrayList.class)).isEqualTo(List.class);
+    assertThat(ClassUtils.determineCommonAncestor(ArrayList.class, List.class)).isEqualTo(List.class);
+    assertThat(ClassUtils.determineCommonAncestor(List.class, String.class)).isNull();
+    assertThat(ClassUtils.determineCommonAncestor(String.class, List.class)).isNull();
   }
 
   @ParameterizedTest
