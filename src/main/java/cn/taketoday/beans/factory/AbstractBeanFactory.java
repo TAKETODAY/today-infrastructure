@@ -19,12 +19,10 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
@@ -268,8 +265,7 @@ public abstract class AbstractBeanFactory
     BeanDefinition definition = obtainBeanDefinition(name);
     Class<?> type = predictBeanType(definition);
     if (type != null) {
-      return ResolvableType.fromClass(type)
-              .isAssignableFrom(typeToMatch);
+      return typeToMatch.isAssignableFrom(type);
     }
     return false;
   }
