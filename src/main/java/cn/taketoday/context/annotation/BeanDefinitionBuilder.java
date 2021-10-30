@@ -322,8 +322,8 @@ public class BeanDefinitionBuilder {
     definition.setSynthetic(synthetic);
     definition.setInitMethods(initMethods);
     definition.setFactoryBean(factoryBean);
-    definition.setSupplier(instanceSupplier);
     definition.setDestroyMethod(destroyMethod);
+    definition.setInstanceSupplier(instanceSupplier);
 
     return definition;
   }

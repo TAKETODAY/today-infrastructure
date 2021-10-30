@@ -344,7 +344,7 @@ public class DefaultApplicationContext
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (a, bd) -> bd.setSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
+            (a, bd) -> bd.setInstanceSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
   }
 
   /**

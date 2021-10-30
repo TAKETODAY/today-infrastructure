@@ -111,7 +111,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
    */
   public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
     DefaultBeanDefinition definition = new DefaultBeanDefinition(name, (Class<?>) null);
-    definition.setSupplier(supplier);
+    definition.setInstanceSupplier(supplier);
     definition.setSynthetic(true);
     register(definition);
   }
@@ -128,7 +128,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (a, bd) -> bd.setSupplier(() -> bd.newInstance(obtainContext(), constructorArgs)));
+            (a, bd) -> bd.setInstanceSupplier(() -> bd.newInstance(obtainContext(), constructorArgs)));
   }
 
   @Override
@@ -146,7 +146,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
     definition.setScope(scopeMetadata.getScopeName());
 
     String defaultName = createBeanName(beanClass);
-    definition.setSupplier(supplier);
+    definition.setInstanceSupplier(supplier);
     definition.setName(defaultName);
 
     doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, customizers);
@@ -293,7 +293,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
       definition.setScope(scopeMetadata.getScopeName());
 
       String defaultName = createBeanName(clazz);
-      definition.setSupplier(supplier);
+      definition.setInstanceSupplier(supplier);
       definition.setName(defaultName);
 
       if (ignoreAnnotation) {
