@@ -263,8 +263,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private MetadataReader getMetadataReader(BeanDefinition annotated) {
     try {
       MetadataReaderFactory metadataFactory = context.getMetadataReaderFactory();
-      if (annotated instanceof BeanDefinition) {
-        Object source = ((BeanDefinition) annotated).getSource();
+      if (annotated != null) {
+        Object source = annotated.getSource();
         if (source instanceof Resource) {
           return metadataFactory.getMetadataReader((Resource) source);
         }

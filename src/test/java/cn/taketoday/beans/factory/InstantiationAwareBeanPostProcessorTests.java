@@ -42,7 +42,7 @@ class InstantiationAwareBeanPostProcessorTests {
     @Override
     // your Instantiation Strategy
     public Object postProcessBeforeInstantiation(BeanDefinition def) {
-      if (def instanceof BeanDefinition) {
+      if (def != null) {
         if (def.getBeanClass() == InstantiationAwareBeanPostProcessorBean.class) {
           return new InstantiationAwareBeanPostProcessorBean(); // your strategy
         }

@@ -440,11 +440,9 @@ public abstract class AbstractBeanFactory
       }
 
       ClassLoader beanClassLoader = getBeanClassLoader();
-      if (def instanceof BeanDefinition) {
-        Class<?> beanClass = ((BeanDefinition) def).resolveBeanClass(beanClassLoader);
-        if (beanClass != null) {
-          return beanClass;
-        }
+      Class<?> beanClass = ((BeanDefinition) def).resolveBeanClass(beanClassLoader);
+      if (beanClass != null) {
+        return beanClass;
       }
 
       return ClassUtils.forName(beanClassName, beanClassLoader);
