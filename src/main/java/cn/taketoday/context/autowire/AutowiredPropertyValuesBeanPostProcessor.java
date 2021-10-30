@@ -88,11 +88,13 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
     LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
     BeanMetadata beanMetadata = BeanMetadata.ofClass(beanClass);
     for (BeanProperty beanProperty : beanMetadata) {
-      // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-      PropertySetter created = resolveProperty(beanProperty);
-      // not required
-      if (created != null) {
-        propertySetters.add(created);
+      if (!beanProperty.isReadOnly()) {
+        // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
+        PropertySetter created = resolveProperty(beanProperty);
+        // not required
+        if (created != null) {
+          propertySetters.add(created);
+        }
       }
     }
 
