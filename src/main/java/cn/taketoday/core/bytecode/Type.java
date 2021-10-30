@@ -899,8 +899,7 @@ public final class Type {
    * @since 4.0
    */
   public Type getBoxedType() {
-    switch (getSort()) // @off
-    {
+    switch (getSort()) { // @formatter:off
       case Type.CHAR :    return Type.TYPE_CHARACTER;
       case Type.BOOLEAN : return Type.TYPE_BOOLEAN;
       case Type.DOUBLE :  return Type.TYPE_DOUBLE;
@@ -910,7 +909,7 @@ public final class Type {
       case Type.SHORT :   return Type.TYPE_SHORT;
       case Type.BYTE :    return Type.TYPE_BYTE;
       default:
-        return this; // @on
+        return this; // @formatter:on
     }
   }
 

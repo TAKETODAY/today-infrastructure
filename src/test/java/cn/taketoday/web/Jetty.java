@@ -132,14 +132,14 @@ public class Jetty {
     return (messageSupplier != null ? messageSupplier.get() : null);
   }
 
-  //@off
+  //@formatter:off
     private void stopSilently() {
         try {
             this.server.stop();
         }
         catch (Exception ex) {}
     }
-    // @on
+    // @formatter:on
 
   public synchronized void start() {
     try {

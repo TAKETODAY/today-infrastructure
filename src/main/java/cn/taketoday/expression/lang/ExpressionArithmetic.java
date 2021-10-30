@@ -114,7 +114,7 @@ public abstract class ExpressionArithmetic {
     return operation.apply(arithmetic, arithmetic.convert(obj0), arithmetic.convert(obj1));
   }
 
-  //@off
+  //@formatter:off
   protected abstract Number convert(final Number num);
   protected abstract Number convert(final String str);
 
@@ -123,7 +123,7 @@ public abstract class ExpressionArithmetic {
   protected abstract Number divideInternal(final Number num0, final Number num1);
   protected abstract Number multiplyInternal(final Number num0, final Number num1);
   protected abstract Number subtractInternal(final Number num0, final Number num1);
-  protected abstract boolean matches(final Object obj0, final Object obj1);//@on
+  protected abstract boolean matches(final Object obj0, final Object obj1);//@formatter:on
 
   protected final Number convert(final Object obj) {
 

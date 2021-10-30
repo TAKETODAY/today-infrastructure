@@ -359,7 +359,7 @@ class ClassUtilsTests {
   }
 
   // fix bug
-  // @off
+  // @formatter:off
   interface Interface<T> {}
   interface Interface1<T> {}
   interface Interface2<T> {}
@@ -376,7 +376,7 @@ class ClassUtilsTests {
           implements NestedGenericInterface, Interface1<Integer>, Interface2<Interface<String>> {}
   static class NoGeneric {}
 
-  // @on
+  // @formatter:on
 
 /*
   @Test

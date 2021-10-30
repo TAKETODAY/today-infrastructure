@@ -51,7 +51,7 @@ import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ConcurrentCache;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -147,8 +147,8 @@ public abstract class AbstractCacheInterceptor
     static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
     static final StandardExpressionContext SHARED_EL_CONTEXT;
     static final ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.getSharedInstance();
-    static final ConcurrentCache<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentCache<>(512);
-    static final ConcurrentCache<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentCache<>(512);
+    static final ConcurrentReferenceHashMap<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentReferenceHashMap<>(128);
+    static final ConcurrentReferenceHashMap<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentReferenceHashMap<>(128);
     static final Function<MethodKey, String[]> ARGS_NAMES_FUNCTION =
             target -> parameterNameDiscoverer.getParameterNames(target.targetMethod);
 
@@ -198,7 +198,7 @@ public abstract class AbstractCacheInterceptor
      * @return {@link Annotation} instance
      */
     public static CacheConfiguration prepareAnnotation(MethodKey methodKey) {
-      return CACHE_OPERATION.get(methodKey, CACHE_OPERATION_FUNCTION);
+      return CACHE_OPERATION.computeIfAbsent(methodKey, CACHE_OPERATION_FUNCTION);
     }
 
     /**
@@ -209,10 +209,8 @@ public abstract class AbstractCacheInterceptor
      * @param invocation Target Method Invocation
      * @return Cache key
      */
-    static Object createKey(String key,
-                            CacheExpressionContext ctx,
-                            MethodInvocation invocation) {
-
+    static Object createKey(
+            String key, CacheExpressionContext ctx, MethodInvocation invocation) {
       return key.isEmpty()
              ? new DefaultCacheKey(invocation.getArguments())
              : EXPRESSION_FACTORY.createValueExpression(ctx, key, Object.class).getValue(ctx);
@@ -253,18 +251,16 @@ public abstract class AbstractCacheInterceptor
      * @param beans The mapping
      * @param arguments Target {@link Method} parameters
      */
-    static void prepareParameterNames(MethodKey methodKey,
-                                      Object[] arguments,
-                                      Map<String, Object> beans) //
-    {
-      String[] names = ARGS_NAMES_CACHE.get(methodKey, ARGS_NAMES_FUNCTION);
+    static void prepareParameterNames(
+            MethodKey methodKey, Object[] arguments, Map<String, Object> beans) {
+      String[] names = ARGS_NAMES_CACHE.computeIfAbsent(methodKey, ARGS_NAMES_FUNCTION);
       for (int i = 0; i < names.length; i++) {
         beans.put(names[i], arguments[i]);
       }
     }
 
-    static CacheExpressionContext prepareELContext(MethodKey methodKey,
-                                                   MethodInvocation invocation) {
+    static CacheExpressionContext prepareELContext(
+            MethodKey methodKey, MethodInvocation invocation) {
       HashMap<String, Object> beans = new HashMap<>();
       prepareParameterNames(methodKey, invocation.getArguments(), beans);
       beans.put(Constant.KEY_ROOT, invocation);// ${root.target} for target instance ${root.method}

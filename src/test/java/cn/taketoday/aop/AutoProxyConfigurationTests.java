@@ -47,6 +47,7 @@ class AutoProxyConfigurationTests {
       context.register(AopConfig.class);
 
       BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
+      assertThat(proxyCreatorDef).isNotNull();
 
       Object exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
       Object proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");

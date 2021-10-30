@@ -448,12 +448,12 @@ public abstract class Logger {
    * Return if logging level is enabled.
    */
   public final boolean isLevelEnabled(Level level) {
-    switch (level) { //@off
+    switch (level) { //@formatter:off
       case WARN :     return isWarnEnabled();
       case TRACE :    return isTraceEnabled();
       case DEBUG :    return isDebugEnabled();
       case ERROR :    return isErrorEnabled();
       default:        return isInfoEnabled();
-    } //@on
+    } //@formatter:on
   }
 }

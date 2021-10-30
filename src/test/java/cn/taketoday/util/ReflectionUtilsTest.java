@@ -705,7 +705,7 @@ public class ReflectionUtilsTest {
 
   public void testGetUniqueDeclaredMethods_isFastEnough() {
     @SuppressWarnings("unused")
-    class C { //@off
+    class C { //@formatter:off
             void m00() { } void m01() { } void m02() { } void m03() { } void m04() { }
             void m05() { } void m06() { } void m07() { } void m08() { } void m09() { }
             void m10() { } void m11() { } void m12() { } void m13() { } void m14() { }
@@ -726,7 +726,7 @@ public class ReflectionUtilsTest {
             void m85() { } void m86() { } void m87() { } void m88() { } void m89() { }
             void m90() { } void m91() { } void m92() { } void m93() { } void m94() { }
             void m95() { } void m96() { } void m97() { } void m98() { } void m99() { }
-        } //@on
+        } //@formatter:on
 
     Method[] methods = ReflectionUtils.getUniqueDeclaredMethods(C.class);
     assertThat(methods.length).isGreaterThan(100);

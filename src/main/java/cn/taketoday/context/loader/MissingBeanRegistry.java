@@ -30,6 +30,8 @@ import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -38,6 +40,8 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class MissingBeanRegistry {
+  private static final Logger log = LoggerFactory.getLogger(MissingBeanRegistry.class);
+
   private final DefinitionLoadingContext context;
   final ArrayList<ScannedMissingInfo> missingInfos = new ArrayList<>();
 
@@ -56,6 +60,8 @@ public class MissingBeanRegistry {
   }
 
   public void registerMissing(MissingInfo missingInfo) {
+    log.debug("register missing bean: {}", missingInfo.metadata);
+
     MethodMetadata beanMethod = missingInfo.metadata;
 
     String defaultBeanName = beanMethod.getMethodName();
