@@ -20,6 +20,20 @@
 
 package cn.taketoday.beans.support;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
@@ -35,25 +49,12 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * @author TODAY
  * 2021/1/27 22:28
  * @since 3.0
  */
-public class BeanProperty extends AbstractAnnotatedElement {
+public class BeanProperty extends AbstractAnnotatedElement implements Member {
   private static final long serialVersionUID = 1L;
 
   private static final Mappings<Annotation[], BeanProperty> annotationsCache = new Mappings<>();
@@ -220,8 +221,8 @@ public class BeanProperty extends AbstractAnnotatedElement {
     if (componentConstructor == null) {
       Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-              ? NullInstantiator.INSTANCE
-              : BeanInstantiator.fromConstructor(componentClass);
+                             ? NullInstantiator.INSTANCE
+                             : BeanInstantiator.fromConstructor(componentClass);
     }
     return componentConstructor.instantiate(args);
   }
@@ -346,6 +347,16 @@ public class BeanProperty extends AbstractAnnotatedElement {
    */
   public String getName() {
     return field.getName();
+  }
+
+  @Override
+  public int getModifiers() {
+    return field.getModifiers();
+  }
+
+  @Override
+  public boolean isSynthetic() {
+    return field.isSynthetic();
   }
 
   /**

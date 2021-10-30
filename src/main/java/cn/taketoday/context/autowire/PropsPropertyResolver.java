@@ -28,8 +28,8 @@ import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -42,16 +42,15 @@ public class PropsPropertyResolver implements PropertyValueResolver {
    */
   @Override
   public DefaultPropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            property, Props.class);
-    if (attributes != null) {
+    MergedAnnotation<Props> annotation = MergedAnnotations.from(property).get(Props.class);
+    if (annotation.isPresent()) {
       Class<?> propertyClass = property.getType();
       if (ClassUtils.isSimpleType(propertyClass)) {
         // not support simple type
         throw new PropertyException(
                 "Props usage error, cannot declare it on simple-type property, Use @Value instead");
       }
-      DefaultProps props = new DefaultProps(attributes);
+      DefaultProps props = new DefaultProps(annotation);
 
       PropsReader propsReader = context.getPropsReader();
       Properties properties = propsReader.readMap(props);
