@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
@@ -234,24 +233,34 @@ public class StandardBeanFactory
   @Override
   public boolean containsBeanDefinition(Class<?> type, boolean equals) {
     // TODO optimise lookup performance
-    Predicate<BeanDefinition> predicate = getPredicate(type, equals);
-    BeanDefinition def = getBeanDefinition(createBeanName(type));
-    if (def != null && predicate.test(def)) {
-      return true;
-    }
-
-    for (BeanDefinition beanDef : getBeanDefinitions().values()) {
-      if (predicate.test(beanDef)) {
-        return true;
+    if (equals) {
+      BeanDefinition def = getBeanDefinition(createBeanName(type));
+      if (def != null) {
+        if (isEqualsTo(def, type)) {
+          return true;
+        }
       }
+      // iterate
+      for (BeanDefinition definition : beanDefinitionMap.values()) {
+        if (isEqualsTo(definition, type)) {
+          return true;
+        }
+      }
+    }
+    else {
+      return getBeanDefinition(type) != null;
     }
     return false;
   }
 
-  private Predicate<BeanDefinition> getPredicate(Class<?> type, boolean equals) {
-    return equals
-           ? beanDef -> type == beanDef.getBeanClass()
-           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+  private boolean isEqualsTo(BeanDefinition definition, Class<?> beanClass) {
+    if (definition.hasBeanClass()) {
+      return definition.getBeanClass() == beanClass;
+    }
+    else {
+      Class<?> candidateClass = resolveBeanClass(definition);
+      return candidateClass != null && beanClass == candidateClass;
+    }
   }
 
   @Override
