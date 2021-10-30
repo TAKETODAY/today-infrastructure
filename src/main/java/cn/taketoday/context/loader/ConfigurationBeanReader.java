@@ -238,7 +238,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
       Type[] argumentTypes = metadata.getArgumentTypes();
       for (int i = 0; i < parameterTypes.length; i++) {
-        if (Type.fromClass(parameterTypes[i]).equals(argumentTypes[i])) {
+        if (!Type.fromClass(parameterTypes[i]).equals(argumentTypes[i])) {
           return false;
         }
       }
