@@ -59,6 +59,7 @@ public class HandlerMethodBuilderTests {
     try (StandardApplicationContext context = new StandardWebServletApplicationContext()) {
       context.scan("cn.taketoday.web.handler");
       context.register(AppConfig.class);
+      context.refresh();
 
       HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
       HandlerMethod handlerMethod = handlerMethodBuilder.build(new MyController(), MyController.class.getMethod("get"));

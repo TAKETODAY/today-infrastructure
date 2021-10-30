@@ -21,7 +21,7 @@
 package cn.taketoday.core;
 
 import java.lang.reflect.Executable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -36,9 +36,9 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/9/10 23:02
  * @since 4.0
  */
-public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer {
+public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer implements ArraySizeTrimmer {
 
-  private final LinkedList<ParameterNameDiscoverer> discoverers = new LinkedList<>();
+  private final ArrayList<ParameterNameDiscoverer> discoverers = new ArrayList<>();
 
   /**
    * add ParameterNameDiscoverer
@@ -47,19 +47,25 @@ public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer {
    */
   public void addDiscoverer(@Nullable ParameterNameDiscoverer... discoverer) {
     CollectionUtils.addAll(discoverers, discoverer);
+    trimToSize();
   }
 
   @Nullable
   @Override
   public String[] getParameterNames(Executable executable) {
-    for (final ParameterNameDiscoverer discoverer : discoverers) {
-      final String[] parameterNames = discoverer.getParameterNames(executable);
+    for (ParameterNameDiscoverer discoverer : discoverers) {
+      String[] parameterNames = discoverer.getParameterNames(executable);
       if (parameterNames != null) {
         return parameterNames;
       }
     }
     // cannot resolve
     return null;
+  }
+
+  @Override
+  public void trimToSize() {
+    discoverers.trimToSize();
   }
 
 }

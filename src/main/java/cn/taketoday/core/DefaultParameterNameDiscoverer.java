@@ -35,8 +35,8 @@ package cn.taketoday.core;
 public class DefaultParameterNameDiscoverer extends CompositeParameterNameDiscoverer {
 
   public DefaultParameterNameDiscoverer() {
-    addDiscoverer(new ReflectiveParameterNameDiscoverer());
-    addDiscoverer(new LocalVariableTableParameterNameDiscoverer());
+    addDiscoverer(new ReflectiveParameterNameDiscoverer(),
+                  new LocalVariableTableParameterNameDiscoverer());
   }
 
 }

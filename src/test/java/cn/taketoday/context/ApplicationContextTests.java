@@ -126,7 +126,7 @@ class ApplicationContextTests {
       applicationContext.registerBean(User.class);
       applicationContext.registerBean("user", User.class);
       applicationContext.registerBean("user_", User.class);
-      //			applicationContext.onRefresh(); // init bean
+      applicationContext.refresh();
 
       Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitions();
 

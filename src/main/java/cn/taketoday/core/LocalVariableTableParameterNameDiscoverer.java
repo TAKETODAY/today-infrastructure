@@ -84,7 +84,7 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
     }
     try {
       ClassReader classReader = new ClassReader(is);
-      Map<Executable, String[]> map = new ConcurrentHashMap<>(32);
+      ConcurrentHashMap<Executable, String[]> map = new ConcurrentHashMap<>(32);
       classReader.accept(new ParameterNameDiscoveringVisitor(clazz, map), 0);
       return map;
     }
