@@ -18,8 +18,11 @@ package cn.taketoday.core.type.classreading;
 
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.Opcodes;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link MethodMetadata} created from a {@link SimpleMethodMetadataReadingVisitor}.
@@ -43,8 +46,15 @@ final class SimpleMethodMetadata implements MethodMetadata {
 
   private final MergedAnnotations annotations;
 
+  private final int parameterCount;
+  private final Type[] argumentTypes;
+
+  @Nullable
+  private final ClassLoader classLoader;
+
   SimpleMethodMetadata(String methodName, int access, String declaringClassName,
-                       String returnTypeName, Object source, MergedAnnotations annotations) {
+                       String returnTypeName, Object source, MergedAnnotations annotations,
+                       Type[] argumentTypes, @Nullable ClassLoader classLoader) {
 
     this.methodName = methodName;
     this.access = access;
@@ -52,6 +62,9 @@ final class SimpleMethodMetadata implements MethodMetadata {
     this.returnTypeName = returnTypeName;
     this.source = source;
     this.annotations = annotations;
+    this.parameterCount = argumentTypes.length;
+    this.argumentTypes = argumentTypes;
+    this.classLoader = classLoader;
   }
 
   @Override
@@ -89,6 +102,11 @@ final class SimpleMethodMetadata implements MethodMetadata {
     return !isStatic() && !isFinal() && !isPrivate();
   }
 
+  @Override
+  public int getParameterCount() {
+    return parameterCount;
+  }
+
   private boolean isPrivate() {
     return (this.access & Opcodes.ACC_PRIVATE) != 0;
   }
@@ -112,6 +130,25 @@ final class SimpleMethodMetadata implements MethodMetadata {
   @Override
   public String toString() {
     return this.source.toString();
+  }
+
+  @Override
+  public Type[] getArgumentTypes() {
+    return argumentTypes;
+  }
+
+  @Override
+  public Class<?>[] getParameterTypes() {
+    if (parameterCount == 0) {
+      return Constant.EMPTY_CLASS_ARRAY;
+    }
+    int i = 0;
+    Class<?>[] ret = new Class<?>[parameterCount];
+    for (Type argumentType : argumentTypes) {
+      String className = argumentType.getClassName();
+      ret[i++] = ClassUtils.resolveClassName(className, classLoader);
+    }
+    return ret;
   }
 
 }

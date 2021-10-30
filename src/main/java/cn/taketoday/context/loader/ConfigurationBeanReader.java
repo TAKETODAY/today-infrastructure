@@ -22,6 +22,7 @@ package cn.taketoday.context.loader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -54,6 +56,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourcePropertySource;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
@@ -179,9 +182,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
           for (String name : BeanDefinitionBuilder.determineName(
                   beanMethod.getMethodName(), component.getStringArray(MergedAnnotation.VALUE))) {
             AnnotationMetadata annotationMetadata = getAnnotationMetadata(beanMethod.getReturnTypeName());
+
             ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, annotationMetadata);
             definition.setName(name);
-            definition.setBeanClassName(beanMethod.getReturnTypeName());
+            definition.setFactoryBeanName(config.getName());
+            definition.setFactoryMethodName(beanMethod.getMethodName());
             definition.setDestroyMethod(component.getString(BeanDefinition.DESTROY_METHOD));
             definition.setInitMethods(component.getStringArray(BeanDefinition.INIT_METHODS));
 
@@ -195,9 +200,49 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   static class ConfigBeanDefinition extends AnnotatedBeanDefinition {
     final BeanDefinition declaringDef;
 
-    ConfigBeanDefinition(BeanDefinition declaringDef, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
+    ConfigBeanDefinition(
+            BeanDefinition declaringDef, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
       super(annotationMetadata, componentMethod);
       this.declaringDef = declaringDef;
+    }
+
+    @Override
+    public boolean isFactoryMethod(Method method) {
+      return super.isFactoryMethod(method)
+              && isFactoryMethodInternal(method);
+    }
+
+    private boolean isFactoryMethodInternal(Method method) {
+      MethodMetadata metadata = getFactoryMethodMetadata();
+      assert metadata != null;
+      return method.getReturnType().getName().equals(metadata.getReturnTypeName())
+              && isArgumentsEquals(method, metadata);
+    }
+
+    private boolean isArgumentsEquals(Method method, MethodMetadata metadata) {
+      int parameterCount = method.getParameterCount();
+      if (parameterCount != metadata.getParameterCount()) {
+        return false;
+      }
+
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      if (metadata instanceof StandardMethodMetadata) {
+        Class<?>[] metadataArgTypes = metadata.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+          if (parameterTypes[i] != metadataArgTypes[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      Type[] argumentTypes = metadata.getArgumentTypes();
+      for (int i = 0; i < parameterTypes.length; i++) {
+        if (Type.fromClass(parameterTypes[i]).equals(argumentTypes[i])) {
+          return false;
+        }
+      }
+      return true;
     }
 
     @Override

@@ -81,7 +81,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
       MergedAnnotations annotations = MergedAnnotations.of(this.annotations);
       SimpleMethodMetadata metadata = new SimpleMethodMetadata(
               this.methodName, this.access, this.declaringClassName,
-              returnTypeName, getSource(), annotations);
+              returnTypeName, getSource(), annotations, argumentTypes, classLoader);
       this.consumer.accept(metadata);
     }
   }

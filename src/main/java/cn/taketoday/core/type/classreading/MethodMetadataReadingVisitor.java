@@ -16,6 +16,11 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -26,11 +31,6 @@ import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * ASM method visitor which looks for the annotations defined on a method,
@@ -120,6 +120,21 @@ public class MethodMetadataReadingVisitor extends MethodVisitor implements Metho
   @Override
   public boolean isOverridable() {
     return (!isStatic() && !isFinal() && ((this.access & Opcodes.ACC_PRIVATE) == 0));
+  }
+
+  @Override
+  public int getParameterCount() {
+    return 0; // TODO
+  }
+
+  @Override
+  public Type[] getArgumentTypes() {
+    return new Type[0]; // TODO
+  }
+
+  @Override
+  public Class<?>[] getParameterTypes() {
+    return new Class[0];// TODO
   }
 
   @Override

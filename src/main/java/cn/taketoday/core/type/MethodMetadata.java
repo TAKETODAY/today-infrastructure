@@ -16,6 +16,8 @@
 
 package cn.taketoday.core.type;
 
+import cn.taketoday.core.bytecode.Type;
+
 /**
  * Interface that defines abstract access to the annotations of a specific
  * method, in a form that does not require that method's class to be loaded yet.
@@ -68,5 +70,11 @@ public interface MethodMetadata extends AnnotatedTypeMetadata {
    * i.e. not marked as static, final, or private.
    */
   boolean isOverridable();
+
+  int getParameterCount();
+
+  Type[] getArgumentTypes();
+
+  Class<?>[] getParameterTypes();
 
 }

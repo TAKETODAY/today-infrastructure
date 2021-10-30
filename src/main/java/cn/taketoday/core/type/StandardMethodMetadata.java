@@ -25,6 +25,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -162,4 +163,18 @@ public class StandardMethodMetadata implements MethodMetadata {
     return this.introspectedMethod.toString();
   }
 
+  @Override
+  public int getParameterCount() {
+    return introspectedMethod.getParameterCount();
+  }
+
+  @Override
+  public Type[] getArgumentTypes() {
+    return Type.getArgumentTypes(introspectedMethod);
+  }
+
+  @Override
+  public Class<?>[] getParameterTypes() {
+    return introspectedMethod.getParameterTypes();
+  }
 }
