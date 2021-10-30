@@ -34,7 +34,6 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -106,9 +105,6 @@ public class BeanDefinition
    */
   private Boolean factoryBean;
 
-  /** Child implementation */
-  private BeanDefinition childDef;
-
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
   /** @since 3.0 bean instance supplier */
@@ -167,7 +163,6 @@ public class BeanDefinition
   public BeanDefinition(String beanName, BeanDefinition childDef) {
     copyFrom(childDef);
     setName(beanName);
-    setChild(childDef);
   }
 
   /**
@@ -380,17 +375,6 @@ public class BeanDefinition
     return initialized;
   }
 
-  /**
-   * if it is from abstract class.
-   *
-   * @return if it is from abstract class
-   * @see #getChild()
-   */
-  @Deprecated
-  public boolean isAbstract() {
-    return childDef != null;
-  }
-
   // -----------------------
 
   /**
@@ -539,34 +523,6 @@ public class BeanDefinition
   }
 
   /**
-   * Indicates that the abstract bean's child implementation
-   *
-   * @return Child implementation bean, returns {@code null} indicates that this
-   * {@link BeanDefinition} is not abstract
-   * @since 2.1.7
-   */
-  @Nullable
-  @Deprecated
-  public BeanDefinition getChild() {
-    return childDef;
-  }
-
-  /**
-   * Apply the child bean name
-   *
-   * @param childDef Child BeanDefinition
-   * @return {@link BeanDefinition}
-   */
-  public BeanDefinition setChild(BeanDefinition childDef) {
-    this.childDef = childDef;
-    return this;
-  }
-
-  public BeanInstantiator getInstantiator() {
-    return instantiator;
-  }
-
-  /**
    * Set whether this bean should be lazily initialized.
    * <p>If {@code false}, the bean will get instantiated on startup by bean
    * factories that perform eager initialization of singletons.
@@ -604,7 +560,6 @@ public class BeanDefinition
    */
   public void copyFrom(BeanDefinition from) {
     setName(from.getName());
-    setChild(from.getChild());
     setScope(from.getScope());
 
     setBeanClass(from.getBeanClass());
@@ -794,38 +749,6 @@ public class BeanDefinition
   }
 
   /**
-   * check type
-   *
-   * @see #hasBeanClass()
-   * @since 4.0
-   */
-  public boolean isAssignableTo(ResolvableType typeToMatch) {
-    BeanDefinition child = getChild();
-    if (child != null) {
-      Class<?> implementationClass = child.getBeanClass();
-      return ResolvableType.fromClass(getBeanClass(), implementationClass)
-              .isAssignableFrom(typeToMatch);
-    }
-    return ResolvableType.fromClass(getBeanClass())
-            .isAssignableFrom(typeToMatch);
-  }
-
-  /**
-   * check type
-   *
-   * @see #hasBeanClass()
-   * @since 4.0
-   */
-  public boolean isAssignableTo(Class<?> typeToMatch) {
-    BeanDefinition child = getChild();
-    if (child != null) {
-      Class<?> implementationClass = child.getBeanClass();
-      return typeToMatch.isAssignableFrom(implementationClass);
-    }
-    return typeToMatch.isAssignableFrom(getBeanClass());
-  }
-
-  /**
    * Validate bean definition
    *
    * @throws BeanDefinitionValidationException invalid {@link BeanDefinition}
@@ -853,7 +776,8 @@ public class BeanDefinition
               && synthetic == other.synthetic
               && instanceSupplier == other.instanceSupplier
               && Objects.equals(scope, other.scope)
-              && Objects.equals(childDef, other.childDef)
+              && Objects.equals(factoryBeanName, other.factoryBeanName)
+              && Objects.equals(factoryMethodName, other.factoryMethodName)
               && Objects.deepEquals(initMethods, other.initMethods)
               && Objects.deepEquals(destroyMethod, other.destroyMethod)
               && Objects.equals(propertyValues, other.propertyValues);
@@ -863,7 +787,9 @@ public class BeanDefinition
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, beanClass, lazyInit, scope, synthetic, role, primary);
+    return Objects.hash(name, beanClass, lazyInit,
+                        scope, synthetic, role, primary,
+                        factoryMethodName, factoryBeanName);
   }
 
   @Override
@@ -879,7 +805,6 @@ public class BeanDefinition
     sb.append("; factoryBeanName=").append(this.factoryBeanName);
     sb.append("; factoryMethodName=").append(this.factoryMethodName);
     sb.append("; destroyMethod=").append(destroyMethod);
-    sb.append("; child=").append(this.childDef);
 
     if (this.source != null) {
       sb.append("; defined in ").append(this.source);

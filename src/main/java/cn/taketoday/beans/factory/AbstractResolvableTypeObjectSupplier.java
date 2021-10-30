@@ -60,9 +60,9 @@ abstract class AbstractResolvableTypeObjectSupplier<T> implements ObjectSupplier
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof ResolvableTypeObjectSupplier))
+    if (!(o instanceof AbstractResolvableTypeObjectSupplier))
       return false;
-    ResolvableTypeObjectSupplier<?> that = (ResolvableTypeObjectSupplier<?>) o;
+    AbstractResolvableTypeObjectSupplier<?> that = (AbstractResolvableTypeObjectSupplier<?>) o;
     return includeNoneRegistered == that.includeNoneRegistered
             && includeNonSingletons == that.includeNonSingletons
             && Objects.equals(requiredType, that.requiredType);

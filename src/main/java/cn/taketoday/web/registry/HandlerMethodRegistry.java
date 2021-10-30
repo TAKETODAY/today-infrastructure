@@ -118,23 +118,21 @@ public class HandlerMethodRegistry
     for (Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
       BeanDefinition def = entry.getValue();
 
-      if (!def.isAbstract()) {
-        // ActionMapping on the class is ok
-        MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotationOnBean(def.getName(), ActionMapping.class);
-        MergedAnnotation<RootController> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
-        MergedAnnotation<ActionMapping> controllerMapping = null;
-        if (actionMapping.isPresent()) {
-          controllerMapping = actionMapping;
+      // ActionMapping on the class is ok
+      MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotationOnBean(def.getName(), ActionMapping.class);
+      MergedAnnotation<RootController> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
+      MergedAnnotation<ActionMapping> controllerMapping = null;
+      if (actionMapping.isPresent()) {
+        controllerMapping = actionMapping;
+      }
+      // build
+      if (rootController.isPresent() || actionMapping.isPresent()) {
+        if (def.hasBeanClass()) {
+          buildHandlerMethod(def.getBeanClass(), controllerMapping);
         }
-        // build
-        if (rootController.isPresent() || actionMapping.isPresent()) {
-          if (def.hasBeanClass()) {
-            buildHandlerMethod(def.getBeanClass(), controllerMapping);
-          }
-          else {
-            Class<?> type = beanFactory.getType(def.getName());
-            buildHandlerMethod(type, controllerMapping);
-          }
+        else {
+          Class<?> type = beanFactory.getType(def.getName());
+          buildHandlerMethod(type, controllerMapping);
         }
       }
     }

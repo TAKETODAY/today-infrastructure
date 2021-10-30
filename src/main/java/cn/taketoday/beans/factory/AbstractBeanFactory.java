@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
@@ -159,35 +161,19 @@ public abstract class AbstractBeanFactory
     if (def.isInitialized()) { // fix #7
       return getSingleton(def.getName());
     }
-    BeanDefinition child = def.getChild();
 
-    if (child == null) {
-      if (def.isSingleton()) {
-        return createSingleton(def);
-      }
-      else if (def.isPrototype()) {
-        return createPrototype(def);
-      }
-      else {
-        Scope scope = scopes.get(def.getScope());
-        if (scope == null) {
-          throw new IllegalStateException("No such scope: [" + def.getScope() + "] in this " + this);
-        }
-        return getScopeBean(def, scope);
-      }
+    if (def.isSingleton()) {
+      return createSingleton(def);
+    }
+    else if (def.isPrototype()) {
+      return createPrototype(def);
     }
     else {
-      if (def.isPrototype()) {
-        return createPrototype(child);
+      Scope scope = scopes.get(def.getScope());
+      if (scope == null) {
+        throw new IllegalStateException("No such scope: [" + def.getScope() + "] in this " + this);
       }
-      // initialize child bean
-      Object bean = initializeSingleton(getSingleton(def.getName()), child);
-      if (!def.isInitialized()) {
-        // register as parent bean and set initialize flag
-        registerSingleton(def.getName(), bean);
-        def.setInitialized(true);
-      }
-      return bean;
+      return getScopeBean(def, scope);
     }
   }
 
@@ -286,77 +272,6 @@ public abstract class AbstractBeanFactory
               .isAssignableFrom(typeToMatch);
     }
     return false;
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
-    return getObjectSupplier(requiredType, true, true);
-  }
-
-  @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public <T> ObjectSupplier<T> getObjectSupplier(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-    if (requiredType.isArray()) {
-      // Bean[] beans
-      ResolvableType type = requiredType.getComponentType();
-      if (type == ResolvableType.NONE) {
-        throw new IllegalArgumentException("cannot determine bean type");
-      }
-      // not supports iteration, stream
-      return new AbstractResolvableTypeObjectSupplier(type, includeNoneRegistered, includeNonSingletons) {
-
-        @Override
-        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean nonSingletons) {
-          Map<String, Object> beansOfType = getBeansOfType(requiredType, nonRegistered, nonSingletons);
-          if (beansOfType.isEmpty()) {
-            return Array.newInstance(requiredType.resolve(), 0);
-          }
-          Object array = Array.newInstance(requiredType.resolve(), beansOfType.size());
-          return beansOfType.values().toArray((Object[]) array);
-        }
-      };
-    }
-
-    if (requiredType.isMap()) {
-      ResolvableType type = requiredType.asMap().getGeneric(1);
-      if (type == ResolvableType.NONE) {
-        throw new IllegalArgumentException("cannot determine bean type");
-      }
-      // not supports iteration, stream
-      return new AbstractResolvableTypeObjectSupplier(type, includeNoneRegistered, includeNonSingletons) {
-
-        @Override
-        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean nonSingletons) {
-          return getBeansOfType(requiredType, nonRegistered, nonSingletons);
-        }
-      };
-    }
-
-    if (requiredType.isCollection()) {
-      ResolvableType type = requiredType.asCollection().getGeneric(0);
-      if (type == ResolvableType.NONE) {
-        throw new IllegalArgumentException("cannot determine bean type");
-      }
-      // not supports iteration, stream
-      return new AbstractResolvableTypeObjectSupplier(type, includeNoneRegistered, includeNonSingletons) {
-
-        @Override
-        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean nonSingletons) {
-          Map<String, Object> beansOfType = getBeansOfType(requiredType, nonRegistered, nonSingletons);
-          Collection<Object> ret = CollectionUtils.createCollection(requiredType.resolve());
-          if (beansOfType.isEmpty()) {
-            return ret;
-          }
-
-          ret.addAll(beansOfType.values());
-          return ret;
-        }
-      };
-    }
-
-    // find like Bean<String>
-    return new ResolvableTypeObjectSupplier<>(this, requiredType, includeNoneRegistered, includeNonSingletons);
   }
 
   static boolean isInstance(ResolvableType type, Object obj) {
@@ -993,6 +908,11 @@ public abstract class AbstractBeanFactory
   protected boolean isFactoryBean(BeanDefinition def) {
     Boolean result = def.isFactoryBean();
     if (result == null) {
+
+      if (def instanceof FactoryBeanDefinition) {
+
+      }
+
       Class<?> beanType = predictBeanType(def);
       result = beanType != null && FactoryBean.class.isAssignableFrom(beanType);
       def.setFactoryBean(result);

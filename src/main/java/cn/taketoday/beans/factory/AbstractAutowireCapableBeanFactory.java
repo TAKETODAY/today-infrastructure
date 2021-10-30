@@ -130,7 +130,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         }
         else {
           // bean class is its factory-class
-          factoryClass = resolveBeanClass(definition); ;
+          factoryClass = resolveBeanClass(definition);
           isStatic = true;
         }
 

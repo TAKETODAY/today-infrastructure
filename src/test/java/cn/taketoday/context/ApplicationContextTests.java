@@ -80,6 +80,7 @@ class ApplicationContextTests {
   void loadSingleton() throws NoSuchBeanDefinitionException {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.scan("test.demo.config");
+      applicationContext.refresh();
       Config config = applicationContext.getBean(Config.class);
       Config config_ = applicationContext.getBean(Config.class);
 
@@ -99,6 +100,7 @@ class ApplicationContextTests {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
       applicationContext.scan("test.demo.config");
+      applicationContext.refresh();
       Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
       Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
 
@@ -139,9 +141,9 @@ class ApplicationContextTests {
   @Test
   public void testLoadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-    try (ApplicationContext applicationContext =
+    try (StandardApplicationContext applicationContext =
             new StandardApplicationContext(ConfigurationBean.class)) {
-
+      applicationContext.refresh();
       long start = System.currentTimeMillis();
 
       User bean = applicationContext.getBean(User.class);
@@ -188,6 +190,7 @@ class ApplicationContextTests {
 
       // applicationContext.registerBean("requiredTestBean1", Bean.class);
       applicationContext.registerBean("requiredTestBean1", Bean1.class);
+      applicationContext.refresh();
 
       RequiredTest requiredTest = applicationContext.getBean(RequiredTest.class);
 

@@ -20,7 +20,9 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -214,9 +216,21 @@ public class StandardBeanFactory
     return null;
   }
 
-  private boolean isAssignableTo(BeanDefinition definition, Class<?> beanClass) {
+  public boolean isAssignableTo(BeanDefinition definition, ResolvableType typeToMatch) {
     if (definition.hasBeanClass()) {
-      return definition.isAssignableTo(beanClass);
+      return ResolvableType.fromClass(definition.getBeanClass())
+              .isAssignableFrom(typeToMatch);
+    }
+    else {
+      Class<?> candidateClass = resolveBeanClass(definition);
+      return candidateClass != null
+              && ResolvableType.fromClass(candidateClass).isAssignableFrom(typeToMatch);
+    }
+  }
+
+  protected boolean isAssignableTo(BeanDefinition definition, Class<?> beanClass) {
+    if (definition.hasBeanClass()) {
+      return beanClass.isAssignableFrom(definition.getBeanClass());
     }
     else {
       Class<?> candidateClass = resolveBeanClass(definition);
@@ -603,6 +617,145 @@ public class StandardBeanFactory
   }
 
   @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+    return getObjectSupplier(requiredType, true, true);
+  }
+
+  @Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public <T> ObjectSupplier<T> getObjectSupplier(
+          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    if (requiredType.isArray()) {
+      // Bean[] beans
+      ResolvableType type = requiredType.getComponentType();
+      if (type == ResolvableType.NONE) {
+        throw new IllegalArgumentException("cannot determine bean type");
+      }
+      // not supports iteration, stream
+      return new AbstractResolvableTypeObjectSupplier(type, includeNoneRegistered, includeNonSingletons) {
+
+        @Override
+        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean nonSingletons) {
+          Map<String, Object> beansOfType = getBeansOfType(requiredType, nonRegistered, nonSingletons);
+          if (beansOfType.isEmpty()) {
+            return Array.newInstance(requiredType.resolve(), 0);
+          }
+          Object array = Array.newInstance(requiredType.resolve(), beansOfType.size());
+          return beansOfType.values().toArray((Object[]) array);
+        }
+      };
+    }
+
+    if (requiredType.isMap()) {
+      ResolvableType type = requiredType.asMap().getGeneric(1);
+      if (type == ResolvableType.NONE) {
+        throw new IllegalArgumentException("cannot determine bean type");
+      }
+      // not supports iteration, stream
+      return new AbstractResolvableTypeObjectSupplier(type, includeNoneRegistered, includeNonSingletons) {
+
+        @Override
+        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean nonSingletons) {
+          return getBeansOfType(requiredType, nonRegistered, nonSingletons);
+        }
+      };
+    }
+
+    if (requiredType.isCollection()) {
+      ResolvableType type = requiredType.asCollection().getGeneric(0);
+      if (type == ResolvableType.NONE) {
+        throw new IllegalArgumentException("cannot determine bean type");
+      }
+      // not supports iteration, stream
+      return new AbstractResolvableTypeObjectSupplier(type, includeNoneRegistered, includeNonSingletons) {
+
+        @Override
+        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean nonSingletons) {
+          Map<String, Object> beansOfType = getBeansOfType(requiredType, nonRegistered, nonSingletons);
+          Collection<Object> ret = CollectionUtils.createCollection(requiredType.resolve());
+          if (beansOfType.isEmpty()) {
+            return ret;
+          }
+
+          ret.addAll(beansOfType.values());
+          return ret;
+        }
+      };
+    }
+
+    // find like Bean<String>
+    return new ResolvableTypeObjectSupplier<>(requiredType, includeNoneRegistered, includeNonSingletons);
+  }
+
+  final class ResolvableTypeObjectSupplier<T> extends AbstractResolvableTypeObjectSupplier<T> {
+
+    ResolvableTypeObjectSupplier(ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+      super(requiredType, includeNoneRegistered, includeNonSingletons);
+    }
+
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected T getIfAvailable(
+            ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+      ArrayList list = new ArrayList<>();
+
+      for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+        BeanDefinition def = entry.getValue();
+        if (includeNonSingletons || def.isSingleton()) {
+          if (requiredType == null || isAssignableTo(def, requiredType)) {
+            list.add(def);
+          }
+        }
+      }
+
+      if (list.isEmpty() && includeNoneRegistered) {
+        synchronized(getSingletons()) {
+          for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
+            Object bean = entry.getValue();
+            if (AbstractBeanFactory.isInstance(requiredType, bean)) {
+              list.add(bean);
+            }
+          }
+          if (list.isEmpty()) {
+            return null; // not found
+          }
+          AnnotationAwareOrderComparator.sort(list);
+          return (T) list.get(0);
+        }
+      }
+      else {
+        BeanDefinition primary = BeanFactoryUtils.getPrimaryBeanDefinition(list);
+        return (T) getBean(primary);
+      }
+    }
+
+    private Map<String, T> getBeansOfType0() {
+      return getBeansOfType(requiredType, includeNoneRegistered, includeNonSingletons);
+    }
+
+    @Override
+    public Stream<T> stream() {
+      Map<String, T> beansOfType = getBeansOfType0();
+      return beansOfType.values().stream();
+    }
+
+    @Override
+    public Stream<T> orderedStream() {
+      Map<String, T> beansOfType = getBeansOfType0();
+      ArrayList<T> beans = new ArrayList<>(beansOfType.values());
+      AnnotationAwareOrderComparator.sort(beans);
+      return beans.stream();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+      Map<String, T> beansOfType = getBeansOfType0();
+      return beansOfType.values().iterator();
+    }
+
+  }
+
+  @Override
   public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
     return getBeansOfType(requiredType, true, includeNonSingletons);
   }
@@ -666,7 +819,7 @@ public class StandardBeanFactory
     for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       BeanDefinition def = entry.getValue();
       if (includeNonSingletons || def.isSingleton()) {
-        if (requiredType == null || def.isAssignableTo(requiredType)) {
+        if (requiredType == null || isAssignableTo(def, requiredType)) {
           Object bean = getBean(def);
           if (bean != null) {
             beans.put(entry.getKey(), (T) bean);
@@ -695,7 +848,7 @@ public class StandardBeanFactory
     for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       BeanDefinition def = entry.getValue();
       if (includeNonSingletons || def.isSingleton()) {
-        if (requiredType == null || def.isAssignableTo(requiredType)) {
+        if (requiredType == null || isAssignableTo(def, requiredType)) {
           Object bean = getBean(def);
           if (bean != null) {
             accepted.add(entry.getKey());
@@ -754,19 +907,17 @@ public class StandardBeanFactory
 
     for (String beanName : beanDefinitionNames) {
       BeanDefinition definition = beanDefinitionMap.get(beanName);
-      if (!definition.isAbstract()) {
-        boolean matchFound = false;
-        if (includeNonSingletons || definition.isSingleton()) {
-          matchFound = isTypeMatch(beanName, requiredType);
-        }
-        if (!matchFound && isFactoryBean(definition)) {
-          // In case of FactoryBean, try to match FactoryBean instance itself next.
-          beanName = FACTORY_BEAN_PREFIX + beanName;
-          matchFound = isTypeMatch(beanName, requiredType);
-        }
-        if (matchFound) {
-          beanNames.add(beanName);
-        }
+      boolean matchFound = false;
+      if (includeNonSingletons || definition.isSingleton()) {
+        matchFound = isTypeMatch(beanName, requiredType);
+      }
+      if (!matchFound && isFactoryBean(definition)) {
+        // In case of FactoryBean, try to match FactoryBean instance itself next.
+        beanName = FACTORY_BEAN_PREFIX + beanName;
+        matchFound = isTypeMatch(beanName, requiredType);
+      }
+      if (matchFound) {
+        beanNames.add(beanName);
       }
     }
 
@@ -807,7 +958,7 @@ public class StandardBeanFactory
 
     for (String beanName : beanDefinitionNames) {
       BeanDefinition bd = beanDefinitionMap.get(beanName);
-      if (bd != null && !bd.isAbstract() && getMergedAnnotationOnBean(beanName, annotationType).isPresent()) {
+      if (bd != null && getMergedAnnotationOnBean(beanName, annotationType).isPresent()) {
         names.add(beanName);
       }
     }

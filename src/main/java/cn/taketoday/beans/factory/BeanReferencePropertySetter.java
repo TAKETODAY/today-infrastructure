@@ -147,7 +147,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", propertyType, childDef.getName());
         }
-        return new BeanDefinition(propertyType.getName(), childDef);
+        return childDef;
       }
     }
     return null;

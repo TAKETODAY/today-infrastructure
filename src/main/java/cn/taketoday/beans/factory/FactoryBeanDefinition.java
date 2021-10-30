@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.SingletonSupplier;
@@ -39,7 +38,7 @@ import cn.taketoday.util.SingletonSupplier;
  * @since 2.1.7
  */
 public class FactoryBeanDefinition<T> extends BeanDefinition {
-  
+
   /**
    * @since 4.0
    */
@@ -182,11 +181,6 @@ public class FactoryBeanDefinition<T> extends BeanDefinition {
   }
 
   @Override
-  public boolean isAbstract() {
-    return factoryDef.isAbstract();
-  }
-
-  @Override
   public void addPropertyValue(String name, Object value) {
     factoryDef.addPropertyValue(name, value);
   }
@@ -238,11 +232,6 @@ public class FactoryBeanDefinition<T> extends BeanDefinition {
 
   @Override
   public void setFactoryBean(boolean factoryBean) { }
-
-  @Override
-  public BeanDefinition getChild() {
-    return factoryDef.getChild();
-  }
 
   @Override
   public void setConstructorArgs(Object... constructorArgs) {
@@ -332,17 +321,6 @@ public class FactoryBeanDefinition<T> extends BeanDefinition {
   @Override
   public boolean isPrimary() {
     return factoryDef.isPrimary();
-  }
-
-  @Override
-  public boolean isAssignableTo(ResolvableType typeToMatch) {
-    return ResolvableType.fromClass(getBeanClass())
-            .isAssignableFrom(typeToMatch);
-  }
-
-  @Override
-  public boolean isAssignableTo(Class<?> typeToMatch) {
-    return typeToMatch.isAssignableFrom(getBeanClass());
   }
 
   @Override
