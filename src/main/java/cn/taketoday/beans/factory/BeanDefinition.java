@@ -403,4 +403,41 @@ public interface BeanDefinition extends AttributeAccessor {
   /** @since 4.0 */
   BeanDefinition cloneDefinition();
 
+  /**
+   * Specify the factory bean to use, if any.
+   * This the name of the bean to call the specified factory method on.
+   *
+   * @see #setFactoryMethodName
+   * @since 4.0
+   */
+  void setFactoryBeanName(@Nullable String factoryBeanName);
+
+  /**
+   * Return the factory bean name, if any.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  String getFactoryBeanName();
+
+  /**
+   * Specify a factory method, if any. This method will be invoked with
+   * constructor arguments, or with no arguments if none are specified.
+   * The method will be invoked on the specified factory bean, if any,
+   * or otherwise as a static method on the local bean class.
+   *
+   * @see #setFactoryBeanName
+   * @see #setBeanClassName
+   * @since 4.0
+   */
+  void setFactoryMethodName(@Nullable String factoryMethodName);
+
+  /**
+   * Return a factory method, if any.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  String getFactoryMethodName();
+
 }

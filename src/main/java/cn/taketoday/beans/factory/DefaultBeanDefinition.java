@@ -117,6 +117,12 @@ public class DefaultBeanDefinition
   @Nullable
   private LinkedHashMap<String, Object> propertyValues;
 
+  @Nullable
+  private String factoryBeanName;
+
+  @Nullable
+  private String factoryMethodName;
+
   public DefaultBeanDefinition() { }
 
   public DefaultBeanDefinition(Class<?> beanClass) {
@@ -562,6 +568,49 @@ public class DefaultBeanDefinition
   }
 
   /**
+   * Specify the factory bean to use, if any.
+   * This the name of the bean to call the specified factory method on.
+   *
+   * @see #setFactoryMethodName
+   */
+  @Override
+  public void setFactoryBeanName(@Nullable String factoryBeanName) {
+    this.factoryBeanName = factoryBeanName;
+  }
+
+  /**
+   * Return the factory bean name, if any.
+   */
+  @Override
+  @Nullable
+  public String getFactoryBeanName() {
+    return this.factoryBeanName;
+  }
+
+  /**
+   * Specify a factory method, if any. This method will be invoked with
+   * constructor arguments, or with no arguments if none are specified.
+   * The method will be invoked on the specified factory bean, if any,
+   * or otherwise as a static method on the local bean class.
+   *
+   * @see #setFactoryBeanName
+   * @see #setBeanClassName
+   */
+  @Override
+  public void setFactoryMethodName(@Nullable String factoryMethodName) {
+    this.factoryMethodName = factoryMethodName;
+  }
+
+  /**
+   * Return a factory method, if any.
+   */
+  @Override
+  @Nullable
+  public String getFactoryMethodName() {
+    return this.factoryMethodName;
+  }
+
+  /**
    * Set whether this bean definition is 'synthetic', that is, not defined
    * by the application itself (for example, an infrastructure bean such
    * as a helper for auto-proxying, created through {@code <aop:config>}).
@@ -693,14 +742,19 @@ public class DefaultBeanDefinition
     StringBuilder sb = new StringBuilder("class [");
     sb.append(getBeanClassName()).append(']');
     sb.append("; scope=").append(this.scope);
-    sb.append("; abstract=").append(isAbstract());
     sb.append("; lazyInit=").append(this.lazyInit);
     sb.append("; primary=").append(this.primary);
     sb.append("; initialized=").append(this.initialized);
     sb.append("; factoryBean=").append(this.factoryBean);
     sb.append("; initMethods=").append(Arrays.toString(initMethods));
+    sb.append("; factoryBeanName=").append(this.factoryBeanName);
+    sb.append("; factoryMethodName=").append(this.factoryMethodName);
     sb.append("; destroyMethod=").append(destroyMethod);
     sb.append("; child=").append(this.childDef);
+
+    if (this.source != null) {
+      sb.append("; defined in ").append(this.source);
+    }
     return sb.toString();
   }
 

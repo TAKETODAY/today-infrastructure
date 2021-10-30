@@ -272,6 +272,28 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
+  public void setFactoryBeanName(@Nullable String factoryBeanName) {
+    factoryDef.setFactoryBeanName(factoryBeanName);
+  }
+
+  @Nullable
+  @Override
+  public String getFactoryBeanName() {
+    return factoryDef.getFactoryBeanName();
+  }
+
+  @Override
+  public void setFactoryMethodName(@Nullable String factoryMethodName) {
+    factoryDef.setFactoryMethodName(factoryMethodName);
+  }
+
+  @Nullable
+  @Override
+  public String getFactoryMethodName() {
+    return factoryDef.getFactoryMethodName();
+  }
+
+  @Override
   public void setLazyInit(boolean lazyInit) {
     factoryDef.setLazyInit(lazyInit);
   }

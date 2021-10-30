@@ -20,10 +20,13 @@
 
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.core.reflect.MethodInvoker;
 
 /**
  * @author TODAY 2021/10/19 20:58
@@ -37,11 +40,32 @@ public class DefaultInstantiationStrategy implements InstantiationStrategy {
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
+
+
+
+
     BeanInstantiator instantiator = BeanInstantiator.fromClass(def.getBeanClass());
+
+
+
+
 
 
     return def.newInstance(owner);
   }
+/*
+
+  protected BeanInstantiator createConstructor(BeanFactory factory) {
+    Method factoryMethod = obtainFactoryMethod();
+
+    MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);
+    if (Modifier.isStatic(factoryMethod.getModifiers())) {
+      return BeanInstantiator.fromStaticMethod(methodInvoker);
+    }
+    Object bean = factory.getBean(getDeclaringName());
+    return BeanInstantiator.fromMethod(methodInvoker, bean);
+  }
+*/
 
   @Override
   public Object instantiate(BeanDefinition def, BeanFactory owner, Object... args) throws BeansException {

@@ -91,6 +91,10 @@ public abstract class AbstractBeanFactory
   /** ClassLoader to resolve bean class names with, if necessary. @since 4.0 */
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
+  /** ClassLoader to temporarily resolve bean class names with, if necessary. */
+  @Nullable
+  private ClassLoader tempClassLoader;
+
   // @since 4.0 for bean-property conversion
   private ConversionService conversionService;
 
@@ -415,8 +419,26 @@ public abstract class AbstractBeanFactory
     if (def.hasBeanClass()) {
       return def.getBeanClass();
     }
-
+    
+    String beanClassName = def.getBeanClassName();
     try {
+      if (beanClassName != null) {
+        ClassLoader tempClassLoader = getTempClassLoader();
+        if (tempClassLoader != null) {
+          // When resolving against a temporary class loader, exit early in order
+          // to avoid storing the resolved Class in the bean definition.
+          try {
+            return tempClassLoader.loadClass(beanClassName);
+          }
+          catch (ClassNotFoundException ex) {
+            if (log.isTraceEnabled()) {
+              log.trace("Could not load class [{}] from {}: {}", beanClassName, tempClassLoader, ex, ex);
+            }
+          }
+          return ClassUtils.forName(beanClassName, tempClassLoader);
+        }
+      }
+
       ClassLoader beanClassLoader = getBeanClassLoader();
       if (def instanceof DefaultBeanDefinition) {
         Class<?> beanClass = ((DefaultBeanDefinition) def).resolveBeanClass(beanClassLoader);
@@ -424,7 +446,7 @@ public abstract class AbstractBeanFactory
           return beanClass;
         }
       }
-      String beanClassName = def.getBeanClassName();
+
       return ClassUtils.forName(beanClassName, beanClassLoader);
     }
     catch (ClassNotFoundException ex) {
@@ -952,10 +974,6 @@ public abstract class AbstractBeanFactory
     if (definition instanceof FactoryBeanDefinition) {
       return definition.getBeanClass();
     }
-    if (definition instanceof FactoryMethodBeanDefinition) {
-      Method factoryMethod = ((FactoryMethodBeanDefinition) definition).getFactoryMethod();
-      return factoryMethod.getReturnType();
-    }
     return resolveBeanClass(definition);
   }
 
@@ -1326,6 +1344,17 @@ public abstract class AbstractBeanFactory
   @Override
   public ClassLoader getBeanClassLoader() {
     return beanClassLoader;
+  }
+
+  @Override
+  public void setTempClassLoader(@Nullable ClassLoader tempClassLoader) {
+    this.tempClassLoader = tempClassLoader;
+  }
+
+  @Override
+  @Nullable
+  public ClassLoader getTempClassLoader() {
+    return this.tempClassLoader;
   }
 
   @Override
