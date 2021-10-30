@@ -20,10 +20,20 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
-import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -42,17 +52,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author TODAY 2021/10/2 22:45
@@ -108,9 +107,8 @@ public class BeanDefinitionBuilder {
   /** @since 4.0 */
   private boolean primary = false;
 
-  private Method factoryMethod;
-  /** Declaring name @since 2.1.2 */
-  private String declaringName;
+  private String factoryMethod;
+  private String factoryBeanName;
 
   private AnnotationMetadata annotationMetadata;
 
@@ -169,12 +167,12 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
-  public BeanDefinitionBuilder declaringName(String declaringName) {
-    this.declaringName = declaringName;
+  public BeanDefinitionBuilder factoryBeanName(String factoryBeanName) {
+    this.factoryBeanName = factoryBeanName;
     return this;
   }
 
-  public BeanDefinitionBuilder factoryMethod(Method factoryMethod) {
+  public BeanDefinitionBuilder factoryMethod(String factoryMethod) {
     this.factoryMethod = factoryMethod;
     return this;
   }
@@ -254,8 +252,8 @@ public class BeanDefinitionBuilder {
     this.beanClass = null;
     this.childDef = null;
     this.lazyInit = false;
-    this.declaringName = null;
     this.factoryMethod = null;
+    this.factoryBeanName = null;
     this.instanceSupplier = null;
 
     this.primary = false;
@@ -277,14 +275,6 @@ public class BeanDefinitionBuilder {
 
   @NonNull
   private DefaultBeanDefinition create() {
-    if (factoryMethod != null) {
-      FactoryMethodBeanDefinition factoryMethodDef = new FactoryMethodBeanDefinition(factoryMethod);
-      factoryMethodDef.setDeclaringName(declaringName);
-      if (beanClass != null) {
-        factoryMethodDef.setBeanClass(beanClass);
-      }
-      return factoryMethodDef;
-    }
 
     if (annotationMetadata != null) {
       DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
@@ -324,6 +314,9 @@ public class BeanDefinitionBuilder {
     definition.setFactoryBean(factoryBean);
     definition.setDestroyMethod(destroyMethod);
     definition.setInstanceSupplier(instanceSupplier);
+
+    definition.setFactoryMethodName(factoryMethod);
+    definition.setFactoryBeanName(factoryBeanName);
 
     return definition;
   }

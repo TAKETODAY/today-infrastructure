@@ -20,12 +20,24 @@
 
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * AutowireCapableBeanFactory abstract implementation
@@ -83,13 +95,114 @@ public abstract class AbstractAutowireCapableBeanFactory
         }
       }
     }
-    return instantiationStrategy.instantiate(def, this);
+    return instantiate(def);
+  }
+
+  private Object instantiate(BeanDefinition def) {
+    Supplier<?> instanceSupplier = def.getInstanceSupplier();
+    if (instanceSupplier != null) {
+      return instanceSupplier.get();
+    }
+
+    BeanInstantiator instantiator;
+    Executable executable;
+    String factoryMethodName = def.getFactoryMethodName();
+    // instantiate using factory-method
+    if (factoryMethodName != null) {
+      String factoryBeanName = def.getFactoryBeanName();
+
+      Class<?> factoryClass;
+      // a static factory-method ?
+      boolean isStatic = false;
+      if (factoryBeanName != null) {
+        // instance method
+        factoryClass = getType(factoryBeanName);
+        if (factoryClass == null) {
+          throw new IllegalStateException(
+                  "factory-method: '" + factoryMethodName + "' its factory bean: '" +
+                          factoryBeanName + "' not found in this factory: " + this);
+        }
+      }
+      else {
+        // bean class is its factory-class
+        factoryClass = resolveBeanClass(def); ;
+        isStatic = true;
+      }
+
+      Method factoryMethod = getFactoryMethod(def, factoryClass, factoryMethodName);
+      MethodInvoker factoryMethodInvoker;
+      if (def.isSingleton()) {
+        // use java-reflect invoking
+        factoryMethodInvoker = MethodInvoker.formReflective(factoryMethod);
+      }
+      else {
+        // provide fast access the method
+        factoryMethodInvoker = MethodInvoker.fromMethod(factoryMethod);
+      }
+
+      if (Modifier.isStatic(factoryMethod.getModifiers())) {
+        instantiator = BeanInstantiator.fromStaticMethod(factoryMethodInvoker);
+      }
+      else {
+        // this is not a FactoryBean just a factory
+        Object factoryBean = getBean(factoryBeanName);
+        instantiator = BeanInstantiator.fromMethod(factoryMethodInvoker, factoryBean);
+      }
+      executable = factoryMethod;
+    }
+    else {
+      // use a suitable constructor
+      Class<?> beanClass = resolveBeanClass(def);
+      Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
+      if (def.isSingleton()) {
+        // use java-reflect invoking
+        instantiator = BeanInstantiator.fromReflective(constructor);
+      }
+      else {
+        // provide fast access the method
+        instantiator = BeanInstantiator.fromConstructor(constructor);
+      }
+      executable = constructor;
+    }
+
+    Object[] args = getArgumentsResolver().resolve(executable, this);
+    return instantiator.instantiate(args);
+  }
+
+  @NonNull
+  private Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryName) {
+    ArrayList<Method> candidates = new ArrayList<>();
+    ReflectionUtils.doWithMethods(factoryClass, method -> {
+      if (def.isFactoryMethod(method)) {
+        candidates.add(method);
+      }
+    });
+
+    if (candidates.isEmpty()) {
+      throw new IllegalStateException(
+              "factory method: '" + factoryName + "' not found in class: " + factoryClass.getName());
+    }
+
+    if (candidates.size() > 1) {
+      candidates.sort(new Comparator<Method>() {
+        @Override
+        public int compare(Method o1, Method o2) {
+          // static first, parameter
+          int result = Boolean.compare(Modifier.isStatic(o1.getModifiers()), Modifier.isStatic(o2.getModifiers()));
+          return result == 0 ? Integer.compare(o1.getParameterCount(), o2.getParameterCount()) : result;
+        }
+      });
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("bean-definition {} using factory-method {} to create bean instance", def, candidates.get(0));
+    }
+    return candidates.get(0);
   }
 
   @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
-    Object existingBean = instantiationStrategy.instantiate(prototypeDef, this);
+    Object existingBean = instantiate(prototypeDef);
     applyPropertyValues(existingBean, prototypeDef);
     return existingBean;
   }

@@ -20,13 +20,13 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.FactoryMethodBeanDefinition;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Singleton;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.fail;
 
@@ -60,25 +60,6 @@ class BeanDefinitionBuilderTests {
     try {
       beanDefinition.validate();
       fail("beanDefinition");
-    }
-    catch (ConfigurationException e) {
-      assert true;
-    }
-
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder();
-
-    builder.factoryMethod(getClass().getMethod("toString"));
-    FactoryMethodBeanDefinition factoryMethodBeanDefinition = (FactoryMethodBeanDefinition) builder.build();
-    try {
-      factoryMethodBeanDefinition.validate();
-      fail("standardBeanDefinition");
-    }
-    catch (ConfigurationException e) {
-      assert true;
-    }
-    try {
-      factoryMethodBeanDefinition.setDeclaringName("test").validate();
-      fail("setDeclaringName");
     }
     catch (ConfigurationException e) {
       assert true;

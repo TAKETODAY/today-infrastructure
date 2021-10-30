@@ -20,7 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -848,18 +847,6 @@ public class StandardBeanFactory
 
     if (containsBeanDefinition(beanName)) {
       BeanDefinition definition = beanDefinitionMap.get(beanName);
-      if (definition instanceof FactoryMethodBeanDefinition) {
-        // Check annotations declared on factory method, if any.
-        Method factoryMethod = ((FactoryMethodBeanDefinition) definition).getFactoryMethod();
-        if (factoryMethod != null) {
-          MergedAnnotation<A> annotation =
-                  MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-        }
-      }
-
       if (definition instanceof AnnotatedBeanDefinition) {
         MethodMetadata methodMetadata = ((AnnotatedBeanDefinition) definition).getFactoryMethodMetadata();
 

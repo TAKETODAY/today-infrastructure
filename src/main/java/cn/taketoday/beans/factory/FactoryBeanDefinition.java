@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -291,6 +292,11 @@ public class FactoryBeanDefinition<T>
   @Override
   public String getFactoryMethodName() {
     return factoryDef.getFactoryMethodName();
+  }
+
+  @Override
+  public boolean isFactoryMethod(Method method) {
+    return factoryDef.isFactoryMethod(method);
   }
 
   @Override

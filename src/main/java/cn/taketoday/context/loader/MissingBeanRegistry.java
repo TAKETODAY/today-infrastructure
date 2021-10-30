@@ -69,7 +69,7 @@ public class MissingBeanRegistry {
 
     BeanDefinitionBuilder builder = context.createBuilder();
 
-    builder.declaringName(declaringBeanName);
+    builder.factoryBeanName(declaringBeanName);
     builder.beanClassName(beanMethod.getReturnTypeName());
 
     AnnotationAttributes components = missingInfo.missingBean.asAnnotationAttributes();

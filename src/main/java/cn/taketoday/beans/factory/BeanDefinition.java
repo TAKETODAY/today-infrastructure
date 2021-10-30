@@ -440,4 +440,7 @@ public interface BeanDefinition extends AttributeAccessor {
   @Nullable
   String getFactoryMethodName();
 
+
+  boolean isFactoryMethod(Method method);
+
 }

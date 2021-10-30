@@ -20,6 +20,7 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -123,6 +124,8 @@ public class DefaultBeanDefinition
   @Nullable
   private String factoryMethodName;
 
+  Method factoryMethod;
+
   public DefaultBeanDefinition() { }
 
   public DefaultBeanDefinition(Class<?> beanClass) {
@@ -179,7 +182,7 @@ public class DefaultBeanDefinition
    * definition, potentially combined with a declared factory method or a
    * {@link cn.taketoday.beans.FactoryBean} which may lead to a different
    * runtime type of the bean, or not being set at all in case of an instance-level
-   * factory method (which is resolved via {@link FactoryMethodBeanDefinition} instead).
+   * factory method (which is resolved via {@link #getFactoryMethodName()} instead).
    * <b>Do not use this for runtime type introspection of arbitrary bean definitions.</b>
    * The recommended way to find out about the actual runtime type of a particular bean
    * is a {@link cn.taketoday.beans.factory.BeanFactory#getType} call for the
@@ -608,6 +611,11 @@ public class DefaultBeanDefinition
   @Nullable
   public String getFactoryMethodName() {
     return this.factoryMethodName;
+  }
+
+  @Override
+  public boolean isFactoryMethod(Method method) {
+    return method.getName().equals(factoryMethodName);
   }
 
   /**
