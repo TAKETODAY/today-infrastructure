@@ -125,7 +125,7 @@ public class HibernateConfiguration extends Configuration
 
     definition.setSynthetic(true);
     definition.setDestroyMethod("close");
-    definition.setSupplier(this::refreshSessionFactory);
+    definition.setInstanceSupplier(this::refreshSessionFactory);
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
     log.info("Register 'SessionFactory' bean definition {}", definition);
