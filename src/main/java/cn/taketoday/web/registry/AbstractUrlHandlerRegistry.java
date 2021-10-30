@@ -70,7 +70,7 @@ public abstract class AbstractUrlHandlerRegistry extends MappedHandlerRegistry {
    * @param context Current request context
    */
   @Override
-  protected Object handlerNotFound(final String lookupPath, final RequestContext context) {
+  protected Object handlerNotFound(String lookupPath, RequestContext context) {
     Object rawHandler = super.handlerNotFound(lookupPath, context);
     if (rawHandler == null && "/".equals(lookupPath)) {
       // We need to care for the default handler directly, since we need to
@@ -80,10 +80,7 @@ public abstract class AbstractUrlHandlerRegistry extends MappedHandlerRegistry {
   }
 
   @Override
-  protected boolean matchingPattern(
-          final PathMatcher pathMatcher,
-          final String pattern, final String urlPath
-  ) {
+  protected boolean matchingPattern(PathMatcher pathMatcher, String pattern, String urlPath) {
     if (super.matchingPattern(pathMatcher, pattern, urlPath)) {
       return true;
     }

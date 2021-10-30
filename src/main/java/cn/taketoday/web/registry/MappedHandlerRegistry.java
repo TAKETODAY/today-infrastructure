@@ -79,9 +79,9 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   @Override
-  protected Object lookupInternal(final RequestContext context) {
-    final String handlerKey = computeKey(context);
-    final Object handler = lookupHandler(handlerKey, context);
+  protected Object lookupInternal(RequestContext context) {
+    String handlerKey = computeKey(context);
+    Object handler = lookupHandler(handlerKey, context);
     if (handler == null) {
       return handlerNotFound(handlerKey, context);
     }
@@ -107,14 +107,14 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param context Current request context
    * @return Handler key never be null
    */
-  protected String computeKey(final RequestContext context) {
+  protected String computeKey(RequestContext context) {
     return context.getRequestPath();
   }
 
-  protected Object lookupHandler(final String handlerKey, final RequestContext context) {
+  protected Object lookupHandler(String handlerKey, RequestContext context) {
     Object handler = handlers.get(handlerKey);
     if (handler == null) {
-      final Cache matchingCache = getPatternMatchingCache();
+      Cache matchingCache = getPatternMatchingCache();
       handler = matchingCache.get(handlerKey, false);
       if (handler == null) {
         handler = lookupPatternHandler(handlerKey, context);
@@ -134,8 +134,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param context current request context
    * @return Matched pattern handler. If returns {@code null} indicates no handler
    */
-  protected Object lookupPatternHandler(final String handlerKey, final RequestContext context) {
-    final PatternHandler matched = matchingPatternHandler(handlerKey);
+  protected Object lookupPatternHandler(String handlerKey, RequestContext context) {
+    PatternHandler matched = matchingPatternHandler(handlerKey);
     if (matched == null) {
       return null;
     }
@@ -166,17 +166,17 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param patternMatchingCache a new Cache
    * @since 3.0
    */
-  public void setPatternMatchingCache(final Cache patternMatchingCache) {
+  public void setPatternMatchingCache(Cache patternMatchingCache) {
     this.patternMatchingCache = patternMatchingCache;
   }
 
-  protected PatternHandler matchingPatternHandler(final String handlerKey) {
+  protected PatternHandler matchingPatternHandler(String handlerKey) {
     // pattern
-    final HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();
-    final PathMatcher pathMatcher = getPathMatcher();
+    HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();
+    PathMatcher pathMatcher = getPathMatcher();
     if (CollectionUtils.isNotEmpty(patternHandlers)) {
-      for (final PatternHandler mapping : patternHandlers) {
-        final String pattern = mapping.getPattern();
+      for (PatternHandler mapping : patternHandlers) {
+        String pattern = mapping.getPattern();
         if (matchingPattern(pathMatcher, pattern, handlerKey)) {
           matchedPatterns.put(pattern, mapping);
         }
@@ -185,8 +185,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
     if (matchedPatterns.isEmpty()) { // none matched
       // match pattern in map of handlers
-      for (final Map.Entry<String, Object> entry : handlers.entrySet()) {
-        final String pattern = entry.getKey();
+      for (Map.Entry<String, Object> entry : handlers.entrySet()) {
+        String pattern = entry.getKey();
         if (matchingPattern(pathMatcher, pattern, handlerKey)) {
           matchedPatterns.put(pattern, new PatternHandler(pattern, entry.getValue()));
         }
@@ -196,7 +196,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
       }
     }
 
-    final ArrayList<String> patterns = new ArrayList<>(matchedPatterns.keySet());
+    ArrayList<String> patterns = new ArrayList<>(matchedPatterns.keySet());
     patterns.sort(pathMatcher.getPatternComparator(handlerKey));
 
     if (matchedPatterns.size() > 1 && log.isTraceEnabled()) {
@@ -206,8 +206,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   protected boolean matchingPattern(
-          final PathMatcher pathMatcher,
-          final String pattern, final String handlerKey
+          PathMatcher pathMatcher,
+          String pattern, String handlerKey
   ) {
     return pathMatcher.match(pattern, handlerKey);
   }
@@ -218,10 +218,10 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param handler Target handler
    * @param handlerKeys Handler keys
    */
-  public void registerHandler(final Object handler, final String... handlerKeys) {
+  public void registerHandler(Object handler, String... handlerKeys) {
     Assert.notNull(handlerKeys, "Handler Keys must not be null");
 
-    for (final String path : handlerKeys) {
+    for (String path : handlerKeys) {
       registerHandler(path, handler);
     }
   }
@@ -232,13 +232,13 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param handler Target handler
    * @param handlerKey Handler key
    */
-  public void registerHandler(final String handlerKey, Object handler) {
+  public void registerHandler(String handlerKey, Object handler) {
     Assert.notNull(handler, "Handler must not be null");
     Assert.notNull(handlerKey, "Handler Key must not be null");
 
     if (handler instanceof String) {
-      final String handlerName = (String) handler;
-      final WebApplicationContext context = obtainApplicationContext();
+      String handlerName = (String) handler;
+      WebApplicationContext context = obtainApplicationContext();
       // singleton
       if (context.isSingleton(handlerName)) {
         handler = context.getBean(handlerName);
@@ -251,7 +251,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
       addPatternHandlers(new PatternHandler(handlerKey, handler));
     }
     else {
-      final Object oldHandler = handlers.put(handlerKey, handler);
+      Object oldHandler = handlers.put(handlerKey, handler);
       if (oldHandler != null && oldHandler != handler) {
         // @since 3.0
         logHandlerReplaced(handlerKey, oldHandler, handler);
@@ -270,7 +270,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     log.info("Mapped '{}' onto {}", handlerKey, handler);
   }
 
-  protected void postRegisterHandler(final String handlerKey, final Object handler) { }
+  protected void postRegisterHandler(String handlerKey, Object handler) { }
 
   /**
    * Transform handler
@@ -279,14 +279,14 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param handler Target handler
    * @return Transformed handler
    */
-  protected Object transformHandler(final String handlerKey, Object handler) {
+  protected Object transformHandler(String handlerKey, Object handler) {
     if (handlerCustomizer != null) {
       handler = handlerCustomizer.customize(handlerKey, handler);
     }
     return handler;
   }
 
-  public void addPatternHandlers(final PatternHandler... handlers) {
+  public void addPatternHandlers(PatternHandler... handlers) {
     Assert.notNull(handlers, "Handlers must not be null");
     List<PatternHandler> patternHandlers = getPatternHandlers();
     if (patternHandlers == null) {

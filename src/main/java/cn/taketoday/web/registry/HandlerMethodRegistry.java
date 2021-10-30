@@ -140,7 +140,8 @@ public class HandlerMethodRegistry
     }
   }
 
-  private void buildHandlerMethod(Class<?> beanClass, @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
+  private void buildHandlerMethod(
+          Class<?> beanClass, @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
     for (Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);
     }
@@ -171,9 +172,10 @@ public class HandlerMethodRegistry
    * @param handler current {@link HandlerMethod}
    * methods on class
    */
-  protected void mappingHandlerMethod(HandlerMethod handler,
-                                      @Nullable MergedAnnotation<ActionMapping> controllerMapping,
-                                      MergedAnnotation<ActionMapping> handlerMethodMapping) {
+  protected void mappingHandlerMethod(
+          HandlerMethod handler,
+          @Nullable MergedAnnotation<ActionMapping> controllerMapping,
+          MergedAnnotation<ActionMapping> handlerMethodMapping) {
     boolean emptyNamespaces = true;
     boolean addClassRequestMethods = false;
     Set<String> namespaces = Collections.emptySet();

@@ -99,7 +99,7 @@ public abstract class AbstractHandlerRegistry
   }
 
   /** @since 3.0.3 */
-  public String resolveVariables(final String expression) {
+  public String resolveVariables(String expression) {
     return expressionEvaluator.evaluate(expression, String.class);
   }
 
