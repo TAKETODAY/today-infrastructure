@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -274,7 +274,7 @@ public class BeanDefinitionBuilder {
   //---------------------------------------------------------------------
 
   @NonNull
-  private DefaultBeanDefinition create() {
+  private BeanDefinition create() {
 
     if (annotationMetadata != null) {
       DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
@@ -291,7 +291,7 @@ public class BeanDefinitionBuilder {
       annotation(annotation);
       return definition;
     }
-    DefaultBeanDefinition definition = new DefaultBeanDefinition();
+    BeanDefinition definition = new BeanDefinition();
     definition.setBeanClassName(beanClassName);
     if (name == null) {
       name = defaultBeanName(beanClassName);
@@ -466,8 +466,8 @@ public class BeanDefinitionBuilder {
     return methods.toArray(new Method[methods.size()]);
   }
 
-  public static DefaultBeanDefinition empty() {
-    return new DefaultBeanDefinition();
+  public static BeanDefinition empty() {
+    return new BeanDefinition();
   }
 
   public static BeanDefinition defaults(Class<?> candidate) {

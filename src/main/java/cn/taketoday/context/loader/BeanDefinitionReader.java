@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -110,7 +110,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
    * @since 4.0
    */
   public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    DefaultBeanDefinition definition = new DefaultBeanDefinition(name, (Class<?>) null);
+    BeanDefinition definition = new BeanDefinition(name, (Class<?>) null);
     definition.setInstanceSupplier(supplier);
     definition.setSynthetic(true);
     register(definition);
@@ -128,7 +128,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (a, bd) -> bd.setInstanceSupplier(() -> bd.newInstance(obtainContext(), constructorArgs)));
+                 (a, bd) -> bd.setConstructorArgs(constructorArgs));
   }
 
   @Override
@@ -178,7 +178,6 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
   //---------------------------------------------------------------------
   // register name -> Class
   //---------------------------------------------------------------------
-
 
   /**
    * Register a bean with the bean instance
@@ -238,7 +237,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
     Assert.notNull(obj, "bean-instance must not be null");
     SingletonBeanRegistry singletonRegistry = context.unwrapFactory(SingletonBeanRegistry.class);
 
-    DefaultBeanDefinition definition = new DefaultBeanDefinition(name, obj.getClass());
+    BeanDefinition definition = new BeanDefinition(name, obj.getClass());
     definition.setSynthetic(true);
     definition.setInitialized(true);
     register(definition);
@@ -506,6 +505,5 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
   public ScopeMetadataResolver getScopeMetadataResolver() {
     return scopeMetadataResolver;
   }
-
 
 }

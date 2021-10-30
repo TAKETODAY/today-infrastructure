@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;

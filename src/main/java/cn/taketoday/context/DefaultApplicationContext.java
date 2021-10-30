@@ -20,6 +20,11 @@
 
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -34,11 +39,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * ApplicationContext default implementation
@@ -344,7 +344,7 @@ public class DefaultApplicationContext
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (a, bd) -> bd.setInstanceSupplier(() -> bd.newInstance(beanFactory, constructorArgs)));
+                 (a, bd) -> bd.setConstructorArgs(constructorArgs));
   }
 
   /**

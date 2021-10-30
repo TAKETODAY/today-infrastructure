@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.io.IOException;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -81,7 +81,7 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
       if (context.passCondition(annotationMetadata)) {
         context.detectMissingBean(metadataReader);
 
-        DefaultBeanDefinition definition = new DefaultBeanDefinition();
+        BeanDefinition definition = new BeanDefinition();
 
         definition.setBeanClassName(annotationMetadata.getClassName());
         definition.setSource(metadataReader.getResource());

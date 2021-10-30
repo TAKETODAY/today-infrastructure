@@ -29,7 +29,6 @@ import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.loader.AnnotationProvider;

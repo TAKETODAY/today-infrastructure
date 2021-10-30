@@ -34,7 +34,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
@@ -265,8 +265,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private MetadataReader getMetadataReader(BeanDefinition annotated) {
     try {
       MetadataReaderFactory metadataFactory = context.getMetadataReaderFactory();
-      if (annotated instanceof DefaultBeanDefinition) {
-        Object source = ((DefaultBeanDefinition) annotated).getSource();
+      if (annotated instanceof BeanDefinition) {
+        Object source = ((BeanDefinition) annotated).getSource();
         if (source instanceof Resource) {
           return metadataFactory.getMetadataReader((Resource) source);
         }

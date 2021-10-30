@@ -21,7 +21,6 @@ package cn.taketoday.beans.factory;
 
 import java.util.Objects;
 
-import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
@@ -29,7 +28,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Extension of the {@link DefaultBeanDefinition} class, adding support
+ * Extension of the {@link BeanDefinition} class, adding support
  * for annotation metadata exposed through the {@link AnnotatedBeanDefinition} interface.
  *
  * <p>This DefaultBeanDefinition variant is mainly useful for testing code that expects
@@ -38,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2021/10/25 17:37
  * @since 4.0
  */
-public class DefaultAnnotatedBeanDefinition extends DefaultBeanDefinition implements AnnotatedBeanDefinition {
+public class DefaultAnnotatedBeanDefinition extends BeanDefinition implements AnnotatedBeanDefinition {
 
   private final AnnotationMetadata metadata;
 
@@ -94,20 +93,6 @@ public class DefaultAnnotatedBeanDefinition extends DefaultBeanDefinition implem
   @Nullable
   public final MethodMetadata getFactoryMethodMetadata() {
     return this.factoryMethodMetadata;
-  }
-
-  @Override
-  protected BeanInstantiator createConstructor(BeanFactory factory) {
-    MethodMetadata factoryMethodMetadata = getFactoryMethodMetadata();
-    if (factoryMethodMetadata != null) {
-      String methodName = factoryMethodMetadata.getMethodName();
-      Class<?> beanClass = getBeanClass();
-
-
-
-    }
-
-    return super.createConstructor(factory);
   }
 
   @Override

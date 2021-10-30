@@ -147,7 +147,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", propertyType, childDef.getName());
         }
-        return new DefaultBeanDefinition(propertyType.getName(), childDef);
+        return new BeanDefinition(propertyType.getName(), childDef);
       }
     }
     return null;
@@ -183,7 +183,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     if (CollectionUtils.isNotEmpty(objectFactories)) {
       Object objectFactory = objectFactories.get(getReferenceClass());
       if (objectFactory != null) {
-        DefaultBeanDefinition def = new DefaultBeanDefinition(getName(), getReferenceClass());
+        BeanDefinition def = new BeanDefinition(getName(), getReferenceClass());
         def.setInstanceSupplier(new Supplier<Object>() {
           @Override
           public Object get() {

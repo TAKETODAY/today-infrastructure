@@ -25,8 +25,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

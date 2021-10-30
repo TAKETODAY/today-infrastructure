@@ -31,7 +31,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
@@ -83,10 +83,10 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   }
 
   protected FactoryBeanDefinition<?> createBeanDefinition(String className, String name) {
-    DefaultBeanDefinition ret = new DefaultBeanDefinition(name, className);
+    BeanDefinition ret = new BeanDefinition(name, className);
     ret.setSynthetic(true);
     ret.setInitMethods("applySqlSession");
-    ret.setRole(DefaultBeanDefinition.ROLE_INFRASTRUCTURE);
+    ret.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     return new FactoryBeanDefinition<>(ret, new MapperFactoryBean<>(className));
   }
 

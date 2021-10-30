@@ -20,43 +20,154 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Bean definition
+ * Default implementation of {@link BeanDefinition}
  *
- * @author TODAY 2018-06-23 11:23:45
+ * @author TODAY 2019-02-01 12:23
  */
-public interface BeanDefinition extends AttributeAccessor {
-  String INIT_METHODS = "initMethods";
-  String DESTROY_METHOD = "destroyMethod";
+public class BeanDefinition
+        extends AttributeAccessorSupport implements AttributeAccessor {
 
-  Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
-
+  public static final String INIT_METHODS = "initMethods";
+  public static final String DESTROY_METHOD = "destroyMethod";
+  public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
   /**
    * Role hint indicating that a {@code BeanDefinition} is a major part
    * of the application. Typically， corresponds to a user-defined bean.
    */
-  int ROLE_APPLICATION = 0;
+  public static final int ROLE_APPLICATION = 0;
 
   /**
    * Role hint indicating that a {@code BeanDefinition} is providing an
    * entirely background role and has no relevance to the end-user. This hint is
    * used when registering beans that are completely part of the internal workings
    */
-  int ROLE_INFRASTRUCTURE = 2;
+  public static final int ROLE_INFRASTRUCTURE = 2;
+
+  /** bean name. */
+  private String name;
+  /** bean class. */
+  private Object beanClass;
+  /** bean scope. */
+  private String scope;
+
+  /**
+   * Invoke before {@link InitializingBean#afterPropertiesSet}
+   *
+   * @since 2.3.3
+   */
+  private String[] initMethods;
+
+  /**
+   * @since 2.3.3
+   */
+  private String destroyMethod;
+
+  /**
+   * <p>
+   * This is a very important property.
+   * <p>
+   * If registry contains it's singleton instance, we don't know the instance has
+   * initialized or not, so must be have a flag to prove it has initialized
+   *
+   * @since 2.0.0
+   */
+  private boolean initialized = false;
+
+  /**
+   * Mark as a {@link FactoryBean}.
+   *
+   * @since 2.0.0
+   */
+  private Boolean factoryBean;
+
+  /** Child implementation */
+  private BeanDefinition childDef;
+
+  /** lazy init flag @since 3.0 */
+  private Boolean lazyInit;
+  /** @since 3.0 bean instance supplier */
+  private Supplier<?> instanceSupplier;
+
+  /** @since 4.0 */
+  private boolean synthetic = false;
+
+  /** @since 4.0 */
+  private int role = ROLE_APPLICATION;
+
+  /** @since 4.0 */
+  private boolean primary = false;
+
+  /** source @since 4.0 source */
+  @Nullable
+  private Object source;
+
+  @Nullable
+  private LinkedHashMap<String, Object> propertyValues;
+
+  @Nullable
+  private String factoryBeanName;
+
+  @Nullable
+  private String factoryMethodName;
+
+  Method factoryMethod;
+
+  BeanInstantiator instantiator;
+
+  private Object[] constructorArgs;
+
+  public BeanDefinition() { }
+
+  public BeanDefinition(Class<?> beanClass) {
+    setBeanClass(beanClass);
+  }
+
+  public BeanDefinition(String name, String beanClassName) {
+    this.name = name;
+    this.beanClass = beanClassName;
+  }
+
+  public BeanDefinition(String name, Class<?> beanClass) {
+    setName(name);
+    setBeanClass(beanClass);
+  }
+
+  /**
+   * Build a {@link BeanDefinition} with given child {@link BeanDefinition}
+   *
+   * @param beanName Bean name
+   * @param childDef Child {@link BeanDefinition}
+   */
+  public BeanDefinition(String beanName, BeanDefinition childDef) {
+    copyFrom(childDef);
+    setName(beanName);
+    setChild(childDef);
+  }
 
   /**
    * Get a property
@@ -65,14 +176,25 @@ public interface BeanDefinition extends AttributeAccessor {
    * @return Property value object
    * @throws NoSuchPropertyException If there is no property with given name
    */
-  Object getPropertyValue(String name) throws NoSuchPropertyException;
+  public Object getPropertyValue(String name) {
+    if (propertyValues != null) {
+      Object value = propertyValues.get(name);
+      if (value != null) {
+        return value;
+      }
+    }
+    throw new NoSuchPropertyException("No such property named: [" + name + "]");
+  }
 
   /**
    * Indicates that If the bean is a {@link Singleton}.
    *
    * @return If the bean is a {@link Singleton}.
    */
-  boolean isSingleton();
+  public boolean isSingleton() {
+    String scope = getScope();
+    return StringUtils.isEmpty(scope) || Scope.SINGLETON.equals(scope);
+  }
 
   /**
    * Indicates that If the bean is a
@@ -82,297 +204,43 @@ public interface BeanDefinition extends AttributeAccessor {
    * Prototype}.
    * @since 2.17
    */
-  boolean isPrototype();
-
-  /**
-   * Get bean class
-   *
-   * @return bean class
-   */
-  Class<?> getBeanClass();
-
-  /**
-   * Get init methods
-   *
-   * @return Get all the init methods, never be null
-   */
-  String[] getInitMethods();
-
-  /**
-   * Get all the destroy methods name
-   *
-   * @return all the destroy methods name, never be null
-   */
-  @Nullable
-  String getDestroyMethod();
-
-  /**
-   * Get Bean {@link Scope}
-   *
-   * @return Bean {@link Scope}
-   */
-  String getScope();
-
-  /**
-   * Get bean name
-   *
-   * @return Bean name
-   */
-  String getName();
-
-  /**
-   * If bean is a {@link FactoryBean}
-   *
-   * @return If Bean is a {@link FactoryBean}
-   */
-  Boolean isFactoryBean();
-
-  /**
-   * If a {@link Singleton} has initialized
-   * <p>
-   * If this bean is created from {@link FactoryBean} This explains
-   * {@link FactoryBean} is initialized
-   *
-   * @return If Bean or {@link FactoryBean} is initialized
-   */
-  boolean isInitialized();
-
-  /**
-   * if it is from abstract class.
-   *
-   * @return if it is from abstract class
-   * @see #getChild()
-   */
-  boolean isAbstract();
-
-  // ----------------- PropertyValue
-
-  /**
-   * Add PropertyValue to list.
-   *
-   * @param name supports property-path like 'user.name'
-   * @since 3.0
-   */
-  void addPropertyValue(String name, Object value);
-
-  /** @since 4.0 */
-  void addPropertyValues(PropertyValue... propertyValues);
-
-  /** @since 4.0 */
-  void addPropertyValues(Map<String, Object> propertyValues);
-
-  /**
-   * Apply bean' {@link PropertySetter}s
-   *
-   * @param propertyValues The array of the bean's {@link PropertySetter}s
-   */
-  void setPropertyValues(PropertyValue... propertyValues);
-
-  /** @since 4.0 */
-  void setPropertyValues(Map<String, Object> propertyValues);
-
-  void setPropertyValues(Collection<PropertyValue> propertyValues);
-
-  /**
-   * get simple properties
-   *
-   * @since 4.0
-   */
-  @Nullable
-  Map<String, Object> getPropertyValues();
-
-  /**
-   * Apply bean If its initialized
-   *
-   * @param initialized The state of bean
-   */
-  void setInitialized(boolean initialized);
-
-  /**
-   * Apply bean' name
-   *
-   * @param name The bean's name
-   */
-  void setName(String name);
-
-  /**
-   * Apply bean' scope
-   *
-   * @param scope The scope of the bean
-   * @see Scope#PROTOTYPE
-   * @see Scope#SINGLETON
-   */
-  void setScope(String scope);
-
-  /**
-   * Apply bean' initialize {@link Method}s
-   *
-   * @param initMethods The array of the bean's initialize {@link Method}s
-   */
-  void setInitMethods(String... initMethods);
-
-  /**
-   * Apply bean' destroy {@link Method}s
-   *
-   * @param destroyMethod The array of the bean's destroy {@link Method}s
-   */
-  void setDestroyMethod(String destroyMethod);
-
-  /**
-   * Indicates that If the bean is a {@link FactoryBean}.
-   *
-   * @param factoryBean If its a {@link FactoryBean}
-   */
-  void setFactoryBean(boolean factoryBean);
-
-  /**
-   * Indicates that the abstract bean's child implementation
-   *
-   * @return Child implementation bean, returns {@code null} indicates that this
-   * {@link BeanDefinition} is not abstract
-   * @since 2.1.7
-   */
-  @Nullable
-  BeanDefinition getChild();
-
-  /**
-   * new bean instance
-   *
-   * @param factory input bean factory
-   * @return new bean instance
-   * @since 3.0
-   */
-  @Deprecated
-  Object newInstance(BeanFactory factory);
-
-  /**
-   * new bean instance
-   *
-   * @param factory input bean factory
-   * @param args arguments to use when creating a corresponding instance
-   * @return new bean instance
-   * @since 3.0
-   */
-  @Deprecated
-  Object newInstance(BeanFactory factory, Object... args);
-
-  /**
-   * Set whether this bean should be lazily initialized.
-   * <p>If {@code false}, the bean will get instantiated on startup by bean
-   * factories that perform eager initialization of singletons.
-   *
-   * @since 3.0
-   */
-  void setLazyInit(boolean lazyInit);
-
-  /**
-   * Return whether this bean should be lazily initialized, i.e. not
-   * eagerly instantiated on startup. Only applicable to a singleton bean.
-   *
-   * @since 3.0
-   */
-  boolean isLazyInit();
-
-  /**
-   * @since 3.0
-   */
-  void copyFrom(BeanDefinition newDef);
-
-  /**
-   * Set a bean instance supplier
-   *
-   * @param supplier bean instance supplier (can be null)
-   * @param <T> target bean type
-   * @since 4.0
-   */
-  <T> void setInstanceSupplier(Supplier<T> supplier);
-
-  /** @since 4.0 */
-  @Nullable
-  Supplier<?> getInstanceSupplier();
-
-  /**
-   * Validate bean definition
-   *
-   * @throws BeanDefinitionValidationException invalid {@link BeanDefinition}
-   * @since 4.0
-   */
-  default void validate() throws BeanDefinitionValidationException {
-    if (StringUtils.isEmpty(getName())) {
-      throw new BeanDefinitionValidationException("Definition's bean name can't be null");
-    }
+  public boolean isPrototype() {
+    return Scope.PROTOTYPE.equals(scope);
   }
 
   /**
-   * Set whether this bean dClaefinition is 'synthetic', that is, not defined
-   * by the application itself (for example, an infrastructure bean such
-   * as a helper for auto-proxying, created through {@code <aop:config>}).
+   * Return the specified class of the bean definition (assuming it is resolved already).
+   * <p><b>NOTE:</b> This is an initial class reference as declared in the bean metadata
+   * definition, potentially combined with a declared factory method or a
+   * {@link cn.taketoday.beans.FactoryBean} which may lead to a different
+   * runtime type of the bean, or not being set at all in case of an instance-level
+   * factory method (which is resolved via {@link #getFactoryMethodName()} instead).
+   * <b>Do not use this for runtime type introspection of arbitrary bean definitions.</b>
+   * The recommended way to find out about the actual runtime type of a particular bean
+   * is a {@link cn.taketoday.beans.factory.BeanFactory#getType} call for the
+   * specified bean name; this takes all of the above cases into account and returns the
+   * type of object that a {@link cn.taketoday.beans.factory.BeanFactory#getBean}
+   * call is going to return for the same bean name.
    *
-   * @since 4.0
-   */
-  void setSynthetic(boolean synthetic);
-
-  /**
-   * Return whether this bean definition is 'synthetic', that is,
-   * not defined by the application itself.
-   *
-   * @since 4.0
-   */
-  boolean isSynthetic();
-
-  /**
-   * Set the role hint for this {@code BeanDefinition}. The role hint
-   * provides the frameworks as well as tools with an indication of
-   * the role and importance of a particular {@code BeanDefinition}.
-   *
-   * @see #ROLE_APPLICATION
-   * @see #ROLE_INFRASTRUCTURE
-   * @since 4.0
-   */
-  void setRole(int role);
-
-  /**
-   * Get the role hint for this {@code BeanDefinition}. The role hint
-   * provides the frameworks as well as tools with an indication of
-   * the role and importance of a particular {@code BeanDefinition}.
-   *
-   * @see #ROLE_APPLICATION
-   * @see #ROLE_INFRASTRUCTURE
-   * @since 4.0
-   */
-  int getRole();
-
-  /**
-   * Set whether this bean is a primary autowire candidate.
-   * <p>If this value is {@code true} for exactly one bean among multiple
-   * matching candidates, it will serve as a tie-breaker.
-   *
-   * @since 4.0
-   */
-  void setPrimary(boolean primary);
-
-  /**
-   * Return whether this bean is a primary autowire candidate.
-   *
-   * @since 4.0
-   */
-  boolean isPrimary();
-
-  /**
-   * check type
-   *
+   * @return the resolved bean class (never {@code null})
+   * @throws IllegalStateException if the bean definition does not define a bean class,
+   * or a specified bean class name has not been resolved into an actual Class yet
+   * @see #getBeanClassName()
    * @see #hasBeanClass()
-   * @since 4.0
+   * @see #setBeanClass(Class)
+   * @see #resolveBeanClass(ClassLoader)
    */
-  boolean isAssignableTo(ResolvableType typeToMatch);
-
-  /**
-   * check type
-   *
-   * @see #hasBeanClass()
-   * @since 4.0
-   */
-  boolean isAssignableTo(Class<?> typeToMatch);
+  public Class<?> getBeanClass() throws IllegalStateException {
+    Object beanClassObject = this.beanClass;
+    if (beanClassObject == null) {
+      throw new IllegalStateException("No bean class specified on bean definition");
+    }
+    if (!(beanClassObject instanceof Class)) {
+      throw new IllegalStateException(
+              "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
+    }
+    return (Class<?>) beanClassObject;
+  }
 
   /**
    * Specify the bean class name of this bean definition.
@@ -381,7 +249,9 @@ public interface BeanDefinition extends AttributeAccessor {
    *
    * @since 4.0
    */
-  void setBeanClassName(@Nullable String beanClassName);
+  public void setBeanClassName(@Nullable String beanClassName) {
+    this.beanClass = beanClassName;
+  }
 
   /**
    * Return the current bean class name of this bean definition.
@@ -395,13 +265,396 @@ public interface BeanDefinition extends AttributeAccessor {
    * @since 4.0
    */
   @Nullable
-  String getBeanClassName();
+  public String getBeanClassName() {
+    Object beanClassObject = this.beanClass;
+    if (beanClassObject instanceof Class) {
+      return ((Class<?>) beanClassObject).getName();
+    }
+    else {
+      return (String) beanClassObject;
+    }
+  }
+
+  /**
+   * Return whether this definition specifies a bean class.
+   *
+   * @see #getBeanClass()
+   * @see #setBeanClass(Class)
+   * @see #resolveBeanClass(ClassLoader)
+   * @since 4.0
+   */
+  public boolean hasBeanClass() {
+    return beanClass instanceof Class;
+  }
+
+  /**
+   * Determine the class of the wrapped bean, resolving it from a
+   * specified class name if necessary. Will also reload a specified
+   * Class from its name when called with the bean class already resolved.
+   *
+   * @param classLoader the ClassLoader to use for resolving a (potential) class name
+   * @return the resolved bean class
+   * @throws ClassNotFoundException if the class name could be resolved
+   */
+  @Nullable
+  public Class<?> resolveBeanClass(@Nullable ClassLoader classLoader) throws ClassNotFoundException {
+    String className = getBeanClassName();
+    if (className == null) {
+      return null;
+    }
+    Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
+    this.beanClass = resolvedClass;
+    return resolvedClass;
+  }
+
+  /**
+   * Return a description of the resource that this bean definition
+   * came from (for the purpose of showing context in case of errors).
+   */
+  @Nullable
+  public String getResourceDescription() {
+    return this.source != null ? this.source.toString() : null;
+  }
+
+  public void setBeanClass(Class<?> beanClass) {
+    this.beanClass = beanClass;
+  }
+
+  /**
+   * Get init methods
+   *
+   * @return Get all the init methods, never be null
+   */
+  public String[] getInitMethods() {
+    return initMethods;
+  }
+
+  /**
+   * Get all the destroy methods name
+   *
+   * @return all the destroy methods name, never be null
+   */
+  @Nullable
+  public String getDestroyMethod() {
+    return destroyMethod;
+  }
+
+  /**
+   * Get Bean {@link Scope}
+   *
+   * @return Bean {@link Scope}
+   */
+  @Nullable
+  public String getScope() {
+    return scope;
+  }
+
+  /**
+   * Get bean name
+   *
+   * @return Bean name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * If bean is a {@link FactoryBean}
+   *
+   * @return If Bean is a {@link FactoryBean}
+   */
+  public Boolean isFactoryBean() {
+    return factoryBean;
+  }
+
+  /**
+   * If a {@link Singleton} has initialized
+   * <p>
+   * If this bean is created from {@link FactoryBean} This explains
+   * {@link FactoryBean} is initialized
+   *
+   * @return If Bean or {@link FactoryBean} is initialized
+   */
+  public boolean isInitialized() {
+    return initialized;
+  }
+
+  /**
+   * if it is from abstract class.
+   *
+   * @return if it is from abstract class
+   * @see #getChild()
+   */
+  @Deprecated
+  public boolean isAbstract() {
+    return childDef != null;
+  }
+
+  // -----------------------
+
+  /**
+   * Apply bean If its initialized
+   *
+   * @param initialized The state of bean
+   */
+  public void setInitialized(boolean initialized) {
+    this.initialized = initialized;
+  }
+
+  /**
+   * Indicates that If the bean is a {@link FactoryBean}.
+   *
+   * @param factoryBean If its a {@link FactoryBean}
+   */
+  public void setFactoryBean(boolean factoryBean) {
+    this.factoryBean = factoryBean;
+  }
+
+  /**
+   * Apply bean' name
+   *
+   * @param name The bean's name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * Apply bean' scope
+   *
+   * @param scope The scope of the bean
+   * @see Scope#PROTOTYPE
+   * @see Scope#SINGLETON
+   */
+  public void setScope(String scope) {
+    this.scope = scope;
+  }
+
+  /**
+   * Apply bean' initialize {@link Method}s
+   *
+   * @param initMethods The array of the bean's initialize {@link Method}s
+   */
+  public void setInitMethods(String... initMethods) {
+    this.initMethods = initMethods;
+  }
+
+  /**
+   * Apply bean' destroy {@link Method}s
+   *
+   * @param destroyMethod The array of the bean's destroy {@link Method}s
+   */
+  public void setDestroyMethod(String destroyMethod) {
+    this.destroyMethod = destroyMethod;
+  }
+
+  /**
+   * Add PropertyValue to list.
+   *
+   * @param name supports property-path like 'user.name'
+   * @since 3.0
+   */
+  public void addPropertyValue(String name, Object value) {
+    Assert.notNull(name, "property name must not be null");
+    addPropertyValues(new PropertyValue(name, value));
+  }
 
   /** @since 4.0 */
-  boolean hasBeanClass();
+  public void addPropertyValues(PropertyValue... propertyValues) {
+    if (ObjectUtils.isNotEmpty(propertyValues)) {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      for (PropertyValue property : propertyValues) {
+        this.propertyValues.put(property.getName(), property.getValue());
+      }
+    }
+  }
 
   /** @since 4.0 */
-  BeanDefinition cloneDefinition();
+  public void addPropertyValues(Map<String, Object> propertyValues) {
+    if (CollectionUtils.isNotEmpty(propertyValues)) {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      this.propertyValues.putAll(propertyValues);
+    }
+  }
+
+  /**
+   * Apply bean' {@link PropertySetter}s
+   *
+   * @param propertyValues The array of the bean's {@link PropertySetter}s
+   */
+  public void setPropertyValues(PropertyValue... propertyValues) {
+    if (this.propertyValues == null) {
+      if (ObjectUtils.isNotEmpty(propertyValues)) {
+        this.propertyValues = new LinkedHashMap<>();
+        addPropertyValues(propertyValues);
+      }
+    }
+    else {
+      this.propertyValues.clear();
+      addPropertyValues(propertyValues);
+    }
+  }
+
+  public void setPropertyValues(Collection<PropertyValue> propertyValues) {
+    if (this.propertyValues == null) {
+      if (CollectionUtils.isNotEmpty(propertyValues)) {
+        this.propertyValues = new LinkedHashMap<>();
+        for (PropertyValue property : propertyValues) {
+          this.propertyValues.put(property.getName(), property.getValue());
+        }
+      }
+    }
+    else {
+      this.propertyValues.clear();
+      for (PropertyValue property : propertyValues) {
+        this.propertyValues.put(property.getName(), property.getValue());
+      }
+    }
+  }
+
+  /** @since 4.0 */
+  public void setPropertyValues(Map<String, Object> propertyValues) {
+    if (this.propertyValues == null) {
+      this.propertyValues = new LinkedHashMap<>();
+    }
+    else {
+      this.propertyValues.clear();
+    }
+    this.propertyValues.putAll(propertyValues);
+  }
+
+  /**
+   * get simple properties
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public Map<String, Object> getPropertyValues() {
+    return propertyValues;
+  }
+
+  /**
+   * Indicates that the abstract bean's child implementation
+   *
+   * @return Child implementation bean, returns {@code null} indicates that this
+   * {@link BeanDefinition} is not abstract
+   * @since 2.1.7
+   */
+  @Nullable
+  @Deprecated
+  public BeanDefinition getChild() {
+    return childDef;
+  }
+
+  /**
+   * Apply the child bean name
+   *
+   * @param childDef Child BeanDefinition
+   * @return {@link BeanDefinition}
+   */
+  public BeanDefinition setChild(BeanDefinition childDef) {
+    this.childDef = childDef;
+    return this;
+  }
+
+  public BeanInstantiator getInstantiator() {
+    return instantiator;
+  }
+
+  /**
+   * Set whether this bean should be lazily initialized.
+   * <p>If {@code false}, the bean will get instantiated on startup by bean
+   * factories that perform eager initialization of singletons.
+   *
+   * @since 3.0
+   */
+  public void setLazyInit(boolean lazyInit) {
+    this.lazyInit = lazyInit;
+  }
+
+  /**
+   * Return whether this bean should be lazily initialized, i.e. not
+   * eagerly instantiated on startup. Only applicable to a singleton bean.
+   *
+   * @return whether to apply lazy-init semantics ({@code false} by default)
+   * @since 3.0
+   */
+  public boolean isLazyInit() {
+    return this.lazyInit != null && this.lazyInit;
+  }
+
+  /**
+   * Return whether this bean should be lazily initialized, i.e. not
+   * eagerly instantiated on startup. Only applicable to a singleton bean.
+   *
+   * @return the lazy-init flag if explicitly set, or {@code null} otherwise
+   * @since 3.0
+   */
+  public Boolean getLazyInit() {
+    return this.lazyInit;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void copyFrom(BeanDefinition from) {
+    setName(from.getName());
+    setChild(from.getChild());
+    setScope(from.getScope());
+
+    setBeanClass(from.getBeanClass());
+    setFactoryBean(from.isFactoryBean());
+    setDestroyMethod(from.getDestroyMethod());
+    // copy
+    addPropertyValues(from.getPropertyValues());
+
+    setLazyInit(from.isLazyInit());
+    setInitialized(from.isInitialized());
+
+    setRole(from.getRole());
+    setSynthetic(from.isSynthetic());
+    setPrimary(from.isPrimary());
+
+    this.source = from.source;
+    this.beanClass = from.beanClass;
+    this.initMethods = from.initMethods;
+    this.factoryBeanName = from.factoryBeanName;
+    this.factoryMethodName = from.factoryMethodName;
+    this.instanceSupplier = from.instanceSupplier;
+
+    setBeanClassName(from.getBeanClassName());
+    setInitMethods(from.getInitMethods());
+
+    copyAttributesFrom(from);
+  }
+
+  /** @since 4.0 */
+  public BeanDefinition cloneDefinition() {
+    BeanDefinition definition = new BeanDefinition();
+    definition.copyFrom(this);
+    return definition;
+  }
+
+  /**
+   * Set a bean instance supplier
+   *
+   * @param instanceSupplier bean instance supplier (can be null)
+   * @param <T> target bean type
+   * @since 4.0
+   */
+  public <T> void setInstanceSupplier(Supplier<T> instanceSupplier) {
+    this.instanceSupplier = instanceSupplier;
+  }
+
+  /** @since 4.0 */
+  @Nullable
+  public Supplier<?> getInstanceSupplier() {
+    return instanceSupplier;
+  }
 
   /**
    * Specify the factory bean to use, if any.
@@ -410,7 +663,9 @@ public interface BeanDefinition extends AttributeAccessor {
    * @see #setFactoryMethodName
    * @since 4.0
    */
-  void setFactoryBeanName(@Nullable String factoryBeanName);
+  public void setFactoryBeanName(@Nullable String factoryBeanName) {
+    this.factoryBeanName = factoryBeanName;
+  }
 
   /**
    * Return the factory bean name, if any.
@@ -418,7 +673,9 @@ public interface BeanDefinition extends AttributeAccessor {
    * @since 4.0
    */
   @Nullable
-  String getFactoryBeanName();
+  public String getFactoryBeanName() {
+    return this.factoryBeanName;
+  }
 
   /**
    * Specify a factory method, if any. This method will be invoked with
@@ -430,17 +687,203 @@ public interface BeanDefinition extends AttributeAccessor {
    * @see #setBeanClassName
    * @since 4.0
    */
-  void setFactoryMethodName(@Nullable String factoryMethodName);
+  public void setFactoryMethodName(@Nullable String factoryMethodName) {
+    this.factoryMethodName = factoryMethodName;
+  }
 
   /**
    * Return a factory method, if any.
    *
    * @since 4.0
    */
+  public String getFactoryMethodName() {
+    return this.factoryMethodName;
+  }
+
+  /** @since 4.0 */
+  public void setConstructorArgs(Object... constructorArgs) {
+    this.constructorArgs = constructorArgs;
+  }
+
+  /** @since 4.0 */
+  public Object[] getConstructorArgs() {
+    return constructorArgs;
+  }
+
+  public boolean isFactoryMethod(Method method) {
+    return method.getName().equals(factoryMethodName);
+  }
+
+  /**
+   * Set whether this bean definition is 'synthetic', that is, not defined
+   * by the application itself (for example, an infrastructure bean such
+   * as a helper for auto-proxying, created through {@code <aop:config>}).
+   *
+   * @since 4.0
+   */
+  public void setSynthetic(boolean synthetic) {
+    this.synthetic = synthetic;
+  }
+
+  /**
+   * Return whether this bean definition is 'synthetic', that is,
+   * not defined by the application itself.
+   *
+   * @since 4.0
+   */
+  public boolean isSynthetic() {
+    return this.synthetic;
+  }
+
+  /**
+   * Set the role hint for this {@code BeanDefinition}. The role hint
+   * provides the frameworks as well as tools with an indication of
+   * the role and importance of a particular {@code BeanDefinition}.
+   *
+   * @see #ROLE_APPLICATION
+   * @see #ROLE_INFRASTRUCTURE
+   * @since 4.0
+   */
+  public void setRole(int role) {
+    this.role = role;
+  }
+
+  /**
+   * Get the role hint for this {@code BeanDefinition}. The role hint
+   * provides the frameworks as well as tools with an indication of
+   * the role and importance of a particular {@code BeanDefinition}.
+   *
+   * @see #ROLE_APPLICATION
+   * @see #ROLE_INFRASTRUCTURE
+   * @since 4.0
+   */
+  public int getRole() {
+    return this.role;
+  }
+
+  /**
+   * Set whether this bean is a primary autowire candidate.
+   * <p>If this value is {@code true} for exactly one bean among multiple
+   * matching candidates, it will serve as a tie-breaker.
+   *
+   * @since 4.0
+   */
+  public void setPrimary(boolean primary) {
+    this.primary = primary;
+  }
+
+  /**
+   * Return whether this bean is a primary autowire candidate.
+   *
+   * @since 4.0
+   */
+  public boolean isPrimary() {
+    return this.primary;
+  }
+
+  /** @since 4.0 source */
+  public void setSource(@Nullable Object source) {
+    this.source = source;
+  }
+
+  /** @since 4.0 source */
   @Nullable
-  String getFactoryMethodName();
+  public Object getSource() {
+    return this.source;
+  }
 
+  /**
+   * check type
+   *
+   * @see #hasBeanClass()
+   * @since 4.0
+   */
+  public boolean isAssignableTo(ResolvableType typeToMatch) {
+    BeanDefinition child = getChild();
+    if (child != null) {
+      Class<?> implementationClass = child.getBeanClass();
+      return ResolvableType.fromClass(getBeanClass(), implementationClass)
+              .isAssignableFrom(typeToMatch);
+    }
+    return ResolvableType.fromClass(getBeanClass())
+            .isAssignableFrom(typeToMatch);
+  }
 
-  boolean isFactoryMethod(Method method);
+  /**
+   * check type
+   *
+   * @see #hasBeanClass()
+   * @since 4.0
+   */
+  public boolean isAssignableTo(Class<?> typeToMatch) {
+    BeanDefinition child = getChild();
+    if (child != null) {
+      Class<?> implementationClass = child.getBeanClass();
+      return typeToMatch.isAssignableFrom(implementationClass);
+    }
+    return typeToMatch.isAssignableFrom(getBeanClass());
+  }
+
+  /**
+   * Validate bean definition
+   *
+   * @throws BeanDefinitionValidationException invalid {@link BeanDefinition}
+   * @since 4.0
+   */
+  public void validate() throws BeanDefinitionValidationException {
+    if (StringUtils.isEmpty(getName())) {
+      throw new BeanDefinitionValidationException("Definition's bean name can't be null");
+    }
+  }
+
+  // Object
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof BeanDefinition) {
+      BeanDefinition other = (BeanDefinition) obj;
+      return Objects.equals(name, other.name)
+              && role == other.role
+              && lazyInit == other.lazyInit
+              && beanClass == other.beanClass
+              && synthetic == other.synthetic
+              && instanceSupplier == other.instanceSupplier
+              && Objects.equals(scope, other.scope)
+              && Objects.equals(childDef, other.childDef)
+              && Objects.deepEquals(initMethods, other.initMethods)
+              && Objects.deepEquals(destroyMethod, other.destroyMethod)
+              && Objects.equals(propertyValues, other.propertyValues);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, beanClass, lazyInit, scope, synthetic, role, primary);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("class [");
+    sb.append(getBeanClassName()).append(']');
+    sb.append("; scope=").append(this.scope);
+    sb.append("; lazyInit=").append(this.lazyInit);
+    sb.append("; primary=").append(this.primary);
+    sb.append("; initialized=").append(this.initialized);
+    sb.append("; factoryBean=").append(this.factoryBean);
+    sb.append("; initMethods=").append(Arrays.toString(initMethods));
+    sb.append("; factoryBeanName=").append(this.factoryBeanName);
+    sb.append("; factoryMethodName=").append(this.factoryMethodName);
+    sb.append("; destroyMethod=").append(destroyMethod);
+    sb.append("; child=").append(this.childDef);
+
+    if (this.source != null) {
+      sb.append("; defined in ").append(this.source);
+    }
+    return sb.toString();
+  }
 
 }

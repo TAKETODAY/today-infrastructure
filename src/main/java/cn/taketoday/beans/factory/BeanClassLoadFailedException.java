@@ -64,8 +64,8 @@ public class BeanClassLoadFailedException extends BeansException {
   }
 
   private static String getDesc(BeanDefinition def) {
-    if (def instanceof DefaultBeanDefinition) {
-      String resourceDescription = ((DefaultBeanDefinition) def).getResourceDescription();
+    if (def instanceof BeanDefinition) {
+      String resourceDescription = ((BeanDefinition) def).getResourceDescription();
       if (resourceDescription == null) {
         return "";
       }

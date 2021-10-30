@@ -53,7 +53,7 @@ class BeanDefinitionTests {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
-      BeanDefinition beanDefinition = new DefaultBeanDefinition("testBean", BeanDefinitionTests.class);
+      BeanDefinition beanDefinition = new BeanDefinition("testBean", BeanDefinitionTests.class);
 
       beanDefinition.setDestroyMethod("destory");
       beanDefinition.setInitMethods("init");

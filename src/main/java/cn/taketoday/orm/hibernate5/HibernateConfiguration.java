@@ -20,7 +20,7 @@
 package cn.taketoday.orm.hibernate5;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.PropsReader;
@@ -120,7 +120,7 @@ public class HibernateConfiguration extends Configuration
 
     applySettings(target);
 
-    DefaultBeanDefinition definition = new DefaultBeanDefinition(
+    BeanDefinition definition = new BeanDefinition(
             sessionFactoryBeanName, SessionFactory.class);
 
     definition.setSynthetic(true);

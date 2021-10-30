@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -39,8 +38,8 @@ import cn.taketoday.util.SingletonSupplier;
  * 2019-02-01 12:29
  * @since 2.1.7
  */
-public class FactoryBeanDefinition<T>
-        extends AttributeAccessorSupport implements BeanDefinition {
+public class FactoryBeanDefinition<T> extends BeanDefinition {
+  
   /**
    * @since 4.0
    */
@@ -246,13 +245,8 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public Object newInstance(BeanFactory factory) {
-    return factoryDef.newInstance(factory);
-  }
-
-  @Override
-  public Object newInstance(BeanFactory factory, Object... args) {
-    return factoryDef.newInstance(factory, args);
+  public void setConstructorArgs(Object... constructorArgs) {
+    factoryDef.setConstructorArgs(constructorArgs);
   }
 
   @Override

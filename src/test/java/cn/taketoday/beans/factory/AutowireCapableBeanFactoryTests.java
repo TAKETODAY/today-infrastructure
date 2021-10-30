@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Conditional;
