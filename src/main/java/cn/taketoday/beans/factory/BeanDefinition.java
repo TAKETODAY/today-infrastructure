@@ -285,7 +285,11 @@ public interface BeanDefinition extends AttributeAccessor {
    * @param <T> target bean type
    * @since 4.0
    */
-  <T> void setSupplier(Supplier<T> supplier);
+  <T> void setInstanceSupplier(Supplier<T> supplier);
+
+  /** @since 4.0 */
+  @Nullable
+  Supplier<?> getInstanceSupplier();
 
   /**
    * Validate bean definition

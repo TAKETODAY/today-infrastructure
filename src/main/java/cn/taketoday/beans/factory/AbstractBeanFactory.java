@@ -19,6 +19,20 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
@@ -43,20 +57,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -212,7 +212,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                  name, ClassUtils.getQualifiedName(requiredType), ex);
+                    name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -399,19 +399,7 @@ public abstract class AbstractBeanFactory
    * @return A new bean object
    * @throws BeanInstantiationException When instantiation of a bean failed
    */
-  protected Object createBeanInstance(BeanDefinition def) {
-    if (hasInstantiationAwareBeanPostProcessors) {
-      for (BeanPostProcessor processor : postProcessors) {
-        if (processor instanceof InstantiationAwareBeanPostProcessor) {
-          Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
-          if (bean != null) {
-            return bean;
-          }
-        }
-      }
-    }
-    return def.newInstance(this);
-  }
+  protected abstract Object createBeanInstance(BeanDefinition def);
 
   /**
    * Resolve the bean class for the specified bean definition,
@@ -941,7 +929,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-              "that it should return null if the type of its object cannot be determined yet", ex);
+                       "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -985,7 +973,6 @@ public abstract class AbstractBeanFactory
     return isFactoryBean(getBeanDefinition(beanName));
   }
 
-
   /**
    * Check whether the given bean is defined as a {@link FactoryBean}.
    *
@@ -1000,7 +987,6 @@ public abstract class AbstractBeanFactory
     }
     return result;
   }
-
 
   @Override
   public Set<String> getAliases(Class<?> type) {
@@ -1170,7 +1156,6 @@ public abstract class AbstractBeanFactory
 
     log.debug("The singleton objects are initialized.");
   }
-
 
   /**
    * Initialization singletons that has already in context

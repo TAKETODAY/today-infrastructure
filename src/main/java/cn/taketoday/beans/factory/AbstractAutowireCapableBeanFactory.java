@@ -75,6 +75,21 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  protected Object createBeanInstance(BeanDefinition def) {
+    if (hasInstantiationAwareBeanPostProcessors) {
+      for (BeanPostProcessor processor : postProcessors) {
+        if (processor instanceof InstantiationAwareBeanPostProcessor) {
+          Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
+          if (bean != null) {
+            return bean;
+          }
+        }
+      }
+    }
+    return instantiationStrategy.instantiate(def, this);
+  }
+
+  @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
     Object existingBean = instantiationStrategy.instantiate(prototypeDef, this);

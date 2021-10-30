@@ -277,8 +277,14 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public <T> void setSupplier(Supplier<T> supplier) {
-    factoryDef.setSupplier(supplier);
+  public <T> void setInstanceSupplier(Supplier<T> supplier) {
+    factoryDef.setInstanceSupplier(supplier);
+  }
+
+  @Override
+  @Nullable
+  public Supplier<?> getInstanceSupplier() {
+    return factoryDef.getInstanceSupplier();
   }
 
   @Override

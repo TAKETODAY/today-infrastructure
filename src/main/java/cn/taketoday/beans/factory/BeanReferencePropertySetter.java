@@ -184,7 +184,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
       Object objectFactory = objectFactories.get(getReferenceClass());
       if (objectFactory != null) {
         DefaultBeanDefinition def = new DefaultBeanDefinition(getName(), getReferenceClass());
-        def.setSupplier(new Supplier<Object>() {
+        def.setInstanceSupplier(new Supplier<Object>() {
           @Override
           public Object get() {
             return createDependencyInstance(def.getBeanClass(), objectFactory);

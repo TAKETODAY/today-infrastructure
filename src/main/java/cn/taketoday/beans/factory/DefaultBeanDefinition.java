@@ -551,8 +551,14 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public <T> void setSupplier(Supplier<T> instanceSupplier) {
+  public <T> void setInstanceSupplier(Supplier<T> instanceSupplier) {
     this.instanceSupplier = instanceSupplier;
+  }
+
+  @Override
+  @Nullable
+  public Supplier<?> getInstanceSupplier() {
+    return instanceSupplier;
   }
 
   /**

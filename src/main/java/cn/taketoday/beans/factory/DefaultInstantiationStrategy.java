@@ -20,7 +20,10 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.support.BeanInstantiator;
 
 /**
  * @author TODAY 2021/10/19 20:58
@@ -30,6 +33,11 @@ public class DefaultInstantiationStrategy implements InstantiationStrategy {
 
   @Override
   public Object instantiate(BeanDefinition def, BeanFactory owner) throws BeansException {
+    Supplier<?> instanceSupplier = def.getInstanceSupplier();
+    if (instanceSupplier != null) {
+      return instanceSupplier.get();
+    }
+    BeanInstantiator instantiator = BeanInstantiator.fromClass(def.getBeanClass());
 
 
     return def.newInstance(owner);
