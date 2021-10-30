@@ -32,8 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -277,7 +276,7 @@ public class BeanDefinitionBuilder {
   private BeanDefinition create() {
 
     if (annotationMetadata != null) {
-      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
+      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
       MergedAnnotation<Component> annotation = annotationMetadata.getAnnotations().get(Component.class);
       annotation(annotation);
       if (beanClass != null) {
@@ -286,7 +285,7 @@ public class BeanDefinitionBuilder {
       return definition;
     }
     if (beanClass != null) {
-      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(beanClass);
+      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
       MergedAnnotation<Component> annotation = definition.getMetadata().getAnnotations().get(Component.class);
       annotation(annotation);
       return definition;

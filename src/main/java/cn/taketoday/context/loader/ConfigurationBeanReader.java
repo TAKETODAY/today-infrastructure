@@ -33,8 +33,6 @@ import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
@@ -194,7 +192,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  static class ConfigBeanDefinition extends DefaultAnnotatedBeanDefinition implements AnnotatedBeanDefinition {
+  static class ConfigBeanDefinition extends AnnotatedBeanDefinition {
     final BeanDefinition declaringDef;
 
     ConfigBeanDefinition(BeanDefinition declaringDef, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
@@ -204,7 +202,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
     @Override
     public BeanDefinition cloneDefinition() {
-      DefaultAnnotatedBeanDefinition definition = new ConfigBeanDefinition(
+      AnnotatedBeanDefinition definition = new ConfigBeanDefinition(
               declaringDef, getFactoryMethodMetadata(), getMetadata());
       definition.copyFrom(this);
       return definition;
@@ -320,7 +318,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
           AnnotationMetadata annotationMetadata = getAnnotationMetadata(select);
-          DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
+          AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
           String beanName = context.createBeanName(select);
           definition.setName(beanName);
           register(definition);

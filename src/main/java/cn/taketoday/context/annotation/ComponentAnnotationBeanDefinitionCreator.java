@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -39,7 +39,7 @@ public class ComponentAnnotationBeanDefinitionCreator implements BeanDefinitionL
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
 
     if (annotationMetadata.isAnnotated(Component.class.getName())) {
-      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(annotationMetadata);
+      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
       definition.setBeanClassName(annotationMetadata.getClassName());
       definition.setName(loadingContext.createBeanName(annotationMetadata.getClassName()));
       loadingContext.registerBeanDefinition(definition);

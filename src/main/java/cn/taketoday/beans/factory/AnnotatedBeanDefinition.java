@@ -19,19 +19,70 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.Objects;
+
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.core.type.StandardAnnotationMetadata;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Extended {@link BeanDefinition} interface that exposes {@link AnnotationMetadata}
- * about its bean class - without requiring the class to be loaded yet.
+ * Extension of the {@link BeanDefinition} class, adding support
+ * for annotation metadata exposed through the {@link AnnotatedBeanDefinition} interface.
  *
- * @author yanghaijian 2021/10/25 17:35
- * @see AnnotationMetadata
+ * <p>This DefaultBeanDefinition variant is mainly useful for testing code that expects
+ * to operate on an AnnotatedBeanDefinition
+ *
+ * @author TODAY 2021/10/25 17:37
  * @since 4.0
  */
-public interface AnnotatedBeanDefinition {
+public class AnnotatedBeanDefinition extends BeanDefinition {
+
+  private final AnnotationMetadata metadata;
+
+  @Nullable
+  private MethodMetadata factoryMethodMetadata;
+
+  /**
+   * Create a new AnnotatedGenericBeanDefinition for the given bean class.
+   *
+   * @param beanClass the loaded bean class
+   */
+  public AnnotatedBeanDefinition(Class<?> beanClass) {
+    setBeanClass(beanClass);
+    this.metadata = AnnotationMetadata.introspect(beanClass);
+  }
+
+  /**
+   * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
+   * allowing for ASM-based processing and avoidance of early loading of the bean class.
+   *
+   * @param metadata the annotation metadata for the bean class in question
+   */
+  public AnnotatedBeanDefinition(AnnotationMetadata metadata) {
+    Assert.notNull(metadata, "AnnotationMetadata must not be null");
+    if (metadata instanceof StandardAnnotationMetadata) {
+      setBeanClass(((StandardAnnotationMetadata) metadata).getIntrospectedClass());
+    }
+    else {
+      setBeanClassName(metadata.getClassName());
+    }
+    this.metadata = metadata;
+  }
+
+  /**
+   * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
+   * based on an annotated class and a factory method on that class.
+   *
+   * @param metadata the annotation metadata for the bean class in question
+   * @param factoryMethodMetadata metadata for the selected factory method
+   */
+  public AnnotatedBeanDefinition(AnnotationMetadata metadata, @Nullable MethodMetadata factoryMethodMetadata) {
+    this(metadata);
+    Assert.notNull(factoryMethodMetadata, "MethodMetadata must not be null");
+    this.factoryMethodMetadata = factoryMethodMetadata;
+  }
 
   /**
    * Obtain the annotation metadata (as well as basic class metadata)
@@ -39,7 +90,9 @@ public interface AnnotatedBeanDefinition {
    *
    * @return the annotation metadata object (never {@code null})
    */
-  AnnotationMetadata getMetadata();
+  public final AnnotationMetadata getMetadata() {
+    return this.metadata;
+  }
 
   /**
    * Obtain metadata for this bean definition's factory method, if any.
@@ -47,6 +100,39 @@ public interface AnnotatedBeanDefinition {
    * @return the factory method metadata, or {@code null} if none
    */
   @Nullable
-  MethodMetadata getFactoryMethodMetadata();
+  public final MethodMetadata getFactoryMethodMetadata() {
+    return this.factoryMethodMetadata;
+  }
 
+  @Override
+  public BeanDefinition cloneDefinition() {
+    AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(metadata);
+    definition.copyFrom(this);
+    return definition;
+  }
+
+  @Override
+  public void copyFrom(BeanDefinition from) {
+    super.copyFrom(from);
+    if (from instanceof AnnotatedBeanDefinition) {
+      this.factoryMethodMetadata = ((AnnotatedBeanDefinition) from).getFactoryMethodMetadata();
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+    AnnotatedBeanDefinition that = (AnnotatedBeanDefinition) o;
+    return Objects.equals(metadata, that.metadata) && Objects.equals(factoryMethodMetadata, that.factoryMethodMetadata);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), metadata, factoryMethodMetadata);
+  }
 }

@@ -32,8 +32,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.DefaultAnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -141,7 +140,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
       return;
     }
 
-    DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(beanClass);
+    AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
     definition.setScope(scopeMetadata.getScopeName());
 
@@ -287,7 +286,7 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
   {
     Assert.notNull(clazz, "bean-class must not be null");
     if (!shouldSkip(clazz)) {
-      DefaultAnnotatedBeanDefinition definition = new DefaultAnnotatedBeanDefinition(clazz);
+      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(clazz);
       ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
       definition.setScope(scopeMetadata.getScopeName());
 

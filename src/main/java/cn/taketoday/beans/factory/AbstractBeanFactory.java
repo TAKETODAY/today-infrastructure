@@ -419,7 +419,7 @@ public abstract class AbstractBeanFactory
     if (def.hasBeanClass()) {
       return def.getBeanClass();
     }
-    
+
     String beanClassName = def.getBeanClassName();
     try {
       if (beanClassName != null) {
@@ -455,10 +455,6 @@ public abstract class AbstractBeanFactory
     catch (LinkageError err) {
       throw new BeanClassLoadFailedException(def, err);
     }
-  }
-
-  protected Object createBeanInstance(BeanDefinition def, @Nullable Object[] args) {
-    return def.newInstance(this, args);
   }
 
   /**
