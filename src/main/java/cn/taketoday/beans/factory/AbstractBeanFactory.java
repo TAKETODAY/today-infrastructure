@@ -772,7 +772,7 @@ public abstract class AbstractBeanFactory
     if (requiredType.isInstance(objectFactory)) {
       return objectFactory;
     }
-    if (objectFactory instanceof Supplier) {
+    if (objectFactory instanceof Supplier) { // TODO type check?
       return createObjectFactoryDependencyProxy(requiredType, (Supplier<?>) objectFactory);
     }
     return null;
