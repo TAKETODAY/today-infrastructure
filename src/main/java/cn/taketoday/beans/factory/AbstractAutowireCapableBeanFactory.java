@@ -117,21 +117,19 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (factoryMethodName != null) {
         String factoryBeanName = definition.getFactoryBeanName();
         Class<?> factoryClass;
-        // a static factory-method ?
-        boolean isStatic = false;
         if (factoryBeanName != null) {
           // instance method
           factoryClass = getType(factoryBeanName);
-          if (factoryClass == null) {
-            throw new IllegalStateException(
-                    "factory-method: '" + factoryMethodName + "' its factory bean: '" +
-                            factoryBeanName + "' not found in this factory: " + this);
-          }
         }
         else {
           // bean class is its factory-class
           factoryClass = resolveBeanClass(definition);
-          isStatic = true;
+        }
+
+        if (factoryClass == null) {
+          throw new IllegalStateException(
+                  "factory-method: '" + factoryMethodName + "' its factory bean: '" +
+                          factoryBeanName + "' not found in this factory: " + this);
         }
 
         Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
