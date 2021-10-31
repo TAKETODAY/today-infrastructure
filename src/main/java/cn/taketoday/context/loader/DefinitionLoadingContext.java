@@ -95,6 +95,26 @@ public class DefinitionLoadingContext {
   }
 
   /**
+   * unwrap bean-factory to {@code requiredType}
+   *
+   * @throws IllegalArgumentException not a requiredType
+   */
+  @NonNull
+  public <T> T unwrapFactory(Class<T> requiredType) {
+    return applicationContext.unwrapFactory(requiredType);
+  }
+
+  /**
+   * unwrap this ApplicationContext to {@code requiredType}
+   *
+   * @throws IllegalArgumentException not a requiredType
+   */
+  @NonNull
+  public <T> T unwrapContext(Class<T> requiredType) {
+    return applicationContext.unwrap(requiredType);
+  }
+
+  /**
    * default is use {@link ClassUtils#getShortName(Class)}
    *
    * <p>

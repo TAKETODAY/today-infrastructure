@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
@@ -97,12 +98,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     loadConfigurationBeans();
-    processMissingBean();
-  }
-
-  private void processMissingBean() {
-    MissingBeanRegistry missingBeanRegistry = context.getMissingBeanRegistry();
-    missingBeanRegistry.process();
   }
 
   /**
@@ -190,7 +185,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
             definition.setDestroyMethod(component.getString(BeanDefinition.DESTROY_METHOD));
             definition.setInitMethods(component.getStringArray(BeanDefinition.INIT_METHODS));
 
-            register(definition);
+            register(definition, importMetadata);
           }
         });
       }
@@ -261,7 +256,9 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     return getMetadataReader(definition).getAnnotationMetadata();
   }
 
-  public void register(BeanDefinition definition) {
+  public void register(BeanDefinition definition, AnnotationMetadata importMetadata) {
+    definition.setAttribute(ImportAware.ImportAnnotatedMetadata, importMetadata); // @since 3.0
+
     context.registerBeanDefinition(definition);
 
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(definition);
@@ -285,6 +282,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     if (importer instanceof ImportAware) {
       ((ImportAware) importer).setImportMetadata(importMetadata);
     }
+
+    context.unwrapFactory(AutowireCapableBeanFactory.class).autowireBean(importer);
     return importer;
   }
 
@@ -352,9 +351,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     log.debug("Importing: [{}]", importClass);
 
     BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);
-    importDef.setAttribute(ImportAware.ImportAnnotatedMetadata, importMetadata); // @since 3.0
-    register(importDef);
-    loadConfigurationBeans(importDef, importMetadata); // scan config bean
+    register(importDef, importMetadata);
 
     // use import selector to select bean to register
     if (ImportSelector.class.isAssignableFrom(importClass)) {
@@ -366,7 +363,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
           AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
           String beanName = context.createBeanName(select);
           definition.setName(beanName);
-          register(definition);
+          register(definition, importMetadata);
         }
       }
     }

@@ -19,19 +19,19 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import cn.taketoday.beans.ArgumentsResolverProvider;
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Bean factory
@@ -221,10 +221,10 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    *
    * @param beanName the name of the bean
    * @return the registered BeanDefinition
-   * @throws NoSuchBeanDefinitionException if there is no bean with the given name defined in this factory
    * @since 4.0
    */
-  BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+  @Nullable
+  BeanDefinition getBeanDefinition(String beanName);
 
   //---------------------------------------------------------------------
   // Listing Get operations for type-lookup

@@ -37,6 +37,7 @@ import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -62,6 +63,7 @@ public @interface EnableAspectAutoProxy {
   boolean proxyTargetClass() default true;
 }
 
+@Configuration
 class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvider<EnableAspectAutoProxy> {
 
   /**

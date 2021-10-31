@@ -210,7 +210,7 @@ public class StandardBeanFactory
 
     for (BeanDefinition definition : beanDefinitionMap.values()) {
       if (isAssignableTo(definition, beanClass)) {
-        return def;
+        return definition;
       }
     }
     return null;

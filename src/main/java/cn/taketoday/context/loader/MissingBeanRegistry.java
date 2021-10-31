@@ -134,7 +134,10 @@ public class MissingBeanRegistry {
     MergedAnnotation<MissingBean> missingBean = metadata.getAnnotations().get(MissingBean.class);
     if (missingBean.isPresent() && context.passCondition(metadata)) {
       MissingInfo missingInfo = new MissingInfo(metadata, config, missingBean);
-      mayBeMissingInfos.add(missingInfo);
+//      mayBeMissingInfos.add(missingInfo);
+      if (isMissingBeanInFactory(missingInfo)) {
+        registerMissing(missingInfo);
+      }
     }
   }
 

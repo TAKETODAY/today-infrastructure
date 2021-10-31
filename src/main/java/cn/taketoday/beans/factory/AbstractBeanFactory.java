@@ -749,13 +749,31 @@ public abstract class AbstractBeanFactory
     if (CollectionUtils.isNotEmpty(objectFactories)) {
       Object objectFactory = objectFactories.get(requiredType);
       if (objectFactory != null) {
-        if (requiredType.isInstance(objectFactory)) {
-          return objectFactory;
-        }
-        if (objectFactory instanceof Supplier) {
-          return createObjectFactoryDependencyProxy(requiredType, (Supplier<?>) objectFactory);
+        Object obj = createFromObjectFactory(requiredType, objectFactory);
+        if (obj != null) {
+          return obj;
         }
       }
+      // iterate objectFactories
+      for (Entry<Class<?>, Object> entry : objectFactories.entrySet()) {
+        if (entry.getKey().isAssignableFrom(requiredType)) {
+          objectFactory = entry.getValue();
+          Object obj = createFromObjectFactory(requiredType, objectFactory);
+          if (obj != null) {
+            return obj;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private Object createFromObjectFactory(Class<?> requiredType, Object objectFactory) {
+    if (requiredType.isInstance(objectFactory)) {
+      return objectFactory;
+    }
+    if (objectFactory instanceof Supplier) {
+      return createObjectFactoryDependencyProxy(requiredType, (Supplier<?>) objectFactory);
     }
     return null;
   }
