@@ -346,11 +346,17 @@ public class StandardBeanFactory
   }
 
   @Nullable
+  @SuppressWarnings("unchecked")
   private <T> T resolveBean(ResolvableType requiredType, boolean nonUniqueAsNull) {
     NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, nonUniqueAsNull);
     if (namedBean != null) {
       return namedBean.getBeanInstance();
     }
+    Object dependency = resolveFromObjectFactories(requiredType.resolve());
+    if (dependency != null) {
+      return (T) dependency;
+    }
+
     BeanFactory parent = getParentBeanFactory();
     if (parent instanceof StandardBeanFactory) {
       return ((StandardBeanFactory) parent).resolveBean(requiredType, nonUniqueAsNull);
@@ -401,8 +407,6 @@ public class StandardBeanFactory
       if (primaryCandidate != null) {
         return resolveNamedBean(primaryCandidate, requiredType);
       }
-
-      
 
       // fall
       if (!nonUniqueAsNull) {

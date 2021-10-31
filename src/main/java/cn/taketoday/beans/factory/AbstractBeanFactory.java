@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
@@ -136,13 +138,6 @@ public abstract class AbstractBeanFactory
     BeanFactory parentBeanFactory = getParentBeanFactory();
     if (parentBeanFactory != null) {
       return parentBeanFactory.getBean(name);
-    }
-    if (objectFactories != null) {
-      Object obj = objectFactories.get(name);
-      if (obj instanceof Supplier) {
-        return ((Supplier<?>) obj).get();
-      }
-      return obj;
     }
     return null;
   }
@@ -744,6 +739,65 @@ public abstract class AbstractBeanFactory
   protected abstract void registerBeanDefinition(String beanName, BeanDefinition def);
 
   /**
+   * Handle dependency {@link BeanDefinition}
+   *
+   * @param requiredType by type
+   * @return Dependency {@link BeanDefinition}
+   */
+  protected Object resolveFromObjectFactories(Class<?> requiredType) {
+    // from objectFactories
+    if (CollectionUtils.isNotEmpty(objectFactories)) {
+      Object objectFactory = objectFactories.get(requiredType);
+      if (objectFactory != null) {
+        if (requiredType.isInstance(objectFactory)) {
+          return objectFactory;
+        }
+        if (objectFactory instanceof Supplier) {
+          return createObjectFactoryDependencyProxy(requiredType, (Supplier<?>) objectFactory);
+        }
+      }
+    }
+    return null;
+  }
+
+  protected Object createObjectFactoryDependencyProxy(Class<?> type, Supplier<?> objectFactory) {
+    // fixed @since 3.0.1
+    ProxyFactory proxyFactory = createProxyFactory();
+    proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
+    proxyFactory.setOpaque(true);
+    return proxyFactory.getProxy(type.getClassLoader());
+  }
+
+  protected ProxyFactory createProxyFactory() {
+    return new ProxyFactory();
+  }
+
+  static final class ObjectFactoryTargetSource implements TargetSource {
+    private final Class<?> targetType;
+    private final Supplier<?> objectFactory;
+
+    ObjectFactoryTargetSource(Supplier<?> objectFactory, Class<?> targetType) {
+      this.targetType = targetType;
+      this.objectFactory = objectFactory;
+    }
+
+    @Override
+    public Class<?> getTargetClass() {
+      return targetType;
+    }
+
+    @Override
+    public boolean isStatic() {
+      return false;
+    }
+
+    @Override
+    public Object getTarget() throws Exception {
+      return objectFactory.get();
+    }
+  }
+
+  /**
    * Get object {@link Supplier}s
    *
    * @return object {@link Supplier}s
@@ -904,11 +958,9 @@ public abstract class AbstractBeanFactory
   protected boolean isFactoryBean(BeanDefinition def) {
     Boolean result = def.isFactoryBean();
     if (result == null) {
-
       if (def instanceof FactoryBeanDefinition) {
 
       }
-
       Class<?> beanType = predictBeanType(def);
       result = beanType != null && FactoryBean.class.isAssignableFrom(beanType);
       def.setFactoryBean(result);
