@@ -20,10 +20,12 @@
 
 package cn.taketoday.beans.factory;
 
+import org.junit.jupiter.api.Test;
+
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,8 +44,9 @@ class InstantiationAwareBeanPostProcessorTests {
     @Override
     // your Instantiation Strategy
     public Object postProcessBeforeInstantiation(BeanDefinition def) {
-      if (def != null) {
-        if (def.getBeanClass() == InstantiationAwareBeanPostProcessorBean.class) {
+      if (def instanceof AnnotatedBeanDefinition) {
+        MethodMetadata metadata = ((AnnotatedBeanDefinition) def).getFactoryMethodMetadata();
+        if (def.getBeanClass() == InstantiationAwareBeanPostProcessorBean.class && metadata == null) {
           return new InstantiationAwareBeanPostProcessorBean(); // your strategy
         }
       }
@@ -87,7 +90,8 @@ class InstantiationAwareBeanPostProcessorTests {
       InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
       beanFactory.addBeanPostProcessor(postProcessor);
 
-      InstantiationAwareBeanPostProcessorBean bean = context.getBean(InstantiationAwareBeanPostProcessorBean.class);
+      InstantiationAwareBeanPostProcessorBean bean = context.getBean(
+              "instantiationAwareBeanPostProcessorBean", InstantiationAwareBeanPostProcessorBean.class);
 
       Object instantiationBean = context.getBean("instantiationBean");
 
