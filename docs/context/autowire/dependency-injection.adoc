@@ -3,7 +3,7 @@
 
 == 通过 `PropertyValueResolver` 接口注入属性
 
-> 支持 JSR-330 `@Inject`,`@Named` 注解
+> @Autowired 注入
 
 [source,java]
 ----
