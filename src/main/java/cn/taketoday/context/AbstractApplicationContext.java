@@ -327,8 +327,8 @@ public abstract class AbstractApplicationContext
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     beanFactory.addBeanPostProcessor(new AutowiredPropertyValuesBeanPostProcessor(this));
 
-    beanFactory.registerSingleton(this);
-    beanFactory.registerSingleton(beanFactory);
+    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
   }
 
   /**

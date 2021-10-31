@@ -24,8 +24,6 @@ import java.util.Objects;
 
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -35,7 +33,6 @@ import cn.taketoday.util.StringUtils;
  * @since 3.0
  */
 public class BeanReferencePropertySetter extends AbstractPropertySetter {
-  private static final Logger log = LoggerFactory.getLogger(BeanReferencePropertySetter.class);
 
   /** reference name */
   @Nullable
