@@ -66,6 +66,14 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     this.referenceClass = property.getType();
   }
 
+  public BeanReferencePropertySetter(
+          String referenceName, boolean required, BeanProperty property, Class<?> referenceClass) {
+    super(property);
+    this.required = required;
+    this.referenceName = referenceName;
+    this.referenceClass = referenceClass;
+  }
+
   @Override
   protected Object resolveValue(AbstractBeanFactory beanFactory) {
     // fix: same name of bean

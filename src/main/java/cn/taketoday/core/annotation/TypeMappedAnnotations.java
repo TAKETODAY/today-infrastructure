@@ -16,8 +16,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -30,6 +28,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link MergedAnnotations} implementation that searches for and adapts
@@ -120,8 +120,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     if (annotationFilter.matches(annotationType)) {
       return false;
     }
-    return Boolean.TRUE.equals(scan(annotationType,
-            IsPresent.get(repeatableContainers, annotationFilter, true)));
+    return Boolean.TRUE.equals(scan(
+            annotationType, IsPresent.get(repeatableContainers, annotationFilter, true)));
   }
 
   @Override
@@ -173,7 +173,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return MergedAnnotation.missing();
     }
     MergedAnnotation<A> result = scan(annotationType,
-            new MergedAnnotationFinder<>(annotationType, predicate, selector));
+                                      new MergedAnnotationFinder<>(annotationType, predicate, selector));
     return (result != null ? result : MergedAnnotation.missing());
   }
 
@@ -255,8 +255,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     return null;
   }
 
-  static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
-                                RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  static MergedAnnotations from(
+          AnnotatedElement element, SearchStrategy searchStrategy,
+          RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
     if (AnnotationsScanner.isKnownEmpty(element, searchStrategy)) {
       return NONE;
@@ -264,21 +265,21 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     return new TypeMappedAnnotations(element, searchStrategy, repeatableContainers, annotationFilter);
   }
 
-  static MergedAnnotations from(@Nullable Object source, Annotation[] annotations,
-                                RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  static MergedAnnotations from(
+          @Nullable Object source, Annotation[] annotations,
+          RepeatableContainers repeatableContainers, AnnotationFilter filter) {
 
     if (annotations.length == 0) {
       return NONE;
     }
-    return new TypeMappedAnnotations(source, annotations, repeatableContainers, annotationFilter);
+    return new TypeMappedAnnotations(source, annotations, repeatableContainers, filter);
   }
 
   private static boolean isMappingForType(
-          AnnotationTypeMapping mapping,
-          AnnotationFilter annotationFilter, @Nullable Object requiredType) {
+          AnnotationTypeMapping mapping, AnnotationFilter filter, @Nullable Object requiredType) {
 
     Class<? extends Annotation> actualType = mapping.getAnnotationType();
-    return (!annotationFilter.matches(actualType) &&
+    return (!filter.matches(actualType) &&
             (requiredType == null || actualType == requiredType || actualType.getName().equals(requiredType)));
   }
 
@@ -302,17 +303,15 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       SHARED[3] = new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, false);
     }
 
+    private final boolean directOnly;
+    private final AnnotationFilter annotationFilter;
     private final RepeatableContainers repeatableContainers;
 
-    private final AnnotationFilter annotationFilter;
-
-    private final boolean directOnly;
-
-    private IsPresent(RepeatableContainers repeatableContainers,
-                      AnnotationFilter annotationFilter, boolean directOnly) {
+    private IsPresent(
+            RepeatableContainers repeatableContainers, AnnotationFilter filter, boolean directOnly) {
 
       this.directOnly = directOnly;
-      this.annotationFilter = annotationFilter;
+      this.annotationFilter = filter;
       this.repeatableContainers = repeatableContainers;
     }
 
@@ -329,8 +328,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
             if (type == requiredType || type.getName().equals(requiredType)) {
               return Boolean.TRUE;
             }
-            Annotation[] repeatedAnnotations =
-                    repeatableContainers.findRepeatedAnnotations(annotation);
+            Annotation[] repeatedAnnotations = repeatableContainers.findRepeatedAnnotations(annotation);
             if (repeatedAnnotations != null) {
               Boolean result = doWithAnnotations(
                       requiredType, aggregateIndex, source, repeatedAnnotations);

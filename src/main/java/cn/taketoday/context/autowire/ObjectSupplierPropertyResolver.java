@@ -35,6 +35,8 @@ import cn.taketoday.core.ResolvableType;
  * for {@link ObjectSupplier} PropertyValueResolver
  *
  * @author TODAY 2021/3/6 12:10
+ * @see Supplier
+ * @see ObjectSupplier
  * @since 3.0
  */
 public class ObjectSupplierPropertyResolver

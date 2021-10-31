@@ -1,0 +1,68 @@
+[[dependency-injection]]
+= 依赖注入
+
+== 通过 `PropertyValueResolver` 接口注入属性
+
+> 支持 JSR-330 `@Inject`,`@Named` 注解
+
+[source,java]
+----
+public class Car {
+  @Autowired("driver") Seat driverSeat;
+  @Autowired("passenger") Seat passengerSeat;
+  @Autowired("passenger1") @Required Seat passengerSeat1; // 找不到就抛异常
+  @Autowired(value = "passenger2", required = true) Seat passengerSeat2; // 找不到就抛异常
+  ...
+}
+----
+
+> 支持 `Optional<T>` 注入的 Bean 如果不存在容器则返回的是 `Optional.empty()`
+
+NOTE: 该方式注入不属于懒加载
+
+[source,java]
+----
+public class Car {
+  @Inject @Named("driver") Optional<Seat> driverSeat;
+  @Inject @Named("passenger") Optional<Seat> passengerSeat;
+  ...
+}
+----
+
+=== 实现方式
+
+详见: `cn.taketoday.context.autowire.OptionalPropertyValueResolver`
+
+> 支持 JSR-250 `@Resource` 注解
+
+[source,java]
+----
+public class Car {
+  @Resource(name = "driver") Seat driverSeat;
+  @Resource(name = "passenger") Seat passengerSeat;
+  ...
+}
+----
+
+=== 实现方式
+
+详见: `cn.taketoday.context.autowire.JSR250ResourcePropertyValueResolver`
+
+> 支持 JSR-330 `@Inject`,`@Named` 注解
+
+[source,java]
+----
+public class Car {
+  @Inject @Named("driver") Seat driverSeat;
+  @Inject @Named("passenger") Seat passengerSeat;
+  @Inject @Named("passenger") @Required Seat passengerSeat; // 找不到就抛异常
+  ...
+}
+----
+
+=== 实现方式
+
+详见: `cn.taketoday.context.autowire.JSR330ResourcePropertyValueResolver`
+
+== 使用 `ArgumentsResolvingStrategy` 注入参数
+

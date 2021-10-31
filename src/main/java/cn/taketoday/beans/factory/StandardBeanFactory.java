@@ -401,6 +401,9 @@ public class StandardBeanFactory
       if (primaryCandidate != null) {
         return resolveNamedBean(primaryCandidate, requiredType);
       }
+
+      
+
       // fall
       if (!nonUniqueAsNull) {
         throw new NoUniqueBeanException(requiredType, candidateNames);

@@ -31,6 +31,8 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.lang.Autowired;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Today <br>
  *
@@ -49,24 +51,30 @@ class AutowiredPropertyResolverTests {
   private String name2;
 
   @Test
-  public void autowiredPropertyResolver() throws Throwable {
+  void autowiredPropertyResolver() throws Throwable {
 
     try (ConfigurableApplicationContext context = new StandardApplicationContext()) {
       context.refresh();
 
-      PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
+      AutowiredPropertyResolver resolver = new AutowiredPropertyResolver();
       PropsReader propsReader = new PropsReader(context.getEnvironment());
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(context, propsReader);
-      PropertySetter resolveProperty = autowiredPropertyResolver.resolveProperty(
+      PropertySetter resolveProperty = resolver.resolveProperty(
               resolvingContext,
               BeanProperty.valueOf(getClass(), "name")//
       );
 
-      System.err.println(resolveProperty);
-      assert resolveProperty != null;
+      assertThat(resolveProperty).isNotNull();
+      assertThat(resolveProperty.getName()).isEqualTo("name");
 
-      assert autowiredPropertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name1")) != null;
-      assert autowiredPropertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name2")) != null;
+//      PropertySetter name1 = resolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name1"));
+//      PropertySetter name2 = resolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name2"));
+//
+//      assertThat(name1).isNotNull();
+//      assertThat(name1.getName()).isNotNull().isEqualTo("name1");
+//
+//      assertThat(name2).isNotNull();
+//      assertThat(name2.getName()).isNotNull().isEqualTo("name2");
 
     }
   }

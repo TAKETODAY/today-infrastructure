@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.autowire;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,8 +31,12 @@ import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author TODAY 2021/10/23 22:59
@@ -40,6 +45,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
+  private static final Logger log = LoggerFactory.getLogger(PropertyValueResolverComposite.class);
 
   private final ApplicationContext context;
 
@@ -111,6 +117,7 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   public PropertySetter resolveProperty(BeanProperty property) {
     if (resolvingStrategies == null) {
       resolvingStrategies = new PropertyValueResolverComposite();
+      initResolvingStrategies(resolvingStrategies);
     }
     if (resolvingContext == null) {
       resolvingContext = new PropertyResolvingContext(context, propsReader());
@@ -126,7 +133,32 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
     return propsReader;
   }
 
-  //
+  private void initResolvingStrategies(PropertyValueResolverComposite resolvingStrategies) {
+    log.debug("initialize property-setter-resolvers");
+    ArrayList<PropertyValueResolver> resolvers = resolvingStrategies.getResolvers();
+    resolvers.add(new ValuePropertyResolver());
+    resolvers.add(new PropsPropertyResolver());
+    resolvers.add(new ObjectSupplierPropertyResolver());
+    resolvers.add(new AutowiredPropertyResolver());
+
+    try {
+      resolvers.add(new JSR330InjectPropertyResolver());
+      log.debug("Add JSR-330 annotation '@Inject,@Named' supports ");
+    }
+    catch (Exception ignored) { }
+    try {
+      resolvers.add(new JSR250ResourcePropertyValueResolver());
+      log.debug("Add JSR-250 annotation '@Resource' supports");
+    }
+    catch (Exception ignored) { }
+
+    List<PropertyValueResolver> strategies =
+            TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, context);
+
+    // un-ordered
+    resolvers.addAll(strategies); // @since 4.0
+    AnnotationAwareOrderComparator.sort(resolvers);
+  }
 
   public ApplicationContext getContext() {
     return context;

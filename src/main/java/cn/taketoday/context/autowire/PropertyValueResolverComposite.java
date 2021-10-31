@@ -22,25 +22,24 @@ package cn.taketoday.context.autowire;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 
 /**
+ * PropertyValueResolver Composite
+ * <p>
+ * supports order
+ *
  * @author TODAY 2021/10/3 22:13
  * @since 4.0
  */
-public class PropertyValueResolverComposite implements PropertyValueResolver {
-  private static final Logger log = LoggerFactory.getLogger(PropertyValueResolverComposite.class);
+public class PropertyValueResolverComposite implements PropertyValueResolver, ArraySizeTrimmer {
 
   /**
    * @since 3.0 Resolve {@link PropertySetter}
@@ -50,35 +49,13 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
   @Nullable
   @Override
   public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
-    for (PropertyValueResolver propertyValueResolver : getResolvers(context)) {
+    for (PropertyValueResolver propertyValueResolver : propertyResolvers) {
       PropertySetter propertySetter = propertyValueResolver.resolveProperty(context, property);
       if (propertySetter != null) {
         return propertySetter;
       }
     }
     return null;
-  }
-
-  /**
-   * @since 3.0
-   */
-  public ArrayList<PropertyValueResolver> getResolvers(PropertyResolvingContext context) {
-    if (propertyResolvers.isEmpty()) {
-      log.debug("initialize property-setter-resolvers");
-      addResolvers(new ValuePropertyResolver(),
-                   new PropsPropertyResolver(),
-                   new ObjectSupplierPropertyResolver(),
-                   new AutowiredPropertyResolver());
-
-      ApplicationContext beanFactory = context.getContext();
-      List<PropertyValueResolver> strategies =
-              TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, beanFactory);
-      // un-ordered
-      propertyResolvers.addAll(strategies); // @since 4.0
-      AnnotationAwareOrderComparator.sort(propertyResolvers);
-      log.debug("initialized property-setter-resolvers: {}", propertyResolvers);
-    }
-    return propertyResolvers;
   }
 
   /**
@@ -105,7 +82,7 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
    * @param resolvers {@link PropertyValueResolver} object
    * @since 3.0
    */
-  public void addResolvers(final PropertyValueResolver... resolvers) {
+  public void addResolvers(PropertyValueResolver... resolvers) {
     if (ObjectUtils.isNotEmpty(resolvers)) {
       Collections.addAll(propertyResolvers, resolvers);
       AnnotationAwareOrderComparator.sort(propertyResolvers);
@@ -119,4 +96,8 @@ public class PropertyValueResolverComposite implements PropertyValueResolver {
     propertyResolvers.clear();
   }
 
+  @Override
+  public void trimToSize() {
+    propertyResolvers.trimToSize();
+  }
 }
