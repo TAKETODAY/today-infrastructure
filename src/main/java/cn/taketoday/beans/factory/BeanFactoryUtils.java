@@ -78,7 +78,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#FACTORY_BEAN_PREFIX
    */
   public static boolean isFactoryDereference(@Nullable String name) {
-    return (name != null && StringUtils.matchesFirst(name, BeanFactory.FACTORY_BEAN_PREFIX_CHAR));
+    return name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX);
   }
 
   /**

@@ -19,19 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -58,6 +45,19 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -194,7 +194,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                    name, ClassUtils.getQualifiedName(requiredType), ex);
+                  name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -209,10 +209,15 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    return isTypeMatch(name, typeToMatch, true);
+  }
+
+  protected boolean isTypeMatch(String name, ResolvableType typeToMatch, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
     // Check manually registered singletons.
     Object beanInstance = getSingleton(name);
+    boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
+
     if (beanInstance != null) {
-      boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
       if (beanInstance instanceof FactoryBean) {
         if (!isFactoryDereference) {
           Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
@@ -229,7 +234,7 @@ public abstract class AbstractBeanFactory
         }
         else if (typeToMatch.hasGenerics() && containsBeanDefinition(name)) {
           // Generics potentially only match on the target class, not on the proxy...
-          BeanDefinition mbd = getBeanDefinition(name);
+          BeanDefinition mbd = obtainBeanDefinition(name);
           Class<?> targetType = null;
           if (mbd.hasBeanClass()) {
             targetType = mbd.getBeanClass();
@@ -257,6 +262,18 @@ public abstract class AbstractBeanFactory
       // No bean definition found in this factory -> delegate to parent.
       return parentBeanFactory.isTypeMatch(name, typeToMatch);
     }
+
+    if (isFactoryDereference) {
+      String beanName = BeanFactoryUtils.transformedBeanName(name);
+      BeanDefinition definition = obtainBeanDefinition(beanName);
+      // lookup start-with '$' , hasn't create its factory
+      if (!definition.isLazyInit() || allowFactoryBeanInit) {
+        FactoryBean<Object> factoryBean = getFactoryBean(definition);
+        Class<Object> beanClass = factoryBean.getBeanClass();
+        return typeToMatch.isAssignableFrom(beanClass);
+      }
+    }
+
     BeanDefinition definition = obtainBeanDefinition(name);
     Class<?> type = predictBeanType(definition);
     if (type != null) {
@@ -346,7 +363,7 @@ public abstract class AbstractBeanFactory
       }
 
       ClassLoader beanClassLoader = getBeanClassLoader();
-      Class<?> beanClass = ((BeanDefinition) def).resolveBeanClass(beanClassLoader);
+      Class<?> beanClass = def.resolveBeanClass(beanClassLoader);
       if (beanClass != null) {
         return beanClass;
       }
@@ -813,6 +830,7 @@ public abstract class AbstractBeanFactory
     public Object getTarget() throws Exception {
       return objectFactory.get();
     }
+
   }
 
   /**
@@ -928,7 +946,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                       "that it should return null if the type of its object cannot be determined yet", ex);
+              "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
