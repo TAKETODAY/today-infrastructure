@@ -19,15 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -55,6 +46,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -72,6 +64,15 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -297,10 +298,31 @@ public abstract class AbstractApplicationContext
   }
 
   /**
+   * Finish the initialization of this context's bean factory,
+   * initializing all remaining singleton beans.
+   */
+  protected void finishBeanFactoryInitialization(ConfigurableBeanFactory beanFactory) {
+    // Initialize conversion service for this context.
+    if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
+            beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+      beanFactory.setConversionService(
+              beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+    }
+
+    // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
+
+    // Stop using the temporary ClassLoader for type matching.
+    beanFactory.setTempClassLoader(null);
+
+    // Instantiate all remaining (non-lazy-init) singletons.
+    beanFactory.initializeSingletons();
+  }
+
+  /**
    * Context start success
    */
-  protected void postRefresh() {
-    getBeanFactory().initializeSingletons();
+  protected void finishRefresh() {
+    clearResourceCaches();
 
     // start success publish started event
     publishEvent(new ContextStartedEvent(this));
@@ -312,7 +334,7 @@ public abstract class AbstractApplicationContext
   /**
    * Initialization singletons that has already in context
    */
-  protected void preRefresh() {
+  protected void onRefresh() {
     publishEvent(new ContextPreRefreshEvent(this));
     // fix: #1 some singletons could not be initialized.
     getBeanFactory().preInitialization();
@@ -322,6 +344,7 @@ public abstract class AbstractApplicationContext
     log.info("Preparing internal bean-factory");
     // Tell the internal bean factory to use the context's class loader etc.
     beanFactory.setBeanClassLoader(getClassLoader());
+    beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
 
     // register bean post processors
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
@@ -412,18 +435,19 @@ public abstract class AbstractApplicationContext
   @Override
   public void refresh() throws IllegalStateException {
     assertRefreshable();
+    // Prepare refresh
+    prepareRefresh();
+
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+
+    // register framework beans
+    registerFrameworkComponents(beanFactory);
+
+    // Prepare BeanFactory
+    prepareBeanFactory(beanFactory);
+
     try {
-      // Prepare refresh
-      prepareRefresh();
-
-      ConfigurableBeanFactory beanFactory = getBeanFactory();
-
-      // register framework beans
-      registerFrameworkComponents(beanFactory);
-
-      // Prepare BeanFactory
-      prepareBeanFactory(beanFactory);
-
+      // Allows post-processing of the bean factory in context subclasses.
       postProcessBeanFactory(beanFactory);
 
       // Invoke factory processors registered as beans in the context.
@@ -432,20 +456,25 @@ public abstract class AbstractApplicationContext
       // Register bean processors that intercept bean creation.
       registerBeanPostProcessors(beanFactory);
 
-      registerApplicationListeners();
-
       // Initialization singletons that has already in context
       // Initialize other special beans in specific context subclasses.
       // for example a Web Server
-      preRefresh();
-
-      // Refresh factory, Initialize all singletons.
       onRefresh();
 
+      // Check for listener beans and register them.
+      registerApplicationListeners();
+
+      // Instantiate all remaining (non-lazy-init) singletons.
+      finishBeanFactoryInitialization(beanFactory);
+
       // Finish refresh
-      postRefresh();
+      finishRefresh();
     }
     catch (Exception ex) {
+      if (log.isWarnEnabled()) {
+        log.warn("Exception encountered during context initialization - cancelling refresh attempt: " + ex);
+      }
+
       applyState(State.FAILED);
       cancelRefresh(ex);
       throw new ApplicationContextException("context refresh failed", ex);
@@ -471,9 +500,6 @@ public abstract class AbstractApplicationContext
     }
   }
 
-  protected void onRefresh() {
-
-  }
 
   /**
    * <p>
@@ -510,7 +536,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.

@@ -22,6 +22,7 @@ package cn.taketoday.context;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ProtocolResolver;
 import cn.taketoday.lang.Nullable;
@@ -30,6 +31,15 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2018-11-14 21:16
  */
 public interface ConfigurableApplicationContext extends ApplicationContext {
+
+  /**
+   * Name of the ConversionService bean in the factory.
+   * If none is supplied, default conversion rules apply.
+   *
+   * @see ConversionService
+   * @since 4.0
+   */
+  String CONVERSION_SERVICE_BEAN_NAME = "conversionService";
 
   /**
    * Get configurable environment

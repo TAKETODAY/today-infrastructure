@@ -95,10 +95,9 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    *
    * @throws BeansException if one of the singleton beans could not be created.
    * Note: This may have left the factory with some beans already initialized!
-   * @throws Throwable when could not initialize singletons
    * @since 2.1.2
    */
-  void initializeSingletons() throws Throwable;
+  void initializeSingletons();
 
   /**
    * Remove a {@link BeanPostProcessor}
