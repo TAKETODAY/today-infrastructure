@@ -23,6 +23,7 @@ package cn.taketoday.context.annotation;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Component;
@@ -36,14 +37,17 @@ public class ComponentAnnotationBeanDefinitionCreator implements BeanDefinitionL
   @Override
   public void loadBeanDefinitions(
           MetadataReader metadata, DefinitionLoadingContext loadingContext) {
+    // annotation on class
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
-
-    if (annotationMetadata.isAnnotated(Component.class.getName())) {
-      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
-      definition.setBeanClassName(annotationMetadata.getClassName());
-      definition.setName(loadingContext.createBeanName(annotationMetadata.getClassName()));
-      loadingContext.registerBeanDefinition(definition);
-    }
+    annotationMetadata.getAnnotations().stream(Component.class).forEach(component -> {
+      for (String name : BeanDefinitionBuilder.determineName(
+              loadingContext.createBeanName(annotationMetadata.getClassName()), component.getStringArray(MergedAnnotation.VALUE))) {
+        AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
+        definition.setBeanClassName(annotationMetadata.getClassName());
+        definition.setName(name);
+        loadingContext.registerBeanDefinition(definition);
+      }
+    });
   }
 
 }
