@@ -19,13 +19,6 @@
  */
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.reflect.MethodAccessor;
@@ -34,6 +27,13 @@ import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * bean-instantiator: bean instantiate strategy
@@ -67,7 +67,7 @@ public abstract class BeanInstantiator {
       throw e;
     }
     catch (Throwable e) {
-      throw new BeanInstantiationException("cannot instantiate a bean", e);
+      throw new BeanInstantiationException(this + " cannot instantiate a bean", e);
     }
   }
 
