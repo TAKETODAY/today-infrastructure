@@ -34,7 +34,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -94,22 +93,6 @@ public class StandardBeanFactory
     Object initializingBean = super.initializeBean(bean, def);
     currentInitializingBeanName.remove(name);
     return initializingBean;
-  }
-
-  /**
-   * Register {@link FactoryBeanDefinition} to the {@link BeanFactory}
-   *
-   * @param oldBeanName Target old bean name
-   * @param factoryDef {@link FactoryBean} Bean definition
-   */
-  protected void registerFactoryBean(String oldBeanName, BeanDefinition factoryDef) {
-
-    FactoryBeanDefinition<?> def = //
-            factoryDef instanceof FactoryBeanDefinition
-            ? (FactoryBeanDefinition<?>) factoryDef
-            : new FactoryBeanDefinition<>(factoryDef, this);
-
-    registerBeanDefinition(oldBeanName, def);
   }
 
   //---------------------------------------------------------------------

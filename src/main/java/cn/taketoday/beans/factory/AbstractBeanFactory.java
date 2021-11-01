@@ -981,7 +981,7 @@ public abstract class AbstractBeanFactory
       // No bean definition found in this factory -> delegate to parent.
       return ((ConfigurableBeanFactory) getParentBeanFactory()).isFactoryBean(beanName);
     }
-    return isFactoryBean(getBeanDefinition(beanName));
+    return isFactoryBean(obtainBeanDefinition(beanName));
   }
 
   /**
