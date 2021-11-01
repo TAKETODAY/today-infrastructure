@@ -36,6 +36,9 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.interceptor.AbstractCacheInterceptor.MethodKey;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.lang.Configuration;
+import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
@@ -89,31 +92,38 @@ class CacheableInterceptorTests {
     catch (NoSuchCacheException ignored) { }
   }
 
+  @Import({
+          CacheUserService.class,
+          CacheableInterceptor.class,
+          CaffeineCacheManager.class,
+          AspectAutoProxyCreator.class,
+          DefaultCacheExceptionResolver.class
+  })
+  @Configuration
+  static class AppConfig {
+
+    @Singleton
+    public DefaultPointcutAdvisor cacheableAdvisor(CacheableInterceptor interceptor) {
+      AnnotationMatchingPointcut matchingPointcut
+              = AnnotationMatchingPointcut.forMethodAnnotation(Cacheable.class);
+      return new DefaultPointcutAdvisor(matchingPointcut, interceptor);
+    }
+
+  }
+
   @Test
   void testContext() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.register(CacheUserService.class);
-      context.register(CacheableInterceptor.class);
-      context.register(CaffeineCacheManager.class);
-      context.register(AspectAutoProxyCreator.class);
-      context.register(DefaultCacheExceptionResolver.class);
-      context.registerFrameworkComponents();
-      context.setRefreshable(true);
-
-      CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
+      context.register(AppConfig.class);
+      context.refresh();
 
       Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
       MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
       CacheConfiguration cacheable = prepareAnnotation(methodKey);
+
+      CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
       Cache users = interceptor.getCache("users", cacheable);
-
-      AnnotationMatchingPointcut matchingPointcut
-              = AnnotationMatchingPointcut.forMethodAnnotation(Cacheable.class);
-      DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-      context.registerSingleton(pointcutAdvisor);
-
-      context.refresh();
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
       CacheUserService userService = context.getBean(CacheUserService.class);

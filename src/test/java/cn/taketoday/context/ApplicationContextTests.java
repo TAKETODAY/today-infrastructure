@@ -74,25 +74,6 @@ class ApplicationContextTests {
   }
 
   /**
-   * test load context and get singleton.
-   */
-  @Test
-  void loadSingleton() throws NoSuchBeanDefinitionException {
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.scan("test.demo.config");
-      applicationContext.refresh();
-      Config config = applicationContext.getBean(Config.class);
-      Config config_ = applicationContext.getBean(Config.class);
-
-      assert config == config_ : "singleton error.";
-
-      String copyright = config.getCopyright();
-
-      assert copyright != null : "properties file load error.";
-    }
-  }
-
-  /**
    * test load FactoryBean.
    */
   @Test
@@ -136,22 +117,16 @@ class ApplicationContextTests {
   }
 
   @Test
-  public void testLoadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-
-    try (StandardApplicationContext applicationContext =
-            new StandardApplicationContext(ConfigurationBean.class)) {
+  void testLoadFromCollection() throws Exception {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+      applicationContext.register(ConfigurationBean.class);
       applicationContext.refresh();
-      long start = System.currentTimeMillis();
 
       User bean = applicationContext.getBean(User.class);
-//      System.err.println(System.currentTimeMillis() - start + "ms");
-//      System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions());
-
       bean.setAge(12);
-
       User user = applicationContext.getBean(User.class);
 
-      assert bean != user;
+      assertThat(bean).isNotNull().isEqualTo(user);
     }
   }
 

@@ -20,6 +20,11 @@
 
 package cn.taketoday.cache.interceptor;
 
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+import java.util.Date;
+
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
@@ -28,11 +33,10 @@ import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.context.StandardApplicationContext;
-import org.junit.jupiter.api.Test;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.lang.Configuration;
+import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
-
-import java.lang.reflect.Method;
-import java.util.Date;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,32 +53,38 @@ class CachePutInterceptorTests {
     interceptor.setExceptionResolver(new DefaultCacheExceptionResolver());
   }
 
+  @Import({
+          CacheUserService.class,
+          CachePutInterceptor.class,
+          CaffeineCacheManager.class,
+          AspectAutoProxyCreator.class,
+          DefaultCacheExceptionResolver.class
+  })
+  @Configuration
+  static class CachePutConfig {
+
+    @Singleton
+    public DefaultPointcutAdvisor cachePutAdvisor(CachePutInterceptor interceptor) {
+      AnnotationMatchingPointcut matchingPointcut
+              = AnnotationMatchingPointcut.forMethodAnnotation(CachePut.class);
+      return new DefaultPointcutAdvisor(matchingPointcut, interceptor);
+    }
+
+  }
+
   @Test
   void testInContext() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.register(CacheUserService.class);
-      context.register(CachePutInterceptor.class);
-      context.register(CaffeineCacheManager.class);
-      context.register(AspectAutoProxyCreator.class);
-      context.register(DefaultCacheExceptionResolver.class);
-      context.registerFrameworkComponents();
-      context.setRefreshable(true);
+      context.register(CachePutConfig.class);
+      context.refresh();
 
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
-
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
       AbstractCacheInterceptor.MethodKey methodKey = new AbstractCacheInterceptor.MethodKey(save, CachePut.class);
       CacheConfiguration cachePut = prepareAnnotation(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
-
-      AnnotationMatchingPointcut matchingPointcut
-              = AnnotationMatchingPointcut.forMethodAnnotation(CachePut.class);
-      DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-      context.registerSingleton(pointcutAdvisor);
-
-      context.refresh();
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
       CacheUserService userService = context.getBean(CacheUserService.class);
@@ -104,13 +114,8 @@ class CachePutInterceptorTests {
   public void testContextConditional() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.register(CacheUserService.class);
-      context.register(CachePutInterceptor.class);
-      context.register(CaffeineCacheManager.class);
-      context.register(AspectAutoProxyCreator.class);
-      context.register(DefaultCacheExceptionResolver.class);
-      context.registerFrameworkComponents();
-      context.setRefreshable(true);
+      context.register(CachePutConfig.class);
+      context.refresh();
 
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
 
@@ -119,11 +124,6 @@ class CachePutInterceptorTests {
       AbstractCacheInterceptor.MethodKey methodKey = new AbstractCacheInterceptor.MethodKey(save, CachePut.class);
       CacheConfiguration cachePut = prepareAnnotation(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
-
-      AnnotationMatchingPointcut matchingPointcut
-              = AnnotationMatchingPointcut.forMethodAnnotation(CachePut.class);
-      DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-      context.registerSingleton(pointcutAdvisor);
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
       CacheUserService userService = context.getBean(CacheUserService.class);

@@ -22,49 +22,54 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
+import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Singleton;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY 2021/10/3 22:35
  */
 class BeanDefinitionBuilderTests {
 
-  @Singleton
-  public static class TestBean {
+  public void destroy() {
+
+  }
+
+  public void init(BeanDefinitionBuilderTests _this) {
 
   }
 
   @Test
   void testBuildBeanDefinitions() throws Exception {
 
-    List<BeanDefinition> beanDefinitions = BeanDefinitionBuilder.from(getClass());
+    BeanDefinition definition =
+            new BeanDefinitionBuilder()
+                    .name("testBean")
+                    .beanClass(getClass())
+                    .initMethods("init")
+                    .destroyMethod("destroy")
+                    .primary(true)
+                    .singleton()
+                    .synthetic(true)
+                    .build();
 
-    assert beanDefinitions.size() == 1;
+    assertThat(definition)
+            .isNotNull()
+            .isInstanceOf(BeanDefinition.class)
+            .isInstanceOf(AnnotatedBeanDefinition.class);
 
-    beanDefinitions = BeanDefinitionBuilder.from(TestBean.class);
-    assert beanDefinitions.size() == 1;
+    assertThat(definition.getBeanClass()).isEqualTo(getClass());
+    assertThat(definition.getScope()).isNotNull().isEqualTo("singleton");
+    assertThat(definition.getPropertyValues()).isNull();
 
-    final BeanDefinition beanDefinition = beanDefinitions.get(0);
-    beanDefinition.setDestroyMethod(null);
-    beanDefinition.setInitMethods((String[]) null);
-    beanDefinition.setScope(null);
-    beanDefinition.setPropertyValues();
-    beanDefinition.setName(null);
+    assertThat(definition.getName()).isEqualTo("testBean");
 
-    try {
-      beanDefinition.validate();
-      fail("beanDefinition");
-    }
-    catch (ConfigurationException e) {
-      assert true;
-    }
-
+    assertThat(definition.isSingleton()).isTrue();
+    assertThat(definition.isPrototype()).isFalse();
+    assertThat(definition.getBeanClassName()).isEqualTo(getClass().getName());
+    assertThat(definition.isInitialized()).isFalse();
+    assertThat(definition.isSynthetic()).isTrue();
   }
 
 }
