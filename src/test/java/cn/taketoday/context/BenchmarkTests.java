@@ -1,7 +1,18 @@
 package cn.taketoday.context;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.reflect.MethodAccessor;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import test.demo.config.Config;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -11,16 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.IntSupplier;
 import java.util.function.LongFunction;
-
-import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.reflect.MethodAccessor;
-import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.util.ReflectionUtils;
-import lombok.Getter;
-import lombok.Setter;
-import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -554,6 +555,34 @@ class BenchmarkTests {
     t = (System.nanoTime() - t) / 1_000_000;
     System.out.format("%s          : %d   %dms\n", desc, asInt, t);
   }
+
+  // startsWith
+
+  @Test
+  void startsWith() {
+    String text = StringUtils.generateRandomString(10);
+//    String text = "$testBean";
+    boolean result = true;
+    for (int i = 0; i < 4_0000; i++) {
+      result = i / 2 == 0;
+    }
+
+    long t = System.nanoTime();
+    for (long i = 0; i < 90_0000_0000L; i++) {
+      result = StringUtils.matchesFirst(text, BeanFactory.FACTORY_BEAN_PREFIX_CHAR);
+    }
+    t = (System.nanoTime() - t) / 1_000_000;
+    System.out.format(" matchesFirst %s , result %s %dms\n", text, result, t);
+
+    t = System.nanoTime();
+    for (long i = 0; i < 90_0000_0000L; i++) {
+      result = text.startsWith(BeanFactory.FACTORY_BEAN_PREFIX);
+    }
+    t = (System.nanoTime() - t) / 1_000_000;
+    System.out.format(" startsWith %s, result %s %dms\n", text, result, t);
+
+  }
+
 
 }
 

@@ -661,13 +661,13 @@ class StringUtilsTests {
   }
 
   @Test
-  void matchesEnd() {
-    assertThat(StringUtils.matchesEnd("Hello, world", 'd')).isTrue();
-    assertThat(StringUtils.matchesEnd("Hello, world,", ',')).isTrue();
-    assertThat(StringUtils.matchesEnd("Hello, world,", 's')).isFalse();
+  void matchesLast() {
+    assertThat(StringUtils.matchesLast("Hello, world", 'd')).isTrue();
+    assertThat(StringUtils.matchesLast("Hello, world,", ',')).isTrue();
+    assertThat(StringUtils.matchesLast("Hello, world,", 's')).isFalse();
 
-    assertThat(StringUtils.matchesEnd(null, ',')).isFalse();
-    assertThat(StringUtils.matchesEnd("", ',')).isFalse();
+    assertThat(StringUtils.matchesLast(null, ',')).isFalse();
+    assertThat(StringUtils.matchesLast("", ',')).isFalse();
   }
 
 }
