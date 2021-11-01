@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.context.annotation.ConfigBeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.logging.Logger;
@@ -60,22 +60,28 @@ public class MissingBeanRegistry {
   }
 
   public void registerMissing(MissingInfo missingInfo) {
-    log.debug("register missing bean: {}", missingInfo.metadata);
-
     MethodMetadata beanMethod = missingInfo.metadata;
+    log.debug("register missing bean: {}", beanMethod);
+    AnnotationMetadata annotationMetadata = context.getAnnotationMetadata(
+            beanMethod.getReturnTypeName());
+    ConfigBeanDefinition definition = new ConfigBeanDefinition(
+            missingInfo.config, beanMethod, annotationMetadata);
+    MergedAnnotation<MissingBean> missingBean = missingInfo.missingBean;
 
-    String defaultBeanName = beanMethod.getMethodName();
-    String declaringBeanName = missingInfo.config.getName();
+    String name = missingBean.getString(MergedAnnotation.VALUE);
+    if (StringUtils.hasText(name)) {
+      definition.setName(name);
+    }
+    else {
+      definition.setName(beanMethod.getMethodName());
+    }
 
-    BeanDefinitionBuilder builder = context.createBuilder();
+    definition.setFactoryBeanName(missingInfo.config.getName());
+    definition.setFactoryMethodName(beanMethod.getMethodName());
+    definition.setDestroyMethod(missingBean.getString(BeanDefinition.DESTROY_METHOD));
+    definition.setInitMethods(missingBean.getStringArray(BeanDefinition.INIT_METHODS));
 
-    builder.factoryBeanName(declaringBeanName);
-    builder.beanClassName(beanMethod.getReturnTypeName());
-
-    AnnotationAttributes components = missingInfo.missingBean.asAnnotationAttributes();
-    builder.build(defaultBeanName, components, (component, definition) -> {
-      registerMissing(missingInfo.missingBean, definition);
-    });
+    registerMissing(missingBean, definition);
   }
 
   public void registerMissing(MergedAnnotation<MissingBean> missingBean, BeanDefinition def) {

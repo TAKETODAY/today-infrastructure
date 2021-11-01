@@ -41,8 +41,9 @@ class MissingBeanTests {
 
   @Test
   void missingBeanName() {
-    try (StandardApplicationContext context =
-            new StandardApplicationContext(MissingBeanTests.class)) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      context.register(MissingBeanTests.class);
+      context.refresh();
 
       User bean = context.getBean("user", User.class);
 

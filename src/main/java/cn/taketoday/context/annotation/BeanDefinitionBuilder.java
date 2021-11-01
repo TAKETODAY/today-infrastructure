@@ -31,8 +31,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;

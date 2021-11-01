@@ -38,6 +38,7 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -46,6 +47,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author TODAY 2021/10/19 22:22
@@ -275,6 +277,22 @@ public class DefinitionLoadingContext {
       }
     }
     return this.metadataReaderFactory;
+  }
+
+  @NonNull
+  public AnnotationMetadata getAnnotationMetadata(String className) {
+    return getMetadataReader(className).getAnnotationMetadata();
+  }
+
+  @NonNull
+  public MetadataReader getMetadataReader(String className) {
+    try {
+      MetadataReaderFactory metadataFactory = getMetadataReaderFactory();
+      return metadataFactory.getMetadataReader(className);
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
   /**

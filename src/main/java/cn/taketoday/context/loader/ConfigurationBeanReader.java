@@ -38,6 +38,7 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.ConfigBeanDefinition;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropertySource;
@@ -176,7 +177,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
           for (String name : BeanDefinitionBuilder.determineName(
                   beanMethod.getMethodName(), component.getStringArray(MergedAnnotation.VALUE))) {
-            AnnotationMetadata annotationMetadata = getAnnotationMetadata(beanMethod.getReturnTypeName());
+            AnnotationMetadata annotationMetadata = context.getAnnotationMetadata(beanMethod.getReturnTypeName());
 
             ConfigBeanDefinition definition = new ConfigBeanDefinition(config, beanMethod, annotationMetadata);
             definition.setName(name);
@@ -192,62 +193,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  static class ConfigBeanDefinition extends AnnotatedBeanDefinition {
-    final BeanDefinition declaringDef;
-
-    ConfigBeanDefinition(
-            BeanDefinition declaringDef, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
-      super(annotationMetadata, componentMethod);
-      this.declaringDef = declaringDef;
-    }
-
-    @Override
-    public boolean isFactoryMethod(Method method) {
-      return super.isFactoryMethod(method)
-              && isFactoryMethodInternal(method);
-    }
-
-    private boolean isFactoryMethodInternal(Method method) {
-      MethodMetadata metadata = getFactoryMethodMetadata();
-      assert metadata != null;
-      return method.getReturnType().getName().equals(metadata.getReturnTypeName())
-              && isArgumentsEquals(method, metadata);
-    }
-
-    private boolean isArgumentsEquals(Method method, MethodMetadata metadata) {
-      int parameterCount = method.getParameterCount();
-      if (parameterCount != metadata.getParameterCount()) {
-        return false;
-      }
-
-      Class<?>[] parameterTypes = method.getParameterTypes();
-      if (metadata instanceof StandardMethodMetadata) {
-        Class<?>[] metadataArgTypes = metadata.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-          if (parameterTypes[i] != metadataArgTypes[i]) {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      Type[] argumentTypes = metadata.getArgumentTypes();
-      for (int i = 0; i < parameterTypes.length; i++) {
-        if (!Type.fromClass(parameterTypes[i]).equals(argumentTypes[i])) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override
-    public BeanDefinition cloneDefinition() {
-      AnnotatedBeanDefinition definition = new ConfigBeanDefinition(
-              declaringDef, getFactoryMethodMetadata(), getMetadata());
-      definition.copyFrom(this);
-      return definition;
-    }
-  }
 
   private AnnotationMetadata getAnnotationMetadata(BeanDefinition definition) {
     if (definition instanceof AnnotatedBeanDefinition) {
@@ -325,22 +270,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  @NonNull
-  private AnnotationMetadata getAnnotationMetadata(String className) {
-    return getMetadataReader(className).getAnnotationMetadata();
-  }
-
-  @NonNull
-  private MetadataReader getMetadataReader(String className) {
-    try {
-      MetadataReaderFactory metadataFactory = context.getMetadataReaderFactory();
-      return metadataFactory.getMetadataReader(className);
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
-  }
-
   /**
    * Select import
    *
@@ -359,7 +288,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
               .selectImports(importMetadata, context);
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
-          AnnotationMetadata annotationMetadata = getAnnotationMetadata(select);
+          AnnotationMetadata annotationMetadata = context.getAnnotationMetadata(select);
           AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
           String beanName = context.createBeanName(select);
           definition.setName(beanName);
