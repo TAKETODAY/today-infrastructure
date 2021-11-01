@@ -75,7 +75,7 @@ class FactoryBeanTests {
   // --------------------------------------------
 
   @Test
-  public void testFactoryBean() throws NoSuchBeanDefinitionException {
+  void testFactoryBean() throws NoSuchBeanDefinitionException {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.registerBean("testFactoryBean", TESTFactoryBean.class);

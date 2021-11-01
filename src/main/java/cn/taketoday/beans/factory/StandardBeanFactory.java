@@ -342,7 +342,7 @@ public class StandardBeanFactory
   @Override
   public <T> T getBean(Class<T> requiredType) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    return resolveBean(ResolvableType.fromClass(requiredType), false);
+    return resolveBean(ResolvableType.fromRawClass(requiredType), false);
   }
 
   @Nullable

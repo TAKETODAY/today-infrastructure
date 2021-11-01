@@ -992,9 +992,6 @@ public abstract class AbstractBeanFactory
   protected boolean isFactoryBean(BeanDefinition def) {
     Boolean result = def.isFactoryBean();
     if (result == null) {
-      if (def instanceof FactoryBeanDefinition) {
-
-      }
       Class<?> beanType = predictBeanType(def);
       result = beanType != null && FactoryBean.class.isAssignableFrom(beanType);
       def.setFactoryBean(result);
