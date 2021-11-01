@@ -107,11 +107,11 @@ public class StandardWebServerApplicationContext
   }
 
   @Override
-  protected void preRefresh() {
+  protected void onRefresh() {
     log.info("Looking For: [{}] Bean.", WebServer.class.getName());
 
     this.webServer = WebApplicationUtils.obtainWebServer(this);
-    super.preRefresh();
+    super.onRefresh();
   }
 
   @Override

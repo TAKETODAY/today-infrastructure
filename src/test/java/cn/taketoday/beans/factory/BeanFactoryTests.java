@@ -19,26 +19,26 @@
  */
 package cn.taketoday.beans.factory;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Value;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
+import cn.taketoday.lang.Value;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DataSize;
 import lombok.ToString;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,13 +48,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 2019-01-22 18:55
  */
 class BeanFactoryTests {
+  private static final Logger log = LoggerFactory.getLogger(BeanFactoryTests.class);
 
-  private static Logger log = LoggerFactory.getLogger(BeanFactoryTests.class);
+  private StandardApplicationContext context;
 
-  private StandardApplicationContext context = //
-          new StandardApplicationContext("info.properties", "cn.taketoday.beans.factory", "test.demo.config");
-
-  private ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+  private ConfigurableBeanFactory beanFactory;
 
   public ConfigurableBeanFactory getBeanFactory() {
     return beanFactory;
@@ -62,6 +60,12 @@ class BeanFactoryTests {
 
   public StandardApplicationContext getContext() {
     return context;
+  }
+
+  @BeforeEach
+  public void beforeEach() {
+    context = new StandardApplicationContext("info.properties", "cn.taketoday.beans.factory", "test.demo.config");
+    beanFactory = context.getBeanFactory();
   }
 
   @AfterEach
@@ -73,7 +77,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetBeanWithType() throws NoSuchBeanDefinitionException {
+  void getBeanWithType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Object bean = beanFactory.getBean(Interface.class);
@@ -93,7 +97,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
+  void getBeanWithName() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Object bean = beanFactory.getBean(createBeanName(Interface.class));
@@ -110,7 +114,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetBeans() throws NoSuchBeanDefinitionException {
+  void getBeans() throws NoSuchBeanDefinitionException {
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
@@ -126,7 +130,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
+  void getAnnotatedBeans() throws NoSuchBeanDefinitionException {
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
@@ -136,7 +140,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetType() throws NoSuchBeanDefinitionException {
+  void getType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     Class<?> type = beanFactory.getType("implements1");
     log.debug("type: {}", type);
@@ -144,7 +148,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_GetAliases() throws NoSuchBeanDefinitionException {
+  void getAliases() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     Set<String> aliases = beanFactory.getAliases(Interface.class);
 
@@ -153,7 +157,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_IsPrototype() throws NoSuchBeanDefinitionException {
+  void isPrototype() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     assert beanFactory.isPrototype("FactoryBean-Config");
@@ -166,7 +170,7 @@ class BeanFactoryTests {
   }
 
   @Test
-  void test_IsSingleton() throws NoSuchBeanDefinitionException {
+  void isSingleton() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     assert beanFactory.isSingleton("implements1");
   }
