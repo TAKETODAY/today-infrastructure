@@ -862,7 +862,7 @@ public abstract class AbstractBeanFactory
   // ---------------------------------------
 
   @Override
-  public boolean isSingleton(String name) {
+  public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
     Object beanInstance = getSingleton(name);
     if (beanInstance != null) {
       return true;
@@ -875,8 +875,7 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.isSingleton(name);
     }
 
-    BeanDefinition definition = getBeanDefinition(name);
-    return definition.isSingleton();
+    return obtainBeanDefinition(name).isSingleton();
   }
 
   /**
@@ -891,7 +890,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public boolean isPrototype(String name) {
+  public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
     Object beanInstance = getSingleton(name);
     if (beanInstance != null) {
       return false;
@@ -903,8 +902,7 @@ public abstract class AbstractBeanFactory
       // No bean definition found in this factory -> delegate to parent.
       return parentBeanFactory.isPrototype(name);
     }
-    BeanDefinition definition = getBeanDefinition(name);
-    return definition.isPrototype();
+    return obtainBeanDefinition(name).isPrototype();
   }
 
   @Override

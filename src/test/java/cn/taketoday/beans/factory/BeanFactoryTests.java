@@ -23,6 +23,7 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Today <br>
@@ -80,20 +82,22 @@ class BeanFactoryTests {
   void getBeanWithType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-
     Object implements1 = beanFactory.getBean(Implements1.class);
     Object implements2 = beanFactory.getBean(Implements2.class);
     Object implements3 = beanFactory.getBean(Implements3.class);
 
-    Object bean = beanFactory.getBean(Interface.class);
-    assert bean != null;
+    List beans = beanFactory.getBeans(Interface.class);
+
+    assertThat(beans).hasSize(3)
+            .contains(implements1, implements2, implements3);
+
     assert implements1 != null;
     assert implements2 != null;
     assert implements3 != null;
   }
 
   public String createBeanName(Class<?> c) {
-    return ClassUtils.getShortName(c);
+    return BeanDefinitionBuilder.defaultBeanName(c);
   }
 
   @Test
@@ -105,6 +109,10 @@ class BeanFactoryTests {
     Object implements1 = beanFactory.getBean(createBeanName(Implements1.class));
     Object implements2 = beanFactory.getBean(createBeanName(Implements2.class));
     Object implements3 = beanFactory.getBean(createBeanName(Implements3.class));
+
+    assertThat(implements1).isInstanceOf(Interface.class);
+    assertThat(implements2).isInstanceOf(Interface.class);
+    assertThat(implements3).isInstanceOf(Interface.class);
 
     assert bean == null; // there isn't a bean named Interface
 
@@ -123,7 +131,6 @@ class BeanFactoryTests {
     log.debug("beans: {}", beans);
 
     assert beans.size() == 3;
-    assert beans.contains(beanFactory.getBean(Interface.class));
     assert beans.contains(beanFactory.getBean(Implements1.class));
     assert beans.contains(beanFactory.getBean(Implements2.class));
     assert beans.contains(beanFactory.getBean(Implements3.class));
@@ -164,6 +171,7 @@ class BeanFactoryTests {
 
     try {
       beanFactory.isPrototype("today");
+      fail("isPrototype");
     }
     catch (NoSuchBeanDefinitionException e) {
     }
