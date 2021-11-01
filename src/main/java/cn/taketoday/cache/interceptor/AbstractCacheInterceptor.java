@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
@@ -49,7 +51,6 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.StringUtils;
@@ -126,7 +127,7 @@ public abstract class AbstractCacheInterceptor
   /**
    * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
-  @Autowired
+  @PostConstruct
   public void initCacheInterceptor(ApplicationContext context) {
     if (getCacheManager() == null) {
       setCacheManager(context.getBean(CacheManager.class));

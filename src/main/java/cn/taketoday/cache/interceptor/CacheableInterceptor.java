@@ -46,7 +46,7 @@ import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations
 public class CacheableInterceptor extends AbstractCacheInterceptor {
 
   public CacheableInterceptor() {
-    setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
+    setOrder(Ordered.HIGHEST_PRECEDENCE / 2);
   }
 
   public CacheableInterceptor(CacheManager cacheManager) {
