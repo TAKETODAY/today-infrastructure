@@ -42,6 +42,15 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   String CONVERSION_SERVICE_BEAN_NAME = "conversionService";
 
   /**
+   * Name of the LoadTimeWeaver bean in the factory. If such a bean is supplied,
+   * the context will use a temporary ClassLoader for type matching, in order
+   * to allow the LoadTimeWeaver to process all actual bean classes.
+   *
+   * @since 4.0
+   */
+  String LOAD_TIME_WEAVER_BEAN_NAME = "loadTimeWeaver";
+
+  /**
    * Get configurable environment
    *
    * @return {@link ConfigurableEnvironment} never be null

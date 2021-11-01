@@ -80,12 +80,12 @@ class BeanFactoryTests {
   void getBeanWithType() throws NoSuchBeanDefinitionException {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    Object bean = beanFactory.getBean(Interface.class);
 
     Object implements1 = beanFactory.getBean(Implements1.class);
     Object implements2 = beanFactory.getBean(Implements2.class);
     Object implements3 = beanFactory.getBean(Implements3.class);
 
+    Object bean = beanFactory.getBean(Interface.class);
     assert bean != null;
     assert implements1 != null;
     assert implements2 != null;

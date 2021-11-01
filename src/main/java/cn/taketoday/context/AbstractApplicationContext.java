@@ -344,7 +344,12 @@ public abstract class AbstractApplicationContext
     log.info("Preparing internal bean-factory");
     // Tell the internal bean factory to use the context's class loader etc.
     beanFactory.setBeanClassLoader(getClassLoader());
-    beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+
+    // Detect a LoadTimeWeaver and prepare for weaving, if found.
+    if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+      // Set a temporary ClassLoader for type matching.
+      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+    }
 
     // register bean post processors
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
@@ -408,6 +413,11 @@ public abstract class AbstractApplicationContext
         postProcessor.postProcessBeanFactory(beanFactory);
       }
     }
+    // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
+		// (e.g. through an @Component method registered by ConfigurationBeanReader)
+		if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+			beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+		}
   }
 
   /**
