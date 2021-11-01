@@ -35,6 +35,7 @@ import cn.taketoday.cache.interceptor.CacheableInterceptor;
 import cn.taketoday.cache.interceptor.DefaultCacheExceptionResolver;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.lang.Configuration;
 
 /**
  * @author TODAY <br>
@@ -47,6 +48,7 @@ public @interface EnableCaching {
 
 }
 
+@Configuration
 class ProxyCachingConfiguration {
 
   @MissingBean(type = CacheManager.class)

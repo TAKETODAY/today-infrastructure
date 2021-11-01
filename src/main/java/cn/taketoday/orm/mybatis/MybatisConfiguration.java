@@ -54,6 +54,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * @author TODAY 2018-10-05 19:03
  */
+@cn.taketoday.lang.Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   private final Logger log = LoggerFactory.getLogger(getClass());

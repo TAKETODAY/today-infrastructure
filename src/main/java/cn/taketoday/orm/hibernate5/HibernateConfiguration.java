@@ -19,7 +19,17 @@
  */
 package cn.taketoday.orm.hibernate5;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.Configuration;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Properties;
+
+import javax.persistence.Entity;
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
@@ -37,19 +47,11 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Configuration;
-
-import javax.persistence.Entity;
-import javax.sql.DataSource;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
 
 /**
  * @author TODAY 2019-11-05 22:11
  */
+@cn.taketoday.lang.Configuration
 public class HibernateConfiguration extends Configuration
         implements AnnotationBeanDefinitionRegistrar<EnableHibernate>, ApplicationContextAware {
 
@@ -106,7 +108,7 @@ public class HibernateConfiguration extends Configuration
   }
 
   protected void registerSessionFactoryBean(// FIXME
-          Collection<Class<?>> candidates, ApplicationContext context) {
+                                            Collection<Class<?>> candidates, ApplicationContext context) {
     for (Class<?> entityClass : candidates) {
       if (entityClass.isAnnotationPresent(Entity.class)) {
         addAnnotatedClass(entityClass);

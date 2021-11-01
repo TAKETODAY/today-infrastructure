@@ -28,6 +28,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.http.CorsProcessor;
 import cn.taketoday.web.http.DefaultCorsProcessor;
 import cn.taketoday.web.registry.HandlerCorsCustomizer;
@@ -42,6 +43,7 @@ public @interface EnableCrossOrigin {
 
 }
 
+@Configuration
 class CrossOriginConfiguration {
 
   @MissingBean

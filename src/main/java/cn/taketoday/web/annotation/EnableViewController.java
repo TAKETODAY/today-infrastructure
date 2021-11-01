@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 
@@ -43,7 +44,8 @@ public @interface EnableViewController {
 /**
  * @since 3.0
  */
-final class ViewControllerConfig {
+@Configuration
+class ViewControllerConfig {
 
   @MissingBean
   ViewControllerHandlerRegistry viewControllerHandlerRegistry() {
@@ -52,6 +54,6 @@ final class ViewControllerConfig {
 
   @MissingBean
   ViewControllerHandlerAdapter viewControllerHandlerAdapter() {
-    return new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2);
+    return new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE + 2);
   }
 }

@@ -137,8 +137,6 @@ public class StandardBeanFactory
       }
     }
 
-//    registerFactoryBean(beanName, def);
-
     beanDefinitionMap.put(beanName, def);
     beanDefinitionNames.add(beanName);
     postProcessRegisterBeanDefinition(def);

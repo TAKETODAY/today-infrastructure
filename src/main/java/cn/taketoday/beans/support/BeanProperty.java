@@ -47,6 +47,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -395,6 +396,9 @@ public class BeanProperty extends AbstractAnnotatedElement implements Member {
   public Annotation[] getAnnotations() {
     if (annotations == null) {
       annotations = resolveAnnotations();
+    }
+    if (ObjectUtils.isNotEmpty(annotations)) {
+      return annotations.clone();
     }
     return annotations;
   }

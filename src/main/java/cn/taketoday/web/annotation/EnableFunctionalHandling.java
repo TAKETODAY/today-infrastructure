@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 
@@ -43,7 +44,8 @@ public @interface EnableFunctionalHandling {
 /**
  * @since 3.0
  */
-final class FunctionalConfig {
+@Configuration
+class FunctionalConfig {
 
   @MissingBean
   FunctionHandlerRegistry functionHandlerRegistry() {
@@ -52,6 +54,6 @@ final class FunctionalConfig {
 
   @MissingBean
   FunctionRequestAdapter functionRequestAdapter() {
-    return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1);
+    return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE + 1);
   }
 }

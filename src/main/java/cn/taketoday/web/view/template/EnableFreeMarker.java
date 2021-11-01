@@ -32,6 +32,7 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingClass;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Constant;
 
 /**
@@ -45,6 +46,7 @@ public @interface EnableFreeMarker {
 
 }
 
+@Configuration
 class FreeMarkerConfig {
 
   @Props(prefix = "web.mvc.view.")

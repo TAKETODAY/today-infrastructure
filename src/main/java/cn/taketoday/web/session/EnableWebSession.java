@@ -26,6 +26,7 @@ import cn.taketoday.beans.Lazy;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
@@ -43,6 +44,7 @@ public @interface EnableWebSession {
 
 }
 
+@Configuration
 class WebSessionConfiguration {
 
   /**

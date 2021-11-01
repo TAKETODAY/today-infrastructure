@@ -48,6 +48,7 @@ public @interface EnableBeanValidation {
 
 }
 
+@cn.taketoday.lang.Configuration
 class BeanValidationConfig {
 
   @MissingBean

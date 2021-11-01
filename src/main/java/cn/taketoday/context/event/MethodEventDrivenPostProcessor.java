@@ -35,6 +35,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -44,6 +45,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author TODAY 2021/3/17 12:35
  */
+@Configuration
 public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   private final ConfigurableApplicationContext context;
 
