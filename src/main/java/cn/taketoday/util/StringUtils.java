@@ -19,6 +19,11 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -37,11 +42,6 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09
@@ -508,8 +508,8 @@ public abstract class StringUtils {
    */
   public static String[] toStringArray(@Nullable Enumeration<String> enumeration) {
     return enumeration == null
-           ? Constant.EMPTY_STRING_ARRAY
-           : toStringArray(Collections.list(enumeration));
+            ? Constant.EMPTY_STRING_ARRAY
+            : toStringArray(Collections.list(enumeration));
   }
 
   /**
@@ -865,8 +865,8 @@ else */
     }
     final char firstChar = str.charAt(0);
     if (capitalize
-        ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
-        : (firstChar >= 'a' && firstChar <= 'z')) {
+            ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
+            : (firstChar >= 'a' && firstChar <= 'z')) {
       return str;
     }
     final char[] chars = str.toCharArray();
@@ -1466,13 +1466,16 @@ else */
 
   /**
    * Test if the first given {@code String} matches the given single character.
+   * <p>
+   * Suitable for comparing the first character
+   * </p>
    *
    * @param str given string
    * @param charToMatch char To Match
    * @since 4.0
    */
   public static boolean matchesFirst(@Nullable String str, char charToMatch) {
-    return isNotEmpty(str) && str.charAt(0) == charToMatch;
+    return str != null && str.length() != 0 && str.charAt(0) == charToMatch;
   }
 
   /**
@@ -1482,7 +1485,7 @@ else */
    * @param charToMatch char To Match
    * @since 4.0
    */
-  public static boolean matchesEnd(@Nullable String str, char charToMatch) {
+  public static boolean matchesLast(@Nullable String str, char charToMatch) {
     return isNotEmpty(str) && str.charAt(str.length() - 1) == charToMatch;
   }
 
