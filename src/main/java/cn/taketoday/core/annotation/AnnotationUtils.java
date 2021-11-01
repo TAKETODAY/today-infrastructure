@@ -103,9 +103,7 @@ public abstract class AnnotationUtils {
                 "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
       }
       Optional<Object> optional = source.getValue(name);
-      if (optional.isPresent()) {
-        beanProperty.setValue(instance, optional);
-      }
+      optional.ifPresent(o -> beanProperty.setValue(instance, o));
     }
     return instance;
   }
