@@ -964,9 +964,6 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Class<?> predictBeanType(BeanDefinition definition) {
-    if (definition instanceof FactoryBeanDefinition) {
-      return definition.getBeanClass();
-    }
     return resolveBeanClass(definition);
   }
 

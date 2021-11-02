@@ -391,7 +391,7 @@ public class BeanDefinition
    *
    * @param factoryBean If its a {@link FactoryBean}
    */
-  public void setFactoryBean(boolean factoryBean) {
+  public void setFactoryBean(Boolean factoryBean) {
     this.factoryBean = factoryBean;
   }
 

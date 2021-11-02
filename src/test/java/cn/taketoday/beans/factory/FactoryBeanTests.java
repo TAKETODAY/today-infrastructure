@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.lang.Configuration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +59,7 @@ class FactoryBeanTests {
   // @Configuration bean
   // ---------------------------
 
+  @Configuration
   static class FactoryBeanConfiguration extends ApplicationContextSupport {
 
     @Singleton
@@ -89,13 +91,7 @@ class FactoryBeanTests {
 
       TEST bean = applicationContext.getBean(TEST.class);
 
-      SingletonBeanRegistry singletonBeanRegistry =
-              applicationContext.unwrapFactory(SingletonBeanRegistry.class);
-
-      System.err.println(singletonBeanRegistry.getSingletons());
-
       Assertions.assertEquals(bean, testFactoryBean);
-
       Assertions.assertSame(testFactoryBean, bean);
       Assertions.assertNotNull(applicationContext.getBean("$testFactoryBean"));
     }
@@ -132,7 +128,7 @@ class FactoryBeanTests {
 //    }
 
   @Test
-  public void testConfigurationFactoryBean() throws NoSuchBeanDefinitionException {
+  void testConfigurationFactoryBean() throws NoSuchBeanDefinitionException {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 

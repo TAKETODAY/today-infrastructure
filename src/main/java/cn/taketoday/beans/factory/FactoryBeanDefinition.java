@@ -231,7 +231,7 @@ public class FactoryBeanDefinition<T> extends BeanDefinition {
   }
 
   @Override
-  public void setFactoryBean(boolean factoryBean) { }
+  public void setFactoryBean(Boolean factoryBean) { }
 
   @Override
   public void setConstructorArgs(Object... constructorArgs) {
