@@ -20,17 +20,16 @@
 package cn.taketoday.context;
 
 import cn.taketoday.context.annotation.Conditional;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.condition.WindowsCondition;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import test.demo.config.User;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,11 +83,12 @@ class ProfileTests {
   @Test
   void testConditional() {
 
-    try (StandardApplicationContext context
-            = new StandardApplicationContext("info.properties", "test.demo.config")) {
+    try (StandardApplicationContext context = new StandardApplicationContext("info.properties"/*, "test.demo.config"*/)) {
+      context.register(ProfileTestConfig.class);
+      context.refresh();
+
       User yhj = context.getBean("yhj", User.class);
       Assertions.assertThat(yhj).isNull();
-      context.register(ProfileTestConfig.class);
 
       String system = context.getEnvironment().getProperty("os.name");
       if (system != null && system.contains("Windows")) {
