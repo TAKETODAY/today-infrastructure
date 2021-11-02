@@ -45,7 +45,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
-  private static final Logger log = LoggerFactory.getLogger(PropertyValueResolverComposite.class);
+  private static final Logger log = LoggerFactory.getLogger(AutowiredPropertyValuesBeanPostProcessor.class);
 
   private final ApplicationContext context;
 
@@ -143,7 +143,7 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
 
     try {
       resolvers.add(new JSR330InjectPropertyResolver());
-      log.debug("Add JSR-330 annotation '@Inject,@Named' supports ");
+      log.debug("Add JSR-330 annotation '@Inject,@Named' supports");
     }
     catch (Exception ignored) { }
     try {
