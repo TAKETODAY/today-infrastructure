@@ -20,11 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
@@ -32,6 +27,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -50,6 +46,11 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -97,25 +98,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
   //---------------------------------------------------------------------
 
   /**
-   * Register a bean with the given bean name and instance supplier
-   *
-   * <p>
-   * register as singleton or prototype defined in your supplier
-   * </p>
-   *
-   * @param name bean name
-   * @param supplier bean instance supplier
-   * @throws BeanDefinitionStoreException If can't store a bean
-   * @since 4.0
-   */
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    BeanDefinition definition = new BeanDefinition(name, (Class<?>) null);
-    definition.setInstanceSupplier(supplier);
-    definition.setSynthetic(true);
-    register(definition);
-  }
-
-  /**
    * this method requires application-context {@code obtainContext()}
    *
    * @param beanName the name of the bean (may be {@code null})
@@ -127,7 +109,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-                 (a, bd) -> bd.setConstructorArgs(constructorArgs));
+            (a, bd) -> bd.setConstructorArgs(constructorArgs));
   }
 
   @Override
@@ -289,8 +271,9 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
     Assert.notNull(clazz, "bean-class must not be null");
     if (!shouldSkip(clazz)) {
       AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(clazz);
-      ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
-      definition.setScope(scopeMetadata.getScopeName());
+      if (prototype) {
+        definition.setScope(Scope.PROTOTYPE);
+      }
 
       String defaultName = createBeanName(clazz);
       definition.setInstanceSupplier(supplier);
@@ -362,6 +345,7 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
       String[] candidateNames = annotation.getStringArray(MergedAnnotation.VALUE);
       String[] realNames = BeanDefinitionBuilder.determineName(definition.getName(), candidateNames);
       if (realNames.length == 1) {
+        definition.setName(realNames[0]);
         register(definition);
       }
       else {
