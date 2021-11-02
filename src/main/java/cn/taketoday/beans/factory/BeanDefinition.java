@@ -34,6 +34,7 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -137,6 +138,8 @@ public class BeanDefinition
   // cache for fast access
   Executable executable;
   BeanInstantiator instantiator;
+
+  ResolvableType factoryMethodReturnType;
 
   public BeanDefinition() { }
 
