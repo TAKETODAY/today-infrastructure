@@ -20,11 +20,6 @@
 
 package cn.taketoday.cache.interceptor;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-import java.util.Date;
-
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
@@ -39,7 +34,11 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
+import org.junit.jupiter.api.Test;
 import test.demo.config.User;
+
+import java.lang.reflect.Method;
+import java.util.Date;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,15 +49,13 @@ import static org.assertj.core.api.Assertions.fail;
  * @since 3.0
  */
 class CacheableInterceptorTests {
-  CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-  CacheableInterceptor interceptor = new CacheableInterceptor(cacheManager);
-
-  {
-    interceptor.setExceptionResolver(new DefaultCacheExceptionResolver());
-  }
 
   @Test
   void cacheableAttributes() throws Exception {
+    CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+    CacheableInterceptor interceptor = new CacheableInterceptor(cacheManager);
+    interceptor.setExceptionResolver(new DefaultCacheExceptionResolver());
+
     // cacheName
     Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
     MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
@@ -82,14 +79,14 @@ class CacheableInterceptorTests {
     assertThat(users1).isNotEqualTo(cache).isNotEqualTo(users);
 
     cacheManager.setDynamicCreation(false);
-
     cacheableClone.setCacheName("users2");
 
     try {
       Cache users2 = interceptor.obtainCache(getUser, cacheableClone);
       fail("obtainCache error");
     }
-    catch (NoSuchCacheException ignored) { }
+    catch (NoSuchCacheException ignored) {
+    }
   }
 
   @Import({

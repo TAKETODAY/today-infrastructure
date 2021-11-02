@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
  *
  * @author Eric Bruneton
  */
-public class MethodWriterTest {
+class MethodWriterTest {
 
   /**
    * Tests that the attribute name fields of Constants are the expected ones. This test is designed
@@ -43,19 +43,18 @@ public class MethodWriterTest {
    * {@link MethodWriter#canCopyMethodAttributes} method, if needed.
    */
   @Test
-  public void testCanCopyMethodAttributesUpdated() {
+  void testCanCopyMethodAttributesUpdated() {
     Set<Object> actualAttributes =
             Arrays.stream(Constants.class.getDeclaredFields())
                     .filter(field -> field.getType() == String.class)
-                    .map(
-                            field -> {
-                              try {
-                                return field.get(null);
-                              }
-                              catch (IllegalArgumentException | IllegalAccessException e) {
-                                throw new RuntimeException("Can't get field value", e);
-                              }
-                            })
+                    .map(field -> {
+                      try {
+                        return field.get(null);
+                      }
+                      catch (IllegalArgumentException | IllegalAccessException e) {
+                        throw new RuntimeException("Can't get field value", e);
+                      }
+                    })
                     .collect(toSet());
 
     HashSet<String> expectedAttributes =
@@ -97,10 +96,9 @@ public class MethodWriterTest {
   }
 
   @Test
-  public void testRecursiveCondyFastEnough() {
+  void testRecursiveCondyFastEnough() {
     Handle bsm =
-            new Handle(
-                    Opcodes.H_INVOKESTATIC,
+            new Handle(Opcodes.H_INVOKESTATIC,
                     "RT",
                     "bsm",
                     "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;I)Ljava/lang/invoke/CallSite;",
@@ -111,18 +109,16 @@ public class MethodWriterTest {
     }
     ConstantDynamic condy = chain;
 
-    assertTimeoutPreemptively(
-            Duration.ofMillis(1_000),
-            () -> {
-              ClassWriter classWriter = new ClassWriter(0);
-              classWriter.visit(Opcodes.V11, Opcodes.ACC_SUPER, "Test", null, "java/lang/Object", null);
-              MethodVisitor mv = classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
-              mv.visitCode();
-              mv.visitLdcInsn(condy);
-              mv.visitMaxs(0, 0);
-              mv.visitEnd();
-              classWriter.visitEnd();
-              classWriter.toByteArray();
-            });
+    assertTimeoutPreemptively(Duration.ofMillis(1_000), () -> {
+      ClassWriter classWriter = new ClassWriter(0);
+      classWriter.visit(Opcodes.V11, Opcodes.ACC_SUPER, "Test", null, "java/lang/Object", null);
+      MethodVisitor mv = classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+      mv.visitCode();
+      mv.visitLdcInsn(condy);
+      mv.visitMaxs(0, 0);
+      mv.visitEnd();
+      classWriter.visitEnd();
+      classWriter.toByteArray();
+    });
   }
 }

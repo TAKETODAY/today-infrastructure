@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.type;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Oliver Gierke
  * @author Sam Brannen
  */
+@Order(1)
 class AnnotationTypeFilterTests {
 
   @Test

@@ -46,13 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class CachePutInterceptorTests {
 
-  CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-  CachePutInterceptor interceptor = new CachePutInterceptor(cacheManager);
-
-  {
-    interceptor.setExceptionResolver(new DefaultCacheExceptionResolver());
-  }
-
   @Import({
           CacheUserService.class,
           CachePutInterceptor.class,
@@ -111,7 +104,7 @@ class CachePutInterceptorTests {
   }
 
   @Test
-  public void testContextConditional() throws Exception {
+  void testContextConditional() throws Exception {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(CachePutConfig.class);
