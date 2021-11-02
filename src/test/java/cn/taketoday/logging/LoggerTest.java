@@ -32,15 +32,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author TODAY <br>
  * 2019-12-06 23:09
  */
-@Execution(ExecutionMode.SAME_THREAD)
 @Order(Integer.MAX_VALUE)
 public class LoggerTest {
 
   @Test
   public void testSlf4jLogger() throws Exception {
-    LoggerFactory.setFactory(new Slf4jLoggerFactory());
-
-    final Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = createLogger(new Slf4jLoggerFactory());
 
     assertTrue(logger instanceof Slf4jLogger);
     assertEquals(logger.getName(), getClass().getName());
@@ -60,8 +57,7 @@ public class LoggerTest {
 
   @Test
   public void testLog4jLogger() throws Exception {
-    LoggerFactory.setFactory(new Log4j2LoggerFactory());
-    final Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = createLogger(new Log4j2LoggerFactory());
 
     assertTrue(logger instanceof Log4j2Logger);
     assertEquals(logger.getName(), getClass().getName());
@@ -78,14 +74,11 @@ public class LoggerTest {
     logger.debug("testLog4jLogger");
     logger.trace("testLog4jLogger");
 
-    LoggerFactory.setFactory(new Slf4jLoggerFactory());
-
   }
 
   @Test
   public void testJavaLoggingLogger() throws Exception {
-    LoggerFactory.setFactory(new JavaLoggingFactory());
-    final Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = createLogger(new JavaLoggingFactory());
 
     assertTrue(logger instanceof JavaLoggingLogger);
     assertEquals(logger.getName(), getClass().getName());
@@ -101,8 +94,10 @@ public class LoggerTest {
     logger.error("testLog4jLogger");
     logger.debug("testLog4jLogger");
     logger.trace("testLog4jLogger");
-
-    LoggerFactory.setFactory(new Slf4jLoggerFactory());
-
   }
+
+  Logger createLogger(LoggerFactory loggerFactory) {
+    return loggerFactory.createLogger(getClass().getName());
+  }
+
 }

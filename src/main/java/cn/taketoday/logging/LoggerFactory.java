@@ -26,10 +26,8 @@ package cn.taketoday.logging;
  * 2019-11-04 19:06
  */
 public abstract class LoggerFactory {
-
   public static final String LOG_TYPE_SYSTEM_PROPERTY = "logger.factory";
-
-  public static LoggerFactory factory;
+  private static final LoggerFactory factory = createFactory();
 
   protected abstract Logger createLogger(String name);
 
@@ -44,20 +42,14 @@ public abstract class LoggerFactory {
    * Return a logger associated with a particular class name.
    */
   public static Logger getLogger(String name) {
-    if (factory == null) {
-      synchronized(LoggerFactory.class) {
-        return fromFactory(name);
-      }
-    }
     return factory.createLogger(name);
   }
 
-  private static Logger fromFactory(String name) {
+  private static LoggerFactory createFactory() {
     final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
     if (type != null) {
       try {
-        factory = (LoggerFactory) Class.forName(type).newInstance();
-        return factory.createLogger(name);
+        return (LoggerFactory) Class.forName(type).newInstance();
       }
       catch (Throwable e) {
         e.printStackTrace();
@@ -66,23 +58,15 @@ public abstract class LoggerFactory {
                         LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
       }
     }
-
     try {
-      factory = new Slf4jLoggerFactory();
-      return factory.createLogger(name);
+      return new Slf4jLoggerFactory();
     }
     catch (Throwable ignored) { }
     try {
-      factory = new Log4j2LoggerFactory();
-      return factory.createLogger(name);
+      return new Log4j2LoggerFactory();
     }
     catch (Throwable ignored) { }
-    factory = new JavaLoggingFactory();
-    return factory.createLogger(name);
-  }
-
-  public static void setFactory(final LoggerFactory loggerFactory) {
-    factory = loggerFactory;
+    return new JavaLoggingFactory();
   }
 
 }
