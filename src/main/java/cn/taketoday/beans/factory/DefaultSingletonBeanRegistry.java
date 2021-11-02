@@ -54,11 +54,11 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
   private boolean singletonsCurrentlyInDestruction = false;
 
   @Override
-  public void registerSingleton(final String name, final Object singleton) {
+  public void registerSingleton(String name, Object singleton) {
     Assert.notNull(name, "Bean name must not be null");
     Assert.notNull(singleton, "Singleton object must not be null");
     synchronized(singletons) {
-      final Object oldBean = singletons.put(name, singleton);
+      Object oldBean = singletons.put(name, singleton);
       if (oldBean == null) {
         singletonRegistered(name, singleton);
       }
@@ -155,12 +155,12 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getSingleton(final Class<T> requiredType) {
-    final String maybe = createBeanName(requiredType);
-    final Object singleton = getSingleton(maybe);
+  public <T> T getSingleton(Class<T> requiredType) {
+    String maybe = createBeanName(requiredType);
+    Object singleton = getSingleton(maybe);
     if (!requiredType.isInstance(singleton)) {
       synchronized(singletons) {
-        for (final Object value : singletons.values()) {
+        for (Object value : singletons.values()) {
           if (requiredType.isInstance(value)) {
             return (T) value;
           }
@@ -211,8 +211,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   /**
    * Removes all the mappings from this map. The map will be empty after this call returns.
-   *
-   * @since 4.0
    */
   protected void clearSingletonCache() {
     synchronized(singletons) {
@@ -227,7 +225,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    *
    * @param beanName the name of the bean
    * @see #destroyBean
-   * @since 4.0
    */
   public void destroySingleton(String beanName) {
     // Remove a registered singleton of the given name, if any.
@@ -247,7 +244,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    *
    * @param beanName the name of the bean
    * @param bean the bean instance to destroy
-   * @since 4.0
    */
   protected void destroyBean(String beanName, @Nullable DisposableBean bean) {
     // Actually destroy the bean now...
@@ -261,9 +257,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     }
   }
 
-  /**
-   * @since 4.0
-   */
   public void destroySingletons() {
     if (log.isTraceEnabled()) {
       log.trace("Destroying singletons in {}", this);
@@ -292,7 +285,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
    *
    * @param beanName the name of the bean
    * @param bean the bean instance
-   * @since 4.0
    */
   public void registerDisposableBean(String beanName, DisposableBean bean) {
     synchronized(this.disposableBeans) {
