@@ -19,18 +19,20 @@
  */
 package test.demo;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.StandardApplicationContext;
+import org.junit.jupiter.api.Test;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 import test.demo.repository.impl.DefaultUserRepository;
 import test.demo.service.UserService;
 import test.demo.service.impl.DefaultUserService;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * @author TODAY <br>
@@ -42,7 +44,7 @@ class DemoTests {
   void testLogin() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
     try (StandardApplicationContext context = //
-            new StandardApplicationContext("", "test.demo.service.impl", "test.demo.repository.impl")) {
+                 new StandardApplicationContext("", "test.demo.service.impl", "test.demo.repository.impl")) {
 
       UserService userService = context.getBean(DefaultUserService.class);
 
@@ -71,4 +73,52 @@ class DemoTests {
       assert login != null : "Login failed";
     }
   }
+
+  static class BeanTEST {
+
+    public BeanTEST newInstance(int name) {
+      return new BeanTEST();
+    }
+
+    public BeanTEST newInstance(String name) {
+      return new BeanTEST();
+    }
+
+    public static BeanTEST newInstance() {
+      return new BeanTEST();
+    }
+
+  }
+
+  @Test
+  void test() {
+    boolean isStatic = true;
+    Method[] candidates = BeanTEST.class.getDeclaredMethods();
+    Method uniqueCandidate = null;
+    for (Method candidate : candidates) {
+      if (Modifier.isStatic(candidate.getModifiers()) == isStatic && isFactoryMethod(candidate)) {
+        if (uniqueCandidate == null) {
+          uniqueCandidate = candidate;
+        }
+        else if (isParamMismatch(uniqueCandidate, candidate)) {
+          uniqueCandidate = null;
+          break;
+        }
+      }
+    }
+
+    System.out.println(uniqueCandidate);
+  }
+
+  private boolean isFactoryMethod(Method candidate) {
+    return candidate.getName().equals("newInstance");
+  }
+
+  private boolean isParamMismatch(Method uniqueCandidate, Method candidate) {
+    int uniqueCandidateParameterCount = uniqueCandidate.getParameterCount();
+    int candidateParameterCount = candidate.getParameterCount();
+    return (uniqueCandidateParameterCount != candidateParameterCount ||
+            !Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes()));
+  }
+
 }
