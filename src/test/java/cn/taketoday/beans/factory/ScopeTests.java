@@ -39,7 +39,7 @@ class ScopeTests {
   static class ScopeBean {
 
     @PreDestroy
-    void destory() {
+    void destroy() {
       assertTrue(true);
       System.err.println("destory()");
     }
@@ -54,22 +54,20 @@ class ScopeTests {
       context.getBeanFactory()
               .registerScope("thread", thread);
 
-      final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
+      BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
       context.registerBeanDefinition(def);
-      context.refresh();
-
       def.setScope("thread");
-      final Object bean = context.getBean(def);
-      final Object bean2 = context.getBean(def);
+
+            context.refresh();
+      Object bean = context.getBean(def);
+      Object bean2 = context.getBean(def);
       assertEquals(bean, bean2);
 
-      new Thread() {
-        public void run() {
-          final Object bean2 = context.getBean(def);
-          System.err.println(bean2);
-          Assertions.assertNotEquals(bean2, bean);
-        }
-      }.start();
+      new Thread(() -> {
+        Object bean21 = context.getBean(def);
+        System.err.println(bean21);
+        assertNotEquals(bean21, bean);
+      }).start();
 
       context.getBeanFactory()
               .destroyScopedBean("scopeBean");
@@ -79,7 +77,7 @@ class ScopeTests {
   }
 
   @Test
-  public void testCustomScopeConfigurer() {
+  void testCustomScopeConfigurer() {
 
     CustomScopeConfigurer configurer = new CustomScopeConfigurer();
     SimpleThreadScope thread = new SimpleThreadScope();
@@ -87,7 +85,7 @@ class ScopeTests {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      final BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
+      BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
       context.registerBeanDefinition(def);
 
       def.setScope("thread");
@@ -101,19 +99,15 @@ class ScopeTests {
 
       context.refresh();
 
-      final Object bean = context.getBean(def);
-      final Object bean2 = context.getBean(def);
+      Object bean = context.getBean(def);
+      Object bean2 = context.getBean(def);
       Assertions.assertEquals(bean, bean2);
 
-      new Thread() {
-        public void run() {
-          final Object bean2 = context.getBean(def);
-          System.err.println(bean2);
-          assertNotEquals(bean2, bean);
-        }
-
-        ;
-      }.start();
+      new Thread(() -> {
+        Object bean21 = context.getBean(def);
+        System.err.println(bean21);
+        assertNotEquals(bean21, bean);
+      }).start();
 
       context.getBeanFactory().destroyScopedBean("scopeBean");
       System.err.println(bean);
