@@ -186,13 +186,14 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     if (candidates.size() > 1) {
-      candidates.sort(new Comparator<Method>() {
-        @Override
-        public int compare(Method o1, Method o2) {
-          // static first, parameter
-          int result = Boolean.compare(Modifier.isStatic(o1.getModifiers()), Modifier.isStatic(o2.getModifiers()));
+      candidates.sort((o1, o2) -> {
+        // static first, parameter
+        int result = Boolean.compare(Modifier.isPublic(o1.getModifiers()), Modifier.isPublic(o2.getModifiers()));
+        if (result == 0) {
+          result = Boolean.compare(Modifier.isStatic(o1.getModifiers()), Modifier.isStatic(o2.getModifiers()));
           return result == 0 ? Integer.compare(o1.getParameterCount(), o2.getParameterCount()) : result;
         }
+        return result;
       });
     }
     if (log.isDebugEnabled()) {
