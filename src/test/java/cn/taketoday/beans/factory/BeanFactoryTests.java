@@ -19,6 +19,13 @@
  */
 package cn.taketoday.beans.factory;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -32,13 +39,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.DataSize;
 import lombok.ToString;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -153,14 +153,6 @@ class BeanFactoryTests {
     assert Implements1.class == type;
   }
 
-  @Test
-  void getAliases() throws NoSuchBeanDefinitionException {
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
-    Set<String> aliases = beanFactory.getAliases(Interface.class);
-
-    log.debug("Aliases: {}", aliases);
-    assert aliases.size() == 3;
-  }
 
   @Test
   void isPrototype() throws NoSuchBeanDefinitionException {

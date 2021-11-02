@@ -548,15 +548,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   <T> ObjectSupplier<T> getObjectSupplier(
           ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
-  /**
-   * Get all bean name
-   *
-   * @param type Bean type
-   * @return A set of names with given type
-   */
-  @Deprecated
-  Set<String> getAliases(Class<?> type);
-
   //---------------------------------------------------------------------
   // Operations for BeanDefinition
   //---------------------------------------------------------------------

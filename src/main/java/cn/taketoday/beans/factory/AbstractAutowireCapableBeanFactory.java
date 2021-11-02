@@ -353,31 +353,17 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     Method factoryMethod;
     Executable uniqueCandidate = def.executable;
-    if (!(uniqueCandidate instanceof Method)) {
-      Class<?> factoryClass;
+    if (uniqueCandidate instanceof Method) {
+      factoryMethod = ((Method) uniqueCandidate);
+    }
+    else {
       String factoryBeanName = def.getFactoryBeanName();
-      if (factoryBeanName != null) {
-        // Check declared factory method return type on factory class.
-        factoryClass = getType(factoryBeanName);
-      }
-      else {
-        // Check declared factory method return type on bean class.
-        factoryClass = resolveBeanClass(def);
-      }
-
-      if (factoryClass == null) {
-        return null;
-      }
-      factoryClass = ClassUtils.getUserClass(factoryClass);
-
+      Class<?> factoryClass = getFactoryClass(def, factoryBeanName);
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
       factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());
       def.executable = factoryMethod;
       return factoryMethod.getReturnType();
-    }
-    else {
-      factoryMethod = ((Method) uniqueCandidate);
     }
 
     // Common return type found: all factory methods return same type. For a non-parameterized

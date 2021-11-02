@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
@@ -994,16 +993,6 @@ public abstract class AbstractBeanFactory
       def.setFactoryBean(result);
     }
     return result;
-  }
-
-  @Override
-  public Set<String> getAliases(Class<?> type) {
-    return getBeanDefinitions()
-            .entrySet()
-            .stream()
-            .filter(entry -> type.isAssignableFrom(entry.getValue().getBeanClass()))
-            .map(Entry::getKey)
-            .collect(Collectors.toSet());
   }
 
   @Override

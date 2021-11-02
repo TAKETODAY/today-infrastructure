@@ -135,7 +135,7 @@ public abstract class AbstractAutoProxyCreator
    * @return a proxy bean or null
    */
   @Override
-  public Object postProcessBeforeInstantiation(final BeanDefinition def) {
+  public Object postProcessBeforeInstantiation(BeanDefinition def) {
     // Create proxy here if we have a custom TargetSource.
     // Suppresses unnecessary default instantiation of the target bean:
     // The TargetSource will handle target instances in a custom fashion.
@@ -190,7 +190,7 @@ public abstract class AbstractAutoProxyCreator
   protected Advisor[] getAdvisors(BeanDefinition def, Object[] specificInterceptors) {
     Advisor[] ret = new Advisor[specificInterceptors.length];
     int i = 0;
-    for (final Object specificInterceptor : specificInterceptors) {
+    for (Object specificInterceptor : specificInterceptors) {
       ret[i++] = AopUtils.wrap(specificInterceptor);
     }
     return ret;
@@ -201,7 +201,7 @@ public abstract class AbstractAutoProxyCreator
       return bean;
     }
     // Create proxy if we have advice.
-    final TargetSource targetSource = getTargetSource(bean, def);
+    TargetSource targetSource = getTargetSource(bean, def);
     Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, targetSource);
     if (ObjectUtils.isNotEmpty(specificInterceptors)) {
       return createProxy(def, specificInterceptors, targetSource);
@@ -245,7 +245,7 @@ public abstract class AbstractAutoProxyCreator
   }
 
   protected Object[] getAdvicesAndAdvisorsForBean(BeanDefinition def, TargetSource targetSource) {
-    final List<Advisor> candidateAdvisors = getCandidateAdvisors();
+    List<Advisor> candidateAdvisors = getCandidateAdvisors();
     List<Advisor> eligibleAdvisors = filterAdvisors(candidateAdvisors, def, targetSource);
     postEligibleAdvisors(eligibleAdvisors);
 
@@ -258,7 +258,7 @@ public abstract class AbstractAutoProxyCreator
     return eligibleAdvisors.toArray();
   }
 
-  protected List<Advisor> filterAdvisors(final List<Advisor> candidateAdvisors,
+  protected List<Advisor> filterAdvisors(List<Advisor> candidateAdvisors,
                                          BeanDefinition def, TargetSource targetSource) {
     return AopUtils.filterAdvisors(candidateAdvisors, def.getBeanClass());
   }
@@ -272,7 +272,7 @@ public abstract class AbstractAutoProxyCreator
   }
 
   protected void addCandidateAdvisors(List<Advisor> candidateAdvisors) {
-    final BeanFactory beanFactory = getBeanFactory();
+    BeanFactory beanFactory = getBeanFactory();
     candidateAdvisors.addAll(beanFactory.getBeans(Advisor.class));
   }
 

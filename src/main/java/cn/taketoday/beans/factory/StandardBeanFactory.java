@@ -19,6 +19,20 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
@@ -36,20 +50,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -131,8 +131,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                  "for bean '{}' with a framework-generated bean " +
-                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                           "for bean '{}' with a framework-generated bean " +
+                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -913,12 +913,13 @@ public class StandardBeanFactory
     if (includeNoneRegistered) {
       synchronized(getSingletons()) {
         for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
-          if (beanNames.contains(entry.getKey())) {
+          String beanName = entry.getKey();
+          if (beanNames.contains(beanName)) {
             continue;
           }
           Object bean = entry.getValue();
           if (requiredType == null || isInstance(requiredType, bean)) {
-            beanNames.add(entry.getKey());
+            beanNames.add(beanName);
           }
         }
       }
