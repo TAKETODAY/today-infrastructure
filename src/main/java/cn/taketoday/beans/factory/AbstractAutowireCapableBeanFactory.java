@@ -118,33 +118,9 @@ public abstract class AbstractAutowireCapableBeanFactory
       // instantiate using factory-method
       if (factoryMethodName != null) {
         String factoryBeanName = definition.getFactoryBeanName();
-        Class<?> factoryClass;
-        if (factoryBeanName != null) {
-          // instance method
-          factoryClass = getType(factoryBeanName);
-        }
-        else {
-          // bean class is its factory-class
-          factoryClass = resolveBeanClass(definition);
-        }
-
-        if (factoryClass == null) {
-          throw new IllegalStateException(
-                  "factory-method: '" + factoryMethodName + "' its factory bean: '" +
-                          factoryBeanName + "' not found in this factory: " + this);
-        }
-
+        Class<?> factoryClass = getFactoryClass(definition, factoryBeanName);
         Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
-        MethodInvoker factoryMethodInvoker;
-        if (definition.isSingleton()) {
-          // use java-reflect invoking
-          factoryMethodInvoker = MethodInvoker.formReflective(factoryMethod);
-        }
-        else {
-          // provide fast access the method
-          factoryMethodInvoker = MethodInvoker.fromMethod(factoryMethod);
-        }
-
+        MethodInvoker factoryMethodInvoker = determineMethodInvoker(definition, factoryMethod);
         if (Modifier.isStatic(factoryMethod.getModifiers())) {
           definition.instantiator = BeanInstantiator.fromStaticMethod(factoryMethodInvoker);
         }
@@ -171,6 +147,36 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
     return definition.instantiator;
+  }
+
+  private MethodInvoker determineMethodInvoker(BeanDefinition definition, Method factoryMethod) {
+    if (definition.isSingleton()) {
+      // use java-reflect invoking
+      return MethodInvoker.formReflective(factoryMethod);
+    }
+    else {
+      // provide fast access the method
+      return MethodInvoker.fromMethod(factoryMethod);
+    }
+  }
+
+  private Class<?> getFactoryClass(BeanDefinition definition, String factoryBeanName) {
+    Class<?> factoryClass;
+    if (factoryBeanName != null) {
+      // instance method
+      factoryClass = getType(factoryBeanName);
+    }
+    else {
+      // bean class is its factory-class
+      factoryClass = resolveBeanClass(definition);
+    }
+
+    if (factoryClass == null) {
+      throw new IllegalStateException(
+              "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
+                      factoryBeanName + "' not found in this factory: " + this);
+    }
+    return factoryClass;
   }
 
   @NonNull
