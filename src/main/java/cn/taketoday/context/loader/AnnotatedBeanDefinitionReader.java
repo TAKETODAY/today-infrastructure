@@ -34,7 +34,6 @@ import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -320,27 +319,22 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
     MergedAnnotations annotations = metadata.getAnnotations();
     applyAnnotationMetadata(annotations, definition);
 
-    AnnotationAttributes attributes = null;
-    MergedAnnotation<Component> annotation = annotations.get(Component.class);
-    if (annotation.isPresent()) {
-      attributes = annotation.asAnnotationAttributes();
-    }
-
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
       for (BeanDefinitionCustomizer dynamicCustomizer : dynamicCustomizers) {
-        dynamicCustomizer.customize(attributes, definition);
+        dynamicCustomizer.customize(annotations, definition);
       }
     }
 
     // static customize
     if (CollectionUtils.isNotEmpty(customizers)) {
       for (BeanDefinitionCustomizer customizer : customizers) {
-        customizer.customize(attributes, definition);
+        customizer.customize(annotations, definition);
       }
     }
 
-    if (CollectionUtils.isNotEmpty(attributes)) {
+    MergedAnnotation<Component> annotation = annotations.get(Component.class);
+    if (annotation.isPresent()) {
       // compute bean names, maybe register multiple beans
       String[] candidateNames = annotation.getStringArray(MergedAnnotation.VALUE);
       String[] realNames = BeanDefinitionBuilder.determineName(definition.getName(), candidateNames);
