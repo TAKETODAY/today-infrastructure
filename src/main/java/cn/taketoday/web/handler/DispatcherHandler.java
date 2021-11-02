@@ -46,6 +46,7 @@ import cn.taketoday.web.view.SelectableReturnValueHandler;
  * @since 3.0
  */
 public class DispatcherHandler extends WebApplicationContextSupport {
+  public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;

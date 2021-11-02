@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -54,7 +54,7 @@ public class DefaultApplicationContext
   private boolean customClassLoader = false;
 
   protected final StandardBeanFactory beanFactory;
-  private BeanDefinitionReader beanDefinitionReader;
+  private AnnotatedBeanDefinitionReader beanDefinitionReader;
 
   /**
    * Default Constructor
@@ -369,9 +369,9 @@ public class DefaultApplicationContext
     getBeanDefinitionReader().registerBean(beanName, beanClass, supplier, customizers);
   }
 
-  public final BeanDefinitionReader getBeanDefinitionReader() {
+  public final AnnotatedBeanDefinitionReader getBeanDefinitionReader() {
     if (beanDefinitionReader == null) {
-      beanDefinitionReader = new BeanDefinitionReader(this, beanFactory);
+      beanDefinitionReader = new AnnotatedBeanDefinitionReader(this, beanFactory);
     }
     return beanDefinitionReader;
   }

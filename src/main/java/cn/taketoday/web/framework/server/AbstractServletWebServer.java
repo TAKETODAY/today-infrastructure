@@ -37,7 +37,7 @@ import javax.servlet.annotation.ServletSecurity;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Autowired;
@@ -203,7 +203,7 @@ public abstract class AbstractServletWebServer
                    ServletSecurityElement.class.getName());
         }
 
-        BeanDefinitionReader reader = new BeanDefinitionReader(context);
+        AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
         reader.registerBean(new ServletSecurityElement(servletSecurity));
       }
     }

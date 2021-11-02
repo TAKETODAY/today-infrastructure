@@ -20,7 +20,7 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionUtils;
@@ -66,7 +66,7 @@ public class WebApplicationLoader
 
   private DispatcherHandler dispatcher;
   // @since 4.0
-  private BeanDefinitionReader definitionReader;
+  private AnnotatedBeanDefinitionReader definitionReader;
 
   public void onStartup() throws Throwable {
     onStartup(obtainApplicationContext());
@@ -431,16 +431,16 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        definitionReader().registerBean(dispatcherHandler);
+        definitionReader().registerBean(DispatcherHandler.DEFAULT_BEAN_NAME, dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;
     }
     return dispatcher;
   }
 
-  protected final BeanDefinitionReader definitionReader() {
+  protected final AnnotatedBeanDefinitionReader definitionReader() {
     if (definitionReader == null) {
-      definitionReader = new BeanDefinitionReader(obtainApplicationContext());
+      definitionReader = new AnnotatedBeanDefinitionReader(obtainApplicationContext());
       definitionReader.setEnableConditionEvaluation(false);
     }
     return definitionReader;

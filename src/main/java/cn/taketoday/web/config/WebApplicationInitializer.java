@@ -22,8 +22,7 @@ package cn.taketoday.web.config;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
- * @author TODAY <br>
- * 2019-07-10 22:49
+ * @author TODAY 2019-07-10 22:49
  */
 @FunctionalInterface
 public interface WebApplicationInitializer {

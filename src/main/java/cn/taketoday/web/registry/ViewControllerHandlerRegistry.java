@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
@@ -80,11 +80,11 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   public static final String ROOT_ELEMENT = "Web-Configuration";
 
   // @since 4.0
-  private BeanDefinitionReader definitionReader;
+  private AnnotatedBeanDefinitionReader definitionReader;
 
-  protected final BeanDefinitionReader definitionReader() {
+  protected final AnnotatedBeanDefinitionReader definitionReader() {
     if (definitionReader == null) {
-      definitionReader = new BeanDefinitionReader(obtainApplicationContext());
+      definitionReader = new AnnotatedBeanDefinitionReader(obtainApplicationContext());
       definitionReader.setEnableConditionEvaluation(false);
     }
     return definitionReader;

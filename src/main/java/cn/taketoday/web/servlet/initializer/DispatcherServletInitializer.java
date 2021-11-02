@@ -24,7 +24,7 @@ import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -62,7 +62,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
       WebServletApplicationContext context = getApplicationContext();
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
       if (!registry.containsBeanDefinition(DispatcherServlet.class)) {
-        BeanDefinitionReader reader = new BeanDefinitionReader(context, registry);
+        AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context, registry);
         reader.setEnableConditionEvaluation(false);
         reader.registerBean(DISPATCHER_SERVLET, DispatcherServlet.class);
       }

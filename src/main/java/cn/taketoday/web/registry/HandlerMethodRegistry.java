@@ -34,7 +34,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
@@ -75,7 +75,7 @@ public class HandlerMethodRegistry
   private HandlerMethodBuilder<HandlerMethod> handlerBuilder;
 
   // @since 4.0
-  private BeanDefinitionReader definitionReader;
+  private AnnotatedBeanDefinitionReader definitionReader;
 
   private BeanDefinitionRegistry registry;
 
@@ -425,9 +425,9 @@ public class HandlerMethodRegistry
     return handlerBuilder;
   }
 
-  protected final BeanDefinitionReader definitionReader() {
+  protected final AnnotatedBeanDefinitionReader definitionReader() {
     if (definitionReader == null) {
-      definitionReader = new BeanDefinitionReader(obtainApplicationContext());
+      definitionReader = new AnnotatedBeanDefinitionReader(obtainApplicationContext());
       definitionReader.setEnableConditionEvaluation(false);
     }
     return definitionReader;

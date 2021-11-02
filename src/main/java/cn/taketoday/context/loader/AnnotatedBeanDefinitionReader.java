@@ -57,7 +57,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/10/1 16:46
  * @since 4.0
  */
-public class BeanDefinitionReader implements BeanDefinitionRegistrar {
+public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
 
   private BeanDefinitionRegistry registry;
 
@@ -76,17 +76,17 @@ public class BeanDefinitionReader implements BeanDefinitionRegistrar {
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
-  public BeanDefinitionReader() { }
+  public AnnotatedBeanDefinitionReader() { }
 
-  public BeanDefinitionReader(ApplicationContext context) {
+  public AnnotatedBeanDefinitionReader(ApplicationContext context) {
     this.context = context;
   }
 
-  public BeanDefinitionReader(BeanDefinitionRegistry registry) {
+  public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
     this.registry = registry;
   }
 
-  public BeanDefinitionReader(
+  public AnnotatedBeanDefinitionReader(
           ApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
     this.registry = registry;

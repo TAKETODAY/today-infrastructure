@@ -20,7 +20,7 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.BeanDefinitionReader;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
@@ -165,7 +165,7 @@ public class ReturnValueHandlers
   protected TemplateRenderer getTemplateRenderer(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     TemplateRenderer templateResolver = context.getBean(TemplateRenderer.class);
     if (templateResolver == null) {
-      BeanDefinitionReader beanDefinitionReader = new BeanDefinitionReader(context, unwrapFactory(BeanDefinitionRegistry.class));
+      AnnotatedBeanDefinitionReader beanDefinitionReader = new AnnotatedBeanDefinitionReader(context, unwrapFactory(BeanDefinitionRegistry.class));
       beanDefinitionReader.setEnableConditionEvaluation(false);
       beanDefinitionReader.registerBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME, DefaultTemplateRenderer.class);
       templateResolver = context.getBean(TemplateRenderer.class);
