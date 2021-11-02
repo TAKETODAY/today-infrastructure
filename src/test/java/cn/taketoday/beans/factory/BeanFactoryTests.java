@@ -30,7 +30,6 @@ import cn.taketoday.lang.Singleton;
 import cn.taketoday.lang.Value;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DataSize;
 import lombok.ToString;
 import org.junit.jupiter.api.AfterEach;
@@ -320,6 +319,7 @@ class BeanFactoryTests {
             .isNotNull()
             .isEqualTo(beanFactory.getBean(RegisterBeanSupplier.class));
 
+    beanFactory.removeBean("AnnotationBean");
     // Annotation
     context.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, true);
 

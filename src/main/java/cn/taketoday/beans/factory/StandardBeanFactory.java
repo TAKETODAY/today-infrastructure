@@ -19,20 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
-
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
@@ -50,6 +36,20 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -74,7 +74,7 @@ public class StandardBeanFactory
   private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
   /** List of bean definition names, in registration order. */
-  private final ArrayList<String> beanDefinitionNames = new ArrayList<>(256);
+  private final LinkedHashSet<String> beanDefinitionNames = new LinkedHashSet<>(256);
 
   /**
    * Preventing Cycle Dependency expected {@link Prototype} beans
@@ -131,8 +131,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                           "for bean '{}' with a framework-generated bean " +
-                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                  "for bean '{}' with a framework-generated bean " +
+                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -173,6 +173,7 @@ public class StandardBeanFactory
   @Override
   public void removeBeanDefinition(String beanName) {
     beanDefinitionMap.remove(beanName);
+    beanDefinitionNames.remove(beanName);
   }
 
   @Override

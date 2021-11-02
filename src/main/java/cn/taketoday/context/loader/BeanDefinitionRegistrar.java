@@ -37,21 +37,6 @@ import java.util.function.Supplier;
 public interface BeanDefinitionRegistrar {
 
   /**
-   * Register a bean with the given bean name and instance supplier
-   *
-   * <p>
-   * register as singleton or prototype defined in your supplier
-   * </p>
-   *
-   * @param name bean name
-   * @param supplier bean instance supplier
-   * @throws BeanDefinitionStoreException If can't store a bean
-   * @since 4.0
-   */
-  <T> void registerBean(String name, Supplier<T> supplier)
-          throws BeanDefinitionStoreException;
-
-  /**
    * Register a bean from the given bean class, optionally providing explicit
    * constructor arguments for consideration in the autowiring process.
    *
