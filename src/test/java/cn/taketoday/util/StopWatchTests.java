@@ -20,8 +20,6 @@
 
 package cn.taketoday.util;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -32,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 /**
  * @author TODAY 2021/3/6 9:34
  */
-public class StopWatchTests {
+class StopWatchTests {
 
   private static final String ID = "myId";
 
@@ -45,18 +43,18 @@ public class StopWatchTests {
 
   private final StopWatch stopWatch = new StopWatch(ID);
 
-  public
   @Test
   void failureToStartBeforeGettingTimings() {
     assertThatIllegalStateException().isThrownBy(stopWatch::getLastTaskTimeMillis);
   }
 
-  public @Test
+  @Test
   void failureToStartBeforeStop() {
     assertThatIllegalStateException().isThrownBy(stopWatch::stop);
   }
 
-  public @Test void rejectsStartTwice() {
+  @Test
+  void rejectsStartTwice() {
     stopWatch.start();
     assertThat(stopWatch.isRunning()).isTrue();
     stopWatch.stop();
@@ -68,7 +66,7 @@ public class StopWatchTests {
   }
 
   @Test
-  public void validUsage() throws Exception {
+  void validUsage() throws Exception {
     assertThat(stopWatch.isRunning()).isFalse();
 
     stopWatch.start(name1);
@@ -117,7 +115,7 @@ public class StopWatchTests {
   }
 
   @Test
-  public void validUsageDoesNotKeepTaskList() throws Exception {
+  void validUsageDoesNotKeepTaskList() throws Exception {
     stopWatch.setKeepTaskList(false);
 
     stopWatch.start(name1);
