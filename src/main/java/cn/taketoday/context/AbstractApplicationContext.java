@@ -40,7 +40,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.context.autowire.AutowiredPropertyValuesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;

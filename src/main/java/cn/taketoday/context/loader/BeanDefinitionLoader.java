@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 
 /**
  * load bean definitions

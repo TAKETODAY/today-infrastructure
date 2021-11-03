@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;

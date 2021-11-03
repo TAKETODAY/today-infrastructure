@@ -40,7 +40,6 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.PropertyValuesBinder;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;

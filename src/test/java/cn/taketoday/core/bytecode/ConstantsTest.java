@@ -486,14 +486,21 @@ public class ConstantsTest {
       case "ASM_IFNULL_OPCODE_DELTA":
       case "SOURCE_DEPRECATED":
       case "SOURCE_MASK":
-      case "__$lineHits$__s":
+      case "__$lineHits$__":
       case "PRIVATE_FINAL_STATIC":
       case "SWITCH_STYLE_HASHONLY":
       case "SWITCH_STYLE_HASH":
       case "SWITCH_STYLE_TRIE":
         return ConstantType.OTHER;
       default:
-        throw new IllegalArgumentException("Unknown constant " + field.getName());
+        break;
+    }
+
+    if (!field.getName().startsWith("__$") && field.getName().endsWith("$__")) {
+      throw new IllegalArgumentException("Unknown constant " + field.getName());
+    }
+    else {
+      return ConstantType.OTHER;
     }
   }
 

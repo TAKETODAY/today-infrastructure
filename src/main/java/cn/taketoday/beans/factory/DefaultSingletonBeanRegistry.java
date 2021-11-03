@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;

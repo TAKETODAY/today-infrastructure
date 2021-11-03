@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.MergedAnnotation;

@@ -30,7 +30,6 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.NonNull;

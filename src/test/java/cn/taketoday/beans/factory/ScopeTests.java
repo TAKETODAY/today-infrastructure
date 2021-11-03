@@ -20,7 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.BeanDefinitionBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
