@@ -20,11 +20,10 @@
 package cn.taketoday.logging;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import cn.taketoday.core.io.ClassPathResource;
 
 /**
  * @author TODAY <br>
@@ -98,7 +97,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
       record.setLoggerName(getName());
       record.setThrown(t);
-      fillCallerData(record, thisFQCN, FQCN);
+      fillCallerData(record);
       logger.log(record);
     }
   }
@@ -111,13 +110,13 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
    *
    * @param record The record to update
    */
-  private static void fillCallerData(LogRecord record, String callerFQCN, String superFQCN) {
+  private static void fillCallerData(LogRecord record) {
     StackTraceElement[] steArray = new Throwable().getStackTrace();
 
     int selfIndex = -1;
     for (int i = 0; i < steArray.length; i++) {
       final String className = steArray[i].getClassName();
-      if (className.equals(callerFQCN) || className.equals(superFQCN)) {
+      if (className.equals(thisFQCN) || className.equals(FQCN)) {
         selfIndex = i;
         break;
       }
@@ -126,7 +125,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
     int found = -1;
     for (int i = selfIndex + 1; i < steArray.length; i++) {
       final String className = steArray[i].getClassName();
-      if (!(className.equals(callerFQCN) || className.equals(superFQCN))) {
+      if (!(className.equals(thisFQCN) || className.equals(FQCN))) {
         found = i;
         break;
       }
@@ -144,14 +143,13 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
 final class JavaLoggingFactory extends LoggerFactory {
   static {
-    ClassPathResource resource = new ClassPathResource(
-            "logging.properties", Thread.currentThread().getContextClassLoader());
-    if (resource.exists()) {
+    URL resource = Thread.currentThread().getContextClassLoader().getResource("logging.properties");
+    if (resource != null) {
       try {
-        LogManager.getLogManager().readConfiguration(resource.getInputStream());
+        LogManager.getLogManager().readConfiguration(resource.openStream());
       }
       catch (SecurityException | IOException e) {
-        System.err.println("Can't load config file \"" + resource + "\"");
+        System.err.println("Can't load config file 'logging.properties'");
         e.printStackTrace();
       }
     }
