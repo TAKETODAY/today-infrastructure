@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
@@ -549,6 +550,11 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
   // Listing Get operations for type-lookup
   //---------------------------------------------------------------------
+
+  @Override
+  public <T> Supplier<T> getObjectSupplier(String beanName) {
+    return getObjectSupplier(obtainBeanDefinition(beanName));
+  }
 
   @Override
   @SuppressWarnings("unchecked")

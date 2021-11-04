@@ -71,13 +71,13 @@ public interface BeanPostProcessor {
    * The default implementation returns the given {@code bean} as-is.
    *
    * @param bean The new bean instance
-   * @param def The definition of the bean
+   * @param beanName The definition of the bean
    * @return the bean instance to use, either the original or a wrapped one; if
    * {@code null}, no subsequent BeanPostProcessors will be invoked
    * @throws Exception in case of errors
    * @see InitializingBean#afterPropertiesSet
    */
-  default Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
+  default Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
     return bean;
   }
 
@@ -92,14 +92,14 @@ public interface BeanPostProcessor {
    * The default implementation returns the given {@code bean} as-is.
    *
    * @param bean the new bean instance, fully initialized
-   * @param def the definition of the bean
+   * @param beanName the definition of the bean
    * @return the bean instance to use, either the original or a wrapped one; if
    * {@code null}, no subsequent BeanPostProcessors will be invoked
    * @throws Exception in case of errors
    * @see InitializingBean#afterPropertiesSet
    * @see FactoryBean
    */
-  default Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
+  default Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
     return bean;
   }
 }

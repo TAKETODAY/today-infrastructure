@@ -34,14 +34,14 @@ public class BeanPostProcessorBean implements BeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(BeanPostProcessorBean.class);
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
-    log.debug("BeanPostProcessorBean Before named :[{}]", beanDefinition.getName());
+  public Object postProcessBeforeInitialization(Object bean, String beanDefinition) {
+    log.debug("BeanPostProcessorBean Before named :[{}]", beanDefinition);
     return bean;
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
-    log.debug("BeanPostProcessorBean After named :[{}]", def.getName());
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+    log.debug("BeanPostProcessorBean After named :[{}]", beanName);
     return bean;
   }
 

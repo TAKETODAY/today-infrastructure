@@ -22,13 +22,12 @@ package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
 import java.util.EventObject;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -55,15 +54,15 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
-    Class<?> beanClass = def.getBeanClass();
+  public Object postProcessAfterInitialization(Object bean, String beanName) {
+    Class<?> beanClass = bean.getClass();
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
     ReflectionUtils.doWithMethods(beanClass, method -> {
       MergedAnnotations.from(method).stream(EventListener.class).forEach(eventListener -> {
         Class<?>[] eventTypes = getEventTypes(eventListener, method);
         // use ContextUtils#resolveParameter to resolve method arguments
-        addListener(def, beanFactory, method, eventTypes);
+        addListener(beanName, beanFactory, method, eventTypes); // FIXME bean has already exist?
       });
     });
 
@@ -103,8 +102,8 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   protected void addListener(
-          BeanDefinition def, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
-    ObjectSupplier<Object> beanSupplier = beanFactory.getObjectSupplier(def);
+          String beanName, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
+    Supplier<Object> beanSupplier = beanFactory.getObjectSupplier(beanName);
     MethodApplicationListener listener = new MethodApplicationListener(
             beanSupplier, declaredMethod, eventTypes, beanFactory);
     context.addApplicationListener(listener);
@@ -116,11 +115,11 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     final Class<?>[] eventTypes;
     final BeanFactory beanFactory;
     final MethodInvoker methodInvoker;
-    final ObjectSupplier<Object> beanSupplier;
+    final Supplier<Object> beanSupplier;
     final ArgumentsResolver argumentsResolver;
 
     MethodApplicationListener(
-            ObjectSupplier<Object> beanSupplier,
+            Supplier<Object> beanSupplier,
             Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory) {
       this.beanSupplier = beanSupplier;
       this.eventTypes = eventTypes;

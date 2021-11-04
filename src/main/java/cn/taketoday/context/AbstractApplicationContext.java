@@ -27,11 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
@@ -40,7 +42,6 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.context.autowire.AutowiredPropertyValuesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
@@ -414,10 +415,10 @@ public abstract class AbstractApplicationContext
       }
     }
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
-		// (e.g. through an @Component method registered by ConfigurationBeanReader)
-		if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
-			beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
-		}
+    // (e.g. through an @Component method registered by ConfigurationBeanReader)
+    if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+    }
   }
 
   /**
@@ -510,7 +511,6 @@ public abstract class AbstractApplicationContext
     }
   }
 
-
   /**
    * <p>
    * load properties files or itself strategies
@@ -546,7 +546,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.
@@ -747,6 +747,12 @@ public abstract class AbstractApplicationContext
   public <T> T getBean(String name, Class<T> requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(name, requiredType);
+  }
+
+  @Override
+  public <T> Supplier<T> getObjectSupplier(String beanName) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getObjectSupplier(beanName);
   }
 
   @Override

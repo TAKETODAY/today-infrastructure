@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -63,14 +64,14 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
   @Nullable
   @Override
-  public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
+  public Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
     if (bean instanceof Aware) {
-      awareInternal(bean, def);
+      awareInternal(bean, beanName);
     }
     return bean;
   }
 
-  private void awareInternal(Object bean, BeanDefinition def) {
+  private void awareInternal(Object bean, String beanName) {
     if (bean instanceof EnvironmentAware) {
       ((EnvironmentAware) bean).setEnvironment(context.getEnvironment());
     }
@@ -85,7 +86,9 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
     }
 
     if (bean instanceof ImportAware) { // @since 3.0
-      Object attribute = def.getAttribute(ImportAware.ImportAnnotatedMetadata);
+      BeanDefinition beanDefinition = context.getBeanDefinition(beanName);
+      Assert.state(beanDefinition != null, "No BeanDefinition");
+      Object attribute = beanDefinition.getAttribute(ImportAware.ImportAnnotatedMetadata);
       if (attribute instanceof AnnotationMetadata) {
         ((ImportAware) bean).setImportMetadata((AnnotationMetadata) attribute);
       }

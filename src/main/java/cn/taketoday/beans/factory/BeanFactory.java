@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolverProvider;
 import cn.taketoday.beans.BeansException;
@@ -579,7 +580,15 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @see #getObjectSupplier(ResolvableType)
    * @since 3.0
    */
+  @Deprecated
   <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def);
+
+  /**
+   * lazy load bean
+   *
+   * @since 4.0
+   */
+  <T> Supplier<T> getObjectSupplier(String beanName);
 
   //---------------------------------------------------------------------
   // bean-factory options

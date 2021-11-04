@@ -33,10 +33,10 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
@@ -44,6 +44,7 @@ import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.OrderUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -128,37 +129,31 @@ public abstract class AbstractAutoProxyCreator
     return proxyClassLoader;
   }
 
-  /**
-   * Use TargetSourceCreator to create TargetSource
-   *
-   * @param def the BeanDefinition of the bean to be instantiated
-   * @return a proxy bean or null
-   */
   @Override
-  public Object postProcessBeforeInstantiation(BeanDefinition def) {
+  public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
     // Create proxy here if we have a custom TargetSource.
     // Suppresses unnecessary default instantiation of the target bean:
     // The TargetSource will handle target instances in a custom fashion.
-    TargetSource targetSource = getCustomTargetSource(def);
+    TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
     if (targetSource != null) {
-      Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, targetSource);
+      Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
       if (ObjectUtils.isNotEmpty(specificInterceptors)) {
-        return createProxy(def, specificInterceptors, targetSource);
+        return createProxy(beanClass, beanName, specificInterceptors, targetSource);
       }
     }
     return null;
   }
 
-  protected TargetSource getCustomTargetSource(BeanDefinition def) {
+  protected TargetSource getCustomTargetSource(Class<?> beanClass, String beanName) {
     // We can't create fancy target sources for directly registered singletons.
     if (this.targetSourceCreators != null) {
       for (TargetSourceCreator creator : this.targetSourceCreators) {
-        TargetSource source = creator.getTargetSource(def);
+        TargetSource source = creator.getTargetSource(beanClass, beanName);
         if (source != null) {
           // Found a matching TargetSource.
           if (log.isTraceEnabled()) {
-            log.trace("TargetSourceCreator [{}] found custom TargetSource for bean with BeanDefinition '{}'",
-                      creator, def);
+            log.trace("TargetSourceCreator [{}] found custom TargetSource for bean with name '{}'",
+                      creator, beanName);
           }
           return source;
         }
@@ -175,8 +170,8 @@ public abstract class AbstractAutoProxyCreator
    * @see #getAdvicesAndAdvisorsForBean
    */
   @Override
-  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
-    return wrapIfNecessary(bean, def);
+  public Object postProcessAfterInitialization(Object bean, String beanName) {
+    return wrapIfNecessary(bean, beanName);
   }
 
   protected boolean advisorsPreFiltered() {
@@ -187,7 +182,7 @@ public abstract class AbstractAutoProxyCreator
 
   }
 
-  protected Advisor[] getAdvisors(BeanDefinition def, Object[] specificInterceptors) {
+  protected Advisor[] getAdvisors(Class<?> beanClass, Object[] specificInterceptors) {
     Advisor[] ret = new Advisor[specificInterceptors.length];
     int i = 0;
     for (Object specificInterceptor : specificInterceptors) {
@@ -196,42 +191,44 @@ public abstract class AbstractAutoProxyCreator
     return ret;
   }
 
-  protected Object wrapIfNecessary(Object bean, BeanDefinition def) {
-    if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean, def)) {
+  protected Object wrapIfNecessary(Object bean, String beanName) {
+    Class<?> beanClass = bean.getClass();
+    if (isInfrastructureClass(beanClass) || shouldSkip(bean, beanName)) {
       return bean;
     }
     // Create proxy if we have advice.
-    TargetSource targetSource = getTargetSource(bean, def);
-    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, targetSource);
+    TargetSource targetSource = getTargetSource(bean, beanName);
+    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
     if (ObjectUtils.isNotEmpty(specificInterceptors)) {
-      return createProxy(def, specificInterceptors, targetSource);
+      return createProxy(beanClass, beanName, specificInterceptors, targetSource);
     }
     return bean;
   }
 
-  protected TargetSource getTargetSource(Object bean, BeanDefinition def) {
-    TargetSource targetSource = getCustomTargetSource(def);
+  protected TargetSource getTargetSource(Object bean, String def) {
+    TargetSource targetSource = getCustomTargetSource(bean.getClass(), def);
     if (targetSource == null) {
       targetSource = new SingletonTargetSource(bean);
     }
     return targetSource;
   }
 
-  protected Object createProxy(BeanDefinition def, Object[] specificInterceptors, TargetSource targetSource) {
+  protected Object createProxy(
+          Class<?> beanClass, String beanName, Object[] specificInterceptors, TargetSource targetSource) {
 
     ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.copyFrom(this);
 
     if (!proxyFactory.isProxyTargetClass()) {
-      if (shouldProxyTargetClass(def)) {
+      if (shouldProxyTargetClass(beanClass, beanName)) {
         proxyFactory.setProxyTargetClass(true);
       }
       else {
-        evaluateProxyInterfaces(def.getBeanClass(), proxyFactory);
+        evaluateProxyInterfaces(beanClass, proxyFactory);
       }
     }
 
-    Advisor[] advisors = getAdvisors(def, specificInterceptors);
+    Advisor[] advisors = getAdvisors(beanClass, specificInterceptors);
     proxyFactory.addAdvisors(advisors);
     proxyFactory.setTargetSource(targetSource);
     customizeProxyFactory(proxyFactory);
@@ -244,9 +241,26 @@ public abstract class AbstractAutoProxyCreator
     return proxyFactory.getProxy(getProxyClassLoader());
   }
 
-  protected Object[] getAdvicesAndAdvisorsForBean(BeanDefinition def, TargetSource targetSource) {
+  /**
+   * Return whether the given bean is to be proxied, what additional
+   * advices (e.g. AOP Alliance interceptors) and advisors to apply.
+   *
+   * @param beanClass the class of the bean to advise
+   * @param beanName the name of the bean
+   * @param targetSource the TargetSource returned by the
+   * {@link #getCustomTargetSource} method: may be ignored.
+   * Will be {@code null} if no custom target source is in use.
+   * @return an array of additional interceptors for the particular bean;
+   * or an empty array if no additional interceptors but just the common ones;
+   * or {@code null} if no proxy at all, not even with the common interceptors.
+   * See constants DO_NOT_PROXY and PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS.
+   * @throws BeansException in case of errors
+   * @see #DO_NOT_PROXY
+   */
+  protected Object[] getAdvicesAndAdvisorsForBean(
+          Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
     List<Advisor> candidateAdvisors = getCandidateAdvisors();
-    List<Advisor> eligibleAdvisors = filterAdvisors(candidateAdvisors, def, targetSource);
+    List<Advisor> eligibleAdvisors = filterAdvisors(candidateAdvisors, beanClass, targetSource);
     postEligibleAdvisors(eligibleAdvisors);
 
     // sort advisers
@@ -258,9 +272,9 @@ public abstract class AbstractAutoProxyCreator
     return eligibleAdvisors.toArray();
   }
 
-  protected List<Advisor> filterAdvisors(List<Advisor> candidateAdvisors,
-                                         BeanDefinition def, TargetSource targetSource) {
-    return AopUtils.filterAdvisors(candidateAdvisors, def.getBeanClass());
+  protected List<Advisor> filterAdvisors(
+          List<Advisor> candidateAdvisors, Class<?> beanClass, TargetSource targetSource) {
+    return AopUtils.filterAdvisors(candidateAdvisors, beanClass);
   }
 
   protected List<Advisor> getCandidateAdvisors() {
@@ -301,7 +315,7 @@ public abstract class AbstractAutoProxyCreator
     AnnotationAwareOrderComparator.sort(advisors);
   }
 
-  protected boolean shouldSkip(Object bean, BeanDefinition def) {
+  protected boolean shouldSkip(Object bean, String def) {
     return false;
   }
 
@@ -373,11 +387,11 @@ public abstract class AbstractAutoProxyCreator
   /**
    * Determine whether the given bean should be proxied with its target class rather than its interfaces.
    *
-   * @param def the BeanDefinition of the bean
+   * @param beanClass the class of the bean
+   * @param beanName the name of the bean
    * @return whether the given bean should be proxied with its target class
    */
-  protected boolean shouldProxyTargetClass(BeanDefinition def) {
-//    return def.getAttribute();
+  protected boolean shouldProxyTargetClass(Class<?> beanClass, @Nullable String beanName) {
     return false;
   }
 

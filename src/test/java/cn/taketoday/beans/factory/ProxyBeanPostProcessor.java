@@ -35,14 +35,14 @@ public class ProxyBeanPostProcessor implements BeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(ProxyBeanPostProcessor.class);
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
-    log.debug("ProxyBeanPostProcessor Before named :[{}]", beanDefinition.getName());
+  public Object postProcessBeforeInitialization(Object bean, String beanName) {
+    log.debug("ProxyBeanPostProcessor Before named :[{}]", beanName);
     return bean;
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
-    log.debug("ProxyBeanPostProcessor After :[{}]", def.getName());
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+    log.debug("ProxyBeanPostProcessor After :[{}]", beanName.getName());
     return bean;
   }
 

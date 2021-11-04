@@ -21,7 +21,6 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.web.ServletContextAware;
 
@@ -37,7 +36,7 @@ public class ServletContextAwareBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) {
+  public Object postProcessBeforeInitialization(Object bean, String beanName) {
     if (bean instanceof Aware) {
       if (bean instanceof ServletContextAware) {
         ((ServletContextAware) bean).setServletContext(context.getServletContext());

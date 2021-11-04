@@ -88,7 +88,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (hasInstantiationAwareBeanPostProcessors) {
       for (BeanPostProcessor processor : postProcessors) {
         if (processor instanceof InstantiationAwareBeanPostProcessor) {
-          Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
+          Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def.getBeanClass(), def.getName());
           if (bean != null) {
             return bean;
           }
@@ -267,11 +267,10 @@ public abstract class AbstractAutowireCapableBeanFactory
           Object existingBean, String beanName
   ) {
     Object ret = existingBean;
-    BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     // before properties
     for (BeanPostProcessor processor : getPostProcessors()) {
       try {
-        ret = processor.postProcessBeforeInitialization(ret, prototypeDef);
+        ret = processor.postProcessBeforeInitialization(ret, beanName);
       }
       catch (Exception e) {
         throw new BeanInitializingException(
@@ -286,11 +285,10 @@ public abstract class AbstractAutowireCapableBeanFactory
           Object existingBean, String beanName
   ) {
     Object ret = existingBean;
-    BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     // after properties
     for (BeanPostProcessor processor : getPostProcessors()) {
       try {
-        ret = processor.postProcessAfterInitialization(ret, prototypeDef);
+        ret = processor.postProcessAfterInitialization(ret, beanName);
       }
       catch (Exception e) {
         throw new BeanInitializingException(

@@ -19,14 +19,32 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.InitializingBean;
+
 /**
- * Bean name Injection
+ * Interface to be implemented by beans that want to be aware of their
+ * bean name in a bean factory. Note that it is not usually recommended
+ * that an object depends on its bean name, as this represents a potentially
+ * brittle dependence on external configuration.
  *
- * @author TODAY <br>
- * 2018-07-17 21:35:14
+ * <p>For a list of all bean lifecycle methods, see the
+ * {@link BeanFactory BeanFactory javadocs}.
+ *
+ * @author TODAY 2018-07-17 21:35:14
+ * @see BeanClassLoaderAware
+ * @see BeanFactoryAware
+ * @see InitializingBean
  */
 public interface BeanNameAware extends Aware {
 
+  /**
+   * Set the name of the bean in the bean factory that created this bean.
+   * <p>Invoked after population of normal bean properties but before an
+   * init callback such as {@link InitializingBean#afterPropertiesSet()}
+   * or a custom init-method.
+   *
+   * @param name the name of the bean in the factory.
+   */
   void setBeanName(String name);
 
 }

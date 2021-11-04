@@ -148,7 +148,7 @@ class AutowireCapableBeanFactoryTests {
   static class PostProcessor implements BeanPostProcessor, DestructionBeanPostProcessor {
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, BeanDefinition def) {
+    public Object postProcessBeforeInitialization(Object bean, String beanName) {
       if (bean instanceof AutowireTestBean) {
         ((AutowireTestBean) bean).beforePostProcessor = true;
       }
@@ -156,7 +156,7 @@ class AutowireCapableBeanFactoryTests {
     }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
       if (bean instanceof AutowireTestBean) {
         ((AutowireTestBean) bean).afterPostProcessor = true;
       }

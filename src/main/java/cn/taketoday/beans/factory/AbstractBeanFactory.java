@@ -571,7 +571,7 @@ public abstract class AbstractBeanFactory
     // before properties
     for (BeanPostProcessor processor : postProcessors) {
       try {
-        ret = processor.postProcessBeforeInitialization(ret, def);
+        ret = processor.postProcessBeforeInitialization(ret, def.getName());
       }
       catch (Exception e) {
         throw new BeanInitializingException(
@@ -585,7 +585,7 @@ public abstract class AbstractBeanFactory
     // after properties
     for (BeanPostProcessor processor : postProcessors) {
       try {
-        ret = processor.postProcessAfterInitialization(ret, def);
+        ret = processor.postProcessAfterInitialization(ret, def.getName());
       }
       catch (Exception e) {
         throw new BeanInitializingException(
