@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans;
 
+import cn.taketoday.beans.factory.BeansException;
+
 /**
  * @author TODAY 2021/9/8 22:06
  * @since 4.0

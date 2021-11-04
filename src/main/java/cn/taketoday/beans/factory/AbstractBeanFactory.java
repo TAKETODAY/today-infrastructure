@@ -337,13 +337,17 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Class<?> resolveBeanClass(BeanDefinition def) throws BeanClassLoadFailedException {
+    return resolveBeanClass(def, false);
+  }
+
+  protected Class<?> resolveBeanClass(BeanDefinition def, boolean matchOnly) throws BeanClassLoadFailedException {
     if (def.hasBeanClass()) {
       return def.getBeanClass();
     }
 
     String beanClassName = def.getBeanClassName();
     try {
-      if (beanClassName != null) {
+      if (beanClassName != null && matchOnly) {
         ClassLoader tempClassLoader = getTempClassLoader();
         if (tempClassLoader != null) {
           // When resolving against a temporary class loader, exit early in order
@@ -962,7 +966,7 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Class<?> predictBeanType(BeanDefinition definition) {
-    return resolveBeanClass(definition);
+    return resolveBeanClass(definition, true);
   }
 
   @Override

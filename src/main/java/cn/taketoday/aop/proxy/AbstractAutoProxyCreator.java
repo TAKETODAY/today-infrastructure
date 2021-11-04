@@ -33,7 +33,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.Aware;

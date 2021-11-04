@@ -18,8 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans;
+package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -66,6 +67,17 @@ public abstract class BeansException extends NestedRuntimeException {
    */
   public BeansException(String msg, Throwable cause) {
     super(msg, cause);
+  }
+
+  public static String getDesc(BeanDefinition def) {
+    if (def != null) {
+      String resourceDescription = def.getResourceDescription();
+      if (resourceDescription == null) {
+        return "";
+      }
+      return " defined in " + resourceDescription;
+    }
+    return "";
   }
 
 }

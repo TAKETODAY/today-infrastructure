@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.lang.Nullable;
 
 /**

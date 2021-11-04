@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 
 import java.util.Objects;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.style.ToStringBuilder;
 

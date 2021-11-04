@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.lang.NonNull;
 
 /**
@@ -61,17 +60,6 @@ public class BeanClassLoadFailedException extends BeansException {
   @NonNull
   public BeanDefinition getBeanDefinition() {
     return beanDefinition;
-  }
-
-  private static String getDesc(BeanDefinition def) {
-    if (def != null) {
-      String resourceDescription = def.getResourceDescription();
-      if (resourceDescription == null) {
-        return "";
-      }
-      return " defined in " + resourceDescription;
-    }
-    return "";
   }
 
 }

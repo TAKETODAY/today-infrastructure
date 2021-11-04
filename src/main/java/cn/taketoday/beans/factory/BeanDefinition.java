@@ -140,6 +140,8 @@ public class BeanDefinition
   BeanInstantiator instantiator;
 
   ResolvableType factoryMethodReturnType;
+  /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
+  Boolean beforeInstantiationResolved;
 
   public BeanDefinition() { }
 

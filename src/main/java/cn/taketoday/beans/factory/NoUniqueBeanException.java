@@ -23,7 +23,6 @@ package cn.taketoday.beans.factory;
 import java.util.Arrays;
 import java.util.Collection;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;

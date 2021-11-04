@@ -20,8 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.BeansException;
-
 /**
  * Exception thrown in case of a bean being requested despite
  * bean creation currently not being allowed (for example, during

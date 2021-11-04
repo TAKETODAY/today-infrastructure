@@ -34,7 +34,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -205,7 +204,7 @@ public class StandardBeanFactory
               .isAssignableFrom(typeToMatch);
     }
     else {
-      Class<?> candidateClass = resolveBeanClass(definition);
+      Class<?> candidateClass = resolveBeanClass(definition, true);
       return candidateClass != null
               && ResolvableType.fromClass(candidateClass).isAssignableFrom(typeToMatch);
     }
@@ -216,7 +215,7 @@ public class StandardBeanFactory
       return beanClass.isAssignableFrom(definition.getBeanClass());
     }
     else {
-      Class<?> candidateClass = resolveBeanClass(definition);
+      Class<?> candidateClass = resolveBeanClass(definition, true);
       return candidateClass != null && beanClass.isAssignableFrom(candidateClass);
     }
   }
@@ -254,7 +253,7 @@ public class StandardBeanFactory
       return definition.getBeanClass() == beanClass;
     }
     else {
-      Class<?> candidateClass = resolveBeanClass(definition);
+      Class<?> candidateClass = resolveBeanClass(definition, true);
       return candidateClass != null && beanClass == candidateClass;
     }
   }

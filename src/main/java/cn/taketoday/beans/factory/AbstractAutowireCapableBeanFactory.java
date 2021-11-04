@@ -27,7 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ResolvableType;
@@ -66,7 +65,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     else {
       defToUse = getPrototypeBeanDefinition(beanClass);
     }
-    return (T) createPrototype(defToUse);
+    return (T) createBean(defToUse, null);
   }
 
   protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
@@ -83,26 +82,150 @@ public abstract class AbstractAutowireCapableBeanFactory
     applyPropertyValues(existingBean, prototypeDef);
   }
 
-  @Override
-  protected Object createBeanInstance(BeanDefinition def) {
-    if (hasInstantiationAwareBeanPostProcessors) {
-      for (BeanPostProcessor processor : postProcessors) {
-        if (processor instanceof InstantiationAwareBeanPostProcessor) {
-          Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def.getBeanClass(), def.getName());
-          if (bean != null) {
-            return bean;
-          }
+  protected Object createBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+    if (log.isTraceEnabled()) {
+      log.trace("Creating instance of bean '{}'", definition.getName());
+    }
+
+    Class<?> resolvedClass = resolveBeanClass(definition);
+    try {
+      // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+      Object bean = resolveBeforeInstantiation(resolvedClass, definition);
+      if (bean != null) {
+        return bean;
+      }
+    }
+    catch (Throwable ex) {
+      throw new BeanCreationException(
+              definition.getResourceDescription(), definition.getName(),
+              "BeanPostProcessor before instantiation of bean failed", ex);
+    }
+
+    try {
+      Object beanInstance = doCreateBean(definition, args);
+      if (log.isTraceEnabled()) {
+        log.trace("Finished creating instance of bean '{}'", definition.getName());
+      }
+      return beanInstance;
+    }
+    catch (BeanCreationException ex) {
+      // A previously detected exception with proper bean creation context already,
+      // or illegal singleton state to be communicated up to DefaultSingletonBeanRegistry.
+      throw ex;
+    }
+    catch (Throwable ex) {
+      throw new BeanCreationException(
+              definition.getResourceDescription(),
+              definition.getName(), "Unexpected exception during bean creation", ex);
+    }
+  }
+
+  /**
+   * Actually create the specified bean. Pre-creation processing has already happened
+   * at this point, e.g. checking {@code postProcessBeforeInstantiation} callbacks.
+   * <p>Differentiates between default bean instantiation, use of a
+   * factory method, and autowiring a constructor.
+   *
+   * @param definition the merged bean definition for the bean
+   * @param args explicit arguments to use for constructor or factory method invocation
+   * @return a new instance of the bean
+   * @throws BeanCreationException if the bean could not be created
+   */
+  protected Object doCreateBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+    Object bean = createBeanInstance(definition, args);
+    try {
+      // apply properties
+      populateBean(bean, definition);
+      // Initialize the bean instance.
+      bean = initializeBean(bean, definition);
+      // Register bean as disposable.
+      try {
+        registerDisposableBeanIfNecessary(definition.getName(), bean, definition);
+      }
+      catch (BeanDefinitionValidationException ex) {
+        throw new BeanCreationException(
+                definition.getResourceDescription(), definition.getName(), "Invalid destruction signature", ex);
+      }
+      return bean;
+    }
+    catch (Throwable ex) {
+      if (ex instanceof BeanCreationException && definition.getName().equals(((BeanCreationException) ex).getBeanName())) {
+        throw (BeanCreationException) ex;
+      }
+      else {
+        throw new BeanCreationException(
+                definition.getResourceDescription(), definition.getName(), "Initialization of bean failed", ex);
+      }
+    }
+
+  }
+
+  /**
+   * Apply before-instantiation post-processors, resolving whether there is a
+   * before-instantiation shortcut for the specified bean.
+   *
+   * @param beanClass bean class
+   * @param definition the bean definition for the bean
+   * @return the shortcut-determined bean instance, or {@code null} if none
+   */
+  @Nullable
+  protected Object resolveBeforeInstantiation(Class<?> beanClass, BeanDefinition definition) {
+    Object bean = null;
+    if (!Boolean.FALSE.equals(definition.beforeInstantiationResolved)) {
+      // Make sure bean class is actually resolved at this point.
+      if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
+        bean = applyBeanPostProcessorsBeforeInstantiation(beanClass, definition.getName());
+        if (bean != null) {
+          bean = applyBeanPostProcessorsAfterInitialization(bean, definition.getName());
+        }
+      }
+      definition.beforeInstantiationResolved = (bean != null);
+    }
+    return bean;
+  }
+
+  /**
+   * Apply InstantiationAwareBeanPostProcessors to the specified bean definition
+   * (by class and name), invoking their {@code postProcessBeforeInstantiation} methods.
+   * <p>Any returned object will be used as the bean instead of actually instantiating
+   * the target bean. A {@code null} return value from the post-processor will
+   * result in the target bean being instantiated.
+   *
+   * @param beanClass the class of the bean to be instantiated
+   * @param beanName the name of the bean
+   * @return the bean object to use instead of a default instance of the target bean, or {@code null}
+   * @see InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation
+   */
+  @Nullable
+  protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
+    for (BeanPostProcessor processor : postProcessors) {
+      if (processor instanceof InstantiationAwareBeanPostProcessor) {
+        InstantiationAwareBeanPostProcessor ip = (InstantiationAwareBeanPostProcessor) processor;
+        Object result = ip.postProcessBeforeInstantiation(beanClass, beanName);
+        if (result != null) {
+          return result;
         }
       }
     }
-    return instantiate(def);
+    return null;
   }
 
-  private Object instantiate(BeanDefinition def) {
-    Supplier<?> instanceSupplier = def.getInstanceSupplier();
+  protected Object createBeanInstance(BeanDefinition mbd, @Nullable Object[] args) {
+    Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
+
+    // No special handling: simply use no-arg constructor.
+    return instantiate(mbd);
+  }
+
+  @Override
+  protected Object createBeanInstance(BeanDefinition def) {
+    return createBeanInstance(def, null);
+  }
+
+  private Object instantiate(BeanDefinition def) {
     BeanInstantiator instantiator = resolveBeanInstantiator(def);
     Object[] constructorArgs = def.getConstructorArgs();
     if (constructorArgs == null) {
@@ -233,12 +356,11 @@ public abstract class AbstractAutowireCapableBeanFactory
   public void populateBean(Object bean, BeanDefinition definition) {
     // postProcess();
 
-    String name = definition.getName();
-
     // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
     // state of the bean before properties are set. This can be used, for example,
     // to support styles of field injection.
     if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
+      String name = definition.getName();
       for (BeanPostProcessor postProcessor : postProcessors) {
         if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
           InstantiationAwareBeanPostProcessor processor = (InstantiationAwareBeanPostProcessor) postProcessor;
@@ -250,7 +372,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     applyPropertyValues(bean, definition);
-
   }
 
   @Override
