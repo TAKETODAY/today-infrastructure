@@ -85,9 +85,6 @@ public class BeanDefinitionBuilder {
    */
   private boolean factoryBean = false;
 
-  /** Child implementation */
-  private BeanDefinition childDef;
-
   /** lazy init flag @since 3.0 */
   private boolean lazyInit;
 
@@ -115,11 +112,6 @@ public class BeanDefinitionBuilder {
 
   public BeanDefinitionBuilder instanceSupplier(Supplier<?> instanceSupplier) {
     this.instanceSupplier = instanceSupplier;
-    return this;
-  }
-
-  public BeanDefinitionBuilder childDefinition(BeanDefinition childDef) {
-    this.childDef = childDef;
     return this;
   }
 
@@ -246,7 +238,6 @@ public class BeanDefinitionBuilder {
     this.name = null;
     this.scope = null;
     this.beanClass = null;
-    this.childDef = null;
     this.lazyInit = false;
     this.factoryMethod = null;
     this.factoryBeanName = null;
