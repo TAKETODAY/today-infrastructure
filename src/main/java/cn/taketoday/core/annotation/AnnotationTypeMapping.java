@@ -203,9 +203,10 @@ final class AnnotationTypeMapping {
 
   private void processAliases() {
     ArrayList<Method> aliases = new ArrayList<>();
-    for (int i = 0; i < this.attributes.size(); i++) {
+    Method[] attributes = this.attributes.attributes;
+    for (int i = 0; i < attributes.length; i++) {
       aliases.clear();
-      aliases.add(this.attributes.get(i));
+      aliases.add(attributes[i]);
       collectAliases(aliases);
       if (aliases.size() > 1) {
         processAliases(i, aliases);
@@ -232,8 +233,9 @@ final class AnnotationTypeMapping {
     AnnotationTypeMapping mapping = this;
     while (mapping != null) {
       if (rootAttributeIndex != -1 && mapping != this.root) {
-        for (int i = 0; i < mapping.attributes.size(); i++) {
-          if (aliases.contains(mapping.attributes.get(i))) {
+        Method[] attributes = mapping.attributes.attributes;
+        for (int i = 0; i < attributes.length; i++) {
+          if (aliases.contains(attributes[i])) {
             mapping.aliasMappings[i] = rootAttributeIndex;
           }
         }
@@ -243,8 +245,9 @@ final class AnnotationTypeMapping {
       if (mapping.annotation != null) {
         int[] resolvedMirrors = mapping.mirrorSets.resolve(null,
                 mapping.annotation, ReflectionUtils::invokeMethod);
-        for (int i = 0; i < mapping.attributes.size(); i++) {
-          if (aliases.contains(mapping.attributes.get(i))) {
+        Method[] attributes = mapping.attributes.attributes;
+        for (int i = 0; i < attributes.length; i++) {
+          if (aliases.contains(attributes[i])) {
             this.annotationValueMappings[attributeIndex] = resolvedMirrors[i];
             this.annotationValueSource[attributeIndex] = mapping;
           }
@@ -286,8 +289,9 @@ final class AnnotationTypeMapping {
   }
 
   private void addConventionAnnotationValues() {
-    for (int i = 0; i < this.attributes.size(); i++) {
-      Method attribute = this.attributes.get(i);
+    Method[] attributes = this.attributes.attributes;
+    for (int i = 0; i < attributes.length; i++) {
+      Method attribute = attributes[i];
       boolean isValueAttribute = MergedAnnotation.VALUE.equals(attribute.getName());
       AnnotationTypeMapping mapping = this;
       while (mapping != null && mapping.distance > 0) {
@@ -301,8 +305,8 @@ final class AnnotationTypeMapping {
     }
   }
 
-  private boolean isBetterConventionAnnotationValue(int index, boolean isValueAttribute,
-                                                    AnnotationTypeMapping mapping) {
+  private boolean isBetterConventionAnnotationValue(
+          int index, boolean isValueAttribute, AnnotationTypeMapping mapping) {
 
     if (this.annotationValueMappings[index] == -1) {
       return true;
@@ -616,7 +620,6 @@ final class AnnotationTypeMapping {
   class MirrorSets {
 
     private MirrorSet[] mirrorSets;
-
     private final MirrorSet[] assigned;
 
     MirrorSets() {
@@ -628,8 +631,9 @@ final class AnnotationTypeMapping {
       MirrorSet mirrorSet = null;
       int size = 0;
       int last = -1;
-      for (int i = 0; i < attributes.size(); i++) {
-        Method attribute = attributes.get(i);
+      Method[] attributes = getAttributes().attributes;
+      for (int i = 0; i < attributes.length; i++) {
+        Method attribute = attributes[i];
         if (aliases.contains(attribute)) {
           size++;
           if (size > 1) {
