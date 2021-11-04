@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.aop.ClassFilter;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
@@ -57,7 +58,7 @@ public class AnnotationClassFilter implements ClassFilter {
    * @param annotationType the annotation type to look for
    * @param checkInherited whether to also check the superclasses and
    * interfaces as well as meta-annotations for the annotation type
-   * (i.e. whether to use {@link ClassUtils#isAnnotationPresent(AnnotatedElement, Class)}
+   * (i.e. whether to use {@link AnnotatedElementUtils#hasAnnotation(AnnotatedElement, Class)}
    * semantics instead of standard Java {@link Class#isAnnotationPresent})
    */
   public AnnotationClassFilter(Class<? extends Annotation> annotationType, boolean checkInherited) {
@@ -68,9 +69,9 @@ public class AnnotationClassFilter implements ClassFilter {
 
   @Override
   public boolean matches(Class<?> clazz) {
-    return (this.checkInherited
-            ? AnnotationUtils.isPresent(clazz, this.annotationType)
-            : clazz.isAnnotationPresent(this.annotationType));
+    return this.checkInherited
+            ? AnnotatedElementUtils.hasAnnotation(clazz, this.annotationType)
+            : clazz.isAnnotationPresent(this.annotationType);
   }
 
   @Override

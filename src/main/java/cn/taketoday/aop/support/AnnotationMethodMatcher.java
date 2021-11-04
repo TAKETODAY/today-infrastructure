@@ -20,13 +20,14 @@
 
 package cn.taketoday.aop.support;
 
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Assert;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.lang.Assert;
 
 /**
  * Simple MethodMatcher that looks for a specific Java 5 annotation
@@ -60,7 +61,7 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
    * @param annotationType the annotation type to look for
    * @param checkInherited whether to also check the superclasses and
    * interfaces as well as meta-annotations for the annotation type
-   * (i.e. whether to use {@link AnnotationUtils#isPresent(AnnotatedElement, Class)}
+   * (i.e. whether to use {@link AnnotatedElementUtils#hasAnnotation(AnnotatedElement, Class)}
    * semantics instead of standard Java {@link Method#isAnnotationPresent})
    */
   public AnnotationMethodMatcher(Class<? extends Annotation> annotationType, boolean checkInherited) {
@@ -80,13 +81,13 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
     }
     // The method may be on an interface, so let's check on the target class as well.
     Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-    return (specificMethod != method && matchesMethod(specificMethod));
+    return specificMethod != method && matchesMethod(specificMethod);
   }
 
   private boolean matchesMethod(Method method) {
-    return (this.checkInherited
-            ? AnnotationUtils.isPresent(method, this.annotationType)
-            : method.isAnnotationPresent(this.annotationType));
+    return this.checkInherited
+            ? AnnotatedElementUtils.hasAnnotation(method, this.annotationType)
+            : method.isAnnotationPresent(this.annotationType);
   }
 
   @Override

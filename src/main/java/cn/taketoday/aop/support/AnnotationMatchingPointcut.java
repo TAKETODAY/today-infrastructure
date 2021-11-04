@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 
@@ -75,8 +76,8 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @param methodAnnotationType the annotation type to look for at the method level
    * (can be {@code null})
    */
-  public AnnotationMatchingPointcut(Class<? extends Annotation> classAnnotationType,
-                                    Class<? extends Annotation> methodAnnotationType) {
+  public AnnotationMatchingPointcut(
+          Class<? extends Annotation> classAnnotationType, Class<? extends Annotation> methodAnnotationType) {
     this(classAnnotationType, methodAnnotationType, false);
   }
 
@@ -92,8 +93,9 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @see AnnotationClassFilter#AnnotationClassFilter(Class, boolean)
    * @see AnnotationMethodMatcher#AnnotationMethodMatcher(Class, boolean)
    */
-  public AnnotationMatchingPointcut(Class<? extends Annotation> classAnnotationType,
-                                    Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
+  public AnnotationMatchingPointcut(
+          Class<? extends Annotation> classAnnotationType,
+          Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
 
     Assert.isTrue((classAnnotationType != null || methodAnnotationType != null),
                   "Either Class annotation type or Method annotation type needs to be specified (or both)");
@@ -171,7 +173,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
   }
 
   /**
-   * {@link ClassFilter} that delegates to {@link ClassUtils#isCandidateClass}
+   * {@link ClassFilter} that delegates to {@link AnnotationUtils#isCandidateClass}
    * for filtering classes whose methods are not worth searching to begin with.
    */
   private static class AnnotationCandidateClassFilter implements ClassFilter {
@@ -184,7 +186,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
 
     @Override
     public boolean matches(Class<?> clazz) {
-      return ClassUtils.isCandidateClass(clazz, this.annotationType);
+      return AnnotationUtils.isCandidateClass(clazz, this.annotationType);
     }
 
     @Override
