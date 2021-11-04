@@ -44,7 +44,6 @@ import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Throwing;
 import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
@@ -295,7 +294,7 @@ class AopTests {
       TargetSourceCreator targetSourceCreator = new TargetSourceCreator() {
 
         @Override
-        public TargetSource getTargetSource(BeanDefinition def) {
+        public TargetSource getTargetSource(Class<?> beanClass, String beanName) {
 
           return new PrototypeTargetSource() {
 

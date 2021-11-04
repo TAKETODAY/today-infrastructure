@@ -27,7 +27,7 @@ import cn.taketoday.logging.LoggerFactory;
 /**
  * @author Today <br>
  *
- *         2018-09-09 20:14
+ * 2018-09-09 20:14
  */
 //@Singleton
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -42,7 +42,7 @@ public class ProxyBeanPostProcessor implements BeanPostProcessor {
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
-    log.debug("ProxyBeanPostProcessor After :[{}]", beanName.getName());
+    log.debug("ProxyBeanPostProcessor After :[{}]", beanName);
     return bean;
   }
 
