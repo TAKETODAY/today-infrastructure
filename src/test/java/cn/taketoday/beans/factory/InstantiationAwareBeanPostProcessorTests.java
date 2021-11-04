@@ -42,8 +42,9 @@ class InstantiationAwareBeanPostProcessorTests {
     }
 
     @Override
-    // your Instantiation Strategy
-    public Object postProcessBeforeInstantiation(BeanDefinition def) {
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
+      BeanDefinition def = factory.getBeanDefinition(beanName);
+      // your Instantiation Strategy
       if (def instanceof AnnotatedBeanDefinition) {
         MethodMetadata metadata = ((AnnotatedBeanDefinition) def).getFactoryMethodMetadata();
         if (def.getBeanClass() == InstantiationAwareBeanPostProcessorBean.class && metadata == null) {
