@@ -619,7 +619,7 @@ final class AnnotationTypeMapping {
    */
   class MirrorSets {
 
-    private MirrorSet[] mirrorSets;
+    public MirrorSet[] mirrorSets;
     private final MirrorSet[] assigned;
 
     MirrorSets() {
