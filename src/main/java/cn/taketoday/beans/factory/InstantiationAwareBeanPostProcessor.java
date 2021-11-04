@@ -75,7 +75,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * <p>The default implementation returns {@code true}.
    *
    * @param bean the bean instance created, with properties not having been set yet
-   * @param def the bean definition of the bean
+   * @param beanName the name of the bean
    * @return {@code true} if properties should be set on the bean; {@code false}
    * if property population should be skipped. Normal implementations should return {@code true}.
    * Returning {@code false} will also prevent any subsequent InstantiationAwareBeanPostProcessor
@@ -84,7 +84,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * @see #postProcessBeforeInstantiation
    * @since 4.0
    */
-  default boolean postProcessAfterInstantiation(Object bean, BeanDefinition def) throws BeansException {
+  default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
     return true;
   }
 
