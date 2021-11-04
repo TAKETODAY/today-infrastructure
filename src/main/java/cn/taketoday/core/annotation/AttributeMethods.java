@@ -22,9 +22,7 @@ package cn.taketoday.core.annotation;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -32,10 +30,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
 
 /**
  * Provides a quick way to access the attribute methods of an {@link Annotation}
@@ -44,7 +38,7 @@ import java.util.function.Consumer;
  * @author Phillip Webb
  * @since 4.0
  */
-final class AttributeMethods implements Iterable<Method> {
+final class AttributeMethods {
   static final AttributeMethods NONE = new AttributeMethods(null, Constant.EMPTY_METHOD_ARRAY);
 
   private static final ConcurrentReferenceHashMap<Class<? extends Annotation>, AttributeMethods>
@@ -60,7 +54,7 @@ final class AttributeMethods implements Iterable<Method> {
   @Nullable
   private final Class<? extends Annotation> annotationType;
 
-  private final Method[] attributes;
+  public final Method[] attributes;
 
   private final boolean[] canThrowTypeNotPresentException;
 
@@ -252,28 +246,6 @@ final class AttributeMethods implements Iterable<Method> {
    */
   boolean hasNestedAnnotation() {
     return this.hasNestedAnnotation;
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of Iterable
-  //---------------------------------------------------------------------
-
-  @NonNull
-  @Override
-  public Iterator<Method> iterator() {
-    return new ArrayIterator<>(attributes);
-  }
-
-  @Override
-  public Spliterator<Method> spliterator() {
-    return Spliterators.spliterator(attributes, Spliterator.ORDERED);
-  }
-
-  @Override
-  public void forEach(Consumer<? super Method> action) {
-    for (Method attribute : attributes) {
-      action.accept(attribute);
-    }
   }
 
   /**

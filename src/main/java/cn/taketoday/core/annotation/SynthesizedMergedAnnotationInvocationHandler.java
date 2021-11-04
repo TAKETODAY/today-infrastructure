@@ -16,6 +16,12 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -25,12 +31,6 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * {@link InvocationHandler} for an {@link Annotation} that has
@@ -47,7 +47,7 @@ import cn.taketoday.util.ReflectionUtils;
 final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> implements InvocationHandler {
 
   private final Class<A> type;
-  private final AttributeMethods attributes;
+  private final AttributeMethods attributeMethods;
   private final MergedAnnotation<?> annotation;
   private final ConcurrentHashMap<String, Object> valueCache = new ConcurrentHashMap<>(8);
 
@@ -63,7 +63,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     Assert.isTrue(type.isAnnotation(), "Type must be an annotation");
     this.type = type;
     this.annotation = annotation;
-    this.attributes = AttributeMethods.forAnnotationType(type);
+    this.attributeMethods = AttributeMethods.forAnnotationType(type);
   }
 
   @Override
@@ -80,7 +80,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     if (isAnnotationTypeMethod(method)) {
       return this.type;
     }
-    if (this.attributes.indexOf(method.getName()) != -1) {
+    if (this.attributeMethods.indexOf(method.getName()) != -1) {
       return getAttributeValue(method);
     }
     throw new AnnotationConfigurationException(String.format(
@@ -103,7 +103,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     if (!this.type.isInstance(other)) {
       return false;
     }
-    for (Method attribute : attributes) {
+    for (Method attribute : attributeMethods.attributes) {
       Object thisValue = getAttributeValue(attribute);
       Object otherValue = ReflectionUtils.invokeMethod(attribute, other);
       if (!ObjectUtils.nullSafeEquals(thisValue, otherValue)) {
@@ -127,7 +127,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
 
   private Integer computeHashCode() {
     int hashCode = 0;
-    for (Method attribute : attributes) {
+    for (Method attribute : attributeMethods.attributes) {
       Object value = getAttributeValue(attribute);
       hashCode += (127 * attribute.getName().hashCode()) ^ getValueHashCode(value);
     }
@@ -171,8 +171,9 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     String string = this.string;
     if (string == null) {
       StringBuilder builder = new StringBuilder("@").append(this.type.getName()).append('(');
-      for (int i = 0; i < this.attributes.size(); i++) {
-        Method attribute = this.attributes.get(i);
+      Method[] attributes = this.attributeMethods.attributes;
+      for (int i = 0; i < attributes.length; i++) {
+        Method attribute = attributes[i];
         if (i > 0) {
           builder.append(", ");
         }
@@ -209,8 +210,9 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     Object value = this.valueCache.computeIfAbsent(method.getName(), attributeName -> {
       Class<?> type = ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType());
       return this.annotation.getValue(attributeName, type)
-              .orElseThrow(() -> new NoSuchElementException("No value found for attribute named '" + attributeName +
-                                                                    "' in merged annotation " + this.annotation.getType().getName()));
+              .orElseThrow(() -> new NoSuchElementException(
+                      "No value found for attribute named '" + attributeName +
+                              "' in merged annotation " + this.annotation.getType().getName()));
     });
 
     // Clone non-empty arrays so that users cannot alter the contents of values in our cache.
@@ -261,7 +263,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     ClassLoader classLoader = type.getClassLoader();
     InvocationHandler handler = new SynthesizedMergedAnnotationInvocationHandler<>(annotation, type);
     Class<?>[] interfaces = isVisible(classLoader, SynthesizedAnnotation.class) ?
-                            new Class<?>[] { type, SynthesizedAnnotation.class } : new Class<?>[] { type };
+            new Class<?>[] { type, SynthesizedAnnotation.class } : new Class<?>[] { type };
     return (A) Proxy.newProxyInstance(classLoader, interfaces, handler);
   }
 

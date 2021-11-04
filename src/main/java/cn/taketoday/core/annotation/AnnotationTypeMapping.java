@@ -121,8 +121,7 @@ final class AnnotationTypeMapping {
 
   private Map<Method, List<Method>> resolveAliasedForTargets() {
     HashMap<Method, List<Method>> aliasedBy = new HashMap<>();
-    for (int i = 0; i < this.attributes.size(); i++) {
-      Method attribute = this.attributes.get(i);
+    for (Method attribute : attributes.attributes) {
       AliasFor aliasFor = AnnotationsScanner.getDeclaredAnnotation(attribute, AliasFor.class);
       if (aliasFor != null) {
         Method target = resolveAliasTarget(attribute, aliasFor);
@@ -175,7 +174,7 @@ final class AnnotationTypeMapping {
     }
     if (!isCompatibleReturnType(attribute.getReturnType(), target.getReturnType())) {
       throw new AnnotationConfigurationException(String.format(
-              "Misconfigured aliases: %s and %s must declare the same return type.",
+              "Mis-configured aliases: %s and %s must declare the same return type.",
               AttributeMethods.describe(attribute),
               AttributeMethods.describe(target)));
     }
@@ -203,7 +202,7 @@ final class AnnotationTypeMapping {
   }
 
   private void processAliases() {
-    List<Method> aliases = new ArrayList<>();
+    ArrayList<Method> aliases = new ArrayList<>();
     for (int i = 0; i < this.attributes.size(); i++) {
       aliases.clear();
       aliases.add(this.attributes.get(i));
@@ -228,7 +227,7 @@ final class AnnotationTypeMapping {
     }
   }
 
-  private void processAliases(int attributeIndex, List<Method> aliases) {
+  private void processAliases(int attributeIndex, ArrayList<Method> aliases) {
     int rootAttributeIndex = getFirstRootAttributeIndex(aliases);
     AnnotationTypeMapping mapping = this;
     while (mapping != null) {
@@ -255,10 +254,10 @@ final class AnnotationTypeMapping {
     }
   }
 
-  private int getFirstRootAttributeIndex(Collection<Method> aliases) {
-    AttributeMethods rootAttributes = this.root.getAttributes();
-    for (int i = 0; i < rootAttributes.size(); i++) {
-      if (aliases.contains(rootAttributes.get(i))) {
+  private int getFirstRootAttributeIndex(ArrayList<Method> aliases) {
+    Method[] rootAttributes = this.root.getAttributes().attributes;
+    for (int i = 0; i < rootAttributes.length; i++) {
+      if (aliases.contains(rootAttributes[i])) {
         return i;
       }
     }
@@ -335,10 +334,8 @@ final class AnnotationTypeMapping {
 
     // Has nested annotations or arrays of annotations that are synthesizable?
     if (getAttributes().hasNestedAnnotation()) {
-      AttributeMethods attributeMethods = getAttributes();
-      for (int i = 0; i < attributeMethods.size(); i++) {
-        Method method = attributeMethods.get(i);
-        Class<?> type = method.getReturnType();
+      for (Method attribute : attributes.attributes) {
+        Class<?> type = attribute.getReturnType();
         if (type.isAnnotation() || (type.isArray() && type.getComponentType().isAnnotation())) {
           Class<? extends Annotation> annotationType =
                   (Class<? extends Annotation>) (type.isAnnotation() ? type : type.getComponentType());
@@ -359,16 +356,14 @@ final class AnnotationTypeMapping {
    */
   void afterAllMappingsSet() {
     validateAllAliasesClaimed();
-    int size = this.mirrorSets.size();
-    for (int i = 0; i < size; i++) {
-      validateMirrorSet(this.mirrorSets.get(i));
+    for (MirrorSets.MirrorSet mirrorSet : mirrorSets.mirrorSets) {
+      validateMirrorSet(mirrorSet);
     }
     this.claimedAliases.clear();
   }
 
   private void validateAllAliasesClaimed() {
-    for (int i = 0; i < this.attributes.size(); i++) {
-      Method attribute = this.attributes.get(i);
+    for (Method attribute : attributes.attributes) {
       AliasFor aliasFor = AnnotationsScanner.getDeclaredAnnotation(attribute, AliasFor.class);
       if (aliasFor != null && !this.claimedAliases.contains(attribute)) {
         Method target = resolveAliasTarget(attribute, aliasFor);
@@ -594,15 +589,10 @@ final class AnnotationTypeMapping {
     return value.getName().equals(extractedValue);
   }
 
-  private static boolean areEquivalent(Annotation annotation, @Nullable Object extractedValue,
-                                       ValueExtractor valueExtractor) {
-
+  private static boolean areEquivalent(
+          Annotation annotation, @Nullable Object extractedValue, ValueExtractor valueExtractor) {
     AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
-    for (Method attribute : attributes) {
-
-    }
-    for (int i = 0; i < attributes.size(); i++) {
-      Method attribute = attributes.get(i);
+    for (Method attribute : attributes.attributes) {
       Object value1 = ReflectionUtils.invokeMethod(attribute, annotation);
       Object value2;
       if (extractedValue instanceof TypeMappedAnnotation) {

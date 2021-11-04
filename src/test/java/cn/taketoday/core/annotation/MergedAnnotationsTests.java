@@ -1511,7 +1511,7 @@ class MergedAnnotationsTests {
             AliasForAttributeOfDifferentType.class);
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
                     MergedAnnotation.from(annotation))
-            .withMessageStartingWith("Misconfigured aliases")
+            .withMessageStartingWith("Mis-configured aliases")
             .withMessageContaining(AliasForAttributeOfDifferentType.class.getName())
             .withMessageContaining("attribute 'foo'")
             .withMessageContaining("attribute 'bar'")

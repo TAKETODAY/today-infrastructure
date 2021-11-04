@@ -161,7 +161,7 @@ class AnnotationTypeMappingsTests {
 	void forAnnotationTypeWhenAliasForWithIncompatibleReturnTypes() {
 		assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
 				AnnotationTypeMappings.forAnnotationType(AliasForWithIncompatibleReturnTypes.class))
-			.withMessage("Misconfigured aliases: attribute 'test' in annotation ["
+			.withMessage("Mis-configured aliases: attribute 'test' in annotation ["
 								+ AliasForWithIncompatibleReturnTypes.class.getName()
 								+ "] and attribute 'test' in annotation ["
 								+ AliasForWithIncompatibleReturnTypesTarget.class.getName()
