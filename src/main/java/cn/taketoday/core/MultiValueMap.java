@@ -72,7 +72,12 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param values the values to be added
    * @since 4.0
    */
-  void addAll(K key, Enumeration<? extends V> values);
+  default void addAll(K key, Enumeration<? extends V> values) {
+    while (values.hasMoreElements()) {
+      V element = values.nextElement();
+      add(key, element);
+    }
+  }
 
   /**
    * Add all the values of the given {@code MultiValueMap} to the current values.

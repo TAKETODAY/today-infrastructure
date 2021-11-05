@@ -134,6 +134,7 @@ public class DefaultMultiValueMap<K, V>
     if (values.hasMoreElements()) {
       currentValues.add(values.nextElement());
     }
+    CollectionUtils.trimToSize(currentValues);
   }
 
   @Override
@@ -145,7 +146,7 @@ public class DefaultMultiValueMap<K, V>
 
   @Override
   public void set(K key, V value) {
-    final List<V> values = mappingFunction.apply(key);
+    List<V> values = mappingFunction.apply(key);
     values.add(value);
     this.map.put(key, values);
   }
@@ -157,9 +158,9 @@ public class DefaultMultiValueMap<K, V>
 
   @Override
   public Map<K, V> toSingleValueMap() {
-    final HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(map.size());
-    for (final Entry<K, List<V>> entry : map.entrySet()) {
-      final List<V> values = entry.getValue();
+    HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(map.size());
+    for (Entry<K, List<V>> entry : map.entrySet()) {
+      List<V> values = entry.getValue();
       if (CollectionUtils.isNotEmpty(values)) {
         singleValueMap.put(entry.getKey(), values.get(0));
       }
@@ -169,7 +170,7 @@ public class DefaultMultiValueMap<K, V>
 
   @Override
   public Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
-    final HashMap<K, V[]> singleValueMap = CollectionUtils.newHashMap(map.size());
+    HashMap<K, V[]> singleValueMap = CollectionUtils.newHashMap(map.size());
     copyToArrayMap(singleValueMap, function);
     return singleValueMap;
   }
@@ -178,10 +179,10 @@ public class DefaultMultiValueMap<K, V>
   public void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> mappingFunction) {
     Assert.notNull(newMap, "newMap must not be null");
     Assert.notNull(mappingFunction, "mappingFunction must not be null");
-    for (final Entry<K, List<V>> entry : map.entrySet()) {
-      final List<V> values = entry.getValue();
+    for (Entry<K, List<V>> entry : map.entrySet()) {
+      List<V> values = entry.getValue();
       if (CollectionUtils.isNotEmpty(values)) {
-        final V[] toArray = values.toArray(mappingFunction.apply(values.size()));
+        V[] toArray = values.toArray(mappingFunction.apply(values.size()));
         newMap.put(entry.getKey(), toArray);
       }
     }
@@ -197,7 +198,7 @@ public class DefaultMultiValueMap<K, V>
    */
   @Override
   public void trimToSize() {
-    for (final Entry<K, List<V>> entry : map.entrySet()) {
+    for (Entry<K, List<V>> entry : map.entrySet()) {
       CollectionUtils.trimToSize(entry.getValue());
     }
   }
@@ -276,13 +277,13 @@ public class DefaultMultiValueMap<K, V>
    * @since 2.1.7
    */
   public DefaultMultiValueMap<K, V> deepCopy() {
-    final DefaultMultiValueMap<K, V> ret = new DefaultMultiValueMap<>(map.size());
-    final Function<K, List<V>> mappingFunction = this.mappingFunction;
-    for (final Entry<K, List<V>> entry : map.entrySet()) {
-      final K key = entry.getKey();
-      final List<V> value = entry.getValue();
+    DefaultMultiValueMap<K, V> ret = new DefaultMultiValueMap<>(map.size());
+    Function<K, List<V>> mappingFunction = this.mappingFunction;
+    for (Entry<K, List<V>> entry : map.entrySet()) {
+      K key = entry.getKey();
+      List<V> value = entry.getValue();
 
-      final List<V> apply = mappingFunction.apply(key);
+      List<V> apply = mappingFunction.apply(key);
       apply.addAll(value);
       ret.put(key, apply);
     }
