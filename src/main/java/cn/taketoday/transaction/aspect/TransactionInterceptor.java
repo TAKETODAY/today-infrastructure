@@ -19,6 +19,7 @@
  */
 package cn.taketoday.transaction.aspect;
 
+import cn.taketoday.transaction.TransactionAttribute;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -42,7 +43,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.DefaultTransactionDefinition;
 import cn.taketoday.transaction.NoTransactionException;
-import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
@@ -64,7 +64,7 @@ public class TransactionInterceptor implements MethodInterceptor {
   private final BeanFactory beanFactory;
   private final ObjectSupplier<TransactionManager> transactionManager; // lazy load
 
-  private static final Map<Object, TransactionDefinition> DEF_CACHE = new HashMap<>(1024);
+  private static final Map<Object, TransactionAttribute> DEF_CACHE = new HashMap<>(1024);
   private static final ThreadLocal<TransactionStatus> TRANSACTION
           = new NamedThreadLocal<>("Current Transaction Status");
 
@@ -94,9 +94,9 @@ public class TransactionInterceptor implements MethodInterceptor {
   @Override
   public Object invoke(final MethodInvocation invocation) throws Throwable {
 
-    final TransactionDefinition def = obtainDefinition(invocation.getMethod());
-    final TransactionManager tm = obtainTransactionManager(def);
-    final TransactionStatus status = tm.getTransaction(def);
+    final TransactionAttribute attribute = obtainTransactionAttribute(invocation.getMethod());
+    final TransactionManager tm = obtainTransactionManager(attribute);
+    final TransactionStatus status = tm.getTransaction(attribute);
     final TransactionStatus old = bindToThread(status);
 
     try {
@@ -107,7 +107,7 @@ public class TransactionInterceptor implements MethodInterceptor {
       return ret;
     }
     catch (final Throwable e) {
-      completeTransactionAfterThrowing(def, status, tm, e);
+      completeTransactionAfterThrowing(attribute, status, tm, e);
       throw e;
     }
     finally {
@@ -138,14 +138,14 @@ public class TransactionInterceptor implements MethodInterceptor {
    *
    * @param ex throwable encountered
    */
-  static void completeTransactionAfterThrowing(final TransactionDefinition def,
+  static void completeTransactionAfterThrowing(final TransactionAttribute attribute,
                                                final TransactionStatus transactionStatus,
                                                final TransactionManager tm, final Throwable ex) {
     if (transactionStatus != null) {
       if (log.isTraceEnabled()) {
-        log.trace("Completing transaction for [{}] after exception: [{}] ", def.getName(), ex, ex);
+        log.trace("Completing transaction for [{}] after exception: [{}] ", attribute.getName(), ex, ex);
       }
-      if (def.rollbackOn(ex)) {
+      if (attribute.rollbackOn(ex)) {
         try {
           tm.rollback(transactionStatus);
         }
@@ -178,8 +178,8 @@ public class TransactionInterceptor implements MethodInterceptor {
     }
   }
 
-  static TransactionDefinition obtainDefinition(final Method method) {
-    TransactionDefinition ret = DEF_CACHE.get(method);
+  static TransactionAttribute obtainTransactionAttribute(final Method method) {
+    TransactionAttribute ret = DEF_CACHE.get(method);
     if (ret == null) {
       ret = getTransaction(method);
       DEF_CACHE.put(method, ret);
@@ -190,7 +190,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     return ret;
   }
 
-  static TransactionDefinition getTransaction(Method method) {
+  static TransactionAttribute getTransaction(Method method) {
     MergedAnnotation<Transactional> transactional = MergedAnnotations.from(method).get(Transactional.class);
     if (!transactional.isPresent()) {
       transactional = MergedAnnotations.from(method.getDeclaringClass()).get(Transactional.class);
@@ -203,7 +203,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     return new DefaultTransactionDefinition(transactional).setName(ClassUtils.getQualifiedMethodName(method));
   }
 
-  protected TransactionManager obtainTransactionManager(TransactionDefinition definition) {
+  protected TransactionManager obtainTransactionManager(TransactionAttribute definition) {
 
     if (definition != null && beanFactory != null) {
       final String qualifier = definition.getQualifier();

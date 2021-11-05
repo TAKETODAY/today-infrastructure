@@ -19,17 +19,17 @@
  */
 package cn.taketoday.transaction;
 
-import java.io.Serializable;
-
 import cn.taketoday.core.Constants;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
+
+import java.io.Serializable;
 
 /**
  * @author TODAY <br>
  * 2018-10-09 11:57
  */
-public class DefaultTransactionDefinition implements TransactionDefinition, Serializable {
+public class DefaultTransactionDefinition implements TransactionDefinition, Serializable, TransactionAttribute {
 
   private static final long serialVersionUID = 1L;
 
