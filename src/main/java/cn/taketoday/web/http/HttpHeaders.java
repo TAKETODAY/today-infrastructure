@@ -19,6 +19,13 @@
  */
 package cn.taketoday.web.http;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -47,13 +54,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -616,8 +616,8 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguageAsLocales(List<Locale> locales) {
     setAcceptLanguage(locales.stream()
-                              .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
-                              .collect(Collectors.toList()));
+            .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
+            .collect(Collectors.toList()));
   }
 
   /**
@@ -1031,8 +1031,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-           ? ContentDisposition.parse(contentDisposition)
-           : ContentDisposition.empty();
+            ? ContentDisposition.parse(contentDisposition)
+            : ContentDisposition.empty();
   }
 
   /**
@@ -1253,8 +1253,8 @@ public abstract class HttpHeaders
     String host = null;
     int port = 0;
     int separator = StringUtils.matchesFirst(value, '[')
-                    ? value.indexOf(':', value.indexOf(']'))
-                    : value.lastIndexOf(':');
+            ? value.indexOf(':', value.indexOf(']'))
+            : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);
@@ -1820,8 +1820,8 @@ public abstract class HttpHeaders
             .map(entry -> {
               List<String> values = entry.getValue();
               return entry.getKey() + ":" + (values.size() == 1 ?
-                                             "\"" + values.get(0) + "\"" :
-                                             values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                      "\"" + values.get(0) + "\"" :
+                      values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }
@@ -1863,6 +1863,62 @@ public abstract class HttpHeaders
 
   public static DefaultHttpHeaders create() {
     return new DefaultHttpHeaders();
+  }
+
+  /**
+   * Apply a read-only {@code HttpHeaders} wrapper around the given headers, if necessary.
+   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
+   *
+   * @param headers the headers to expose
+   * @return a read-only variant of the headers, or the original headers as-is
+   * (in case it happens to be a read-only {@code HttpHeaders} instance already)
+   * @since 4.0
+   */
+  public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
+    return (headers instanceof HttpHeaders ?
+            readOnlyHttpHeaders((HttpHeaders) headers) : new ReadOnlyHttpHeaders(headers));
+  }
+
+  /**
+   * Apply a read-only {@code HttpHeaders} wrapper around the given headers, if necessary.
+   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
+   *
+   * @param headers the headers to expose
+   * @return a read-only variant of the headers, or the original headers as-is
+   * @since 4.0
+   */
+  public static HttpHeaders readOnlyHttpHeaders(HttpHeaders headers) {
+    Assert.notNull(headers, "HttpHeaders must not be null");
+    if (headers instanceof ReadOnlyHttpHeaders) {
+      return headers;
+    }
+    if (headers instanceof DefaultHttpHeaders defaults) {
+      return new ReadOnlyHttpHeaders(defaults.headers);
+    }
+    return new ReadOnlyHttpHeaders(headers);
+  }
+
+  /**
+   * Remove any read-only wrapper that may have been previously applied around
+   * the given headers via {@link #readOnlyHttpHeaders(HttpHeaders)}.
+   *
+   * @param headers the headers to expose
+   * @return a writable variant of the headers, or the original headers as-is
+   * @since 4.0
+   */
+  public static HttpHeaders writableHttpHeaders(HttpHeaders headers) {
+    Assert.notNull(headers, "HttpHeaders must not be null");
+    if (headers instanceof ReadOnlyHttpHeaders readOnly) {
+      return new DefaultHttpHeaders(readOnly.headers);
+    }
+    return headers;
+  }
+
+  // Package-private: used in ResponseCookie
+  static String formatDate(long date) {
+    Instant instant = Instant.ofEpochMilli(date);
+    ZonedDateTime time = ZonedDateTime.ofInstant(instant, GMT);
+    return DATE_FORMATTER.format(time);
   }
 
 }
