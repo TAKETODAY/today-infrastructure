@@ -16,13 +16,13 @@
 
 package cn.taketoday.web.http.client;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
-
 import java.io.IOException;
 import java.net.URI;
+
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpMethod;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * {@link ClientHttpRequest} implementation based on OkHttp 3.x.
@@ -36,40 +36,37 @@ import java.net.URI;
  */
 class OkHttp3ClientHttpRequest extends AbstractBufferingClientHttpRequest {
 
-	private final OkHttpClient client;
+  private final OkHttpClient client;
 
-	private final URI uri;
+  private final URI uri;
 
-	private final HttpMethod method;
+  private final HttpMethod method;
 
+  public OkHttp3ClientHttpRequest(OkHttpClient client, URI uri, HttpMethod method) {
+    this.client = client;
+    this.uri = uri;
+    this.method = method;
+  }
 
-	public OkHttp3ClientHttpRequest(OkHttpClient client, URI uri, HttpMethod method) {
-		this.client = client;
-		this.uri = uri;
-		this.method = method;
-	}
+  @Override
+  public HttpMethod getMethod() {
+    return this.method;
+  }
 
+  @Override
+  public String getMethodValue() {
+    return this.method.name();
+  }
 
-	@Override
-	public HttpMethod getMethod() {
-		return this.method;
-	}
+  @Override
+  public URI getURI() {
+    return this.uri;
+  }
 
-	@Override
-	public String getMethodValue() {
-		return this.method.name();
-	}
-
-	@Override
-	public URI getURI() {
-		return this.uri;
-	}
-
-
-	@Override
-	protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] content) throws IOException {
-		Request request = OkHttp3ClientHttpRequestFactory.buildRequest(headers, content, this.uri, this.method);
-		return new OkHttp3ClientHttpResponse(this.client.newCall(request).execute());
-	}
+  @Override
+  protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] content) throws IOException {
+    Request request = OkHttp3ClientHttpRequestFactory.buildRequest(headers, content, this.uri, this.method);
+    return new OkHttp3ClientHttpResponse(this.client.newCall(request).execute());
+  }
 
 }

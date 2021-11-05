@@ -20,10 +20,9 @@
 
 package cn.taketoday.web.http;
 
+import java.net.URI;
 
 import cn.taketoday.lang.Nullable;
-
-import java.net.URI;
 
 /**
  * Represents an HTTP request message, consisting of

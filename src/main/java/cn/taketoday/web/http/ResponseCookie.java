@@ -16,13 +16,12 @@
 
 package cn.taketoday.web.http;
 
+import java.time.Duration;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.time.Duration;
 
 /**
  * An {@code HttpCookie} subclass with the additional attributes allowed in
@@ -51,13 +50,12 @@ public final class ResponseCookie extends HttpCookie {
   @Nullable
   private final String sameSite;
 
-
   /**
    * Private constructor. See {@link #from(String, String)}.
    */
-  private ResponseCookie(String name, String value, Duration maxAge, @Nullable String domain,
-                         @Nullable String path, boolean secure, boolean httpOnly, @Nullable String sameSite) {
-
+  private ResponseCookie(
+          String name, String value, Duration maxAge, @Nullable String domain,
+          @Nullable String path, boolean secure, boolean httpOnly, @Nullable String sameSite) {
     super(name, value);
     Assert.notNull(maxAge, "Max age must not be null");
 
@@ -73,7 +71,6 @@ public final class ResponseCookie extends HttpCookie {
     Rfc6265Utils.validateDomain(domain);
     Rfc6265Utils.validatePath(path);
   }
-
 
   /**
    * Return the cookie "Max-Age" attribute in seconds.
@@ -130,19 +127,17 @@ public final class ResponseCookie extends HttpCookie {
     return this.sameSite;
   }
 
-
   @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ResponseCookie)) {
-      return false;
+    if (other instanceof ResponseCookie otherCookie) {
+      return getName().equalsIgnoreCase(otherCookie.getName())
+              && ObjectUtils.nullSafeEquals(this.path, otherCookie.getPath())
+              && ObjectUtils.nullSafeEquals(this.domain, otherCookie.getDomain());
     }
-    ResponseCookie otherCookie = (ResponseCookie) other;
-    return (getName().equalsIgnoreCase(otherCookie.getName()) &&
-            ObjectUtils.nullSafeEquals(this.path, otherCookie.getPath()) &&
-            ObjectUtils.nullSafeEquals(this.domain, otherCookie.getDomain()));
+    return false;
   }
 
   @Override
@@ -166,7 +161,9 @@ public final class ResponseCookie extends HttpCookie {
     if (!this.maxAge.isNegative()) {
       sb.append("; Max-Age=").append(this.maxAge.getSeconds());
       sb.append("; Expires=");
-      long millis = this.maxAge.getSeconds() > 0 ? System.currentTimeMillis() + this.maxAge.toMillis() : 0;
+      long millis = this.maxAge.getSeconds() > 0
+                    ? System.currentTimeMillis() + this.maxAge.toMillis()
+                    : 0;
       sb.append(HttpHeaders.formatDate(millis));
     }
     if (this.secure) {
@@ -180,7 +177,6 @@ public final class ResponseCookie extends HttpCookie {
     }
     return sb.toString();
   }
-
 
   /**
    * Factory method to obtain a builder for a server-defined cookie that starts
@@ -207,7 +203,6 @@ public final class ResponseCookie extends HttpCookie {
   public static ResponseCookieBuilder fromClientResponse(final String name, final String value) {
     return from(name, value, true);
   }
-
 
   private static ResponseCookieBuilder from(final String name, final String value, boolean lenient) {
 
@@ -285,12 +280,12 @@ public final class ResponseCookie extends HttpCookie {
 
       @Override
       public ResponseCookie build() {
-        return new ResponseCookie(name, value, this.maxAge, this.domain, this.path,
+        return new ResponseCookie(
+                name, value, this.maxAge, this.domain, this.path,
                 this.secure, this.httpOnly, this.sameSite);
       }
     };
   }
-
 
   /**
    * A builder for a server-defined HttpCookie with attributes.
@@ -341,7 +336,6 @@ public final class ResponseCookie extends HttpCookie {
      * requests if {@code "Lax"}.
      *
      * @see <a href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis#section-4.1.2.7">RFC6265 bis</a>
-     * @since 4.0
      */
     ResponseCookieBuilder sameSite(@Nullable String sameSite);
 
@@ -351,7 +345,6 @@ public final class ResponseCookie extends HttpCookie {
     ResponseCookie build();
   }
 
-
   private static class Rfc6265Utils {
 
     private static final String SEPARATOR_CHARS = new String(new char[] {
@@ -360,7 +353,6 @@ public final class ResponseCookie extends HttpCookie {
 
     private static final String DOMAIN_CHARS =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-";
-
 
     public static void validateCookieName(String name) {
       for (int i = 0; i < name.length(); i++) {

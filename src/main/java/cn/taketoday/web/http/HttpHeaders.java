@@ -19,13 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -54,6 +47,13 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -616,8 +616,8 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguageAsLocales(List<Locale> locales) {
     setAcceptLanguage(locales.stream()
-            .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
-            .collect(Collectors.toList()));
+                              .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
+                              .collect(Collectors.toList()));
   }
 
   /**
@@ -1031,8 +1031,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-            ? ContentDisposition.parse(contentDisposition)
-            : ContentDisposition.empty();
+           ? ContentDisposition.parse(contentDisposition)
+           : ContentDisposition.empty();
   }
 
   /**
@@ -1253,8 +1253,8 @@ public abstract class HttpHeaders
     String host = null;
     int port = 0;
     int separator = StringUtils.matchesFirst(value, '[')
-            ? value.indexOf(':', value.indexOf(']'))
-            : value.lastIndexOf(':');
+                    ? value.indexOf(':', value.indexOf(']'))
+                    : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);

@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.http;
 
-
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -36,13 +35,12 @@ import cn.taketoday.lang.Nullable;
 public class HttpCookie {
 
   private final String name;
-
   private final String value;
 
   public HttpCookie(String name, @Nullable String value) {
     Assert.hasLength(name, "'name' is required and must not be empty.");
     this.name = name;
-    this.value = (value != null ? value : "");
+    this.value = value != null ? value : "";
   }
 
   /**
@@ -59,7 +57,6 @@ public class HttpCookie {
     return this.value;
   }
 
-
   @Override
   public int hashCode() {
     return this.name.hashCode();
@@ -70,11 +67,10 @@ public class HttpCookie {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof HttpCookie)) {
-      return false;
+    if (other instanceof HttpCookie otherCookie) {
+      return this.name.equalsIgnoreCase(otherCookie.getName());
     }
-    HttpCookie otherCookie = (HttpCookie) other;
-    return (this.name.equalsIgnoreCase(otherCookie.getName()));
+    return false;
   }
 
   @Override

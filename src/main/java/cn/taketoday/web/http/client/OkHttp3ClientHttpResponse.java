@@ -16,15 +16,15 @@
 
 package cn.taketoday.web.http.client;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.http.HttpHeaders;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * {@link ClientHttpResponse} implementation based on OkHttp 3.x.

@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.MappedByteBufferPool;
 import org.eclipse.jetty.util.ProcessorUtils;
@@ -37,12 +32,17 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+
 /**
  * Factory to manage Jetty resources, i.e. {@link Executor}, {@link ByteBufferPool} and
- * {@link Scheduler}, within the lifecycle of a Spring {@code ApplicationContext}.
+ * {@link Scheduler}, within the lifecycle of a {@code ApplicationContext}.
  *
  * <p>This factory implements {@link InitializingBean} and {@link DisposableBean}
- * and is expected typically to be declared as a Spring-managed bean.
+ * and is expected typically to be declared as a managed bean.
  *
  * @author Sebastien Deleuze
  * @since 4.0
@@ -59,7 +59,6 @@ public class JettyResourceFactory implements InitializingBean, DisposableBean {
   private Scheduler scheduler;
 
   private String threadPrefix = "jetty-http";
-
 
   /**
    * Configure the {@link Executor} to use.
@@ -138,9 +137,9 @@ public class JettyResourceFactory implements InitializingBean, DisposableBean {
     }
     if (this.byteBufferPool == null) {
       this.byteBufferPool = new MappedByteBufferPool(2048,
-              this.executor instanceof ThreadPool.SizedThreadPool
-                      ? ((ThreadPool.SizedThreadPool) this.executor).getMaxThreads() / 2
-                      : ProcessorUtils.availableProcessors() * 2);
+                                                     this.executor instanceof ThreadPool.SizedThreadPool
+                                                     ? ((ThreadPool.SizedThreadPool) this.executor).getMaxThreads() / 2
+                                                     : ProcessorUtils.availableProcessors() * 2);
     }
     if (this.scheduler == null) {
       this.scheduler = new ScheduledExecutorScheduler(name + "-scheduler", false);

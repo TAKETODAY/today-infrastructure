@@ -31,12 +31,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 import org.reactivestreams.Publisher;
-import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.util.Assert;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoSink;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -45,133 +39,133 @@ import java.nio.ByteBuffer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.web.http.HttpMethod;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
+
 /**
  * {@link ClientHttpConnector} implementation for the Apache HttpComponents HttpClient 5.x.
  *
  * @author Martin Tarjányi
  * @author Arjen Poutsma
- * @since 4.0
  * @see <a href="https://hc.apache.org/index.html">Apache HttpComponents</a>
+ * @since 4.0
  */
 public class HttpComponentsClientHttpConnector implements ClientHttpConnector, Closeable {
 
-	private final CloseableHttpAsyncClient client;
+  private final CloseableHttpAsyncClient client;
+  private final BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider;
+  private DataBufferFactory dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
 
-	private final BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider;
+  /**
+   * Default constructor that creates and starts a new instance of {@link CloseableHttpAsyncClient}.
+   */
+  public HttpComponentsClientHttpConnector() {
+    this(HttpAsyncClients.createDefault());
+  }
 
-	private DataBufferFactory dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
+  /**
+   * Constructor with a pre-configured {@link CloseableHttpAsyncClient} instance.
+   *
+   * @param client the client to use
+   */
+  public HttpComponentsClientHttpConnector(CloseableHttpAsyncClient client) {
+    this(client, (method, uri) -> HttpClientContext.create());
+  }
 
+  /**
+   * Constructor with a pre-configured {@link CloseableHttpAsyncClient} instance
+   * and a {@link HttpClientContext} supplier lambda which is called before each request
+   * and passed to the client.
+   *
+   * @param client the client to use
+   * @param contextProvider a {@link HttpClientContext} supplier
+   */
+  public HttpComponentsClientHttpConnector(
+          CloseableHttpAsyncClient client,
+          BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider) {
+    Assert.notNull(client, "Client must not be null");
+    Assert.notNull(contextProvider, "ContextProvider must not be null");
+    this.client = client;
+    this.contextProvider = contextProvider;
+    this.client.start();
+  }
 
-	/**
-	 * Default constructor that creates and starts a new instance of {@link CloseableHttpAsyncClient}.
-	 */
-	public HttpComponentsClientHttpConnector() {
-		this(HttpAsyncClients.createDefault());
-	}
+  /**
+   * Set the buffer factory to use.
+   */
+  public void setBufferFactory(DataBufferFactory bufferFactory) {
+    this.dataBufferFactory = bufferFactory;
+  }
 
-	/**
-	 * Constructor with a pre-configured {@link CloseableHttpAsyncClient} instance.
-	 * @param client the client to use
-	 */
-	public HttpComponentsClientHttpConnector(CloseableHttpAsyncClient client) {
-		this(client, (method, uri) -> HttpClientContext.create());
-	}
+  @Override
+  public Mono<ClientHttpResponse> connect(
+          HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 
-	/**
-	 * Constructor with a pre-configured {@link CloseableHttpAsyncClient} instance
-	 * and a {@link HttpClientContext} supplier lambda which is called before each request
-	 * and passed to the client.
-	 * @param client the client to use
-	 * @param contextProvider a {@link HttpClientContext} supplier
-	 */
-	public HttpComponentsClientHttpConnector(CloseableHttpAsyncClient client,
-			BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider) {
+    HttpClientContext context = this.contextProvider.apply(method, uri);
+    if (context.getCookieStore() == null) {
+      context.setCookieStore(new BasicCookieStore());
+    }
 
-		Assert.notNull(client, "Client must not be null");
-		Assert.notNull(contextProvider, "ContextProvider must not be null");
+    HttpComponentsClientHttpRequest request = new HttpComponentsClientHttpRequest(
+            method, uri, context, this.dataBufferFactory);
 
-		this.contextProvider = contextProvider;
-		this.client = client;
-		this.client.start();
-	}
+    return requestCallback.apply(request)
+            .then(Mono.defer(() -> execute(request, context)));
+  }
 
+  private Mono<ClientHttpResponse> execute(HttpComponentsClientHttpRequest request, HttpClientContext context) {
+    AsyncRequestProducer requestProducer = request.toRequestProducer();
 
-	/**
-	 * Set the buffer factory to use.
-	 */
-	public void setBufferFactory(DataBufferFactory bufferFactory) {
-		this.dataBufferFactory = bufferFactory;
-	}
+    return Mono.create(sink -> {
+      ReactiveResponseConsumer reactiveResponseConsumer =
+              new ReactiveResponseConsumer(new MonoFutureCallbackAdapter(sink, this.dataBufferFactory, context));
+      this.client.execute(requestProducer, reactiveResponseConsumer, context, null);
+    });
+  }
 
+  @Override
+  public void close() throws IOException {
+    this.client.close();
+  }
 
-	@Override
-	public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
-			Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
+  private static class MonoFutureCallbackAdapter
+          implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
 
-		HttpClientContext context = this.contextProvider.apply(method, uri);
+    private final HttpClientContext context;
+    private final MonoSink<ClientHttpResponse> sink;
+    private final DataBufferFactory dataBufferFactory;
 
-		if (context.getCookieStore() == null) {
-			context.setCookieStore(new BasicCookieStore());
-		}
+    public MonoFutureCallbackAdapter(
+            MonoSink<ClientHttpResponse> sink,
+            DataBufferFactory dataBufferFactory, HttpClientContext context) {
+      this.sink = sink;
+      this.dataBufferFactory = dataBufferFactory;
+      this.context = context;
+    }
 
-		HttpComponentsClientHttpRequest request = new HttpComponentsClientHttpRequest(method, uri,
-				context, this.dataBufferFactory);
+    @Override
+    public void completed(Message<HttpResponse, Publisher<ByteBuffer>> result) {
+      HttpComponentsClientHttpResponse response =
+              new HttpComponentsClientHttpResponse(this.dataBufferFactory, result, this.context);
+      this.sink.success(response);
+    }
 
-		return requestCallback.apply(request).then(Mono.defer(() -> execute(request, context)));
-	}
+    @Override
+    public void failed(Exception ex) {
+      Throwable t = ex;
+      if (t instanceof HttpStreamResetException) {
+        HttpStreamResetException httpStreamResetException = (HttpStreamResetException) ex;
+        t = httpStreamResetException.getCause();
+      }
+      this.sink.error(t);
+    }
 
-	private Mono<ClientHttpResponse> execute(HttpComponentsClientHttpRequest request, HttpClientContext context) {
-		AsyncRequestProducer requestProducer = request.toRequestProducer();
-
-		return Mono.create(sink -> {
-			ReactiveResponseConsumer reactiveResponseConsumer =
-					new ReactiveResponseConsumer(new MonoFutureCallbackAdapter(sink, this.dataBufferFactory, context));
-
-			this.client.execute(requestProducer, reactiveResponseConsumer, context, null);
-		});
-	}
-
-	@Override
-	public void close() throws IOException {
-		this.client.close();
-	}
-
-	private static class MonoFutureCallbackAdapter
-			implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
-
-		private final MonoSink<ClientHttpResponse> sink;
-
-		private final DataBufferFactory dataBufferFactory;
-
-		private final HttpClientContext context;
-
-		public MonoFutureCallbackAdapter(MonoSink<ClientHttpResponse> sink,
-				DataBufferFactory dataBufferFactory, HttpClientContext context) {
-			this.sink = sink;
-			this.dataBufferFactory = dataBufferFactory;
-			this.context = context;
-		}
-
-		@Override
-		public void completed(Message<HttpResponse, Publisher<ByteBuffer>> result) {
-			HttpComponentsClientHttpResponse response =
-					new HttpComponentsClientHttpResponse(this.dataBufferFactory, result, this.context);
-			this.sink.success(response);
-		}
-
-		@Override
-		public void failed(Exception ex) {
-			Throwable t = ex;
-			if (t instanceof HttpStreamResetException) {
-				HttpStreamResetException httpStreamResetException = (HttpStreamResetException) ex;
-				t = httpStreamResetException.getCause();
-			}
-			this.sink.error(t);
-		}
-
-		@Override
-		public void cancelled() {
-		}
-	}
+    @Override
+    public void cancelled() {}
+  }
 
 }

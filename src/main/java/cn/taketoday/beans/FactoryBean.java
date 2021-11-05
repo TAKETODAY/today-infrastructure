@@ -57,4 +57,8 @@ public interface FactoryBean<T> {
    */
   Class<T> getBeanClass();
 
+  default boolean isSingleton() {
+    return true;
+  }
+
 }

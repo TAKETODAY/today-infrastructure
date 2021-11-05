@@ -20,12 +20,12 @@
 
 package cn.taketoday.web.http.client;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.http.HttpHeaders;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Abstract base for {@link ClientHttpRequest} that makes sure that headers
@@ -42,7 +42,6 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
 
   @Nullable
   private HttpHeaders readOnlyHeaders;
-
 
   @Override
   public final HttpHeaders getHeaders() {

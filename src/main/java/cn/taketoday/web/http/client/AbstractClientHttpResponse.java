@@ -16,9 +16,9 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.web.http.HttpStatus;
-
 import java.io.IOException;
+
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * Abstract base for {@link ClientHttpResponse}.
@@ -28,9 +28,9 @@ import java.io.IOException;
  */
 public abstract class AbstractClientHttpResponse implements ClientHttpResponse {
 
-	@Override
-	public HttpStatus getStatusCode() throws IOException {
-		return HttpStatus.valueOf(getRawStatusCode());
-	}
+  @Override
+  public HttpStatus getStatusCode() throws IOException {
+    return HttpStatus.valueOf(getRawStatusCode());
+  }
 
 }

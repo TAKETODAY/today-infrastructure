@@ -20,11 +20,11 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-import cn.taketoday.web.http.HttpMethod;
-import reactor.core.publisher.Mono;
-
 import java.net.URI;
 import java.util.function.Function;
+
+import cn.taketoday.web.http.HttpMethod;
+import reactor.core.publisher.Mono;
 
 /**
  * Abstraction over HTTP clients driving the underlying HTTP client to connect
@@ -36,19 +36,20 @@ import java.util.function.Function;
  */
 public interface ClientHttpConnector {
 
-	/**
-	 * Connect to the origin server using the given {@code HttpMethod} and
-	 * {@code URI} and apply the given {@code requestCallback} when the HTTP
-	 * request of the underlying API can be initialized and written to.
-	 * @param method the HTTP request method
-	 * @param uri the HTTP request URI
-	 * @param requestCallback a function that prepares and writes to the request,
-	 * returning a publisher that signals when it's done writing.
-	 * Implementations can return a {@code Mono<Void>} by calling
-	 * {@link ClientHttpRequest#writeWith} or {@link ClientHttpRequest#setComplete}.
-	 * @return publisher for the {@link ClientHttpResponse}
-	 */
-	Mono<ClientHttpResponse> connect(
-					HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback);
+  /**
+   * Connect to the origin server using the given {@code HttpMethod} and
+   * {@code URI} and apply the given {@code requestCallback} when the HTTP
+   * request of the underlying API can be initialized and written to.
+   *
+   * @param method the HTTP request method
+   * @param uri the HTTP request URI
+   * @param requestCallback a function that prepares and writes to the request,
+   * returning a publisher that signals when it's done writing.
+   * Implementations can return a {@code Mono<Void>} by calling
+   * {@link ClientHttpRequest#writeWith} or {@link ClientHttpRequest#setComplete}.
+   * @return publisher for the {@link ClientHttpResponse}
+   */
+  Mono<ClientHttpResponse> connect(
+          HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback);
 
 }

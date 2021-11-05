@@ -21,17 +21,18 @@
 package cn.taketoday.web.http.client.reactive;
 
 import org.reactivestreams.Publisher;
-import cn.taketoday.core.io.buffer.DataBuffer;
-import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.web.http.HttpCookie;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.MultiValueMap;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.function.Supplier;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.web.http.HttpCookie;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpMethod;
+import reactor.core.publisher.Mono;
 
 /**
  * Wraps another {@link ClientHttpRequest} and delegates all methods to it.
@@ -42,81 +43,77 @@ import java.util.function.Supplier;
  */
 public class ClientHttpRequestDecorator implements ClientHttpRequest {
 
-	private final ClientHttpRequest delegate;
+  private final ClientHttpRequest delegate;
 
+  public ClientHttpRequestDecorator(ClientHttpRequest delegate) {
+    Assert.notNull(delegate, "Delegate is required");
+    this.delegate = delegate;
+  }
 
-	public ClientHttpRequestDecorator(ClientHttpRequest delegate) {
-		Assert.notNull(delegate, "Delegate is required");
-		this.delegate = delegate;
-	}
+  public ClientHttpRequest getDelegate() {
+    return this.delegate;
+  }
 
+  // ClientHttpRequest delegation methods...
 
-	public ClientHttpRequest getDelegate() {
-		return this.delegate;
-	}
+  @Override
+  public HttpMethod getMethod() {
+    return this.delegate.getMethod();
+  }
 
+  @Override
+  public URI getURI() {
+    return this.delegate.getURI();
+  }
 
-	// ClientHttpRequest delegation methods...
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.delegate.getHeaders();
+  }
 
-	@Override
-	public HttpMethod getMethod() {
-		return this.delegate.getMethod();
-	}
+  @Override
+  public MultiValueMap<String, HttpCookie> getCookies() {
+    return this.delegate.getCookies();
+  }
 
-	@Override
-	public URI getURI() {
-		return this.delegate.getURI();
-	}
+  @Override
+  public DataBufferFactory bufferFactory() {
+    return this.delegate.bufferFactory();
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.delegate.getHeaders();
-	}
+  @Override
+  public <T> T getNativeRequest() {
+    return this.delegate.getNativeRequest();
+  }
 
-	@Override
-	public MultiValueMap<String, HttpCookie> getCookies() {
-		return this.delegate.getCookies();
-	}
+  @Override
+  public void beforeCommit(Supplier<? extends Mono<Void>> action) {
+    this.delegate.beforeCommit(action);
+  }
 
-	@Override
-	public DataBufferFactory bufferFactory() {
-		return this.delegate.bufferFactory();
-	}
+  @Override
+  public boolean isCommitted() {
+    return this.delegate.isCommitted();
+  }
 
-	@Override
-	public <T> T getNativeRequest() {
-		return this.delegate.getNativeRequest();
-	}
+  @Override
+  public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+    return this.delegate.writeWith(body);
+  }
 
-	@Override
-	public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-		this.delegate.beforeCommit(action);
-	}
+  @Override
+  public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+    return this.delegate.writeAndFlushWith(body);
+  }
 
-	@Override
-	public boolean isCommitted() {
-		return this.delegate.isCommitted();
-	}
+  @Override
+  public Mono<Void> setComplete() {
+    return this.delegate.setComplete();
+  }
 
-	@Override
-	public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-		return this.delegate.writeWith(body);
-	}
-
-	@Override
-	public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-		return this.delegate.writeAndFlushWith(body);
-	}
-
-	@Override
-	public Mono<Void> setComplete() {
-		return this.delegate.setComplete();
-	}
-
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
-	}
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
+  }
 
 }

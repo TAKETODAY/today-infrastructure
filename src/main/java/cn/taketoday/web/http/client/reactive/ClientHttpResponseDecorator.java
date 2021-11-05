@@ -20,12 +20,12 @@
 
 package cn.taketoday.web.http.client.reactive;
 
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.ResponseCookie;
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 
 /**
@@ -37,55 +37,52 @@ import reactor.core.publisher.Flux;
  */
 public class ClientHttpResponseDecorator implements ClientHttpResponse {
 
-	private final ClientHttpResponse delegate;
+  private final ClientHttpResponse delegate;
 
+  public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
+    Assert.notNull(delegate, "Delegate is required");
+    this.delegate = delegate;
+  }
 
-	public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
-		Assert.notNull(delegate, "Delegate is required");
-		this.delegate = delegate;
-	}
+  public ClientHttpResponse getDelegate() {
+    return this.delegate;
+  }
 
+  // ClientHttpResponse delegation methods...
 
-	public ClientHttpResponse getDelegate() {
-		return this.delegate;
-	}
+  @Override
+  public String getId() {
+    return this.delegate.getId();
+  }
 
+  @Override
+  public HttpStatus getStatusCode() {
+    return this.delegate.getStatusCode();
+  }
 
-	// ClientHttpResponse delegation methods...
+  @Override
+  public int getRawStatusCode() {
+    return this.delegate.getRawStatusCode();
+  }
 
-	@Override
-	public String getId() {
-		return this.delegate.getId();
-	}
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.delegate.getHeaders();
+  }
 
-	@Override
-	public HttpStatus getStatusCode() {
-		return this.delegate.getStatusCode();
-	}
+  @Override
+  public MultiValueMap<String, ResponseCookie> getCookies() {
+    return this.delegate.getCookies();
+  }
 
-	@Override
-	public int getRawStatusCode() {
-		return this.delegate.getRawStatusCode();
-	}
+  @Override
+  public Flux<DataBuffer> getBody() {
+    return this.delegate.getBody();
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.delegate.getHeaders();
-	}
-
-	@Override
-	public MultiValueMap<String, ResponseCookie> getCookies() {
-		return this.delegate.getCookies();
-	}
-
-	@Override
-	public Flux<DataBuffer> getBody() {
-		return this.delegate.getBody();
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
-	}
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
+  }
 
 }

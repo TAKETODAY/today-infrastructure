@@ -314,7 +314,7 @@ public class ReactiveAdapterRegistry {
 
 
   /**
-   * {@code BlockHoundIntegration} for spring-core classes.
+   * {@code BlockHoundIntegration} for core classes.
    * <p>Explicitly allow the following:
    * <ul>
    * <li>Reading class info via {@link LocalVariableTableParameterNameDiscoverer}.
@@ -325,7 +325,7 @@ public class ReactiveAdapterRegistry {
 
     @Override
     public void applyTo(BlockHound.Builder builder) {
-      // Avoid hard references potentially anywhere in spring-core (no need for structural dependency)
+      // Avoid hard references potentially anywhere in core (no need for structural dependency)
 
       builder.allowBlockingCallsInside(
               "cn.taketoday.core.LocalVariableTableParameterNameDiscoverer", "inspectClass");

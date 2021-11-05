@@ -20,6 +20,13 @@
 
 package cn.taketoday.web.http.client.reactive;
 
+import org.reactivestreams.Publisher;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
@@ -27,15 +34,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.http.HttpCookie;
 import cn.taketoday.web.http.HttpHeaders;
-import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Base class for {@link ClientHttpRequest} implementations.
@@ -52,15 +52,14 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
    * response during which time pre-commit actions can still make changes to
    * the response status and headers.
    */
-  private enum State {NEW, COMMITTING, COMMITTED}
+  private enum State {
+    NEW, COMMITTING, COMMITTED
+  }
 
   private final HttpHeaders headers;
-
   private final MultiValueMap<String, HttpCookie> cookies;
-
   private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
-
-  private final List<Supplier<? extends Publisher<Void>>> commitActions = new ArrayList<>(4);
+  private final ArrayList<Supplier<? extends Publisher<Void>>> commitActions = new ArrayList<>(4);
 
   @Nullable
   private HttpHeaders readOnlyHeaders;
@@ -105,7 +104,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
 
   @Override
   public boolean isCommitted() {
-    return (this.state.get() != State.NEW);
+    return this.state.get() != State.NEW;
   }
 
   /**
@@ -129,24 +128,23 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
       return Mono.empty();
     }
 
-    this.commitActions.add(() ->
-            Mono.fromRunnable(() -> {
-              applyHeaders();
-              applyCookies();
-              this.state.set(State.COMMITTED);
-            }));
+    this.commitActions.add(() -> Mono.fromRunnable(() -> {
+      applyHeaders();
+      applyCookies();
+      this.state.set(State.COMMITTED);
+    }));
 
     if (writeAction != null) {
       this.commitActions.add(writeAction);
     }
 
-    List<? extends Publisher<Void>> actions = this.commitActions.stream()
-            .map(Supplier::get)
-						.collect(Collectors.toList());
-
+    ArrayList<Publisher<Void>> actions = new ArrayList<>();
+    for (Supplier<? extends Publisher<Void>> commitAction : commitActions) {
+      Publisher<Void> publisher = commitAction.get();
+      actions.add(publisher);
+    }
     return Flux.concat(actions).then();
   }
-
 
   /**
    * Apply header changes from {@link #getHeaders()} to the underlying request.

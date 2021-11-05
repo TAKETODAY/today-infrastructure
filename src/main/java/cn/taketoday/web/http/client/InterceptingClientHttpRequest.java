@@ -20,17 +20,17 @@
 
 package cn.taketoday.web.http.client;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.HttpRequest;
 import cn.taketoday.web.http.StreamingHttpOutputMessage;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Wrapper for a {@link ClientHttpRequest} that has support for {@link ClientHttpRequestInterceptor
@@ -56,7 +56,6 @@ class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
     this.uri = uri;
   }
 
-
   @Override
   public HttpMethod getMethod() {
     return this.method;
@@ -77,7 +76,6 @@ class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
     InterceptingRequestExecution requestExecution = new InterceptingRequestExecution();
     return requestExecution.execute(this, bufferedOutput);
   }
-
 
   private class InterceptingRequestExecution implements ClientHttpRequestExecution {
 

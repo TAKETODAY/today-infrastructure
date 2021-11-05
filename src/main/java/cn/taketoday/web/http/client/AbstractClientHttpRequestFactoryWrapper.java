@@ -16,11 +16,11 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.web.http.HttpMethod;
-
 import java.io.IOException;
 import java.net.URI;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * Abstract base class for {@link ClientHttpRequestFactory} implementations
@@ -42,7 +42,6 @@ public abstract class AbstractClientHttpRequestFactoryWrapper implements ClientH
     Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
     this.requestFactory = requestFactory;
   }
-
 
   /**
    * This implementation simply calls {@link #createRequest(URI, HttpMethod, ClientHttpRequestFactory)}

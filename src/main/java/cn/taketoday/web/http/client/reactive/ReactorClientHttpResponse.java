@@ -20,6 +20,11 @@
 
 package cn.taketoday.web.http.client.reactive;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
+
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -42,10 +47,6 @@ import reactor.netty.Connection;
 import reactor.netty.NettyInbound;
 import reactor.netty.http.client.HttpClientResponse;
 
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
-
 /**
  * {@link ClientHttpResponse} implementation for the Reactor-Netty HTTP client.
  *
@@ -61,12 +62,9 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
 
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpResponse.class);
 
-  private final HttpClientResponse response;
-
   private final HttpHeaders headers;
-
   private final NettyInbound inbound;
-
+  private final HttpClientResponse response;
   private final NettyDataBufferFactory bufferFactory;
 
   // 0 - not subscribed, 1 - subscribed, 2 - cancelled via connector (before subscribe)
@@ -86,10 +84,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
 
   /**
    * Constructor with inputs extracted from a {@link Connection}.
-   *
-   * @deprecated as of 5.2.8, in favor of {@link #ReactorClientHttpResponse(HttpClientResponse, Connection)}
    */
-  @Deprecated
   public ReactorClientHttpResponse(HttpClientResponse response, NettyInbound inbound, ByteBufAllocator alloc) {
     this.response = response;
     MultiValueMap<String, String> adapter = new NettyHeadersAdapter(response.responseHeaders());
@@ -97,7 +92,6 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     this.inbound = inbound;
     this.bufferFactory = new NettyDataBufferFactory(alloc);
   }
-
 
   @Override
   public String getId() {
@@ -147,17 +141,20 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     MultiValueMap<String, ResponseCookie> result = new DefaultMultiValueMap<>();
-    this.response.cookies().values().stream()
-            .flatMap(Collection::stream)
-            .forEach(cookie -> result.add(cookie.name(),
-                    ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
-                            .domain(cookie.domain())
-                            .path(cookie.path())
-                            .maxAge(cookie.maxAge())
-                            .secure(cookie.isSecure())
-                            .httpOnly(cookie.isHttpOnly())
-                            .sameSite(getSameSite(cookie))
-                            .build()));
+    for (Map.Entry<CharSequence, Set<Cookie>> entry : response.cookies().entrySet()) {
+      Set<Cookie> cookies = entry.getValue();
+      for (Cookie cookie : cookies) {
+        result.add(cookie.name(),
+                   ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
+                           .domain(cookie.domain())
+                           .path(cookie.path())
+                           .maxAge(cookie.maxAge())
+                           .secure(cookie.isSecure())
+                           .httpOnly(cookie.isHttpOnly())
+                           .sameSite(getSameSite(cookie))
+                           .build());
+      }
+    }
     return CollectionUtils.unmodifiableMultiValueMap(result);
   }
 
@@ -181,9 +178,17 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   void releaseAfterCancel(HttpMethod method) {
     if (mayHaveBody(method) && this.state.compareAndSet(0, 2)) {
       if (logger.isDebugEnabled()) {
-        logger.debug("[" + getId() + "]" + "Releasing body, not yet subscribed.");
+        logger.debug("[{}] Releasing body, not yet subscribed.", getId());
       }
-      this.inbound.receive().doOnNext(byteBuf -> { }).subscribe(byteBuf -> { }, ex -> { });
+      this.inbound.receive()
+              .doOnNext(byteBuf -> {
+
+              })
+              .subscribe(byteBuf -> {
+
+              }, ex -> {
+                
+              });
     }
   }
 
@@ -199,7 +204,6 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
             "request=[" + this.response.method().name() + " " + this.response.uri() + "]," +
             "status=" + getRawStatusCode() + '}';
   }
-
 
   private static class ChannelOperationsIdHelper {
 

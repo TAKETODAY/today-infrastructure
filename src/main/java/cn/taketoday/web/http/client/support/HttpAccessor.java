@@ -20,20 +20,20 @@
 
 package cn.taketoday.web.http.client.support;
 
-import org.apache.commons.logging.Log;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.web.http.HttpLogging;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.client.ClientHttpRequest;
 import cn.taketoday.web.http.client.ClientHttpRequestFactory;
 import cn.taketoday.web.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.web.http.client.SimpleClientHttpRequestFactory;
-import cn.taketoday.util.Assert;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}
@@ -47,93 +47,90 @@ import java.util.List;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Phillip Webb
- * @since 3.0
  * @see ClientHttpRequestFactory
  * @see cn.taketoday.web.client.RestTemplate
+ * @since 3.0
  */
 public abstract class HttpAccessor {
+  /** Logger available to subclasses. */
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-	/** Logger available to subclasses. */
-	protected final Log logger = HttpLogging.forLogName(getClass());
+  private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
-	private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+  private final ArrayList<ClientHttpRequestInitializer> clientHttpRequestInitializers = new ArrayList<>();
 
-	private final List<ClientHttpRequestInitializer> clientHttpRequestInitializers = new ArrayList<>();
+  /**
+   * Set the request factory that this accessor uses for obtaining client request handles.
+   * <p>The default is a {@link SimpleClientHttpRequestFactory} based on the JDK's own
+   * HTTP libraries ({@link java.net.HttpURLConnection}).
+   * <p><b>Note that the standard JDK HTTP library does not support the HTTP PATCH method.
+   * Configure the Apache HttpComponents or OkHttp request factory to enable PATCH.</b>
+   *
+   * @see #createRequest(URI, HttpMethod)
+   * @see SimpleClientHttpRequestFactory
+   * @see cn.taketoday.web.http.client.OkHttp3ClientHttpRequestFactory
+   */
+  public void setRequestFactory(ClientHttpRequestFactory requestFactory) {
+    Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
+    this.requestFactory = requestFactory;
+  }
 
+  /**
+   * Return the request factory that this accessor uses for obtaining client request handles.
+   */
+  public ClientHttpRequestFactory getRequestFactory() {
+    return this.requestFactory;
+  }
 
-	/**
-	 * Set the request factory that this accessor uses for obtaining client request handles.
-	 * <p>The default is a {@link SimpleClientHttpRequestFactory} based on the JDK's own
-	 * HTTP libraries ({@link java.net.HttpURLConnection}).
-	 * <p><b>Note that the standard JDK HTTP library does not support the HTTP PATCH method.
-	 * Configure the Apache HttpComponents or OkHttp request factory to enable PATCH.</b>
-	 * @see #createRequest(URI, HttpMethod)
-	 * @see SimpleClientHttpRequestFactory
-	 * @see cn.taketoday.web.http.client.HttpComponentsAsyncClientHttpRequestFactory
-	 * @see cn.taketoday.web.http.client.OkHttp3ClientHttpRequestFactory
-	 */
-	public void setRequestFactory(ClientHttpRequestFactory requestFactory) {
-		Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
-		this.requestFactory = requestFactory;
-	}
+  /**
+   * Set the request initializers that this accessor should use.
+   * <p>The initializers will get immediately sorted according to their
+   * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
+   */
+  public void setClientHttpRequestInitializers(
+          List<ClientHttpRequestInitializer> clientHttpRequestInitializers) {
 
-	/**
-	 * Return the request factory that this accessor uses for obtaining client request handles.
-	 */
-	public ClientHttpRequestFactory getRequestFactory() {
-		return this.requestFactory;
-	}
+    if (this.clientHttpRequestInitializers != clientHttpRequestInitializers) {
+      this.clientHttpRequestInitializers.clear();
+      this.clientHttpRequestInitializers.addAll(clientHttpRequestInitializers);
+      AnnotationAwareOrderComparator.sort(this.clientHttpRequestInitializers);
+    }
+  }
 
+  /**
+   * Get the request initializers that this accessor uses.
+   * <p>The returned {@link List} is active and may be modified. Note,
+   * however, that the initializers will not be resorted according to their
+   * {@linkplain AnnotationAwareOrderComparator#sort(List) order} before the
+   * {@link ClientHttpRequest} is initialized.
+   *
+   * @see #setClientHttpRequestInitializers(List)
+   */
+  public List<ClientHttpRequestInitializer> getClientHttpRequestInitializers() {
+    return this.clientHttpRequestInitializers;
+  }
 
-	/**
-	 * Set the request initializers that this accessor should use.
-	 * <p>The initializers will get immediately sorted according to their
-	 * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
-	 * @since 4.0
-	 */
-	public void setClientHttpRequestInitializers(
-			List<ClientHttpRequestInitializer> clientHttpRequestInitializers) {
+  /**
+   * Create a new {@link ClientHttpRequest} via this template's {@link ClientHttpRequestFactory}.
+   *
+   * @param url the URL to connect to
+   * @param method the HTTP method to execute (GET, POST, etc)
+   * @return the created request
+   * @throws IOException in case of I/O errors
+   * @see #getRequestFactory()
+   * @see ClientHttpRequestFactory#createRequest(URI, HttpMethod)
+   */
+  protected ClientHttpRequest createRequest(URI url, HttpMethod method) throws IOException {
+    ClientHttpRequest request = getRequestFactory().createRequest(url, method);
+    initialize(request);
+    if (logger.isDebugEnabled()) {
+      logger.debug("HTTP {} {}", method.name(), url);
+    }
+    return request;
+  }
 
-		if (this.clientHttpRequestInitializers != clientHttpRequestInitializers) {
-			this.clientHttpRequestInitializers.clear();
-			this.clientHttpRequestInitializers.addAll(clientHttpRequestInitializers);
-			AnnotationAwareOrderComparator.sort(this.clientHttpRequestInitializers);
-		}
-	}
-
-	/**
-	 * Get the request initializers that this accessor uses.
-	 * <p>The returned {@link List} is active and may be modified. Note,
-	 * however, that the initializers will not be resorted according to their
-	 * {@linkplain AnnotationAwareOrderComparator#sort(List) order} before the
-	 * {@link ClientHttpRequest} is initialized.
-	 * @since 4.0
-	 * @see #setClientHttpRequestInitializers(List)
-	 */
-	public List<ClientHttpRequestInitializer> getClientHttpRequestInitializers() {
-		return this.clientHttpRequestInitializers;
-	}
-
-	/**
-	 * Create a new {@link ClientHttpRequest} via this template's {@link ClientHttpRequestFactory}.
-	 * @param url the URL to connect to
-	 * @param method the HTTP method to execute (GET, POST, etc)
-	 * @return the created request
-	 * @throws IOException in case of I/O errors
-	 * @see #getRequestFactory()
-	 * @see ClientHttpRequestFactory#createRequest(URI, HttpMethod)
-	 */
-	protected ClientHttpRequest createRequest(URI url, HttpMethod method) throws IOException {
-		ClientHttpRequest request = getRequestFactory().createRequest(url, method);
-		initialize(request);
-		if (logger.isDebugEnabled()) {
-			logger.debug("HTTP " + method.name() + " " + url);
-		}
-		return request;
-	}
-
-	private void initialize(ClientHttpRequest request) {
-		this.clientHttpRequestInitializers.forEach(initializer -> initializer.initialize(request));
-	}
+  private void initialize(ClientHttpRequest request) {
+    this.clientHttpRequestInitializers.forEach(initializer -> initializer.initialize(request));
+  }
 
 }

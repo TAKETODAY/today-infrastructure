@@ -20,9 +20,6 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
@@ -34,6 +31,10 @@ import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.net.URI;
+
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * {@link ClientHttpRequest} implementation based on

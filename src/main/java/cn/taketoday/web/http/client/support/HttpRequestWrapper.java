@@ -16,13 +16,13 @@
 
 package cn.taketoday.web.http.client.support;
 
+import java.net.URI;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.HttpRequest;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
-
-import java.net.URI;
 
 /**
  * Provides a convenient implementation of the {@link HttpRequest} interface
@@ -31,61 +31,60 @@ import java.net.URI;
  * <p>These methods default to calling through to the wrapped request object.
  *
  * @author Arjen Poutsma
- * @since 3.1
+ * @since 4.0
  */
 public class HttpRequestWrapper implements HttpRequest {
 
-	private final HttpRequest request;
+  private final HttpRequest request;
 
+  /**
+   * Create a new {@code HttpRequest} wrapping the given request object.
+   *
+   * @param request the request object to be wrapped
+   */
+  public HttpRequestWrapper(HttpRequest request) {
+    Assert.notNull(request, "HttpRequest must not be null");
+    this.request = request;
+  }
 
-	/**
-	 * Create a new {@code HttpRequest} wrapping the given request object.
-	 * @param request the request object to be wrapped
-	 */
-	public HttpRequestWrapper(HttpRequest request) {
-		Assert.notNull(request, "HttpRequest must not be null");
-		this.request = request;
-	}
+  /**
+   * Return the wrapped request.
+   */
+  public HttpRequest getRequest() {
+    return this.request;
+  }
 
+  /**
+   * Return the method of the wrapped request.
+   */
+  @Override
+  @Nullable
+  public HttpMethod getMethod() {
+    return this.request.getMethod();
+  }
 
-	/**
-	 * Return the wrapped request.
-	 */
-	public HttpRequest getRequest() {
-		return this.request;
-	}
+  /**
+   * Return the method value of the wrapped request.
+   */
+  @Override
+  public String getMethodValue() {
+    return this.request.getMethodValue();
+  }
 
-	/**
-	 * Return the method of the wrapped request.
-	 */
-	@Override
-	@Nullable
-	public HttpMethod getMethod() {
-		return this.request.getMethod();
-	}
+  /**
+   * Return the URI of the wrapped request.
+   */
+  @Override
+  public URI getURI() {
+    return this.request.getURI();
+  }
 
-	/**
-	 * Return the method value of the wrapped request.
-	 */
-	@Override
-	public String getMethodValue() {
-		return this.request.getMethodValue();
-	}
-
-	/**
-	 * Return the URI of the wrapped request.
-	 */
-	@Override
-	public URI getURI() {
-		return this.request.getURI();
-	}
-
-	/**
-	 * Return the headers of the wrapped request.
-	 */
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.request.getHeaders();
-	}
+  /**
+   * Return the headers of the wrapped request.
+   */
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.request.getHeaders();
+  }
 
 }

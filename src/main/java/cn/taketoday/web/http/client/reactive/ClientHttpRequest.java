@@ -20,12 +20,12 @@
 
 package cn.taketoday.web.http.client.reactive;
 
+import java.net.URI;
+
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.http.HttpCookie;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.ReactiveHttpOutputMessage;
-
-import java.net.URI;
 
 /**
  * Represents a client-side reactive HTTP request.

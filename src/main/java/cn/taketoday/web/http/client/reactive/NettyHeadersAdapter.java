@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import io.netty.handler.codec.http.HttpHeaders;
-
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,6 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import io.netty.handler.codec.http.HttpHeaders;
 
 /**
  * {@code MultiValueMap} implementation for wrapping Netty HTTP headers.
@@ -183,12 +183,10 @@ class NettyHeadersAdapter implements MultiValueMap<String, String> {
     };
   }
 
-
   @Override
   public String toString() {
     return cn.taketoday.web.http.HttpHeaders.formatHeaders(this);
   }
-
 
   private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
@@ -204,7 +202,6 @@ class NettyHeadersAdapter implements MultiValueMap<String, String> {
       return new HeaderEntry(this.names.next());
     }
   }
-
 
   private class HeaderEntry implements Map.Entry<String, List<String>> {
 
@@ -231,7 +228,6 @@ class NettyHeadersAdapter implements MultiValueMap<String, String> {
       return previousValues;
     }
   }
-
 
   private class HeaderNames extends AbstractSet<String> {
 

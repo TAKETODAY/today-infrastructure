@@ -16,86 +16,83 @@
 
 package cn.taketoday.web.http.client.support;
 
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
-
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link FactoryBean} that creates a {@link Proxy java.net.Proxy}.
  *
  * @author Arjen Poutsma
- * @since 3.0.4
- * @see	FactoryBean
+ * @see FactoryBean
  * @see Proxy
+ * @since 4.0
  */
 public class ProxyFactoryBean implements FactoryBean<Proxy>, InitializingBean {
 
-	private Proxy.Type type = Proxy.Type.HTTP;
+  private Proxy.Type type = Proxy.Type.HTTP;
 
-	@Nullable
-	private String hostname;
+  @Nullable
+  private String hostname;
 
-	private int port = -1;
+  private int port = -1;
 
-	@Nullable
-	private Proxy proxy;
+  @Nullable
+  private Proxy proxy;
 
+  /**
+   * Set the proxy type.
+   * <p>Defaults to {@link Proxy.Type#HTTP}.
+   */
+  public void setType(Proxy.Type type) {
+    this.type = type;
+  }
 
-	/**
-	 * Set the proxy type.
-	 * <p>Defaults to {@link Proxy.Type#HTTP}.
-	 */
-	public void setType(Proxy.Type type) {
-		this.type = type;
-	}
+  /**
+   * Set the proxy host name.
+   */
+  public void setHostname(String hostname) {
+    this.hostname = hostname;
+  }
 
-	/**
-	 * Set the proxy host name.
-	 */
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
+  /**
+   * Set the proxy port.
+   */
+  public void setPort(int port) {
+    this.port = port;
+  }
 
-	/**
-	 * Set the proxy port.
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
+  @Override
+  public void afterPropertiesSet() throws IllegalArgumentException {
+    Assert.notNull(this.type, "Property 'type' is required");
+    Assert.notNull(this.hostname, "Property 'hostname' is required");
+    if (this.port < 0 || this.port > 65535) {
+      throw new IllegalArgumentException("Property 'port' value out of range: " + this.port);
+    }
 
+    SocketAddress socketAddress = new InetSocketAddress(this.hostname, this.port);
+    this.proxy = new Proxy(this.type, socketAddress);
+  }
 
-	@Override
-	public void afterPropertiesSet() throws IllegalArgumentException {
-		Assert.notNull(this.type, "Property 'type' is required");
-		Assert.notNull(this.hostname, "Property 'hostname' is required");
-		if (this.port < 0 || this.port > 65535) {
-			throw new IllegalArgumentException("Property 'port' value out of range: " + this.port);
-		}
+  @Override
+  @Nullable
+  public Proxy getBean() {
+    return this.proxy;
+  }
 
-		SocketAddress socketAddress = new InetSocketAddress(this.hostname, this.port);
-		this.proxy = new Proxy(this.type, socketAddress);
-	}
+  @Override
+  public Class getBeanClass() {
+    return Proxy.class;
+  }
 
-
-	@Override
-	@Nullable
-	public Proxy getObject() {
-		return this.proxy;
-	}
-
-	@Override
-	public Class<?> getObjectType() {
-		return Proxy.class;
-	}
-
-	@Override
-	public boolean isSingleton() {
-		return true;
-	}
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 
 }

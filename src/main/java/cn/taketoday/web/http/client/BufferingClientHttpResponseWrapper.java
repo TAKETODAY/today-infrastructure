@@ -16,14 +16,14 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamUtils;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * Simple implementation of {@link ClientHttpResponse} that reads the response's body
@@ -34,48 +34,46 @@ import java.io.InputStream;
  */
 final class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
 
-	private final ClientHttpResponse response;
+  private final ClientHttpResponse response;
 
-	@Nullable
-	private byte[] body;
+  @Nullable
+  private byte[] body;
 
+  BufferingClientHttpResponseWrapper(ClientHttpResponse response) {
+    this.response = response;
+  }
 
-	BufferingClientHttpResponseWrapper(ClientHttpResponse response) {
-		this.response = response;
-	}
+  @Override
+  public HttpStatus getStatusCode() throws IOException {
+    return this.response.getStatusCode();
+  }
 
+  @Override
+  public int getRawStatusCode() throws IOException {
+    return this.response.getRawStatusCode();
+  }
 
-	@Override
-	public HttpStatus getStatusCode() throws IOException {
-		return this.response.getStatusCode();
-	}
+  @Override
+  public String getStatusText() throws IOException {
+    return this.response.getStatusText();
+  }
 
-	@Override
-	public int getRawStatusCode() throws IOException {
-		return this.response.getRawStatusCode();
-	}
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.response.getHeaders();
+  }
 
-	@Override
-	public String getStatusText() throws IOException {
-		return this.response.getStatusText();
-	}
+  @Override
+  public InputStream getBody() throws IOException {
+    if (this.body == null) {
+      this.body = StreamUtils.copyToByteArray(this.response.getBody());
+    }
+    return new ByteArrayInputStream(this.body);
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.response.getHeaders();
-	}
-
-	@Override
-	public InputStream getBody() throws IOException {
-		if (this.body == null) {
-			this.body = StreamUtils.copyToByteArray(this.response.getBody());
-		}
-		return new ByteArrayInputStream(this.body);
-	}
-
-	@Override
-	public void close() {
-		this.response.close();
-	}
+  @Override
+  public void close() {
+    this.response.close();
+  }
 
 }

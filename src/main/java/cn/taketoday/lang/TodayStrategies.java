@@ -30,7 +30,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * today-framework Strategies
  * <p>General purpose factory loading mechanism for internal use within the framework.
- * <p>Reads a {@code today.strategies} file from the root of the Spring library classpath,
+ * <p>Reads a {@code today.strategies} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
  * When checking a property, local entries are being checked first, then falling back
  * to JVM-level system properties through a {@link System#getProperty} check.

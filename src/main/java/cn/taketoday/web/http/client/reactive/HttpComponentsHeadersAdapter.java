@@ -20,10 +20,6 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.http.HttpHeaders;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 
@@ -37,6 +33,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * {@code MultiValueMap} implementation for wrapping Apache HttpComponents
@@ -188,12 +189,10 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
     };
   }
 
-
   @Override
   public String toString() {
     return HttpHeaders.formatHeaders(this);
   }
-
 
   private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
@@ -209,7 +208,6 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
       return new HeaderEntry(this.iterator.next().getName());
     }
   }
-
 
   private class HeaderEntry implements Map.Entry<String, List<String>> {
 

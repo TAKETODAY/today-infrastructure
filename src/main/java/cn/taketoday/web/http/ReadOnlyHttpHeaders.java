@@ -19,11 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-
 import java.io.Serial;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -33,6 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
 
 /**
  * {@code HttpHeaders} object that can only be read, not written to.
@@ -52,7 +51,6 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
 
   @Nullable
   private List<MediaType> cachedAccept;
-
 
   ReadOnlyHttpHeaders(MultiValueMap<String, String> headers) {
     super(headers);

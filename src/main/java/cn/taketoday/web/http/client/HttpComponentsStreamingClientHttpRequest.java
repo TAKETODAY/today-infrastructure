@@ -20,10 +20,6 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.StreamingHttpOutputMessage;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -37,6 +33,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.StreamingHttpOutputMessage;
 
 /**
  * {@link ClientHttpRequest} implementation based on
@@ -63,7 +64,6 @@ final class HttpComponentsStreamingClientHttpRequest
     this.httpRequest = request;
     this.httpContext = context;
   }
-
 
   @Override
   public String getMethodValue() {
@@ -99,7 +99,6 @@ final class HttpComponentsStreamingClientHttpRequest
     HttpResponse httpResponse = this.httpClient.execute(this.httpRequest, this.httpContext);
     return new HttpComponentsClientHttpResponse(httpResponse);
   }
-
 
   private static class StreamingHttpEntity implements HttpEntity {
 

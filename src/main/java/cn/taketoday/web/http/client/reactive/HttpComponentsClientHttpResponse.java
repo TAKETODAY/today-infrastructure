@@ -25,96 +25,98 @@ import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.reactivestreams.Publisher;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.ResponseCookie;
-import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
-
-import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * {@link ClientHttpResponse} implementation for the Apache HttpComponents HttpClient 5.x.
  *
  * @author Martin Tarjányi
  * @author Arjen Poutsma
- * @since 4.0
  * @see <a href="https://hc.apache.org/index.html">Apache HttpComponents</a>
+ * @since 4.0
  */
 class HttpComponentsClientHttpResponse implements ClientHttpResponse {
 
-	private final DataBufferFactory dataBufferFactory;
+  private final DataBufferFactory dataBufferFactory;
 
-	private final Message<HttpResponse, Publisher<ByteBuffer>> message;
+  private final Message<HttpResponse, Publisher<ByteBuffer>> message;
 
-	private final HttpHeaders headers;
+  private final HttpHeaders headers;
 
-	private final HttpClientContext context;
+  private final HttpClientContext context;
 
-	private final AtomicBoolean rejectSubscribers = new AtomicBoolean();
+  private final AtomicBoolean rejectSubscribers = new AtomicBoolean();
 
+  public HttpComponentsClientHttpResponse(
+          DataBufferFactory dataBufferFactory,
+          Message<HttpResponse, Publisher<ByteBuffer>> message, HttpClientContext context) {
 
-	public HttpComponentsClientHttpResponse(DataBufferFactory dataBufferFactory,
-			Message<HttpResponse, Publisher<ByteBuffer>> message, HttpClientContext context) {
+    this.dataBufferFactory = dataBufferFactory;
+    this.message = message;
+    this.context = context;
 
-		this.dataBufferFactory = dataBufferFactory;
-		this.message = message;
-		this.context = context;
+    MultiValueMap<String, String> adapter = new HttpComponentsHeadersAdapter(message.getHead());
+    this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
+  }
 
-		MultiValueMap<String, String> adapter = new HttpComponentsHeadersAdapter(message.getHead());
-		this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
-	}
+  @Override
+  public HttpStatus getStatusCode() {
+    return HttpStatus.valueOf(this.message.getHead().getCode());
+  }
 
+  @Override
+  public int getRawStatusCode() {
+    return this.message.getHead().getCode();
+  }
 
-	@Override
-	public HttpStatus getStatusCode() {
-		return HttpStatus.valueOf(this.message.getHead().getCode());
-	}
+  @Override
+  public MultiValueMap<String, ResponseCookie> getCookies() {
+    DefaultMultiValueMap<String, ResponseCookie> result = new DefaultMultiValueMap<>();
+    this.context.getCookieStore().getCookies()
+            .forEach(cookie -> result.add(
+                    cookie.getName(),
+                    ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
+                            .domain(cookie.getDomain())
+                            .path(cookie.getPath())
+                            .maxAge(getMaxAgeSeconds(cookie))
+                            .secure(cookie.isSecure())
+                            .httpOnly(cookie.containsAttribute("httponly"))
+                            .sameSite(cookie.getAttribute("samesite"))
+                            .build())
+            );
+    return result;
+  }
 
-	@Override
-	public int getRawStatusCode() {
-		return this.message.getHead().getCode();
-	}
+  private long getMaxAgeSeconds(Cookie cookie) {
+    String maxAgeAttribute = cookie.getAttribute(Cookie.MAX_AGE_ATTR);
+    return (maxAgeAttribute != null ? Long.parseLong(maxAgeAttribute) : -1);
+  }
 
-	@Override
-	public MultiValueMap<String, ResponseCookie> getCookies() {
-		LinkedMultiValueMap<String, ResponseCookie> result = new LinkedMultiValueMap<>();
-		this.context.getCookieStore().getCookies().forEach(cookie ->
-				result.add(cookie.getName(),
-						ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
-								.domain(cookie.getDomain())
-								.path(cookie.getPath())
-								.maxAge(getMaxAgeSeconds(cookie))
-								.secure(cookie.isSecure())
-								.httpOnly(cookie.containsAttribute("httponly"))
-								.sameSite(cookie.getAttribute("samesite"))
-								.build()));
-		return result;
-	}
+  @Override
+  public Flux<DataBuffer> getBody() {
+    return Flux.from(this.message.getBody())
+            .doOnSubscribe(s -> {
+              if (!this.rejectSubscribers.compareAndSet(false, true)) {
+                throw new IllegalStateException("The client response body can only be consumed once.");
+              }
+            })
+            .map(this.dataBufferFactory::wrap);
+  }
 
-	private long getMaxAgeSeconds(Cookie cookie) {
-		String maxAgeAttribute = cookie.getAttribute(Cookie.MAX_AGE_ATTR);
-		return (maxAgeAttribute != null ? Long.parseLong(maxAgeAttribute) : -1);
-	}
-
-	@Override
-	public Flux<DataBuffer> getBody() {
-		return Flux.from(this.message.getBody())
-				.doOnSubscribe(s -> {
-					if (!this.rejectSubscribers.compareAndSet(false, true)) {
-						throw new IllegalStateException("The client response body can only be consumed once.");
-					}
-				})
-				.map(this.dataBufferFactory::wrap);
-	}
-
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.headers;
-	}
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.headers;
+  }
 
 }

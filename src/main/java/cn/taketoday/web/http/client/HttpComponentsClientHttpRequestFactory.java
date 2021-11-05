@@ -20,10 +20,6 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.HttpMethod;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.Configurable;
@@ -44,6 +40,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.util.function.BiFunction;
+
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * {@link cn.taketoday.web.http.client.ClientHttpRequestFactory} implementation that
@@ -73,7 +74,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   @Nullable
   private BiFunction<HttpMethod, URI, HttpContext> httpContextFactory;
 
-
   /**
    * Create a new instance of the {@code HttpComponentsClientHttpRequestFactory}
    * with a default {@link HttpClient} based on system properties.
@@ -91,7 +91,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   public HttpComponentsClientHttpRequestFactory(HttpClient httpClient) {
     this.httpClient = httpClient;
   }
-
 
   /**
    * Set the {@code HttpClient} used for
@@ -214,7 +213,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
       return new HttpComponentsStreamingClientHttpRequest(client, httpRequest, context);
     }
   }
-
 
   /**
    * Return a builder for modifying the factory-level {@link RequestConfig}.

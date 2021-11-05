@@ -19,8 +19,9 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.core.io.buffer.DataBuffer;
 import org.reactivestreams.Publisher;
+
+import cn.taketoday.core.io.buffer.DataBuffer;
 import reactor.core.publisher.Flux;
 
 /**
@@ -34,10 +35,11 @@ import reactor.core.publisher.Flux;
  */
 public interface ReactiveHttpInputMessage extends HttpMessage {
 
-	/**
-	 * Return the body of the message as a {@link Publisher}.
-	 * @return the body content publisher
-	 */
-	Flux<DataBuffer> getBody();
+  /**
+   * Return the body of the message as a {@link Publisher}.
+   *
+   * @return the body content publisher
+   */
+  Flux<DataBuffer> getBody();
 
 }

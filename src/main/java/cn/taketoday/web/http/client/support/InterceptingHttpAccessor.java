@@ -20,6 +20,9 @@
 
 package cn.taketoday.web.http.client.support;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -27,9 +30,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.http.client.ClientHttpRequestFactory;
 import cn.taketoday.web.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.web.http.client.InterceptingClientHttpRequestFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}

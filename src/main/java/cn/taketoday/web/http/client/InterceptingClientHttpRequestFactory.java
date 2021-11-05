@@ -20,12 +20,12 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.HttpMethod;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * {@link ClientHttpRequestFactory} wrapper with support for

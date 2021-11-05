@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-import cn.taketoday.core.io.buffer.DataBuffer;
-import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
 import org.apache.hc.client5.http.cookie.CookieStore;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -35,8 +30,6 @@ import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.reactive.ReactiveEntityProducer;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,126 +37,134 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.function.Function;
 
-import static cn.taketoday.util.MediaType.ALL_VALUE;
+import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpMethod;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import static cn.taketoday.util.MediaType.ALL_VALUE;
 
 /**
  * {@link ClientHttpRequest} implementation for the Apache HttpComponents HttpClient 5.x.
+ *
  * @author Martin Tarjányi
  * @author Arjen Poutsma
- * @since 4.0
  * @see <a href="https://hc.apache.org/index.html">Apache HttpComponents</a>
+ * @since 4.0
  */
 class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
-	private final HttpRequest httpRequest;
+  private final HttpRequest httpRequest;
 
-	private final DataBufferFactory dataBufferFactory;
+  private final DataBufferFactory dataBufferFactory;
 
-	private final HttpClientContext context;
+  private final HttpClientContext context;
 
-	@Nullable
-	private Flux<ByteBuffer> byteBufferFlux;
+  @Nullable
+  private Flux<ByteBuffer> byteBufferFlux;
 
+  public HttpComponentsClientHttpRequest(
+          HttpMethod method, URI uri,
+          HttpClientContext context, DataBufferFactory dataBufferFactory) {
 
-	public HttpComponentsClientHttpRequest(HttpMethod method, URI uri, HttpClientContext context,
-			DataBufferFactory dataBufferFactory) {
+    this.context = context;
+    this.httpRequest = new BasicHttpRequest(method.name(), uri);
+    this.dataBufferFactory = dataBufferFactory;
+  }
 
-		this.context = context;
-		this.httpRequest = new BasicHttpRequest(method.name(), uri);
-		this.dataBufferFactory = dataBufferFactory;
-	}
+  @Override
+  public HttpMethod getMethod() {
+    return HttpMethod.valueOf(this.httpRequest.getMethod());
+  }
 
-	@Override
-	public HttpMethod getMethod() {
-		return HttpMethod.valueOf(this.httpRequest.getMethod());
-	}
+  @Override
+  public URI getURI() {
+    try {
+      return this.httpRequest.getUri();
+    }
+    catch (URISyntaxException ex) {
+      throw new IllegalArgumentException("Invalid URI syntax: " + ex.getMessage());
+    }
+  }
 
-	@Override
-	public URI getURI() {
-		try {
-			return this.httpRequest.getUri();
-		}
-		catch (URISyntaxException ex) {
-			throw new IllegalArgumentException("Invalid URI syntax: " + ex.getMessage());
-		}
-	}
+  @Override
+  public DataBufferFactory bufferFactory() {
+    return this.dataBufferFactory;
+  }
 
-	@Override
-	public DataBufferFactory bufferFactory() {
-		return this.dataBufferFactory;
-	}
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getNativeRequest() {
+    return (T) this.httpRequest;
+  }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getNativeRequest() {
-		return (T) this.httpRequest;
-	}
+  @Override
+  public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+    return doCommit(() -> {
+      this.byteBufferFlux = Flux.from(body).map(DataBuffer::asByteBuffer);
+      return Mono.empty();
+    });
+  }
 
-	@Override
-	public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-		return doCommit(() -> {
-			this.byteBufferFlux = Flux.from(body).map(DataBuffer::asByteBuffer);
-			return Mono.empty();
-		});
-	}
+  @Override
+  public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+    return writeWith(Flux.from(body).flatMap(Function.identity()));
+  }
 
-	@Override
-	public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-		return writeWith(Flux.from(body).flatMap(Function.identity()));
-	}
+  @Override
+  public Mono<Void> setComplete() {
+    return doCommit();
+  }
 
-	@Override
-	public Mono<Void> setComplete() {
-		return doCommit();
-	}
+  @Override
+  protected void applyHeaders() {
+    HttpHeaders headers = getHeaders();
 
-	@Override
-	protected void applyHeaders() {
-		HttpHeaders headers = getHeaders();
+    headers.entrySet()
+            .stream()
+            .filter(entry -> !HttpHeaders.CONTENT_LENGTH.equals(entry.getKey()))
+            .forEach(entry -> entry.getValue().forEach(v -> this.httpRequest.addHeader(entry.getKey(), v)));
 
-		headers.entrySet()
-				.stream()
-				.filter(entry -> !HttpHeaders.CONTENT_LENGTH.equals(entry.getKey()))
-				.forEach(entry -> entry.getValue().forEach(v -> this.httpRequest.addHeader(entry.getKey(), v)));
+    if (!this.httpRequest.containsHeader(HttpHeaders.ACCEPT)) {
+      this.httpRequest.addHeader(HttpHeaders.ACCEPT, ALL_VALUE);
+    }
+  }
 
-		if (!this.httpRequest.containsHeader(HttpHeaders.ACCEPT)) {
-			this.httpRequest.addHeader(HttpHeaders.ACCEPT, ALL_VALUE);
-		}
-	}
+  @Override
+  protected void applyCookies() {
+    if (getCookies().isEmpty()) {
+      return;
+    }
 
-	@Override
-	protected void applyCookies() {
-		if (getCookies().isEmpty()) {
-			return;
-		}
+    CookieStore cookieStore = this.context.getCookieStore();
+    getCookies().values()
+            .stream()
+            .flatMap(Collection::stream)
+            .forEach(cookie -> {
+              BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
+              clientCookie.setDomain(getURI().getHost());
+              clientCookie.setPath(getURI().getPath());
+              cookieStore.addCookie(clientCookie);
+            });
+  }
 
-		CookieStore cookieStore = this.context.getCookieStore();
-		getCookies().values()
-				.stream()
-				.flatMap(Collection::stream)
-				.forEach(cookie -> {
-					BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
-					clientCookie.setDomain(getURI().getHost());
-					clientCookie.setPath(getURI().getPath());
-					cookieStore.addCookie(clientCookie);
-				});
-	}
+  public AsyncRequestProducer toRequestProducer() {
+    ReactiveEntityProducer reactiveEntityProducer = null;
 
-	public AsyncRequestProducer toRequestProducer() {
-		ReactiveEntityProducer reactiveEntityProducer = null;
+    if (this.byteBufferFlux != null) {
+      String contentEncoding = getHeaders().getFirst(HttpHeaders.CONTENT_ENCODING);
+      ContentType contentType = null;
+      if (getHeaders().getContentType() != null) {
+        contentType = ContentType.parse(getHeaders().getContentType().toString());
+      }
+      reactiveEntityProducer = new ReactiveEntityProducer(
+              this.byteBufferFlux, getHeaders().getContentLength(), contentType, contentEncoding);
+    }
 
-		if (this.byteBufferFlux != null) {
-			String contentEncoding = getHeaders().getFirst(HttpHeaders.CONTENT_ENCODING);
-			ContentType contentType = null;
-			if (getHeaders().getContentType() != null) {
-				contentType = ContentType.parse(getHeaders().getContentType().toString());
-			}
-			reactiveEntityProducer = new ReactiveEntityProducer(this.byteBufferFlux, getHeaders().getContentLength(),
-					contentType, contentEncoding);
-		}
-
-		return new BasicRequestProducer(this.httpRequest, reactiveEntityProducer);
-	}
+    return new BasicRequestProducer(this.httpRequest, reactiveEntityProducer);
+  }
 
 }

@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.http.client;
 
-import cn.taketoday.web.http.HttpRequest;
-
 import java.io.IOException;
+
+import cn.taketoday.web.http.HttpRequest;
 
 /**
  * Intercepts client-side HTTP requests. Implementations of this interface can be
@@ -40,32 +40,33 @@ import java.io.IOException;
 @FunctionalInterface
 public interface ClientHttpRequestInterceptor {
 
-	/**
-	 * Intercept the given request, and return a response. The given
-	 * {@link ClientHttpRequestExecution} allows the interceptor to pass on the
-	 * request and response to the next entity in the chain.
-	 * <p>A typical implementation of this method would follow the following pattern:
-	 * <ol>
-	 * <li>Examine the {@linkplain HttpRequest request} and body.</li>
-	 * <li>Optionally {@linkplain cn.taketoday.web.http.client.support.HttpRequestWrapper
-	 * wrap} the request to filter HTTP attributes.</li>
-	 * <li>Optionally modify the body of the request.</li>
-	 * <ul>
-	 * <li><strong>Either</strong>
-	 * <li>execute the request using
-	 * {@link ClientHttpRequestExecution#execute(cn.taketoday.web.http.HttpRequest, byte[])},</li>
-	 * <li><strong>or</strong></li>
-	 * <li>do not execute the request to block the execution altogether.</li>
-	 * </ul>
-	 * <li>Optionally wrap the response to filter HTTP attributes.</li>
-	 * </ol>
-	 * @param request the request, containing method, URI, and headers
-	 * @param body the body of the request
-	 * @param execution the request execution
-	 * @return the response
-	 * @throws IOException in case of I/O errors
-	 */
-	ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-			throws IOException;
+  /**
+   * Intercept the given request, and return a response. The given
+   * {@link ClientHttpRequestExecution} allows the interceptor to pass on the
+   * request and response to the next entity in the chain.
+   * <p>A typical implementation of this method would follow the following pattern:
+   * <ol>
+   * <li>Examine the {@linkplain HttpRequest request} and body.</li>
+   * <li>Optionally {@linkplain cn.taketoday.web.http.client.support.HttpRequestWrapper
+   * wrap} the request to filter HTTP attributes.</li>
+   * <li>Optionally modify the body of the request.</li>
+   * <ul>
+   * <li><strong>Either</strong>
+   * <li>execute the request using
+   * {@link ClientHttpRequestExecution#execute(cn.taketoday.web.http.HttpRequest, byte[])},</li>
+   * <li><strong>or</strong></li>
+   * <li>do not execute the request to block the execution altogether.</li>
+   * </ul>
+   * <li>Optionally wrap the response to filter HTTP attributes.</li>
+   * </ol>
+   *
+   * @param request the request, containing method, URI, and headers
+   * @param body the body of the request
+   * @param execution the request execution
+   * @return the response
+   * @throws IOException in case of I/O errors
+   */
+  ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
+          throws IOException;
 
 }

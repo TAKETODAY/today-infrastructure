@@ -20,120 +20,114 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.reactivestreams.Publisher;
+
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Collection;
+
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.ZeroCopyHttpOutputMessage;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.NettyOutbound;
 import reactor.netty.http.client.HttpClientRequest;
-
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.Collection;
 
 /**
  * {@link ClientHttpRequest} implementation for the Reactor-Netty HTTP client.
  *
  * @author Brian Clozel
  * @author Rossen Stoyanchev
- * @since 4.0
  * @see reactor.netty.http.client.HttpClient
+ * @since 4.0
  */
 class ReactorClientHttpRequest extends AbstractClientHttpRequest implements ZeroCopyHttpOutputMessage {
 
-	private final HttpMethod httpMethod;
+  private final URI uri;
+  private final HttpMethod httpMethod;
+  private final NettyOutbound outbound;
+  private final HttpClientRequest request;
+  private final NettyDataBufferFactory bufferFactory;
 
-	private final URI uri;
+  public ReactorClientHttpRequest(HttpMethod method, URI uri, HttpClientRequest request, NettyOutbound outbound) {
+    this.httpMethod = method;
+    this.uri = uri;
+    this.request = request;
+    this.outbound = outbound;
+    this.bufferFactory = new NettyDataBufferFactory(outbound.alloc());
+  }
 
-	private final HttpClientRequest request;
+  @Override
+  public HttpMethod getMethod() {
+    return this.httpMethod;
+  }
 
-	private final NettyOutbound outbound;
+  @Override
+  public URI getURI() {
+    return this.uri;
+  }
 
-	private final NettyDataBufferFactory bufferFactory;
+  @Override
+  public DataBufferFactory bufferFactory() {
+    return this.bufferFactory;
+  }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getNativeRequest() {
+    return (T) this.request;
+  }
 
-	public ReactorClientHttpRequest(HttpMethod method, URI uri, HttpClientRequest request, NettyOutbound outbound) {
-		this.httpMethod = method;
-		this.uri = uri;
-		this.request = request;
-		this.outbound = outbound;
-		this.bufferFactory = new NettyDataBufferFactory(outbound.alloc());
-	}
+  @Override
+  public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+    return doCommit(() -> {
+      // Send as Mono if possible as an optimization hint to Reactor Netty
+      if (body instanceof Mono) {
+        Mono<ByteBuf> byteBufMono = Mono.from(body).map(NettyDataBufferFactory::toByteBuf);
+        return this.outbound.send(byteBufMono).then();
+      }
+      else {
+        Flux<ByteBuf> byteBufFlux = Flux.from(body).map(NettyDataBufferFactory::toByteBuf);
+        return this.outbound.send(byteBufFlux).then();
+      }
+    });
+  }
 
+  @Override
+  public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+    Publisher<Publisher<ByteBuf>> byteBufs = Flux.from(body).map(ReactorClientHttpRequest::toByteBufs);
+    return doCommit(() -> this.outbound.sendGroups(byteBufs).then());
+  }
 
-	@Override
-	public HttpMethod getMethod() {
-		return this.httpMethod;
-	}
+  private static Publisher<ByteBuf> toByteBufs(Publisher<? extends DataBuffer> dataBuffers) {
+    return Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
+  }
 
-	@Override
-	public URI getURI() {
-		return this.uri;
-	}
+  @Override
+  public Mono<Void> writeWith(Path file, long position, long count) {
+    return doCommit(() -> this.outbound.sendFile(file, position, count).then());
+  }
 
-	@Override
-	public DataBufferFactory bufferFactory() {
-		return this.bufferFactory;
-	}
+  @Override
+  public Mono<Void> setComplete() {
+    return doCommit(this.outbound::then);
+  }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getNativeRequest() {
-		return (T) this.request;
-	}
+  @Override
+  protected void applyHeaders() {
+    getHeaders().forEach((key, value) -> this.request.requestHeaders().set(key, value));
+  }
 
-	@Override
-	public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-		return doCommit(() -> {
-			// Send as Mono if possible as an optimization hint to Reactor Netty
-			if (body instanceof Mono) {
-				Mono<ByteBuf> byteBufMono = Mono.from(body).map(NettyDataBufferFactory::toByteBuf);
-				return this.outbound.send(byteBufMono).then();
-
-			}
-			else {
-				Flux<ByteBuf> byteBufFlux = Flux.from(body).map(NettyDataBufferFactory::toByteBuf);
-				return this.outbound.send(byteBufFlux).then();
-			}
-		});
-	}
-
-	@Override
-	public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-		Publisher<Publisher<ByteBuf>> byteBufs = Flux.from(body).map(ReactorClientHttpRequest::toByteBufs);
-		return doCommit(() -> this.outbound.sendGroups(byteBufs).then());
-	}
-
-	private static Publisher<ByteBuf> toByteBufs(Publisher<? extends DataBuffer> dataBuffers) {
-		return Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
-	}
-
-	@Override
-	public Mono<Void> writeWith(Path file, long position, long count) {
-		return doCommit(() -> this.outbound.sendFile(file, position, count).then());
-	}
-
-	@Override
-	public Mono<Void> setComplete() {
-		return doCommit(this.outbound::then);
-	}
-
-	@Override
-	protected void applyHeaders() {
-		getHeaders().forEach((key, value) -> this.request.requestHeaders().set(key, value));
-	}
-
-	@Override
-	protected void applyCookies() {
-		getCookies().values().stream().flatMap(Collection::stream)
-				.map(cookie -> new DefaultCookie(cookie.getName(), cookie.getValue()))
-				.forEach(this.request::addCookie);
-	}
+  @Override
+  protected void applyCookies() {
+    getCookies().values().stream().flatMap(Collection::stream)
+            .map(cookie -> new DefaultCookie(cookie.getName(), cookie.getValue()))
+            .forEach(this.request::addCookie);
+  }
 
 }
