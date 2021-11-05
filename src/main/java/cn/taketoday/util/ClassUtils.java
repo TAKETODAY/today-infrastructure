@@ -533,6 +533,32 @@ public abstract class ClassUtils {
     return i > 0 ? load(name.substring(0, i)) : load(name);
   }
 
+	/**
+	 * Return a descriptive name for the given object's type: usually simply
+	 * the class name, but component type class name + "[]" for arrays,
+	 * and an appended list of implemented interfaces for JDK proxies.
+	 * @param value the value to introspect
+	 * @return the qualified name of the class
+	 */
+	@Nullable
+	public static String getDescriptiveType(@Nullable Object value) {
+		if (value == null) {
+			return null;
+		}
+		Class<?> clazz = value.getClass();
+		if (Proxy.isProxyClass(clazz)) {
+			String prefix = clazz.getName() + " implementing ";
+			StringJoiner result = new StringJoiner(",", prefix, Constant.BLANK);
+			for (Class<?> ifc : clazz.getInterfaces()) {
+				result.add(ifc.getName());
+			}
+			return result.toString();
+		}
+		else {
+			return clazz.getTypeName();
+		}
+	}
+
   // --------------------------------- Field
 
   // Generics
