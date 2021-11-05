@@ -354,8 +354,8 @@ class SettableListenableFutureTests {
       }
     }).start();
 
-    assertThatExceptionOfType(CancellationException.class).isThrownBy(() ->
-                                                                              settableListenableFuture.get(500L, TimeUnit.MILLISECONDS));
+    assertThatExceptionOfType(CancellationException.class)
+            .isThrownBy(() -> settableListenableFuture.get(500L, TimeUnit.MILLISECONDS));
 
     assertThat(settableListenableFuture.isCancelled()).isTrue();
     assertThat(settableListenableFuture.isDone()).isTrue();
