@@ -19,16 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -74,6 +64,16 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -137,6 +137,10 @@ public abstract class AbstractApplicationContext
 
   /** Flag that indicates whether this context has been closed already.  @since 4.0 */
   private final AtomicBoolean closed = new AtomicBoolean();
+
+  /** Reference to the JVM shutdown hook, if registered. */
+  @Nullable
+  private Thread shutdownHook;
 
   public AbstractApplicationContext() { }
 
@@ -265,6 +269,31 @@ public abstract class AbstractApplicationContext
     ReflectionUtils.clearCache();
     AnnotationUtils.clearCache();
     ResolvableType.clearCache();
+  }
+
+  /**
+   * Register a shutdown hook {@linkplain Thread#getName() named}
+   * {@code ContextShutdownHook} with the JVM runtime, closing this
+   * context on JVM shutdown unless it has already been closed at that time.
+   * <p>Delegates to {@code doClose()} for the actual closing procedure.
+   *
+   * @see Runtime#addShutdownHook
+   * @see ConfigurableApplicationContext#SHUTDOWN_HOOK_THREAD_NAME
+   * @see #close()
+   * @see #doClose()
+   */
+  @Override
+  public void registerShutdownHook() {
+    if (this.shutdownHook == null) {
+      // No shutdown hook registered yet.
+      this.shutdownHook = new Thread(SHUTDOWN_HOOK_THREAD_NAME) {
+        @Override
+        public void run() {
+          doClose();
+        }
+      };
+      Runtime.getRuntime().addShutdownHook(this.shutdownHook);
+    }
   }
 
   /**
@@ -546,7 +575,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.

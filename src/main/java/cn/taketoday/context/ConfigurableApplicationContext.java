@@ -51,6 +51,15 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   String LOAD_TIME_WEAVER_BEAN_NAME = "loadTimeWeaver";
 
   /**
+   * {@link Thread#getName() Name} of the {@linkplain #registerShutdownHook()
+   * shutdown hook} thread: {@value}.
+   *
+   * @see #registerShutdownHook()
+   * @since 4.0
+   */
+  String SHUTDOWN_HOOK_THREAD_NAME = "ContextShutdownHook";
+
+  /**
    * Get configurable environment
    *
    * @return {@link ConfigurableEnvironment} never be null
@@ -153,5 +162,18 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @since 2.0.1
    */
   void refresh() throws ApplicationContextException;
+
+  /**
+   * Register a shutdown hook with the JVM runtime, closing this context
+   * on JVM shutdown unless it has already been closed at that time.
+   * <p>This method can be called multiple times. Only one shutdown hook
+   * (at max) will be registered for each context instance.
+   * <p>The {@linkplain Thread#getName() name} of the shutdown hook thread
+   * should be {@link #SHUTDOWN_HOOK_THREAD_NAME}.
+   *
+   * @see java.lang.Runtime#addShutdownHook
+   * @see #close()
+   */
+  void registerShutdownHook();
 
 }
