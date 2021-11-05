@@ -20,20 +20,18 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextHolder;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author TODAY 2021/8/22 21:51
@@ -47,19 +45,11 @@ public abstract class BeanUtils {
    * @param beanClass bean class
    * @return the instance of target class
    * @throws BeanInstantiationException if any reflective operation exception occurred
-   * @see ApplicationContextHolder#getLastStartupContext()
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
-    // maybe there has already a bean-factory ContextUtils#getLastStartupContext
     Constructor<T> constructor = obtainConstructor(beanClass);
-    if (constructor.getParameterCount() == 0) {
-      return newInstance(constructor, null);
-    }
-    ApplicationContext lastStartupContext = ApplicationContextHolder.getLastStartupContext();
-    ArgumentsResolver argumentsResolver = ArgumentsResolver.getOrShared(lastStartupContext);
-    Object[] parameter = argumentsResolver.resolve(constructor, lastStartupContext, null);
-    return newInstance(constructor, parameter);
+    return newInstance(constructor, null);
   }
 
   /**
