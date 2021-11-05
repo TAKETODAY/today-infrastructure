@@ -31,7 +31,7 @@ import cn.taketoday.web.http.HttpHeaders;
  * Common base class for exceptions that contain actual HTTP response data.
  *
  * @author Rossen Stoyanchev
- * @since 4.3
+ * @since 4.0
  */
 public class RestClientResponseException extends RestClientException {
 
@@ -113,7 +113,7 @@ public class RestClientResponseException extends RestClientException {
    * of the response "Content-Type" or otherwise the one given.
    *
    * @param fallbackCharset the charset to use on if the response doesn't specify.
-   * @since 5.1.11
+   * @since 4.0
    */
   public String getResponseBodyAsString(Charset fallbackCharset) {
     if (this.responseCharset == null) {

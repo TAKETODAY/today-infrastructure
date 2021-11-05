@@ -20,7 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -35,7 +36,8 @@ import cn.taketoday.core.NestedRuntimeException;
  * @author TODAY 2021/2/2 11:36
  * @since 3.0
  */
-public abstract class BeansException extends NestedRuntimeException {
+public class BeansException extends NestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public BeansException() { }

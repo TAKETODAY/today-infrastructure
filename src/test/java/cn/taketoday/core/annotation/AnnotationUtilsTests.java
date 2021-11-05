@@ -85,7 +85,7 @@ class AnnotationUtilsTests {
 		assertThat(findAnnotation(m, Order.class)).isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findMethodAnnotationWithAnnotationOnMethodInInterface() throws Exception {
 		Method m = Leaf.class.getMethod("fromInterfaceImplementedByRoot");
@@ -97,7 +97,7 @@ class AnnotationUtilsTests {
 		assertThat(findAnnotation(m, Order.class)).isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findMethodAnnotationWithMetaAnnotationOnLeaf() throws Exception {
 		Method m = Leaf.class.getMethod("metaAnnotatedOnLeaf");
@@ -106,7 +106,7 @@ class AnnotationUtilsTests {
 		assertThat(findAnnotation(m, Order.class)).isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findMethodAnnotationWithMetaMetaAnnotationOnLeaf() throws Exception {
 		Method m = Leaf.class.getMethod("metaMetaAnnotatedOnLeaf");
@@ -123,7 +123,7 @@ class AnnotationUtilsTests {
 		assertThat(findAnnotation(m, Order.class)).isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findMethodAnnotationWithMetaAnnotationOnRoot() throws Exception {
 		Method m = Leaf.class.getMethod("metaAnnotatedOnRoot");
@@ -222,7 +222,7 @@ class AnnotationUtilsTests {
 		assertThat(order).isNotNull();
 	}
 
-	// @since 4.1.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverAnnotationsOnInterfaces() {
 		Component component = findAnnotation(ClassWithLocalMetaAnnotationAndMetaAnnotatedInterface.class, Component.class);
@@ -273,42 +273,42 @@ class AnnotationUtilsTests {
 		assertThat(component).as("Should not find @Component on MetaCycleAnnotatedClass").isNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationOnInheritedAnnotationInterface() {
 		Transactional tx = findAnnotation(InheritedAnnotationInterface.class, Transactional.class);
 		assertThat(tx).as("Should find @Transactional on InheritedAnnotationInterface").isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationOnSubInheritedAnnotationInterface() {
 		Transactional tx = findAnnotation(SubInheritedAnnotationInterface.class, Transactional.class);
 		assertThat(tx).as("Should find @Transactional on SubInheritedAnnotationInterface").isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationOnSubSubInheritedAnnotationInterface() {
 		Transactional tx = findAnnotation(SubSubInheritedAnnotationInterface.class, Transactional.class);
 		assertThat(tx).as("Should find @Transactional on SubSubInheritedAnnotationInterface").isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationOnNonInheritedAnnotationInterface() {
 		Order order = findAnnotation(NonInheritedAnnotationInterface.class, Order.class);
 		assertThat(order).as("Should find @Order on NonInheritedAnnotationInterface").isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationOnSubNonInheritedAnnotationInterface() {
 		Order order = findAnnotation(SubNonInheritedAnnotationInterface.class, Order.class);
 		assertThat(order).as("Should find @Order on SubNonInheritedAnnotationInterface").isNotNull();
 	}
 
-	// @since 4.2
+	// @since 4.0
 	@Test
 	void findClassAnnotationOnSubSubNonInheritedAnnotationInterface() {
 		Order order = findAnnotation(SubSubNonInheritedAnnotationInterface.class, Order.class);

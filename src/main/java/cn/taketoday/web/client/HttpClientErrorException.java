@@ -85,7 +85,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * Create {@code HttpClientErrorException} or an HTTP status specific sub-class.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public static HttpClientErrorException create(
           HttpStatus statusCode, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {

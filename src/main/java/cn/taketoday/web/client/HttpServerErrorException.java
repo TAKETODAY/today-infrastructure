@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.client;
 
+import java.io.Serial;
 import java.nio.charset.Charset;
 
 import cn.taketoday.lang.Nullable;
@@ -31,10 +32,11 @@ import cn.taketoday.web.http.HttpStatus;
  *
  * @author Arjen Poutsma
  * @see DefaultResponseErrorHandler
- * @since 3.0
+ * @since 4.0
  */
 public class HttpServerErrorException extends HttpStatusCodeException {
 
+  @Serial
   private static final long serialVersionUID = -2915754006618138282L;
 
   /**
@@ -72,8 +74,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
   /**
    * Constructor with a status code and status text, headers, content, and an
    * prepared message.
-   *
-   * @since 5.2.2
    */
   public HttpServerErrorException(String message, HttpStatus statusCode, String statusText,
                                   @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset) {
@@ -83,8 +83,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
 
   /**
    * Create an {@code HttpServerErrorException} or an HTTP status specific sub-class.
-   *
-   * @since 5.1
    */
   public static HttpServerErrorException create(HttpStatus statusCode,
                                                 String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
@@ -95,8 +93,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
   /**
    * Variant of {@link #create(String, HttpStatus, String, HttpHeaders, byte[], Charset)}
    * with an optional prepared message.
-   *
-   * @since 5.2.2.
    */
   public static HttpServerErrorException create(@Nullable String message, HttpStatus statusCode,
                                                 String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
@@ -133,8 +129,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
 
   /**
    * {@link HttpServerErrorException} for status HTTP 500 Internal Server Error.
-   *
-   * @since 5.1
    */
   @SuppressWarnings("serial")
   public static final class InternalServerError extends HttpServerErrorException {
@@ -152,8 +146,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
 
   /**
    * {@link HttpServerErrorException} for status HTTP 501 Not Implemented.
-   *
-   * @since 5.1
    */
   @SuppressWarnings("serial")
   public static final class NotImplemented extends HttpServerErrorException {
@@ -171,8 +163,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
 
   /**
    * {@link HttpServerErrorException} for status HTTP HTTP 502 Bad Gateway.
-   *
-   * @since 5.1
    */
   @SuppressWarnings("serial")
   public static final class BadGateway extends HttpServerErrorException {
@@ -190,8 +180,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
 
   /**
    * {@link HttpServerErrorException} for status HTTP 503 Service Unavailable.
-   *
-   * @since 5.1
    */
   @SuppressWarnings("serial")
   public static final class ServiceUnavailable extends HttpServerErrorException {
@@ -209,8 +197,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
 
   /**
    * {@link HttpServerErrorException} for status HTTP 504 Gateway Timeout.
-   *
-   * @since 5.1
    */
   @SuppressWarnings("serial")
   public static final class GatewayTimeout extends HttpServerErrorException {

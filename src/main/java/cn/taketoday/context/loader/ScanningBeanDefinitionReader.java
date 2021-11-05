@@ -231,7 +231,7 @@ public class ScanningBeanDefinitionReader {
       log.trace("'javax.annotation.ManagedBean' found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
-      // JSR-250 1.1 API (as included in Jakarta EE) not available - simply skip.
+      // JSR-250 1.1 API (as included in javax EE) not available - simply skip.
     }
     try {
       this.includeFilters.add(new AnnotationTypeFilter(

@@ -46,7 +46,7 @@ public enum TestGroup {
   /**
    * Determine if this {@link TestGroup} is active.
    *
-   * @since 5.2
+   * @since 4.0
    */
   public boolean isActive() {
     return loadTestGroups().contains(this);

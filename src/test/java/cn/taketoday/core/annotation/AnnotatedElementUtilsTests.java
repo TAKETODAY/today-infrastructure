@@ -617,7 +617,7 @@ class AnnotatedElementUtilsTests {
 	/**
 	 * Bridge/bridged method setup code copied from
 	 * {@link cn.taketoday.core.BridgeMethodResolverTests#withGenericParameter()}.
-	 * @since 4.2
+	 * @since 4.0
 	 */
 	@Test
 	void findMergedAnnotationAttributesFromBridgeMethod() {

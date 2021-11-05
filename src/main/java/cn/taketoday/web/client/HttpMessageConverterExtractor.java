@@ -1,23 +1,24 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -26,6 +27,8 @@ import java.util.List;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.client.ClientHttpResponse;
@@ -44,15 +47,12 @@ import cn.taketoday.web.http.converter.HttpMessageNotReadableException;
  * @since 4.0
  */
 public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
-
+  private final Logger logger;
   private final Type responseType;
 
   @Nullable
   private final Class<T> responseClass;
-
   private final List<HttpMessageConverter<?>> messageConverters;
-
-  private final Log logger;
 
   /**
    * Create a new instance of the {@code HttpMessageConverterExtractor} with the given response
@@ -67,18 +67,19 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
    * type and message converters. The given converters must support the response type.
    */
   public HttpMessageConverterExtractor(Type responseType, List<HttpMessageConverter<?>> messageConverters) {
-    this(responseType, messageConverters, LogFactory.getLog(HttpMessageConverterExtractor.class));
+    this(responseType, messageConverters, LoggerFactory.getLogger(HttpMessageConverterExtractor.class));
   }
 
   @SuppressWarnings("unchecked")
-  HttpMessageConverterExtractor(Type responseType, List<HttpMessageConverter<?>> messageConverters, Log logger) {
+  HttpMessageConverterExtractor(
+          Type responseType, List<HttpMessageConverter<?>> messageConverters, Logger logger) {
     Assert.notNull(responseType, "'responseType' must not be null");
     Assert.notEmpty(messageConverters, "'messageConverters' must not be empty");
     Assert.noNullElements(messageConverters, "'messageConverters' must not contain null elements");
+    this.logger = logger;
     this.responseType = responseType;
     this.responseClass = (responseType instanceof Class ? (Class<T>) responseType : null);
     this.messageConverters = messageConverters;
-    this.logger = logger;
   }
 
   @Override
@@ -88,40 +89,38 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
     if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
       return null;
     }
-    MediaType contentType = getContentType(responseWrapper);
 
+    MediaType contentType = getContentType(responseWrapper);
     try {
-      for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter) {
-          GenericHttpMessageConverter<?> genericMessageConverter =
-                  (GenericHttpMessageConverter<?>) messageConverter;
-          if (genericMessageConverter.canRead(this.responseType, null, contentType)) {
+      for (HttpMessageConverter<?> messageConverter : messageConverters) {
+        if (messageConverter instanceof GenericHttpMessageConverter<?> genericConverter) {
+          if (genericConverter.canRead(responseType, null, contentType)) {
             if (logger.isDebugEnabled()) {
-              ResolvableType resolvableType = ResolvableType.forType(this.responseType);
-              logger.debug("Reading to [" + resolvableType + "]");
+              logger.debug("Reading to [{}]", ResolvableType.fromType(responseType));
             }
-            return (T) genericMessageConverter.read(this.responseType, null, responseWrapper);
+            return (T) genericConverter.read(responseType, null, responseWrapper);
           }
         }
-        if (this.responseClass != null) {
-          if (messageConverter.canRead(this.responseClass, contentType)) {
+        if (responseClass != null) {
+          if (messageConverter.canRead(responseClass, contentType)) {
             if (logger.isDebugEnabled()) {
-              String className = this.responseClass.getName();
-              logger.debug("Reading to [" + className + "] as \"" + contentType + "\"");
+              logger.debug("Reading to [{}] as \"{}\"", responseClass.getName(), contentType);
             }
-            return (T) messageConverter.read((Class) this.responseClass, responseWrapper);
+            return (T) messageConverter.read((Class) responseClass, responseWrapper);
           }
         }
       }
     }
     catch (IOException | HttpMessageNotReadableException ex) {
-      throw new RestClientException("Error while extracting response for type [" +
-                                            this.responseType + "] and content type [" + contentType + "]", ex);
+      throw new RestClientException(
+              "Error while extracting response for type ["
+                      + responseType + "] and content type [" + contentType + "]", ex);
     }
 
-    throw new UnknownContentTypeException(this.responseType, contentType,
-                                          responseWrapper.getRawStatusCode(), responseWrapper.getStatusText(),
-                                          responseWrapper.getHeaders(), getResponseBody(responseWrapper));
+    throw new UnknownContentTypeException(
+            responseType, contentType,
+            responseWrapper.getRawStatusCode(), responseWrapper.getStatusText(),
+            responseWrapper.getHeaders(), getResponseBody(responseWrapper));
   }
 
   /**

@@ -22,6 +22,7 @@ package cn.taketoday.core;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.CollectionUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +54,7 @@ import java.util.function.Function;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultMultiValueMap<K, V>
         implements MultiValueMap<K, V>, Serializable, Cloneable, ArraySizeTrimmer {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   static final Function defaultMappingFunction = new Function() {

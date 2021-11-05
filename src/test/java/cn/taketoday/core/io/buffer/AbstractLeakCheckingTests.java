@@ -28,7 +28,7 @@ import org.junit.jupiter.api.AfterEach;
  * throwing an {@link AssertionError} if not.
  *
  * @author Arjen Poutsma
- * @since 5.1.3
+ * @since 4.0
  * @see LeakAwareDataBufferFactory
  */
 public abstract class AbstractLeakCheckingTests {

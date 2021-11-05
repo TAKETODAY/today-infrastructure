@@ -43,7 +43,7 @@ import cn.taketoday.util.MediaType;
  * &#64;RequestMapping("/handle")
  * public ResponseEntity&lt;String&gt; handle() {
  *   URI location = ...;
- *   HttpHeaders responseHeaders = new HttpHeaders();
+ *   HttpHeaders responseHeaders = HttpHeaders.create();
  *   responseHeaders.setLocation(location);
  *   responseHeaders.set("MyResponseHeader", "MyValue");
  *   return new ResponseEntity&lt;String&gt;("Hello World", responseHeaders, HttpStatus.CREATED);

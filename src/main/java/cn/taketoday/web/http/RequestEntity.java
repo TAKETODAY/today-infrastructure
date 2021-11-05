@@ -414,7 +414,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * @param uriTemplate the uri template to use
    * @param uriVariables variables to expand the URI template with
    * @return the created builder
-   * @since 5.3
+   * @since 4.0
    */
   public static HeadersBuilder<?> options(String uriTemplate, Object... uriVariables) {
     return method(HttpMethod.OPTIONS, uriTemplate, uriVariables);

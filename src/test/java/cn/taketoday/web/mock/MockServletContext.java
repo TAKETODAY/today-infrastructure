@@ -94,7 +94,7 @@ public class MockServletContext implements ServletContext {
     DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.SSL);
   }
 
-  private final Log logger = LogFactory.getLog(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final String resourceBasePath;
 

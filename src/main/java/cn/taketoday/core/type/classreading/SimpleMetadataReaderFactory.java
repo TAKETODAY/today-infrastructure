@@ -50,7 +50,7 @@ public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
   /**
    * Create a new SimpleMetadataReaderFactory for the given resource loader.
    *
-   * @param resourceLoader the Spring ResourceLoader to use
+   * @param resourceLoader the ResourceLoader to use
    * (also determines the ClassLoader to use)
    */
   public SimpleMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {

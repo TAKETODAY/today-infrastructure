@@ -1,17 +1,21 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -94,11 +98,11 @@ import cn.taketoday.web.util.UriTemplateHandler;
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
 
   /**
-   * Boolean flag controlled by a {@code today.xml.ignore} system property that instructs to
+   * Boolean flag controlled by a {@code context.xml.ignore} system property that instructs to
    * ignore XML, i.e. to not initialize the XML-related infrastructure.
    * <p>The default is "false".
    */
-  private static final boolean shouldIgnoreXml = TodayStrategies.getFlag("today.xml.ignore");
+  private static final boolean shouldIgnoreXml = TodayStrategies.getFlag("context.xml.ignore");
 
   private static final boolean romePresent;
 
@@ -121,14 +125,14 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   static {
     ClassLoader classLoader = RestTemplate.class.getClassLoader();
     romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
-    jaxb2Present = ClassUtils.isPresent("jakarta.xml.bind.Binder", classLoader);
+    jaxb2Present = ClassUtils.isPresent("javax.xml.bind.Binder", classLoader);
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
             ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
     jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", classLoader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
+    jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
     kotlinSerializationJsonPresent = ClassUtils.isPresent("kotlinx.serialization.json.Json", classLoader);
   }
 
@@ -278,7 +282,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * </pre>
    *
    * @param uriVars the default URI variable values
-   * @since 4.3
+   * @since 4.0
    */
   @SuppressWarnings("deprecation")
   public void setDefaultUriVariables(Map<String, ?> uriVars) {

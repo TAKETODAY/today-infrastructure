@@ -3029,14 +3029,14 @@ class MergedAnnotationsTests {
   }
 
   /**
-   * Mimics jakarta.persistence.Id
+   * Mimics javax.persistence.Id
    */
   @Retention(RUNTIME)
   @interface Id {
   }
 
   /**
-   * Mimics jakarta.persistence.GeneratedValue
+   * Mimics javax.persistence.GeneratedValue
    */
   @Retention(RUNTIME)
   @interface GeneratedValue {

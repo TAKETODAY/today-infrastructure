@@ -20,21 +20,23 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
 import org.reactivestreams.Publisher;
-import reactor.adapter.JdkFlowAdapter;
-import reactor.blockhound.BlockHound;
-import reactor.blockhound.integration.BlockHoundIntegration;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Flow;
 import java.util.function.Function;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import reactor.adapter.JdkFlowAdapter;
+import reactor.blockhound.BlockHound;
+import reactor.blockhound.integration.BlockHoundIntegration;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * A registry of adapters to adapt Reactive Streams {@link Publisher} to/from
@@ -91,7 +93,6 @@ public class ReactiveAdapterRegistry {
       new MutinyRegistrar().registerAdapters(this);
     }
   }
-
 
   /**
    * Whether the registry has any adapters.
@@ -161,7 +162,6 @@ public class ReactiveAdapterRegistry {
     return null;
   }
 
-
   /**
    * Return a shared default {@code ReactiveAdapterRegistry} instance,
    * lazily building it once needed.
@@ -186,7 +186,6 @@ public class ReactiveAdapterRegistry {
     return registry;
   }
 
-
   /**
    * ReactiveAdapter variant that wraps adapted Publishers as {@link Flux} or
    * {@link Mono} depending on {@link ReactiveTypeDescriptor#isMultiValue()}.
@@ -209,10 +208,8 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-
   private static class ReactorRegistrar {
-
-//    private static final Flow.Publisher<?> EMPTY_FLOW = JdkFlowAdapter.publisherToFlowPublisher(Flux.empty());
+    private static final Flow.Publisher<?> EMPTY_FLOW = JdkFlowAdapter.publisherToFlowPublisher(Flux.empty());
 
     void registerAdapters(ReactiveAdapterRegistry registry) {
       // Register Flux and Mono before Publisher...
@@ -237,13 +234,12 @@ public class ReactiveAdapterRegistry {
               source -> Mono.fromCompletionStage((CompletionStage<?>) source),
               source -> Mono.from(source).toFuture());
 
-//      registry.registerReactiveType( // TODO JdkFlowAdapter
-//              ReactiveTypeDescriptor.multiValue(Flow.Publisher.class, () -> EMPTY_FLOW),
-//              source -> JdkFlowAdapter.flowPublisherToFlux((Flow.Publisher<?>) source),
-//              JdkFlowAdapter::publisherToFlowPublisher);
+      registry.registerReactiveType(
+              ReactiveTypeDescriptor.multiValue(Flow.Publisher.class, () -> EMPTY_FLOW),
+              source -> JdkFlowAdapter.flowPublisherToFlux((Flow.Publisher<?>) source),
+              JdkFlowAdapter::publisherToFlowPublisher);
     }
   }
-
 
   private static class EmptyCompletableFuture<T> extends CompletableFuture<T> {
 
@@ -251,7 +247,6 @@ public class ReactiveAdapterRegistry {
       complete(null);
     }
   }
-
 
   private static class RxJava3Registrar {
 
@@ -292,7 +287,6 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-
   private static class MutinyRegistrar {
 
     void registerAdapters(ReactiveAdapterRegistry registry) {
@@ -311,7 +305,6 @@ public class ReactiveAdapterRegistry {
               publisher -> io.smallrye.mutiny.Multi.createFrom().publisher(publisher));
     }
   }
-
 
   /**
    * {@code BlockHoundIntegration} for core classes.

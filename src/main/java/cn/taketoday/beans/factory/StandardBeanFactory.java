@@ -463,7 +463,7 @@ public class StandardBeanFactory
 
   /**
    * Determine the candidate with the highest priority in the given set of beans.
-   * <p>Based on {@code @jakarta.annotation.Priority}. As defined by the related
+   * <p>Based on {@code @javax.annotation.Priority}. As defined by the related
    * {@link Ordered} interface, the lowest value has the highest priority.
    *
    * @param candidates a set of candidate names
@@ -522,7 +522,7 @@ public class StandardBeanFactory
 
   /**
    * Return the priority assigned for the given bean instance by
-   * the {@code jakarta.annotation.Priority} annotation.
+   * the {@code javax.annotation.Priority} annotation.
    *
    * @param beanInstance the bean instance to check (can be {@code null})
    * @return the priority assigned to that bean or {@code null} if none is set

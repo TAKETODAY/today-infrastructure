@@ -5,7 +5,7 @@ import java.util.UUID;
 
 /**
  * @author aldenquimby@gmail.com
- * @since 4/6/14
+ * @since 4.0/14
  */
 public class UUIDWrapper {
   private UUID text;

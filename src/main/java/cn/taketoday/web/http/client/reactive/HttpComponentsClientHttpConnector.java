@@ -165,7 +165,7 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
     }
 
     @Override
-    public void cancelled() {}
+    public void cancelled() { }
   }
 
 }

@@ -64,7 +64,7 @@ import java.lang.annotation.Target;
  * expressed, for example {@code "p1 & p2"}. See {@link Profiles#of(String...)} for more
  * details about supported formats.
  *
- * <p>This is analogous to the behavior in Spring XML: if the {@code profile} attribute of
+ * <p>This is analogous to the behavior in XML: if the {@code profile} attribute of
  * the {@code beans} element is supplied e.g., {@code <beans profile="p1,p2">}, the
  * {@code beans} element will not be parsed unless at least profile 'p1' or 'p2' has been
  * activated. Likewise, if a {@code @Component} or {@code @Configuration} class is marked
@@ -86,14 +86,10 @@ import java.lang.annotation.Target;
  * only the condition on the first declaration among the overloaded methods will matter.
  * {@code @Profile} can therefore not be used to select an overloaded method with a
  * particular argument signature over another; resolution between all factory methods
- * for the same bean follows Spring's constructor resolution algorithm at creation time.
+ * for the same bean follows constructor resolution algorithm at creation time.
  * <b>Use distinct Java method names pointing to the same {@link Component#value()}  bean name}
  * if you'd like to define alternative beans with different profile conditions</b>;
  * see {@code ProfileDatabaseConfig} in {@link Configuration @Configuration}'s javadoc.
- *
- * <p>When defining Spring beans via XML, the {@code "profile"} attribute of the
- * {@code <beans>} element may be used. See the documentation in the
- * {@code spring-beans} XSD (version 3.1 or greater) for details.
  *
  * @author Chris Beams
  * @author Phillip Webb

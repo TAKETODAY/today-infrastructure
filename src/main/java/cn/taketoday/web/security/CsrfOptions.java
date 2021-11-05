@@ -21,7 +21,7 @@
 package cn.taketoday.web.security;
 
 /**
- * Options for property {@link jakarta.mvc.security.Csrf#CSRF_PROTECTION}.
+ * Options for property {@link javax.mvc.security.Csrf#CSRF_PROTECTION}.
  *
  * @author TODAY 2021/10/4 14:19
  * @since 4.0

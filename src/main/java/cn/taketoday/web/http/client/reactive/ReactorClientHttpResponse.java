@@ -187,7 +187,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
               .subscribe(byteBuf -> {
 
               }, ex -> {
-                
+
               });
     }
   }

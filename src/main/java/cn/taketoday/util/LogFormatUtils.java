@@ -19,11 +19,10 @@
  */
 package cn.taketoday.util;
 
-import org.apache.commons.logging.Log;
-
 import java.util.function.Function;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 
 /**
  * Utility methods for formatting and logging messages.
@@ -99,9 +98,9 @@ public abstract class LogFormatUtils {
    *
    * @param logger the logger to use to log the message
    * @param messageFactory function that accepts a boolean set to the value
-   * of {@link Log#isTraceEnabled()}
+   * of {@link Logger#isTraceEnabled()}
    */
-  public static void traceDebug(Log logger, Function<Boolean, String> messageFactory) {
+  public static void traceDebug(Logger logger, Function<Boolean, String> messageFactory) {
     if (logger.isDebugEnabled()) {
       boolean traceEnabled = logger.isTraceEnabled();
       String logMessage = messageFactory.apply(traceEnabled);

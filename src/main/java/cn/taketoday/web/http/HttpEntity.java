@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
  *
  * like so:
  * <pre class="code">
- * HttpHeaders headers = new HttpHeaders();
+ * HttpHeaders headers = HttpHeaders.create();
  * headers.setContentType(MediaType.TEXT_PLAIN);
  * HttpEntity&lt;String&gt; entity = new HttpEntity&lt;String&gt;(helloWorld, headers);
  * URI location = template.postForLocation("https://example.com", entity);
@@ -44,7 +44,7 @@ import cn.taketoday.lang.Nullable;
  * <pre class="code">
  * &#64;RequestMapping("/handle")
  * public HttpEntity&lt;String&gt; handle() {
- *   HttpHeaders responseHeaders = new HttpHeaders();
+ *   HttpHeaders responseHeaders = HttpHeaders.create();
  *   responseHeaders.set("MyResponseHeader", "MyValue");
  *   return new HttpEntity&lt;String&gt;("Hello World", responseHeaders);
  * }

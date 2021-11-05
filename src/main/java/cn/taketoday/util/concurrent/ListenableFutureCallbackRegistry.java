@@ -97,7 +97,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * Add the given success callback to this registry.
    *
    * @param callback the success callback to add
-   * @since 4.1
+   * @since 4.0
    */
   public void addSuccessCallback(SuccessCallback<? super T> callback) {
     Assert.notNull(callback, "'callback' must not be null");
@@ -117,7 +117,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * Add the given failure callback to this registry.
    *
    * @param callback the failure callback to add
-   * @since 4.1
+   * @since 4.0
    */
   public void addFailureCallback(FailureCallback callback) {
     Assert.notNull(callback, "'callback' must not be null");

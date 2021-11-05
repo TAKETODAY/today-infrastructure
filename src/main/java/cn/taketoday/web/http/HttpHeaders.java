@@ -1820,8 +1820,8 @@ public abstract class HttpHeaders
             .map(entry -> {
               List<String> values = entry.getValue();
               return entry.getKey() + ":" + (values.size() == 1 ?
-                      "\"" + values.get(0) + "\"" :
-                      values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                                             "\"" + values.get(0) + "\"" :
+                                             values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }

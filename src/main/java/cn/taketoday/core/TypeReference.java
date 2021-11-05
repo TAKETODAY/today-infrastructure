@@ -94,7 +94,7 @@ public abstract class TypeReference<T> {
   private static Class<?> findParameterizedTypeReferenceSubclass(Class<?> child) {
     Class<?> parent = child.getSuperclass();
     if (Object.class == parent) {
-      throw new IllegalStateException("Expected ParameterizedTypeReference superclass");
+      throw new IllegalStateException("Expected TypeReference superclass");
     }
     else if (TypeReference.class == parent) {
       return child;
