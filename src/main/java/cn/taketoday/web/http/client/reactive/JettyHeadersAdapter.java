@@ -20,10 +20,6 @@
 
 package cn.taketoday.web.http.client.reactive;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.http.HttpHeaders;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpFields;
 
@@ -35,6 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * {@code MultiValueMap} implementation for wrapping Jetty HTTP headers.
@@ -50,11 +51,9 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
 
   private final HttpFields headers;
 
-
   JettyHeadersAdapter(HttpFields headers) {
     this.headers = headers;
   }
-
 
   @Override
   public String getFirst(String key) {
@@ -72,11 +71,6 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public void addAll(String key, List<? extends String> values) {
     values.forEach(value -> add(key, value));
-  }
-
-  @Override
-  public void addAll(String key, Enumeration<? extends String> values) {
-
   }
 
   @Override
@@ -203,12 +197,10 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
     };
   }
 
-
   @Override
   public String toString() {
     return HttpHeaders.formatHeaders(this);
   }
-
 
   private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
@@ -224,7 +216,6 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
       return new HeaderEntry(this.names.nextElement());
     }
   }
-
 
   private class HeaderEntry implements Map.Entry<String, List<String>> {
 
@@ -255,7 +246,6 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
     }
   }
 
-
   private class HeaderNames extends AbstractSet<String> {
 
     @Override
@@ -268,7 +258,6 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
       return headers.getFieldNamesCollection().size();
     }
   }
-
 
   private final class HeaderNamesIterator implements Iterator<String> {
 

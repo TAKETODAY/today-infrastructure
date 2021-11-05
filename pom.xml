@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.taketoday</groupId>
@@ -19,15 +19,17 @@
 
   <properties>
     <skipTests>true</skipTests>
+    <java.version>17</java.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
+
     <netty.version>4.1.63.Final</netty.version>
     <!--    <jetty.version>9.4.34.v20201102</jetty.version>-->
     <jetty.version>11.0.7</jetty.version>
     <undertow.version>2.2.8.Final</undertow.version>
     <embed.tomcat.version>9.0.43</embed.tomcat.version>
-
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
 
     <commons-dbutils.version>1.5</commons-dbutils.version>
     <embedded-db-junit.version>1.0.0</embedded-db-junit.version>
@@ -665,6 +667,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
+          <release>17</release>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
@@ -789,12 +792,12 @@
                     <imagesdir>images</imagesdir>
                     <doctype>book</doctype>
                     <status>${status}</status>
-                    <data-uri/>
+                    <data-uri />
                     <icons>font</icons>
                     <toc>left</toc>
                     <icons>font</icons>
                     <sectanchors>true</sectanchors>
-                    <idprefix/>
+                    <idprefix />
                     <idseparator>-</idseparator>
                     <docinfo1>true</docinfo1>
                   </attributes>
@@ -819,13 +822,13 @@
                     <pdf-style>today</pdf-style>
                     <doctype>book</doctype>
                     <status>${status}</status>
-                    <data-uri/>
+                    <data-uri />
                     <icons>font</icons>
-                    <pagenums/>
-                    <toc/>
+                    <pagenums />
+                    <toc />
                     <icons>font</icons>
                     <sectanchors>true</sectanchors>
-                    <idprefix/>
+                    <idprefix />
                     <idseparator>-</idseparator>
                     <docinfo1>true</docinfo1>
                     <embedAssets>true</embedAssets>
