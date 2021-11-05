@@ -16,6 +16,7 @@
 
 package cn.taketoday.core;
 
+import cn.taketoday.lang.NonNull;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Nested;
@@ -72,7 +73,7 @@ class ReactiveAdapterRegistryTests {
   private static class ExtendedFlux<T> extends Flux<T> {
 
     @Override
-    public void subscribe(CoreSubscriber<? super T> actual) {
+    public void subscribe(@NonNull CoreSubscriber<? super T> actual) {
       throw new UnsupportedOperationException();
     }
   }
