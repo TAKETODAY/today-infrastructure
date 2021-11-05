@@ -20,6 +20,13 @@
 
 package cn.taketoday.core.io.buffer;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.function.IntPredicate;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -27,13 +34,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.function.IntPredicate;
 
 /**
  * Implementation of the {@code DataBuffer} interface that wraps a Netty
@@ -49,7 +49,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   private final NettyDataBufferFactory dataBufferFactory;
 
-
   /**
    * Create a new {@code NettyDataBuffer} based on the given {@code ByteBuff}.
    *
@@ -61,7 +60,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
     this.byteBuf = byteBuf;
     this.dataBufferFactory = dataBufferFactory;
   }
-
 
   /**
    * Directly exposes the native {@code ByteBuf} that this buffer is based on.
@@ -191,7 +189,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public NettyDataBuffer write(DataBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       if (hasNettyDataBuffers(buffers)) {
         ByteBuf[] nativeBuffers = new ByteBuf[buffers.length];
         for (int i = 0; i < buffers.length; i++) {
@@ -203,7 +201,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
         ByteBuffer[] byteBuffers = new ByteBuffer[buffers.length];
         for (int i = 0; i < buffers.length; i++) {
           byteBuffers[i] = buffers[i].asByteBuffer();
-
         }
         write(byteBuffers);
       }
@@ -222,7 +219,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public NettyDataBuffer write(ByteBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       for (ByteBuffer buffer : buffers) {
         this.byteBuf.writeBytes(buffer);
       }
@@ -238,7 +235,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
    * @return this buffer
    */
   public NettyDataBuffer write(ByteBuf... byteBufs) {
-    if (!ObjectUtils.isEmpty(byteBufs)) {
+    if (ObjectUtils.isNotEmpty(byteBufs)) {
       for (ByteBuf byteBuf : byteBufs) {
         this.byteBuf.writeBytes(byteBuf);
       }
@@ -331,7 +328,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
   public boolean release() {
     return this.byteBuf.release();
   }
-
 
   @Override
   public boolean equals(@Nullable Object other) {

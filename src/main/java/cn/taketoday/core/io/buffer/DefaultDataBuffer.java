@@ -16,10 +16,6 @@
 
 package cn.taketoday.core.io.buffer;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,6 +23,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.function.IntPredicate;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Default implementation of the {@link DataBuffer} interface that uses a
@@ -57,7 +57,6 @@ public class DefaultDataBuffer implements DataBuffer {
   private int readPosition;
 
   private int writePosition;
-
 
   private DefaultDataBuffer(DefaultDataBufferFactory dataBufferFactory, ByteBuffer byteBuffer) {
     Assert.notNull(dataBufferFactory, "DefaultDataBufferFactory must not be null");
@@ -151,7 +150,7 @@ public class DefaultDataBuffer implements DataBuffer {
   public DefaultDataBuffer readPosition(int readPosition) {
     assertIndex(readPosition >= 0, "'readPosition' %d must be >= 0", readPosition);
     assertIndex(readPosition <= this.writePosition, "'readPosition' %d must be <= %d",
-            readPosition, this.writePosition);
+                readPosition, this.writePosition);
     this.readPosition = readPosition;
     return this;
   }
@@ -164,9 +163,9 @@ public class DefaultDataBuffer implements DataBuffer {
   @Override
   public DefaultDataBuffer writePosition(int writePosition) {
     assertIndex(writePosition >= this.readPosition, "'writePosition' %d must be >= %d",
-            writePosition, this.readPosition);
+                writePosition, this.readPosition);
     assertIndex(writePosition <= this.capacity, "'writePosition' %d must be <= %d",
-            writePosition, this.capacity);
+                writePosition, this.capacity);
     this.writePosition = writePosition;
     return this;
   }
@@ -239,7 +238,7 @@ public class DefaultDataBuffer implements DataBuffer {
   @Override
   public byte read() {
     assertIndex(this.readPosition <= this.writePosition - 1, "readPosition %d must be <= %d",
-            this.readPosition, this.writePosition - 1);
+                this.readPosition, this.writePosition - 1);
     int pos = this.readPosition;
     byte b = this.byteBuffer.get(pos);
     this.readPosition = pos + 1;
@@ -257,8 +256,8 @@ public class DefaultDataBuffer implements DataBuffer {
   public DefaultDataBuffer read(byte[] destination, int offset, int length) {
     Assert.notNull(destination, "Byte array must not be null");
     assertIndex(this.readPosition <= this.writePosition - length,
-            "readPosition %d and length %d should be smaller than writePosition %d",
-            this.readPosition, length, this.writePosition);
+                "readPosition %d and length %d should be smaller than writePosition %d",
+                this.readPosition, length, this.writePosition);
 
     ByteBuffer tmp = this.byteBuffer.duplicate();
     int limit = this.readPosition + length;
@@ -303,8 +302,8 @@ public class DefaultDataBuffer implements DataBuffer {
   public DefaultDataBuffer write(DataBuffer... buffers) {
     if (!ObjectUtils.isEmpty(buffers)) {
       write(Arrays.stream(buffers)
-              .map(DataBuffer::asByteBuffer)
-              .toArray(ByteBuffer[]::new)
+                    .map(DataBuffer::asByteBuffer)
+                    .toArray(ByteBuffer[]::new)
       );
     }
     return this;
@@ -374,7 +373,6 @@ public class DefaultDataBuffer implements DataBuffer {
     return new DefaultDataBufferOutputStream();
   }
 
-
   @Override
   public String toString(int index, int length, Charset charset) {
     checkIndex(index, length);
@@ -427,19 +425,17 @@ public class DefaultDataBuffer implements DataBuffer {
     }
   }
 
-
   @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof DefaultDataBuffer)) {
-      return false;
+    if (other instanceof DefaultDataBuffer otherBuffer) {
+      return this.readPosition == otherBuffer.readPosition
+              && this.writePosition == otherBuffer.writePosition
+              && this.byteBuffer.equals(otherBuffer.byteBuffer);
     }
-    DefaultDataBuffer otherBuffer = (DefaultDataBuffer) other;
-    return (this.readPosition == otherBuffer.readPosition &&
-            this.writePosition == otherBuffer.writePosition &&
-            this.byteBuffer.equals(otherBuffer.byteBuffer));
+    return false;
   }
 
   @Override
@@ -450,9 +446,8 @@ public class DefaultDataBuffer implements DataBuffer {
   @Override
   public String toString() {
     return String.format("DefaultDataBuffer (r: %d, w: %d, c: %d)",
-            this.readPosition, this.writePosition, this.capacity);
+                         this.readPosition, this.writePosition, this.capacity);
   }
-
 
   private void checkIndex(int index, int length) {
     assertIndex(index >= 0, "index %d must be >= 0", index);
@@ -467,7 +462,6 @@ public class DefaultDataBuffer implements DataBuffer {
       throw new IndexOutOfBoundsException(message);
     }
   }
-
 
   private class DefaultDataBufferInputStream extends InputStream {
 
@@ -495,7 +489,6 @@ public class DefaultDataBuffer implements DataBuffer {
     }
   }
 
-
   private class DefaultDataBufferOutputStream extends OutputStream {
 
     @Override
@@ -508,7 +501,6 @@ public class DefaultDataBuffer implements DataBuffer {
       DefaultDataBuffer.this.write(bytes, off, len);
     }
   }
-
 
   private static class SlicedDefaultDataBuffer extends DefaultDataBuffer {
 

@@ -20,11 +20,10 @@
 
 package cn.taketoday.core.io.buffer;
 
-
-import cn.taketoday.lang.Assert;
-
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * Default implementation of the {@code DataBufferFactory} interface. Allows for
@@ -49,11 +48,9 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
    */
   public static final DefaultDataBufferFactory sharedInstance = new DefaultDataBufferFactory();
 
-
   private final boolean preferDirect;
 
   private final int defaultInitialCapacity;
-
 
   /**
    * Creates a new {@code DefaultDataBufferFactory} with default settings.
@@ -91,7 +88,6 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
     this.defaultInitialCapacity = defaultInitialCapacity;
   }
 
-
   @Override
   public DefaultDataBuffer allocateBuffer() {
     return allocateBuffer(this.defaultInitialCapacity);
@@ -99,9 +95,9 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
 
   @Override
   public DefaultDataBuffer allocateBuffer(int initialCapacity) {
-    ByteBuffer byteBuffer = (this.preferDirect ?
-            ByteBuffer.allocateDirect(initialCapacity) :
-            ByteBuffer.allocate(initialCapacity));
+    ByteBuffer byteBuffer = this.preferDirect
+                            ? ByteBuffer.allocateDirect(initialCapacity)
+                            : ByteBuffer.allocate(initialCapacity);
     return DefaultDataBuffer.fromEmptyByteBuffer(this, byteBuffer);
   }
 
@@ -129,7 +125,6 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
     dataBuffers.forEach(DataBufferUtils::release);
     return result;
   }
-
 
   @Override
   public String toString() {

@@ -30,9 +30,8 @@ package cn.taketoday.core.io.buffer;
 @SuppressWarnings("serial")
 public class DataBufferLimitException extends IllegalStateException {
 
-
-	public DataBufferLimitException(String message) {
-		super(message);
-	}
+  public DataBufferLimitException(String message) {
+    super(message);
+  }
 
 }

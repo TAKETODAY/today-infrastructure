@@ -16,23 +16,9 @@
 
 package cn.taketoday.core.io.buffer;
 
-import cn.taketoday.core.io.FileBasedResource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
-import reactor.core.publisher.BaseSubscriber;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
-import reactor.util.context.Context;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,6 +40,20 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import reactor.core.publisher.BaseSubscriber;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.SynchronousSink;
+import reactor.util.context.Context;
+
 /**
  * Utility class for working with {@link DataBuffer DataBuffers}.
  *
@@ -65,7 +65,6 @@ public abstract class DataBufferUtils {
   private final static Logger logger = LoggerFactory.getLogger(DataBufferUtils.class);
 
   private static final Consumer<DataBuffer> RELEASE_CONSUMER = DataBufferUtils::release;
-
 
   //---------------------------------------------------------------------
   // Reading
@@ -105,10 +104,11 @@ public abstract class DataBufferUtils {
     Assert.notNull(bufferFactory, "'dataBufferFactory' must not be null");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
-    return Flux.using(channelSupplier,
+    return Flux.using(
+            channelSupplier,
             channel -> Flux.generate(new ReadableByteChannelGenerator(channel, bufferFactory, bufferSize)),
-            DataBufferUtils::closeChannel);
-
+            DataBufferUtils::closeChannel
+    );
     // No doOnDiscard as operators used do not cache
   }
 
@@ -148,7 +148,8 @@ public abstract class DataBufferUtils {
     Assert.isTrue(position >= 0, "'position' must be >= 0");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
-    Flux<DataBuffer> flux = Flux.using(channelSupplier,
+    Flux<DataBuffer> flux = Flux.using(
+            channelSupplier,
             channel -> Flux.create(sink -> {
               ReadCompletionHandler handler =
                       new ReadCompletionHandler(channel, sink, position, bufferFactory, bufferSize);
@@ -158,7 +159,8 @@ public abstract class DataBufferUtils {
             channel -> {
               // Do not close channel from here, rather wait for the current read callback
               // and then complete after releasing the DataBuffer.
-            });
+            }
+    );
 
     return flux.doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
   }
@@ -180,13 +182,14 @@ public abstract class DataBufferUtils {
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
     if (options.length > 0) {
       for (OpenOption option : options) {
-        Assert.isTrue(!(option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE),
-                "'" + option + "' not allowed");
+        if (option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE) {
+          throw new IllegalArgumentException("'" + option + "' not allowed");
+        }
       }
     }
 
-    return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(path, options),
-            bufferFactory, bufferSize);
+    return readAsynchronousFileChannel(
+            () -> AsynchronousFileChannel.open(path, options), bufferFactory, bufferSize);
   }
 
   /**
@@ -224,21 +227,14 @@ public abstract class DataBufferUtils {
   public static Flux<DataBuffer> read(
           Resource resource, long position, DataBufferFactory bufferFactory, int bufferSize) {
 
-    try {
-      if (resource instanceof FileBasedResource) {
-        File file = resource.getFile();
-        return readAsynchronousFileChannel(
-                () -> AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ),
-                position, bufferFactory, bufferSize);
-      }
-    }
-    catch (IOException ignore) {
-      // fallback to resource.readableChannel(), below
+    if (resource instanceof FileBasedResource file) {
+      return readAsynchronousFileChannel(
+              () -> AsynchronousFileChannel.open(file.getPath(), StandardOpenOption.READ),
+              position, bufferFactory, bufferSize);
     }
     Flux<DataBuffer> result = readByteChannel(resource::readableChannel, bufferFactory, bufferSize);
     return position == 0 ? result : skipUntilByteCount(result, position);
   }
-
 
   //---------------------------------------------------------------------
   // Writing
@@ -370,9 +366,7 @@ public abstract class DataBufferUtils {
       try {
         AsynchronousFileChannel channel = AsynchronousFileChannel.open(destination, optionSet, null);
         sink.onDispose(() -> closeChannel(channel));
-        write(source, channel).subscribe(DataBufferUtils::release,
-                sink::error,
-                sink::success);
+        write(source, channel).subscribe(DataBufferUtils::release, sink::error, sink::success);
       }
       catch (IOException ex) {
         sink.error(ex);
@@ -382,7 +376,7 @@ public abstract class DataBufferUtils {
 
   private static Set<OpenOption> checkWriteOptions(OpenOption[] options) {
     int length = options.length;
-    Set<OpenOption> result = new HashSet<>(length + 3);
+    HashSet<OpenOption> result = new HashSet<>(length + 3);
     if (length == 0) {
       result.add(StandardOpenOption.CREATE);
       result.add(StandardOpenOption.TRUNCATE_EXISTING);
@@ -404,11 +398,9 @@ public abstract class DataBufferUtils {
       try {
         channel.close();
       }
-      catch (IOException ignored) {
-      }
+      catch (IOException ignored) { }
     }
   }
-
 
   //---------------------------------------------------------------------
   // Various
@@ -523,8 +515,7 @@ public abstract class DataBufferUtils {
    * @return {@code true} if the buffer was released; {@code false} otherwise.
    */
   public static boolean release(@Nullable DataBuffer dataBuffer) {
-    if (dataBuffer instanceof PooledDataBuffer) {
-      PooledDataBuffer pooledDataBuffer = (PooledDataBuffer) dataBuffer;
+    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer) {
       if (pooledDataBuffer.isAllocated()) {
         try {
           return pooledDataBuffer.release();
@@ -618,16 +609,12 @@ public abstract class DataBufferUtils {
 
   private static NestedMatcher createMatcher(byte[] delimiter) {
     Assert.isTrue(delimiter.length > 0, "Delimiter must not be empty");
-    switch (delimiter.length) {
-      case 1:
-        return (delimiter[0] == 10 ? SingleByteMatcher.NEWLINE_MATCHER : new SingleByteMatcher(delimiter));
-      case 2:
-        return new TwoByteMatcher(delimiter);
-      default:
-        return new KnuthMorrisPrattMatcher(delimiter);
-    }
+    return switch (delimiter.length) {
+      case 1 -> (delimiter[0] == 10 ? SingleByteMatcher.NEWLINE_MATCHER : new SingleByteMatcher(delimiter));
+      case 2 -> new TwoByteMatcher(delimiter);
+      default -> new KnuthMorrisPrattMatcher(delimiter);
+    };
   }
-
 
   /**
    * Contract to find delimiter(s) against one or more data buffers that can
@@ -712,7 +699,6 @@ public abstract class DataBufferUtils {
     }
   }
 
-
   /**
    * Matcher that can be nested within {@link CompositeMatcher} where multiple
    * matchers advance together using the same index, one byte at a time.
@@ -726,18 +712,14 @@ public abstract class DataBufferUtils {
     boolean match(byte b);
   }
 
-
   /**
    * Matcher for a single byte delimiter.
    */
-  private static class SingleByteMatcher implements NestedMatcher {
+  private record SingleByteMatcher(byte[] delimiter) implements NestedMatcher {
     static SingleByteMatcher NEWLINE_MATCHER = new SingleByteMatcher(new byte[] { 10 });
 
-    private final byte[] delimiter;
-
-    SingleByteMatcher(byte[] delimiter) {
+    private SingleByteMatcher {
       Assert.isTrue(delimiter.length == 1, "Expected a 1 byte delimiter");
-      this.delimiter = delimiter;
     }
 
     @Override
@@ -757,23 +739,15 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    public byte[] delimiter() {
-      return this.delimiter;
-    }
-
-    @Override
     public void reset() { }
   }
-
 
   /**
    * Base class for a {@link NestedMatcher}.
    */
   private static abstract class AbstractNestedMatcher implements NestedMatcher {
-
-    private final byte[] delimiter;
-
     private int matches = 0;
+    private final byte[] delimiter;
 
     protected AbstractNestedMatcher(byte[] delimiter) {
       this.delimiter = delimiter;
@@ -909,7 +883,6 @@ public abstract class DataBufferUtils {
     }
   }
 
-
   private static class ReadCompletionHandler implements CompletionHandler<Integer, DataBuffer> {
 
     private final FluxSink<DataBuffer> sink;
@@ -1008,7 +981,6 @@ public abstract class DataBufferUtils {
     }
   }
 
-
   private static class WritableByteChannelSubscriber extends BaseSubscriber<DataBuffer> {
     private final FluxSink<DataBuffer> sink;
     private final WritableByteChannel channel;
@@ -1056,20 +1028,14 @@ public abstract class DataBufferUtils {
 
   }
 
-
-  private static class WriteCompletionHandler extends BaseSubscriber<DataBuffer>
-          implements CompletionHandler<Integer, ByteBuffer> {
-
-    private final FluxSink<DataBuffer> sink;
-
-    private final AsynchronousFileChannel channel;
-
-    private final AtomicBoolean completed = new AtomicBoolean();
-
-    private final AtomicReference<Throwable> error = new AtomicReference<>();
+  private static class WriteCompletionHandler
+          extends BaseSubscriber<DataBuffer> implements CompletionHandler<Integer, ByteBuffer> {
 
     private final AtomicLong position;
-
+    private final FluxSink<DataBuffer> sink;
+    private final AsynchronousFileChannel channel;
+    private final AtomicBoolean completed = new AtomicBoolean();
+    private final AtomicReference<Throwable> error = new AtomicReference<>();
     private final AtomicReference<DataBuffer> dataBuffer = new AtomicReference<>();
 
     public WriteCompletionHandler(

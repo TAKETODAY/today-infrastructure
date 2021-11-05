@@ -29,30 +29,33 @@ package cn.taketoday.core.io.buffer;
  */
 public interface PooledDataBuffer extends DataBuffer {
 
-	/**
-	 * Return {@code true} if this buffer is allocated;
-	 * {@code false} if it has been deallocated.
-	 */
-	boolean isAllocated();
+  /**
+   * Return {@code true} if this buffer is allocated;
+   * {@code false} if it has been deallocated.
+   */
+  boolean isAllocated();
 
-	/**
-	 * Increase the reference count for this buffer by one.
-	 * @return this buffer
-	 */
-	PooledDataBuffer retain();
+  /**
+   * Increase the reference count for this buffer by one.
+   *
+   * @return this buffer
+   */
+  PooledDataBuffer retain();
 
-	/**
-	 * Associate the given hint with the data buffer for debugging purposes.
-	 * @return this buffer
-	 */
-	PooledDataBuffer touch(Object hint);
+  /**
+   * Associate the given hint with the data buffer for debugging purposes.
+   *
+   * @return this buffer
+   */
+  PooledDataBuffer touch(Object hint);
 
-	/**
-	 * Decrease the reference count for this buffer by one,
-	 * and deallocate it once the count reaches zero.
-	 * @return {@code true} if the buffer was deallocated;
-	 * {@code false} otherwise
-	 */
-	boolean release();
+  /**
+   * Decrease the reference count for this buffer by one,
+   * and deallocate it once the count reaches zero.
+   *
+   * @return {@code true} if the buffer was deallocated;
+   * {@code false} otherwise
+   */
+  boolean release();
 
 }
