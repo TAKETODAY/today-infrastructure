@@ -41,7 +41,6 @@ public class ReactiveAdapter {
   private final Function<Object, Publisher<?>> toPublisherFunction;
   private final Function<Publisher<?>, Object> fromPublisherFunction;
 
-
   /**
    * Constructor for an adapter with functions to convert the target reactive
    * or async type to and from a Reactive Streams Publisher.
@@ -62,7 +61,6 @@ public class ReactiveAdapter {
     this.toPublisherFunction = toPublisherFunction;
     this.fromPublisherFunction = fromPublisherFunction;
   }
-
 
   /**
    * Return the descriptor of the reactive type for the adapter.
@@ -98,7 +96,6 @@ public class ReactiveAdapter {
   public boolean supportsEmpty() {
     return getDescriptor().supportsEmpty();
   }
-
 
   /**
    * Adapt the given instance to a Reactive Streams {@code Publisher}.

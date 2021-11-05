@@ -20,24 +20,21 @@
 
 package cn.taketoday.context.event;
 
-import java.lang.reflect.Method;
-import java.util.EventObject;
-import java.util.function.Supplier;
-
-import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Configuration;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.EventObject;
+import java.util.function.Supplier;
 
 /**
  * Process @EventListener annotated on a method
@@ -46,6 +43,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 @Configuration
 public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
+
   private final ConfigurableApplicationContext context;
 
   public MethodEventDrivenPostProcessor(ConfigurableApplicationContext context) {
@@ -61,8 +59,9 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     ReflectionUtils.doWithMethods(beanClass, method -> {
       MergedAnnotations.from(method).stream(EventListener.class).forEach(eventListener -> {
         Class<?>[] eventTypes = getEventTypes(eventListener, method);
+        String condition = eventListener.getString("condition");
         // use ContextUtils#resolveParameter to resolve method arguments
-        addListener(beanName, beanFactory, method, eventTypes); // FIXME bean has already exist?
+        addListener(beanName, beanFactory, method, condition, eventTypes); // FIXME bean has already exist?
       });
     });
 
@@ -102,54 +101,11 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   protected void addListener(
-          String beanName, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
+          String beanName, ConfigurableBeanFactory beanFactory, Method declaredMethod, String condition, Class<?>... eventTypes) {
     Supplier<Object> beanSupplier = beanFactory.getObjectSupplier(beanName);
     MethodApplicationListener listener = new MethodApplicationListener(
-            beanSupplier, declaredMethod, eventTypes, beanFactory);
+            beanSupplier, declaredMethod, eventTypes, beanFactory, context, condition);
     context.addApplicationListener(listener);
-  }
-
-  static final class MethodApplicationListener
-          implements ApplicationListener<Object>, EventProvider {
-    final Method targetMethod;
-    final Class<?>[] eventTypes;
-    final BeanFactory beanFactory;
-    final MethodInvoker methodInvoker;
-    final Supplier<Object> beanSupplier;
-    final ArgumentsResolver argumentsResolver;
-
-    MethodApplicationListener(
-            Supplier<Object> beanSupplier,
-            Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory) {
-      this.beanSupplier = beanSupplier;
-      this.eventTypes = eventTypes;
-      this.beanFactory = beanFactory;
-      this.targetMethod = targetMethod;
-      this.methodInvoker = MethodInvoker.fromMethod(targetMethod);
-      this.argumentsResolver = targetMethod.getParameterCount() == 0
-                               ? null
-                               : beanFactory.getArgumentsResolver();
-    }
-
-    @Override
-    public void onApplicationEvent(Object event) { // any event type
-      Object[] parameter = resolveArguments(argumentsResolver, event);
-      // native invoke public,protected,default method
-      methodInvoker.invoke(beanSupplier.get(), parameter);
-    }
-
-    @Nullable
-    private Object[] resolveArguments(ArgumentsResolver resolver, Object event) {
-      if (resolver != null) {
-        return resolver.resolve(targetMethod, beanFactory, new Object[] { event });
-      }
-      return null;
-    }
-
-    @Override
-    public Class<?>[] getSupportedEvent() {
-      return eventTypes;
-    }
   }
 
 }
