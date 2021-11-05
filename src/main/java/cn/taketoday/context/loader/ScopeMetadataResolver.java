@@ -38,7 +38,7 @@ public interface ScopeMetadataResolver {
    * Resolve the {@link ScopeMetadata} appropriate to the supplied
    * bean {@code definition}.
    * <p>Implementations can of course use any strategy they like to
-   * determine the scope metadata, but some implementations that spring
+   * determine the scope metadata, but some implementations that
    * immediately to mind might be to use source level annotations
    * present on {@link BeanDefinition#getBeanClassName() the class} of the
    * supplied {@code definition}, or to use metadata present in the
