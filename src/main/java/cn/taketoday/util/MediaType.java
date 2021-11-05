@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -60,6 +61,7 @@ import static java.util.Collections.singletonMap;
  */
 public class MediaType extends MimeType implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**
@@ -189,6 +191,20 @@ public class MediaType extends MimeType implements Serializable {
   public static final String MULTIPART_MIXED_VALUE = "multipart/mixed";
 
   /**
+   * Public constant media type for {@code multipart/related}.
+   *
+   * @since 5.2.5
+   */
+  public static final MediaType MULTIPART_RELATED;
+
+  /**
+   * A String equivalent of {@link MediaType#MULTIPART_RELATED}.
+   *
+   * @since 5.2.5
+   */
+  public static final String MULTIPART_RELATED_VALUE = "multipart/related";
+
+  /**
    * Public constant media type for {@code text/event-stream}.
    *
    * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C
@@ -241,6 +257,7 @@ public class MediaType extends MimeType implements Serializable {
     APPLICATION_JSON = new MediaType("application", "json");
     APPLICATION_CBOR = new MediaType("application", "cbor");
     TEXT_EVENT_STREAM = new MediaType("text", "event-stream");
+    MULTIPART_RELATED = new MediaType("multipart", "related");
     MULTIPART_FORM_DATA = new MediaType("multipart", "form-data");
     APPLICATION_RSS_XML = new MediaType("application", "rss+xml");
     APPLICATION_ATOM_XML = new MediaType("application", "atom+xml");
