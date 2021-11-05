@@ -16,22 +16,22 @@
 
 package cn.taketoday.web.client;
 
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.web.http.client.ClientHttpResponse;
-import cn.taketoday.web.http.converter.GenericHttpMessageConverter;
-import cn.taketoday.web.http.converter.HttpMessageConverter;
-import cn.taketoday.web.http.converter.HttpMessageNotReadableException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.FileCopyUtils;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.client.ClientHttpResponse;
+import cn.taketoday.web.http.converter.GenericHttpMessageConverter;
+import cn.taketoday.web.http.converter.HttpMessageConverter;
+import cn.taketoday.web.http.converter.HttpMessageNotReadableException;
 
 /**
  * Response extractor that uses the given {@linkplain HttpMessageConverter entity converters}
@@ -81,7 +81,6 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
     this.logger = logger;
   }
 
-
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes", "resource" })
   public T extractData(ClientHttpResponse response) throws IOException {
@@ -117,12 +116,12 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
     }
     catch (IOException | HttpMessageNotReadableException ex) {
       throw new RestClientException("Error while extracting response for type [" +
-              this.responseType + "] and content type [" + contentType + "]", ex);
+                                            this.responseType + "] and content type [" + contentType + "]", ex);
     }
 
     throw new UnknownContentTypeException(this.responseType, contentType,
-            responseWrapper.getRawStatusCode(), responseWrapper.getStatusText(),
-            responseWrapper.getHeaders(), getResponseBody(responseWrapper));
+                                          responseWrapper.getRawStatusCode(), responseWrapper.getStatusText(),
+                                          responseWrapper.getHeaders(), getResponseBody(responseWrapper));
   }
 
   /**

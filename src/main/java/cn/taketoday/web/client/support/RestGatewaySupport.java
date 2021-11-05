@@ -18,9 +18,10 @@ package cn.taketoday.web.client.support;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import cn.taketoday.web.http.client.ClientHttpRequestFactory;
-import cn.taketoday.util.Assert;
+
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.client.RestTemplate;
+import cn.taketoday.web.http.client.ClientHttpRequestFactory;
 
 /**
  * Convenient super class for application classes that need REST access.
@@ -28,48 +29,47 @@ import cn.taketoday.web.client.RestTemplate;
  * <p>Requires a {@link ClientHttpRequestFactory} or a {@link RestTemplate} instance to be set.
  *
  * @author Arjen Poutsma
- * @since 3.0
  * @see #setRestTemplate
  * @see cn.taketoday.web.client.RestTemplate
+ * @since 3.0
  */
 public class RestGatewaySupport {
 
-	/** Logger available to subclasses. */
-	protected final Log logger = LogFactory.getLog(getClass());
+  /** Logger available to subclasses. */
+  protected final Log logger = LogFactory.getLog(getClass());
 
-	private RestTemplate restTemplate;
+  private RestTemplate restTemplate;
 
+  /**
+   * Construct a new instance of the {@link RestGatewaySupport}, with default parameters.
+   */
+  public RestGatewaySupport() {
+    this.restTemplate = new RestTemplate();
+  }
 
-	/**
-	 * Construct a new instance of the {@link RestGatewaySupport}, with default parameters.
-	 */
-	public RestGatewaySupport() {
-		this.restTemplate = new RestTemplate();
-	}
+  /**
+   * Construct a new instance of the {@link RestGatewaySupport}, with the given {@link ClientHttpRequestFactory}.
+   *
+   * @see RestTemplate#RestTemplate(ClientHttpRequestFactory)
+   */
+  public RestGatewaySupport(ClientHttpRequestFactory requestFactory) {
+    Assert.notNull(requestFactory, "'requestFactory' must not be null");
+    this.restTemplate = new RestTemplate(requestFactory);
+  }
 
-	/**
-	 * Construct a new instance of the {@link RestGatewaySupport}, with the given {@link ClientHttpRequestFactory}.
-	 * @see RestTemplate#RestTemplate(ClientHttpRequestFactory)
-	 */
-	public RestGatewaySupport(ClientHttpRequestFactory requestFactory) {
-		Assert.notNull(requestFactory, "'requestFactory' must not be null");
-		this.restTemplate = new RestTemplate(requestFactory);
-	}
+  /**
+   * Sets the {@link RestTemplate} for the gateway.
+   */
+  public void setRestTemplate(RestTemplate restTemplate) {
+    Assert.notNull(restTemplate, "'restTemplate' must not be null");
+    this.restTemplate = restTemplate;
+  }
 
-
-	/**
-	 * Sets the {@link RestTemplate} for the gateway.
-	 */
-	public void setRestTemplate(RestTemplate restTemplate) {
-		Assert.notNull(restTemplate, "'restTemplate' must not be null");
-		this.restTemplate = restTemplate;
-	}
-
-	/**
-	 * Returns the {@link RestTemplate} for the gateway.
-	 */
-	public RestTemplate getRestTemplate() {
-		return this.restTemplate;
-	}
+  /**
+   * Returns the {@link RestTemplate} for the gateway.
+   */
+  public RestTemplate getRestTemplate() {
+    return this.restTemplate;
+  }
 
 }

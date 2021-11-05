@@ -16,10 +16,10 @@
 
 package cn.taketoday.web.client;
 
-import cn.taketoday.web.http.client.ClientHttpRequest;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
+
+import cn.taketoday.web.http.client.ClientHttpRequest;
 
 /**
  * Callback interface for code that operates on a {@link ClientHttpRequest}.
@@ -34,19 +34,20 @@ import java.lang.reflect.Type;
  * </ul>
  *
  * @author Arjen Poutsma
- * @since 3.0
  * @see RestTemplate#execute
+ * @since 3.0
  */
 @FunctionalInterface
 public interface RequestCallback {
 
-	/**
-	 * Gets called by {@link RestTemplate#execute} with an opened {@code ClientHttpRequest}.
-	 * Does not need to care about closing the request or about handling errors:
-	 * this will all be handled by the {@code RestTemplate}.
-	 * @param request the active HTTP request
-	 * @throws IOException in case of I/O errors
-	 */
-	void doWithRequest(ClientHttpRequest request) throws IOException;
+  /**
+   * Gets called by {@link RestTemplate#execute} with an opened {@code ClientHttpRequest}.
+   * Does not need to care about closing the request or about handling errors:
+   * this will all be handled by the {@code RestTemplate}.
+   *
+   * @param request the active HTTP request
+   * @throws IOException in case of I/O errors
+   */
+  void doWithRequest(ClientHttpRequest request) throws IOException;
 
 }

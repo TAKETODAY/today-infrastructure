@@ -16,11 +16,11 @@
 
 package cn.taketoday.web.client;
 
-import cn.taketoday.web.http.client.ClientHttpResponse;
-import cn.taketoday.lang.Nullable;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.http.client.ClientHttpResponse;
 
 /**
  * Generic callback interface used by {@link RestTemplate}'s retrieval methods.
@@ -32,21 +32,22 @@ import java.lang.reflect.Type;
  * application code. There is one available factory method, see
  * {@link RestTemplate#responseEntityExtractor(Type)}.
  *
- * @author Arjen Poutsma
- * @since 3.0
  * @param <T> the data type
+ * @author Arjen Poutsma
  * @see RestTemplate#execute
+ * @since 3.0
  */
 @FunctionalInterface
 public interface ResponseExtractor<T> {
 
-	/**
-	 * Extract data from the given {@code ClientHttpResponse} and return it.
-	 * @param response the HTTP response
-	 * @return the extracted data
-	 * @throws IOException in case of I/O errors
-	 */
-	@Nullable
-	T extractData(ClientHttpResponse response) throws IOException;
+  /**
+   * Extract data from the given {@code ClientHttpResponse} and return it.
+   *
+   * @param response the HTTP response
+   * @return the extracted data
+   * @throws IOException in case of I/O errors
+   */
+  @Nullable
+  T extractData(ClientHttpResponse response) throws IOException;
 
 }

@@ -19,9 +19,11 @@
  */
 package cn.taketoday.util;
 
+import org.apache.commons.logging.Log;
+
 import java.util.function.Function;
 
-import cn.taketoday.logging.Logger;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Utility methods for formatting and logging messages.
@@ -36,31 +38,48 @@ import cn.taketoday.logging.Logger;
 public abstract class LogFormatUtils {
 
   /**
-   * Format the given value via {@code toString()}, quoting it if it is a
-   * {@link CharSequence}, and possibly truncating at 100 if limitLength is
-   * set to true.
+   * Variant of {@link #formatValue(Object, int, boolean)} and a convenience
+   * method that truncates at 100 characters when {@code limitLength} is set.
    *
    * @param value the value to format
-   * @param limitLength whether to truncate large formatted values (over 100)
+   * @param limitLength whether to truncate the value at a length of 100
    * @return the formatted value
    */
-  public static String formatValue(Object value, boolean limitLength) {
+  public static String formatValue(@Nullable Object value, boolean limitLength) {
+    return formatValue(value, (limitLength ? 100 : -1), limitLength);
+  }
+
+  /**
+   * Format the given value via {@code toString()}, quoting it if it is a
+   * {@link CharSequence}, truncating at the specified {@code maxLength}, and
+   * compacting it into a single line when {@code replaceNewLines} is set.
+   *
+   * @param value the value to be formatted
+   * @param maxLength the max length, after which to truncate, or -1 for unlimited
+   * @param replaceNewlines whether to replace newline characters with placeholders
+   * @return the formatted value
+   */
+  public static String formatValue(@Nullable Object value, int maxLength, boolean replaceNewlines) {
     if (value == null) {
       return "";
     }
-    String str;
+    String result;
+    try {
+      result = value.toString();
+    }
+    catch (Throwable ex) {
+      result = ex.toString();
+    }
+    if (maxLength != -1) {
+      result = (result.length() > maxLength ? result.substring(0, maxLength) + " (truncated)..." : result);
+    }
+    if (replaceNewlines) {
+      result = result.replace("\n", "<LF>").replace("\r", "<CR>");
+    }
     if (value instanceof CharSequence) {
-      str = "\"" + value + "\"";
+      result = "\"" + result + "\"";
     }
-    else {
-      try {
-        str = value.toString();
-      }
-      catch (Throwable ex) {
-        str = ex.toString();
-      }
-    }
-    return (limitLength && str.length() > 100 ? str.substring(0, 100) + " (truncated)..." : str);
+    return result;
   }
 
   /**
@@ -80,9 +99,9 @@ public abstract class LogFormatUtils {
    *
    * @param logger the logger to use to log the message
    * @param messageFactory function that accepts a boolean set to the value
-   * of {@link Logger#isTraceEnabled()}
+   * of {@link Log#isTraceEnabled()}
    */
-  public static void traceDebug(Logger logger, Function<Boolean, String> messageFactory) {
+  public static void traceDebug(Log logger, Function<Boolean, String> messageFactory) {
     if (logger.isDebugEnabled()) {
       boolean traceEnabled = logger.isTraceEnabled();
       String logMessage = messageFactory.apply(traceEnabled);

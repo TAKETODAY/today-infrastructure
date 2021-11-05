@@ -20,13 +20,13 @@
 
 package cn.taketoday.web.client;
 
+import java.io.Serial;
+import java.nio.charset.Charset;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
-
-import java.io.Serial;
-import java.nio.charset.Charset;
 
 /**
  * Abstract base class for exceptions based on an {@link HttpStatus}.
@@ -41,7 +41,6 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
   private static final long serialVersionUID = 5696801857651587810L;
 
   private final HttpStatus statusCode;
-
 
   /**
    * Construct a new instance with an {@link HttpStatus}.
@@ -92,7 +91,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
           @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
     this(getMessage(statusCode, statusText),
-            statusCode, statusText, responseHeaders, responseBody, responseCharset);
+         statusCode, statusText, responseHeaders, responseBody, responseCharset);
   }
 
   /**
