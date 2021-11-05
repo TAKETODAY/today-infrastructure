@@ -356,6 +356,34 @@
       <scope>provided</scope>
     </dependency>
 
+    <!--
+        ======================================================
+             reactive
+        ======================================================
+    -->
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.4.11</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.projectreactor.tools</groupId>
+      <artifactId>blockhound</artifactId>
+      <version>1.0.6.RELEASE</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.reactivex.rxjava3</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>3.1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>mutiny</artifactId>
+      <version>1.1.2</version>
+    </dependency>
 
     <!--
         ======================================================

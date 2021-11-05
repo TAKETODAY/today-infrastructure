@@ -19,13 +19,19 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.GenericTypeResolver;
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -54,14 +60,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-
-import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-0? ?
@@ -105,6 +103,12 @@ public abstract class ClassUtils {
    */
   private static final HashMap<String, Class<?>> commonClassCache = new HashMap<>(64);
 
+	/**
+	 * Common Java language interfaces which are supposed to be ignored
+	 * when searching for 'primary' user-level interfaces.
+	 */
+  private static final HashSet<Class<?>> javaLanguageInterfaces = new HashSet<>();
+
   static {
     primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
     primitiveWrapperTypeMap.put(Byte.class, byte.class);
@@ -144,6 +148,8 @@ public abstract class ClassUtils {
             AutoCloseable.class, Cloneable.class, Comparable.class
     };
     registerCommonClasses(javaLanguageInterfaceArray);
+
+    Collections.addAll(javaLanguageInterfaces, javaLanguageInterfaceArray);
 
     // Map primitive types
     // -------------------------------------------
@@ -451,6 +457,20 @@ public abstract class ClassUtils {
 
   public static String getClassName(InputStream inputStream) throws IOException {
     return getClassName(new ClassReader(inputStream));
+  }
+
+  /**
+   * Determine whether the given interface is a common Java language interface:
+   * {@link Serializable}, {@link Externalizable}, {@link Closeable}, {@link AutoCloseable},
+   * {@link Cloneable}, {@link Comparable} - all of which can be ignored when looking
+   * for 'primary' user-level interfaces. Common characteristics: no service-level
+   * operations, no bean property methods, no default methods.
+   *
+   * @param ifc the interface to check
+   * @since 4.0
+   */
+  public static boolean isJavaLanguageInterface(Class<?> ifc) {
+    return javaLanguageInterfaces.contains(ifc);
   }
 
   /**
