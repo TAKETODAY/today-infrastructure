@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.io.buffer;
 
-import org.springframework.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
+import cn.taketoday.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
 
 import java.io.InputStream;
 import java.io.OutputStream;

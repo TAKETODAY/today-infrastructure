@@ -19,6 +19,9 @@
  */
 package cn.taketoday.core;
 
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.CollectionUtils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,11 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.IntFunction;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.CollectionUtils;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
@@ -154,38 +152,6 @@ public class DefaultMultiValueMap<K, V>
   @Override
   public void setAll(Map<K, V> values) {
     values.forEach(this::set);
-  }
-
-  @Override
-  public Map<K, V> toSingleValueMap() {
-    HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(map.size());
-    for (Entry<K, List<V>> entry : map.entrySet()) {
-      List<V> values = entry.getValue();
-      if (CollectionUtils.isNotEmpty(values)) {
-        singleValueMap.put(entry.getKey(), values.get(0));
-      }
-    }
-    return singleValueMap;
-  }
-
-  @Override
-  public Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
-    HashMap<K, V[]> singleValueMap = CollectionUtils.newHashMap(map.size());
-    copyToArrayMap(singleValueMap, function);
-    return singleValueMap;
-  }
-
-  @Override
-  public void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> mappingFunction) {
-    Assert.notNull(newMap, "newMap must not be null");
-    Assert.notNull(mappingFunction, "mappingFunction must not be null");
-    for (Entry<K, List<V>> entry : map.entrySet()) {
-      List<V> values = entry.getValue();
-      if (CollectionUtils.isNotEmpty(values)) {
-        V[] toArray = values.toArray(mappingFunction.apply(values.size()));
-        newMap.put(entry.getKey(), toArray);
-      }
-    }
   }
 
   /**

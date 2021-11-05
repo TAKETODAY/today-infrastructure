@@ -20,13 +20,14 @@
   <properties>
     <skipTests>true</skipTests>
     <netty.version>4.1.63.Final</netty.version>
-    <jetty.version>9.4.34.v20201102</jetty.version>
+    <!--    <jetty.version>9.4.34.v20201102</jetty.version>-->
+    <jetty.version>11.0.7</jetty.version>
     <undertow.version>2.2.8.Final</undertow.version>
     <embed.tomcat.version>9.0.43</embed.tomcat.version>
 
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
 
     <commons-dbutils.version>1.5</commons-dbutils.version>
     <embedded-db-junit.version>1.0.0</embedded-db-junit.version>
@@ -365,24 +366,83 @@
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
       <version>3.4.11</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.projectreactor.tools</groupId>
       <artifactId>blockhound</artifactId>
       <version>1.0.6.RELEASE</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.reactivex.rxjava3</groupId>
       <artifactId>rxjava</artifactId>
       <version>3.1.2</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>mutiny</artifactId>
       <version>1.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+        ======================================================
+             http-client
+        ======================================================
+    -->
+
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>4.9.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.13</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
+      <version>5.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5-reactive</artifactId>
+      <version>5.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>5.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-http</artifactId>
+      <version>${jetty.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.projectreactor.netty</groupId>
+      <artifactId>reactor-netty-http</artifactId>
+      <version>1.0.12</version>
+      <scope>provided</scope>
     </dependency>
 
     <!--
@@ -561,6 +621,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
+      <version>3.4.11</version>
+      <scope>test</scope>
+    </dependency>
 
     <!-- JMH-->
     <dependency>
@@ -599,8 +665,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <source>8</source>
-          <target>8</target>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
@@ -680,8 +744,6 @@
     <profile>
       <id>docs</id>
       <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       </properties>
 
@@ -789,8 +851,6 @@
     <profile>
       <id>ci</id>
       <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       </properties>
 

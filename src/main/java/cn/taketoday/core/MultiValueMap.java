@@ -19,7 +19,11 @@
  */
 package cn.taketoday.core;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
+
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
@@ -120,16 +124,39 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @return a single value representation of this map
    */
-  Map<K, V> toSingleValueMap();
+  default Map<K, V> toSingleValueMap() {
+    HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(size());
+    for (Entry<K, List<V>> entry : entrySet()) {
+      List<V> values = entry.getValue();
+      if (CollectionUtils.isNotEmpty(values)) {
+        singleValueMap.put(entry.getKey(), values.get(0));
+      }
+    }
+    return singleValueMap;
+  }
 
   /**
    * @since 3.0
    */
-  Map<K, V[]> toArrayMap(IntFunction<V[]> mappingFunction);
+  default Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
+    HashMap<K, V[]> singleValueMap = CollectionUtils.newHashMap(size());
+    copyToArrayMap(singleValueMap, function);
+    return singleValueMap;
+  }
 
   /**
    * @since 3.0
    */
-  void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> function);
+  default void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> mappingFunction) {
+    Assert.notNull(newMap, "newMap must not be null");
+    Assert.notNull(mappingFunction, "mappingFunction must not be null");
+    for (Entry<K, List<V>> entry : entrySet()) {
+      List<V> values = entry.getValue();
+      if (CollectionUtils.isNotEmpty(values)) {
+        V[] toArray = values.toArray(mappingFunction.apply(values.size()));
+        newMap.put(entry.getKey(), toArray);
+      }
+    }
+  }
 
 }
