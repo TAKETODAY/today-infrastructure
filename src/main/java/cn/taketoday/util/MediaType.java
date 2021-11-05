@@ -142,6 +142,16 @@ public class MediaType extends MimeType implements Serializable {
   /** A String equivalent of {@link MediaType#APPLICATION_RSS_XML}. */
   public static final String APPLICATION_RSS_XML_VALUE = "application/rss+xml";
 
+  /**
+   * Public constant media type for {@code application/x-ndjson}.
+   */
+  public static final MediaType APPLICATION_NDJSON;
+
+  /**
+   * A String equivalent of {@link MediaType#APPLICATION_NDJSON}.
+   */
+  public static final String APPLICATION_NDJSON_VALUE = "application/x-ndjson";
+
   /** Public constant media type for {@code application/stream+json}. */
   public static final MediaType APPLICATION_STREAM_JSON;
 
@@ -258,6 +268,7 @@ public class MediaType extends MimeType implements Serializable {
     APPLICATION_CBOR = new MediaType("application", "cbor");
     TEXT_EVENT_STREAM = new MediaType("text", "event-stream");
     MULTIPART_RELATED = new MediaType("multipart", "related");
+    APPLICATION_NDJSON = new MediaType("application", "x-ndjson");
     MULTIPART_FORM_DATA = new MediaType("multipart", "form-data");
     APPLICATION_RSS_XML = new MediaType("application", "rss+xml");
     APPLICATION_ATOM_XML = new MediaType("application", "atom+xml");
