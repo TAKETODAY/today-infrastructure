@@ -40,7 +40,7 @@ package cn.taketoday.core.env;
  * @see Environment
  * @see ConfigurableEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment()
- * @since 3.1
+ * @since 4.0
  */
 public interface EnvironmentCapable {
 

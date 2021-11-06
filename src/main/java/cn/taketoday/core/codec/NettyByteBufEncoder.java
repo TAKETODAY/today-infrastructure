@@ -53,21 +53,20 @@ public class NettyByteBufEncoder extends AbstractEncoder<ByteBuf> {
   }
 
   @Override
-  public Flux<DataBuffer> encode(Publisher<? extends ByteBuf> inputStream,
-                                 DataBufferFactory bufferFactory, ResolvableType elementType, @Nullable MimeType mimeType,
-                                 @Nullable Map<String, Object> hints) {
+  public Flux<DataBuffer> encode(
+          Publisher<? extends ByteBuf> inputStream, DataBufferFactory bufferFactory,
+          ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    return Flux.from(inputStream).map(byteBuffer ->
-                                              encodeValue(byteBuffer, bufferFactory, elementType, mimeType, hints));
+    return Flux.from(inputStream)
+            .map(byteBuffer -> encodeValue(byteBuffer, bufferFactory, elementType, mimeType, hints));
   }
 
   @Override
-  public DataBuffer encodeValue(ByteBuf byteBuf, DataBufferFactory bufferFactory,
-                                ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
+  public DataBuffer encodeValue(
+          ByteBuf byteBuf, DataBufferFactory bufferFactory,
+          ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
-      String logPrefix = Hints.getLogPrefix(hints);
-      logger.debug(logPrefix + "Writing " + byteBuf.readableBytes() + " bytes");
+      logger.debug("{}Writing {} bytes", Hints.getLogPrefix(hints), byteBuf.readableBytes());
     }
     if (bufferFactory instanceof NettyDataBufferFactory) {
       return ((NettyDataBufferFactory) bufferFactory).wrap(byteBuf);

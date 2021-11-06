@@ -35,7 +35,7 @@ import cn.taketoday.web.http.HttpRequest;
  * {@link #intercept(HttpRequest, byte[], ClientHttpRequestExecution)}.
  *
  * @author Arjen Poutsma
- * @since 3.1
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ClientHttpRequestInterceptor {

@@ -31,7 +31,7 @@ import cn.taketoday.web.http.HttpRequest;
  *
  * @author Arjen Poutsma
  * @see ClientHttpRequestInterceptor
- * @since 3.1
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ClientHttpRequestExecution {

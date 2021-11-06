@@ -59,7 +59,7 @@ import joptsimple.OptionSpec;
  * @see CommandLinePropertySource
  * @see joptsimple.OptionParser
  * @see joptsimple.OptionSet
- * @since 3.1
+ * @since 4.0
  */
 public class JOptCommandLinePropertySource extends CommandLinePropertySource<OptionSet> {
 

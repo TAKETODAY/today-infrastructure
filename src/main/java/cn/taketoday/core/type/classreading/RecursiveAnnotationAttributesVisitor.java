@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @since 3.1.1
+ * @since 4.0
  * @deprecated this class and related classes in this
  * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
  * and related classes for internal use within the framework.

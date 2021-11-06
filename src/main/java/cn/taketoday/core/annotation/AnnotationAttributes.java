@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @see AnnotationUtils#getAnnotationAttributes
  * @see AnnotatedElementUtils
- * @since 3.1.1
+ * @since 4.01
  */
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {

@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -76,7 +75,7 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
 
   private Charset defaultCharset = DEFAULT_CHARSET;
 
-  private final ConcurrentMap<Charset, byte[][]> delimitersCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Charset, byte[][]> delimitersCache = new ConcurrentHashMap<>();
 
   private StringDecoder(List<String> delimiters, boolean stripDelimiter, MimeType... mimeTypes) {
     super(mimeTypes);
@@ -90,7 +89,6 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
    * <p>By default this is {@code UTF-8}.
    *
    * @param defaultCharset the charset to fall back on
-   * @since 4.0
    */
   public void setDefaultCharset(Charset defaultCharset) {
     this.defaultCharset = defaultCharset;
@@ -98,8 +96,6 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
 
   /**
    * Return the configured {@link #setDefaultCharset(Charset) defaultCharset}.
-   *
-   * @since 4.0
    */
   public Charset getDefaultCharset() {
     return this.defaultCharset;
@@ -107,12 +103,13 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return (elementType.resolve() == String.class && super.canDecode(elementType, mimeType));
+    return elementType.resolve() == String.class && super.canDecode(elementType, mimeType);
   }
 
   @Override
-  public Flux<String> decode(Publisher<DataBuffer> input, ResolvableType elementType,
-                             @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public Flux<String> decode(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     byte[][] delimiterBytes = getDelimiterBytes(mimeType);
 
@@ -242,8 +239,8 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
    * input strings
    */
   public static StringDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
-    return new StringDecoder(delimiters, stripDelimiter,
-                             new MimeType("text", "plain", DEFAULT_CHARSET), MimeTypeUtils.ALL);
+    return new StringDecoder(
+            delimiters, stripDelimiter, new MimeType("text", "plain", DEFAULT_CHARSET), MimeTypeUtils.ALL);
   }
 
 }

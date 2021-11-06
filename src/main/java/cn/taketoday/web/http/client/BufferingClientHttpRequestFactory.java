@@ -33,7 +33,7 @@ import cn.taketoday.web.http.HttpMethod;
  * {@linkplain ClientHttpResponse#getBody() response body}.
  *
  * @author Arjen Poutsma
- * @since 3.1
+ * @since 4.0
  */
 public class BufferingClientHttpRequestFactory extends AbstractClientHttpRequestFactoryWrapper {
 

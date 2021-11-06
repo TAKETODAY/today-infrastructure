@@ -79,9 +79,9 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
   }
 
   @Override
-  public Flux<DataBuffer> encode(Publisher<? extends ResourceRegion> input,
-                                 DataBufferFactory bufferFactory, ResolvableType elementType, @Nullable MimeType mimeType,
-                                 @Nullable Map<String, Object> hints) {
+  public Flux<DataBuffer> encode(
+          Publisher<? extends ResourceRegion> input, DataBufferFactory bufferFactory,
+          ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Assert.notNull(input, "'inputStream' must not be null");
     Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
@@ -128,8 +128,8 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
     long count = region.getCount();
 
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
-      logger.debug(Hints.getLogPrefix(hints) +
-                           "Writing region " + position + "-" + (position + count) + " of [" + resource + "]");
+      logger.debug("{}Writing region {}-{} of [{}]",
+                   Hints.getLogPrefix(hints), position, (position + count), resource);
     }
 
     Flux<DataBuffer> in = DataBufferUtils.read(resource, position, bufferFactory, this.bufferSize);

@@ -47,7 +47,7 @@ import cn.taketoday.util.MediaType;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
- * @since 3.1.2
+ * @since 4.0.2
  */
 public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMessageConverter {
 

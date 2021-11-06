@@ -72,8 +72,7 @@ public class ResourceEncoder extends AbstractSingleValueEncoder<Resource> {
           ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
-      String logPrefix = Hints.getLogPrefix(hints);
-      logger.debug("{}Writing [{}]", resource, logPrefix);
+      logger.debug("{}Writing [{}]", Hints.getLogPrefix(hints), resource);
     }
     return DataBufferUtils.read(resource, bufferFactory, this.bufferSize);
   }

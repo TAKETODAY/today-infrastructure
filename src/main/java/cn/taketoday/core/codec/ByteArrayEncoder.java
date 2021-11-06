@@ -67,8 +67,7 @@ public class ByteArrayEncoder extends AbstractEncoder<byte[]> {
 
     DataBuffer dataBuffer = bufferFactory.wrap(bytes);
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
-      String logPrefix = Hints.getLogPrefix(hints);
-      logger.debug("{}Writing {} bytes", logPrefix, dataBuffer.readableByteCount());
+      logger.debug("{}Writing {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableByteCount());
     }
     return dataBuffer;
   }

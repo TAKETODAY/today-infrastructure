@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  * @see AbstractClassMetadataMemberClassTests
  */
 class ClassMetadataReadingVisitorMemberClassTests extends AbstractClassMetadataMemberClassTests {

@@ -7,4 +7,5 @@
 @NonNullFields
 package cn.taketoday.core.codec;
 
+import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.NonNullFields;

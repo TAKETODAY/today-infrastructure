@@ -34,7 +34,7 @@ import cn.taketoday.web.http.HttpStatus;
  * into memory, thus allowing for multiple invocations of {@link #getBody()}.
  *
  * @author Arjen Poutsma
- * @since 3.1
+ * @since 4.0
  */
 final class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
 

@@ -46,8 +46,8 @@ public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return (ByteBuf.class.isAssignableFrom(elementType.toClass()) &&
-            super.canDecode(elementType, mimeType));
+    return ByteBuf.class.isAssignableFrom(elementType.toClass())
+            && super.canDecode(elementType, mimeType);
   }
 
   @Override
@@ -55,7 +55,7 @@ public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
                         @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + dataBuffer.readableByteCount() + " bytes");
+      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableByteCount());
     }
     if (dataBuffer instanceof NettyDataBuffer) {
       return ((NettyDataBuffer) dataBuffer).getNativeBuffer();

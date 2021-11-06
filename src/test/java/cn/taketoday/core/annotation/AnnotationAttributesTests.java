@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Chris Beams
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @since 3.1.1
+ * @since 4.0
  */
 class AnnotationAttributesTests {
 

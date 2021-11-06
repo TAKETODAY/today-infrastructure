@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Unit tests covering the extensibility of {@link AbstractEnvironment}.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 class CustomEnvironmentTests {
 

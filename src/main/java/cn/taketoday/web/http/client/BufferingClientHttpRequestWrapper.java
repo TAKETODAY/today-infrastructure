@@ -32,7 +32,7 @@ import cn.taketoday.web.http.HttpMethod;
  * Simple implementation of {@link ClientHttpRequest} that wraps another request.
  *
  * @author Arjen Poutsma
- * @since 3.1
+ * @since 4.0
  */
 final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHttpRequest {
 

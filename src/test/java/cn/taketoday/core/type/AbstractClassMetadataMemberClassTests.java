@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link ClassMetadata#getMemberClassNames()}.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public abstract class AbstractClassMetadataMemberClassTests {
 

@@ -60,7 +60,7 @@ public class ByteBufferDecoder extends AbstractDataBufferDecoder<ByteBuffer> {
     copy.flip();
     DataBufferUtils.release(dataBuffer);
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + byteCount + " bytes");
+      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), byteCount);
     }
     return copy;
   }

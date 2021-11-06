@@ -99,9 +99,8 @@ public interface Decoder<T> {
    * @return the decoded value, possibly {@code null}
    */
   @Nullable
-  default T decode(
-          DataBuffer buffer, ResolvableType targetType,
-          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
+  default T decode(DataBuffer buffer, ResolvableType targetType,
+                   @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
 
     CompletableFuture<T> future = decodeToMono(Mono.just(buffer), targetType, mimeType, hints).toFuture();
     Assert.state(future.isDone(), "DataBuffer decoding should have completed.");
@@ -116,8 +115,8 @@ public interface Decoder<T> {
     catch (InterruptedException ex) {
       failure = ex;
     }
-    throw (failure instanceof CodecException ? (CodecException) failure :
-           new DecodingException("Failed to decode: " + failure.getMessage(), failure));
+    throw failure instanceof CodecException ? (CodecException) failure :
+           new DecodingException("Failed to decode: " + failure.getMessage(), failure);
   }
 
   /**
