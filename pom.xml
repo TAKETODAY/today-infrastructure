@@ -303,6 +303,12 @@
       <artifactId>undertow-jakartaee9</artifactId>
       <version>${undertow.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>io.undertow</groupId>
+          <artifactId>undertow-examples</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
