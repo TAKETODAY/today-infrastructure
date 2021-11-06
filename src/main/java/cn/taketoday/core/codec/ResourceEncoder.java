@@ -62,16 +62,18 @@ public class ResourceEncoder extends AbstractSingleValueEncoder<Resource> {
   @Override
   public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
     Class<?> clazz = elementType.toClass();
-    return (super.canEncode(elementType, mimeType) && Resource.class.isAssignableFrom(clazz));
+    return super.canEncode(elementType, mimeType)
+            && Resource.class.isAssignableFrom(clazz);
   }
 
   @Override
-  protected Flux<DataBuffer> encode(Resource resource, DataBufferFactory bufferFactory,
-                                    ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  protected Flux<DataBuffer> encode(
+          Resource resource, DataBufferFactory bufferFactory,
+          ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
       String logPrefix = Hints.getLogPrefix(hints);
-      logger.debug(logPrefix + "Writing [" + resource + "]");
+      logger.debug("{}Writing [{}]", resource, logPrefix);
     }
     return DataBufferUtils.read(resource, bufferFactory, this.bufferSize);
   }
