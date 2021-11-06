@@ -20,6 +20,7 @@
 
 package cn.taketoday.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
@@ -303,8 +304,7 @@ public class ResolvableType implements Serializable {
     boolean exactMatch = (matchedBefore != null);  // We're checking nested generic variables now...
     boolean checkGenerics = true;
     Class<?> ourResolved = null;
-    if (this.type instanceof TypeVariable) {
-      TypeVariable<?> variable = (TypeVariable<?>) this.type;
+    if (this.type instanceof TypeVariable<?> variable) {
       // Try default variable resolution
       if (this.variableResolver != null) {
         ResolvableType resolved = this.variableResolver.resolveVariable(variable);
@@ -573,11 +573,10 @@ public class ResolvableType implements Serializable {
    * cannot be resolved through the associated variable resolver.
    */
   private boolean isUnresolvableTypeVariable() {
-    if (this.type instanceof TypeVariable) {
+    if (this.type instanceof TypeVariable<?> variable) {
       if (this.variableResolver == null) {
         return true;
       }
-      TypeVariable<?> variable = (TypeVariable<?>) this.type;
       ResolvableType resolved = this.variableResolver.resolveVariable(variable);
       return resolved == null || resolved.isUnresolvableTypeVariable();
     }
@@ -589,8 +588,7 @@ public class ResolvableType implements Serializable {
    * without specific bounds (i.e., equal to {@code ? extends Object}).
    */
   private boolean isWildcardWithoutBounds() {
-    if (this.type instanceof WildcardType) {
-      WildcardType wt = (WildcardType) this.type;
+    if (this.type instanceof WildcardType wt) {
       if (wt.getLowerBounds().length == 0) {
         Type[] upperBounds = wt.getUpperBounds();
         return upperBounds.length == 0 || (upperBounds.length == 1 && Object.class == upperBounds[0]);
@@ -878,9 +876,8 @@ public class ResolvableType implements Serializable {
       }
       return valueOf(resolved, variableResolver);
     }
-    if (type instanceof TypeVariable) {
+    if (type instanceof TypeVariable<?> variable) {
       VariableResolver variableResolver = this.variableResolver;
-      TypeVariable<?> variable = (TypeVariable<?>) type;
       // Try default variable resolution
       if (variableResolver != null) {
         ResolvableType resolved = variableResolver.resolveVariable(variable);
@@ -906,8 +903,7 @@ public class ResolvableType implements Serializable {
     if (type instanceof TypeVariable) {
       return resolveType(type).resolveVariable(variable);
     }
-    if (type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) type;
+    if (type instanceof ParameterizedType parameterizedType) {
       Class<?> resolved = resolve();
       if (resolved == null) {
         return null;
@@ -941,11 +937,10 @@ public class ResolvableType implements Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ResolvableType)) {
+    if (!(other instanceof ResolvableType otherType)) {
       return false;
     }
 
-    ResolvableType otherType = (ResolvableType) other;
     if (!Objects.equals(this.type, otherType.type)) {
       return false;
     }
@@ -995,6 +990,7 @@ public class ResolvableType implements Serializable {
   /**
    * Custom serialization support for {@link #NONE}.
    */
+  @Serial
   private Object readResolve() {
     return (this.type == EmptyType.INSTANCE ? NONE : this);
   }
@@ -1011,8 +1007,7 @@ public class ResolvableType implements Serializable {
     if (this.resolved == null) {
       return "?";
     }
-    if (this.type instanceof TypeVariable) {
-      TypeVariable<?> variable = (TypeVariable<?>) this.type;
+    if (this.type instanceof TypeVariable<?> variable) {
       if (this.variableResolver == null || this.variableResolver.resolveVariable(variable) == null) {
         // Don't bother with variable boundaries for toString()...
         // Can cause infinite recursions in case of self-references
@@ -1067,7 +1062,8 @@ public class ResolvableType implements Serializable {
     Assert.notNull(method, "Method must not be null");
     Class<?> declaringClass = method.getDeclaringClass();
     ResolvableType owner = implementationClass == null
-                           ? fromType(declaringClass) : fromType(implementationClass).as(declaringClass);
+                           ? fromType(declaringClass)
+                           : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new TypeProvider() {
 
       @Override
@@ -1498,7 +1494,6 @@ public class ResolvableType implements Serializable {
     ResolvableType resolveVariable(TypeVariable<?> variable);
   }
 
-  @SuppressWarnings("serial")
   static class DefaultVariableResolver implements VariableResolver {
     final ResolvableType source;
 
@@ -1517,15 +1512,8 @@ public class ResolvableType implements Serializable {
     }
   }
 
-  @SuppressWarnings("serial")
-  static class TypeVariablesVariableResolver implements VariableResolver {
-    final TypeVariable<?>[] variables;
-    final ResolvableType[] generics;
-
-    public TypeVariablesVariableResolver(TypeVariable<?>[] variables, ResolvableType[] generics) {
-      this.variables = variables;
-      this.generics = generics;
-    }
+  record TypeVariablesVariableResolver(TypeVariable<?>[] variables, ResolvableType[] generics)
+          implements VariableResolver {
 
     @Override
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
@@ -1546,14 +1534,8 @@ public class ResolvableType implements Serializable {
     }
   }
 
-  static final class SyntheticParameterizedType implements ParameterizedType, Serializable {
-    final Type rawType;
-    final Type[] typeArguments;
-
-    public SyntheticParameterizedType(Type rawType, Type[] typeArguments) {
-      this.rawType = rawType;
-      this.typeArguments = typeArguments;
-    }
+  record SyntheticParameterizedType(Type rawType, Type[] typeArguments)
+          implements ParameterizedType, Serializable {
 
     @Override
     public String getTypeName() {
@@ -1588,12 +1570,12 @@ public class ResolvableType implements Serializable {
       if (this == other) {
         return true;
       }
-      if (!(other instanceof ParameterizedType)) {
+      if (!(other instanceof ParameterizedType otherType)) {
         return false;
       }
-      ParameterizedType otherType = (ParameterizedType) other;
-      return (otherType.getOwnerType() == null && this.rawType.equals(otherType.getRawType()) &&
-              Arrays.equals(this.typeArguments, otherType.getActualTypeArguments()));
+      return otherType.getOwnerType() == null
+              && this.rawType.equals(otherType.getRawType())
+              && Arrays.equals(this.typeArguments, otherType.getActualTypeArguments());
     }
 
     @Override
@@ -1610,9 +1592,7 @@ public class ResolvableType implements Serializable {
   /**
    * Internal helper to handle bounds from {@link WildcardType WildcardTypes}.
    */
-  static class WildcardBounds {
-    final Kind kind;
-    final ResolvableType[] bounds;
+  record WildcardBounds(ResolvableType.WildcardBounds.Kind kind, ResolvableType[] bounds) {
 
     /**
      * Internal constructor to create a new {@link WildcardBounds} instance.
@@ -1621,10 +1601,7 @@ public class ResolvableType implements Serializable {
      * @param bounds the bounds
      * @see #get(ResolvableType)
      */
-    public WildcardBounds(Kind kind, ResolvableType[] bounds) {
-      this.kind = kind;
-      this.bounds = bounds;
-    }
+    WildcardBounds { }
 
     /**
      * Return {@code true} if this bounds is the same kind as the specified bounds.
@@ -1695,10 +1672,10 @@ public class ResolvableType implements Serializable {
   /**
    * Internal {@link Type} used to represent an empty value.
    */
-  @SuppressWarnings("serial")
   static class EmptyType implements Type, Serializable {
     static final Type INSTANCE = new EmptyType();
 
+    @Serial
     Object readResolve() {
       return INSTANCE;
     }
