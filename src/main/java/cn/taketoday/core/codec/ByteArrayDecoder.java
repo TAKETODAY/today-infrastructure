@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.codec;
 
+import java.util.Map;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
-
-import java.util.Map;
 
 /**
  * Decoder for {@code byte} arrays.
@@ -38,27 +38,26 @@ import java.util.Map;
  */
 public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
 
-	public ByteArrayDecoder() {
-		super(MimeTypeUtils.ALL);
-	}
+  public ByteArrayDecoder() {
+    super(MimeTypeUtils.ALL);
+  }
 
+  @Override
+  public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+    return (elementType.resolve() == byte[].class && super.canDecode(elementType, mimeType));
+  }
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		return (elementType.resolve() == byte[].class && super.canDecode(elementType, mimeType));
-	}
+  @Override
+  public byte[] decode(DataBuffer dataBuffer, ResolvableType elementType,
+                       @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	@Override
-	public byte[] decode(DataBuffer dataBuffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-		byte[] result = new byte[dataBuffer.readableByteCount()];
-		dataBuffer.read(result);
-		DataBufferUtils.release(dataBuffer);
-		if (logger.isDebugEnabled()) {
-			logger.debug(Hints.getLogPrefix(hints) + "Read " + result.length + " bytes");
-		}
-		return result;
-	}
+    byte[] result = new byte[dataBuffer.readableByteCount()];
+    dataBuffer.read(result);
+    DataBufferUtils.release(dataBuffer);
+    if (logger.isDebugEnabled()) {
+      logger.debug(Hints.getLogPrefix(hints) + "Read " + result.length + " bytes");
+    }
+    return result;
+  }
 
 }

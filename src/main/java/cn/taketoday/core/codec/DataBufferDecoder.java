@@ -21,14 +21,14 @@
 package cn.taketoday.core.codec;
 
 import org.reactivestreams.Publisher;
+
+import java.util.Map;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
-
-import java.util.Map;
-
 import reactor.core.publisher.Flux;
 
 /**
@@ -49,32 +49,31 @@ import reactor.core.publisher.Flux;
  */
 public class DataBufferDecoder extends AbstractDataBufferDecoder<DataBuffer> {
 
-	public DataBufferDecoder() {
-		super(MimeTypeUtils.ALL);
-	}
+  public DataBufferDecoder() {
+    super(MimeTypeUtils.ALL);
+  }
 
+  @Override
+  public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+    return (DataBuffer.class.isAssignableFrom(elementType.toClass()) &&
+            super.canDecode(elementType, mimeType));
+  }
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		return (DataBuffer.class.isAssignableFrom(elementType.toClass()) &&
-				super.canDecode(elementType, mimeType));
-	}
+  @Override
+  public Flux<DataBuffer> decode(Publisher<DataBuffer> input, ResolvableType elementType,
+                                 @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	@Override
-	public Flux<DataBuffer> decode(Publisher<DataBuffer> input, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    return Flux.from(input);
+  }
 
-		return Flux.from(input);
-	}
+  @Override
+  public DataBuffer decode(DataBuffer buffer, ResolvableType elementType,
+                           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	@Override
-	public DataBuffer decode(DataBuffer buffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug(Hints.getLogPrefix(hints) + "Read " + buffer.readableByteCount() + " bytes");
-		}
-		return buffer;
-	}
+    if (logger.isDebugEnabled()) {
+      logger.debug(Hints.getLogPrefix(hints) + "Read " + buffer.readableByteCount() + " bytes");
+    }
+    return buffer;
+  }
 
 }

@@ -21,16 +21,16 @@
 package cn.taketoday.core.codec;
 
 import org.reactivestreams.Publisher;
+
+import java.nio.ByteBuffer;
+import java.util.Map;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
-
-import java.nio.ByteBuffer;
-import java.util.Map;
-
 import reactor.core.publisher.Flux;
 
 /**
@@ -41,36 +41,35 @@ import reactor.core.publisher.Flux;
  */
 public class ByteBufferEncoder extends AbstractEncoder<ByteBuffer> {
 
-	public ByteBufferEncoder() {
-		super(MimeTypeUtils.ALL);
-	}
+  public ByteBufferEncoder() {
+    super(MimeTypeUtils.ALL);
+  }
 
+  @Override
+  public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
+    Class<?> clazz = elementType.toClass();
+    return super.canEncode(elementType, mimeType) && ByteBuffer.class.isAssignableFrom(clazz);
+  }
 
-	@Override
-	public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		Class<?> clazz = elementType.toClass();
-		return super.canEncode(elementType, mimeType) && ByteBuffer.class.isAssignableFrom(clazz);
-	}
+  @Override
+  public Flux<DataBuffer> encode(Publisher<? extends ByteBuffer> inputStream,
+                                 DataBufferFactory bufferFactory, ResolvableType elementType, @Nullable MimeType mimeType,
+                                 @Nullable Map<String, Object> hints) {
 
-	@Override
-	public Flux<DataBuffer> encode(Publisher<? extends ByteBuffer> inputStream,
-			DataBufferFactory bufferFactory, ResolvableType elementType, @Nullable MimeType mimeType,
-			@Nullable Map<String, Object> hints) {
+    return Flux.from(inputStream).map(byteBuffer ->
+                                              encodeValue(byteBuffer, bufferFactory, elementType, mimeType, hints));
+  }
 
-		return Flux.from(inputStream).map(byteBuffer ->
-				encodeValue(byteBuffer, bufferFactory, elementType, mimeType, hints));
-	}
+  @Override
+  public DataBuffer encodeValue(ByteBuffer byteBuffer, DataBufferFactory bufferFactory,
+                                ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	@Override
-	public DataBuffer encodeValue(ByteBuffer byteBuffer, DataBufferFactory bufferFactory,
-			ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-		DataBuffer dataBuffer = bufferFactory.wrap(byteBuffer);
-		if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
-			String logPrefix = Hints.getLogPrefix(hints);
-			logger.debug(logPrefix + "Writing " + dataBuffer.readableByteCount() + " bytes");
-		}
-		return dataBuffer;
-	}
+    DataBuffer dataBuffer = bufferFactory.wrap(byteBuffer);
+    if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
+      String logPrefix = Hints.getLogPrefix(hints);
+      logger.debug(logPrefix + "Writing " + dataBuffer.readableByteCount() + " bytes");
+    }
+    return dataBuffer;
+  }
 
 }

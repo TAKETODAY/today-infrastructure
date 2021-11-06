@@ -21,6 +21,9 @@
 package cn.taketoday.core.codec;
 
 import org.reactivestreams.Publisher;
+
+import java.util.Map;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
@@ -28,47 +31,43 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-
-import java.util.Map;
-
 import reactor.core.publisher.Flux;
 
 /**
  * Abstract base class for {@link cn.taketoday.core.codec.Encoder}
  * classes that can only deal with a single value.
  *
+ * @param <T> the element type
  * @author Arjen Poutsma
  * @since 4.0
- * @param <T> the element type
  */
 public abstract class AbstractSingleValueEncoder<T> extends AbstractEncoder<T> {
 
+  public AbstractSingleValueEncoder(MimeType... supportedMimeTypes) {
+    super(supportedMimeTypes);
+  }
 
-	public AbstractSingleValueEncoder(MimeType... supportedMimeTypes) {
-		super(supportedMimeTypes);
-	}
+  @Override
+  public final Flux<DataBuffer> encode(Publisher<? extends T> inputStream, DataBufferFactory bufferFactory,
+                                       ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
+    return Flux.from(inputStream)
+            .take(1)
+            .concatMap(value -> encode(value, bufferFactory, elementType, mimeType, hints))
+            .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+  }
 
-	@Override
-	public final Flux<DataBuffer> encode(Publisher<? extends T> inputStream, DataBufferFactory bufferFactory,
-			ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-		return Flux.from(inputStream)
-				.take(1)
-				.concatMap(value -> encode(value, bufferFactory, elementType, mimeType, hints))
-				.doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
-	}
-
-	/**
-	 * Encode {@code T} to an output {@link DataBuffer} stream.
-	 * @param t the value to process
-	 * @param dataBufferFactory a buffer factory used to create the output
-	 * @param type the stream element type to process
-	 * @param mimeType the mime type to process
-	 * @param hints additional information about how to do decode, optional
-	 * @return the output stream
-	 */
-	protected abstract Flux<DataBuffer> encode(T t, DataBufferFactory dataBufferFactory,
-			ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
+  /**
+   * Encode {@code T} to an output {@link DataBuffer} stream.
+   *
+   * @param t the value to process
+   * @param dataBufferFactory a buffer factory used to create the output
+   * @param type the stream element type to process
+   * @param mimeType the mime type to process
+   * @param hints additional information about how to do decode, optional
+   * @return the output stream
+   */
+  protected abstract Flux<DataBuffer> encode(T t, DataBufferFactory dataBufferFactory,
+                                             ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
 
 }

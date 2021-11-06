@@ -20,6 +20,8 @@
 
 package cn.taketoday.core.codec;
 
+import java.util.Map;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
@@ -27,9 +29,6 @@ import cn.taketoday.core.io.buffer.NettyDataBuffer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
-
-import java.util.Map;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -41,33 +40,32 @@ import io.netty.buffer.Unpooled;
  */
 public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
 
-	public NettyByteBufDecoder() {
-		super(MimeTypeUtils.ALL);
-	}
+  public NettyByteBufDecoder() {
+    super(MimeTypeUtils.ALL);
+  }
 
+  @Override
+  public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+    return (ByteBuf.class.isAssignableFrom(elementType.toClass()) &&
+            super.canDecode(elementType, mimeType));
+  }
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		return (ByteBuf.class.isAssignableFrom(elementType.toClass()) &&
-				super.canDecode(elementType, mimeType));
-	}
+  @Override
+  public ByteBuf decode(DataBuffer dataBuffer, ResolvableType elementType,
+                        @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	@Override
-	public ByteBuf decode(DataBuffer dataBuffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug(Hints.getLogPrefix(hints) + "Read " + dataBuffer.readableByteCount() + " bytes");
-		}
-		if (dataBuffer instanceof NettyDataBuffer) {
-			return ((NettyDataBuffer) dataBuffer).getNativeBuffer();
-		}
-		ByteBuf byteBuf;
-		byte[] bytes = new byte[dataBuffer.readableByteCount()];
-		dataBuffer.read(bytes);
-		byteBuf = Unpooled.wrappedBuffer(bytes);
-		DataBufferUtils.release(dataBuffer);
-		return byteBuf;
-	}
+    if (logger.isDebugEnabled()) {
+      logger.debug(Hints.getLogPrefix(hints) + "Read " + dataBuffer.readableByteCount() + " bytes");
+    }
+    if (dataBuffer instanceof NettyDataBuffer) {
+      return ((NettyDataBuffer) dataBuffer).getNativeBuffer();
+    }
+    ByteBuf byteBuf;
+    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+    dataBuffer.read(bytes);
+    byteBuf = Unpooled.wrappedBuffer(bytes);
+    DataBufferUtils.release(dataBuffer);
+    return byteBuf;
+  }
 
 }

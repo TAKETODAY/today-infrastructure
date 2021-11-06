@@ -21,16 +21,6 @@
 package cn.taketoday.core.codec;
 
 import org.reactivestreams.Publisher;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.io.buffer.DataBuffer;
-import cn.taketoday.core.io.buffer.DataBufferUtils;
-import cn.taketoday.core.io.buffer.LimitedDataBufferList;
-import cn.taketoday.core.io.buffer.PooledDataBuffer;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -44,6 +34,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.core.io.buffer.LimitedDataBufferList;
+import cn.taketoday.core.io.buffer.PooledDataBuffer;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.LogFormatUtils;
+import cn.taketoday.util.MimeType;
+import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -59,193 +59,191 @@ import reactor.core.publisher.Mono;
  * @author Brian Clozel
  * @author Arjen Poutsma
  * @author Mark Paluch
- * @since 4.0
  * @see CharSequenceEncoder
+ * @since 4.0
  */
 public final class StringDecoder extends AbstractDataBufferDecoder<String> {
 
-	/** The default charset to use, i.e. "UTF-8". */
-	public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  /** The default charset to use, i.e. "UTF-8". */
+  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-	/** The default delimiter strings to use, i.e. {@code \r\n} and {@code \n}. */
-	public static final List<String> DEFAULT_DELIMITERS = Arrays.asList("\r\n", "\n");
+  /** The default delimiter strings to use, i.e. {@code \r\n} and {@code \n}. */
+  public static final List<String> DEFAULT_DELIMITERS = Arrays.asList("\r\n", "\n");
 
+  private final List<String> delimiters;
 
-	private final List<String> delimiters;
+  private final boolean stripDelimiter;
 
-	private final boolean stripDelimiter;
+  private Charset defaultCharset = DEFAULT_CHARSET;
 
-	private Charset defaultCharset = DEFAULT_CHARSET;
+  private final ConcurrentMap<Charset, byte[][]> delimitersCache = new ConcurrentHashMap<>();
 
-	private final ConcurrentMap<Charset, byte[][]> delimitersCache = new ConcurrentHashMap<>();
+  private StringDecoder(List<String> delimiters, boolean stripDelimiter, MimeType... mimeTypes) {
+    super(mimeTypes);
+    Assert.notEmpty(delimiters, "'delimiters' must not be empty");
+    this.delimiters = new ArrayList<>(delimiters);
+    this.stripDelimiter = stripDelimiter;
+  }
 
+  /**
+   * Set the default character set to fall back on if the MimeType does not specify any.
+   * <p>By default this is {@code UTF-8}.
+   *
+   * @param defaultCharset the charset to fall back on
+   * @since 4.0
+   */
+  public void setDefaultCharset(Charset defaultCharset) {
+    this.defaultCharset = defaultCharset;
+  }
 
-	private StringDecoder(List<String> delimiters, boolean stripDelimiter, MimeType... mimeTypes) {
-		super(mimeTypes);
-		Assert.notEmpty(delimiters, "'delimiters' must not be empty");
-		this.delimiters = new ArrayList<>(delimiters);
-		this.stripDelimiter = stripDelimiter;
-	}
+  /**
+   * Return the configured {@link #setDefaultCharset(Charset) defaultCharset}.
+   *
+   * @since 4.0
+   */
+  public Charset getDefaultCharset() {
+    return this.defaultCharset;
+  }
 
+  @Override
+  public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+    return (elementType.resolve() == String.class && super.canDecode(elementType, mimeType));
+  }
 
-	/**
-	 * Set the default character set to fall back on if the MimeType does not specify any.
-	 * <p>By default this is {@code UTF-8}.
-	 * @param defaultCharset the charset to fall back on
-	 * @since 4.0
-	 */
-	public void setDefaultCharset(Charset defaultCharset) {
-		this.defaultCharset = defaultCharset;
-	}
+  @Override
+  public Flux<String> decode(Publisher<DataBuffer> input, ResolvableType elementType,
+                             @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	/**
-	 * Return the configured {@link #setDefaultCharset(Charset) defaultCharset}.
-	 * @since 4.0
-	 */
-	public Charset getDefaultCharset() {
-		return this.defaultCharset;
-	}
+    byte[][] delimiterBytes = getDelimiterBytes(mimeType);
 
+    LimitedDataBufferList chunks = new LimitedDataBufferList(getMaxInMemorySize());
+    DataBufferUtils.Matcher matcher = DataBufferUtils.matcher(delimiterBytes);
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		return (elementType.resolve() == String.class && super.canDecode(elementType, mimeType));
-	}
+    return Flux.from(input)
+            .concatMapIterable(buffer -> processDataBuffer(buffer, matcher, chunks))
+            .concatWith(Mono.defer(() -> {
+              if (chunks.isEmpty()) {
+                return Mono.empty();
+              }
+              DataBuffer lastBuffer = chunks.get(0).factory().join(chunks);
+              chunks.clear();
+              return Mono.just(lastBuffer);
+            }))
+            .doOnTerminate(chunks::releaseAndClear)
+            .doOnDiscard(PooledDataBuffer.class, PooledDataBuffer::release)
+            .map(buffer -> decode(buffer, elementType, mimeType, hints));
+  }
 
-	@Override
-	public Flux<String> decode(Publisher<DataBuffer> input, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  private byte[][] getDelimiterBytes(@Nullable MimeType mimeType) {
+    return this.delimitersCache.computeIfAbsent(getCharset(mimeType), charset -> {
+      byte[][] result = new byte[this.delimiters.size()][];
+      for (int i = 0; i < this.delimiters.size(); i++) {
+        result[i] = this.delimiters.get(i).getBytes(charset);
+      }
+      return result;
+    });
+  }
 
-		byte[][] delimiterBytes = getDelimiterBytes(mimeType);
+  private Collection<DataBuffer> processDataBuffer(
+          DataBuffer buffer, DataBufferUtils.Matcher matcher, LimitedDataBufferList chunks) {
 
-		LimitedDataBufferList chunks = new LimitedDataBufferList(getMaxInMemorySize());
-		DataBufferUtils.Matcher matcher = DataBufferUtils.matcher(delimiterBytes);
+    try {
+      List<DataBuffer> result = null;
+      do {
+        int endIndex = matcher.match(buffer);
+        if (endIndex == -1) {
+          chunks.add(buffer);
+          DataBufferUtils.retain(buffer); // retain after add (may raise DataBufferLimitException)
+          break;
+        }
+        int startIndex = buffer.readPosition();
+        int length = (endIndex - startIndex + 1);
+        DataBuffer slice = buffer.retainedSlice(startIndex, length);
+        result = (result != null ? result : new ArrayList<>());
+        if (chunks.isEmpty()) {
+          if (this.stripDelimiter) {
+            slice.writePosition(slice.writePosition() - matcher.delimiter().length);
+          }
+          result.add(slice);
+        }
+        else {
+          chunks.add(slice);
+          DataBuffer joined = buffer.factory().join(chunks);
+          if (this.stripDelimiter) {
+            joined.writePosition(joined.writePosition() - matcher.delimiter().length);
+          }
+          result.add(joined);
+          chunks.clear();
+        }
+        buffer.readPosition(endIndex + 1);
+      }
+      while (buffer.readableByteCount() > 0);
+      return (result != null ? result : Collections.emptyList());
+    }
+    finally {
+      DataBufferUtils.release(buffer);
+    }
+  }
 
-		return Flux.from(input)
-				.concatMapIterable(buffer -> processDataBuffer(buffer, matcher, chunks))
-				.concatWith(Mono.defer(() -> {
-					if (chunks.isEmpty()) {
-						return Mono.empty();
-					}
-					DataBuffer lastBuffer = chunks.get(0).factory().join(chunks);
-					chunks.clear();
-					return Mono.just(lastBuffer);
-				}))
-				.doOnTerminate(chunks::releaseAndClear)
-				.doOnDiscard(PooledDataBuffer.class, PooledDataBuffer::release)
-				.map(buffer -> decode(buffer, elementType, mimeType, hints));
-	}
+  @Override
+  public String decode(DataBuffer dataBuffer, ResolvableType elementType,
+                       @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-	private byte[][] getDelimiterBytes(@Nullable MimeType mimeType) {
-		return this.delimitersCache.computeIfAbsent(getCharset(mimeType), charset -> {
-			byte[][] result = new byte[this.delimiters.size()][];
-			for (int i = 0; i < this.delimiters.size(); i++) {
-				result[i] = this.delimiters.get(i).getBytes(charset);
-			}
-			return result;
-		});
-	}
+    Charset charset = getCharset(mimeType);
+    CharBuffer charBuffer = charset.decode(dataBuffer.asByteBuffer());
+    DataBufferUtils.release(dataBuffer);
+    String value = charBuffer.toString();
+    LogFormatUtils.traceDebug(logger, traceOn -> {
+      String formatted = LogFormatUtils.formatValue(value, !traceOn);
+      return Hints.getLogPrefix(hints) + "Decoded " + formatted;
+    });
+    return value;
+  }
 
-	private Collection<DataBuffer> processDataBuffer(
-			DataBuffer buffer, DataBufferUtils.Matcher matcher, LimitedDataBufferList chunks) {
+  private Charset getCharset(@Nullable MimeType mimeType) {
+    if (mimeType != null && mimeType.getCharset() != null) {
+      return mimeType.getCharset();
+    }
+    else {
+      return getDefaultCharset();
+    }
+  }
 
-		try {
-			List<DataBuffer> result = null;
-			do {
-				int endIndex = matcher.match(buffer);
-				if (endIndex == -1) {
-					chunks.add(buffer);
-					DataBufferUtils.retain(buffer); // retain after add (may raise DataBufferLimitException)
-					break;
-				}
-				int startIndex = buffer.readPosition();
-				int length = (endIndex - startIndex + 1);
-				DataBuffer slice = buffer.retainedSlice(startIndex, length);
-				result = (result != null ? result : new ArrayList<>());
-				if (chunks.isEmpty()) {
-					if (this.stripDelimiter) {
-						slice.writePosition(slice.writePosition() - matcher.delimiter().length);
-					}
-					result.add(slice);
-				}
-				else {
-					chunks.add(slice);
-					DataBuffer joined = buffer.factory().join(chunks);
-					if (this.stripDelimiter) {
-						joined.writePosition(joined.writePosition() - matcher.delimiter().length);
-					}
-					result.add(joined);
-					chunks.clear();
-				}
-				buffer.readPosition(endIndex + 1);
-			}
-			while (buffer.readableByteCount() > 0);
-			return (result != null ? result : Collections.emptyList());
-		}
-		finally {
-			DataBufferUtils.release(buffer);
-		}
-	}
+  /**
+   * Create a {@code StringDecoder} for {@code "text/plain"}.
+   */
+  public static StringDecoder textPlainOnly() {
+    return textPlainOnly(DEFAULT_DELIMITERS, true);
+  }
 
-	@Override
-	public String decode(DataBuffer dataBuffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  /**
+   * Create a {@code StringDecoder} for {@code "text/plain"}.
+   *
+   * @param delimiters delimiter strings to use to split the input stream
+   * @param stripDelimiter whether to remove delimiters from the resulting
+   * input strings
+   */
+  public static StringDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
+    return new StringDecoder(delimiters, stripDelimiter, new MimeType("text", "plain", DEFAULT_CHARSET));
+  }
 
-		Charset charset = getCharset(mimeType);
-		CharBuffer charBuffer = charset.decode(dataBuffer.asByteBuffer());
-		DataBufferUtils.release(dataBuffer);
-		String value = charBuffer.toString();
-		LogFormatUtils.traceDebug(logger, traceOn -> {
-			String formatted = LogFormatUtils.formatValue(value, !traceOn);
-			return Hints.getLogPrefix(hints) + "Decoded " + formatted;
-		});
-		return value;
-	}
+  /**
+   * Create a {@code StringDecoder} that supports all MIME types.
+   */
+  public static StringDecoder allMimeTypes() {
+    return allMimeTypes(DEFAULT_DELIMITERS, true);
+  }
 
-	private Charset getCharset(@Nullable MimeType mimeType) {
-		if (mimeType != null && mimeType.getCharset() != null) {
-			return mimeType.getCharset();
-		}
-		else {
-			return getDefaultCharset();
-		}
-	}
-
-
-	/**
-	 * Create a {@code StringDecoder} for {@code "text/plain"}.
-	 */
-	public static StringDecoder textPlainOnly() {
-		return textPlainOnly(DEFAULT_DELIMITERS, true);
-	}
-
-	/**
-	 * Create a {@code StringDecoder} for {@code "text/plain"}.
-	 * @param delimiters delimiter strings to use to split the input stream
-	 * @param stripDelimiter whether to remove delimiters from the resulting
-	 * input strings
-	 */
-	public static StringDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
-		return new StringDecoder(delimiters, stripDelimiter, new MimeType("text", "plain", DEFAULT_CHARSET));
-	}
-
-
-	/**
-	 * Create a {@code StringDecoder} that supports all MIME types.
-	 */
-	public static StringDecoder allMimeTypes() {
-		return allMimeTypes(DEFAULT_DELIMITERS, true);
-	}
-
-	/**
-	 * Create a {@code StringDecoder} that supports all MIME types.
-	 * @param delimiters delimiter strings to use to split the input stream
-	 * @param stripDelimiter whether to remove delimiters from the resulting
-	 * input strings
-	 */
-	public static StringDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
-		return new StringDecoder(delimiters, stripDelimiter,
-				new MimeType("text", "plain", DEFAULT_CHARSET), MimeTypeUtils.ALL);
-	}
+  /**
+   * Create a {@code StringDecoder} that supports all MIME types.
+   *
+   * @param delimiters delimiter strings to use to split the input stream
+   * @param stripDelimiter whether to remove delimiters from the resulting
+   * input strings
+   */
+  public static StringDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
+    return new StringDecoder(delimiters, stripDelimiter,
+                             new MimeType("text", "plain", DEFAULT_CHARSET), MimeTypeUtils.ALL);
+  }
 
 }
