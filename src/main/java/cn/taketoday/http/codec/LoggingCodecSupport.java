@@ -20,8 +20,8 @@
 
 package cn.taketoday.http.codec;
 
-import cn.taketoday.logging.Logger;
 import cn.taketoday.http.HttpLogging;
+import cn.taketoday.logging.Logger;
 
 /**
  * Base class for {@link cn.taketoday.core.codec.Encoder},

@@ -24,8 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Constant;
 
 /**
  * Marks a method or exception class with the status {@link #value} and

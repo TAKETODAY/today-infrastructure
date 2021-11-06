@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Implementation of {@link ClientHttpResponse} that can not only check if

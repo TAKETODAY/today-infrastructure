@@ -19,6 +19,10 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -38,10 +42,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.RequestContext;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 
 /**
  * @author TODAY <br>

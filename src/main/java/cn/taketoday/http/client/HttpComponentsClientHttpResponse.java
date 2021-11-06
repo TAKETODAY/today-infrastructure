@@ -29,9 +29,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
-import cn.taketoday.http.HttpHeaders;
 
 /**
  * {@link ClientHttpResponse} implementation based on

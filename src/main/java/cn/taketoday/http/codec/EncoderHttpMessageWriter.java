@@ -32,15 +32,13 @@ import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.PooledDataBuffer;
+import cn.taketoday.http.HttpLogging;
+import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.http.HttpLogging;
-import cn.taketoday.http.ReactiveHttpOutputMessage;
-import cn.taketoday.http.server.reactive.ServerHttpRequest;
-import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -135,8 +133,9 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
               .flatMap(buffer -> {
                 Hints.touchDataBuffer(buffer, hints, logger);
                 message.getHeaders().setContentLength(buffer.readableByteCount());
-                return message.writeWith(Mono.just(buffer)
-                                                 .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release));
+                return message.writeWith(
+                        Mono.just(buffer)
+                                .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release));
               })
               .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
     }

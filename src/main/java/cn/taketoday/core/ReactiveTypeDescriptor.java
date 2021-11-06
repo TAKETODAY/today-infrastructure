@@ -19,11 +19,10 @@
  */
 package cn.taketoday.core;
 
+import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-
-import java.util.function.Supplier;
 
 /**
  * Describes the semantics of a reactive type including boolean checks for

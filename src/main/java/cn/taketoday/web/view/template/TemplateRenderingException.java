@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.view.template;
 
-import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.InternalServerException;
+import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * @author TODAY 2021/9/1 23:29

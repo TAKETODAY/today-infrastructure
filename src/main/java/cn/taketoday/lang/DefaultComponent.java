@@ -23,8 +23,6 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.beans.factory.Scope;
-
 /**
  * @author TODAY <br>
  * 2018-08-22 17:29

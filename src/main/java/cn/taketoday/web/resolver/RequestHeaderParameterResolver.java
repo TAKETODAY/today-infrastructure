@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.http.HttpHeaders;
 
 /**
  * for {@link RequestHeader}

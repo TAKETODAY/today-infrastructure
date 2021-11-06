@@ -19,6 +19,18 @@
  */
 package cn.taketoday.web.registry;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
@@ -33,16 +45,6 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.view.ReturnValueHandler;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Method;
 
 import static cn.taketoday.core.ConfigurationException.nonNull;
 

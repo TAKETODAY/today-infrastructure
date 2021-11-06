@@ -29,8 +29,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
-
-import cn.taketoday.util.Base64Utils;
+import java.util.Base64;
 
 /**
  * A simple utility class for obtaining a Google Gson 2.x {@link GsonBuilder}
@@ -39,7 +38,6 @@ import cn.taketoday.util.Base64Utils;
  * @author Juergen Hoeller
  * @author Roy Clarkson
  * @see GsonFactoryBean#setBase64EncodeByteArrays
- * @see cn.taketoday.util.Base64Utils
  * @since 4.0
  */
 public abstract class GsonBuilderUtils {
@@ -62,12 +60,12 @@ public abstract class GsonBuilderUtils {
 
     @Override
     public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(Base64Utils.encodeToString(src));
+      return new JsonPrimitive(Base64.getEncoder().encodeToString(src));
     }
 
     @Override
     public byte[] deserialize(JsonElement json, Type type, JsonDeserializationContext cxt) {
-      return Base64Utils.decodeFromString(json.getAsString());
+      return Base64.getDecoder().decode(json.getAsString());
     }
   }
 

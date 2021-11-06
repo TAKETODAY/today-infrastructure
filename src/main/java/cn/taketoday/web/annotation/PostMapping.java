@@ -25,9 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2020/12/8 21:48

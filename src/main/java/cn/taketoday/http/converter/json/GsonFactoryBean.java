@@ -25,8 +25,8 @@ import com.google.gson.GsonBuilder;
 
 import java.text.SimpleDateFormat;
 
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -135,12 +135,12 @@ public class GsonFactoryBean implements FactoryBean<Gson>, InitializingBean {
    */
   @Override
   @Nullable
-  public Gson getObject() {
+  public Gson getBean() {
     return this.gson;
   }
 
   @Override
-  public Class<?> getObjectType() {
+  public Class<?> getBeanClass() {
     return Gson.class;
   }
 

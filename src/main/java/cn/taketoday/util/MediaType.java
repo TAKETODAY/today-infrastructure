@@ -203,14 +203,14 @@ public class MediaType extends MimeType implements Serializable {
   /**
    * Public constant media type for {@code multipart/related}.
    *
-   * @since 5.2.5
+   * @since 4.0
    */
   public static final MediaType MULTIPART_RELATED;
 
   /**
    * A String equivalent of {@link MediaType#MULTIPART_RELATED}.
    *
-   * @since 5.2.5
+   * @since 4.0
    */
   public static final String MULTIPART_RELATED_VALUE = "multipart/related";
 

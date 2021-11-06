@@ -33,13 +33,13 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ResolvableTypeProvider;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.http.HttpEntity;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.http.HttpEntity;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.codec.multipart.Part;
 
 /**
  * Prepare the body of a multipart request, resulting in a
@@ -232,7 +232,7 @@ public final class MultipartBodyBuilder {
      *
      * @param contentType the content type
      * @see HttpHeaders#setContentType(MediaType)
-     * @since 5.2
+     * @since 4.0
      */
     PartBuilder contentType(MediaType contentType);
 

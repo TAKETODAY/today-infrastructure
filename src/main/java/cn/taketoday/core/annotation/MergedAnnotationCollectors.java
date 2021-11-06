@@ -20,10 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +30,10 @@ import java.util.function.IntFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collector.Characteristics;
+
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 
 /**
  * {@link Collector} implementations that provide various reduction operations for

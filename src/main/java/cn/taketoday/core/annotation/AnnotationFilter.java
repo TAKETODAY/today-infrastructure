@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.annotation;
 
+import java.lang.annotation.Annotation;
+
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-
-import java.lang.annotation.Annotation;
 
 /**
  * Callback interface that can be used to filter specific annotation types.

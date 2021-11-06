@@ -19,8 +19,6 @@
  */
 package cn.taketoday.lang;
 
-import cn.taketoday.core.annotation.AliasFor;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

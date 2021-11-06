@@ -23,7 +23,6 @@ package cn.taketoday.context.loader;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 

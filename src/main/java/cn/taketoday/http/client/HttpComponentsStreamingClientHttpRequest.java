@@ -34,10 +34,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.StreamingHttpOutputMessage;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
 
 /**
  * {@link ClientHttpRequest} implementation based on

@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract base class for {@link MergedAnnotation} implementations.

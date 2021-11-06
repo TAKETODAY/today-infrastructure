@@ -23,9 +23,9 @@ package cn.taketoday.web.client;
 import java.io.Serial;
 import java.nio.charset.Charset;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Exception thrown when an unknown (or custom) HTTP status code is received.

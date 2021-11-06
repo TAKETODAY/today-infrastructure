@@ -23,8 +23,8 @@ package cn.taketoday.web.client;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Generic callback interface used by {@link RestTemplate}'s retrieval methods.

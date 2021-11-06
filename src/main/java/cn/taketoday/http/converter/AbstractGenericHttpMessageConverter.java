@@ -23,12 +23,12 @@ package cn.taketoday.http.converter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.SimpleHttpOutputMessage;
 import cn.taketoday.http.StreamingHttpOutputMessage;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
 
 /**
  * Abstract base class for most {@link GenericHttpMessageConverter} implementations.

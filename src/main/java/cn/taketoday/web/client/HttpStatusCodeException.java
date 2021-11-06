@@ -23,10 +23,10 @@ package cn.taketoday.web.client;
 import java.io.Serial;
 import java.nio.charset.Charset;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Abstract base class for exceptions based on an {@link HttpStatus}.

@@ -20,6 +20,10 @@
 
 package cn.taketoday.context.event;
 
+import java.lang.reflect.Method;
+import java.util.EventObject;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -30,11 +34,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Method;
-import java.util.EventObject;
-import java.util.function.Supplier;
 
 /**
  * Process @EventListener annotated on a method

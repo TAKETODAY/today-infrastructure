@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Constant;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.lang.Constant;
 
 /**
  * {@code @AliasFor} is an annotation that is used to declare aliases for

@@ -126,7 +126,7 @@ public class UrlPathHelper {
   /**
    * Whether to decode the request URI when determining the lookup path.
    *
-   * @since 4.3.13
+   * @since 4.0
    */
   public boolean isUrlDecode() {
     return this.urlDecode;
@@ -220,7 +220,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @param name the request attribute that holds the lookupPath
    * @return the lookup path
-   * @since 5.2
+   * @since 4.0
    * @deprecated in favor of using
    * {@link #resolveAndCacheLookupPath(HttpServletRequest)} and
    * {@link #getResolvedLookupPath(ServletRequest)}.

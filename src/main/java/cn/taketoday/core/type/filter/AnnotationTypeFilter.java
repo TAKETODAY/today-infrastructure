@@ -20,15 +20,15 @@
 
 package cn.taketoday.core.type.filter;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Inherited;
+
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Inherited;
 
 /**
  * A simple {@link TypeFilter} which matches classes with a given annotation,

@@ -34,11 +34,11 @@ import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.web.framework.server.light.Utils.escapeHTML;
 import static cn.taketoday.web.framework.server.light.Utils.splitElements;

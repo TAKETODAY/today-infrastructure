@@ -22,11 +22,11 @@ package cn.taketoday.http.client.support;
 
 import java.net.URI;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Provides a convenient implementation of the {@link HttpRequest} interface

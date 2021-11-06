@@ -19,6 +19,9 @@
  */
 package cn.taketoday.core.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -26,9 +29,6 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 
 /**
  * General utility for determining the order of an object based on its type declaration.

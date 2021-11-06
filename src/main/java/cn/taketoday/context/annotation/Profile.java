@@ -19,6 +19,11 @@
  */
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.MultiValueMap;
@@ -29,11 +34,6 @@ import cn.taketoday.core.env.Profiles;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 
 /**

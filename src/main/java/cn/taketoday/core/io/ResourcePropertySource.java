@@ -19,14 +19,13 @@
  */
 package cn.taketoday.core.io;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Subclass of {@link PropertiesPropertySource} that loads a {@link Properties} object

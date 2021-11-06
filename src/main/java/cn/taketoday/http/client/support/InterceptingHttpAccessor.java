@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}

@@ -20,11 +20,11 @@
 
 package cn.taketoday.core.annotation;
 
+import java.util.Arrays;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-
-import java.util.Arrays;
 
 /**
  * {@link AnnotationFilter} implementation used for

@@ -19,11 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -42,6 +37,11 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09

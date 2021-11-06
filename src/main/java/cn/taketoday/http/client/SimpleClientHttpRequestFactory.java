@@ -27,8 +27,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link ClientHttpRequestFactory} implementation that uses standard JDK facilities.

@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.type.filter;
 
+import java.io.IOException;
+
 import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Type filter that is aware of traversing over hierarchy.

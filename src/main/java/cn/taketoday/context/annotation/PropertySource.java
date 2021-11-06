@@ -20,15 +20,15 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.core.io.PropertySourceFactory;
-import cn.taketoday.lang.Configuration;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.core.io.PropertySourceFactory;
+import cn.taketoday.lang.Configuration;
 
 /**
  * Annotation providing a convenient and declarative mechanism for adding a

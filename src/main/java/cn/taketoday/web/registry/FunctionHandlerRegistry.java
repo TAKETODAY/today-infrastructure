@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.registry;
 
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.FunctionHandler;
 import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.http.HttpMethod;
 
 import static cn.taketoday.http.HttpMethod.DELETE;
 import static cn.taketoday.http.HttpMethod.GET;

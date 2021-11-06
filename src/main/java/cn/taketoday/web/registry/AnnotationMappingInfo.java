@@ -29,13 +29,13 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.OrderUtils;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2021/4/21 23:57

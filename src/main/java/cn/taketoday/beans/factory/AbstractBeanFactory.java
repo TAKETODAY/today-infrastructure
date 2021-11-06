@@ -267,7 +267,7 @@ public abstract class AbstractBeanFactory
       // lookup start-with '$' , hasn't create its factory
       if (!definition.isLazyInit() || allowFactoryBeanInit) {
         FactoryBean<Object> factoryBean = getFactoryBean(definition);
-        Class<Object> beanClass = factoryBean.getBeanClass();
+        Class<?> beanClass = factoryBean.getBeanClass();
         return typeToMatch.isAssignableFrom(beanClass);
       }
     }

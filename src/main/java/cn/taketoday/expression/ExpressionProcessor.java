@@ -40,11 +40,11 @@
 
 package cn.taketoday.expression;
 
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ClassUtils;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import cn.taketoday.lang.Constant;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * <p>

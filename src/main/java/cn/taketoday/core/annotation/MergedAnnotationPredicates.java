@@ -20,16 +20,15 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
-
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Predicate implementations that provide various test operations for

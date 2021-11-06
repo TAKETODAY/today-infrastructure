@@ -19,13 +19,13 @@
  */
 package cn.taketoday.lang;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
 
 /**
  * This annotation indicates that an annotated element is a bean component in

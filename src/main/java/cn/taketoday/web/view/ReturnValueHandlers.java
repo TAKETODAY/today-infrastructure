@@ -19,6 +19,11 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ArraySizeTrimmer;
@@ -35,11 +40,6 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * return-value handlers

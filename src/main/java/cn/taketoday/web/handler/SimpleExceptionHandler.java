@@ -28,14 +28,14 @@ import javax.imageio.ImageIO;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.TemplateRendererReturnValueHandler;
 

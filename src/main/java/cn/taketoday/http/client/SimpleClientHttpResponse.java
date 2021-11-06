@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.http.HttpHeaders;
 
 /**
  * {@link ClientHttpResponse} implementation that uses standard JDK facilities.

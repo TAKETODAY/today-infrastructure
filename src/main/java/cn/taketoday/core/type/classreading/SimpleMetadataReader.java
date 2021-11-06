@@ -20,15 +20,15 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.lang.Nullable;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * {@link MetadataReader} implementation based on an ASM

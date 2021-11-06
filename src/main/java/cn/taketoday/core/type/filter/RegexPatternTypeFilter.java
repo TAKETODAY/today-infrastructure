@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.type.filter;
 
+import java.util.regex.Pattern;
+
 import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.lang.Assert;
-
-import java.util.regex.Pattern;
 
 /**
  * A simple filter for matching a fully-qualified class name with a regex {@link Pattern}.

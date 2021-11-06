@@ -24,8 +24,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link ClientHttpRequestFactory} wrapper with support for

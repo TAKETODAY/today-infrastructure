@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web.config;
 
+import java.util.Collections;
+import java.util.List;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.Ordered;
@@ -51,9 +54,6 @@ import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
 import cn.taketoday.web.view.SelectableReturnValueHandler;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author TODAY 2019-07-10 23:12

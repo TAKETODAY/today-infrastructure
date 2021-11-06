@@ -29,6 +29,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
@@ -39,7 +40,6 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
-import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2021/3/10 11:33

@@ -23,10 +23,10 @@ package cn.taketoday.http.client;
 import java.io.IOException;
 import java.net.URI;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Simple implementation of {@link ClientHttpRequest} that wraps another request.

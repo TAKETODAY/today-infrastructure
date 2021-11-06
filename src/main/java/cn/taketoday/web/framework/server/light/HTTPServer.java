@@ -39,13 +39,13 @@ import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
 
 import static cn.taketoday.web.framework.server.light.Utils.splitElements;
 import static cn.taketoday.web.framework.server.light.Utils.transfer;

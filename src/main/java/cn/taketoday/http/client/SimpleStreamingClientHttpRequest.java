@@ -26,10 +26,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * {@link ClientHttpRequest} implementation that uses standard JDK facilities to

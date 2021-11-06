@@ -40,11 +40,11 @@
 
 package cn.taketoday.expression;
 
+import java.util.Objects;
+
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.parser.AstLiteralExpression;
 import cn.taketoday.expression.parser.Node;
-
-import java.util.Objects;
 
 /**
  * An <code>Expression</code> that can get or set a value.

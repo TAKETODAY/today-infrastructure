@@ -20,9 +20,9 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Callback interface used to process annotations.

@@ -19,17 +19,17 @@
  */
 package cn.taketoday.context.condition;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.util.ClassUtils;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * {@link Conditional} that only matches when the specified classes are on the

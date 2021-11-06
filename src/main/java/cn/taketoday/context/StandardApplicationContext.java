@@ -19,6 +19,9 @@
  */
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.util.List;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
@@ -31,9 +34,6 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Standard {@link ApplicationContext}

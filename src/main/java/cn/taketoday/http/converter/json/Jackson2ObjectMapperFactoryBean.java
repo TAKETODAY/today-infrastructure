@@ -45,11 +45,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -143,8 +143,9 @@ import cn.taketoday.lang.Nullable;
  * @author Sebastien Deleuze
  * @since 4.0
  */
-public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper>, BeanClassLoaderAware,
-                                                        ApplicationContextAware, InitializingBean {
+public class Jackson2ObjectMapperFactoryBean
+        implements FactoryBean<ObjectMapper>,
+                   BeanClassLoaderAware, ApplicationContextAware, InitializingBean {
 
   private final Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
 
@@ -162,8 +163,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
   /**
    * If set to true and no custom {@link ObjectMapper} has been set, a {@link XmlMapper}
    * will be created using its default constructor.
-   *
-   * @since 4.0
    */
   public void setCreateXmlMapper(boolean createXmlMapper) {
     this.builder.createXmlMapper(createXmlMapper);
@@ -172,8 +171,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
   /**
    * Define the {@link JsonFactory} to be used to create the {@link ObjectMapper}
    * instance.
-   *
-   * @since 4.0
    */
   public void setFactory(JsonFactory factory) {
     this.builder.factory(factory);
@@ -204,8 +201,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
   /**
    * Override the default {@link Locale} to use for formatting.
    * Default value used is {@link Locale#getDefault()}.
-   *
-   * @since 4.0
    */
   public void setLocale(Locale locale) {
     this.builder.locale(locale);
@@ -214,8 +209,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
   /**
    * Override the default {@link TimeZone} to use for formatting.
    * Default value used is UTC (NOT local timezone).
-   *
-   * @since 4.0
    */
   public void setTimeZone(TimeZone timeZone) {
     this.builder.timeZone(timeZone);
@@ -231,8 +224,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
   /**
    * Specify a {@link PropertyNamingStrategy} to
    * configure the {@link ObjectMapper} with.
-   *
-   * @since 4.0.2
    */
   public void setPropertyNamingStrategy(PropertyNamingStrategy propertyNamingStrategy) {
     this.builder.propertyNamingStrategy(propertyNamingStrategy);
@@ -240,8 +231,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
 
   /**
    * Specify a {@link TypeResolverBuilder} to use for Jackson's default typing.
-   *
-   * @since 4.0
    */
   public void setDefaultTyping(TypeResolverBuilder<?> typeResolverBuilder) {
     this.builder.defaultTyping(typeResolverBuilder);
@@ -260,7 +249,6 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
    * Set the global filters to use in order to support {@link JsonFilter @JsonFilter} annotated POJO.
    *
    * @see Jackson2ObjectMapperBuilder#filters(FilterProvider)
-   * @since 4.0
    */
   public void setFilters(FilterProvider filters) {
     this.builder.filters(filters);
@@ -272,8 +260,7 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
    * @param mixIns a Map of entries with target classes (or interface) whose annotations
    * to effectively override as key and mix-in classes (or interface) whose
    * annotations are to be "added" to target's annotations as value.
-   * @see ObjectMapper#addMixInAnnotations(Class, Class)
-   * @since 4.0
+   * @see ObjectMapper#addMixIn(Class, Class)
    */
   public void setMixIns(Map<Class<?>, Class<?>> mixIns) {
     this.builder.mixIns(mixIns);
@@ -492,12 +479,12 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
    */
   @Override
   @Nullable
-  public ObjectMapper getObject() {
+  public ObjectMapper getBean() {
     return this.objectMapper;
   }
 
   @Override
-  public Class<?> getObjectType() {
+  public Class<?> getBeanClass() {
     return (this.objectMapper != null ? this.objectMapper.getClass() : null);
   }
 

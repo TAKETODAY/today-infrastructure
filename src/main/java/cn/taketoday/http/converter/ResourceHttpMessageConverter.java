@@ -27,11 +27,11 @@ import java.io.InputStream;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.HttpInputMessage;
+import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StreamUtils;
-import cn.taketoday.http.HttpInputMessage;
-import cn.taketoday.http.HttpOutputMessage;
 
 /**
  * Implementation of {@link HttpMessageConverter} that can read/write {@link Resource Resources}

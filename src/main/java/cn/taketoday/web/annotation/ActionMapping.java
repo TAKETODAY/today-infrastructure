@@ -24,9 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.http.HttpMethod;
 
 /**
  * Handler Or Action Mapping

@@ -40,6 +40,7 @@ import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -57,7 +58,6 @@ import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**

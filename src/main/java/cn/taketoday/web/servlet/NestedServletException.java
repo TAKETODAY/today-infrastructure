@@ -22,9 +22,10 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 
+import javax.servlet.ServletException;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
-import javax.servlet.ServletException;
 
 /**
  * Subclass of {@link ServletException} that properly handles a root cause in terms

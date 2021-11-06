@@ -32,6 +32,9 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -42,9 +45,6 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatus;
 
 /**
  * @author TODAY <br>

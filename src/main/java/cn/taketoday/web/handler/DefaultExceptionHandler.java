@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -36,8 +38,6 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
 
 /**
  * Handle {@link ExceptionHandler} annotated method

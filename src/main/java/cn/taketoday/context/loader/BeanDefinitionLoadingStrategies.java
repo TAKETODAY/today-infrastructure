@@ -20,13 +20,13 @@
 
 package cn.taketoday.context.loader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author TODAY 2021/10/10 22:06

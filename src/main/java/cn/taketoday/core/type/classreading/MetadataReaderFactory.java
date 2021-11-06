@@ -20,9 +20,9 @@
 
 package cn.taketoday.core.type.classreading;
 
-import cn.taketoday.core.io.Resource;
-
 import java.io.IOException;
+
+import cn.taketoday.core.io.Resource;
 
 /**
  * Factory interface for {@link MetadataReader} instances.

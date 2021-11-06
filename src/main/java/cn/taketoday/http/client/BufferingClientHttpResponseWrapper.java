@@ -24,10 +24,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Simple implementation of {@link ClientHttpResponse} that reads the response's body

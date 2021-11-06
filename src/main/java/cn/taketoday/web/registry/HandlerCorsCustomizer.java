@@ -21,15 +21,15 @@ package cn.taketoday.web.registry;
 
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.http.CorsProcessor;
+import cn.taketoday.http.DefaultCorsProcessor;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.http.CorsConfiguration;
-import cn.taketoday.http.CorsProcessor;
-import cn.taketoday.http.DefaultCorsProcessor;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 

@@ -23,8 +23,8 @@ package cn.taketoday.http.client;
 import java.io.IOException;
 import java.net.URI;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Assert;
 
 /**
  * Abstract base class for {@link ClientHttpRequestFactory} implementations

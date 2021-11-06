@@ -21,10 +21,10 @@
 
 package cn.taketoday.core.type.filter;
 
+import java.io.IOException;
+
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-
-import java.io.IOException;
 
 /**
  * Base interface for type filters using a

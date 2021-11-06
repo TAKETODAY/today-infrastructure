@@ -20,11 +20,11 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy API for extracting a value for an annotation attribute from a given

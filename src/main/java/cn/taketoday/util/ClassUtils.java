@@ -19,13 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
@@ -60,6 +53,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+
+import cn.taketoday.core.GenericTypeResolver;
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-0? ?

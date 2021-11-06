@@ -20,12 +20,17 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
@@ -43,11 +48,6 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ExceptionUtils;
-
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/19 22:22

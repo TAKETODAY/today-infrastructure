@@ -20,12 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Collections;
@@ -33,6 +27,12 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.lang.Nullable;
 
 /**
  * General utility methods for finding annotations, meta-annotations, and

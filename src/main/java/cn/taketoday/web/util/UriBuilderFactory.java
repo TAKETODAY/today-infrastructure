@@ -26,7 +26,7 @@ package cn.taketoday.web.util;
  * builder instances created through a factory.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  * @see DefaultUriBuilderFactory
  */
 public interface UriBuilderFactory extends UriTemplateHandler {

@@ -19,14 +19,14 @@
  */
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Map;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 
 /**
  * Provides {@link AnnotationTypeMapping} information for a single source

@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

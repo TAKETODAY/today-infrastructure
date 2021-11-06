@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.view.FrameworkConfigurationException;
 
 /**

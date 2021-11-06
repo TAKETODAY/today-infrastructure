@@ -19,10 +19,10 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.lang.Nullable;
-
 import java.util.Map;
 import java.util.function.Supplier;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Interface that defines a registry for shared bean instances.

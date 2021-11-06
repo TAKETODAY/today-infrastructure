@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Interface specifying a basic set of RESTful operations.

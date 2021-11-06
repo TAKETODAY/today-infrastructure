@@ -19,11 +19,11 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serializable;
+
 import cn.taketoday.core.Constants;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
-
-import java.io.Serializable;
 
 /**
  * @author TODAY <br>

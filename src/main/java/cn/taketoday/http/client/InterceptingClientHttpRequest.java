@@ -25,12 +25,12 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.StreamingHttpOutputMessage;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Wrapper for a {@link ClientHttpRequest} that has support for {@link ClientHttpRequestInterceptor

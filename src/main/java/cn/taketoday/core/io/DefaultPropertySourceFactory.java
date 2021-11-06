@@ -19,11 +19,10 @@
  */
 package cn.taketoday.core.io;
 
+import java.io.IOException;
 
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.lang.Nullable;
-
-import java.io.IOException;
 
 /**
  * The default implementation for {@link PropertySourceFactory},

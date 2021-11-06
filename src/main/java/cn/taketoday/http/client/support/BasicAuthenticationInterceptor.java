@@ -23,12 +23,12 @@ package cn.taketoday.http.client.support;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestExecution;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link ClientHttpRequestInterceptor} to apply a given HTTP Basic Authentication

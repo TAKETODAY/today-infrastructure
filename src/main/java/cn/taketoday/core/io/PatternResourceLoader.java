@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.io;
 
-import cn.taketoday.lang.Nullable;
-
 import java.io.IOException;
 import java.util.Set;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy interface for resolving a location pattern (for example,

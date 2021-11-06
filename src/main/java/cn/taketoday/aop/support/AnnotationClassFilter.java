@@ -25,9 +25,7 @@ import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * Simple ClassFilter that looks for a specific Java 5 annotation

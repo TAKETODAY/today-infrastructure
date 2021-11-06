@@ -20,13 +20,13 @@
 
 package cn.taketoday.context.event;
 
-import cn.taketoday.core.Order;
-import cn.taketoday.core.annotation.AliasFor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * Annotation that marks a method as a listener for application events.

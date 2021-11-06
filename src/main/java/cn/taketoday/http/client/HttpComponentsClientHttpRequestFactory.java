@@ -42,9 +42,9 @@ import java.net.URI;
 import java.util.function.BiFunction;
 
 import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.HttpMethod;
 
 /**
  * {@link cn.taketoday.http.client.ClientHttpRequestFactory} implementation that

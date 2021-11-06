@@ -30,14 +30,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.converter.AbstractGenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
 
 /**
  * Common base class for plain JSON converters, e.g. Gson and JSON-B.

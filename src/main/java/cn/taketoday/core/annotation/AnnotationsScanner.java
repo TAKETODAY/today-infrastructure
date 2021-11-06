@@ -20,6 +20,13 @@
 
 package cn.taketoday.core.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -29,13 +36,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 /**
  * Scanner to search for relevant annotations in the annotation hierarchy of an

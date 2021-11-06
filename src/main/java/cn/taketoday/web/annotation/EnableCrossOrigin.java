@@ -28,9 +28,9 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.http.CorsProcessor;
 import cn.taketoday.http.DefaultCorsProcessor;
+import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.registry.HandlerCorsCustomizer;
 
 /**

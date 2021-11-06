@@ -23,9 +23,9 @@ package cn.taketoday.http.client;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.HttpHeaders;
 
 /**
  * Abstract base for {@link ClientHttpRequest} that makes sure that headers

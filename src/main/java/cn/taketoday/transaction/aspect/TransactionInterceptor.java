@@ -19,7 +19,6 @@
  */
 package cn.taketoday.transaction.aspect;
 
-import cn.taketoday.transaction.TransactionAttribute;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -43,6 +42,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.DefaultTransactionDefinition;
 import cn.taketoday.transaction.NoTransactionException;
+import cn.taketoday.transaction.TransactionAttribute;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;

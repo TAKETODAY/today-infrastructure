@@ -26,14 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}

@@ -19,13 +19,14 @@
  */
 package cn.taketoday.lang;
 
-import javax.annotation.Nonnull;
-import javax.annotation.meta.TypeQualifierDefault;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import javax.annotation.Nonnull;
+import javax.annotation.meta.TypeQualifierDefault;
 
 /**
  * A common annotation to declare that parameters and return values

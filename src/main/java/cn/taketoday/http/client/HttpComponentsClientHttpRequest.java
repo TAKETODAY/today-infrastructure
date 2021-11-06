@@ -32,9 +32,9 @@ import org.apache.http.protocol.HttpContext;
 import java.io.IOException;
 import java.net.URI;
 
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link ClientHttpRequest} implementation based on

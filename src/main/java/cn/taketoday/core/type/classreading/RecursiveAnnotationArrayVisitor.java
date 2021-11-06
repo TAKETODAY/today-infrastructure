@@ -20,16 +20,16 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link AnnotationVisitor} to recursively visit annotation arrays.

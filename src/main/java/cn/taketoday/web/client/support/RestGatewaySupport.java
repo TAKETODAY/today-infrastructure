@@ -20,12 +20,11 @@
 
 package cn.taketoday.web.client.support;
 
+import cn.taketoday.http.client.ClientHttpRequestFactory;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-
-import cn.taketoday.lang.Assert;
 import cn.taketoday.web.client.RestTemplate;
-import cn.taketoday.http.client.ClientHttpRequestFactory;
 
 /**
  * Convenient super class for application classes that need REST access.

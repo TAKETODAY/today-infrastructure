@@ -20,6 +20,9 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
@@ -32,9 +35,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 
 /**
  * ASM class visitor that creates {@link SimpleAnnotationMetadata}.
