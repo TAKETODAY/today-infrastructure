@@ -21,11 +21,11 @@ package cn.taketoday.web.framework.reactive;
 
 import java.util.Objects;
 
-import javax.annotation.PreDestroy;
-
+import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.framework.StandardWebServerApplicationContext;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.WebServerException;
@@ -36,11 +36,9 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -56,7 +54,11 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  *
  * @author TODAY 2019-07-02 21:15
  */
-public class NettyWebServer extends AbstractWebServer implements WebServer {
+public class NettyWebServer extends AbstractWebServer implements WebServer, DisposableBean {
+  static boolean epollPresent = ClassUtils.isPresent(
+          "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServer.class.getClassLoader());
+  static boolean kQueuePresent = ClassUtils.isPresent(
+          "io.netty.channel.kqueue.KQueueServerSocketChannel", NettyWebServer.class.getClassLoader());
 
   /**
    * the number of threads that will be used by
@@ -105,22 +107,22 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    * Subclasses can override this method to perform epoll is available logic
    */
   protected boolean epollIsAvailable() {
-    return Epoll.isAvailable();
+    return epollPresent;
   }
 
   /**
    * Subclasses can override this method to perform KQueue is available logic
    */
   protected boolean kQueueIsAvailable() {
-    return KQueue.isAvailable();
+    return kQueuePresent;
   }
 
   @Override
   protected void contextInitialized() {
     super.contextInitialized();
-    final WebServerApplicationContext context = obtainApplicationContext();
+    WebServerApplicationContext context = obtainApplicationContext();
     try {
-      final WebServerApplicationLoader loader
+      WebServerApplicationLoader loader
               = new WebServerApplicationLoader(this::getMergedInitializers);
       loader.setApplicationContext(context);
       loader.onStartup(context);
@@ -132,32 +134,15 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   @Override
   public void start() {
-    final ServerBootstrap bootstrap = new ServerBootstrap();
+    ServerBootstrap bootstrap = new ServerBootstrap();
     preBootstrap(bootstrap);
 
     // enable epoll
     if (epollIsAvailable()) {
-      bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
-      if (socketChannel == null) {
-        socketChannel = EpollServerSocketChannel.class;
-      }
-      if (parentGroup == null) {
-        parentGroup = new EpollEventLoopGroup(parentThreadCount, new DefaultThreadFactory("epoll-parent@"));
-      }
-      if (childGroup == null) {
-        childGroup = new EpollEventLoopGroup(childThreadCount, new DefaultThreadFactory("epoll-child@"));
-      }
+      EpollDelegate.init(bootstrap, this);
     }
     else if (kQueueIsAvailable()) {
-      if (socketChannel == null) {
-        socketChannel = KQueueServerSocketChannel.class;
-      }
-      if (parentGroup == null) {
-        parentGroup = new KQueueEventLoopGroup(parentThreadCount, new DefaultThreadFactory("kQueue-parent@"));
-      }
-      if (childGroup == null) {
-        childGroup = new KQueueEventLoopGroup(childThreadCount, new DefaultThreadFactory("kQueue-child@"));
-      }
+      KQueueDelegate.init(this);
     }
     else {
       if (parentGroup == null) {
@@ -182,7 +167,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
     postBootstrap(bootstrap);
 
-    final ChannelFuture channelFuture = bootstrap.bind(getHost(), getPort());
+    ChannelFuture channelFuture = bootstrap.bind(getHost(), getPort());
     try {
       channelFuture.sync();
     }
@@ -200,11 +185,11 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   protected void preBootstrap(ServerBootstrap bootstrap) {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     // adjust context path
-    final WebServerApplicationContext context = obtainApplicationContext();
-    final NettyRequestContextConfig contextConfig = context.getBean(NettyRequestContextConfig.class);
+    WebServerApplicationContext context = obtainApplicationContext();
+    NettyRequestContextConfig contextConfig = context.getBean(NettyRequestContextConfig.class);
     Assert.state(contextConfig != null, "No NettyRequestContextConfig");
-    final String contextPath = contextConfig.getContextPath();
-    final String serverContextPath = getContextPath();
+    String contextPath = contextConfig.getContextPath();
+    String serverContextPath = getContextPath();
     if (contextPath == null) {
       contextConfig.setContextPath(serverContextPath);
     }
@@ -240,17 +225,21 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     NettyServerInitializer serverInitializer = this.nettyServerInitializer;
 
     if (serverInitializer == null) {
-      final WebServerApplicationContext context = obtainApplicationContext();
+      WebServerApplicationContext context = obtainApplicationContext();
       serverInitializer = context.getBean(NettyServerInitializer.class);
       if (serverInitializer == null) {
-        final ReactiveChannelHandler reactiveDispatcher = context.getBean(ReactiveChannelHandler.class);
+        ReactiveChannelHandler reactiveDispatcher = context.getBean(ReactiveChannelHandler.class);
         serverInitializer = new NettyServerInitializer(reactiveDispatcher);
       }
     }
     return serverInitializer;
   }
 
-  @PreDestroy
+  @Override
+  public void destroy() throws Exception {
+    stop();
+  }
+
   @Override
   public void stop() {
     log.info("Shutdown netty web server: [{}]", this);
@@ -363,5 +352,38 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    */
   public LogLevel getLoggingLevel() {
     return loggingLevel;
+  }
+
+  static class EpollDelegate {
+    static void init(ServerBootstrap bootstrap, NettyWebServer server) {
+      bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
+      if (server.socketChannel == null) {
+        server.setSocketChannel(EpollServerSocketChannel.class);
+      }
+      if (server.parentGroup == null) {
+        server.setParentGroup(new EpollEventLoopGroup(
+                server.getParentThreadCount(), new DefaultThreadFactory("epoll-parent@")));
+      }
+      if (server.childGroup == null) {
+        server.setChildGroup(new EpollEventLoopGroup(
+                server.getChildThreadCount(), new DefaultThreadFactory("epoll-child@")));
+      }
+    }
+  }
+
+  static class KQueueDelegate {
+    static void init(NettyWebServer server) {
+      if (server.socketChannel == null) {
+        server.setSocketChannel(KQueueServerSocketChannel.class);
+      }
+      if (server.parentGroup == null) {
+        server.setParentGroup(new KQueueEventLoopGroup(
+                server.getParentThreadCount(), new DefaultThreadFactory("kQueue-parent@")));
+      }
+      if (server.childGroup == null) {
+        server.setChildGroup(new KQueueEventLoopGroup(
+                server.getChildThreadCount(), new DefaultThreadFactory("kQueue-child@")));
+      }
+    }
   }
 }
