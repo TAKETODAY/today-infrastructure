@@ -27,13 +27,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Optional;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.support.ResourceRegion;
+import cn.taketoday.core.io.ResourceRegion;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.util.MediaTypeFactory;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.http.HttpHeaders;
@@ -68,7 +68,8 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
         resource = regions.iterator().next().getResource();
       }
     }
-    return MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM);
+    return Optional.ofNullable(MediaType.fromResource(resource))
+            .orElse(MediaType.APPLICATION_OCTET_STREAM);
   }
 
   @Override
@@ -152,22 +153,14 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
     responseHeaders.add("Content-Range", "bytes " + start + '-' + end + '/' + resourceLength);
     responseHeaders.setContentLength(rangeLength);
 
-    InputStream in = region.getResource().getInputStream();
-    try {
+    try (InputStream in = region.getResource().getInputStream()) {
       StreamUtils.copyRange(in, outputMessage.getBody(), start, end);
-    }
-    finally {
-      try {
-        in.close();
-      }
-      catch (IOException ex) {
-        // ignore
-      }
     }
   }
 
-  private void writeResourceRegionCollection(Collection<ResourceRegion> resourceRegions,
-                                             HttpOutputMessage outputMessage) throws IOException {
+  private void writeResourceRegionCollection(
+          Collection<ResourceRegion> resourceRegions,
+          HttpOutputMessage outputMessage) throws IOException {
 
     Assert.notNull(resourceRegions, "Collection of ResourceRegion should not be null");
     HttpHeaders responseHeaders = outputMessage.getHeaders();
