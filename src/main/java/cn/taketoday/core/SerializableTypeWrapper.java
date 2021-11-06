@@ -22,6 +22,7 @@ package cn.taketoday.core;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -64,7 +65,8 @@ import cn.taketoday.util.ReflectionUtils;
 final class SerializableTypeWrapper {
 
   private static final Class<?>[] SUPPORTED_SERIALIZABLE_TYPES = {
-          GenericArrayType.class, ParameterizedType.class, TypeVariable.class, WildcardType.class };
+          GenericArrayType.class, ParameterizedType.class, TypeVariable.class, WildcardType.class
+  };
 
   static final ConcurrentReferenceHashMap<Type, Type> cache = new ConcurrentReferenceHashMap<>(256);
 
@@ -136,7 +138,6 @@ final class SerializableTypeWrapper {
   /**
    * A {@link Serializable} interface providing access to a {@link Type}.
    */
-  @SuppressWarnings("serial")
   interface TypeProvider extends Serializable {
 
     /**
@@ -149,7 +150,6 @@ final class SerializableTypeWrapper {
      * Return the source of the type, or {@code null} if not known.
      * <p>The default implementations returns {@code null}.
      */
-
     default Object getSource() {
       return null;
     }
@@ -160,13 +160,7 @@ final class SerializableTypeWrapper {
    * Provides serialization support and enhances any methods that return {@code Type}
    * or {@code Type[]}.
    */
-  @SuppressWarnings("serial")
-  static class TypeProxyInvocationHandler implements InvocationHandler, Serializable {
-    final TypeProvider provider;
-
-    public TypeProxyInvocationHandler(TypeProvider provider) {
-      this.provider = provider;
-    }
+  record TypeProxyInvocationHandler(TypeProvider provider) implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -212,7 +206,6 @@ final class SerializableTypeWrapper {
   /**
    * {@link TypeProvider} for {@link Type Types} obtained from a {@link Field}.
    */
-  @SuppressWarnings("serial")
   static class FieldTypeProvider implements TypeProvider {
     private final String fieldName;
     private final Class<?> declaringClass;
@@ -234,6 +227,7 @@ final class SerializableTypeWrapper {
       return this.field;
     }
 
+    @Serial
     private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
       inputStream.defaultReadObject();
       try {
@@ -248,7 +242,6 @@ final class SerializableTypeWrapper {
   /**
    * {@link TypeProvider} for {@link Type Types} obtained from a {@link Parameter}.
    */
-  @SuppressWarnings("serial")
   static class ParameterTypeProvider implements TypeProvider {
 
     private final String methodName;
@@ -262,7 +255,7 @@ final class SerializableTypeWrapper {
     }
 
     public ParameterTypeProvider(Parameter parameter, int parameterIndex) {
-      final Executable executable = parameter.getDeclaringExecutable();
+      Executable executable = parameter.getDeclaringExecutable();
       this.methodParameter = parameter;
       this.parameterIndex = parameterIndex;
       this.methodName = executable.getName();
@@ -280,15 +273,16 @@ final class SerializableTypeWrapper {
       return this.methodParameter;
     }
 
+    @Serial
     private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
       inputStream.defaultReadObject();
       try {
         if (this.methodName != null) {
-          final Method declaredMethod = this.declaringClass.getDeclaredMethod(this.methodName, this.parameterTypes);
+          Method declaredMethod = this.declaringClass.getDeclaredMethod(this.methodName, this.parameterTypes);
           this.methodParameter = declaredMethod.getParameters()[parameterIndex];
         }
         else {
-          final Constructor<?> constructor = this.declaringClass.getDeclaredConstructor(this.parameterTypes);
+          Constructor<?> constructor = this.declaringClass.getDeclaredConstructor(this.parameterTypes);
           this.methodParameter = constructor.getParameters()[parameterIndex];
         }
       }
@@ -301,7 +295,6 @@ final class SerializableTypeWrapper {
   /**
    * {@link TypeProvider} for {@link Type Types} obtained by invoking a no-arg method.
    */
-  @SuppressWarnings("serial")
   static class MethodInvokeTypeProvider implements TypeProvider {
 
     private final TypeProvider provider;
@@ -336,6 +329,7 @@ final class SerializableTypeWrapper {
       return null;
     }
 
+    @Serial
     private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
       inputStream.defaultReadObject();
       Method method = ReflectionUtils.findMethod(this.declaringClass, this.methodName);
