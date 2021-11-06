@@ -29,10 +29,10 @@ import cn.taketoday.lang.Nullable;
  * A simple log message type for use with Commons Logging, allowing
  * for convenient lazy resolution of a given {@link Supplier} instance
  * (typically bound to a Java 8 lambda expression) or a printf-style
- * format string ({@link String#format}) in its {@link #toString()}.
+ * format string ({@link MessageFormatter#format}) in its {@link #toString()}.
  *
  * @author Juergen Hoeller
- * @see #of(Supplier)
+ * @see #from(Supplier)
  * @see #format(String, Object)
  * @see #format(String, Object...)
  * @see org.apache.commons.logging.Log#fatal(Object)
@@ -83,7 +83,7 @@ public abstract class LogMessage implements CharSequence {
    * @param supplier the supplier (typically bound to a Java 8 lambda expression)
    * @see #toString()
    */
-  public static LogMessage of(Supplier<? extends CharSequence> supplier) {
+  public static LogMessage from(Supplier<? extends CharSequence> supplier) {
     return new SupplierMessage(supplier);
   }
 
@@ -92,7 +92,7 @@ public abstract class LogMessage implements CharSequence {
    *
    * @param format the format string (following {@link String#format} rules)
    * @param arg1 the argument
-   * @see String#format(String, Object...)
+   * @see MessageFormatter#format(String, Object...)
    */
   public static LogMessage format(String format, Object arg1) {
     return new FormatMessage1(format, arg1);
@@ -104,7 +104,7 @@ public abstract class LogMessage implements CharSequence {
    * @param format the format string (following {@link String#format} rules)
    * @param arg1 the first argument
    * @param arg2 the second argument
-   * @see String#format(String, Object...)
+   * @see MessageFormatter#format(String, Object...)
    */
   public static LogMessage format(String format, Object arg1, Object arg2) {
     return new FormatMessage2(format, arg1, arg2);
@@ -117,7 +117,7 @@ public abstract class LogMessage implements CharSequence {
    * @param arg1 the first argument
    * @param arg2 the second argument
    * @param arg3 the third argument
-   * @see String#format(String, Object...)
+   * @see MessageFormatter#format(String, Object...)
    */
   public static LogMessage format(String format, Object arg1, Object arg2, Object arg3) {
     return new FormatMessage3(format, arg1, arg2, arg3);
@@ -131,7 +131,7 @@ public abstract class LogMessage implements CharSequence {
    * @param arg2 the second argument
    * @param arg3 the third argument
    * @param arg4 the fourth argument
-   * @see String#format(String, Object...)
+   * @see MessageFormatter#format(String, Object...)
    */
   public static LogMessage format(String format, Object arg1, Object arg2, Object arg3, Object arg4) {
     return new FormatMessage4(format, arg1, arg2, arg3, arg4);
@@ -142,7 +142,7 @@ public abstract class LogMessage implements CharSequence {
    *
    * @param format the format string (following {@link String#format} rules)
    * @param args the varargs array (costly, prefer individual arguments)
-   * @see String#format(String, Object...)
+   * @see MessageFormatter#format(String, Object...)
    */
   public static LogMessage format(String format, Object... args) {
     return new FormatMessageX(format, args);
@@ -184,14 +184,13 @@ public abstract class LogMessage implements CharSequence {
 
     @Override
     protected String buildString() {
-      return String.format(this.format, this.arg1);
+      return MessageFormatter.format(this.format, this.arg1);
     }
   }
 
   private static final class FormatMessage2 extends FormatMessage {
 
     private final Object arg1;
-
     private final Object arg2;
 
     FormatMessage2(String format, Object arg1, Object arg2) {
@@ -202,16 +201,14 @@ public abstract class LogMessage implements CharSequence {
 
     @Override
     String buildString() {
-      return String.format(this.format, this.arg1, this.arg2);
+      return MessageFormatter.format(this.format, new Object[] { this.arg1, this.arg2 });
     }
   }
 
   private static final class FormatMessage3 extends FormatMessage {
 
     private final Object arg1;
-
     private final Object arg2;
-
     private final Object arg3;
 
     FormatMessage3(String format, Object arg1, Object arg2, Object arg3) {
@@ -223,18 +220,15 @@ public abstract class LogMessage implements CharSequence {
 
     @Override
     String buildString() {
-      return String.format(this.format, this.arg1, this.arg2, this.arg3);
+      return MessageFormatter.format(this.format, new Object[] { this.arg1, this.arg2, this.arg3 });
     }
   }
 
   private static final class FormatMessage4 extends FormatMessage {
 
     private final Object arg1;
-
     private final Object arg2;
-
     private final Object arg3;
-
     private final Object arg4;
 
     FormatMessage4(String format, Object arg1, Object arg2, Object arg3, Object arg4) {
@@ -247,7 +241,7 @@ public abstract class LogMessage implements CharSequence {
 
     @Override
     String buildString() {
-      return String.format(this.format, this.arg1, this.arg2, this.arg3, this.arg4);
+      return MessageFormatter.format(this.format, new Object[] { this.arg1, this.arg2, this.arg3, this.arg4 });
     }
   }
 
@@ -255,14 +249,14 @@ public abstract class LogMessage implements CharSequence {
 
     private final Object[] args;
 
-    FormatMessageX(String format, Object... args) {
+    FormatMessageX(String format, Object[] args) {
       super(format);
       this.args = args;
     }
 
     @Override
     String buildString() {
-      return String.format(this.format, this.args);
+      return MessageFormatter.format(this.format, this.args);
     }
   }
 

@@ -33,7 +33,7 @@ import java.util.function.Predicate;
  * @see LogDelegateFactory#getCompositeLog
  * @since 4.0
  */
-final class CompositeLog extends Logger {
+final class CompositeLogger extends Logger {
   private static final Logger NO_OP_LOG = new NoOpLogger();
 
   private final Logger errorLogger;
@@ -41,19 +41,22 @@ final class CompositeLog extends Logger {
   private final Logger infoLogger;
   private final Logger debugLogger;
   private final Logger traceLogger;
+  private final String name;
 
   /**
    * Constructor with list of loggers. For optimal performance, the constructor
    * checks and remembers which logger is on for each log category.
    *
    * @param loggers the loggers to use
+   * @param name logger name
    */
-  public CompositeLog(List<Logger> loggers) {
+  public CompositeLogger(List<Logger> loggers, String name) {
     this.errorLogger = initLogger(loggers, Logger::isErrorEnabled);
     this.warnLogger = initLogger(loggers, Logger::isWarnEnabled);
     this.infoLogger = initLogger(loggers, Logger::isInfoEnabled);
     this.debugLogger = initLogger(loggers, Logger::isDebugEnabled);
     this.traceLogger = initLogger(loggers, Logger::isTraceEnabled);
+    this.name = name;
   }
 
   private static Logger initLogger(List<Logger> loggers, Predicate<Logger> predicate) {
@@ -67,97 +70,57 @@ final class CompositeLog extends Logger {
 
   @Override
   public boolean isErrorEnabled() {
-    return (this.errorLogger != NO_OP_LOG);
-  }
-
-  @Override
-  protected void logInternal(Level level, String msg, Throwable t, Object[] args) {
-
+    return this.errorLogger != NO_OP_LOG;
   }
 
   @Override
   public boolean isWarnEnabled() {
-    return (this.warnLogger != NO_OP_LOG);
+    return this.warnLogger != NO_OP_LOG;
   }
 
   @Override
   public boolean isInfoEnabled() {
-    return (this.infoLogger != NO_OP_LOG);
+    return this.infoLogger != NO_OP_LOG;
   }
 
   @Override
   public boolean isDebugEnabled() {
-    return (this.debugLogger != NO_OP_LOG);
+    return this.debugLogger != NO_OP_LOG;
   }
 
   @Override
   public String getName() {
-    return null;
+    return name;
   }
 
   @Override
   public boolean isTraceEnabled() {
-    return (this.traceLogger != NO_OP_LOG);
+    return this.traceLogger != NO_OP_LOG;
   }
 
   @Override
-  public void fatal(Object message) {
-    this.fatalLogger.fatal(message);
+  protected void logInternal(Level level, Object msg) {
+    logger(level).logInternal(level, msg);
   }
 
   @Override
-  public void fatal(Object message, Throwable ex) {
-    this.fatalLogger.fatal(message, ex);
+  protected void logInternal(Level level, Object msg, Throwable t) {
+    logger(level).logInternal(level, msg, t);
+  }
+
+  private Logger logger(Level level) {
+    return switch (level) {
+      case INFO -> infoLogger;
+      case WARN -> warnLogger;
+      case ERROR -> errorLogger;
+      case DEBUG -> debugLogger;
+      case TRACE -> traceLogger;
+    };
   }
 
   @Override
-  public void error(Object message) {
-    this.errorLogger.error(message);
-  }
-
-  @Override
-  public void error(Object message, Throwable ex) {
-    this.errorLogger.error(message, ex);
-  }
-
-  @Override
-  public void warn(Object message) {
-    this.warnLogger.warn(message);
-  }
-
-  @Override
-  public void warn(Object message, Throwable ex) {
-    this.warnLogger.warn(message, ex);
-  }
-
-  @Override
-  public void info(Object message) {
-    this.infoLogger.info(message);
-  }
-
-  @Override
-  public void info(Object message, Throwable ex) {
-    this.infoLogger.info(message, ex);
-  }
-
-  @Override
-  public void debug(Object message) {
-    this.debugLogger.debug(message);
-  }
-
-  @Override
-  public void debug(Object message, Throwable ex) {
-    this.debugLogger.debug(message, ex);
-  }
-
-  @Override
-  public void trace(Object message) {
-    this.traceLogger.trace(message);
-  }
-
-  @Override
-  public void trace(Object message, Throwable ex) {
-    this.traceLogger.trace(message, ex);
+  protected void logInternal(Level level, String msg, Throwable t, Object[] args) {
+    logger(level).logInternal(level, msg, t, args);
   }
 
 }

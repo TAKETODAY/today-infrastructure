@@ -21,16 +21,19 @@ package cn.taketoday.logging;
 
 import org.slf4j.spi.LocationAwareLogger;
 
+import java.io.Serial;
+
 /**
  * @author TODAY <br>
  * 2019-11-03 13:55
  */
-final class Slf4jLogger extends Logger {
+class Slf4jLogger extends Logger {
+  protected final String name;
+  private final transient org.slf4j.Logger target;
 
-  private final org.slf4j.Logger target;
-
-  public Slf4jLogger(String className) {
-    target = org.slf4j.LoggerFactory.getLogger(className);
+  public Slf4jLogger(org.slf4j.Logger target) {
+    this.target = target;
+    this.name = target.getName();
   }
 
   @Override
@@ -64,57 +67,76 @@ final class Slf4jLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
-
-    if (target instanceof LocationAwareLogger) { // MessageFormatter.format(format, args)
-      int i;
-      switch (level) {
-        case DEBUG:
-          i = LocationAwareLogger.DEBUG_INT;
-          break;
-        case ERROR:
-          i = LocationAwareLogger.ERROR_INT;
-          break;
-        case TRACE:
-          i = LocationAwareLogger.TRACE_INT;
-          break;
-        case WARN:
-          i = LocationAwareLogger.WARN_INT;
-          break;
-        default:
-          i = LocationAwareLogger.INFO_INT;
-          break;
-      }
-      ((LocationAwareLogger) target).log(null, FQCN, i, format, args, t);//"Today Context"
-    }
-    else {
-      final String msg = MessageFormatter.format(format, args);
-      switch (level) {
-        case DEBUG:
-          target.debug(msg, t);
-          break;
-        case ERROR:
-          target.error(msg, t);
-          break;
-        case TRACE:
-          target.trace(msg, t);
-          break;
-        case WARN:
-          target.warn(msg, t);
-          break;
-        default:
-          target.info(msg, t);
-          break;
-      }
+  protected void logInternal(Level level, Object msg, Throwable t) {
+    String message = String.valueOf(msg);
+    switch (level) {
+      case DEBUG -> target.debug(message, t);
+      case ERROR -> target.error(message, t);
+      case TRACE -> target.trace(message, t);
+      case WARN -> target.warn(message, t);
+      default -> target.info(message, t);
     }
   }
 
+  @Override
+  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+    final String msg = MessageFormatter.format(format, args);
+    switch (level) {
+      case DEBUG -> target.debug(msg, t);
+      case ERROR -> target.error(msg, t);
+      case TRACE -> target.trace(msg, t);
+      case WARN -> target.warn(msg, t);
+      default -> target.info(msg, t);
+    }
+  }
+
+  @Serial
+  protected Object readResolve() {
+    return Slf4jLoggerFactory.createLog(this.name);
+  }
+}
+
+final class LocationAwareSlf4jLogger extends Slf4jLogger {
+  private final LocationAwareLogger log;
+
+  public LocationAwareSlf4jLogger(LocationAwareLogger log) {
+    super(log);
+    this.log = log;
+  }
+
+  @Override
+  protected void logInternal(Level level, Object msg, Throwable t) {
+    String message = String.valueOf(msg);
+    log.log(null, FQCN, getLevel(level), message, null, t);
+  }
+
+  private static int getLevel(Level level) {
+    return switch (level) {
+      case DEBUG -> LocationAwareLogger.DEBUG_INT;
+      case ERROR -> LocationAwareLogger.ERROR_INT;
+      case TRACE -> LocationAwareLogger.TRACE_INT;
+      case WARN -> LocationAwareLogger.WARN_INT;
+      default -> LocationAwareLogger.INFO_INT;
+    };
+  }
+
+  @Override
+  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+    log.log(null, FQCN, getLevel(level), format, args, t);
+  }
 }
 
 final class Slf4jLoggerFactory extends LoggerFactory {
 
   @Override
   protected Logger createLogger(String name) {
-    return new Slf4jLogger(name);
+    return createLog(name);
   }
+
+  static Logger createLog(String name) {
+    org.slf4j.Logger target = org.slf4j.LoggerFactory.getLogger(name);
+    return target instanceof LocationAwareLogger ?
+           new LocationAwareSlf4jLogger((LocationAwareLogger) target) : new Slf4jLogger(target);
+  }
+
 }

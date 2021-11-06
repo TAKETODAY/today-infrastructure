@@ -49,7 +49,7 @@ public abstract class LoggerFactory {
     final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
     if (type != null) {
       try {
-        return (LoggerFactory) Class.forName(type).newInstance();
+        return (LoggerFactory) Class.forName(type).getConstructor().newInstance();
       }
       catch (Throwable e) {
         e.printStackTrace();

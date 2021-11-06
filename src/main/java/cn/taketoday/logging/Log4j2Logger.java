@@ -20,20 +20,30 @@
 package cn.taketoday.logging;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.Message;
-import org.apache.logging.log4j.spi.LocationAwareLogger;
-import org.apache.logging.log4j.util.StackLocatorUtil;
+import org.apache.logging.log4j.spi.ExtendedLogger;
+import org.apache.logging.log4j.spi.LoggerContext;
+
+import java.io.Serial;
 
 /**
  * @author TODAY <br>
  * 2019-11-03 16:09
  */
 final class Log4j2Logger extends cn.taketoday.logging.Logger {
-  private final Logger logger;
+
+  private static final LoggerContext loggerContext =
+          LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
+
+  private final ExtendedLogger logger;
 
   public Log4j2Logger(String name) {
-    this.logger = LogManager.getLogger(name);
+    LoggerContext context = loggerContext;
+    if (context == null) {
+      // Circular call in early-init scenario -> static field not initialized yet
+      context = LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
+    }
+    this.logger = context.getLogger(name);
   }
 
   @Override
@@ -66,26 +76,36 @@ final class Log4j2Logger extends cn.taketoday.logging.Logger {
     return logger.isErrorEnabled();
   }
 
-  protected org.apache.logging.log4j.Level getLevel(Level level) {
-    switch (level) {
-      case DEBUG:
-        return org.apache.logging.log4j.Level.DEBUG;
-      case WARN:
-        return org.apache.logging.log4j.Level.WARN;
-      case ERROR:
-      case TRACE:
-        return org.apache.logging.log4j.Level.ERROR;
-      case INFO:
-      default:
-        return org.apache.logging.log4j.Level.INFO;
+  private org.apache.logging.log4j.Level getLevel(Level level) {
+    return switch (level) {
+      case INFO -> org.apache.logging.log4j.Level.INFO;
+      case WARN -> org.apache.logging.log4j.Level.WARN;
+      case DEBUG -> org.apache.logging.log4j.Level.DEBUG;
+      case ERROR, TRACE -> org.apache.logging.log4j.Level.ERROR;
+    };
+  }
+
+  @Override
+  protected void logInternal(Level level, Object message, Throwable t) {
+    if (message instanceof String) {
+      // Explicitly pass a String argument, avoiding Log4j's argument expansion
+      // for message objects in case of "{}" sequences (SPR-16226)
+      if (t != null) {
+        this.logger.logIfEnabled(FQCN, getLevel(level), null, (String) message, t);
+      }
+      else {
+        this.logger.logIfEnabled(FQCN, getLevel(level), null, (String) message);
+      }
+    }
+    else {
+      this.logger.logIfEnabled(FQCN, getLevel(level), null, message, t);
     }
   }
 
   @Override
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
-
     final Message message = new Message() {
-
+      @Serial
       private static final long serialVersionUID = 1L;
       private String msg;
 
@@ -113,17 +133,7 @@ final class Log4j2Logger extends cn.taketoday.logging.Logger {
       }
     };
 
-    if (logger instanceof LocationAwareLogger) {
-      ((LocationAwareLogger) logger).logMessage(getLevel(level),
-                                                null,
-                                                FQCN,
-                                                StackLocatorUtil.calcLocation(FQCN),
-                                                message,
-                                                t);
-    }
-    else {
-      logger.log(getLevel(level), message, t);
-    }
+    this.logger.logIfEnabled(FQCN, getLevel(level), null, message, t);
   }
 
 }

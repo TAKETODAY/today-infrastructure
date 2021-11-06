@@ -57,7 +57,7 @@ public final class LogDelegateFactory {
     loggers.add(primaryLogger);
     loggers.add(secondaryLogger);
     Collections.addAll(loggers, tertiaryLoggers);
-    return new CompositeLog(loggers);
+    return new CompositeLogger(loggers, primaryLogger.getName());
   }
 
   /**
