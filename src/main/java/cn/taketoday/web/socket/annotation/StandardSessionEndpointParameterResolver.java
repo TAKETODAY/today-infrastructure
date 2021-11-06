@@ -31,7 +31,7 @@ public class StandardSessionEndpointParameterResolver implements EndpointParamet
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return parameter.is(javax.websocket.Session.class);
+    return parameter.is(jakarta.websocket.Session.class);
   }
 
   @Override

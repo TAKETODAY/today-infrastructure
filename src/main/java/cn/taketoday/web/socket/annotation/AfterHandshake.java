@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
  *
  * <p>The method may only take the following parameters:-
  * <ul>
- * <li>optional {@link javax.websocket.EndpointConfig} parameter</li>
- * <li>parameters annotated with the {@link javax.websocket.server.PathParam} annotation.</li>
+ * <li>optional {@link jakarta.websocket.EndpointConfig} parameter</li>
+ * <li>parameters annotated with the {@link jakarta.websocket.server.PathParam} annotation.</li>
  * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
  * <li>parameters annotated with the {@link cn.taketoday.web.annotation.RequestParam} annotation.</li>
  * </ul>

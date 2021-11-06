@@ -22,14 +22,14 @@ package cn.taketoday.web.socket.annotation;
 
 import java.lang.reflect.Method;
 
-import javax.websocket.server.ServerEndpoint;
+import jakarta.websocket.server.ServerEndpoint;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 /**
- * javax.websocket.*
+ * jakarta.websocket.*
  *
  * @author TODAY 2021/5/8 22:08
  * @since 3.0.1
@@ -45,25 +45,25 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
   @Override
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {
     return super.isOnMessageHandler(declaredMethod, definition)
-            || declaredMethod.isAnnotationPresent(javax.websocket.OnMessage.class);
+            || declaredMethod.isAnnotationPresent(jakarta.websocket.OnMessage.class);
   }
 
   @Override
   protected boolean isOnCloseHandler(Method declaredMethod, BeanDefinition definition) {
     return super.isOnCloseHandler(declaredMethod, definition)
-            || declaredMethod.isAnnotationPresent(javax.websocket.OnClose.class);
+            || declaredMethod.isAnnotationPresent(jakarta.websocket.OnClose.class);
   }
 
   @Override
   protected boolean isOnOpenHandler(Method declaredMethod, BeanDefinition definition) {
     return super.isOnOpenHandler(declaredMethod, definition)
-            || declaredMethod.isAnnotationPresent(javax.websocket.OnOpen.class);
+            || declaredMethod.isAnnotationPresent(jakarta.websocket.OnOpen.class);
   }
 
   @Override
   protected boolean isOnErrorHandler(Method declaredMethod, BeanDefinition definition) {
     return super.isOnErrorHandler(declaredMethod, definition)
-            || declaredMethod.isAnnotationPresent(javax.websocket.OnError.class);
+            || declaredMethod.isAnnotationPresent(jakarta.websocket.OnError.class);
   }
 
   @Override

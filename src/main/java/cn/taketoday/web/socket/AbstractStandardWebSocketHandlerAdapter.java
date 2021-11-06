@@ -20,13 +20,12 @@
 
 package cn.taketoday.web.socket;
 
-import javax.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
- * javax.websocket
+ * jakarta.websocket
  *
  * @author TODAY 2021/5/3 23:17
  */

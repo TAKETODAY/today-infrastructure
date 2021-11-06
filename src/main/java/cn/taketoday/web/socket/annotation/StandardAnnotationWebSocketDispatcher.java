@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import java.util.List;
 
-import javax.websocket.server.ServerEndpointConfig;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.StandardWebSocketHandler;

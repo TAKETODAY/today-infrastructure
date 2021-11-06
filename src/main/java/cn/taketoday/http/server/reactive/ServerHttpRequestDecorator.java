@@ -42,112 +42,107 @@ import reactor.core.publisher.Flux;
  */
 public class ServerHttpRequestDecorator implements ServerHttpRequest {
 
-	private final ServerHttpRequest delegate;
+  private final ServerHttpRequest delegate;
 
+  public ServerHttpRequestDecorator(ServerHttpRequest delegate) {
+    Assert.notNull(delegate, "Delegate is required");
+    this.delegate = delegate;
+  }
 
-	public ServerHttpRequestDecorator(ServerHttpRequest delegate) {
-		Assert.notNull(delegate, "Delegate is required");
-		this.delegate = delegate;
-	}
+  public ServerHttpRequest getDelegate() {
+    return this.delegate;
+  }
 
+  // ServerHttpRequest delegation methods...
 
-	public ServerHttpRequest getDelegate() {
-		return this.delegate;
-	}
+  @Override
+  public String getId() {
+    return getDelegate().getId();
+  }
 
+  @Override
+  @Nullable
+  public HttpMethod getMethod() {
+    return getDelegate().getMethod();
+  }
 
-	// ServerHttpRequest delegation methods...
+  @Override
+  public String getMethodValue() {
+    return getDelegate().getMethodValue();
+  }
 
-	@Override
-	public String getId() {
-		return getDelegate().getId();
-	}
+  @Override
+  public URI getURI() {
+    return getDelegate().getURI();
+  }
 
-	@Override
-	@Nullable
-	public HttpMethod getMethod() {
-		return getDelegate().getMethod();
-	}
+  @Override
+  public RequestPath getPath() {
+    return getDelegate().getPath();
+  }
 
-	@Override
-	public String getMethodValue() {
-		return getDelegate().getMethodValue();
-	}
+  @Override
+  public MultiValueMap<String, String> getQueryParams() {
+    return getDelegate().getQueryParams();
+  }
 
-	@Override
-	public URI getURI() {
-		return getDelegate().getURI();
-	}
+  @Override
+  public HttpHeaders getHeaders() {
+    return getDelegate().getHeaders();
+  }
 
-	@Override
-	public RequestPath getPath() {
-		return getDelegate().getPath();
-	}
+  @Override
+  public MultiValueMap<String, HttpCookie> getCookies() {
+    return getDelegate().getCookies();
+  }
 
-	@Override
-	public MultiValueMap<String, String> getQueryParams() {
-		return getDelegate().getQueryParams();
-	}
+  @Override
+  @Nullable
+  public InetSocketAddress getLocalAddress() {
+    return getDelegate().getLocalAddress();
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return getDelegate().getHeaders();
-	}
+  @Override
+  @Nullable
+  public InetSocketAddress getRemoteAddress() {
+    return getDelegate().getRemoteAddress();
+  }
 
-	@Override
-	public MultiValueMap<String, HttpCookie> getCookies() {
-		return getDelegate().getCookies();
-	}
+  @Override
+  @Nullable
+  public SslInfo getSslInfo() {
+    return getDelegate().getSslInfo();
+  }
 
-	@Override
-	@Nullable
-	public InetSocketAddress getLocalAddress() {
-		return getDelegate().getLocalAddress();
-	}
+  @Override
+  public Flux<DataBuffer> getBody() {
+    return getDelegate().getBody();
+  }
 
-	@Override
-	@Nullable
-	public InetSocketAddress getRemoteAddress() {
-		return getDelegate().getRemoteAddress();
-	}
+  /**
+   * Return the native request of the underlying server API, if possible,
+   * also unwrapping {@link ServerHttpRequestDecorator} if necessary.
+   *
+   * @param request the request to check
+   * @param <T> the expected native request type
+   * @throws IllegalArgumentException if the native request can't be obtained
+   */
+  public static <T> T getNativeRequest(ServerHttpRequest request) {
+    if (request instanceof AbstractServerHttpRequest) {
+      return ((AbstractServerHttpRequest) request).getNativeRequest();
+    }
+    else if (request instanceof ServerHttpRequestDecorator) {
+      return getNativeRequest(((ServerHttpRequestDecorator) request).getDelegate());
+    }
+    else {
+      throw new IllegalArgumentException(
+              "Can't find native request in " + request.getClass().getName());
+    }
+  }
 
-	@Override
-	@Nullable
-	public SslInfo getSslInfo() {
-		return getDelegate().getSslInfo();
-	}
-
-	@Override
-	public Flux<DataBuffer> getBody() {
-		return getDelegate().getBody();
-	}
-
-
-	/**
-	 * Return the native request of the underlying server API, if possible,
-	 * also unwrapping {@link ServerHttpRequestDecorator} if necessary.
-	 * @param request the request to check
-	 * @param <T> the expected native request type
-	 * @throws IllegalArgumentException if the native request can't be obtained
-	 * @since 4.0
-	 */
-	public static <T> T getNativeRequest(ServerHttpRequest request) {
-		if (request instanceof AbstractServerHttpRequest) {
-			return ((AbstractServerHttpRequest) request).getNativeRequest();
-		}
-		else if (request instanceof ServerHttpRequestDecorator) {
-			return getNativeRequest(((ServerHttpRequestDecorator) request).getDelegate());
-		}
-		else {
-			throw new IllegalArgumentException(
-					"Can't find native request in " + request.getClass().getName());
-		}
-	}
-
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
-	}
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
+  }
 
 }

@@ -32,6 +32,7 @@ import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.web.handler.MethodParameter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -66,7 +66,8 @@ import reactor.core.publisher.Mono;
  * @see <a href="https://github.com/FasterXML/jackson-core/issues/57" target="_blank">Add support for non-blocking ("async") JSON parsing</a>
  * @since 4.0
  */
-public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport implements HttpMessageDecoder<Object> {
+public abstract class AbstractJackson2Decoder
+        extends Jackson2CodecSupport implements HttpMessageDecoder<Object> {
 
   private int maxInMemorySize = 256 * 1024;
 
@@ -85,7 +86,6 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
    * <p>By default this is set to 256K.
    *
    * @param byteCount the max number of bytes to buffer, or -1 for unlimited
-   * @since 4.0
    */
   public void setMaxInMemorySize(int byteCount) {
     this.maxInMemorySize = byteCount;
@@ -93,8 +93,6 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
 
   /**
    * Return the {@link #setMaxInMemorySize configured} byte count limit.
-   *
-   * @since 4.0
    */
   public int getMaxInMemorySize() {
     return this.maxInMemorySize;
@@ -125,8 +123,9 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
   }
 
   @Override
-  public Flux<Object> decode(Publisher<DataBuffer> input, ResolvableType elementType,
-                             @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public Flux<Object> decode(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     ObjectMapper mapper = selectObjectMapper(elementType, mimeType);
     if (mapper == null) {
@@ -139,11 +138,10 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
     }
 
     Flux<DataBuffer> processed = processInput(input, elementType, mimeType, hints);
-    Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(processed, mapper.getFactory(), mapper,
-                                                          true, forceUseOfBigDecimal, getMaxInMemorySize());
+    Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
+            processed, mapper.getFactory(), mapper, true, forceUseOfBigDecimal, getMaxInMemorySize());
 
     ObjectReader reader = getObjectReader(mapper, elementType, hints);
-
     return tokens.handle((tokenBuffer, sink) -> {
       try {
         Object value = reader.readValue(tokenBuffer.asParser(mapper));
@@ -168,31 +166,30 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
    * @param mimeType the MIME type associated with the input stream (optional)
    * @param hints additional information about how to do encode
    * @return the processed flux
-   * @since 4.0
    */
-  protected Flux<DataBuffer> processInput(Publisher<DataBuffer> input, ResolvableType elementType,
-                                          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  protected Flux<DataBuffer> processInput(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return Flux.from(input);
   }
 
   @Override
-  public Mono<Object> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
-                                   @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
+  public Mono<Object> decodeToMono(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     return DataBufferUtils.join(input, this.maxInMemorySize)
             .flatMap(dataBuffer -> Mono.justOrEmpty(decode(dataBuffer, elementType, mimeType, hints)));
   }
 
   @Override
-  public Object decode(DataBuffer dataBuffer, ResolvableType targetType,
-                       @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
-
+  public Object decode(
+          DataBuffer dataBuffer, ResolvableType targetType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
     ObjectMapper mapper = selectObjectMapper(targetType, mimeType);
     if (mapper == null) {
       throw new IllegalStateException("No ObjectMapper for " + targetType);
     }
-
     try {
       ObjectReader objectReader = getObjectReader(mapper, targetType, hints);
       Object value = objectReader.readValue(dataBuffer.asInputStream());
@@ -209,7 +206,6 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
 
   private ObjectReader getObjectReader(
           ObjectMapper mapper, ResolvableType elementType, @Nullable Map<String, Object> hints) {
-
     Assert.notNull(elementType, "'elementType' must not be null");
     Class<?> contextClass = getContextClass(elementType);
     if (contextClass == null && hints != null) {
@@ -224,8 +220,8 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
 
   @Nullable
   private Class<?> getContextClass(@Nullable ResolvableType elementType) {
-    MethodParameter param = (elementType != null ? getParameter(elementType) : null);
-    return (param != null ? param.getContainingClass() : null);
+    Parameter param = elementType != null ? getParameter(elementType) : null;
+    return param != null ? param.getDeclaringExecutable().getDeclaringClass() : null;
   }
 
   private void logValue(@Nullable Object value, @Nullable Map<String, Object> hints) {
@@ -252,9 +248,9 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
   // HttpMessageDecoder
 
   @Override
-  public Map<String, Object> getDecodeHints(ResolvableType actualType, ResolvableType elementType,
-                                            ServerHttpRequest request, ServerHttpResponse response) {
-
+  public Map<String, Object> getDecodeHints(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response) {
     return getHints(actualType);
   }
 
@@ -271,8 +267,8 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
   // Jackson2CodecSupport
 
   @Override
-  protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
-    return parameter.getParameterAnnotation(annotType);
+  protected <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotType) {
+    return parameter.getAnnotation(annotType);
   }
 
 }

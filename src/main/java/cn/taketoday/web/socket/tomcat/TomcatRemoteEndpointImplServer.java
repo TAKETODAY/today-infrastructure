@@ -33,14 +33,13 @@ import java.nio.channels.CompletionHandler;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
-
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import jakarta.websocket.SendHandler;
+import jakarta.websocket.SendResult;
 
 /**
- * This is the server side {@link javax.websocket.RemoteEndpoint} implementation
+ * This is the server side {@link jakarta.websocket.RemoteEndpoint} implementation
  * - i.e. what the server uses to send data to the client.
  *
  * @author TODAY 2021/5/5 22:11
@@ -271,7 +270,7 @@ final class TomcatRemoteEndpointImplServer extends WsRemoteEndpointImplBase {
    * @param useDispatch Should {@link SendHandler#onResult(SendResult)} be
    * called from a new thread, keeping in mind the
    * requirements of
-   * {@link javax.websocket.RemoteEndpoint.Async}
+   * {@link jakarta.websocket.RemoteEndpoint.Async}
    */
   private void clearHandler(Throwable t, boolean useDispatch) {
     // Setting the result marks this (partial) message as

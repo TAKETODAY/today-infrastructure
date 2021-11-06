@@ -23,12 +23,12 @@ package cn.taketoday.web.socket;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import javax.websocket.CloseReason;
-import javax.websocket.CloseReason.CloseCodes;
-import javax.websocket.Session;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.CloseReason.CloseCodes;
+import jakarta.websocket.Session;
 
 /**
- * Standard javax.websocket.Session WebSocketSession
+ * Standard jakarta.websocket.Session WebSocketSession
  *
  * @author TODAY 2021/4/5 14:25
  * @since 3.0

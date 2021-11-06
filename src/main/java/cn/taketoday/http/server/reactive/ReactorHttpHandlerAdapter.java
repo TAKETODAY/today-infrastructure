@@ -43,40 +43,37 @@ import reactor.netty.http.server.HttpServerResponse;
  */
 public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, HttpServerResponse, Mono<Void>> {
 
-	private static final Log logger = HttpLogging.forLogName(ReactorHttpHandlerAdapter.class);
+  private static final Log logger = HttpLogging.forLogName(ReactorHttpHandlerAdapter.class);
 
+  private final HttpHandler httpHandler;
 
-	private final HttpHandler httpHandler;
+  public ReactorHttpHandlerAdapter(HttpHandler httpHandler) {
+    Assert.notNull(httpHandler, "HttpHandler must not be null");
+    this.httpHandler = httpHandler;
+  }
 
+  @Override
+  public Mono<Void> apply(HttpServerRequest reactorRequest, HttpServerResponse reactorResponse) {
+    NettyDataBufferFactory bufferFactory = new NettyDataBufferFactory(reactorResponse.alloc());
+    try {
+      ReactorServerHttpRequest request = new ReactorServerHttpRequest(reactorRequest, bufferFactory);
+      ServerHttpResponse response = new ReactorServerHttpResponse(reactorResponse, bufferFactory);
 
-	public ReactorHttpHandlerAdapter(HttpHandler httpHandler) {
-		Assert.notNull(httpHandler, "HttpHandler must not be null");
-		this.httpHandler = httpHandler;
-	}
+      if (request.getMethod() == HttpMethod.HEAD) {
+        response = new HttpHeadResponseDecorator(response);
+      }
 
-
-	@Override
-	public Mono<Void> apply(HttpServerRequest reactorRequest, HttpServerResponse reactorResponse) {
-		NettyDataBufferFactory bufferFactory = new NettyDataBufferFactory(reactorResponse.alloc());
-		try {
-			ReactorServerHttpRequest request = new ReactorServerHttpRequest(reactorRequest, bufferFactory);
-			ServerHttpResponse response = new ReactorServerHttpResponse(reactorResponse, bufferFactory);
-
-			if (request.getMethod() == HttpMethod.HEAD) {
-				response = new HttpHeadResponseDecorator(response);
-			}
-
-			return this.httpHandler.handle(request, response)
-					.doOnError(ex -> logger.trace(request.getLogPrefix() + "Failed to complete: " + ex.getMessage()))
-					.doOnSuccess(aVoid -> logger.trace(request.getLogPrefix() + "Handling completed"));
-		}
-		catch (URISyntaxException ex) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Failed to get request URI: " + ex.getMessage());
-			}
-			reactorResponse.status(HttpResponseStatus.BAD_REQUEST);
-			return Mono.empty();
-		}
-	}
+      return this.httpHandler.handle(request, response)
+              .doOnError(ex -> logger.trace(request.getLogPrefix() + "Failed to complete: " + ex.getMessage()))
+              .doOnSuccess(aVoid -> logger.trace(request.getLogPrefix() + "Handling completed"));
+    }
+    catch (URISyntaxException ex) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Failed to get request URI: " + ex.getMessage());
+      }
+      reactorResponse.status(HttpResponseStatus.BAD_REQUEST);
+      return Mono.empty();
+    }
+  }
 
 }

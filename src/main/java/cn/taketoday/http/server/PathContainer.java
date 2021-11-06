@@ -88,7 +88,6 @@ public interface PathContainer {
    * @param path the encoded, raw path value to parse
    * @param options to customize parsing
    * @return the parsed path
-   * @since 4.0
    */
   static PathContainer parsePath(String path, Options options) {
     return DefaultPathContainer.createFromUrlPath(path, options);
@@ -108,8 +107,7 @@ public interface PathContainer {
   /**
    * Path separator element.
    */
-  interface Separator extends Element {
-  }
+  interface Separator extends Element { }
 
   /**
    * Path segment element.

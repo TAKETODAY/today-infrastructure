@@ -42,104 +42,98 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public class ServerHttpResponseDecorator implements ServerHttpResponse {
+  private final ServerHttpResponse delegate;
 
-	private final ServerHttpResponse delegate;
+  public ServerHttpResponseDecorator(ServerHttpResponse delegate) {
+    Assert.notNull(delegate, "Delegate is required");
+    this.delegate = delegate;
+  }
 
+  public ServerHttpResponse getDelegate() {
+    return this.delegate;
+  }
 
-	public ServerHttpResponseDecorator(ServerHttpResponse delegate) {
-		Assert.notNull(delegate, "Delegate is required");
-		this.delegate = delegate;
-	}
+  // ServerHttpResponse delegation methods...
 
+  @Override
+  public boolean setStatusCode(@Nullable HttpStatus status) {
+    return getDelegate().setStatusCode(status);
+  }
 
-	public ServerHttpResponse getDelegate() {
-		return this.delegate;
-	}
+  @Override
+  public HttpStatus getStatusCode() {
+    return getDelegate().getStatusCode();
+  }
 
+  @Override
+  public HttpHeaders getHeaders() {
+    return getDelegate().getHeaders();
+  }
 
-	// ServerHttpResponse delegation methods...
+  @Override
+  public MultiValueMap<String, ResponseCookie> getCookies() {
+    return getDelegate().getCookies();
+  }
 
-	@Override
-	public boolean setStatusCode(@Nullable HttpStatus status) {
-		return getDelegate().setStatusCode(status);
-	}
+  @Override
+  public void addCookie(ResponseCookie cookie) {
+    getDelegate().addCookie(cookie);
+  }
 
-	@Override
-	public HttpStatus getStatusCode() {
-		return getDelegate().getStatusCode();
-	}
+  @Override
+  public DataBufferFactory bufferFactory() {
+    return getDelegate().bufferFactory();
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return getDelegate().getHeaders();
-	}
+  @Override
+  public void beforeCommit(Supplier<? extends Mono<Void>> action) {
+    getDelegate().beforeCommit(action);
+  }
 
-	@Override
-	public MultiValueMap<String, ResponseCookie> getCookies() {
-		return getDelegate().getCookies();
-	}
+  @Override
+  public boolean isCommitted() {
+    return getDelegate().isCommitted();
+  }
 
-	@Override
-	public void addCookie(ResponseCookie cookie) {
-		getDelegate().addCookie(cookie);
-	}
+  @Override
+  public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+    return getDelegate().writeWith(body);
+  }
 
-	@Override
-	public DataBufferFactory bufferFactory() {
-		return getDelegate().bufferFactory();
-	}
+  @Override
+  public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+    return getDelegate().writeAndFlushWith(body);
+  }
 
-	@Override
-	public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-		getDelegate().beforeCommit(action);
-	}
+  @Override
+  public Mono<Void> setComplete() {
+    return getDelegate().setComplete();
+  }
 
-	@Override
-	public boolean isCommitted() {
-		return getDelegate().isCommitted();
-	}
+  /**
+   * Return the native response of the underlying server API, if possible,
+   * also unwrapping {@link ServerHttpResponseDecorator} if necessary.
+   *
+   * @param response the response to check
+   * @param <T> the expected native response type
+   * @throws IllegalArgumentException if the native response can't be obtained
+   */
+  public static <T> T getNativeResponse(ServerHttpResponse response) {
+    if (response instanceof AbstractServerHttpResponse) {
+      return ((AbstractServerHttpResponse) response).getNativeResponse();
+    }
+    else if (response instanceof ServerHttpResponseDecorator) {
+      return getNativeResponse(((ServerHttpResponseDecorator) response).getDelegate());
+    }
+    else {
+      throw new IllegalArgumentException(
+              "Can't find native response in " + response.getClass().getName());
+    }
+  }
 
-	@Override
-	public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-		return getDelegate().writeWith(body);
-	}
-
-	@Override
-	public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-		return getDelegate().writeAndFlushWith(body);
-	}
-
-	@Override
-	public Mono<Void> setComplete() {
-		return getDelegate().setComplete();
-	}
-
-
-	/**
-	 * Return the native response of the underlying server API, if possible,
-	 * also unwrapping {@link ServerHttpResponseDecorator} if necessary.
-	 * @param response the response to check
-	 * @param <T> the expected native response type
-	 * @throws IllegalArgumentException if the native response can't be obtained
-	 * @since 4.0
-	 */
-	public static <T> T getNativeResponse(ServerHttpResponse response) {
-		if (response instanceof AbstractServerHttpResponse) {
-			return ((AbstractServerHttpResponse) response).getNativeResponse();
-		}
-		else if (response instanceof ServerHttpResponseDecorator) {
-			return getNativeResponse(((ServerHttpResponseDecorator) response).getDelegate());
-		}
-		else {
-			throw new IllegalArgumentException(
-					"Can't find native response in " + response.getClass().getName());
-		}
-	}
-
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
-	}
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
+  }
 
 }

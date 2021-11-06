@@ -36,12 +36,12 @@ import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.WebConnection;
-import javax.websocket.CloseReason;
-import javax.websocket.CloseReason.CloseCodes;
-import javax.websocket.DeploymentException;
-import javax.websocket.Endpoint;
-import javax.websocket.Extension;
-import javax.websocket.server.ServerEndpointConfig;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.CloseReason.CloseCodes;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.Extension;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.logging.Logger;

@@ -40,7 +40,7 @@ public abstract class WebSocketSession
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
   public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
-  public static final String JAVAX_ENDPOINT_CONFIG_KEY = "javax.websocket.EndpointConfig";
+  public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
 
   public static final String PATH_MATCHER = PathMatcher.class + "-PathMatcher";
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";

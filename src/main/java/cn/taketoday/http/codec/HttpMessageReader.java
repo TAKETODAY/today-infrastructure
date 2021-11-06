@@ -26,6 +26,8 @@ import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
+import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.handler.MethodParameter;
@@ -114,8 +116,9 @@ public interface HttpMessageReader<T> {
    * @param hints additional information about how to read the body
    * @return the decoded stream of elements
    */
-  default Flux<T> read(ResolvableType actualType, ResolvableType elementType, ServerHttpRequest request,
-                       ServerHttpResponse response, Map<String, Object> hints) {
+  default Flux<T> read(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
 
     return read(elementType, request, hints);
   }

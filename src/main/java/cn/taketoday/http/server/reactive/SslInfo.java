@@ -32,16 +32,16 @@ import cn.taketoday.lang.Nullable;
  */
 public interface SslInfo {
 
-	/**
-	 * Return the SSL session id, if any.
-	 */
-	@Nullable
-	String getSessionId();
+  /**
+   * Return the SSL session id, if any.
+   */
+  @Nullable
+  String getSessionId();
 
-	/**
-	 * Return SSL certificates associated with the request, if any.
-	 */
-	@Nullable
-	X509Certificate[] getPeerCertificates();
+  /**
+   * Return SSL certificates associated with the request, if any.
+   */
+  @Nullable
+  X509Certificate[] getPeerCertificates();
 
 }

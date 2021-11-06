@@ -30,6 +30,8 @@ import cn.taketoday.core.codec.Hints;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.HttpMessage;
 import cn.taketoday.http.ReactiveHttpInputMessage;
+import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -126,8 +128,6 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
 
   /**
    * Get additional hints for decoding based on the input HTTP message.
-   *
-   * @since 4.0
    */
   protected Map<String, Object> getReadHints(ResolvableType elementType, ReactiveHttpInputMessage message) {
     return Hints.none();
@@ -136,21 +136,23 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
   // Server-side only...
 
   @Override
-  public Flux<T> read(ResolvableType actualType, ResolvableType elementType,
-                      ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
+  public Flux<T> read(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
 
-    Map<String, Object> allHints = Hints.merge(hints,
-                                               getReadHints(actualType, elementType, request, response));
+    Map<String, Object> allHints = Hints.merge(
+            hints, getReadHints(actualType, elementType, request, response));
 
     return read(elementType, request, allHints);
   }
 
   @Override
-  public Mono<T> readMono(ResolvableType actualType, ResolvableType elementType,
-                          ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
+  public Mono<T> readMono(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
 
-    Map<String, Object> allHints = Hints.merge(hints,
-                                               getReadHints(actualType, elementType, request, response));
+    Map<String, Object> allHints = Hints.merge(
+            hints, getReadHints(actualType, elementType, request, response));
 
     return readMono(elementType, request, allHints);
   }
@@ -160,11 +162,11 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
    * or annotations from controller method parameters. By default, delegate to
    * the decoder if it is an instance of {@link HttpMessageDecoder}.
    */
-  protected Map<String, Object> getReadHints(ResolvableType actualType,
-                                             ResolvableType elementType, ServerHttpRequest request, ServerHttpResponse response) {
+  protected Map<String, Object> getReadHints(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response) {
 
-    if (this.decoder instanceof HttpMessageDecoder) {
-      HttpMessageDecoder<?> decoder = (HttpMessageDecoder<?>) this.decoder;
+    if (this.decoder instanceof HttpMessageDecoder<?> decoder) {
       return decoder.getDecodeHints(actualType, elementType, request, response);
     }
     return Hints.none();

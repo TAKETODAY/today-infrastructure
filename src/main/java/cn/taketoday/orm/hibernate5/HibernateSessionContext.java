@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.transaction.Synchronization;
+import jakarta.transaction.Synchronization;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import io.undertow.util.HeaderMap;
@@ -45,235 +46,228 @@ import io.undertow.util.HttpString;
  */
 class UndertowHeadersAdapter implements MultiValueMap<String, String> {
 
-	private final HeaderMap headers;
+  private final HeaderMap headers;
 
+  UndertowHeadersAdapter(HeaderMap headers) {
+    this.headers = headers;
+  }
 
-	UndertowHeadersAdapter(HeaderMap headers) {
-		this.headers = headers;
-	}
+  @Override
+  public String getFirst(String key) {
+    return this.headers.getFirst(key);
+  }
 
+  @Override
+  public void add(String key, @Nullable String value) {
+    this.headers.add(HttpString.tryFromString(key), value);
+  }
 
-	@Override
-	public String getFirst(String key) {
-		return this.headers.getFirst(key);
-	}
+  @Override
+  @SuppressWarnings("unchecked")
+  public void addAll(String key, List<? extends String> values) {
+    this.headers.addAll(HttpString.tryFromString(key), (List<String>) values);
+  }
 
-	@Override
-	public void add(String key, @Nullable String value) {
-		this.headers.add(HttpString.tryFromString(key), value);
-	}
+  @Override
+  public void addAll(MultiValueMap<String, String> values) {
+    values.forEach((key, list) -> this.headers.addAll(HttpString.tryFromString(key), list));
+  }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public void addAll(String key, List<? extends String> values) {
-		this.headers.addAll(HttpString.tryFromString(key), (List<String>) values);
-	}
+  @Override
+  public void set(String key, @Nullable String value) {
+    this.headers.put(HttpString.tryFromString(key), value);
+  }
 
-	@Override
-	public void addAll(MultiValueMap<String, String> values) {
-		values.forEach((key, list) -> this.headers.addAll(HttpString.tryFromString(key), list));
-	}
+  @Override
+  public void setAll(Map<String, String> values) {
+    values.forEach((key, list) -> this.headers.put(HttpString.tryFromString(key), list));
+  }
 
-	@Override
-	public void set(String key, @Nullable String value) {
-		this.headers.put(HttpString.tryFromString(key), value);
-	}
+  @Override
+  public Map<String, String> toSingleValueMap() {
+    Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
+    this.headers.forEach(values -> singleValueMap.put(values.getHeaderName().toString(), values.getFirst()));
+    return singleValueMap;
+  }
 
-	@Override
-	public void setAll(Map<String, String> values) {
-		values.forEach((key, list) -> this.headers.put(HttpString.tryFromString(key), list));
-	}
+  @Override
+  public int size() {
+    return this.headers.size();
+  }
 
-	@Override
-	public Map<String, String> toSingleValueMap() {
-		Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
-		this.headers.forEach(values ->
-				singleValueMap.put(values.getHeaderName().toString(), values.getFirst()));
-		return singleValueMap;
-	}
+  @Override
+  public boolean isEmpty() {
+    return (this.headers.size() == 0);
+  }
 
-	@Override
-	public int size() {
-		return this.headers.size();
-	}
+  @Override
+  public boolean containsKey(Object key) {
+    return (key instanceof String headerName && this.headers.contains(headerName));
+  }
 
-	@Override
-	public boolean isEmpty() {
-		return (this.headers.size() == 0);
-	}
+  @Override
+  public boolean containsValue(Object value) {
+    return (value instanceof String &&
+            this.headers.getHeaderNames()
+                    .stream()
+                    .map(this.headers::get)
+                    .anyMatch(values -> values.contains(value)));
+  }
 
-	@Override
-	public boolean containsKey(Object key) {
-		return (key instanceof String headerName && this.headers.contains(headerName));
-	}
+  @Override
+  @Nullable
+  public List<String> get(Object key) {
+    return (key instanceof String headerName ? this.headers.get(headerName) : null);
+  }
 
-	@Override
-	public boolean containsValue(Object value) {
-		return (value instanceof String &&
-				this.headers.getHeaderNames().stream()
-						.map(this.headers::get)
-						.anyMatch(values -> values.contains(value)));
-	}
+  @Override
+  @Nullable
+  public List<String> put(String key, List<String> value) {
+    HeaderValues previousValues = this.headers.get(key);
+    this.headers.putAll(HttpString.tryFromString(key), value);
+    return previousValues;
+  }
 
-	@Override
-	@Nullable
-	public List<String> get(Object key) {
-		return (key instanceof String headerName ? this.headers.get(headerName) : null);
-	}
+  @Override
+  @Nullable
+  public List<String> remove(Object key) {
+    if (key instanceof String headerName) {
+      Collection<String> removed = this.headers.remove(headerName);
+      if (removed != null) {
+        return new ArrayList<>(removed);
+      }
+    }
+    return null;
+  }
 
-	@Override
-	@Nullable
-	public List<String> put(String key, List<String> value) {
-		HeaderValues previousValues = this.headers.get(key);
-		this.headers.putAll(HttpString.tryFromString(key), value);
-		return previousValues;
-	}
+  @Override
+  public void putAll(Map<? extends String, ? extends List<String>> map) {
+    map.forEach((key, values) -> this.headers.putAll(HttpString.tryFromString(key), values));
+  }
 
-	@Override
-	@Nullable
-	public List<String> remove(Object key) {
-		if (key instanceof String headerName) {
-			Collection<String> removed = this.headers.remove(headerName);
-			if (removed != null) {
-				return new ArrayList<>(removed);
-			}
-		}
-		return null;
-	}
+  @Override
+  public void clear() {
+    this.headers.clear();
+  }
 
-	@Override
-	public void putAll(Map<? extends String, ? extends List<String>> map) {
-		map.forEach((key, values) ->
-				this.headers.putAll(HttpString.tryFromString(key), values));
-	}
+  @Override
+  public Set<String> keySet() {
+    return new HeaderNames();
+  }
 
-	@Override
-	public void clear() {
-		this.headers.clear();
-	}
+  @Override
+  public Collection<List<String>> values() {
+    return this.headers.getHeaderNames().stream()
+            .map(this.headers::get)
+            .collect(Collectors.toList());
+  }
 
-	@Override
-	public Set<String> keySet() {
-		return new HeaderNames();
-	}
+  @Override
+  public Set<Map.Entry<String, List<String>>> entrySet() {
+    return new AbstractSet<>() {
+      @Override
+      public Iterator<Map.Entry<String, List<String>>> iterator() {
+        return new EntryIterator();
+      }
 
-	@Override
-	public Collection<List<String>> values() {
-		return this.headers.getHeaderNames().stream()
-				.map(this.headers::get)
-				.collect(Collectors.toList());
-	}
+      @Override
+      public int size() {
+        return headers.size();
+      }
+    };
+  }
 
-	@Override
-	public Set<Map.Entry<String, List<String>>> entrySet() {
-		return new AbstractSet<>() {
-			@Override
-			public Iterator<Map.Entry<String, List<String>>> iterator() {
-				return new EntryIterator();
-			}
+  @Override
+  public String toString() {
+    return HttpHeaders.formatHeaders(this);
+  }
 
-			@Override
-			public int size() {
-				return headers.size();
-			}
-		};
-	}
+  private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
+    private final Iterator<HttpString> names = headers.getHeaderNames().iterator();
 
-	@Override
-	public String toString() {
-		return cn.taketoday.http.HttpHeaders.formatHeaders(this);
-	}
+    @Override
+    public boolean hasNext() {
+      return this.names.hasNext();
+    }
 
+    @Override
+    public Map.Entry<String, List<String>> next() {
+      return new HeaderEntry(this.names.next());
+    }
+  }
 
-	private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
+  private class HeaderEntry implements Map.Entry<String, List<String>> {
 
-		private final Iterator<HttpString> names = headers.getHeaderNames().iterator();
+    private final HttpString key;
 
-		@Override
-		public boolean hasNext() {
-			return this.names.hasNext();
-		}
+    HeaderEntry(HttpString key) {
+      this.key = key;
+    }
 
-		@Override
-		public Map.Entry<String, List<String>> next() {
-			return new HeaderEntry(this.names.next());
-		}
-	}
+    @Override
+    public String getKey() {
+      return this.key.toString();
+    }
 
+    @Override
+    public List<String> getValue() {
+      return headers.get(this.key);
+    }
 
-	private class HeaderEntry implements Map.Entry<String, List<String>> {
+    @Override
+    public List<String> setValue(List<String> value) {
+      List<String> previousValues = headers.get(this.key);
+      headers.putAll(this.key, value);
+      return previousValues;
+    }
+  }
 
-		private final HttpString key;
+  private class HeaderNames extends AbstractSet<String> {
 
-		HeaderEntry(HttpString key) {
-			this.key = key;
-		}
+    @Override
+    public Iterator<String> iterator() {
+      return new HeaderNamesIterator(headers.getHeaderNames().iterator());
+    }
 
-		@Override
-		public String getKey() {
-			return this.key.toString();
-		}
+    @Override
+    public int size() {
+      return headers.getHeaderNames().size();
+    }
+  }
 
-		@Override
-		public List<String> getValue() {
-			return headers.get(this.key);
-		}
+  private final class HeaderNamesIterator implements Iterator<String> {
 
-		@Override
-		public List<String> setValue(List<String> value) {
-			List<String> previousValues = headers.get(this.key);
-			headers.putAll(this.key, value);
-			return previousValues;
-		}
-	}
+    private final Iterator<HttpString> iterator;
 
+    @Nullable
+    private String currentName;
 
-	private class HeaderNames extends AbstractSet<String> {
+    private HeaderNamesIterator(Iterator<HttpString> iterator) {
+      this.iterator = iterator;
+    }
 
-		@Override
-		public Iterator<String> iterator() {
-			return new HeaderNamesIterator(headers.getHeaderNames().iterator());
-		}
+    @Override
+    public boolean hasNext() {
+      return this.iterator.hasNext();
+    }
 
-		@Override
-		public int size() {
-			return headers.getHeaderNames().size();
-		}
-	}
+    @Override
+    public String next() {
+      this.currentName = this.iterator.next().toString();
+      return this.currentName;
+    }
 
-	private final class HeaderNamesIterator implements Iterator<String> {
-
-		private final Iterator<HttpString> iterator;
-
-		@Nullable
-		private String currentName;
-
-		private HeaderNamesIterator(Iterator<HttpString> iterator) {
-			this.iterator = iterator;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return this.iterator.hasNext();
-		}
-
-		@Override
-		public String next() {
-			this.currentName = this.iterator.next().toString();
-			return this.currentName;
-		}
-
-		@Override
-		public void remove() {
-			if (this.currentName == null) {
-				throw new IllegalStateException("No current Header in iterator");
-			}
-			if (!headers.contains(this.currentName)) {
-				throw new IllegalStateException("Header not present: " + this.currentName);
-			}
-			headers.remove(this.currentName);
-		}
-	}
+    @Override
+    public void remove() {
+      if (this.currentName == null) {
+        throw new IllegalStateException("No current Header in iterator");
+      }
+      if (!headers.contains(this.currentName)) {
+        throw new IllegalStateException("Header not present: " + this.currentName);
+      }
+      headers.remove(this.currentName);
+    }
+  }
 
 }

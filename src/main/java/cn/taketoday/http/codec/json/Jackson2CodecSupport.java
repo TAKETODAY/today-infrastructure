@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +37,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.http.HttpLogging;
@@ -201,7 +201,6 @@ public abstract class Jackson2CodecSupport {
    * @param type the class that Jackson tested for (de-)serializability
    * @param cause the Jackson-thrown exception to evaluate
    * (typically a {@link JsonMappingException})
-   * @since 4.0
    */
   protected void logWarningIfNecessary(Type type, @Nullable Throwable cause) {
     if (cause == null) {
@@ -219,9 +218,9 @@ public abstract class Jackson2CodecSupport {
   }
 
   protected Map<String, Object> getHints(ResolvableType resolvableType) {
-    MethodParameter param = getParameter(resolvableType);
+    Parameter param = getParameter(resolvableType);
     if (param != null) {
-      Map<String, Object> hints = null;
+      HashMap<String, Object> hints = null;
       if (resolvableType.hasGenerics()) {
         hints = new HashMap<>(2);
         hints.put(ACTUAL_TYPE_HINT, resolvableType);
@@ -241,19 +240,17 @@ public abstract class Jackson2CodecSupport {
   }
 
   @Nullable
-  protected MethodParameter getParameter(ResolvableType type) {
-    return (type.getSource() instanceof MethodParameter ? (MethodParameter) type.getSource() : null);
+  protected Parameter getParameter(ResolvableType type) {
+    return type.getSource() instanceof Parameter ? (Parameter) type.getSource() : null;
   }
 
   @Nullable
-  protected abstract <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType);
+  protected abstract <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotType);
 
   /**
    * Select an ObjectMapper to use, either the main ObjectMapper or another
    * if the handling for the given Class has been customized through
    * {@link #registerObjectMappersForType(Class, Consumer)}.
-   *
-   * @since 4.0
    */
   @Nullable
   protected ObjectMapper selectObjectMapper(ResolvableType targetType, @Nullable MimeType targetMimeType) {

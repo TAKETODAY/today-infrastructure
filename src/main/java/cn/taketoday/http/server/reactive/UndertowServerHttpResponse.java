@@ -29,10 +29,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseCookie;
@@ -40,7 +43,6 @@ import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.Cookie;
 import io.undertow.server.handlers.CookieImpl;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
@@ -55,304 +57,286 @@ import reactor.core.publisher.MonoSink;
  */
 class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse implements ZeroCopyHttpOutputMessage {
 
-	private final HttpServerExchange exchange;
+  @Nullable
+  private StreamSinkChannel responseChannel;
 
-	private final UndertowServerHttpRequest request;
+  private final HttpServerExchange exchange;
+  private final UndertowServerHttpRequest request;
 
-	@Nullable
-	private StreamSinkChannel responseChannel;
+  UndertowServerHttpResponse(
+          HttpServerExchange exchange, DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
 
+    super(bufferFactory, createHeaders(exchange));
+    Assert.notNull(exchange, "HttpServerExchange must not be null");
+    this.exchange = exchange;
+    this.request = request;
+  }
 
-	UndertowServerHttpResponse(
-			HttpServerExchange exchange, DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
+  private static HttpHeaders createHeaders(HttpServerExchange exchange) {
+    UndertowHeadersAdapter headersMap = new UndertowHeadersAdapter(exchange.getResponseHeaders());
+    return new DefaultHttpHeaders(headersMap);
+  }
 
-		super(bufferFactory, createHeaders(exchange));
-		Assert.notNull(exchange, "HttpServerExchange must not be null");
-		this.exchange = exchange;
-		this.request = request;
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getNativeResponse() {
+    return (T) this.exchange;
+  }
 
-	private static HttpHeaders createHeaders(HttpServerExchange exchange) {
-		UndertowHeadersAdapter headersMap = new UndertowHeadersAdapter(exchange.getResponseHeaders());
-		return new HttpHeaders(headersMap);
-	}
+  @Override
+  public HttpStatus getStatusCode() {
+    HttpStatus status = super.getStatusCode();
+    return (status != null ? status : HttpStatus.resolve(this.exchange.getStatusCode()));
+  }
 
+  @Override
+  public Integer getRawStatusCode() {
+    Integer status = super.getRawStatusCode();
+    return (status != null ? status : this.exchange.getStatusCode());
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getNativeResponse() {
-		return (T) this.exchange;
-	}
+  @Override
+  protected void applyStatusCode() {
+    Integer status = super.getRawStatusCode();
+    if (status != null) {
+      this.exchange.setStatusCode(status);
+    }
+  }
 
-	@Override
-	public HttpStatus getStatusCode() {
-		HttpStatus status = super.getStatusCode();
-		return (status != null ? status : HttpStatus.resolve(this.exchange.getStatusCode()));
-	}
+  @Override
+  protected void applyHeaders() { }
 
-	@Override
-	public Integer getRawStatusCode() {
-		Integer status = super.getRawStatusCode();
-		return (status != null ? status : this.exchange.getStatusCode());
-	}
+  @SuppressWarnings("deprecation")
+  @Override
+  protected void applyCookies() {
 
-	@Override
-	protected void applyStatusCode() {
-		Integer status = super.getRawStatusCode();
-		if (status != null) {
-			this.exchange.setStatusCode(status);
-		}
-	}
+    for (Map.Entry<String, List<ResponseCookie>> entry : getCookies().entrySet()) {
+      String name = entry.getKey();
+      for (ResponseCookie httpCookie : entry.getValue()) {
+        CookieImpl cookie = new CookieImpl(name, httpCookie.getValue());
+        if (!httpCookie.getMaxAge().isNegative()) {
+          cookie.setMaxAge((int) httpCookie.getMaxAge().getSeconds());
+        }
+        if (httpCookie.getDomain() != null) {
+          cookie.setDomain(httpCookie.getDomain());
+        }
+        if (httpCookie.getPath() != null) {
+          cookie.setPath(httpCookie.getPath());
+        }
+        cookie.setSecure(httpCookie.isSecure());
+        cookie.setHttpOnly(httpCookie.isHttpOnly());
+        cookie.setSameSiteMode(httpCookie.getSameSite());
+        // getResponseCookies() is deprecated in Undertow 2.2
+        this.exchange.getResponseCookies().putIfAbsent(name, cookie);
+      }
+    }
+  }
 
-	@Override
-	protected void applyHeaders() {
-	}
+  @Override
+  public Mono<Void> writeWith(Path file, long position, long count) {
+    return doCommit(() -> Mono.create(sink -> {
+      try {
+        FileChannel source = FileChannel.open(file, StandardOpenOption.READ);
+        TransferBodyListener listener = new TransferBodyListener(source, position, count, sink);
+        sink.onDispose(listener::closeSource);
+        StreamSinkChannel destination = this.exchange.getResponseChannel();
+        destination.getWriteSetter().set(listener::transfer);
+        listener.transfer(destination);
+      }
+      catch (IOException ex) {
+        sink.error(ex);
+      }
+    }));
+  }
 
-	@SuppressWarnings("deprecation")
-	@Override
-	protected void applyCookies() {
-		for (String name : getCookies().keySet()) {
-			for (ResponseCookie httpCookie : getCookies().get(name)) {
-				Cookie cookie = new CookieImpl(name, httpCookie.getValue());
-				if (!httpCookie.getMaxAge().isNegative()) {
-					cookie.setMaxAge((int) httpCookie.getMaxAge().getSeconds());
-				}
-				if (httpCookie.getDomain() != null) {
-					cookie.setDomain(httpCookie.getDomain());
-				}
-				if (httpCookie.getPath() != null) {
-					cookie.setPath(httpCookie.getPath());
-				}
-				cookie.setSecure(httpCookie.isSecure());
-				cookie.setHttpOnly(httpCookie.isHttpOnly());
-				cookie.setSameSiteMode(httpCookie.getSameSite());
-				// getResponseCookies() is deprecated in Undertow 2.2
-				this.exchange.getResponseCookies().putIfAbsent(name, cookie);
-			}
-		}
-	}
+  @Override
+  protected Processor<? super Publisher<? extends DataBuffer>, Void> createBodyFlushProcessor() {
+    return new ResponseBodyFlushProcessor();
+  }
 
-	@Override
-	public Mono<Void> writeWith(Path file, long position, long count) {
-		return doCommit(() ->
-				Mono.create(sink -> {
-					try {
-						FileChannel source = FileChannel.open(file, StandardOpenOption.READ);
+  private ResponseBodyProcessor createBodyProcessor() {
+    if (this.responseChannel == null) {
+      this.responseChannel = this.exchange.getResponseChannel();
+    }
+    return new ResponseBodyProcessor(this.responseChannel);
+  }
 
-						TransferBodyListener listener = new TransferBodyListener(source, position,
-								count, sink);
-						sink.onDispose(listener::closeSource);
+  private class ResponseBodyProcessor extends AbstractListenerWriteProcessor<DataBuffer> {
 
-						StreamSinkChannel destination = this.exchange.getResponseChannel();
-						destination.getWriteSetter().set(listener::transfer);
+    private final StreamSinkChannel channel;
+    /** Keep track of write listener calls, for {@link #writePossible}. */
+    private volatile boolean writePossible;
 
-						listener.transfer(destination);
-					}
-					catch (IOException ex) {
-						sink.error(ex);
-					}
-				}));
-	}
+    @Nullable
+    private volatile ByteBuffer byteBuffer;
 
-	@Override
-	protected Processor<? super Publisher<? extends DataBuffer>, Void> createBodyFlushProcessor() {
-		return new ResponseBodyFlushProcessor();
-	}
+    public ResponseBodyProcessor(StreamSinkChannel channel) {
+      super(request.getLogPrefix());
+      Assert.notNull(channel, "StreamSinkChannel must not be null");
+      this.channel = channel;
+      this.channel.getWriteSetter().set(c -> {
+        this.writePossible = true;
+        onWritePossible();
+      });
+      this.channel.suspendWrites();
+    }
 
-	private ResponseBodyProcessor createBodyProcessor() {
-		if (this.responseChannel == null) {
-			this.responseChannel = this.exchange.getResponseChannel();
-		}
-		return new ResponseBodyProcessor(this.responseChannel);
-	}
+    @Override
+    protected boolean isWritePossible() {
+      this.channel.resumeWrites();
+      return this.writePossible;
+    }
 
+    @Override
+    protected boolean write(DataBuffer dataBuffer) throws IOException {
+      ByteBuffer buffer = this.byteBuffer;
+      if (buffer == null) {
+        return false;
+      }
 
-	private class ResponseBodyProcessor extends AbstractListenerWriteProcessor<DataBuffer> {
+      // Track write listener calls from here on..
+      this.writePossible = false;
 
-		private final StreamSinkChannel channel;
+      // In case of IOException, onError handling should call discardData(DataBuffer)..
+      int total = buffer.remaining();
+      int written = writeByteBuffer(buffer);
 
-		@Nullable
-		private volatile ByteBuffer byteBuffer;
+      if (rsWriteLogger.isTraceEnabled()) {
+        rsWriteLogger.trace("{}Wrote {} of {} bytes", getLogPrefix(), written, total);
+      }
+      if (written != total) {
+        return false;
+      }
 
-		/** Keep track of write listener calls, for {@link #writePossible}. */
-		private volatile boolean writePossible;
+      // We wrote all, so can still write more..
+      this.writePossible = true;
 
+      DataBufferUtils.release(dataBuffer);
+      this.byteBuffer = null;
+      return true;
+    }
 
-		public ResponseBodyProcessor(StreamSinkChannel channel) {
-			super(request.getLogPrefix());
-			Assert.notNull(channel, "StreamSinkChannel must not be null");
-			this.channel = channel;
-			this.channel.getWriteSetter().set(c -> {
-				this.writePossible = true;
-				onWritePossible();
-			});
-			this.channel.suspendWrites();
-		}
+    private int writeByteBuffer(ByteBuffer byteBuffer) throws IOException {
+      int written;
+      int totalWritten = 0;
+      do {
+        written = this.channel.write(byteBuffer);
+        totalWritten += written;
+      }
+      while (byteBuffer.hasRemaining() && written > 0);
+      return totalWritten;
+    }
 
-		@Override
-		protected boolean isWritePossible() {
-			this.channel.resumeWrites();
-			return this.writePossible;
-		}
+    @Override
+    protected void dataReceived(DataBuffer dataBuffer) {
+      super.dataReceived(dataBuffer);
+      this.byteBuffer = dataBuffer.asByteBuffer();
+    }
 
-		@Override
-		protected boolean write(DataBuffer dataBuffer) throws IOException {
-			ByteBuffer buffer = this.byteBuffer;
-			if (buffer == null) {
-				return false;
-			}
+    @Override
+    protected boolean isDataEmpty(DataBuffer dataBuffer) {
+      return (dataBuffer.readableByteCount() == 0);
+    }
 
-			// Track write listener calls from here on..
-			this.writePossible = false;
+    @Override
+    protected void writingComplete() {
+      this.channel.getWriteSetter().set(null);
+      this.channel.resumeWrites();
+    }
 
-			// In case of IOException, onError handling should call discardData(DataBuffer)..
-			int total = buffer.remaining();
-			int written = writeByteBuffer(buffer);
+    @Override
+    protected void writingFailed(Throwable ex) {
+      cancel();
+      onError(ex);
+    }
 
-			if (rsWriteLogger.isTraceEnabled()) {
-				rsWriteLogger.trace(getLogPrefix() + "Wrote " + written + " of " + total + " bytes");
-			}
-			if (written != total) {
-				return false;
-			}
+    @Override
+    protected void discardData(DataBuffer dataBuffer) {
+      DataBufferUtils.release(dataBuffer);
+    }
+  }
 
-			// We wrote all, so can still write more..
-			this.writePossible = true;
+  private class ResponseBodyFlushProcessor extends AbstractListenerWriteFlushProcessor<DataBuffer> {
 
-			DataBufferUtils.release(dataBuffer);
-			this.byteBuffer = null;
-			return true;
-		}
+    public ResponseBodyFlushProcessor() {
+      super(request.getLogPrefix());
+    }
 
-		private int writeByteBuffer(ByteBuffer byteBuffer) throws IOException {
-			int written;
-			int totalWritten = 0;
-			do {
-				written = this.channel.write(byteBuffer);
-				totalWritten += written;
-			}
-			while (byteBuffer.hasRemaining() && written > 0);
-			return totalWritten;
-		}
+    @Override
+    protected Processor<? super DataBuffer, Void> createWriteProcessor() {
+      return UndertowServerHttpResponse.this.createBodyProcessor();
+    }
 
-		@Override
-		protected void dataReceived(DataBuffer dataBuffer) {
-			super.dataReceived(dataBuffer);
-			this.byteBuffer = dataBuffer.asByteBuffer();
-		}
+    @Override
+    protected void flush() throws IOException {
+      StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
+      if (channel != null) {
+        if (rsWriteFlushLogger.isTraceEnabled()) {
+          rsWriteFlushLogger.trace("{}flush", getLogPrefix());
+        }
+        channel.flush();
+      }
+    }
 
-		@Override
-		protected boolean isDataEmpty(DataBuffer dataBuffer) {
-			return (dataBuffer.readableByteCount() == 0);
-		}
+    @Override
+    protected boolean isWritePossible() {
+      StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
+      if (channel != null) {
+        // We can always call flush, just ensure writes are on..
+        channel.resumeWrites();
+        return true;
+      }
+      return false;
+    }
 
-		@Override
-		protected void writingComplete() {
-			this.channel.getWriteSetter().set(null);
-			this.channel.resumeWrites();
-		}
+    @Override
+    protected boolean isFlushPending() {
+      return false;
+    }
+  }
 
-		@Override
-		protected void writingFailed(Throwable ex) {
-			cancel();
-			onError(ex);
-		}
+  private static class TransferBodyListener {
 
-		@Override
-		protected void discardData(DataBuffer dataBuffer) {
-			DataBufferUtils.release(dataBuffer);
-		}
-	}
+    private long count;
+    private long position;
+    private final FileChannel source;
+    private final MonoSink<Void> sink;
 
+    public TransferBodyListener(FileChannel source, long position, long count, MonoSink<Void> sink) {
+      this.source = source;
+      this.sink = sink;
+      this.position = position;
+      this.count = count;
+    }
 
-	private class ResponseBodyFlushProcessor extends AbstractListenerWriteFlushProcessor<DataBuffer> {
+    public void transfer(StreamSinkChannel destination) {
+      try {
+        while (this.count > 0) {
+          long len = destination.transferFrom(this.source, this.position, this.count);
+          if (len != 0) {
+            this.position += len;
+            this.count -= len;
+          }
+          else {
+            destination.resumeWrites();
+            return;
+          }
+        }
+        this.sink.success();
+      }
+      catch (IOException ex) {
+        this.sink.error(ex);
+      }
 
-		public ResponseBodyFlushProcessor() {
-			super(request.getLogPrefix());
-		}
+    }
 
-		@Override
-		protected Processor<? super DataBuffer, Void> createWriteProcessor() {
-			return UndertowServerHttpResponse.this.createBodyProcessor();
-		}
+    public void closeSource() {
+      try {
+        this.source.close();
+      }
+      catch (IOException ignore) { }
+    }
 
-		@Override
-		protected void flush() throws IOException {
-			StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
-			if (channel != null) {
-				if (rsWriteFlushLogger.isTraceEnabled()) {
-					rsWriteFlushLogger.trace(getLogPrefix() + "flush");
-				}
-				channel.flush();
-			}
-		}
-
-		@Override
-		protected boolean isWritePossible() {
-			StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
-			if (channel != null) {
-				// We can always call flush, just ensure writes are on..
-				channel.resumeWrites();
-				return true;
-			}
-			return false;
-		}
-
-		@Override
-		protected boolean isFlushPending() {
-			return false;
-		}
-	}
-
-
-	private static class TransferBodyListener {
-
-		private final FileChannel source;
-
-		private final MonoSink<Void> sink;
-
-		private long position;
-
-		private long count;
-
-
-		public TransferBodyListener(FileChannel source, long position, long count, MonoSink<Void> sink) {
-			this.source = source;
-			this.sink = sink;
-			this.position = position;
-			this.count = count;
-		}
-
-		public void transfer(StreamSinkChannel destination) {
-			try {
-				while (this.count > 0) {
-					long len = destination.transferFrom(this.source, this.position, this.count);
-					if (len != 0) {
-						this.position += len;
-						this.count -= len;
-					}
-					else {
-						destination.resumeWrites();
-						return;
-					}
-				}
-				this.sink.success();
-			}
-			catch (IOException ex) {
-				this.sink.error(ex);
-			}
-
-		}
-
-		public void closeSource() {
-			try {
-				this.source.close();
-			}
-			catch (IOException ignore) {
-			}
-		}
-
-
-	}
+  }
 
 }

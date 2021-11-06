@@ -22,10 +22,9 @@ package cn.taketoday.web.validation;
 
 import java.util.Locale;
 
-import javax.validation.MessageInterpolator;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.ExpressionEvaluator;
+import jakarta.validation.MessageInterpolator;
 
 /**
  * @author TODAY 2019-07-21 20:17

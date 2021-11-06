@@ -22,8 +22,8 @@ package cn.taketoday.web.socket.annotation;
 
 import java.util.Arrays;
 
-import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig;
+import jakarta.websocket.server.ServerEndpoint;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.support.BeanUtils;

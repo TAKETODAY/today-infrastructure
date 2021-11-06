@@ -22,18 +22,20 @@ package cn.taketoday.http.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import jakarta.servlet.http.HttpServletResponse;
-
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * {@link ServerHttpResponse} implementation that is based on a {@link HttpServletResponse}.
@@ -44,166 +46,164 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class ServletServerHttpResponse implements ServerHttpResponse {
 
-	private final HttpServletResponse servletResponse;
+  private boolean bodyUsed = false;
+  private boolean headersWritten = false;
 
-	private final HttpHeaders headers;
+  private final HttpHeaders headers;
+  private final HttpServletResponse servletResponse;
 
-	private boolean headersWritten = false;
+  @Nullable
+  private HttpHeaders readOnlyHeaders;
 
-	private boolean bodyUsed = false;
+  /**
+   * Construct a new instance of the ServletServerHttpResponse based on the given {@link HttpServletResponse}.
+   *
+   * @param servletResponse the servlet response
+   */
+  public ServletServerHttpResponse(HttpServletResponse servletResponse) {
+    Assert.notNull(servletResponse, "HttpServletResponse must not be null");
+    this.servletResponse = servletResponse;
+    this.headers = new ServletResponseHttpHeaders();
+  }
 
-	@Nullable
-	private HttpHeaders readOnlyHeaders;
+  /**
+   * Return the {@code HttpServletResponse} this object is based on.
+   */
+  public HttpServletResponse getServletResponse() {
+    return this.servletResponse;
+  }
 
+  @Override
+  public void setStatusCode(HttpStatus status) {
+    Assert.notNull(status, "HttpStatus must not be null");
+    this.servletResponse.setStatus(status.value());
+  }
 
-	/**
-	 * Construct a new instance of the ServletServerHttpResponse based on the given {@link HttpServletResponse}.
-	 * @param servletResponse the servlet response
-	 */
-	public ServletServerHttpResponse(HttpServletResponse servletResponse) {
-		Assert.notNull(servletResponse, "HttpServletResponse must not be null");
-		this.servletResponse = servletResponse;
-		this.headers = new ServletResponseHttpHeaders();
-	}
+  @Override
+  public HttpHeaders getHeaders() {
+    if (this.readOnlyHeaders != null) {
+      return this.readOnlyHeaders;
+    }
+    else if (this.headersWritten) {
+      this.readOnlyHeaders = HttpHeaders.readOnlyHttpHeaders(this.headers);
+      return this.readOnlyHeaders;
+    }
+    else {
+      return this.headers;
+    }
+  }
 
+  @Override
+  public OutputStream getBody() throws IOException {
+    this.bodyUsed = true;
+    writeHeaders();
+    return this.servletResponse.getOutputStream();
+  }
 
-	/**
-	 * Return the {@code HttpServletResponse} this object is based on.
-	 */
-	public HttpServletResponse getServletResponse() {
-		return this.servletResponse;
-	}
+  @Override
+  public void flush() throws IOException {
+    writeHeaders();
+    if (this.bodyUsed) {
+      this.servletResponse.flushBuffer();
+    }
+  }
 
-	@Override
-	public void setStatusCode(HttpStatus status) {
-		Assert.notNull(status, "HttpStatus must not be null");
-		this.servletResponse.setStatus(status.value());
-	}
+  @Override
+  public void close() {
+    writeHeaders();
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		if (this.readOnlyHeaders != null) {
-			return this.readOnlyHeaders;
-		}
-		else if (this.headersWritten) {
-			this.readOnlyHeaders = HttpHeaders.readOnlyHttpHeaders(this.headers);
-			return this.readOnlyHeaders;
-		}
-		else {
-			return this.headers;
-		}
-	}
+  private void writeHeaders() {
+    if (!headersWritten) {
+      HttpHeaders headers = getHeaders();
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        String headerName = entry.getKey();
+        for (String headerValue : entry.getValue()) {
+          servletResponse.addHeader(headerName, headerValue);
+        }
+      }
 
-	@Override
-	public OutputStream getBody() throws IOException {
-		this.bodyUsed = true;
-		writeHeaders();
-		return this.servletResponse.getOutputStream();
-	}
+      // HttpServletResponse exposes some headers as properties: we should include those if not already present
+      if (servletResponse.getContentType() == null && headers.getContentType() != null) {
+        servletResponse.setContentType(headers.getContentType().toString());
+      }
+      if (servletResponse.getCharacterEncoding() == null
+              && headers.getContentType() != null
+              && headers.getContentType().getCharset() != null) {
+        servletResponse.setCharacterEncoding(headers.getContentType().getCharset().name());
+      }
+      long contentLength = headers.getContentLength();
+      if (contentLength != -1) {
+        servletResponse.setContentLengthLong(contentLength);
+      }
+      this.headersWritten = true;
+    }
+  }
 
-	@Override
-	public void flush() throws IOException {
-		writeHeaders();
-		if (this.bodyUsed) {
-			this.servletResponse.flushBuffer();
-		}
-	}
+  /**
+   * Extends HttpHeaders with the ability to look up headers already present in
+   * the underlying HttpServletResponse.
+   *
+   * <p>The intent is merely to expose what is available through the HttpServletResponse
+   * i.e. the ability to look up specific header values by name. All other
+   * map-related operations (e.g. iteration, removal, etc) apply only to values
+   * added directly through HttpHeaders methods.
+   */
+  private class ServletResponseHttpHeaders extends DefaultHttpHeaders {
+    @Serial
+    private static final long serialVersionUID = 3410708522401046302L;
 
-	@Override
-	public void close() {
-		writeHeaders();
-	}
+    @Override
+    public boolean containsKey(Object key) {
+      return super.containsKey(key) || (get(key) != null);
+    }
 
-	private void writeHeaders() {
-		if (!this.headersWritten) {
-			getHeaders().forEach((headerName, headerValues) -> {
-				for (String headerValue : headerValues) {
-					this.servletResponse.addHeader(headerName, headerValue);
-				}
-			});
-			// HttpServletResponse exposes some headers as properties: we should include those if not already present
-			if (this.servletResponse.getContentType() == null && this.headers.getContentType() != null) {
-				this.servletResponse.setContentType(this.headers.getContentType().toString());
-			}
-			if (this.servletResponse.getCharacterEncoding() == null && this.headers.getContentType() != null &&
-					this.headers.getContentType().getCharset() != null) {
-				this.servletResponse.setCharacterEncoding(this.headers.getContentType().getCharset().name());
-			}
-			long contentLength = getHeaders().getContentLength();
-			if (contentLength != -1) {
-				this.servletResponse.setContentLengthLong(contentLength);
-			}
-			this.headersWritten = true;
-		}
-	}
+    @Override
+    @Nullable
+    public String getFirst(String headerName) {
+      if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
+        // Content-Type is written as an override so check super first
+        String value = super.getFirst(headerName);
+        return (value != null ? value : servletResponse.getHeader(headerName));
+      }
+      else {
+        String value = servletResponse.getHeader(headerName);
+        return value != null ? value : super.getFirst(headerName);
+      }
+    }
 
+    @Override
+    public List<String> get(Object key) {
+      Assert.isInstanceOf(String.class, key, "Key must be a String-based header name");
 
-	/**
-	 * Extends HttpHeaders with the ability to look up headers already present in
-	 * the underlying HttpServletResponse.
-	 *
-	 * <p>The intent is merely to expose what is available through the HttpServletResponse
-	 * i.e. the ability to look up specific header values by name. All other
-	 * map-related operations (e.g. iteration, removal, etc) apply only to values
-	 * added directly through HttpHeaders methods.
-	 *
-	 * @since 4.0.3
-	 */
-	private class ServletResponseHttpHeaders extends HttpHeaders {
+      String headerName = (String) key;
+      if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
+        // Content-Type is written as an override so don't merge
+        return Collections.singletonList(getFirst(headerName));
+      }
 
-		private static final long serialVersionUID = 3410708522401046302L;
+      Collection<String> values1 = servletResponse.getHeaders(headerName);
+      if (headersWritten) {
+        return new ArrayList<>(values1);
+      }
+      boolean isEmpty1 = CollectionUtils.isEmpty(values1);
 
-		@Override
-		public boolean containsKey(Object key) {
-			return (super.containsKey(key) || (get(key) != null));
-		}
+      List<String> values2 = super.get(key);
+      boolean isEmpty2 = CollectionUtils.isEmpty(values2);
 
-		@Override
-		@Nullable
-		public String getFirst(String headerName) {
-			if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
-				// Content-Type is written as an override so check super first
-				String value = super.getFirst(headerName);
-				return (value != null ? value : servletResponse.getHeader(headerName));
-			}
-			else {
-				String value = servletResponse.getHeader(headerName);
-				return (value != null ? value : super.getFirst(headerName));
-			}
-		}
+      if (isEmpty1 && isEmpty2) {
+        return null;
+      }
 
-		@Override
-		public List<String> get(Object key) {
-			Assert.isInstanceOf(String.class, key, "Key must be a String-based header name");
-
-			String headerName = (String) key;
-			if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
-				// Content-Type is written as an override so don't merge
-				return Collections.singletonList(getFirst(headerName));
-			}
-
-			Collection<String> values1 = servletResponse.getHeaders(headerName);
-			if (headersWritten) {
-				return new ArrayList<>(values1);
-			}
-			boolean isEmpty1 = CollectionUtils.isEmpty(values1);
-
-			List<String> values2 = super.get(key);
-			boolean isEmpty2 = CollectionUtils.isEmpty(values2);
-
-			if (isEmpty1 && isEmpty2) {
-				return null;
-			}
-
-			List<String> values = new ArrayList<>();
-			if (!isEmpty1) {
-				values.addAll(values1);
-			}
-			if (!isEmpty2) {
-				values.addAll(values2);
-			}
-			return values;
-		}
-	}
+      ArrayList<String> values = new ArrayList<>();
+      if (!isEmpty1) {
+        values.addAll(values1);
+      }
+      if (!isEmpty2) {
+        values.addAll(values2);
+      }
+      return values;
+    }
+  }
 
 }

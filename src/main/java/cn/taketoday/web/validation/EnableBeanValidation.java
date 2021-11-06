@@ -26,16 +26,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-import javax.validation.Configuration;
-import javax.validation.Validation;
-import javax.validation.spi.ValidationProvider;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import jakarta.validation.Configuration;
+import jakarta.validation.Validation;
+import jakarta.validation.spi.ValidationProvider;
 
 /**
  * @author TODAY 2021/3/21 21:37

@@ -28,10 +28,7 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.annotation.PreDestroy;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletException;
-
+import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
@@ -63,6 +60,8 @@ import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletStackTraces;
 import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
 
 /**
  * Undertow Servlet web server
@@ -70,7 +69,7 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
  * @author TODAY 2019-01-12 17:28
  */
 public class UndertowServer
-        extends AbstractServletWebServer implements WebServer {
+        extends AbstractServletWebServer implements WebServer, DisposableBean {
 
   private boolean useForwardHeaders;
 
@@ -143,7 +142,11 @@ public class UndertowServer
   }
 
   @Override
-  @PreDestroy
+  public void destroy() throws Exception {
+    stop();
+  }
+
+  @Override
   public synchronized void stop() {
     if (!getStarted().get()) {
       return;

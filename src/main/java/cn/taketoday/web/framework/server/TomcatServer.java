@@ -60,10 +60,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.PreDestroy;
 import javax.naming.NamingException;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContainerInitializer;
 
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
@@ -81,6 +78,9 @@ import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.session.SessionConfiguration;
 import cn.taketoday.web.session.SessionCookieConfiguration;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContainerInitializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -105,7 +105,6 @@ public class TomcatServer extends AbstractServletWebServer {
   private String SSLRandomSeed = "builtin";
   private String FIPSMode = "off";
   private boolean useOpenSSL = true;
-  private boolean useAprConnector = false;
 
   private String uriEncoding = Constant.DEFAULT_ENCODING;
 
@@ -125,9 +124,8 @@ public class TomcatServer extends AbstractServletWebServer {
   private final Map<Service, Connector[]> serviceConnectors = new HashMap<>();
 
   private Tomcat tomcat;
-
+  private boolean enableApr;
   private boolean autoStart = true;
-
   private boolean useRelativeRedirects = false;
 
   private Context findContext() {
@@ -379,8 +377,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
       context.setUseRelativeRedirects(useRelativeRedirects);
 
-      ClassLoader parentClassLoader = context.getParentClassLoader();
-      WebappLoader loader = new WebappLoader(parentClassLoader);
+      WebappLoader loader = new WebappLoader();
       loader.setLoaderClass(WebappClassLoader.class.getName());
       loader.setDelegate(true);
       context.setLoader(loader);
@@ -434,19 +431,18 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   protected void prepareApr() {
+    if (enableApr) {
+      AprLifecycleListener aprLifecycleListener = getApplicationContext().getBean(AprLifecycleListener.class);
+      if (aprLifecycleListener == null) {
+        aprLifecycleListener = new AprLifecycleListener();
 
-    AprLifecycleListener aprLifecycleListener = getApplicationContext().getBean(AprLifecycleListener.class);
-    if (aprLifecycleListener == null) {
-      aprLifecycleListener = new AprLifecycleListener();
-
-      aprLifecycleListener.setFIPSMode(FIPSMode);
-      aprLifecycleListener.setSSLEngine(SSLEngine);
-      aprLifecycleListener.setUseOpenSSL(useOpenSSL);
-      aprLifecycleListener.setSSLRandomSeed(SSLRandomSeed);
-      aprLifecycleListener.setUseAprConnector(useAprConnector);
+        aprLifecycleListener.setFIPSMode(FIPSMode);
+        aprLifecycleListener.setSSLEngine(SSLEngine);
+        aprLifecycleListener.setUseOpenSSL(useOpenSSL);
+        aprLifecycleListener.setSSLRandomSeed(SSLRandomSeed);
+      }
+      contextLifecycleListeners.add(aprLifecycleListener);
     }
-
-    contextLifecycleListeners.add(aprLifecycleListener);
   }
 
   /**
@@ -570,6 +566,14 @@ public class TomcatServer extends AbstractServletWebServer {
   @Override
   protected Servlet createDefaultServlet() {
     return new DefaultServlet();
+  }
+
+  public void setEnableApr(boolean enableApr) {
+    this.enableApr = enableApr;
+  }
+
+  public boolean isEnableApr() {
+    return enableApr;
   }
 
   private static final class LazySessionIdGenerator extends StandardSessionIdGenerator {

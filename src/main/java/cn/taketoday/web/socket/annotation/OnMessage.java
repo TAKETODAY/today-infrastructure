@@ -25,9 +25,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.websocket.Decoder;
-import javax.websocket.PongMessage;
-import javax.websocket.Session;
+import jakarta.websocket.Decoder;
+import jakarta.websocket.PongMessage;
+import jakarta.websocket.Session;
 
 /**
  * This method level annotation can be used to make a Java method receive incoming web socket messages. Each websocket
@@ -65,7 +65,7 @@ import javax.websocket.Session;
  * </ul>
  * </li>
  * <li> and Zero to n String or Java primitive parameters
- * annotated with the {@link javax.websocket.server.PathParam} annotation for server endpoints.</li>
+ * annotated with the {@link jakarta.websocket.server.PathParam} annotation for server endpoints.</li>
  * <li> and an optional {@link Session} parameter</li>
  * </ol>
  * <p/>

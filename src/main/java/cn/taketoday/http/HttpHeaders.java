@@ -1481,6 +1481,23 @@ public abstract class HttpHeaders
   }
 
   /**
+   * Sets the (new) value of the {@code Range} header.
+   */
+  public void setRange(List<HttpRange> ranges) {
+    String value = HttpRange.toString(ranges);
+    set(RANGE, value);
+  }
+
+  /**
+   * Return the value of the {@code Range} header.
+   * <p>Returns an empty list when the range is unknown.
+   */
+  public List<HttpRange> getRange() {
+    String value = getFirst(RANGE);
+    return HttpRange.parseRanges(value);
+  }
+
+  /**
    * Set the (new) value of the {@code Upgrade} header.
    */
   public void setUpgrade(String upgrade) {

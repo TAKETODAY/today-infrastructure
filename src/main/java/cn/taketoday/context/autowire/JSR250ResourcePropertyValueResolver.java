@@ -22,14 +22,13 @@ package cn.taketoday.context.autowire;
 
 import java.lang.annotation.Annotation;
 
-import javax.annotation.Resource;
-
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Nullable;
+import jakarta.annotation.Resource;
 
 /**
  * <p>Example usage:

@@ -34,6 +34,8 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
+import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -58,11 +60,9 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
-
   private static final Logger logger = HttpLogging.forLogName(EncoderHttpMessageWriter.class);
 
   private final Encoder<T> encoder;
-
   private final List<MediaType> mediaTypes;
 
   @Nullable
@@ -206,12 +206,13 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
   // Server side only...
 
   @Override
-  public Mono<Void> write(Publisher<? extends T> inputStream, ResolvableType actualType,
-                          ResolvableType elementType, @Nullable MediaType mediaType, ServerHttpRequest request,
-                          ServerHttpResponse response, Map<String, Object> hints) {
+  public Mono<Void> write(
+          Publisher<? extends T> inputStream, ResolvableType actualType,
+          ResolvableType elementType, @Nullable MediaType mediaType, ServerHttpRequest request,
+          ServerHttpResponse response, Map<String, Object> hints) {
 
-    Map<String, Object> allHints = Hints.merge(hints,
-                                               getWriteHints(actualType, elementType, mediaType, request, response));
+    Map<String, Object> allHints = Hints.merge(
+            hints, getWriteHints(actualType, elementType, mediaType, request, response));
 
     return write(inputStream, elementType, mediaType, response, allHints);
   }
@@ -221,11 +222,11 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
    * or annotations from controller method parameters. By default, delegate to
    * the encoder if it is an instance of {@link HttpMessageEncoder}.
    */
-  protected Map<String, Object> getWriteHints(ResolvableType streamType, ResolvableType elementType,
-                                              @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
+  protected Map<String, Object> getWriteHints(
+          ResolvableType streamType, ResolvableType elementType,
+          @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
-    if (this.encoder instanceof HttpMessageEncoder) {
-      HttpMessageEncoder<?> encoder = (HttpMessageEncoder<?>) this.encoder;
+    if (this.encoder instanceof HttpMessageEncoder<?> encoder) {
       return encoder.getEncodeHints(streamType, elementType, mediaType, request, response);
     }
     return Hints.none();

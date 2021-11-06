@@ -27,16 +27,16 @@ import java.lang.annotation.Target;
 
 /**
  * This method level annotation can be used to decorate a Java method that wishes to be called in order
- * to handle errors. See {@link javax.websocket.Endpoint#onError} for
+ * to handle errors. See {@link jakarta.websocket.Endpoint#onError} for
  * a description of the different categories of error.
  *
  * <p>The method may only take the following parameters:-
  * <ul>
  * <li>a {@link java.lang.Throwable} parameter</li>
- * <li>optional {@link javax.websocket.Session} parameter</li>
- * <li>optional {@link javax.websocket.EndpointConfig} parameter</li>
+ * <li>optional {@link jakarta.websocket.Session} parameter</li>
+ * <li>optional {@link jakarta.websocket.EndpointConfig} parameter</li>
  * <li>optional {@link cn.taketoday.web.socket.WebSocketSession} parameter</li>
- * <li>parameters annotated with the {@link javax.websocket.server.PathParam} annotation.</li>
+ * <li>parameters annotated with the {@link jakarta.websocket.server.PathParam} annotation.</li>
  * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
  * </ul>
  * <p>The parameters may appear in any order.

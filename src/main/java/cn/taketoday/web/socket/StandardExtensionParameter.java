@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket;
 
-import javax.websocket.Extension;
+import jakarta.websocket.Extension;
 
 /**
  * @author TODAY 2021/5/4 20:22

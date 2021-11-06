@@ -50,7 +50,6 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  *
  * @author Violeta Georgieva
  * @author Brian Clozel
- * @see cn.taketoday.web.server.adapter.AbstractReactiveWebInitializer
  * @since 4.0
  */
 public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
@@ -69,8 +68,8 @@ public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
   }
 
   @Override
-  protected ServletServerHttpResponse createResponse(HttpServletResponse response,
-                                                     AsyncContext context, ServletServerHttpRequest request) throws IOException {
+  protected ServletServerHttpResponse createResponse(
+          HttpServletResponse response, AsyncContext context, ServletServerHttpRequest request) throws IOException {
 
     return new JettyServerHttpResponse(
             response, context, getDataBufferFactory(), getBufferSize(), request);
@@ -100,17 +99,17 @@ public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
         return getRequest(wrappedRequest);
       }
       else {
-        throw new IllegalArgumentException("Cannot convert [" + request.getClass() +
-                                                   "] to org.eclipse.jetty.server.Request");
+        throw new IllegalArgumentException(
+                "Cannot convert [" + request.getClass() + "] to org.eclipse.jetty.server.Request");
       }
     }
   }
 
   private static final class JettyServerHttpResponse extends ServletServerHttpResponse {
 
-    JettyServerHttpResponse(HttpServletResponse response, AsyncContext asyncContext,
-                            DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request)
-            throws IOException {
+    JettyServerHttpResponse(
+            HttpServletResponse response, AsyncContext asyncContext,
+            DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
 
       super(createHeaders(response), response, asyncContext, bufferFactory, bufferSize, request);
     }
@@ -130,8 +129,8 @@ public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
         return getResponse(wrappedResponse);
       }
       else {
-        throw new IllegalArgumentException("Cannot convert [" + response.getClass() +
-                                                   "] to org.eclipse.jetty.server.Response");
+        throw new IllegalArgumentException(
+                "Cannot convert [" + response.getClass() + "] to org.eclipse.jetty.server.Response");
       }
     }
 

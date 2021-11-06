@@ -21,7 +21,7 @@ package cn.taketoday.web.socket;
 
 import java.io.IOException;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.Import;
@@ -107,7 +107,7 @@ public class WebSocketApplication {
   @EndpointMapping("/annotation-endpoint")
   static class AnnotationSocketHandler {
 
-    // @javax.websocket.OnMessage
+    // @jakarta.websocket.OnMessage
     @OnMessage
     public void handleTextMessage(WebSocketSession session, TextMessage message,
                                   @Message String text, @Message byte[] bytes,
@@ -141,10 +141,10 @@ public class WebSocketApplication {
     }
 
     /**
-     * <li>optional {@link javax.websocket.Session} parameter</li>
-     * <li>optional {@link javax.websocket.EndpointConfig} parameter</li>
+     * <li>optional {@link jakarta.websocket.Session} parameter</li>
+     * <li>optional {@link jakarta.websocket.EndpointConfig} parameter</li>
      * <li>optional {@link cn.taketoday.web.socket.WebSocketSession} parameter</li>
-     * <li>parameters annotated with the {@link javax.websocket.server.PathParam} annotation.</li>
+     * <li>parameters annotated with the {@link jakarta.websocket.server.PathParam} annotation.</li>
      * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
      */
     @AfterHandshake

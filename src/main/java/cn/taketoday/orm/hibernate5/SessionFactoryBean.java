@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.persistence.Entity;
-
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -39,6 +37,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+import jakarta.persistence.Entity;
 
 /**
  * @author TODAY <br>

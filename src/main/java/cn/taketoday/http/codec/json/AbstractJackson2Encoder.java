@@ -35,6 +35,7 @@ import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,13 +51,14 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.codec.HttpMessageEncoder;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
+import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.web.handler.MethodParameter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -367,8 +369,9 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   }
 
   @Override
-  public Map<String, Object> getEncodeHints(@Nullable ResolvableType actualType, ResolvableType elementType,
-                                            @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
+  public Map<String, Object> getEncodeHints(
+          @Nullable ResolvableType actualType, ResolvableType elementType,
+          @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
     return (actualType != null ? getHints(actualType) : Hints.none());
   }
@@ -376,8 +379,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   // Jackson2CodecSupport
 
   @Override
-  protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
-    return parameter.getMethodAnnotation(annotType);
+  protected <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotType) {
+    return parameter.getDeclaringExecutable().getAnnotation(annotType);
   }
 
 }

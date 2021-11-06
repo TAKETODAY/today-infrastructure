@@ -25,12 +25,11 @@ import java.io.Writer;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
 
 /**
  * Implementation of {@link cn.taketoday.http.converter.HttpMessageConverter}
@@ -42,8 +41,8 @@ import cn.taketoday.lang.Nullable;
  * {@code UTF-8} character set.
  *
  * @author Juergen Hoeller
- * @see javax.json.bind.Jsonb
- * @see javax.json.bind.JsonbBuilder
+ * @see jakarta.json.bind.Jsonb
+ * @see jakarta.json.bind.JsonbBuilder
  * @see #setJsonb
  * @since 4.0
  */

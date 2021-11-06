@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.validation.ParameterNameProvider;
+import jakarta.validation.ParameterNameProvider;
 
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 
@@ -41,7 +41,7 @@ public class ContextParameterNameProvider implements ParameterNameProvider {
 
   @Override
   public List<String> getParameterNames(Constructor<?> constructor) {
-    final List<String> parameterNames = new ArrayList<>(constructor.getParameterCount());
+    List<String> parameterNames = new ArrayList<>(constructor.getParameterCount());
 
     for (final Parameter parameter : constructor.getParameters()) {
       parameterNames.add(parameter.getName());

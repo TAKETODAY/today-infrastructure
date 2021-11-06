@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import javax.websocket.server.PathParam;
+import jakarta.websocket.server.PathParam;
 
 import cn.taketoday.web.handler.MethodParameter;
 

@@ -20,15 +20,12 @@
 
 package cn.taketoday.web.socket.undertow;
 
-import org.xnio.ChannelListener;
 import org.xnio.OptionMap;
 import org.xnio.Options;
-import org.xnio.StreamConnection;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
 import java.io.IOException;
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,12 +33,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import javax.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseStatusException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.StandardEndpoint;
@@ -51,12 +47,9 @@ import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import io.undertow.connector.ByteBufferPool;
 import io.undertow.server.DefaultByteBufferPool;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.server.HttpUpgradeListener;
 import io.undertow.server.session.Session;
 import io.undertow.servlet.api.ClassIntrospecter;
 import io.undertow.servlet.api.InstanceFactory;
-import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ThreadSetupHandler;
 import io.undertow.servlet.handlers.ServletRequestContext;
 import io.undertow.servlet.spec.HttpSessionImpl;
@@ -75,6 +68,7 @@ import io.undertow.websockets.jsr.handshake.HandshakeUtil;
 import io.undertow.websockets.jsr.handshake.JsrHybi07Handshake;
 import io.undertow.websockets.jsr.handshake.JsrHybi08Handshake;
 import io.undertow.websockets.jsr.handshake.JsrHybi13Handshake;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
  * @author TODAY 2021/5/6 18:19
@@ -109,13 +103,11 @@ public class UndertowWebSocketHandlerAdapter
   private final Set<WebSocketChannel> peerConnections = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
   @Override
-  @SuppressWarnings("unchecked")
   protected void doUpgrade(
           RequestContext context, WebSocketSession session, WebSocketHandler handler,
           String subProtocol, List<WebSocketExtension> supportedExtensions) {
     {
-      final UndertowWebSocketHttpExchange facade = new UndertowWebSocketHttpExchange(context, peerConnections);
-
+      UndertowWebSocketHttpExchange facade = new UndertowWebSocketHttpExchange(context, peerConnections);
       Handshake handshaking = getHandshake(context, session, facade, handler);
       if (handshaking != null) {
         if (obtainContainer().isClosed()) {
@@ -126,78 +118,52 @@ public class UndertowWebSocketHandlerAdapter
 //        facade.putAttachment(HandshakeUtil.PRINCIPAL, req.getUserPrincipal());
         ServletRequestContext src = ServletRequestContext.requireCurrent();
         final HttpSessionImpl httpSession = src.getCurrentServletContext().getSession(src.getExchange(), false);
-        final class HttpUpgradeListener0 implements HttpUpgradeListener {
-          final Handshake selected;
 
-          HttpUpgradeListener0(Handshake selected) {
-            this.selected = selected;
-          }
-
-          @Override
-          public void handleUpgrade(StreamConnection streamConnection, HttpServerExchange exchange) {
-            WebSocketChannel channel = selected.createChannel(facade, streamConnection, facade.getBufferPool());
-            peerConnections.add(channel);
-            if (httpSession != null) {
-              final Session underlying;
-              if (System.getSecurityManager() == null) {
-                underlying = httpSession.getSession();
-              }
-              else {
-                underlying = AccessController.doPrivileged(new HttpSessionImpl.UnwrapSessionAction(httpSession));
-              }
-              List<WebSocketChannel> connections;
+        facade.upgradeChannel((streamConnection, httpServerExchange) -> {
+          WebSocketChannel channel = handshaking.createChannel(facade, streamConnection, facade.getBufferPool());
+          peerConnections.add(channel);
+          if (httpSession != null) {
+            Session underlying = httpSession.getSession();
+            final List<WebSocketChannel> connections = getConnections(channel, underlying);
+            channel.addCloseTask(webSocketChannel -> { //CloseChannelListener
               synchronized(underlying) {
-                connections = (List<WebSocketChannel>) underlying.getAttribute(SESSION_ATTRIBUTE);
-                if (connections == null) {
-                  underlying.setAttribute(SESSION_ATTRIBUTE, connections = new ArrayList<>());
-                }
-                connections.add(channel);
+                connections.remove(channel);
               }
-
-              final class CloseChannelListener implements ChannelListener<WebSocketChannel> {
-                final List<WebSocketChannel> connections;
-
-                CloseChannelListener(List<WebSocketChannel> connections) {
-                  this.connections = connections;
-                }
-
-                @Override
-                public void handleEvent(WebSocketChannel channel) {
-                  synchronized(underlying) {
-                    connections.remove(channel);
-                  }
-                }
-              }
-              channel.addCloseTask(new CloseChannelListener(connections));
-            }
-            callback.onConnect(facade, channel);
+            });
           }
-        }
-
-        facade.upgradeChannel(new HttpUpgradeListener0(handshaking));
+          callback.onConnect(facade, channel);
+        });
         handshaking.handshake(facade);
       }
     }
 
   }
 
+  @NonNull
+  @SuppressWarnings({ "unchecked" })
+  private List<WebSocketChannel> getConnections(WebSocketChannel channel, Session underlying) {
+    List<WebSocketChannel> connections;
+    synchronized(underlying) {
+      connections = (List<WebSocketChannel>) underlying.getAttribute(SESSION_ATTRIBUTE);
+      if (connections == null) {
+        underlying.setAttribute(SESSION_ATTRIBUTE, connections = new ArrayList<>());
+      }
+      connections.add(channel);
+    }
+    return connections;
+  }
+
   protected Handshake getHandshake(
           RequestContext context, WebSocketSession session, UndertowWebSocketHttpExchange facade, WebSocketHandler handler) {
-    final ServerEndpointConfig endpointConfig = getServerEndpointConfig(handler);
+    ServerEndpointConfig endpointConfig = getServerEndpointConfig(handler);
     // StandardEndpoint
-    final class StandardEndpointInstanceFactory implements InstanceFactory<StandardEndpoint> {
 
-      @Override
-      public InstanceHandle<StandardEndpoint> createInstance() {
-        return new ImmediateInstanceHandle<>(new StandardEndpoint((StandardWebSocketSession) session, handler));
-      }
-    }
-
-    final ConfiguredServerEndpoint configured = new ConfiguredServerEndpoint(
-            endpointConfig, new StandardEndpointInstanceFactory(),
+    InstanceFactory<Object> objectInstanceFactory = () -> new ImmediateInstanceHandle<>(new StandardEndpoint((StandardWebSocketSession) session, handler));
+    ConfiguredServerEndpoint configured = new ConfiguredServerEndpoint(
+            endpointConfig, objectInstanceFactory,
             PathTemplate.create(context.getRequestPath()), EncodingFactory.DEFAULT);
 
-    final List<Handshake> handshakes = getHandshakes(configured);
+    List<Handshake> handshakes = getHandshakes(configured);
     for (Handshake method : handshakes) {
       if (method.matches(facade)) {
         return method;
@@ -207,7 +173,7 @@ public class UndertowWebSocketHandlerAdapter
   }
 
   protected List<Handshake> getHandshakes(ConfiguredServerEndpoint configured) {
-    final ArrayList<Handshake> handshakes = new ArrayList<>();
+    ArrayList<Handshake> handshakes = new ArrayList<>();
     handshakes.add(new JsrHybi13Handshake(configured));
     handshakes.add(new JsrHybi08Handshake(configured));
     handshakes.add(new JsrHybi07Handshake(configured));

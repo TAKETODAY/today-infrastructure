@@ -28,6 +28,13 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
+import cn.taketoday.http.HttpLogging;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
@@ -42,14 +49,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
-import cn.taketoday.http.HttpLogging;
-import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-
 /**
  * Adapt {@link HttpHandler} to an {@link HttpServlet} using Servlet Async support
  * and Servlet 3.1 non-blocking I/O.
@@ -59,21 +58,17 @@ import cn.taketoday.logging.Logger;
  * @since 4.0
  */
 public class ServletHttpHandlerAdapter implements Servlet {
-
   private static final Logger logger = HttpLogging.forLogName(ServletHttpHandlerAdapter.class);
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;
-
   private static final String WRITE_ERROR_ATTRIBUTE_NAME = ServletHttpHandlerAdapter.class.getName() + ".ERROR";
 
   private final HttpHandler httpHandler;
-
   private int bufferSize = DEFAULT_BUFFER_SIZE;
+  private DataBufferFactory dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
 
   @Nullable
   private String servletPath;
-
-  private DataBufferFactory dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
 
   public ServletHttpHandlerAdapter(HttpHandler httpHandler) {
     Assert.notNull(httpHandler, "HttpHandler must not be null");
@@ -141,7 +136,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
       if (mapping.endsWith("/*")) {
         String path = mapping.substring(0, mapping.length() - 2);
         if (!path.isEmpty() && logger.isDebugEnabled()) {
-          logger.debug("Found servlet mapping prefix '" + path + "' for '" + name + "'");
+          logger.debug("Found servlet mapping prefix '{}' for '{}'", path, name);
         }
         return path;
       }
@@ -176,7 +171,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
     }
     catch (URISyntaxException ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Failed to get request  URL: " + ex.getMessage());
+        logger.debug("Failed to get request  URL: {}", ex.getMessage());
       }
       ((HttpServletResponse) response).setStatus(400);
       asyncContext.complete();
@@ -206,8 +201,9 @@ public class ServletHttpHandlerAdapter implements Servlet {
             request, context, this.servletPath, getDataBufferFactory(), getBufferSize());
   }
 
-  protected ServletServerHttpResponse createResponse(HttpServletResponse response,
-                                                     AsyncContext context, ServletServerHttpRequest request) throws IOException {
+  protected ServletServerHttpResponse createResponse(
+          HttpServletResponse response,
+          AsyncContext context, ServletServerHttpRequest request) throws IOException {
 
     return new ServletServerHttpResponse(response, context, getDataBufferFactory(), getBufferSize(), request);
   }
@@ -224,10 +220,10 @@ public class ServletHttpHandlerAdapter implements Servlet {
   }
 
   @Override
-  public void destroy() {
-  }
+  public void destroy() { }
 
-  private static void runIfAsyncNotComplete(AsyncContext asyncContext, AtomicBoolean isCompleted, Runnable task) {
+  private static void runIfAsyncNotComplete(
+          AsyncContext asyncContext, AtomicBoolean isCompleted, Runnable task) {
     try {
       if (asyncContext.getRequest().isAsyncStarted() && isCompleted.compareAndSet(false, true)) {
         task.run();
@@ -250,17 +246,13 @@ public class ServletHttpHandlerAdapter implements Servlet {
    */
   private static class HttpHandlerAsyncListener implements AsyncListener {
 
+    private final String logPrefix;
     private final AsyncListener requestAsyncListener;
-
     private final AsyncListener responseAsyncListener;
-
     // We cannot have AsyncListener and HandlerResultSubscriber until WildFly 12+:
     // https://issues.jboss.org/browse/WFLY-8515
     private final Runnable handlerDisposeTask;
-
     private final AtomicBoolean completionFlag;
-
-    private final String logPrefix;
 
     public HttpHandlerAsyncListener(
             AsyncListener requestAsyncListener, AsyncListener responseAsyncListener,
@@ -277,7 +269,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
     public void onTimeout(AsyncEvent event) {
       // Should never happen since we call asyncContext.setTimeout(-1)
       if (logger.isDebugEnabled()) {
-        logger.debug(this.logPrefix + "AsyncEvent onTimeout");
+        logger.debug("{}AsyncEvent onTimeout", this.logPrefix);
       }
       delegateTimeout(this.requestAsyncListener, event);
       delegateTimeout(this.responseAsyncListener, event);
@@ -288,7 +280,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
     public void onError(AsyncEvent event) {
       Throwable ex = event.getThrowable();
       if (logger.isDebugEnabled()) {
-        logger.debug(this.logPrefix + "AsyncEvent onError: " + (ex != null ? ex : "<no Throwable>"));
+        logger.debug("{}AsyncEvent onError: {}", this.logPrefix, (ex != null ? ex : "<no Throwable>"));
       }
       delegateError(this.requestAsyncListener, event);
       delegateError(this.responseAsyncListener, event);
@@ -348,21 +340,18 @@ public class ServletHttpHandlerAdapter implements Servlet {
 
   private static class HandlerResultSubscriber implements Subscriber<Void>, Runnable {
 
-    private final AsyncContext asyncContext;
-
-    private final AtomicBoolean completionFlag;
-
     private final String logPrefix;
+    private final AsyncContext asyncContext;
+    private final AtomicBoolean completionFlag;
 
     @Nullable
     private volatile Subscription subscription;
 
     public HandlerResultSubscriber(
             AsyncContext asyncContext, AtomicBoolean completionFlag, String logPrefix) {
-
+      this.logPrefix = logPrefix;
       this.asyncContext = asyncContext;
       this.completionFlag = completionFlag;
-      this.logPrefix = logPrefix;
     }
 
     @Override
@@ -379,17 +368,17 @@ public class ServletHttpHandlerAdapter implements Servlet {
     @Override
     public void onError(Throwable ex) {
       if (logger.isTraceEnabled()) {
-        logger.trace(this.logPrefix + "onError: " + ex);
+        logger.trace("{}onError: {}", this.logPrefix, ex.toString());
       }
       runIfAsyncNotComplete(this.asyncContext, this.completionFlag, () -> {
         if (this.asyncContext.getResponse().isCommitted()) {
-          logger.trace(this.logPrefix + "Dispatch to container, to raise the error on servlet thread");
+          logger.trace("{}Dispatch to container, to raise the error on servlet thread", this.logPrefix);
           this.asyncContext.getRequest().setAttribute(WRITE_ERROR_ATTRIBUTE_NAME, ex);
           this.asyncContext.dispatch();
         }
         else {
           try {
-            logger.trace(this.logPrefix + "Setting ServletResponse status to 500 Server Error");
+            logger.trace("{}Setting ServletResponse status to 500 Server Error", this.logPrefix);
             this.asyncContext.getResponse().resetBuffer();
             ((HttpServletResponse) this.asyncContext.getResponse()).setStatus(500);
           }
@@ -403,7 +392,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
     @Override
     public void onComplete() {
       if (logger.isTraceEnabled()) {
-        logger.trace(this.logPrefix + "onComplete");
+        logger.trace("{}onComplete", this.logPrefix);
       }
       runIfAsyncNotComplete(this.asyncContext, this.completionFlag, this.asyncContext::complete);
     }

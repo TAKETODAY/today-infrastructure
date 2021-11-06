@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
-
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
@@ -54,6 +52,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.StringUtils;
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author TODAY <br>
@@ -213,8 +212,8 @@ public abstract class AbstractCacheInterceptor
     static Object createKey(
             String key, CacheExpressionContext ctx, MethodInvocation invocation) {
       return key.isEmpty()
-              ? new DefaultCacheKey(invocation.getArguments())
-              : EXPRESSION_FACTORY.createValueExpression(ctx, key, Object.class).getValue(ctx);
+             ? new DefaultCacheKey(invocation.getArguments())
+             : EXPRESSION_FACTORY.createValueExpression(ctx, key, Object.class).getValue(ctx);
     }
 
     /**

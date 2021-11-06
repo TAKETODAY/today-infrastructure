@@ -73,7 +73,7 @@ class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean
   WebSocketHandlerRegistry webSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
-    if (ClassUtils.isPresent("javax.websocket.Session")) {
+    if (ClassUtils.isPresent("jakarta.websocket.Session")) {
       return new StandardWebSocketHandlerRegistry(handlerBuilder);
     }
     return new WebSocketHandlerRegistry(handlerBuilder);
@@ -88,7 +88,7 @@ class WebSocketConfig implements WebApplicationInitializer {
   AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(
           List<EndpointParameterResolver> resolvers) {
     final AnnotationWebSocketHandlerBuilder handlerBuilder;
-    if (ClassUtils.isPresent("javax.websocket.Session")) {
+    if (ClassUtils.isPresent("jakarta.websocket.Session")) {
       handlerBuilder = new StandardAnnotationWebSocketHandlerBuilder();
     }
     else {

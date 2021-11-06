@@ -23,14 +23,8 @@ package cn.taketoday.web.socket.jetty;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.MappedByteBufferPool;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
-import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
-import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.eclipse.jetty.websocket.server.JettyWebSocketServerContainer;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.web.RequestContext;
@@ -40,6 +34,9 @@ import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author TODAY 2021/5/6 21:21
@@ -48,28 +45,25 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class JettyWebSocketHandlerAdapter
         extends AbstractWebSocketHandlerAdapter implements ServletContextAware, DisposableBean {
 
-  private WebSocketServerFactory webSocketServerFactory;
-
   private WebSocketPolicy policy;
   private ByteBufferPool bufferPool;
 
   @Override
   protected void doHandshake(
-          RequestContext context, final WebSocketSession session, WebSocketHandler handler) throws Throwable {
-    final HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
-    final HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
+          RequestContext context, WebSocketSession session, WebSocketHandler handler) throws Throwable {
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
+    HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
 
-    final class WebSocketCreator0 implements WebSocketCreator {
-      @Override
-      public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        if (handler.supportPartialMessage()) {
-          return new JettyPartialWebSocketConnectionListener((JettyWebSocketSession) session, handler);
-        }
-        return new JettyWebSocketConnectionListener((JettyWebSocketSession) session, handler);
+    JettyWebSocketCreator webSocketCreator = (upgradeRequest, upgradeResponse) -> {
+      if (handler.supportPartialMessage()) {
+        return new JettyPartialWebSocketConnectionListener((JettyWebSocketSession) session, handler);
       }
-    }
+      return new JettyWebSocketConnectionListener((JettyWebSocketSession) session, handler);
+    };
 
-    webSocketServerFactory.acceptWebSocket(new WebSocketCreator0(), servletRequest, servletResponse);
+    ServletContext servletContext = servletRequest.getServletContext();
+    JettyWebSocketServerContainer container = JettyWebSocketServerContainer.getContainer(servletContext);
+    container.upgrade(webSocketCreator, servletRequest, servletResponse);
   }
 
   @Override
@@ -85,9 +79,7 @@ public class JettyWebSocketHandlerAdapter
     if (bufferPool == null) {
       bufferPool = new MappedByteBufferPool();
     }
-    this.webSocketServerFactory = new WebSocketServerFactory(servletContext, policy, bufferPool);
     try {
-      webSocketServerFactory.start();
     }
     catch (Exception e) {
       throw new WebNestedRuntimeException("WebSocketServerFactory cannot start successfully");
@@ -96,10 +88,6 @@ public class JettyWebSocketHandlerAdapter
 
   public void setPolicy(WebSocketPolicy policy) {
     this.policy = policy;
-  }
-
-  public void setWebSocketServerFactory(WebSocketServerFactory webSocketServerFactory) {
-    this.webSocketServerFactory = webSocketServerFactory;
   }
 
   public void setBufferPool(ByteBufferPool bufferPool) {

@@ -31,17 +31,17 @@ import java.lang.annotation.Target;
  *
  * <p>The method may only take the following parameters:-
  * <ul>
- * <li>optional {@link javax.websocket.Session} parameter</li>
- * <li>optional {@link javax.websocket.CloseReason} parameter</li>
- * <li>optional {@link javax.websocket.EndpointConfig} parameter</li>
+ * <li>optional {@link jakarta.websocket.Session} parameter</li>
+ * <li>optional {@link jakarta.websocket.CloseReason} parameter</li>
+ * <li>optional {@link jakarta.websocket.EndpointConfig} parameter</li>
  * <li>optional {@link cn.taketoday.web.socket.CloseStatus} parameter</li>
  * <li>optional {@link cn.taketoday.web.socket.WebSocketSession} parameter</li>
- * <li>parameters annotated with the {@link javax.websocket.server.PathParam} annotation.</li>
+ * <li>parameters annotated with the {@link jakarta.websocket.server.PathParam} annotation.</li>
  * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
  * </ul>
  *
  * <p>The parameters may appear in any order. See
- * {@link javax.websocket.Endpoint#onClose}
+ * {@link jakarta.websocket.Endpoint#onClose}
  * for more details on how the session parameter may be used during method calls
  * annotated with this annotation.
  *

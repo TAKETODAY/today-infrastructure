@@ -20,9 +20,9 @@
 
 package cn.taketoday.http.server.reactive;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,187 +44,174 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
 
-	private static final Pattern QUERY_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
+  private static final Pattern QUERY_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
 
+  private final URI uri;
+  private final RequestPath path;
+  private final HttpHeaders headers;
 
-	private final URI uri;
+  @Nullable
+  private MultiValueMap<String, String> queryParams;
 
-	private final RequestPath path;
+  @Nullable
+  private MultiValueMap<String, HttpCookie> cookies;
 
-	private final HttpHeaders headers;
+  @Nullable
+  private SslInfo sslInfo;
 
-	@Nullable
-	private MultiValueMap<String, String> queryParams;
+  @Nullable
+  private String id;
 
-	@Nullable
-	private MultiValueMap<String, HttpCookie> cookies;
+  @Nullable
+  private String logPrefix;
 
-	@Nullable
-	private SslInfo sslInfo;
+  /**
+   * Constructor with the URI and headers for the request.
+   *
+   * @param uri the URI for the request
+   * @param contextPath the context path for the request
+   * @param headers the headers for the request (as {@link MultiValueMap})
+   */
+  public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, MultiValueMap<String, String> headers) {
+    this.uri = uri;
+    this.path = RequestPath.parse(uri, contextPath);
+    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+  }
 
-	@Nullable
-	private String id;
+  /**
+   * Constructor with the URI and headers for the request.
+   *
+   * @param uri the URI for the request
+   * @param contextPath the context path for the request
+   * @param headers the headers for the request (as {@link HttpHeaders})
+   */
+  public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, HttpHeaders headers) {
+    this.uri = uri;
+    this.path = RequestPath.parse(uri, contextPath);
+    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+  }
 
-	@Nullable
-	private String logPrefix;
+  @Override
+  public String getId() {
+    if (this.id == null) {
+      this.id = initId();
+      if (this.id == null) {
+        this.id = ObjectUtils.getIdentityHexString(this);
+      }
+    }
+    return this.id;
+  }
 
+  /**
+   * Obtain the request id to use, or {@code null} in which case the Object
+   * identity of this request instance is used.
+   */
+  @Nullable
+  protected String initId() {
+    return null;
+  }
 
-	/**
-	 * Constructor with the URI and headers for the request.
-	 * @param uri the URI for the request
-	 * @param contextPath the context path for the request
-	 * @param headers the headers for the request (as {@link MultiValueMap})
-	 * @since 4.0
-	 */
-	public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, MultiValueMap<String, String> headers) {
-		this.uri = uri;
-		this.path = RequestPath.parse(uri, contextPath);
-		this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-	}
+  @Override
+  public URI getURI() {
+    return this.uri;
+  }
 
-	/**
-	 * Constructor with the URI and headers for the request.
-	 * @param uri the URI for the request
-	 * @param contextPath the context path for the request
-	 * @param headers the headers for the request (as {@link HttpHeaders})
-	 */
-	public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, HttpHeaders headers) {
-		this.uri = uri;
-		this.path = RequestPath.parse(uri, contextPath);
-		this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-	}
+  @Override
+  public RequestPath getPath() {
+    return this.path;
+  }
 
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.headers;
+  }
 
-	@Override
-	public String getId() {
-		if (this.id == null) {
-			this.id = initId();
-			if (this.id == null) {
-				this.id = ObjectUtils.getIdentityHexString(this);
-			}
-		}
-		return this.id;
-	}
+  @Override
+  public MultiValueMap<String, String> getQueryParams() {
+    if (this.queryParams == null) {
+      this.queryParams = CollectionUtils.unmodifiableMultiValueMap(initQueryParams());
+    }
+    return this.queryParams;
+  }
 
-	/**
-	 * Obtain the request id to use, or {@code null} in which case the Object
-	 * identity of this request instance is used.
-	 * @since 4.0
-	 */
-	@Nullable
-	protected String initId() {
-		return null;
-	}
+  /**
+   * A method for parsing of the query into name-value pairs. The return
+   * value is turned into an immutable map and cached.
+   * <p>Note that this method is invoked lazily on first access to
+   * {@link #getQueryParams()}. The invocation is not synchronized but the
+   * parsing is thread-safe nevertheless.
+   */
+  protected MultiValueMap<String, String> initQueryParams() {
+    DefaultMultiValueMap<String, String> queryParams = new DefaultMultiValueMap<>();
+    String query = getURI().getRawQuery();
+    if (query != null) {
+      Matcher matcher = QUERY_PATTERN.matcher(query);
+      while (matcher.find()) {
+        String name = decodeQueryParam(matcher.group(1));
+        String eq = matcher.group(2);
+        String value = matcher.group(3);
+        value = (value != null ? decodeQueryParam(value) : (StringUtils.isNotEmpty(eq) ? "" : null));
+        queryParams.add(name, value);
+      }
+    }
+    return queryParams;
+  }
 
-	@Override
-	public URI getURI() {
-		return this.uri;
-	}
+  private String decodeQueryParam(String value) {
+    return URLDecoder.decode(value, StandardCharsets.UTF_8);
+  }
 
-	@Override
-	public RequestPath getPath() {
-		return this.path;
-	}
+  @Override
+  public MultiValueMap<String, HttpCookie> getCookies() {
+    if (this.cookies == null) {
+      this.cookies = CollectionUtils.unmodifiableMultiValueMap(initCookies());
+    }
+    return this.cookies;
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.headers;
-	}
+  /**
+   * Obtain the cookies from the underlying "native" request and adapt those to
+   * an {@link HttpCookie} map. The return value is turned into an immutable
+   * map and cached.
+   * <p>Note that this method is invoked lazily on access to
+   * {@link #getCookies()}. Sub-classes should synchronize cookie
+   * initialization if the underlying "native" request does not provide
+   * thread-safe access to cookie data.
+   */
+  protected abstract MultiValueMap<String, HttpCookie> initCookies();
 
-	@Override
-	public MultiValueMap<String, String> getQueryParams() {
-		if (this.queryParams == null) {
-			this.queryParams = CollectionUtils.unmodifiableMultiValueMap(initQueryParams());
-		}
-		return this.queryParams;
-	}
+  @Nullable
+  @Override
+  public SslInfo getSslInfo() {
+    if (this.sslInfo == null) {
+      this.sslInfo = initSslInfo();
+    }
+    return this.sslInfo;
+  }
 
-	/**
-	 * A method for parsing of the query into name-value pairs. The return
-	 * value is turned into an immutable map and cached.
-	 * <p>Note that this method is invoked lazily on first access to
-	 * {@link #getQueryParams()}. The invocation is not synchronized but the
-	 * parsing is thread-safe nevertheless.
-	 */
-	protected MultiValueMap<String, String> initQueryParams() {
-		MultiValueMap<String, String> queryParams = new DefaultMultiValueMap<>();
-		String query = getURI().getRawQuery();
-		if (query != null) {
-			Matcher matcher = QUERY_PATTERN.matcher(query);
-			while (matcher.find()) {
-				String name = decodeQueryParam(matcher.group(1));
-				String eq = matcher.group(2);
-				String value = matcher.group(3);
-				value = (value != null ? decodeQueryParam(value) : (StringUtils.hasLength(eq) ? "" : null));
-				queryParams.add(name, value);
-			}
-		}
-		return queryParams;
-	}
+  /**
+   * Obtain SSL session information from the underlying "native" request.
+   *
+   * @return the session information, or {@code null} if none available
+   */
+  @Nullable
+  protected abstract SslInfo initSslInfo();
 
-	@SuppressWarnings("deprecation")
-	private String decodeQueryParam(String value) {
-		try {
-			return URLDecoder.decode(value, "UTF-8");
-		}
-		catch (UnsupportedEncodingException ex) {
-			// Should never happen but we got a platform default fallback anyway.
-			return URLDecoder.decode(value);
-		}
-	}
+  /**
+   * Return the underlying server response.
+   * <p><strong>Note:</strong> This is exposed mainly for internal framework
+   * use such as WebSocket upgrades in the spring-webflux module.
+   */
+  public abstract <T> T getNativeRequest();
 
-	@Override
-	public MultiValueMap<String, HttpCookie> getCookies() {
-		if (this.cookies == null) {
-			this.cookies = CollectionUtils.unmodifiableMultiValueMap(initCookies());
-		}
-		return this.cookies;
-	}
-
-	/**
-	 * Obtain the cookies from the underlying "native" request and adapt those to
-	 * an {@link HttpCookie} map. The return value is turned into an immutable
-	 * map and cached.
-	 * <p>Note that this method is invoked lazily on access to
-	 * {@link #getCookies()}. Sub-classes should synchronize cookie
-	 * initialization if the underlying "native" request does not provide
-	 * thread-safe access to cookie data.
-	 */
-	protected abstract MultiValueMap<String, HttpCookie> initCookies();
-
-	@Nullable
-	@Override
-	public SslInfo getSslInfo() {
-		if (this.sslInfo == null) {
-			this.sslInfo = initSslInfo();
-		}
-		return this.sslInfo;
-	}
-
-	/**
-	 * Obtain SSL session information from the underlying "native" request.
-	 * @return the session information, or {@code null} if none available
-	 * @since 4.0
-	 */
-	@Nullable
-	protected abstract SslInfo initSslInfo();
-
-	/**
-	 * Return the underlying server response.
-	 * <p><strong>Note:</strong> This is exposed mainly for internal framework
-	 * use such as WebSocket upgrades in the spring-webflux module.
-	 */
-	public abstract <T> T getNativeRequest();
-
-	/**
-	 * For internal use in logging at the HTTP adapter layer.
-	 * @since 4.0
-	 */
-	String getLogPrefix() {
-		if (this.logPrefix == null) {
-			this.logPrefix = "[" + getId() + "] ";
-		}
-		return this.logPrefix;
-	}
+  /**
+   * For internal use in logging at the HTTP adapter layer.
+   */
+  String getLogPrefix() {
+    if (this.logPrefix == null) {
+      this.logPrefix = "[" + getId() + "] ";
+    }
+    return this.logPrefix;
+  }
 
 }

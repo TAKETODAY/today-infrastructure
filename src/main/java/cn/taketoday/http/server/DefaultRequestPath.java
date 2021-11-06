@@ -33,125 +33,122 @@ import cn.taketoday.util.StringUtils;
  */
 class DefaultRequestPath implements RequestPath {
 
-	private final PathContainer fullPath;
+  private final PathContainer fullPath;
+  private final PathContainer contextPath;
+  private final PathContainer pathWithinApplication;
 
-	private final PathContainer contextPath;
+  DefaultRequestPath(String rawPath, @Nullable String contextPath) {
+    this.fullPath = PathContainer.parsePath(rawPath);
+    this.contextPath = initContextPath(this.fullPath, contextPath);
+    this.pathWithinApplication = extractPathWithinApplication(this.fullPath, this.contextPath);
+  }
 
-	private final PathContainer pathWithinApplication;
+  private DefaultRequestPath(RequestPath requestPath, String contextPath) {
+    this.fullPath = requestPath;
+    this.contextPath = initContextPath(this.fullPath, contextPath);
+    this.pathWithinApplication = extractPathWithinApplication(this.fullPath, this.contextPath);
+  }
 
+  private static PathContainer initContextPath(PathContainer path, @Nullable String contextPath) {
+    if (!StringUtils.hasText(contextPath) || StringUtils.matchesCharacter(contextPath, '/')) {
+      return PathContainer.parsePath("");
+    }
 
-	DefaultRequestPath(String rawPath, @Nullable String contextPath) {
-		this.fullPath = PathContainer.parsePath(rawPath);
-		this.contextPath = initContextPath(this.fullPath, contextPath);
-		this.pathWithinApplication = extractPathWithinApplication(this.fullPath, this.contextPath);
-	}
+    validateContextPath(path.value(), contextPath);
+    int length = contextPath.length();
+    int counter = 0;
 
-	private DefaultRequestPath(RequestPath requestPath, String contextPath) {
-		this.fullPath = requestPath;
-		this.contextPath = initContextPath(this.fullPath, contextPath);
-		this.pathWithinApplication = extractPathWithinApplication(this.fullPath, this.contextPath);
-	}
+    List<Element> elements = path.elements();
+    for (int i = 0; i < elements.size(); i++) {
+      Element element = elements.get(i);
+      counter += element.value().length();
+      if (length == counter) {
+        return path.subPath(0, i + 1);
+      }
+    }
 
-	private static PathContainer initContextPath(PathContainer path, @Nullable String contextPath) {
-		if (!StringUtils.hasText(contextPath) || StringUtils.matchesCharacter(contextPath, '/')) {
-			return PathContainer.parsePath("");
-		}
+    // Should not happen..
+    throw new IllegalStateException(
+            "Failed to initialize contextPath '" + contextPath + "'" +
+                    " for requestPath '" + path.value() + "'");
+  }
 
-		validateContextPath(path.value(), contextPath);
+  private static void validateContextPath(String fullPath, String contextPath) {
+    int length = contextPath.length();
+    if (contextPath.charAt(0) != '/' || contextPath.charAt(length - 1) == '/') {
+      throw new IllegalArgumentException(
+              "Invalid contextPath: '" + contextPath + "': " + "must start with '/' and not end with '/'");
+    }
+    if (!fullPath.startsWith(contextPath)) {
+      throw new IllegalArgumentException(
+              "Invalid contextPath '" + contextPath + "': " +
+                      "must match the start of requestPath: '" + fullPath + "'");
+    }
+    if (fullPath.length() > length && fullPath.charAt(length) != '/') {
+      throw new IllegalArgumentException(
+              "Invalid contextPath '" + contextPath + "': " +
+                      "must match to full path segments for requestPath: '" + fullPath + "'");
+    }
+  }
 
-		int length = contextPath.length();
-		int counter = 0;
+  private static PathContainer extractPathWithinApplication(PathContainer fullPath, PathContainer contextPath) {
+    return fullPath.subPath(contextPath.elements().size());
+  }
 
-		for (int i = 0; i < path.elements().size(); i++) {
-			Element element = path.elements().get(i);
-			counter += element.value().length();
-			if (length == counter) {
-				return path.subPath(0, i + 1);
-			}
-		}
+  // PathContainer methods..
 
-		// Should not happen..
-		throw new IllegalStateException("Failed to initialize contextPath '" + contextPath + "'" +
-				" for requestPath '" + path.value() + "'");
-	}
+  @Override
+  public String value() {
+    return this.fullPath.value();
+  }
 
-	private static void validateContextPath(String fullPath, String contextPath) {
-		int length = contextPath.length();
-		if (contextPath.charAt(0) != '/' || contextPath.charAt(length - 1) == '/') {
-			throw new IllegalArgumentException("Invalid contextPath: '" + contextPath + "': " +
-					"must start with '/' and not end with '/'");
-		}
-		if (!fullPath.startsWith(contextPath)) {
-			throw new IllegalArgumentException("Invalid contextPath '" + contextPath + "': " +
-					"must match the start of requestPath: '" + fullPath + "'");
-		}
-		if (fullPath.length() > length && fullPath.charAt(length) != '/') {
-			throw new IllegalArgumentException("Invalid contextPath '" + contextPath + "': " +
-					"must match to full path segments for requestPath: '" + fullPath + "'");
-		}
-	}
+  @Override
+  public List<Element> elements() {
+    return this.fullPath.elements();
+  }
 
-	private static PathContainer extractPathWithinApplication(PathContainer fullPath, PathContainer contextPath) {
-		return fullPath.subPath(contextPath.elements().size());
-	}
+  // RequestPath methods..
 
+  @Override
+  public PathContainer contextPath() {
+    return this.contextPath;
+  }
 
-	// PathContainer methods..
+  @Override
+  public PathContainer pathWithinApplication() {
+    return this.pathWithinApplication;
+  }
 
-	@Override
-	public String value() {
-		return this.fullPath.value();
-	}
+  @Override
+  public RequestPath modifyContextPath(String contextPath) {
+    return new DefaultRequestPath(this, contextPath);
+  }
 
-	@Override
-	public List<Element> elements() {
-		return this.fullPath.elements();
-	}
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    DefaultRequestPath otherPath = (DefaultRequestPath) other;
+    return (this.fullPath.equals(otherPath.fullPath) &&
+            this.contextPath.equals(otherPath.contextPath) &&
+            this.pathWithinApplication.equals(otherPath.pathWithinApplication));
+  }
 
+  @Override
+  public int hashCode() {
+    int result = this.fullPath.hashCode();
+    result = 31 * result + this.contextPath.hashCode();
+    result = 31 * result + this.pathWithinApplication.hashCode();
+    return result;
+  }
 
-	// RequestPath methods..
-
-	@Override
-	public PathContainer contextPath() {
-		return this.contextPath;
-	}
-
-	@Override
-	public PathContainer pathWithinApplication() {
-		return this.pathWithinApplication;
-	}
-
-	@Override
-	public RequestPath modifyContextPath(String contextPath) {
-		return new DefaultRequestPath(this, contextPath);
-	}
-
-
-	@Override
-	public boolean equals(@Nullable Object other) {
-		if (this == other) {
-			return true;
-		}
-		if (other == null || getClass() != other.getClass()) {
-			return false;
-		}
-		DefaultRequestPath otherPath= (DefaultRequestPath) other;
-		return (this.fullPath.equals(otherPath.fullPath) &&
-				this.contextPath.equals(otherPath.contextPath) &&
-				this.pathWithinApplication.equals(otherPath.pathWithinApplication));
-	}
-
-	@Override
-	public int hashCode() {
-		int result = this.fullPath.hashCode();
-		result = 31 * result + this.contextPath.hashCode();
-		result = 31 * result + this.pathWithinApplication.hashCode();
-		return result;
-	}
-
-	@Override
-	public String toString() {
-		return this.fullPath.toString();
-	}
+  @Override
+  public String toString() {
+    return this.fullPath.toString();
+  }
 
 }

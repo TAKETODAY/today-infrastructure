@@ -41,17 +41,18 @@ import reactor.core.publisher.Mono;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
- * @since 4.0
  * @see ContextPathCompositeHandler
+ * @since 4.0
  */
 public interface HttpHandler {
 
-	/**
-	 * Handle the given request and write to the response.
-	 * @param request current request
-	 * @param response current response
-	 * @return indicates completion of request handling
-	 */
-	Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response);
+  /**
+   * Handle the given request and write to the response.
+   *
+   * @param request current request
+   * @param response current response
+   * @return indicates completion of request handling
+   */
+  Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response);
 
 }

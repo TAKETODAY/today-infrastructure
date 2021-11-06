@@ -23,7 +23,7 @@ import org.hibernate.Filter;
 
 import java.util.Iterator;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 /**
  * @author TODAY <br>

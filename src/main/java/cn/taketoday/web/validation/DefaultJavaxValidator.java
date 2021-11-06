@@ -21,17 +21,17 @@ package cn.taketoday.web.validation;
 
 import java.util.Set;
 
-import javax.validation.Configuration;
-import javax.validation.ConstraintViolation;
-import javax.validation.ElementKind;
-import javax.validation.Path;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.Configuration;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ElementKind;
+import jakarta.validation.Path;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * @author TODAY 2019-07-21 19:44
  */
 public class DefaultJavaxValidator implements Validator {
-  private javax.validation.Validator validator;
+  private jakarta.validation.Validator validator;
 
   public DefaultJavaxValidator(Configuration<?> configuration) {
     this(configuration.buildValidatorFactory());
@@ -41,7 +41,7 @@ public class DefaultJavaxValidator implements Validator {
     this(validatorFactory.getValidator());
   }
 
-  public DefaultJavaxValidator(javax.validation.Validator validator) {
+  public DefaultJavaxValidator(jakarta.validation.Validator validator) {
     this.validator = validator;
   }
 
@@ -102,11 +102,11 @@ public class DefaultJavaxValidator implements Validator {
     return sb.toString();
   }
 
-  public void setValidator(javax.validation.Validator validator) {
+  public void setValidator(jakarta.validation.Validator validator) {
     this.validator = validator;
   }
 
-  public javax.validation.Validator getValidator() {
+  public jakarta.validation.Validator getValidator() {
     return validator;
   }
 

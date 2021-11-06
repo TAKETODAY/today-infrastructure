@@ -27,13 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.AsyncEvent;
-import jakarta.servlet.AsyncListener;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
@@ -44,6 +38,12 @@ import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.AsyncEvent;
+import jakarta.servlet.AsyncListener;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Adapt {@link ServerHttpResponse} to the Servlet {@link HttpServletResponse}.
@@ -53,23 +53,18 @@ import cn.taketoday.util.MediaType;
  */
 class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
-  private final HttpServletResponse response;
-
-  private final ServletOutputStream outputStream;
-
   private final int bufferSize;
-
-  @Nullable
-  private volatile ResponseBodyFlushProcessor bodyFlushProcessor;
+  private volatile boolean flushOnNext;
+  private final HttpServletResponse response;
+  private final ServletOutputStream outputStream;
+  private final ServletServerHttpRequest request;
+  private final ResponseAsyncListener asyncListener;
 
   @Nullable
   private volatile ResponseBodyProcessor bodyProcessor;
 
-  private volatile boolean flushOnNext;
-
-  private final ServletServerHttpRequest request;
-
-  private final ResponseAsyncListener asyncListener;
+  @Nullable
+  private volatile ResponseBodyFlushProcessor bodyFlushProcessor;
 
   public ServletServerHttpResponse(
           HttpServletResponse response, AsyncContext asyncContext,
@@ -127,29 +122,31 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   @Override
   protected void applyHeaders() {
-    getHeaders().forEach((headerName, headerValues) -> {
-      for (String headerValue : headerValues) {
-        this.response.addHeader(headerName, headerValue);
+    HttpHeaders httpHeaders = getHeaders();
+    for (Map.Entry<String, List<String>> entry : httpHeaders.entrySet()) {
+      String headerName = entry.getKey();
+      for (String headerValue : entry.getValue()) {
+        response.addHeader(headerName, headerValue);
       }
-    });
+    }
     MediaType contentType = null;
     try {
-      contentType = getHeaders().getContentType();
+      contentType = httpHeaders.getContentType();
     }
     catch (Exception ex) {
-      String rawContentType = getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
-      this.response.setContentType(rawContentType);
+      String rawContentType = httpHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+      response.setContentType(rawContentType);
     }
-    if (this.response.getContentType() == null && contentType != null) {
-      this.response.setContentType(contentType.toString());
+    if (response.getContentType() == null && contentType != null) {
+      response.setContentType(contentType.toString());
     }
     Charset charset = (contentType != null ? contentType.getCharset() : null);
-    if (this.response.getCharacterEncoding() == null && charset != null) {
-      this.response.setCharacterEncoding(charset.name());
+    if (response.getCharacterEncoding() == null && charset != null) {
+      response.setCharacterEncoding(charset.name());
     }
-    long contentLength = getHeaders().getContentLength();
+    long contentLength = httpHeaders.getContentLength();
     if (contentLength != -1) {
-      this.response.setContentLengthLong(contentLength);
+      response.setContentLengthLong(contentLength);
     }
   }
 
@@ -167,7 +164,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     for (List<ResponseCookie> cookies : getCookies().values()) {
       for (ResponseCookie cookie : cookies) {
-        this.response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
       }
     }
   }
@@ -319,7 +316,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
     @Override
     protected void flush() throws IOException {
       if (rsWriteFlushLogger.isTraceEnabled()) {
-        rsWriteFlushLogger.trace(getLogPrefix() + "flushing");
+        rsWriteFlushLogger.trace("{}flushing", getLogPrefix());
       }
       ServletServerHttpResponse.this.flush();
     }
@@ -355,7 +352,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
     protected boolean write(DataBuffer dataBuffer) throws IOException {
       if (ServletServerHttpResponse.this.flushOnNext) {
         if (rsWriteLogger.isTraceEnabled()) {
-          rsWriteLogger.trace(getLogPrefix() + "flushing");
+          rsWriteLogger.trace("{}flushing", getLogPrefix());
         }
         flush();
       }
@@ -366,7 +363,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
         // In case of IOException, onError handling should call discardData(DataBuffer)..
         int written = writeToOutputStream(dataBuffer);
         if (rsWriteLogger.isTraceEnabled()) {
-          rsWriteLogger.trace(getLogPrefix() + "Wrote " + written + " of " + remaining + " bytes");
+          rsWriteLogger.trace("{}Wrote {} of {} bytes", getLogPrefix(), written, remaining);
         }
         if (written == remaining) {
           DataBufferUtils.release(dataBuffer);
@@ -375,7 +372,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
       }
       else {
         if (rsWriteLogger.isTraceEnabled()) {
-          rsWriteLogger.trace(getLogPrefix() + "ready: " + ready + ", remaining: " + remaining);
+          rsWriteLogger.trace("{}ready: {}, remaining: {}", getLogPrefix(), ready, remaining);
         }
       }
 

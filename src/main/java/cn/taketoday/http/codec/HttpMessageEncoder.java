@@ -20,12 +20,15 @@
 
 package cn.taketoday.http.codec;
 
+import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Encoder;
 import cn.taketoday.core.codec.Hints;
+import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 
@@ -50,7 +53,7 @@ public interface HttpMessageEncoder<T> extends Encoder<T> {
    * target controller method parameter.
    *
    * @param actualType the actual source type to encode, possibly a reactive
-   * wrapper and sourced from {@link cn.taketoday.core.MethodParameter},
+   * wrapper and sourced from {@link Parameter},
    * i.e. providing access to method annotations.
    * @param elementType the element type within {@code Flux/Mono} that we're
    * trying to encode.
@@ -58,8 +61,9 @@ public interface HttpMessageEncoder<T> extends Encoder<T> {
    * @param response the current response
    * @return a Map with hints, possibly empty
    */
-  default Map<String, Object> getEncodeHints(ResolvableType actualType, ResolvableType elementType,
-                                             @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
+  default Map<String, Object> getEncodeHints(
+          ResolvableType actualType, ResolvableType elementType,
+          @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
     return Hints.none();
   }

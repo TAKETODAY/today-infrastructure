@@ -198,7 +198,6 @@ class TomcatHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
-
     private final Enumeration<String> names = headers.names();
 
     @Override

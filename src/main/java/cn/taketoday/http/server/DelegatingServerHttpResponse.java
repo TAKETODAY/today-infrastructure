@@ -36,48 +36,50 @@ import cn.taketoday.lang.Assert;
  */
 public class DelegatingServerHttpResponse implements ServerHttpResponse {
 
-	private final ServerHttpResponse delegate;
+  private final ServerHttpResponse delegate;
 
-	/**
-	 * Create a new {@code DelegatingServerHttpResponse}.
-	 * @param delegate the response to delegate to
-	 */
-	public DelegatingServerHttpResponse(ServerHttpResponse delegate) {
-		Assert.notNull(delegate, "Delegate must not be null");
-		this.delegate = delegate;
-	}
+  /**
+   * Create a new {@code DelegatingServerHttpResponse}.
+   *
+   * @param delegate the response to delegate to
+   */
+  public DelegatingServerHttpResponse(ServerHttpResponse delegate) {
+    Assert.notNull(delegate, "Delegate must not be null");
+    this.delegate = delegate;
+  }
 
-	/**
-	 * Returns the target response that this response delegates to.
-	 * @return the delegate
-	 */
-	public ServerHttpResponse getDelegate() {
-		return this.delegate;
-	}
+  /**
+   * Returns the target response that this response delegates to.
+   *
+   * @return the delegate
+   */
+  public ServerHttpResponse getDelegate() {
+    return this.delegate;
+  }
 
-	@Override
-	public void setStatusCode(HttpStatus status) {
-		this.delegate.setStatusCode(status);
-	}
+  @Override
+  public void setStatusCode(HttpStatus status) {
+    this.delegate.setStatusCode(status);
+  }
 
-	@Override
-	public void flush() throws IOException {
-		this.delegate.flush();
-	}
+  @Override
+  public void flush() throws IOException {
+    this.delegate.flush();
+  }
 
-	@Override
-	public void close() {
-		this.delegate.close();
-	}
+  @Override
+  public void close() {
+    this.delegate.close();
+  }
 
-	@Override
-	public OutputStream getBody() throws IOException {
-		return this.delegate.getBody();
-	}
+  @Override
+  public OutputStream getBody() throws IOException {
+    return this.delegate.getBody();
+  }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		return this.delegate.getHeaders();
-	}
+  @Override
+  public HttpHeaders getHeaders() {
+    return this.delegate.getHeaders();
+  }
 
 }

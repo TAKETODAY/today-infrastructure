@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
 
-import javax.persistence.Entity;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -47,6 +46,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import jakarta.persistence.Entity;
 
 /**
  * @author TODAY 2019-11-05 22:11
@@ -107,8 +107,8 @@ public class HibernateConfiguration extends Configuration
     return properties;
   }
 
-  protected void registerSessionFactoryBean(// FIXME
-                                            Collection<Class<?>> candidates, ApplicationContext context) {
+  // FIXME
+  protected void registerSessionFactoryBean(Collection<Class<?>> candidates, ApplicationContext context) {
     for (Class<?> entityClass : candidates) {
       if (entityClass.isAnnotationPresent(Entity.class)) {
         addAnnotatedClass(entityClass);

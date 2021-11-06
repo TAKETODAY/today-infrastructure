@@ -20,8 +20,6 @@
 
 package cn.taketoday.http.server.reactive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reactivestreams.Publisher;
 
 import java.nio.file.Path;
@@ -31,11 +29,14 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelId;
 import reactor.core.publisher.Flux;
@@ -51,109 +52,102 @@ import reactor.netty.http.server.HttpServerResponse;
  * @since 4.0
  */
 class ReactorServerHttpResponse extends AbstractServerHttpResponse implements ZeroCopyHttpOutputMessage {
+  private static final Logger logger = LoggerFactory.getLogger(ReactorServerHttpResponse.class);
 
-	private static final Log logger = LogFactory.getLog(ReactorServerHttpResponse.class);
+  private final HttpServerResponse response;
 
+  public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
+    super(bufferFactory, new DefaultHttpHeaders(new NettyHeadersAdapter(response.responseHeaders())));
+    Assert.notNull(response, "HttpServerResponse must not be null");
+    this.response = response;
+  }
 
-	private final HttpServerResponse response;
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getNativeResponse() {
+    return (T) this.response;
+  }
 
+  @Override
+  public HttpStatus getStatusCode() {
+    HttpStatus status = super.getStatusCode();
+    return (status != null ? status : HttpStatus.resolve(this.response.status().code()));
+  }
 
-	public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
-		super(bufferFactory, new HttpHeaders(new NettyHeadersAdapter(response.responseHeaders())));
-		Assert.notNull(response, "HttpServerResponse must not be null");
-		this.response = response;
-	}
+  @Override
+  public Integer getRawStatusCode() {
+    Integer status = super.getRawStatusCode();
+    return (status != null ? status : this.response.status().code());
+  }
 
+  @Override
+  protected void applyStatusCode() {
+    Integer status = super.getRawStatusCode();
+    if (status != null) {
+      this.response.status(status);
+    }
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getNativeResponse() {
-		return (T) this.response;
-	}
+  @Override
+  protected Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> publisher) {
+    return this.response.send(toByteBuf(publisher)).then();
+  }
 
-	@Override
-	public HttpStatus getStatusCode() {
-		HttpStatus status = super.getStatusCode();
-		return (status != null ? status : HttpStatus.resolve(this.response.status().code()));
-	}
+  @Override
+  protected Mono<Void> writeAndFlushWithInternal(Publisher<? extends Publisher<? extends DataBuffer>> publisher) {
+    return this.response.sendGroups(Flux.from(publisher).map(this::toByteBuf)).then();
+  }
 
-	@Override
-	public Integer getRawStatusCode() {
-		Integer status = super.getRawStatusCode();
-		return (status != null ? status : this.response.status().code());
-	}
+  @Override
+  protected void applyHeaders() { }
 
-	@Override
-	protected void applyStatusCode() {
-		Integer status = super.getRawStatusCode();
-		if (status != null) {
-			this.response.status(status);
-		}
-	}
+  @Override
+  protected void applyCookies() {
+    // Netty Cookie doesn't support sameSite. When this is resolved, we can adapt to it again:
+    // https://github.com/netty/netty/issues/8161
+    for (List<ResponseCookie> cookies : getCookies().values()) {
+      for (ResponseCookie cookie : cookies) {
+        this.response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+      }
+    }
+  }
 
-	@Override
-	protected Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> publisher) {
-		return this.response.send(toByteBufs(publisher)).then();
-	}
+  @Override
+  public Mono<Void> writeWith(Path file, long position, long count) {
+    return doCommit(() -> this.response.sendFile(file, position, count).then());
+  }
 
-	@Override
-	protected Mono<Void> writeAndFlushWithInternal(Publisher<? extends Publisher<? extends DataBuffer>> publisher) {
-		return this.response.sendGroups(Flux.from(publisher).map(this::toByteBufs)).then();
-	}
+  private Publisher<ByteBuf> toByteBuf(Publisher<? extends DataBuffer> dataBuffers) {
+    return dataBuffers instanceof Mono
+           ? Mono.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf)
+           : Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
+  }
 
-	@Override
-	protected void applyHeaders() {
-	}
+  @Override
+  protected void touchDataBuffer(DataBuffer buffer) {
+    if (logger.isDebugEnabled()) {
+      if (ReactorServerHttpRequest.reactorNettyRequestChannelOperationsIdPresent) {
+        if (ChannelOperationsIdHelper.touch(buffer, this.response)) {
+          return;
+        }
+      }
+      this.response.withConnection(connection -> {
+        ChannelId id = connection.channel().id();
+        DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
+      });
+    }
+  }
 
-	@Override
-	protected void applyCookies() {
-		// Netty Cookie doesn't support sameSite. When this is resolved, we can adapt to it again:
-		// https://github.com/netty/netty/issues/8161
-		for (List<ResponseCookie> cookies : getCookies().values()) {
-			for (ResponseCookie cookie : cookies) {
-				this.response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-			}
-		}
-	}
+  private static class ChannelOperationsIdHelper {
 
-	@Override
-	public Mono<Void> writeWith(Path file, long position, long count) {
-		return doCommit(() -> this.response.sendFile(file, position, count).then());
-	}
-
-	private Publisher<ByteBuf> toByteBufs(Publisher<? extends DataBuffer> dataBuffers) {
-		return dataBuffers instanceof Mono ?
-				Mono.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf) :
-				Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
-	}
-
-	@Override
-	protected void touchDataBuffer(DataBuffer buffer) {
-		if (logger.isDebugEnabled()) {
-			if (ReactorServerHttpRequest.reactorNettyRequestChannelOperationsIdPresent) {
-				if (ChannelOperationsIdHelper.touch(buffer, this.response)) {
-					return;
-				}
-			}
-			this.response.withConnection(connection -> {
-				ChannelId id = connection.channel().id();
-				DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
-			});
-		}
-	}
-
-
-	private static class ChannelOperationsIdHelper {
-
-		public static boolean touch(DataBuffer dataBuffer, HttpServerResponse response) {
-			if (response instanceof ChannelOperationsId) {
-				String id = ((ChannelOperationsId) response).asLongText();
-				DataBufferUtils.touch(dataBuffer, "Channel id: " + id);
-				return true;
-			}
-			return false;
-		}
-	}
-
+    public static boolean touch(DataBuffer dataBuffer, HttpServerResponse response) {
+      if (response instanceof ChannelOperationsId) {
+        String id = ((ChannelOperationsId) response).asLongText();
+        DataBufferUtils.touch(dataBuffer, "Channel id: " + id);
+        return true;
+      }
+      return false;
+    }
+  }
 
 }
