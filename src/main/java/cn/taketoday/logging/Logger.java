@@ -19,13 +19,15 @@
  */
 package cn.taketoday.logging;
 
+import java.io.Serializable;
+
 /**
  * Logger From slf4j
  *
  * @author TODAY <br>
  * 2019-11-03 13:15
  */
-public abstract class Logger {
+public abstract class Logger implements Serializable {
   protected static final String FQCN = Logger.class.getName();
 
   /**
@@ -430,6 +432,105 @@ public abstract class Logger {
     logInternal(Level.ERROR, msg, t);
   }
 
+  //
+
+  /**
+   * Logs a message with error log level.
+   *
+   * @param message log this message
+   */
+  public void error(Object message) {
+    logInternal(Level.ERROR, message);
+  }
+
+  /**
+   * Logs an error with error log level.
+   *
+   * @param message log this message
+   * @param t log this cause
+   */
+  public void error(Object message, Throwable t) {
+    logInternal(Level.ERROR, message, t);
+  }
+
+  /**
+   * Logs a message with warn log level.
+   *
+   * @param message log this message
+   */
+  public void warn(Object message) {
+    logInternal(Level.WARN, message);
+  }
+
+  /**
+   * Logs an error with warn log level.
+   *
+   * @param message log this message
+   * @param t log this cause
+   */
+  public void warn(Object message, Throwable t) {
+    logInternal(Level.WARN, message, t);
+  }
+
+  /**
+   * Logs a message with info log level.
+   *
+   * @param message log this message
+   */
+  public void info(Object message) {
+    logInternal(Level.INFO, message);
+  }
+
+  /**
+   * Logs an error with info log level.
+   *
+   * @param message log this message
+   * @param t log this cause
+   */
+  public void info(Object message, Throwable t) {
+    logInternal(Level.INFO, message, t);
+  }
+
+  /**
+   * Logs a message with debug log level.
+   *
+   * @param message log this message
+   */
+  public void debug(Object message) {
+    logInternal(Level.DEBUG, message);
+  }
+
+  /**
+   * Logs an error with debug log level.
+   *
+   * @param message log this message
+   * @param t log this cause
+   */
+  public void debug(Object message, Throwable t) {
+    logInternal(Level.DEBUG, message, t);
+  }
+
+  /**
+   * Logs a message with trace log level.
+   *
+   * @param message log this message
+   */
+  public void trace(Object message) {
+    logInternal(Level.TRACE, message);
+  }
+
+  /**
+   * Logs an error with trace log level.
+   *
+   * @param message log this message
+   * @param t log this cause
+   */
+  public void trace(Object message, Throwable t) {
+    logInternal(Level.TRACE, message, t);
+  }
+
+  // internal
+
   protected void logInternal(Level level, String msg) {
     logInternal(level, msg, (Object[]) null);
   }
@@ -444,16 +545,10 @@ public abstract class Logger {
 
   protected abstract void logInternal(Level level, String msg, Throwable t, Object[] args);
 
-  /**
-   * Return if logging level is enabled.
-   */
-  public final boolean isLevelEnabled(Level level) {
-    switch (level) { //@formatter:off
-      case WARN :     return isWarnEnabled();
-      case TRACE :    return isTraceEnabled();
-      case DEBUG :    return isDebugEnabled();
-      case ERROR :    return isErrorEnabled();
-      default:        return isInfoEnabled();
-    } //@formatter:on
+  protected void logInternal(Level level, Object msg) {
+    logInternal(level, msg, null);
   }
+
+  protected abstract void logInternal(Level level, Object msg, Throwable t);
+
 }

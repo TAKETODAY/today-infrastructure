@@ -20,6 +20,7 @@
 package cn.taketoday.logging;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.net.URL;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
  * 2019-11-03 14:45
  */
 final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
+  private static final String thisFQCN = JavaLoggingLogger.class.getName();
 
   private final Logger logger;
 
@@ -68,77 +70,122 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
   }
 
   private java.util.logging.Level levelToJavaLevel(Level level) {
-    switch (level) {
-      case TRACE:
-        return java.util.logging.Level.FINEST;
-      case DEBUG:
-        return java.util.logging.Level.FINER;
-      case WARN:
-        return java.util.logging.Level.WARNING;
-      case ERROR:
-        return java.util.logging.Level.SEVERE;
-      case INFO:
-      default:
-        return java.util.logging.Level.INFO;
-    }
+    return switch (level) {
+      case TRACE -> java.util.logging.Level.FINEST;
+      case DEBUG -> java.util.logging.Level.FINER;
+      case WARN -> java.util.logging.Level.WARNING;
+      case ERROR -> java.util.logging.Level.SEVERE;
+      case INFO -> java.util.logging.Level.INFO;
+    };
   }
 
-  private static final String thisFQCN = JavaLoggingLogger.class.getName();
+  @Override
+  protected void logInternal(Level level, Object message, Throwable t) {
+    final java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
+    if (this.logger.isLoggable(levelToJavaLevel)) {
+      LogRecord rec;
+      if (message instanceof LogRecord) {
+        rec = (LogRecord) message;
+      }
+      else {
+        rec = new LocationResolvingLogRecord(levelToJavaLevel, String.valueOf(message));
+        rec.setLoggerName(getName());
+        rec.setResourceBundleName(this.logger.getResourceBundleName());
+        rec.setResourceBundle(this.logger.getResourceBundle());
+        rec.setThrown(t);
+      }
+      logger.log(rec);
+    }
+  }
 
   @Override
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
-
-    final java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
-
-    if (logger.isLoggable(levelToJavaLevel)) {
-
-      // millis and thread are filled by the constructor
-      LogRecord record = new LogRecord(levelToJavaLevel, MessageFormatter.format(format, args));
-
-      record.setLoggerName(getName());
-      record.setThrown(t);
-      fillCallerData(record);
-      logger.log(record);
+    java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
+    if (this.logger.isLoggable(levelToJavaLevel)) {
+      String message = MessageFormatter.format(format, args);
+      LocationResolvingLogRecord rec = new LocationResolvingLogRecord(levelToJavaLevel, String.valueOf(message));
+      rec.setLoggerName(getName());
+      rec.setResourceBundleName(this.logger.getResourceBundleName());
+      rec.setResourceBundle(this.logger.getResourceBundle());
+      rec.setThrown(t);
+      logger.log(rec);
     }
   }
 
-  /**
-   * From io.netty.util.internal.logging.JdkLogger#fillCallerData
-   *
-   * <p>
-   * Fill in caller data if possible.
-   *
-   * @param record The record to update
-   */
-  private static void fillCallerData(LogRecord record) {
-    StackTraceElement[] steArray = new Throwable().getStackTrace();
+  @SuppressWarnings("serial")
+  private static class LocationResolvingLogRecord extends LogRecord {
 
-    int selfIndex = -1;
-    for (int i = 0; i < steArray.length; i++) {
-      final String className = steArray[i].getClassName();
-      if (className.equals(thisFQCN) || className.equals(FQCN)) {
-        selfIndex = i;
-        break;
-      }
+    private volatile boolean resolved;
+
+    public LocationResolvingLogRecord(java.util.logging.Level level, String msg) {
+      super(level, msg);
     }
 
-    int found = -1;
-    for (int i = selfIndex + 1; i < steArray.length; i++) {
-      final String className = steArray[i].getClassName();
-      if (!(className.equals(thisFQCN) || className.equals(FQCN))) {
-        found = i;
-        break;
+    @Override
+    public String getSourceClassName() {
+      if (!this.resolved) {
+        resolve();
       }
+      return super.getSourceClassName();
     }
 
-    if (found != -1) {
-      StackTraceElement ste = steArray[found];
-      // setting the class name has the side effect of setting
-      // the needToInferCaller variable to false.
-      record.setSourceClassName(ste.getClassName());
-      record.setSourceMethodName(ste.getMethodName());
+    @Override
+    public void setSourceClassName(String sourceClassName) {
+      super.setSourceClassName(sourceClassName);
+      this.resolved = true;
+    }
+
+    @Override
+    public String getSourceMethodName() {
+      if (!this.resolved) {
+        resolve();
+      }
+      return super.getSourceMethodName();
+    }
+
+    @Override
+    public void setSourceMethodName(String sourceMethodName) {
+      super.setSourceMethodName(sourceMethodName);
+      this.resolved = true;
+    }
+
+    private void resolve() {
+      StackTraceElement[] stack = new Throwable().getStackTrace();
+      String sourceClassName = null;
+      String sourceMethodName = null;
+      boolean found = false;
+      for (StackTraceElement element : stack) {
+        String className = element.getClassName();
+        if (thisFQCN.equals(className)) {
+          found = true;
+        }
+        else if (found) {
+          sourceClassName = className;
+          sourceMethodName = element.getMethodName();
+          break;
+        }
+      }
+      setSourceClassName(sourceClassName);
+      setSourceMethodName(sourceMethodName);
+    }
+
+    @Serial
+    protected Object writeReplace() {
+      LogRecord serialized = new LogRecord(getLevel(), getMessage());
+      serialized.setLoggerName(getLoggerName());
+      serialized.setResourceBundle(getResourceBundle());
+      serialized.setResourceBundleName(getResourceBundleName());
+      serialized.setSourceClassName(getSourceClassName());
+      serialized.setSourceMethodName(getSourceMethodName());
+      serialized.setSequenceNumber(getSequenceNumber());
+      serialized.setParameters(getParameters());
+      serialized.setLongThreadID(getLongThreadID());
+      serialized.setInstant(getInstant());
+      serialized.setThrown(getThrown());
+      return serialized;
     }
   }
+
 }
 
 final class JavaLoggingFactory extends LoggerFactory {
