@@ -23,14 +23,18 @@
     <maven.compiler.release>17</maven.compiler.release>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
 
-    <netty.version>4.1.63.Final</netty.version>
-    <!--    <jetty.version>9.4.34.v20201102</jetty.version>-->
+    <!--server-->
+    <netty.version>4.1.69.Final</netty.version>
     <jetty.version>11.0.7</jetty.version>
-    <undertow.version>2.2.8.Final</undertow.version>
-    <embed.tomcat.version>9.0.43</embed.tomcat.version>
+    <undertow.version>2.2.12.Final</undertow.version>
+    <embed.tomcat.version>10.0.12</embed.tomcat.version>
+    <servlet.version>5.0.0</servlet.version>
 
+    <!--codec-->
+    <fastjson.version>1.2.78</fastjson.version>
     <jackson.version>2.13.0</jackson.version>
 
     <commons-dbutils.version>1.5</commons-dbutils.version>
@@ -44,10 +48,10 @@
     <junit5.version>5.8.1</junit5.version>
     <mockito.version>3.12.4</mockito.version>
     <persistence-api.version>1.0.2</persistence-api.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
 
+    <!--doc-->
     <site.output.dir>${project.build.directory}/staging</site.output.dir>
     <maven.site.skip>true</maven.site.skip>
     <asciidoctorj.version>2.5.2</asciidoctorj.version>
@@ -95,44 +99,31 @@
 
   <dependencies>
 
+    <!--
+    ======================================================
+         netty
+    ======================================================
+    -->
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http</artifactId>
+      <version>${netty.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>5.5.0.Final</version>
+      <version>6.0.0.Beta1</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>jboss-transaction-api_1.2_spec</artifactId>
-          <groupId>org.jboss.spec.javax.transaction</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-      <version>5.5.0.Final</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-      <version>3.4.1</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.0</version>
-      <optional>true</optional>
+      <version>2.10.13</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -145,35 +136,82 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.6</version>
+      <version>1.18.22</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
-      <version>1.26</version>
+      <version>1.29</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+        ======================================================
+             jakarta
+        ======================================================
+    -->
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${servlet.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>jstl</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>2.0.0</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
-      <version>2.2</version>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
+      <version>3.0.0</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
+      <version>2.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <version>2.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>2.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-api</artifactId>
+      <version>2.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+        ======================================================
+             codec
+        ======================================================
+    -->
 
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
-      <version>1.2.58</version>
+      <version>${fastjson.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -183,7 +221,6 @@
       <version>${jackson.version}</version>
       <scope>provided</scope>
     </dependency>
-
 
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -228,35 +265,17 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-      <version>1.3.2</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.3.3</version>
+      <version>1.4</version>
       <scope>provided</scope>
     </dependency>
 
-
-    <!--server -->
+    <!--
+    ======================================================
+         server
+    ======================================================
+    -->
 
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
@@ -281,12 +300,25 @@
 
     <dependency>
       <groupId>io.undertow</groupId>
+      <artifactId>undertow-jakartaee9</artifactId>
+      <version>${undertow.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.undertow</groupId>
       <artifactId>undertow-servlet</artifactId>
       <version>${undertow.version}</version>
       <exclusions>
+
         <exclusion>
           <groupId>org.jboss.spec.javax.servlet</groupId>
           <artifactId>jboss-servlet-api_4.0_spec</artifactId>
+        </exclusion>
+
+        <exclusion>
+          <groupId>org.jboss.spec.javax.annotation</groupId>
+          <artifactId>jboss-annotations-api_1.3_spec</artifactId>
         </exclusion>
       </exclusions>
       <scope>provided</scope>
@@ -295,58 +327,43 @@
     <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
-      <version>2.3.29</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-all</artifactId>
-      <version>${netty.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.28</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>2.13.3</version>
+      <version>2.3.31</version>
       <scope>provided</scope>
     </dependency>
 
     <!-- cache -->
+
     <dependency>
       <groupId>org.redisson</groupId>
       <artifactId>redisson</artifactId>
-      <version>3.11.5</version>
+      <version>3.16.4</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.cache</groupId>
+          <artifactId>cache-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>2.8.5</version>
+      <version>3.0.4</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>com.jamonapi</groupId>
       <artifactId>jamon</artifactId>
-      <version>2.81</version>
+      <version>2.82</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.thymeleaf</groupId>
       <artifactId>thymeleaf</artifactId>
-      <version>3.0.11.RELEASE</version>
+      <version>3.0.12.RELEASE</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -356,51 +373,37 @@
       </exclusions>
     </dependency>
 
-
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>6.1.5.Final</version>
+      <version>7.0.1.Final</version>
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-api</artifactId>
-      <version>1.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <!--websocket-->
+    <!--
+    ======================================================
+         websocket
+    ======================================================
+    -->
+
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-websocket</artifactId>
-      <version>9.0.30</version>
+      <version>${embed.tomcat.version}</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>io.undertow</groupId>
-      <artifactId>undertow-websockets-jsr</artifactId>
-      <version>2.1.3.Final</version>
+      <artifactId>undertow-websockets-jsr-jakartaee9</artifactId>
+      <version>${undertow.version}</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.eclipse.jetty.websocket</groupId>
-      <artifactId>websocket-server</artifactId>
-      <version>9.4.40.v20210413</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-      <version>3.5.6</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sf.jopt-simple</groupId>
-      <artifactId>jopt-simple</artifactId>
-      <version>5.0.4</version>
+      <artifactId>websocket-jakarta-server</artifactId>
+      <version>${jetty.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -501,6 +504,60 @@
 
     <!--
         ======================================================
+             ORM
+        ======================================================
+    -->
+
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.5.7</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>5.0.0</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.jopt-simple</groupId>
+      <artifactId>jopt-simple</artifactId>
+      <version>5.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+    ======================================================
+         logging
+    ======================================================
+  -->
+
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.32</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.14.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+        ======================================================
              test
         ======================================================
     -->
@@ -508,21 +565,21 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.6</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.13.3</version>
+      <version>2.14.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.20.2</version>
+      <version>3.21.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -558,14 +615,14 @@
     <dependency>
       <groupId>org.codehaus.janino</groupId>
       <artifactId>janino</artifactId>
-      <version>3.0.11</version>
+      <version>3.1.6</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.16</version>
+      <version>8.0.25</version>
       <scope>test</scope>
     </dependency>
 
@@ -611,15 +668,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!--
-        <dependency>
-          <scope>test</scope>
-          <groupId>cn.taketoday</groupId>
-          <artifactId>spring-jdbc</artifactId>
-          <version>${spring-jdbc.version}</version>
-        </dependency>
-    -->
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -637,14 +685,14 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.4.199</version>
+      <version>1.4.200</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>30.1.1-jre</version>
+      <version>31.0.1-jre</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -719,7 +767,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
+          <source>17</source>
+          <target>17</target>
           <release>17</release>
+          <compilerVersion>17</compilerVersion>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
