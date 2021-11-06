@@ -19,6 +19,10 @@
  */
 package cn.taketoday.web.http;
 
+import java.util.HashMap;
+
+import cn.taketoday.lang.Nullable;
+
 /**
  * HTTP Request Methods
  *
@@ -29,6 +33,14 @@ public enum HttpMethod {
 
   GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
 
+  private static final HashMap<String, HttpMethod> mappings = new HashMap<>(16);
+
+  static {
+    for (HttpMethod httpMethod : values()) {
+      mappings.put(httpMethod.name(), httpMethod);
+    }
+  }
+
   /**
    * Determine whether this {@code RequestMethod} matches the given method value.
    *
@@ -37,6 +49,18 @@ public enum HttpMethod {
    */
   public boolean matches(String method) {
     return name().equals(method);
+  }
+
+  /**
+   * Resolve the given method value to an {@code HttpMethod}.
+   *
+   * @param method the method value as a String
+   * @return the corresponding {@code HttpMethod}, or {@code null} if not found
+   * @since 4.0
+   */
+  @Nullable
+  public static HttpMethod from(@Nullable String method) {
+    return method != null ? mappings.get(method) : null;
   }
 
 }
