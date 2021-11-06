@@ -31,7 +31,7 @@ import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.framework.config.EnableTomcatHandling;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

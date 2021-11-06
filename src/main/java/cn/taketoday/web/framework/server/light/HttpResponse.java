@@ -36,9 +36,9 @@ import java.util.zip.GZIPOutputStream;
 
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.http.DefaultHttpHeaders;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 
 import static cn.taketoday.web.framework.server.light.Utils.escapeHTML;
 import static cn.taketoday.web.framework.server.light.Utils.splitElements;

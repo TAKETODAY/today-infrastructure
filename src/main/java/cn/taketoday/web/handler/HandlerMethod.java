@@ -38,7 +38,7 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;

@@ -51,7 +51,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * Mock implementation of the {@link javax.servlet.http.HttpServletResponse} interface.

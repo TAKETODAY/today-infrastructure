@@ -21,7 +21,7 @@ package cn.taketoday.web.session;
 
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * @author TODAY <br>

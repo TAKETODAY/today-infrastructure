@@ -14,7 +14,7 @@ import java.util.function.IntFunction;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * Netty HttpHeaders

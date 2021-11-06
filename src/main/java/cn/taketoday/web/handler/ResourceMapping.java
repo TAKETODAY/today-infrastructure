@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.web.http.CacheControl;
+import cn.taketoday.http.CacheControl;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 import lombok.Getter;

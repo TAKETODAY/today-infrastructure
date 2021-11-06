@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import cn.taketoday.web.http.CorsConfiguration;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.http.HttpMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

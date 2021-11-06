@@ -34,7 +34,7 @@ import cn.taketoday.lang.Autowired;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.InternalServerException;
+import cn.taketoday.http.InternalServerException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 

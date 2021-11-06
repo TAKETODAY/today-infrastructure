@@ -24,7 +24,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * The {@code ChunkedOutputStream} encodes an OutputStream with the

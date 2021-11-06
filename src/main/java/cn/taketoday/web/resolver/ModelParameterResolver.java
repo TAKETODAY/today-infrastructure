@@ -24,7 +24,7 @@ import java.util.Map;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;

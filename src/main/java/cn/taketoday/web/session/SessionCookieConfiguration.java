@@ -23,7 +23,7 @@ package cn.taketoday.web.session;
 import java.net.HttpCookie;
 import java.time.Duration;
 
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * Session cookie properties.

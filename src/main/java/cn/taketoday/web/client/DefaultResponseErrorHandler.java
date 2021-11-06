@@ -29,9 +29,9 @@ import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.http.client.ClientHttpResponse;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.client.ClientHttpResponse;
 
 /**
  * Default implementation of the {@link ResponseErrorHandler} interface.
@@ -84,14 +84,14 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   /**
    * Template method called from {@link #hasError(ClientHttpResponse)}.
    * <p>The default implementation checks if the given status code is
-   * {@link cn.taketoday.web.http.HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
-   * {@link cn.taketoday.web.http.HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
+   * {@link cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
+   * {@link cn.taketoday.http.HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
    * Can be overridden in subclasses.
    *
    * @param unknownStatusCode the HTTP status code as raw value
    * @return {@code true} if the response indicates an error; {@code false} otherwise
-   * @see cn.taketoday.web.http.HttpStatus.Series#CLIENT_ERROR
-   * @see cn.taketoday.web.http.HttpStatus.Series#SERVER_ERROR
+   * @see cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR
+   * @see cn.taketoday.http.HttpStatus.Series#SERVER_ERROR
    */
   protected boolean hasError(int unknownStatusCode) {
     HttpStatus.Series series = HttpStatus.Series.resolve(unknownStatusCode);

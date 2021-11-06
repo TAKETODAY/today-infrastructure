@@ -23,7 +23,7 @@ import java.util.Set;
 
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * @author TODAY <br>

@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.framework.config.CompressionConfiguration;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;

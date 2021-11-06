@@ -22,16 +22,16 @@ package cn.taketoday.web.registry;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.FunctionHandler;
 import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 
-import static cn.taketoday.web.http.HttpMethod.DELETE;
-import static cn.taketoday.web.http.HttpMethod.GET;
-import static cn.taketoday.web.http.HttpMethod.HEAD;
-import static cn.taketoday.web.http.HttpMethod.OPTIONS;
-import static cn.taketoday.web.http.HttpMethod.PATCH;
-import static cn.taketoday.web.http.HttpMethod.POST;
-import static cn.taketoday.web.http.HttpMethod.PUT;
-import static cn.taketoday.web.http.HttpMethod.TRACE;
+import static cn.taketoday.http.HttpMethod.DELETE;
+import static cn.taketoday.http.HttpMethod.GET;
+import static cn.taketoday.http.HttpMethod.HEAD;
+import static cn.taketoday.http.HttpMethod.OPTIONS;
+import static cn.taketoday.http.HttpMethod.PATCH;
+import static cn.taketoday.http.HttpMethod.POST;
+import static cn.taketoday.http.HttpMethod.PUT;
+import static cn.taketoday.http.HttpMethod.TRACE;
 
 /**
  * @author TODAY <br>

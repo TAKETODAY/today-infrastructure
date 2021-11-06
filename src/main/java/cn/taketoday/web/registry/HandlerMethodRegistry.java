@@ -57,7 +57,7 @@ import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**

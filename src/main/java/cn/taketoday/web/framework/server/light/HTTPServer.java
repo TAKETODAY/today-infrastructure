@@ -44,8 +44,8 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 
 import static cn.taketoday.web.framework.server.light.Utils.splitElements;
 import static cn.taketoday.web.framework.server.light.Utils.transfer;

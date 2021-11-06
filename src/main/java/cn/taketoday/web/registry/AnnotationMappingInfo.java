@@ -35,7 +35,7 @@ import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2021/4/21 23:57

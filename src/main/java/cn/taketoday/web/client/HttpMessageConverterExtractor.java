@@ -31,10 +31,10 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.http.client.ClientHttpResponse;
-import cn.taketoday.web.http.converter.GenericHttpMessageConverter;
-import cn.taketoday.web.http.converter.HttpMessageConverter;
-import cn.taketoday.web.http.converter.HttpMessageNotReadableException;
+import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.http.converter.GenericHttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageNotReadableException;
 
 /**
  * Response extractor that uses the given {@linkplain HttpMessageConverter entity converters}

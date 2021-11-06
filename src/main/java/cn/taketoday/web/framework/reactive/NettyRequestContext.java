@@ -38,7 +38,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.DefaultHttpHeaders;
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 import io.netty.buffer.ByteBuf;
@@ -173,7 +173,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected cn.taketoday.web.http.HttpHeaders createRequestHeaders() {
+  protected cn.taketoday.http.HttpHeaders createRequestHeaders() {
     HttpHeaders headers = request.headers();
     DefaultHttpHeaders ret = new DefaultHttpHeaders();
     for (Map.Entry<String, String> header : headers) {

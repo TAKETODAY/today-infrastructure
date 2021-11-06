@@ -26,7 +26,7 @@ import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.http.FileSizeExceededException;
+import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 

@@ -29,7 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 

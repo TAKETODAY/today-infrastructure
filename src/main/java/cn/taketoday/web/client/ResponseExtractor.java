@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.client.ClientHttpResponse;
+import cn.taketoday.http.client.ClientHttpResponse;
 
 /**
  * Generic callback interface used by {@link RestTemplate}'s retrieval methods.

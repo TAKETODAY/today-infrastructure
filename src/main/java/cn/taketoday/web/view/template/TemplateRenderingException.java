@@ -21,8 +21,8 @@
 package cn.taketoday.web.view.template;
 
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.http.InternalServerException;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.InternalServerException;
 
 /**
  * @author TODAY 2021/9/1 23:29

@@ -35,7 +35,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;

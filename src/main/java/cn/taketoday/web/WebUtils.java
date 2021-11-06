@@ -42,9 +42,9 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * @author TODAY <br>

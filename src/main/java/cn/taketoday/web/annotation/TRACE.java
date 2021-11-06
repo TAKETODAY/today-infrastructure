@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 
 /**
  * @author Today <br>

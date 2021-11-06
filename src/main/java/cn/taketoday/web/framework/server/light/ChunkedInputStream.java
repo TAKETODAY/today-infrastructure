@@ -23,7 +23,7 @@ package cn.taketoday.web.framework.server.light;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 import static cn.taketoday.web.framework.server.light.Utils.parseULong;
 import static cn.taketoday.web.framework.server.light.Utils.readHeaders;

@@ -21,8 +21,8 @@
 package cn.taketoday.web.security;
 
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.AccessForbiddenException;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.AccessForbiddenException;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * This exception is thrown by the CSRF token validation fails.

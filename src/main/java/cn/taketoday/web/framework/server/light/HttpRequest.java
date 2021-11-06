@@ -33,7 +33,7 @@ import java.util.Locale;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.WebUtils;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 import static cn.taketoday.web.framework.server.light.Utils.detectLocalHostName;
 import static cn.taketoday.web.framework.server.light.Utils.parseRange;

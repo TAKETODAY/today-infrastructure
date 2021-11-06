@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * @author TODAY

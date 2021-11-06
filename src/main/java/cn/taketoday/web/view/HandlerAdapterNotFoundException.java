@@ -21,7 +21,7 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * For {@link cn.taketoday.web.handler.HandlerAdapter} not found

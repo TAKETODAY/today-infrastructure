@@ -23,7 +23,7 @@ package cn.taketoday.web.client;
 import java.io.Serial;
 
 import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.web.http.client.ClientHttpResponse;
+import cn.taketoday.http.client.ClientHttpResponse;
 
 /**
  * Base class for exceptions thrown by {@link RestTemplate} in case a request

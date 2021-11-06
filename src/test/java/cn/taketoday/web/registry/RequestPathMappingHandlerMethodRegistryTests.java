@@ -29,7 +29,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2021/4/22 22:07

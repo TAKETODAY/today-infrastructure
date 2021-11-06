@@ -26,11 +26,11 @@ import java.util.Set;
 
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.HttpEntity;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.web.http.RequestEntity;
-import cn.taketoday.web.http.ResponseEntity;
+import cn.taketoday.http.HttpEntity;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.RequestEntity;
+import cn.taketoday.http.ResponseEntity;
 
 /**
  * Interface specifying a basic set of RESTful operations.
@@ -160,7 +160,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -181,7 +181,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -202,7 +202,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -222,7 +222,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -246,7 +246,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -268,7 +268,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -289,7 +289,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -311,7 +311,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -332,7 +332,7 @@ public interface RestOperations {
    * <p>The body of the entity, or {@code request} itself, can be a
    * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
-   * or an {@link cn.taketoday.web.http.HttpEntity HttpEntity} representing a part with body
+   * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
    *
    * @param url the URL
@@ -400,7 +400,7 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    * @see RestTemplate#setRequestFactory
-   * @see cn.taketoday.web.http.client.OkHttp3ClientHttpRequestFactory
+   * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
    */
   @Nullable
   <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
@@ -422,7 +422,7 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    * @see RestTemplate#setRequestFactory
-   * @see cn.taketoday.web.http.client.OkHttp3ClientHttpRequestFactory
+   * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
    */
   @Nullable
   <T> T patchForObject(
@@ -443,7 +443,7 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    * @see RestTemplate#setRequestFactory
-   * @see cn.taketoday.web.http.client.OkHttp3ClientHttpRequestFactory
+   * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
    */
   @Nullable
   <T> T patchForObject(URI url, @Nullable Object request, Class<T> responseType)

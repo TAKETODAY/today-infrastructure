@@ -21,8 +21,8 @@
 package cn.taketoday.web;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
 
 import java.io.IOException;

@@ -32,7 +32,7 @@ import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.POST;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 import lombok.Data;

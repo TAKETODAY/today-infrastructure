@@ -30,7 +30,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.HandshakeRequest;
 
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * @author TODAY 2021/5/5 22:51

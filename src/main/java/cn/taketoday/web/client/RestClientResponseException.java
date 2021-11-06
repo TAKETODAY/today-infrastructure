@@ -25,7 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * Common base class for exceptions that contain actual HTTP response data.

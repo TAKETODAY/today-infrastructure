@@ -41,8 +41,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpRequest;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.web.util.HierarchicalUriComponents.PathComponent;
 import cn.taketoday.web.util.UriComponents.UriTemplateVariables;
 

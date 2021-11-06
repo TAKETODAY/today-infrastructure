@@ -24,8 +24,8 @@ import java.io.Serial;
 import java.nio.charset.Charset;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * Exception thrown when an unknown (or custom) HTTP status code is received.

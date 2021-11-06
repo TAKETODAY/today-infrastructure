@@ -2,7 +2,7 @@ package cn.taketoday.web.framework.reactive;
 
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;

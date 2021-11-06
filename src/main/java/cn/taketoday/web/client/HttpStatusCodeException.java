@@ -25,8 +25,8 @@ import java.nio.charset.Charset;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * Abstract base class for exceptions based on an {@link HttpStatus}.

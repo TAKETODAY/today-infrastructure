@@ -23,7 +23,7 @@ package cn.taketoday.web.client;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import cn.taketoday.web.http.client.ClientHttpRequest;
+import cn.taketoday.http.client.ClientHttpRequest;
 
 /**
  * Callback interface for code that operates on a {@link ClientHttpRequest}.

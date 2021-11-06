@@ -32,9 +32,9 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
 import cn.taketoday.web.handler.HandlerAdapter;
-import cn.taketoday.web.http.BadRequestException;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.BadRequestException;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * @author TODAY 2021/4/5 14:04

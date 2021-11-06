@@ -26,11 +26,11 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * Raised when no suitable
- * {@link cn.taketoday.web.http.converter.HttpMessageConverter} could be
+ * {@link cn.taketoday.http.converter.HttpMessageConverter} could be
  * found to extract the response.
  *
  * @author Rossen Stoyanchev

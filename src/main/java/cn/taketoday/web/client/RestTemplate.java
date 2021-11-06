@@ -37,29 +37,29 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.http.HttpEntity;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.http.RequestEntity;
-import cn.taketoday.web.http.ResponseEntity;
-import cn.taketoday.web.http.client.ClientHttpRequest;
-import cn.taketoday.web.http.client.ClientHttpRequestFactory;
-import cn.taketoday.web.http.client.ClientHttpResponse;
-import cn.taketoday.web.http.client.support.InterceptingHttpAccessor;
-import cn.taketoday.web.http.converter.AllEncompassingFormHttpMessageConverter;
-import cn.taketoday.web.http.converter.ByteArrayHttpMessageConverter;
-import cn.taketoday.web.http.converter.GenericHttpMessageConverter;
-import cn.taketoday.web.http.converter.HttpMessageConverter;
-import cn.taketoday.web.http.converter.ResourceHttpMessageConverter;
-import cn.taketoday.web.http.converter.StringHttpMessageConverter;
-import cn.taketoday.web.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
-import cn.taketoday.web.http.converter.feed.AtomFeedHttpMessageConverter;
-import cn.taketoday.web.http.converter.feed.RssChannelHttpMessageConverter;
-import cn.taketoday.web.http.converter.json.GsonHttpMessageConverter;
-import cn.taketoday.web.http.converter.json.JsonbHttpMessageConverter;
-import cn.taketoday.web.http.converter.json.MappingJackson2HttpMessageConverter;
-import cn.taketoday.web.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.HttpEntity;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.RequestEntity;
+import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.http.client.ClientHttpRequest;
+import cn.taketoday.http.client.ClientHttpRequestFactory;
+import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.http.client.support.InterceptingHttpAccessor;
+import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
+import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
+import cn.taketoday.http.converter.GenericHttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.ResourceHttpMessageConverter;
+import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
+import cn.taketoday.http.converter.feed.AtomFeedHttpMessageConverter;
+import cn.taketoday.http.converter.feed.RssChannelHttpMessageConverter;
+import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
+import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
+import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
+import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
 import cn.taketoday.web.util.UriTemplateHandler;
@@ -152,8 +152,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Create a new instance of the {@link RestTemplate} based on the given {@link ClientHttpRequestFactory}.
    *
    * @param requestFactory the HTTP request factory to use
-   * @see cn.taketoday.web.http.client.SimpleClientHttpRequestFactory
-   * @see cn.taketoday.web.http.client.HttpComponentsClientHttpRequestFactory
+   * @see cn.taketoday.http.client.SimpleClientHttpRequestFactory
+   * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   public RestTemplate(ClientHttpRequestFactory requestFactory) {
     this();

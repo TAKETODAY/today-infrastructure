@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * @author TODAY <br>

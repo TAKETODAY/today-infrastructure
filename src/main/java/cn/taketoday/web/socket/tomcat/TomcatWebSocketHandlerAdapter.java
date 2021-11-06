@@ -40,7 +40,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.HandshakeFailedException;

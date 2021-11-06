@@ -23,8 +23,8 @@ package cn.taketoday.web.client;
 import java.io.IOException;
 import java.net.URI;
 
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.web.http.client.ClientHttpResponse;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.client.ClientHttpResponse;
 
 /**
  * Strategy interface used by the {@link RestTemplate} to determine

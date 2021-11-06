@@ -27,7 +27,7 @@ import java.net.HttpCookie;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**

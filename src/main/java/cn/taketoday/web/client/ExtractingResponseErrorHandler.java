@@ -28,9 +28,9 @@ import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.http.client.ClientHttpResponse;
-import cn.taketoday.web.http.converter.HttpMessageConverter;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.http.converter.HttpMessageConverter;
 
 /**
  * Implementation of {@link ResponseErrorHandler} that uses {@link HttpMessageConverter

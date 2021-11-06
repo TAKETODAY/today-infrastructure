@@ -39,7 +39,7 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
-import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2021/3/10 11:33

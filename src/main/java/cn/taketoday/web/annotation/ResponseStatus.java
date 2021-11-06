@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.lang.Constant;
-import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * Marks a method or exception class with the status {@link #value} and
@@ -43,7 +43,7 @@ import cn.taketoday.web.http.HttpStatus;
  * complete and should not be written to any further. Furthermore, the Servlet
  * container will typically write an HTML error page therefore making the
  * use of a {@code reason} unsuitable for REST APIs. For such cases it is
- * preferable to use a {@link cn.taketoday.web.http.ResponseEntity} as
+ * preferable to use a {@link cn.taketoday.http.ResponseEntity} as
  * a return type and avoid the use of {@code @ResponseStatus} altogether.
  *
  * <p>Note that a controller class may also be annotated with

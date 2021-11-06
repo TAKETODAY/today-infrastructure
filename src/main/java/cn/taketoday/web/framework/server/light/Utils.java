@@ -47,8 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.http.DefaultHttpHeaders;
-import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 
 /**
  * @author TODAY 2021/4/13 11:01

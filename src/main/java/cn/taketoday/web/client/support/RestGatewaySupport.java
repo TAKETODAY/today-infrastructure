@@ -25,7 +25,7 @@ import cn.taketoday.logging.LoggerFactory;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.client.RestTemplate;
-import cn.taketoday.web.http.client.ClientHttpRequestFactory;
+import cn.taketoday.http.client.ClientHttpRequestFactory;
 
 /**
  * Convenient super class for application classes that need REST access.
