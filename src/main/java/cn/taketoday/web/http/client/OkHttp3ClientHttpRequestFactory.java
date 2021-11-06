@@ -23,6 +23,8 @@ package cn.taketoday.web.http.client;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.beans.DisposableBean;
@@ -118,27 +120,32 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
     }
   }
 
-  static Request buildRequest(HttpHeaders headers, byte[] content, URI uri, HttpMethod method)
-          throws MalformedURLException {
-
+  static Request buildRequest(
+          HttpHeaders headers, byte[] content, URI uri, HttpMethod method) throws MalformedURLException {
     okhttp3.MediaType contentType = getContentType(headers);
     RequestBody body = (content.length > 0 ||
                                 okhttp3.internal.http.HttpMethod.requiresRequestBody(method.name()) ?
                         RequestBody.create(contentType, content) : null);
 
-    Request.Builder builder = new Request.Builder().url(uri.toURL()).method(method.name(), body);
-    headers.forEach((headerName, headerValues) -> {
+    Request.Builder builder = new Request.Builder()
+            .url(uri.toURL())
+            .method(method.name(), body);
+
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      String headerName = entry.getKey();
+      List<String> headerValues = entry.getValue();
       for (String headerValue : headerValues) {
         builder.addHeader(headerName, headerValue);
       }
-    });
+    }
+
     return builder.build();
   }
 
   @Nullable
   private static okhttp3.MediaType getContentType(HttpHeaders headers) {
     String rawContentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
-    return (StringUtils.hasText(rawContentType) ? okhttp3.MediaType.parse(rawContentType) : null);
+    return StringUtils.hasText(rawContentType) ? okhttp3.MediaType.parse(rawContentType) : null;
   }
 
 }

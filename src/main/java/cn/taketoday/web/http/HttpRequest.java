@@ -43,7 +43,7 @@ public interface HttpRequest extends HttpMessage {
    */
   @Nullable
   default HttpMethod getMethod() {
-    return HttpMethod.valueOf(getMethodValue());
+    return HttpMethod.from(getMethodValue());
   }
 
   /**
