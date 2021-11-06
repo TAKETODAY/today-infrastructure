@@ -24,7 +24,7 @@ import java.time.DateTimeException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import cn.taketoday.lang.Assert;
 

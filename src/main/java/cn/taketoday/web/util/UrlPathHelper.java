@@ -25,11 +25,11 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletMapping;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.MappingMatch;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletMapping;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.MappingMatch;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
@@ -88,7 +88,7 @@ public class UrlPathHelper {
   /**
    * Whether URL lookups should always use the full path within the current
    * web application context, i.e. within
-   * {@link javax.servlet.ServletContext#getContextPath()}.
+   * {@link jakarta.servlet.ServletContext#getContextPath()}.
    * <p>If set to {@literal false} the path within the current servlet mapping
    * is used instead if applicable (i.e. in the case of a prefix based Servlet
    * mapping such as "/myServlet/*").

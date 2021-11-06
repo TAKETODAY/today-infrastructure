@@ -22,7 +22,7 @@ package cn.taketoday.web.servlet;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.web.Base;
 

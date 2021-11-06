@@ -27,15 +27,15 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletResponseWrapper;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestWrapper;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.ServletResponseWrapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
@@ -59,70 +59,70 @@ public abstract class WebUtils {
    * <p>If included via a {@code RequestDispatcher}, the current resource will see the
    * originating request. Its own request URI is exposed as a request attribute.
    */
-  public static final String INCLUDE_REQUEST_URI_ATTRIBUTE = "javax.servlet.include.request_uri";
+  public static final String INCLUDE_REQUEST_URI_ATTRIBUTE = "jakarta.servlet.include.request_uri";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for include context path.
    * <p>If included via a {@code RequestDispatcher}, the current resource will see the
    * originating context path. Its own context path is exposed as a request attribute.
    */
-  public static final String INCLUDE_CONTEXT_PATH_ATTRIBUTE = "javax.servlet.include.context_path";
+  public static final String INCLUDE_CONTEXT_PATH_ATTRIBUTE = "jakarta.servlet.include.context_path";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for include servlet path.
    * <p>If included via a {@code RequestDispatcher}, the current resource will see the
    * originating servlet path. Its own servlet path is exposed as a request attribute.
    */
-  public static final String INCLUDE_SERVLET_PATH_ATTRIBUTE = "javax.servlet.include.servlet_path";
+  public static final String INCLUDE_SERVLET_PATH_ATTRIBUTE = "jakarta.servlet.include.servlet_path";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for include path info.
    * <p>If included via a {@code RequestDispatcher}, the current resource will see the
    * originating path info. Its own path info is exposed as a request attribute.
    */
-  public static final String INCLUDE_PATH_INFO_ATTRIBUTE = "javax.servlet.include.path_info";
+  public static final String INCLUDE_PATH_INFO_ATTRIBUTE = "jakarta.servlet.include.path_info";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for include query string.
    * <p>If included via a {@code RequestDispatcher}, the current resource will see the
    * originating query string. Its own query string is exposed as a request attribute.
    */
-  public static final String INCLUDE_QUERY_STRING_ATTRIBUTE = "javax.servlet.include.query_string";
+  public static final String INCLUDE_QUERY_STRING_ATTRIBUTE = "jakarta.servlet.include.query_string";
 
   /**
    * Standard Servlet 2.4+ spec request attribute for forward request URI.
    * <p>If forwarded to via a RequestDispatcher, the current resource will see its
    * own request URI. The originating request URI is exposed as a request attribute.
    */
-  public static final String FORWARD_REQUEST_URI_ATTRIBUTE = "javax.servlet.forward.request_uri";
+  public static final String FORWARD_REQUEST_URI_ATTRIBUTE = "jakarta.servlet.forward.request_uri";
 
   /**
    * Standard Servlet 2.4+ spec request attribute for forward context path.
    * <p>If forwarded to via a RequestDispatcher, the current resource will see its
    * own context path. The originating context path is exposed as a request attribute.
    */
-  public static final String FORWARD_CONTEXT_PATH_ATTRIBUTE = "javax.servlet.forward.context_path";
+  public static final String FORWARD_CONTEXT_PATH_ATTRIBUTE = "jakarta.servlet.forward.context_path";
 
   /**
    * Standard Servlet 2.4+ spec request attribute for forward servlet path.
    * <p>If forwarded to via a RequestDispatcher, the current resource will see its
    * own servlet path. The originating servlet path is exposed as a request attribute.
    */
-  public static final String FORWARD_SERVLET_PATH_ATTRIBUTE = "javax.servlet.forward.servlet_path";
+  public static final String FORWARD_SERVLET_PATH_ATTRIBUTE = "jakarta.servlet.forward.servlet_path";
 
   /**
    * Standard Servlet 2.4+ spec request attribute for forward path info.
    * <p>If forwarded to via a RequestDispatcher, the current resource will see its
    * own path ingo. The originating path info is exposed as a request attribute.
    */
-  public static final String FORWARD_PATH_INFO_ATTRIBUTE = "javax.servlet.forward.path_info";
+  public static final String FORWARD_PATH_INFO_ATTRIBUTE = "jakarta.servlet.forward.path_info";
 
   /**
    * Standard Servlet 2.4+ spec request attribute for forward query string.
    * <p>If forwarded to via a RequestDispatcher, the current resource will see its
    * own query string. The originating query string is exposed as a request attribute.
    */
-  public static final String FORWARD_QUERY_STRING_ATTRIBUTE = "javax.servlet.forward.query_string";
+  public static final String FORWARD_QUERY_STRING_ATTRIBUTE = "jakarta.servlet.forward.query_string";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for error page status code.
@@ -130,7 +130,7 @@ public abstract class WebUtils {
    * to them directly rather than through the servlet container's error page
    * resolution mechanism.
    */
-  public static final String ERROR_STATUS_CODE_ATTRIBUTE = "javax.servlet.error.status_code";
+  public static final String ERROR_STATUS_CODE_ATTRIBUTE = "jakarta.servlet.error.status_code";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for error page exception type.
@@ -138,7 +138,7 @@ public abstract class WebUtils {
    * to them directly rather than through the servlet container's error page
    * resolution mechanism.
    */
-  public static final String ERROR_EXCEPTION_TYPE_ATTRIBUTE = "javax.servlet.error.exception_type";
+  public static final String ERROR_EXCEPTION_TYPE_ATTRIBUTE = "jakarta.servlet.error.exception_type";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for error page message.
@@ -146,7 +146,7 @@ public abstract class WebUtils {
    * to them directly rather than through the servlet container's error page
    * resolution mechanism.
    */
-  public static final String ERROR_MESSAGE_ATTRIBUTE = "javax.servlet.error.message";
+  public static final String ERROR_MESSAGE_ATTRIBUTE = "jakarta.servlet.error.message";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for error page exception.
@@ -154,7 +154,7 @@ public abstract class WebUtils {
    * to them directly rather than through the servlet container's error page
    * resolution mechanism.
    */
-  public static final String ERROR_EXCEPTION_ATTRIBUTE = "javax.servlet.error.exception";
+  public static final String ERROR_EXCEPTION_ATTRIBUTE = "jakarta.servlet.error.exception";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for error page request URI.
@@ -162,7 +162,7 @@ public abstract class WebUtils {
    * to them directly rather than through the servlet container's error page
    * resolution mechanism.
    */
-  public static final String ERROR_REQUEST_URI_ATTRIBUTE = "javax.servlet.error.request_uri";
+  public static final String ERROR_REQUEST_URI_ATTRIBUTE = "jakarta.servlet.error.request_uri";
 
   /**
    * Standard Servlet 2.3+ spec request attribute for error page servlet name.
@@ -170,7 +170,7 @@ public abstract class WebUtils {
    * to them directly rather than through the servlet container's error page
    * resolution mechanism.
    */
-  public static final String ERROR_SERVLET_NAME_ATTRIBUTE = "javax.servlet.error.servlet_name";
+  public static final String ERROR_SERVLET_NAME_ATTRIBUTE = "jakarta.servlet.error.servlet_name";
 
   /**
    * Prefix of the charset clause in a content type String: ";charset=".
@@ -189,7 +189,7 @@ public abstract class WebUtils {
    * Standard Servlet spec context attribute that specifies a temporary
    * directory for the current web application, of type {@code java.io.File}.
    */
-  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "javax.servlet.context.tempdir";
+  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "jakarta.servlet.context.tempdir";
 
   /**
    * HTML escape parameter at the servlet context level
@@ -501,7 +501,7 @@ public abstract class WebUtils {
   /**
    * Determine whether the given request is an include request,
    * that is, not a top-level HTTP request coming in from the outside.
-   * <p>Checks the presence of the "javax.servlet.include.request_uri"
+   * <p>Checks the presence of the "jakarta.servlet.include.request_uri"
    * request attribute. Could check any request attribute that is only
    * present in an include request.
    *
@@ -516,15 +516,15 @@ public abstract class WebUtils {
    * Expose the Servlet spec's error attributes as {@link HttpServletRequest}
    * attributes under the keys defined in the Servlet 2.3 specification, for error pages that
    * are rendered directly rather than through the Servlet container's error page resolution:
-   * {@code javax.servlet.error.status_code},
-   * {@code javax.servlet.error.exception_type},
-   * {@code javax.servlet.error.message},
-   * {@code javax.servlet.error.exception},
-   * {@code javax.servlet.error.request_uri},
-   * {@code javax.servlet.error.servlet_name}.
+   * {@code jakarta.servlet.error.status_code},
+   * {@code jakarta.servlet.error.exception_type},
+   * {@code jakarta.servlet.error.message},
+   * {@code jakarta.servlet.error.exception},
+   * {@code jakarta.servlet.error.request_uri},
+   * {@code jakarta.servlet.error.servlet_name}.
    * <p>Does not override values if already present, to respect attribute values
    * that have been exposed explicitly before.
-   * <p>Exposes status code 200 by default. Set the "javax.servlet.error.status_code"
+   * <p>Exposes status code 200 by default. Set the "jakarta.servlet.error.status_code"
    * attribute explicitly (before or after) in order to expose a different status code.
    *
    * @param request current servlet request
@@ -560,12 +560,12 @@ public abstract class WebUtils {
   /**
    * Clear the Servlet spec's error attributes as {@link HttpServletRequest}
    * attributes under the keys defined in the Servlet 2.3 specification:
-   * {@code javax.servlet.error.status_code},
-   * {@code javax.servlet.error.exception_type},
-   * {@code javax.servlet.error.message},
-   * {@code javax.servlet.error.exception},
-   * {@code javax.servlet.error.request_uri},
-   * {@code javax.servlet.error.servlet_name}.
+   * {@code jakarta.servlet.error.status_code},
+   * {@code jakarta.servlet.error.exception_type},
+   * {@code jakarta.servlet.error.message},
+   * {@code jakarta.servlet.error.exception},
+   * {@code jakarta.servlet.error.request_uri},
+   * {@code jakarta.servlet.error.servlet_name}.
    *
    * @param request current servlet request
    */

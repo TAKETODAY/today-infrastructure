@@ -22,7 +22,7 @@ package cn.taketoday.web;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import lombok.Getter;

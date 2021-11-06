@@ -20,8 +20,8 @@
 
 package cn.taketoday.web.servlet;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

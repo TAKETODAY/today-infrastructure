@@ -26,10 +26,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
-import javax.servlet.Registration;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Registration;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Assert;

@@ -64,8 +64,8 @@ public @interface ResponseStatus {
    * <p>Default is {@link HttpStatus#INTERNAL_SERVER_ERROR}, which should
    * typically be changed to something more appropriate.
    *
-   * @see javax.servlet.http.HttpServletResponse#setStatus(int)
-   * @see javax.servlet.http.HttpServletResponse#sendError(int)
+   * @see jakarta.servlet.http.HttpServletResponse#setStatus(int)
+   * @see jakarta.servlet.http.HttpServletResponse#sendError(int)
    * @since 3.0
    */
   HttpStatus value() default HttpStatus.INTERNAL_SERVER_ERROR;
@@ -73,7 +73,7 @@ public @interface ResponseStatus {
   /**
    * The <em>reason</em> to be used for the response.
    *
-   * @see javax.servlet.http.HttpServletResponse#sendError(int, String)
+   * @see jakarta.servlet.http.HttpServletResponse#sendError(int, String)
    * @since 3.0
    */
   String reason() default Constant.BLANK;

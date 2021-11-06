@@ -25,17 +25,17 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Mock implementation of the {@link javax.servlet.FilterConfig} interface.
+ * Mock implementation of the {@link jakarta.servlet.FilterConfig} interface.
  *
  * <p>Used for testing the web framework; also useful for testing
- * custom {@link javax.servlet.Filter} implementations.
+ * custom {@link jakarta.servlet.Filter} implementations.
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/9/11 18:51

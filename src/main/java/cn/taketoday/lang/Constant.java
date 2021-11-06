@@ -38,7 +38,7 @@ public interface Constant extends Serializable {
   String VERSION = "4.0";
   String PROPERTIES_SUFFIX = ".properties";
 
-  String ENV_SERVLET = "javax.servlet.Servlet";
+  String ENV_SERVLET = "jakarta.servlet.Servlet";
   boolean RUN_IN_SERVLET = ClassUtils.isPresent(ENV_SERVLET); // @since 3.0.3
 
   String HTTP = "http";

@@ -62,8 +62,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 import javax.naming.NamingException;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContainerInitializer;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContainerInitializer;
 
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;

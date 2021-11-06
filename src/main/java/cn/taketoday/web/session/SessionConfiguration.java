@@ -31,7 +31,7 @@ import cn.taketoday.core.io.Resource;
 public class SessionConfiguration {
 
   /**
-   * enable {@link javax.servlet.http.HttpSession}?
+   * enable {@link jakarta.servlet.http.HttpSession}?
    */
   private boolean enableHttpSession = false;
   private boolean persistent = true;

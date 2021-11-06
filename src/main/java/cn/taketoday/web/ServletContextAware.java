@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.beans.factory.Aware;
 

@@ -42,9 +42,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -54,7 +54,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.http.HttpHeaders;
 
 /**
- * Mock implementation of the {@link javax.servlet.http.HttpServletResponse} interface.
+ * Mock implementation of the {@link jakarta.servlet.http.HttpServletResponse} interface.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson

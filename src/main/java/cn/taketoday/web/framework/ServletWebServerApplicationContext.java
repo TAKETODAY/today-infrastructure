@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.framework;
 
-import javax.servlet.Servlet;
+import jakarta.servlet.Servlet;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;

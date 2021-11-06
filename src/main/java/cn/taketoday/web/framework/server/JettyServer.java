@@ -56,7 +56,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.servlet.Servlet;
+import jakarta.servlet.Servlet;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.core.ConfigurationException;

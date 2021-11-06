@@ -21,12 +21,12 @@ package cn.taketoday.http;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.GenericFilter;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.GenericFilter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
@@ -35,7 +35,7 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.servlet.ServletUtils;
 
 /**
- * {@link javax.servlet.Filter} that handles CORS preflight requests and intercepts
+ * {@link jakarta.servlet.Filter} that handles CORS preflight requests and intercepts
  * CORS simple and actual requests thanks to a {@link CorsProcessor} implementation
  * ({@link DefaultCorsProcessor} by default) in order to add the relevant CORS
  * response headers (like {@code Access-Control-Allow-Origin}) using the provided

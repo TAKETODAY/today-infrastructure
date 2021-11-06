@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.servlet;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.web.ServletContextAware;
@@ -47,7 +47,7 @@ public class WebServletApplicationContextSupport
    * <p>
    * The default implementation is empty. Called by
    * {@link #initApplicationContext(ApplicationContext)} as well as
-   * {@link #setServletContext(javax.servlet.ServletContext)}.
+   * {@link #setServletContext(jakarta.servlet.ServletContext)}.
    *
    * @param servletContext the ServletContext that this application object runs in (never
    * {@code null})

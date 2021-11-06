@@ -39,7 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -229,7 +229,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   }
 
   /**
-   * Use {@link javax.servlet.ServletRequest#getParameterMap()} to reconstruct the
+   * Use {@link jakarta.servlet.ServletRequest#getParameterMap()} to reconstruct the
    * body of a form 'POST' providing a predictable outcome as opposed to reading
    * from the body, which can fail if any other code has used the ServletRequest
    * to access a parameter, thus causing the input stream to be "consumed".

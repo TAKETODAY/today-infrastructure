@@ -20,13 +20,13 @@
 
 package cn.taketoday.web.mock;
 
-import javax.servlet.SessionCookieConfig;
+import jakarta.servlet.SessionCookieConfig;
 
 /**
- * Mock implementation of the {@link javax.servlet.SessionCookieConfig} interface.
+ * Mock implementation of the {@link jakarta.servlet.SessionCookieConfig} interface.
  *
  * @author Juergen Hoeller
- * @see javax.servlet.ServletContext#getSessionCookieConfig()
+ * @see jakarta.servlet.ServletContext#getSessionCookieConfig()
  * @since 3.0
  */
 public class MockSessionCookieConfig implements SessionCookieConfig {

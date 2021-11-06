@@ -21,7 +21,7 @@ package cn.taketoday.web.servlet.initializer;
 
 import java.util.EventListener;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.logging.LoggerFactory;

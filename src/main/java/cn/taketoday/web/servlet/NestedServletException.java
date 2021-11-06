@@ -22,7 +22,7 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;

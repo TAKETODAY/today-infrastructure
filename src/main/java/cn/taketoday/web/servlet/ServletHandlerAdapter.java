@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.servlet;
 
-import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.lang.Constant;

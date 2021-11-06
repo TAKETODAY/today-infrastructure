@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.WebConnection;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.WebConnection;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.DeploymentException;

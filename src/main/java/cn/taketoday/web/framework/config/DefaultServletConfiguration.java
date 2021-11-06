@@ -22,7 +22,7 @@ package cn.taketoday.web.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.Servlet;
+import jakarta.servlet.Servlet;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;

@@ -58,7 +58,7 @@ import jakarta.el.ELContextListener;
  * The collection of context objects is necessary because each
  * <code>ELResolver</code> may need access to a different context object. For
  * example, JSP and Faces resolvers need access to a
- * {@link javax.servlet.jsp.JspContext} and a
+ * {@link jakarta.servlet.jsp.JspContext} and a
  * {@link javax.faces.context.FacesContext}, respectively.
  * </p>
  *
@@ -88,7 +88,7 @@ import jakarta.el.ELContextListener;
  * @see ImportHandler
  * @see LambdaExpression
  * @see StandardExpressionContext
- * @see javax.servlet.jsp.JspContext
+ * @see jakarta.servlet.jsp.JspContext
  * @since EL 2.1 and EL 3.0
  */
 public abstract class ExpressionContext {

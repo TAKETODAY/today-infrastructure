@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.http.CorsConfiguration;

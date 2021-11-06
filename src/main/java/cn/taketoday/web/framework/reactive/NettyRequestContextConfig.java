@@ -50,7 +50,7 @@ public class NettyRequestContextConfig {
   /**
    * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
    *
-   * @see javax.servlet.http.HttpServletRequest#getContextPath()
+   * @see jakarta.servlet.http.HttpServletRequest#getContextPath()
    */
   private String contextPath;
   private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
@@ -153,7 +153,7 @@ public class NettyRequestContextConfig {
   /**
    * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
    *
-   * @see javax.servlet.http.HttpServletRequest#getContextPath()
+   * @see jakarta.servlet.http.HttpServletRequest#getContextPath()
    */
   public String getContextPath() {
     return contextPath;

@@ -29,8 +29,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
 
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.ClassPathResource;

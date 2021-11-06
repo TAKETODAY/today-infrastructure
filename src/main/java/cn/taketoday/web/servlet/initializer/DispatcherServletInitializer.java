@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.servlet.initializer;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletRegistration.Dynamic;
-import javax.servlet.ServletSecurityElement;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletRegistration.Dynamic;
+import jakarta.servlet.ServletSecurityElement;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;

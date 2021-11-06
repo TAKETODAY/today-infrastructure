@@ -27,9 +27,9 @@ import java.lang.annotation.Target;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.HandlesTypes;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.annotation.HandlesTypes;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
