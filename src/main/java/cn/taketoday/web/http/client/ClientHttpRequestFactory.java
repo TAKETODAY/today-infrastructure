@@ -29,7 +29,7 @@ import cn.taketoday.web.http.HttpMethod;
  * Requests are created by the {@link #createRequest(URI, HttpMethod)} method.
  *
  * @author Arjen Poutsma
- * @since 3.0
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ClientHttpRequestFactory {

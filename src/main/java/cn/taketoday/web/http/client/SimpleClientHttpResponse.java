@@ -36,7 +36,7 @@ import cn.taketoday.web.http.HttpHeaders;
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
- * @since 3.0
+ * @since 4.0
  */
 final class SimpleClientHttpResponse extends AbstractClientHttpResponse {
 

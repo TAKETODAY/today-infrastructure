@@ -44,8 +44,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +83,7 @@ import cn.taketoday.web.http.converter.HttpMessageNotWritableException;
  * @since 4.0
  */
 public abstract class AbstractJackson2HttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
-
-  private static final Map<String, JsonEncoding> ENCODINGS;
+  private static final HashMap<String, JsonEncoding> ENCODINGS;
 
   static {
     ENCODINGS = CollectionUtils.newHashMap(JsonEncoding.values().length);
@@ -126,7 +125,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 
   protected AbstractJackson2HttpMessageConverter(ObjectMapper objectMapper, MediaType... supportedMediaTypes) {
     this(objectMapper);
-    setSupportedMediaTypes(Arrays.asList(supportedMediaTypes));
+    setSupportedMediaTypes(List.of(supportedMediaTypes));
   }
 
   /**
@@ -356,11 +355,12 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     Charset charset = getCharset(contentType);
 
     ObjectMapper objectMapper = selectObjectMapper(javaType.getRawClass(), contentType);
-    Assert.state(objectMapper != null, "No ObjectMapper for " + javaType);
-
-    boolean isUnicode = ENCODINGS.containsKey(charset.name()) ||
-            "UTF-16".equals(charset.name()) ||
-            "UTF-32".equals(charset.name());
+    if (objectMapper == null) {
+      throw new IllegalStateException("No ObjectMapper for " + javaType);
+    }
+    boolean isUnicode = ENCODINGS.containsKey(charset.name())
+            || "UTF-16".equals(charset.name())
+            || "UTF-32".equals(charset.name());
     try {
       if (inputMessage instanceof MappingJacksonInputMessage mappingJacksonInputMessage) {
         Class<?> deserializationView = mappingJacksonInputMessage.getDeserializationView();
@@ -418,7 +418,9 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     Class<?> clazz = (object instanceof MappingJacksonValue mappingJacksonValue ?
                       mappingJacksonValue.getValue().getClass() : object.getClass());
     ObjectMapper objectMapper = selectObjectMapper(clazz, contentType);
-    Assert.state(objectMapper != null, "No ObjectMapper for " + clazz.getName());
+    if (objectMapper == null) {
+      throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
+    }
 
     OutputStream outputStream = StreamUtils.nonClosing(outputMessage.getBody());
     try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream, encoding)) {
@@ -447,8 +449,8 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
         objectWriter = objectWriter.forType(javaType);
       }
       SerializationConfig config = objectWriter.getConfig();
-      if (contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM) &&
-              config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+      if (config.isEnabled(SerializationFeature.INDENT_OUTPUT)
+              && contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM)) {
         objectWriter = objectWriter.with(this.ssePrettyPrinter);
       }
       objectWriter.writeValue(generator, value);

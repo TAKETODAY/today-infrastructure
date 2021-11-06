@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.HttpEntity;
@@ -48,6 +47,7 @@ import cn.taketoday.web.http.client.ClientHttpRequest;
 import cn.taketoday.web.http.client.ClientHttpRequestFactory;
 import cn.taketoday.web.http.client.ClientHttpResponse;
 import cn.taketoday.web.http.client.support.InterceptingHttpAccessor;
+import cn.taketoday.web.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.web.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.web.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.web.http.converter.HttpMessageConverter;
@@ -58,13 +58,8 @@ import cn.taketoday.web.http.converter.feed.AtomFeedHttpMessageConverter;
 import cn.taketoday.web.http.converter.feed.RssChannelHttpMessageConverter;
 import cn.taketoday.web.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.web.http.converter.json.JsonbHttpMessageConverter;
-import cn.taketoday.web.http.converter.json.KotlinSerializationJsonHttpMessageConverter;
 import cn.taketoday.web.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.web.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
-import cn.taketoday.web.http.converter.support.AllEncompassingFormHttpMessageConverter;
-import cn.taketoday.web.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
-import cn.taketoday.web.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import cn.taketoday.web.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
 import cn.taketoday.web.util.UriTemplateHandler;
@@ -77,11 +72,6 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * <p>The RestTemplate offers templates for common scenarios by HTTP method, in
  * addition to the generalized {@code exchange} and {@code execute} methods that
  * support of less frequent cases.
- *
- * <p><strong>NOTE:</strong> As of 5.0 this class is in maintenance mode, with
- * only minor requests for changes and bugs to be accepted going forward. Please,
- * consider using the {@code cn.taketoday.web.reactive.client.WebClient}
- * which has a more modern API and supports sync, async, and streaming scenarios.
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
@@ -97,43 +87,22 @@ import cn.taketoday.web.util.UriTemplateHandler;
  */
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
 
-  /**
-   * Boolean flag controlled by a {@code context.xml.ignore} system property that instructs to
-   * ignore XML, i.e. to not initialize the XML-related infrastructure.
-   * <p>The default is "false".
-   */
-  private static final boolean shouldIgnoreXml = TodayStrategies.getFlag("context.xml.ignore");
-
   private static final boolean romePresent;
-
-  private static final boolean jaxb2Present;
-
   private static final boolean jackson2Present;
-
-  private static final boolean jackson2XmlPresent;
-
   private static final boolean jackson2SmilePresent;
-
   private static final boolean jackson2CborPresent;
-
   private static final boolean gsonPresent;
-
   private static final boolean jsonbPresent;
-
-  private static final boolean kotlinSerializationJsonPresent;
 
   static {
     ClassLoader classLoader = RestTemplate.class.getClassLoader();
     romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
-    jaxb2Present = ClassUtils.isPresent("javax.xml.bind.Binder", classLoader);
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
             ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
-    jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", classLoader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
     jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
-    kotlinSerializationJsonPresent = ClassUtils.isPresent("kotlinx.serialization.json.Json", classLoader);
   }
 
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
@@ -152,28 +121,11 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
     this.messageConverters.add(new StringHttpMessageConverter());
     this.messageConverters.add(new ResourceHttpMessageConverter(false));
-    if (!shouldIgnoreXml) {
-      try {
-        this.messageConverters.add(new SourceHttpMessageConverter<>());
-      }
-      catch (Error err) {
-        // Ignore when no TransformerFactory implementation is available
-      }
-    }
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
 
     if (romePresent) {
       this.messageConverters.add(new AtomFeedHttpMessageConverter());
       this.messageConverters.add(new RssChannelHttpMessageConverter());
-    }
-
-    if (!shouldIgnoreXml) {
-      if (jackson2XmlPresent) {
-        this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
-      }
-      else if (jaxb2Present) {
-        this.messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
-      }
     }
 
     if (jackson2Present) {
@@ -184,9 +136,6 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     }
     else if (jsonbPresent) {
       this.messageConverters.add(new JsonbHttpMessageConverter());
-    }
-    else if (kotlinSerializationJsonPresent) {
-      this.messageConverters.add(new KotlinSerializationJsonHttpMessageConverter());
     }
 
     if (jackson2SmilePresent) {
@@ -282,7 +231,6 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * </pre>
    *
    * @param uriVars the default URI variable values
-   * @since 4.0
    */
   @SuppressWarnings("deprecation")
   public void setDefaultUriVariables(Map<String, ?> uriVars) {
@@ -301,17 +249,12 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   /**
    * Configure a strategy for expanding URI templates.
-   * <p>By default, {@link DefaultUriBuilderFactory} is used and for
-   * backwards compatibility, the encoding mode is set to
-   * {@link EncodingMode#URI_COMPONENT URI_COMPONENT}. As of 5.0.8, prefer
+   * <p>By default, {@link DefaultUriBuilderFactory} is used. prefer
    * using {@link EncodingMode#TEMPLATE_AND_VALUES TEMPLATE_AND_VALUES}.
-   * <p><strong>Note:</strong> in 5.0 the switch from
-   * {@link cn.taketoday.web.util.DefaultUriTemplateHandler
-   * DefaultUriTemplateHandler} (deprecated in 4.3), as the default to use, to
-   * {@link DefaultUriBuilderFactory} brings in a different default for the
-   * {@code parsePath} property (switching from false to true).
    *
    * @param handler the URI template handler to use
+   * @see DefaultUriBuilderFactory
+   * @see cn.taketoday.web.util.DefaultUriTemplateHandler
    */
   public void setUriTemplateHandler(UriTemplateHandler handler) {
     Assert.notNull(handler, "UriTemplateHandler must not be null");
@@ -400,9 +343,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   @Override
   @Nullable
-  public URI postForLocation(String url, @Nullable Object request, Object... uriVariables)
-          throws RestClientException {
-
+  public URI postForLocation(
+          String url, @Nullable Object request, Object... uriVariables) throws RestClientException {
     RequestCallback requestCallback = httpEntityCallback(request);
     HttpHeaders headers = execute(url, HttpMethod.POST, requestCallback, headersExtractor(), uriVariables);
     return (headers != null ? headers.getLocation() : null);
@@ -410,8 +352,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   @Override
   @Nullable
-  public URI postForLocation(String url, @Nullable Object request, Map<String, ?> uriVariables)
-          throws RestClientException {
+  public URI postForLocation(
+          String url, @Nullable Object request, Map<String, ?> uriVariables) throws RestClientException {
 
     RequestCallback requestCallback = httpEntityCallback(request);
     HttpHeaders headers = execute(url, HttpMethod.POST, requestCallback, headersExtractor(), uriVariables);
@@ -588,9 +530,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   // exchange
 
   @Override
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method,
-                                        @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
-          throws RestClientException {
+  public <T> ResponseEntity<T> exchange(
+          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+          Class<T> responseType, Object... uriVariables) throws RestClientException {
 
     RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
     ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
@@ -598,9 +540,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method,
-                                        @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Map<String, ?> uriVariables)
-          throws RestClientException {
+  public <T> ResponseEntity<T> exchange(
+          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+          Class<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
 
     RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
     ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
@@ -608,8 +550,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-                                        Class<T> responseType) throws RestClientException {
+  public <T> ResponseEntity<T> exchange(
+          URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+          Class<T> responseType) throws RestClientException {
 
     RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
     ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
@@ -617,8 +560,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-                                        TypeReference<T> responseType, Object... uriVariables) throws RestClientException {
+  public <T> ResponseEntity<T> exchange(
+          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+          TypeReference<T> responseType, Object... uriVariables) throws RestClientException {
 
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
@@ -627,8 +571,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-                                        TypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
+  public <T> ResponseEntity<T> exchange(
+          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+          TypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
 
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
@@ -637,8 +582,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-                                        TypeReference<T> responseType) throws RestClientException {
+  public <T> ResponseEntity<T> exchange(
+          URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity, TypeReference<T> responseType) throws RestClientException {
 
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
@@ -647,18 +592,16 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(RequestEntity<?> entity, Class<T> responseType)
-          throws RestClientException {
-
+  public <T> ResponseEntity<T> exchange(
+          RequestEntity<?> entity, Class<T> responseType) throws RestClientException {
     RequestCallback requestCallback = httpEntityCallback(entity, responseType);
     ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
     return nonNull(doExecute(resolveUrl(entity), entity.getMethod(), requestCallback, responseExtractor));
   }
 
   @Override
-  public <T> ResponseEntity<T> exchange(RequestEntity<?> entity, TypeReference<T> responseType)
-          throws RestClientException {
-
+  public <T> ResponseEntity<T> exchange(
+          RequestEntity<?> entity, TypeReference<T> responseType) throws RestClientException {
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(entity, type);
     ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(type);
@@ -666,8 +609,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   }
 
   private URI resolveUrl(RequestEntity<?> entity) {
-    if (entity instanceof RequestEntity.UriTemplateRequestEntity) {
-      RequestEntity.UriTemplateRequestEntity<?> ext = (RequestEntity.UriTemplateRequestEntity<?>) entity;
+    if (entity instanceof RequestEntity.UriTemplateRequestEntity<?> ext) {
       if (ext.getVars() != null) {
         return this.uriTemplateHandler.expand(ext.getUriTemplate(), ext.getVars());
       }
@@ -698,8 +640,10 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    */
   @Override
   @Nullable
-  public <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-                       @Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables) throws RestClientException {
+  public <T> T execute(String url, HttpMethod method,
+                       @Nullable RequestCallback requestCallback,
+                       @Nullable ResponseExtractor<T> responseExtractor,
+                       Object... uriVariables) throws RestClientException {
 
     URI expanded = getUriTemplateHandler().expand(url, uriVariables);
     return doExecute(expanded, method, requestCallback, responseExtractor);
@@ -718,9 +662,10 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    */
   @Override
   @Nullable
-  public <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-                       @Nullable ResponseExtractor<T> responseExtractor, Map<String, ?> uriVariables)
-          throws RestClientException {
+  public <T> T execute(String url, HttpMethod method,
+                       @Nullable RequestCallback requestCallback,
+                       @Nullable ResponseExtractor<T> responseExtractor,
+                       Map<String, ?> uriVariables) throws RestClientException {
 
     URI expanded = getUriTemplateHandler().expand(url, uriVariables);
     return doExecute(expanded, method, requestCallback, responseExtractor);
@@ -739,9 +684,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    */
   @Override
   @Nullable
-  public <T> T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
+  public <T> T execute(URI url, HttpMethod method,
+                       @Nullable RequestCallback requestCallback,
                        @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
-
     return doExecute(url, method, requestCallback, responseExtractor);
   }
 
@@ -757,7 +702,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    */
   @Nullable
-  protected <T> T doExecute(URI url, @Nullable HttpMethod method, @Nullable RequestCallback requestCallback,
+  protected <T> T doExecute(URI url, @Nullable HttpMethod method,
+                            @Nullable RequestCallback requestCallback,
                             @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
 
     Assert.notNull(url, "URI is required");
@@ -770,14 +716,15 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       }
       response = request.execute();
       handleResponse(url, method, response);
-      return (responseExtractor != null ? responseExtractor.extractData(response) : null);
+      return responseExtractor != null ? responseExtractor.extractData(response) : null;
     }
     catch (IOException ex) {
       String resource = url.toString();
       String query = url.getRawQuery();
-      resource = (query != null ? resource.substring(0, resource.indexOf('?')) : resource);
-      throw new ResourceAccessException("I/O error on " + method.name() +
-                                                " request for \"" + resource + "\": " + ex.getMessage(), ex);
+      resource = query != null ? resource.substring(0, resource.indexOf('?')) : resource;
+      throw new ResourceAccessException(
+              "I/O error on " + method.name() +
+                      " request for \"" + resource + "\": " + ex.getMessage(), ex);
     }
     finally {
       if (response != null) {
@@ -804,7 +751,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       try {
         int code = response.getRawStatusCode();
         HttpStatus status = HttpStatus.resolve(code);
-        logger.debug("Response " + (status != null ? status : code));
+        logger.debug("Response {}", status != null ? status : code);
       }
       catch (IOException ex) {
         // ignore
@@ -828,7 +775,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Return a {@code RequestCallback} implementation that writes the given
    * object to the request stream.
    */
-  public <T> RequestCallback httpEntityCallback(@Nullable Object requestBody) {
+  public RequestCallback httpEntityCallback(@Nullable Object requestBody) {
     return new HttpEntityRequestCallback(requestBody);
   }
 
@@ -840,7 +787,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * <li>Writes the given object to the request stream.
    * </ol>
    */
-  public <T> RequestCallback httpEntityCallback(@Nullable Object requestBody, Type responseType) {
+  public RequestCallback httpEntityCallback(@Nullable Object requestBody, Type responseType) {
     return new HttpEntityRequestCallback(requestBody, responseType);
   }
 
@@ -885,7 +832,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
                 .sorted(MediaType.SPECIFICITY_COMPARATOR)
                 .collect(Collectors.toList());
         if (logger.isDebugEnabled()) {
-          logger.debug("Accept=" + allSupportedMediaTypes);
+          logger.debug("Accept={}", allSupportedMediaTypes);
         }
         request.getHeaders().setAccept(allSupportedMediaTypes);
       }
@@ -896,8 +843,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       if (responseClass != null) {
         return converter.canRead(responseClass, null);
       }
-      else if (converter instanceof GenericHttpMessageConverter) {
-        GenericHttpMessageConverter<?> genericConverter = (GenericHttpMessageConverter<?>) converter;
+      else if (converter instanceof GenericHttpMessageConverter<?> genericConverter) {
         return genericConverter.canRead(responseType, null, null);
       }
       return false;
@@ -942,7 +888,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void doWithRequest(ClientHttpRequest httpRequest) throws IOException {
       super.doWithRequest(httpRequest);
       Object requestBody = this.requestEntity.getBody();
@@ -950,7 +896,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
         if (!requestHeaders.isEmpty()) {
-          requestHeaders.forEach((key, values) -> httpHeaders.put(key, new ArrayList<>(values)));
+          httpHeaders.putAll(requestHeaders);
         }
         if (httpHeaders.getContentLength() < 0) {
           httpHeaders.setContentLength(0L);
@@ -958,18 +904,19 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       }
       else {
         Class<?> requestBodyClass = requestBody.getClass();
-        Type requestBodyType = (this.requestEntity instanceof RequestEntity ?
-                                ((RequestEntity<?>) this.requestEntity).getType() : requestBodyClass);
+        Type requestBodyType = this.requestEntity instanceof RequestEntity
+                               ? ((RequestEntity<?>) this.requestEntity).getType()
+                               : requestBodyClass;
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
         MediaType requestContentType = requestHeaders.getContentType();
-        for (HttpMessageConverter<?> messageConverter : getMessageConverters()) {
-          if (messageConverter instanceof GenericHttpMessageConverter) {
-            GenericHttpMessageConverter<Object> genericConverter =
-                    (GenericHttpMessageConverter<Object>) messageConverter;
+
+        // iterate messageConverter
+        for (HttpMessageConverter messageConverter : getMessageConverters()) {
+          if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
             if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
               if (!requestHeaders.isEmpty()) {
-                requestHeaders.forEach((key, values) -> httpHeaders.put(key, new ArrayList<>(values)));
+                requestHeaders.putAll(httpHeaders);
               }
               logBody(requestBody, requestContentType, genericConverter);
               genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
@@ -978,14 +925,15 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           }
           else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
             if (!requestHeaders.isEmpty()) {
-              requestHeaders.forEach((key, values) -> httpHeaders.put(key, new ArrayList<>(values)));
+              requestHeaders.putAll(httpHeaders);
             }
             logBody(requestBody, requestContentType, messageConverter);
-            ((HttpMessageConverter<Object>) messageConverter).write(
-                    requestBody, requestContentType, httpRequest);
+
+            messageConverter.write(requestBody, requestContentType, httpRequest);
             return;
           }
         }
+
         String message = "No HttpMessageConverter for " + requestBodyClass.getName();
         if (requestContentType != null) {
           message += " and content type \"" + requestContentType + "\"";
@@ -997,10 +945,10 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     private void logBody(Object body, @Nullable MediaType mediaType, HttpMessageConverter<?> converter) {
       if (logger.isDebugEnabled()) {
         if (mediaType != null) {
-          logger.debug("Writing [" + body + "] as \"" + mediaType + "\"");
+          logger.debug("Writing [{}] as \"{}\"", body, mediaType);
         }
         else {
-          logger.debug("Writing [" + body + "] with " + converter.getClass().getName());
+          logger.debug("Writing [{}] with {}", body, converter.getClass().getName());
         }
       }
     }
@@ -1010,7 +958,6 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Response extractor for {@link HttpEntity}.
    */
   private class ResponseEntityResponseExtractor<T> implements ResponseExtractor<ResponseEntity<T>> {
-
     @Nullable
     private final HttpMessageConverterExtractor<T> delegate;
 
@@ -1027,10 +974,14 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     public ResponseEntity<T> extractData(ClientHttpResponse response) throws IOException {
       if (this.delegate != null) {
         T body = this.delegate.extractData(response);
-        return ResponseEntity.status(response.getRawStatusCode()).headers(response.getHeaders()).body(body);
+        return ResponseEntity.status(response.getRawStatusCode())
+                .headers(response.getHeaders())
+                .body(body);
       }
       else {
-        return ResponseEntity.status(response.getRawStatusCode()).headers(response.getHeaders()).build();
+        return ResponseEntity.status(response.getRawStatusCode())
+                .headers(response.getHeaders())
+                .build();
       }
     }
   }

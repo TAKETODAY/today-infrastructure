@@ -37,7 +37,7 @@ import cn.taketoday.web.http.HttpMethod;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @see SimpleClientHttpRequestFactory#createRequest(URI, HttpMethod)
- * @since 3.0
+ * @since 4.0
  */
 final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 

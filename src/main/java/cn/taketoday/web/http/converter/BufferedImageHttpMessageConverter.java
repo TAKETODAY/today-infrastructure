@@ -69,7 +69,7 @@ import cn.taketoday.web.http.StreamingHttpOutputMessage;
  * template methods allow subclasses to override Image I/O parameters.
  *
  * @author Arjen Poutsma
- * @since 3.0
+ * @since 4.0
  */
 public class BufferedImageHttpMessageConverter implements HttpMessageConverter<BufferedImage> {
 

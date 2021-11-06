@@ -21,13 +21,13 @@
 package cn.taketoday.web.http.converter;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpOutputMessage;
+import cn.taketoday.web.http.SimpleHttpOutputMessage;
 import cn.taketoday.web.http.StreamingHttpOutputMessage;
 
 /**
@@ -73,7 +73,7 @@ public abstract class AbstractGenericHttpMessageConverter<T>
 
   @Override
   public boolean canRead(Type type, @Nullable Class<?> contextClass, @Nullable MediaType mediaType) {
-    return (type instanceof Class<?> clazz ? canRead(clazz, mediaType) : canRead(mediaType));
+    return type instanceof Class<?> clazz ? canRead(clazz, mediaType) : canRead(mediaType);
   }
 
   @Override
@@ -93,18 +93,8 @@ public abstract class AbstractGenericHttpMessageConverter<T>
     final HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(outputStream -> writeInternal(t, type, new HttpOutputMessage() {
-        @Override
-        public OutputStream getBody() {
-          return outputStream;
-        }
-
-        @Override
-        public HttpHeaders getHeaders() {
-          return headers;
-        }
-      }));
+    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
+      streamingOutput.setBody(outputStream -> writeInternal(t, type, new SimpleHttpOutputMessage(headers, outputStream)));
     }
     else {
       writeInternal(t, type, outputMessage);

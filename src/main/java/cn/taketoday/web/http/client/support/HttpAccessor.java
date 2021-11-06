@@ -49,7 +49,7 @@ import cn.taketoday.web.http.client.SimpleClientHttpRequestFactory;
  * @author Phillip Webb
  * @see ClientHttpRequestFactory
  * @see cn.taketoday.web.client.RestTemplate
- * @since 3.0
+ * @since 4.0
  */
 public abstract class HttpAccessor {
   /** Logger available to subclasses. */

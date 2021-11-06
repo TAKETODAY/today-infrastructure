@@ -79,13 +79,7 @@ public abstract class SystemPropertyUtils {
    * PlaceholderResolver implementation that resolves against system properties
    * and system environment variables.
    */
-  private static class SystemPropertyPlaceholderResolver implements PlaceholderResolver {
-
-    private final String text;
-
-    public SystemPropertyPlaceholderResolver(String text) {
-      this.text = text;
-    }
+  private record SystemPropertyPlaceholderResolver(String text) implements PlaceholderResolver {
 
     @Override
     @Nullable

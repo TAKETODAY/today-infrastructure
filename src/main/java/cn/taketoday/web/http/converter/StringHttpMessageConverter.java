@@ -43,7 +43,7 @@ import cn.taketoday.web.http.HttpOutputMessage;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 public class StringHttpMessageConverter extends AbstractHttpMessageConverter<String> {
 
@@ -80,7 +80,6 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
    * Whether the {@code Accept-Charset} header should be written to any outgoing
    * request sourced from the value of {@link Charset#availableCharsets()}.
    * The behavior is suppressed if the header has already been set.
-   * <p>As of 5.2, by default is set to {@code false}.
    */
   public void setWriteAcceptCharset(boolean writeAcceptCharset) {
     this.writeAcceptCharset = writeAcceptCharset;
@@ -148,8 +147,8 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
       if (charset != null) {
         return charset;
       }
-      else if (contentType.isCompatibleWith(MediaType.APPLICATION_JSON) ||
-              contentType.isCompatibleWith(APPLICATION_PLUS_JSON)) {
+      else if (contentType.isCompatibleWith(MediaType.APPLICATION_JSON)
+              || contentType.isCompatibleWith(APPLICATION_PLUS_JSON)) {
         // Matching to AbstractJackson2HttpMessageConverter#DEFAULT_CHARSET
         return StandardCharsets.UTF_8;
       }

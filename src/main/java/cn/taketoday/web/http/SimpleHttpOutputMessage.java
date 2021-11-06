@@ -18,38 +18,35 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.http.converter;
+package cn.taketoday.web.http;
 
-import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.lang.Nullable;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
- * Thrown by {@link HttpMessageConverter} implementations when a conversion attempt fails.
+ * simple HttpOutputMessage
  *
- * @author Arjen Poutsma
- * @author Sebastien Deleuze
+ * @author TODAY 2021/11/6 13:10
  * @since 4.0
  */
-@SuppressWarnings("serial")
-public class HttpMessageConversionException extends NestedRuntimeException {
+public class SimpleHttpOutputMessage implements HttpOutputMessage {
 
-  /**
-   * Create a new HttpMessageConversionException.
-   *
-   * @param msg the detail message
-   */
-  public HttpMessageConversionException(String msg) {
-    super(msg);
+  private final HttpHeaders headers;
+  private final OutputStream body;
+
+  public SimpleHttpOutputMessage(HttpHeaders headers, OutputStream body) {
+    this.headers = headers;
+    this.body = body;
   }
 
-  /**
-   * Create a new HttpMessageConversionException.
-   *
-   * @param msg the detail message
-   * @param cause the root cause (if any)
-   */
-  public HttpMessageConversionException(String msg, @Nullable Throwable cause) {
-    super(msg, cause);
+  @Override
+  public HttpHeaders getHeaders() {
+    return headers;
+  }
+
+  @Override
+  public OutputStream getBody() throws IOException {
+    return body;
   }
 
 }

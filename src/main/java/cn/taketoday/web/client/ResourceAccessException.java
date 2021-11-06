@@ -21,15 +21,17 @@
 package cn.taketoday.web.client;
 
 import java.io.IOException;
+import java.io.Serial;
 
 /**
  * Exception thrown when an I/O error occurs.
  *
  * @author Arjen Poutsma
- * @since 3.0
+ * @since 4.0
  */
 public class ResourceAccessException extends RestClientException {
 
+  @Serial
   private static final long serialVersionUID = -8513182514355844870L;
 
   /**

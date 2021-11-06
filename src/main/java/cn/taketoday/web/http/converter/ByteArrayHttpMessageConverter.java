@@ -38,7 +38,7 @@ import cn.taketoday.web.http.HttpOutputMessage;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<byte[]> {
 

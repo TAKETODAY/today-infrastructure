@@ -39,7 +39,7 @@ import cn.taketoday.web.http.HttpMethod;
  * @see SimpleClientHttpRequestFactory#createRequest(URI, HttpMethod)
  * @see cn.taketoday.web.http.client.support.HttpAccessor
  * @see cn.taketoday.web.client.RestTemplate
- * @since 3.0
+ * @since 4.0
  */
 final class SimpleStreamingClientHttpRequest extends AbstractClientHttpRequest {
 

@@ -304,7 +304,7 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public DefaultDataBuffer write(DataBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       write(Arrays.stream(buffers)
                     .map(DataBuffer::asByteBuffer)
                     .toArray(ByteBuffer[]::new)
@@ -315,7 +315,7 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public DefaultDataBuffer write(ByteBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       int capacity = Arrays.stream(buffers).mapToInt(ByteBuffer::remaining).sum();
       ensureCapacity(capacity);
       Arrays.stream(buffers).forEach(this::write);

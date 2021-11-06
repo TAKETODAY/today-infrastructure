@@ -21,6 +21,7 @@
 package cn.taketoday.web.http.converter.protobuf;
 
 import com.google.protobuf.CodedOutputStream;
+import com.google.protobuf.Descriptors;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
@@ -44,6 +45,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpInputMessage;
 import cn.taketoday.web.http.HttpOutputMessage;
 import cn.taketoday.web.http.converter.AbstractHttpMessageConverter;
@@ -259,8 +261,10 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * before because it writes HTTP headers (making them read only).</p>
    */
   private void setProtoHeader(HttpOutputMessage response, Message message) {
-    response.getHeaders().set(X_PROTOBUF_SCHEMA_HEADER, message.getDescriptorForType().getFile().getName());
-    response.getHeaders().set(X_PROTOBUF_MESSAGE_HEADER, message.getDescriptorForType().getFullName());
+    HttpHeaders headers = response.getHeaders();
+    Descriptors.Descriptor descriptorForType = message.getDescriptorForType();
+    headers.set(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());
+    headers.set(X_PROTOBUF_MESSAGE_HEADER, descriptorForType.getFullName());
   }
 
   /**
@@ -312,8 +316,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     @Override
     public void merge(InputStream input, Charset charset, MediaType contentType,
                       ExtensionRegistry extensionRegistry, Message.Builder builder)
-            throws IOException, HttpMessageConversionException {
-
+            throws IOException, HttpMessageConversionException //
+    {
       if (contentType.isCompatibleWith(APPLICATION_JSON)) {
         this.jsonFormatter.merge(input, charset, extensionRegistry, builder);
       }
@@ -328,7 +332,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
     @Override
     public void print(Message message, OutputStream output, MediaType contentType, Charset charset)
-            throws IOException, HttpMessageConversionException {
+            throws IOException, HttpMessageConversionException //
+    {
 
       if (contentType.isCompatibleWith(APPLICATION_JSON)) {
         this.jsonFormatter.print(message, output, charset);
@@ -374,8 +379,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     @Override
     public void merge(InputStream input, Charset charset, MediaType contentType,
                       ExtensionRegistry extensionRegistry, Message.Builder builder)
-            throws IOException, HttpMessageConversionException {
-
+            throws IOException, HttpMessageConversionException //
+    {
       if (contentType.isCompatibleWith(APPLICATION_JSON)) {
         InputStreamReader reader = new InputStreamReader(input, charset);
         this.parser.merge(reader, builder);
@@ -388,7 +393,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
     @Override
     public void print(Message message, OutputStream output, MediaType contentType, Charset charset)
-            throws IOException, HttpMessageConversionException {
+            throws IOException, HttpMessageConversionException //
+    {
 
       if (contentType.isCompatibleWith(APPLICATION_JSON)) {
         OutputStreamWriter writer = new OutputStreamWriter(output, charset);

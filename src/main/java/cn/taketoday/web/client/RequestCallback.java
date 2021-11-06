@@ -39,7 +39,7 @@ import cn.taketoday.web.http.client.ClientHttpRequest;
  *
  * @author Arjen Poutsma
  * @see RestTemplate#execute
- * @since 3.0
+ * @since 4.0
  */
 @FunctionalInterface
 public interface RequestCallback {

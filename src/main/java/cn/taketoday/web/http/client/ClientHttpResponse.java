@@ -35,7 +35,7 @@ import cn.taketoday.web.http.HttpStatus;
  * typically in a {@code finally} block.
  *
  * @author Arjen Poutsma
- * @since 3.0
+ * @since 4.0
  */
 public interface ClientHttpResponse extends HttpInputMessage, Closeable {
 

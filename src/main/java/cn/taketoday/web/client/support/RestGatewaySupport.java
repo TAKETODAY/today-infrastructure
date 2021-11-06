@@ -35,7 +35,7 @@ import cn.taketoday.web.http.client.ClientHttpRequestFactory;
  * @author Arjen Poutsma
  * @see #setRestTemplate
  * @see cn.taketoday.web.client.RestTemplate
- * @since 3.0
+ * @since 4.0
  */
 public class RestGatewaySupport {
 

@@ -21,7 +21,6 @@
 package cn.taketoday.web.http.converter;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +35,7 @@ import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpInputMessage;
 import cn.taketoday.web.http.HttpLogging;
 import cn.taketoday.web.http.HttpOutputMessage;
+import cn.taketoday.web.http.SimpleHttpOutputMessage;
 import cn.taketoday.web.http.StreamingHttpOutputMessage;
 
 /**
@@ -212,18 +212,8 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
     final HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(outputStream -> writeInternal(t, new HttpOutputMessage() {
-        @Override
-        public OutputStream getBody() {
-          return outputStream;
-        }
-
-        @Override
-        public HttpHeaders getHeaders() {
-          return headers;
-        }
-      }));
+    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
+      streamingOutput.setBody(outputStream -> writeInternal(t, new SimpleHttpOutputMessage(headers, outputStream)));
     }
     else {
       writeInternal(t, outputMessage);

@@ -36,7 +36,7 @@ import cn.taketoday.web.http.HttpOutputMessage;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
- * @since 3.0
+ * @since 4.0
  */
 public interface HttpMessageConverter<T> {
 

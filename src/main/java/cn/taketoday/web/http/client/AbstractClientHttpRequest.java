@@ -32,7 +32,7 @@ import cn.taketoday.web.http.HttpHeaders;
  * and body are not written multiple times.
  *
  * @author Arjen Poutsma
- * @since 3.0
+ * @since 4.0
  */
 public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
 

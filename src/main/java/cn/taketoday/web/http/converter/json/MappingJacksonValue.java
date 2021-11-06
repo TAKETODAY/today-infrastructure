@@ -99,7 +99,6 @@ public class MappingJacksonValue {
    * @see com.fasterxml.jackson.databind.ObjectMapper#writer(FilterProvider)
    * @see com.fasterxml.jackson.annotation.JsonFilter
    * @see Jackson2ObjectMapperBuilder#filters(FilterProvider)
-   * @since 4.0
    */
   public void setFilters(@Nullable FilterProvider filters) {
     this.filters = filters;
@@ -110,7 +109,6 @@ public class MappingJacksonValue {
    *
    * @see com.fasterxml.jackson.databind.ObjectMapper#writer(FilterProvider)
    * @see com.fasterxml.jackson.annotation.JsonFilter
-   * @since 4.0
    */
   @Nullable
   public FilterProvider getFilters() {

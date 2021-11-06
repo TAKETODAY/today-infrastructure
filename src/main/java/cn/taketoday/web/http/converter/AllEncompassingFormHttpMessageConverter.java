@@ -18,13 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.http.converter.support;
+package cn.taketoday.web.http.converter;
 
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.http.converter.FormHttpMessageConverter;
 import cn.taketoday.web.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.web.http.converter.json.JsonbHttpMessageConverter;
-import cn.taketoday.web.http.converter.json.KotlinSerializationJsonHttpMessageConverter;
 import cn.taketoday.web.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.web.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 
@@ -47,8 +45,6 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
 
   private static final boolean jsonbPresent;
 
-  private static final boolean kotlinSerializationJsonPresent;
-
   static {
     ClassLoader classLoader = AllEncompassingFormHttpMessageConverter.class.getClassLoader();
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
@@ -56,7 +52,6 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
     jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
-    kotlinSerializationJsonPresent = ClassUtils.isPresent("kotlinx.serialization.json.Json", classLoader);
   }
 
   public AllEncompassingFormHttpMessageConverter() {
@@ -68,9 +63,6 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
     }
     else if (jsonbPresent) {
       addPartConverter(new JsonbHttpMessageConverter());
-    }
-    else if (kotlinSerializationJsonPresent) {
-      addPartConverter(new KotlinSerializationJsonHttpMessageConverter());
     }
 
     if (jackson2SmilePresent) {

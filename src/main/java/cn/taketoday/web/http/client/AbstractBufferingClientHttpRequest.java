@@ -31,7 +31,7 @@ import cn.taketoday.web.http.HttpHeaders;
  * in a byte array before sending it over the wire.
  *
  * @author Arjen Poutsma
- * @since 3.0.6
+ * @since 4.0
  */
 abstract class AbstractBufferingClientHttpRequest extends AbstractClientHttpRequest {
 

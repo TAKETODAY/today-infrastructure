@@ -83,7 +83,7 @@ final class AnnotationAttributesReadingVisitor extends RecursiveAnnotationAttrib
       if (!AnnotationUtils.isInJavaLangAnnotationPackage(annotationClass.getName())) {
         try {
           Annotation[] metaAnnotations = annotationClass.getAnnotations();
-          if (!ObjectUtils.isEmpty(metaAnnotations)) {
+          if (ObjectUtils.isNotEmpty(metaAnnotations)) {
             Set<Annotation> visited = new LinkedHashSet<>();
             for (Annotation metaAnnotation : metaAnnotations) {
               recursivelyCollectMetaAnnotations(visited, metaAnnotation);

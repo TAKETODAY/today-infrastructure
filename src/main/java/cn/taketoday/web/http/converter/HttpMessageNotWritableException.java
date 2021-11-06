@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
  * {@link HttpMessageConverter#write} method fails.
  *
  * @author Arjen Poutsma
- * @since 3.0
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class HttpMessageNotWritableException extends HttpMessageConversionException {

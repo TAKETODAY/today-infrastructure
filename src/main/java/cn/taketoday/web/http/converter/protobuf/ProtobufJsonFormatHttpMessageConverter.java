@@ -73,8 +73,9 @@ public class ProtobufJsonFormatHttpMessageConverter extends ProtobufHttpMessageC
    * {@link com.google.protobuf.util.JsonFormat.Printer JsonFormat.Printer},
    * and {@link ExtensionRegistry}.
    */
-  public ProtobufJsonFormatHttpMessageConverter(@Nullable JsonFormat.Parser parser,
-                                                @Nullable JsonFormat.Printer printer, @Nullable ExtensionRegistry extensionRegistry) {
+  public ProtobufJsonFormatHttpMessageConverter(
+          @Nullable JsonFormat.Parser parser,
+          @Nullable JsonFormat.Printer printer, @Nullable ExtensionRegistry extensionRegistry) {
 
     super(new ProtobufJavaUtilSupport(parser, printer), extensionRegistry);
   }

@@ -37,7 +37,7 @@ import cn.taketoday.web.http.HttpMethod;
  * @author Juergen Hoeller
  * @see HttpURLConnection
  * @see HttpComponentsClientHttpRequestFactory
- * @since 3.0
+ * @since 4.0
  */
 public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory {
 

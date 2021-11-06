@@ -19,19 +19,19 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Miscellaneous object utility methods.
@@ -148,7 +148,7 @@ public abstract class ObjectUtils {
       return true;
     }
     if (obj instanceof Optional) {
-      return !((Optional<?>) obj).isPresent();
+      return ((Optional<?>) obj).isEmpty();
     }
     if (obj instanceof CharSequence) {
       return ((CharSequence) obj).length() == 0;
@@ -179,9 +179,8 @@ public abstract class ObjectUtils {
    * @since 3.0
    */
   public static Object unwrapOptional(@Nullable Object obj) {
-    if (obj instanceof Optional) {
-      Optional<?> optional = (Optional<?>) obj;
-      if (!optional.isPresent()) {
+    if (obj instanceof Optional<?> optional) {
+      if (optional.isEmpty()) {
         return null;
       }
       Object result = optional.get();

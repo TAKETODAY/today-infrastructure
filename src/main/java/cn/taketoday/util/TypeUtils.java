@@ -57,8 +57,7 @@ public abstract class TypeUtils {
       return true;
     }
 
-    if (lhsType instanceof Class) {
-      Class<?> lhsClass = (Class<?>) lhsType;
+    if (lhsType instanceof Class<?> lhsClass) {
 
       // just comparing two classes
       if (rhsType instanceof Class) {
@@ -97,9 +96,7 @@ public abstract class TypeUtils {
     if (lhsType instanceof GenericArrayType) {
       Type lhsComponent = ((GenericArrayType) lhsType).getGenericComponentType();
 
-      if (rhsType instanceof Class) {
-        Class<?> rhsClass = (Class<?>) rhsType;
-
+      if (rhsType instanceof Class<?> rhsClass) {
         if (rhsClass.isArray()) {
           return isAssignable(lhsComponent, rhsClass.getComponentType());
         }
@@ -158,11 +155,10 @@ public abstract class TypeUtils {
       lLowerBounds = new Type[] { null };
     }
 
-    if (rhsType instanceof WildcardType) {
+    if (rhsType instanceof WildcardType rhsWcType) {
       // both the upper and lower bounds of the right-hand side must be
       // completely enclosed in the upper and lower bounds of the left-
       // hand side.
-      WildcardType rhsWcType = (WildcardType) rhsType;
       Type[] rUpperBounds = rhsWcType.getUpperBounds();
 
       if (rUpperBounds.length == 0) {
@@ -177,13 +173,13 @@ public abstract class TypeUtils {
 
       for (Type lBound : lUpperBounds) {
         for (Type rBound : rUpperBounds) {
-          if (!isAssignableBound(lBound, rBound)) {
+          if (isNotAssignableBound(lBound, rBound)) {
             return false;
           }
         }
 
         for (Type rBound : rLowerBounds) {
-          if (!isAssignableBound(lBound, rBound)) {
+          if (isNotAssignableBound(lBound, rBound)) {
             return false;
           }
         }
@@ -191,13 +187,13 @@ public abstract class TypeUtils {
 
       for (Type lBound : lLowerBounds) {
         for (Type rBound : rUpperBounds) {
-          if (!isAssignableBound(rBound, lBound)) {
+          if (isNotAssignableBound(rBound, lBound)) {
             return false;
           }
         }
 
         for (Type rBound : rLowerBounds) {
-          if (!isAssignableBound(rBound, lBound)) {
+          if (isNotAssignableBound(rBound, lBound)) {
             return false;
           }
         }
@@ -205,13 +201,13 @@ public abstract class TypeUtils {
     }
     else {
       for (Type lBound : lUpperBounds) {
-        if (!isAssignableBound(lBound, rhsType)) {
+        if (isNotAssignableBound(lBound, rhsType)) {
           return false;
         }
       }
 
       for (Type lBound : lLowerBounds) {
-        if (!isAssignableBound(rhsType, lBound)) {
+        if (isNotAssignableBound(rhsType, lBound)) {
           return false;
         }
       }
@@ -220,14 +216,14 @@ public abstract class TypeUtils {
     return true;
   }
 
-  public static boolean isAssignableBound(@Nullable Type lhsType, @Nullable Type rhsType) {
+  public static boolean isNotAssignableBound(@Nullable Type lhsType, @Nullable Type rhsType) {
     if (rhsType == null) {
-      return true;
-    }
-    if (lhsType == null) {
       return false;
     }
-    return isAssignable(lhsType, rhsType);
+    if (lhsType == null) {
+      return true;
+    }
+    return !isAssignable(lhsType, rhsType);
   }
 
 }

@@ -62,8 +62,10 @@ class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
    */
   public boolean hasMessageBody() throws IOException {
     HttpStatus status = HttpStatus.resolve(getRawStatusCode());
-    if (status != null && (status.is1xxInformational() || status == HttpStatus.NO_CONTENT
-            || status == HttpStatus.NOT_MODIFIED)) {
+    if (status != null && (status.is1xxInformational()
+            || status == HttpStatus.NO_CONTENT
+            || status == HttpStatus.NOT_MODIFIED)
+    ) {
       return false;
     }
     return getHeaders().getContentLength() != 0;
@@ -116,7 +118,7 @@ class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
 
   @Override
   public InputStream getBody() throws IOException {
-    return (this.pushbackInputStream != null ? this.pushbackInputStream : this.response.getBody());
+    return this.pushbackInputStream != null ? this.pushbackInputStream : this.response.getBody();
   }
 
   @Override

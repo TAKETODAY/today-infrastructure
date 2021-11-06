@@ -940,16 +940,14 @@ public abstract class CollectionUtils {
    * @return an unmodifiable view of the specified multi-value map
    * @since 4.0
    */
-  @SuppressWarnings("unchecked")
   public static <K, V> MultiValueMap<K, V> unmodifiableMultiValueMap(
           MultiValueMap<? extends K, ? extends V> targetMap) {
 
     Assert.notNull(targetMap, "'targetMap' must not be null");
     Map<K, List<V>> result = newLinkedHashMap(targetMap.size());
-    targetMap.forEach((key, value) -> {
-      List<? extends V> values = Collections.unmodifiableList(value);
-      result.put(key, (List<V>) values);
-    });
+    for (Map.Entry<? extends K, ? extends List<? extends V>> entry : targetMap.entrySet()) {
+      result.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+    }
     Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
     return toMultiValueMap(unmodifiableMap);
   }

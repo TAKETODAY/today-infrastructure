@@ -34,7 +34,7 @@ import cn.taketoday.web.http.HttpRequest;
  *
  * @author Arjen Poutsma
  * @see ClientHttpRequestFactory#createRequest(java.net.URI, HttpMethod)
- * @since 3.0
+ * @since 4.0
  */
 public interface ClientHttpRequest extends HttpRequest, HttpOutputMessage {
 
