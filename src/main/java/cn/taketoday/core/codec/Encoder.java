@@ -71,8 +71,9 @@ public interface Encoder<T> {
    * @param hints additional information about how to encode
    * @return the output stream
    */
-  Flux<DataBuffer> encode(Publisher<? extends T> inputStream, DataBufferFactory bufferFactory,
-                          ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
+  Flux<DataBuffer> encode(
+          Publisher<? extends T> inputStream, DataBufferFactory bufferFactory,
+          ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
 
   /**
    * Encode an Object of type T to a data buffer. This is useful for scenarios,
@@ -88,11 +89,10 @@ public interface Encoder<T> {
    * @param mimeType the MIME type for the output content (optional)
    * @param hints additional information about how to encode
    * @return the encoded content
-   * @since 4.0
    */
-  default DataBuffer encodeValue(T value, DataBufferFactory bufferFactory,
-                                 ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
+  default DataBuffer encodeValue(
+          T value, DataBufferFactory bufferFactory,
+          ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     // It may not be possible to produce a single DataBuffer synchronously
     throw new UnsupportedOperationException();
   }
@@ -117,10 +117,9 @@ public interface Encoder<T> {
    *
    * @param elementType the type of element to check for encoding
    * @return the list of MIME types supported for the given element type
-   * @since 4.0
    */
   default List<MimeType> getEncodableMimeTypes(ResolvableType elementType) {
-    return (canEncode(elementType, null) ? getEncodableMimeTypes() : Collections.emptyList());
+    return canEncode(elementType, null) ? getEncodableMimeTypes() : Collections.emptyList();
   }
 
 }
