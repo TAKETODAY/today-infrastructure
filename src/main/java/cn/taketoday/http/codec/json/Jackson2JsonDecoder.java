@@ -49,10 +49,8 @@ import reactor.core.publisher.Flux;
  * @since 4.0
  */
 public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
-
+  private static final ResolvableType STRING_TYPE = ResolvableType.fromClass(String.class);
   private static final StringDecoder STRING_DECODER = StringDecoder.textPlainOnly(Arrays.asList(",", "\n"), false);
-
-  private static final ResolvableType STRING_TYPE = ResolvableType.forClass(String.class);
 
   public Jackson2JsonDecoder() {
     super(Jackson2ObjectMapperBuilder.json().build());
@@ -63,8 +61,9 @@ public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
   }
 
   @Override
-  protected Flux<DataBuffer> processInput(Publisher<DataBuffer> input, ResolvableType elementType,
-                                          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  protected Flux<DataBuffer> processInput(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Flux<DataBuffer> flux = Flux.from(input);
     if (mimeType == null) {
