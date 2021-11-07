@@ -45,8 +45,7 @@ class ServerDefaultCodecsImpl extends BaseDefaultCodecs implements ServerCodecCo
   @Nullable
   private Encoder<?> sseEncoder;
 
-  ServerDefaultCodecsImpl() {
-  }
+  ServerDefaultCodecsImpl() { }
 
   ServerDefaultCodecsImpl(ServerDefaultCodecsImpl other) {
     super(other);
@@ -89,10 +88,11 @@ class ServerDefaultCodecsImpl extends BaseDefaultCodecs implements ServerCodecCo
 
   @Nullable
   private Encoder<?> getSseEncoder() {
-    return this.sseEncoder != null ? this.sseEncoder :
-           jackson2Present ? getJackson2JsonEncoder() :
-           kotlinSerializationJsonPresent ? getKotlinSerializationJsonEncoder() :
-           null;
+    return this.sseEncoder != null
+           ? this.sseEncoder
+           : jackson2Present
+             ? getJackson2JsonEncoder()
+             : null;
   }
 
 }

@@ -76,16 +76,11 @@ import cn.taketoday.util.ObjectUtils;
 class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigurer.DefaultCodecConfig {
 
   static final boolean jackson2Present;
-
-  private static final boolean jackson2SmilePresent;
-
-  private static final boolean protobufPresent;
-
+  static final boolean nettyByteBufPresent;
   static final boolean synchronossMultipartPresent;
 
-  static final boolean nettyByteBufPresent;
-
-  static final boolean kotlinSerializationJsonPresent;
+  private static final boolean protobufPresent;
+  private static final boolean jackson2SmilePresent;
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
@@ -95,7 +90,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
     synchronossMultipartPresent = ClassUtils.isPresent("org.synchronoss.cloud.nio.multipart.NioMultipartParser", classLoader);
     nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
-    kotlinSerializationJsonPresent = ClassUtils.isPresent("kotlinx.serialization.json.Json", classLoader);
   }
 
   @Nullable
@@ -141,13 +135,10 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   // The default reader and writer instances to use
 
-  private final List<HttpMessageReader<?>> typedReaders = new ArrayList<>();
-
-  private final List<HttpMessageReader<?>> objectReaders = new ArrayList<>();
-
-  private final List<HttpMessageWriter<?>> typedWriters = new ArrayList<>();
-
-  private final List<HttpMessageWriter<?>> objectWriters = new ArrayList<>();
+  private final ArrayList<HttpMessageReader<?>> typedReaders = new ArrayList<>();
+  private final ArrayList<HttpMessageReader<?>> objectReaders = new ArrayList<>();
+  private final ArrayList<HttpMessageWriter<?>> typedWriters = new ArrayList<>();
+  private final ArrayList<HttpMessageWriter<?>> objectWriters = new ArrayList<>();
 
   BaseDefaultCodecs() {
     initReaders();
@@ -156,8 +147,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   /**
    * Reset and initialize typed readers and object readers.
-   *
-   * @since 4.0
    */
   protected void initReaders() {
     initTypedReaders();
@@ -376,11 +365,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
           ((ProtobufDecoder) codec).setMaxMessageSize(size);
         }
       }
-      if (kotlinSerializationJsonPresent) {
-        if (codec instanceof KotlinSerializationJsonDecoder) {
-          ((KotlinSerializationJsonDecoder) codec).setMaxInMemorySize(size);
-        }
-      }
       if (jackson2Present) {
         if (codec instanceof AbstractJackson2Decoder) {
           ((AbstractJackson2Decoder) codec).setMaxInMemorySize(size);
@@ -454,16 +438,11 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   /**
    * Reset and initialize object readers.
-   *
-   * @since 4.0
    */
   protected void initObjectReaders() {
     this.objectReaders.clear();
     if (!this.registerDefaults) {
       return;
-    }
-    if (kotlinSerializationJsonPresent) {
-      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getKotlinSerializationJsonDecoder()));
     }
     if (jackson2Present) {
       addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJackson2JsonDecoder()));
@@ -538,8 +517,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     addCodec(writers, new ResourceHttpMessageWriter());
     addCodec(writers, new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
     if (protobufPresent) {
-      addCodec(writers, new ProtobufHttpMessageWriter(this.protobufEncoder != null ?
-                                                      (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
+      addCodec(writers, new ProtobufHttpMessageWriter(
+              this.protobufEncoder != null ?
+              (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
     }
     return writers;
   }
@@ -576,15 +556,13 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
    */
   final List<HttpMessageWriter<?>> getBaseObjectWriters() {
     List<HttpMessageWriter<?>> writers = new ArrayList<>();
-    if (kotlinSerializationJsonPresent) {
-      addCodec(writers, new EncoderHttpMessageWriter<>(getKotlinSerializationJsonEncoder()));
-    }
     if (jackson2Present) {
       addCodec(writers, new EncoderHttpMessageWriter<>(getJackson2JsonEncoder()));
     }
     if (jackson2SmilePresent) {
-      addCodec(writers, new EncoderHttpMessageWriter<>(this.jackson2SmileEncoder != null ?
-                                                       (Jackson2SmileEncoder) this.jackson2SmileEncoder : new Jackson2SmileEncoder()));
+      addCodec(writers, new EncoderHttpMessageWriter<>(
+              this.jackson2SmileEncoder != null ?
+              (Jackson2SmileEncoder) this.jackson2SmileEncoder : new Jackson2SmileEncoder()));
     }
 //    if (jaxb2Present && !shouldIgnoreXml) {
 //      addCodec(writers, new EncoderHttpMessageWriter<>(this.jaxb2Encoder != null ?
@@ -640,20 +618,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
       this.jackson2JsonEncoder = new Jackson2JsonEncoder();
     }
     return this.jackson2JsonEncoder;
-  }
-
-  protected Decoder<?> getKotlinSerializationJsonDecoder() {
-    if (this.kotlinSerializationJsonDecoder == null) {
-      this.kotlinSerializationJsonDecoder = new KotlinSerializationJsonDecoder();
-    }
-    return this.kotlinSerializationJsonDecoder;
-  }
-
-  protected Encoder<?> getKotlinSerializationJsonEncoder() {
-    if (this.kotlinSerializationJsonEncoder == null) {
-      this.kotlinSerializationJsonEncoder = new KotlinSerializationJsonEncoder();
-    }
-    return this.kotlinSerializationJsonEncoder;
   }
 
 }
