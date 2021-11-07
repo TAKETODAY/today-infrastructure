@@ -40,6 +40,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
+import cn.taketoday.web.socket.HandshakeFailedException;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
@@ -113,12 +114,10 @@ public class UndertowWebSocketHandlerAdapter
         if (obtainContainer().isClosed()) {
           throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
         }
-
         facade.putAttachment(HandshakeUtil.PATH_PARAMS, Collections.emptyMap());
 //        facade.putAttachment(HandshakeUtil.PRINCIPAL, req.getUserPrincipal());
         ServletRequestContext src = ServletRequestContext.requireCurrent();
-        final HttpSessionImpl httpSession = src.getCurrentServletContext().getSession(src.getExchange(), false);
-
+        HttpSessionImpl httpSession = src.getCurrentServletContext().getSession(src.getExchange(), false);
         facade.upgradeChannel((streamConnection, httpServerExchange) -> {
           WebSocketChannel channel = handshaking.createChannel(facade, streamConnection, facade.getBufferPool());
           peerConnections.add(channel);
@@ -134,6 +133,9 @@ public class UndertowWebSocketHandlerAdapter
           callback.onConnect(facade, channel);
         });
         handshaking.handshake(facade);
+      }
+      else {
+        throw new HandshakeFailedException("Failed to upgrade cannot handshake");
       }
     }
 
@@ -158,7 +160,8 @@ public class UndertowWebSocketHandlerAdapter
     ServerEndpointConfig endpointConfig = getServerEndpointConfig(handler);
     // StandardEndpoint
 
-    InstanceFactory<Object> objectInstanceFactory = () -> new ImmediateInstanceHandle<>(new StandardEndpoint((StandardWebSocketSession) session, handler));
+    InstanceFactory<Object> objectInstanceFactory =
+            () -> new ImmediateInstanceHandle<>(new StandardEndpoint((StandardWebSocketSession) session, handler));
     ConfiguredServerEndpoint configured = new ConfiguredServerEndpoint(
             endpointConfig, objectInstanceFactory,
             PathTemplate.create(context.getRequestPath()), EncodingFactory.DEFAULT);

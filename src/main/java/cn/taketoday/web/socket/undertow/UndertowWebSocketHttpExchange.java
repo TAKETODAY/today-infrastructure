@@ -31,9 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
 import java.security.Principal;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,17 +59,7 @@ public class UndertowWebSocketHttpExchange implements WebSocketHttpExchange {
   private final Set<WebSocketChannel> peerConnections;
 
   static ServletRequestContext requireCurrentServletRequestContext() {
-    if (System.getSecurityManager() == null) {
-      return ServletRequestContext.requireCurrent();
-    }
-    else {
-      return AccessController.doPrivileged(new PrivilegedAction<ServletRequestContext>() {
-        @Override
-        public ServletRequestContext run() {
-          return ServletRequestContext.requireCurrent();
-        }
-      });
-    }
+    return ServletRequestContext.requireCurrent();
   }
 
   public UndertowWebSocketHttpExchange(
