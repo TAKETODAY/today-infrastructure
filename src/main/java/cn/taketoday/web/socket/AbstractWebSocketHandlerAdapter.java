@@ -44,12 +44,12 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
   protected static final String WS_VERSION_HEADER_VALUE = "13";
 
   @Override
-  public boolean supports(final Object handler) {
+  public boolean supports(Object handler) {
     return handler instanceof WebSocketHandler;
   }
 
   @Override
-  public Object handle(final RequestContext context, final Object handler) throws Throwable {
+  public Object handle(RequestContext context, Object handler) throws Throwable {
     return handleInternal(context, (WebSocketHandler) handler);
   }
 
@@ -66,20 +66,20 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
           RequestContext context, WebSocketSession session, WebSocketHandler handler) throws Throwable {
 
     // Validate the rest of the headers and reject the request if that validation fails
-    final List<String> connection = context.requestHeaders().getConnection();
+    List<String> connection = context.requestHeaders().getConnection();
     if (!UpgradeUtils.headerContainsToken(connection, HttpHeaders.UPGRADE)) {
       throw new BadRequestException("Not a WebSocket request");
     }
 
-    final HttpHeaders requestHeaders = context.requestHeaders();
-    final HttpHeaders responseHeaders = context.responseHeaders();
+    HttpHeaders requestHeaders = context.requestHeaders();
+    HttpHeaders responseHeaders = context.responseHeaders();
     if (!UpgradeUtils.headerContainsToken(requestHeaders, HttpHeaders.SEC_WEBSOCKET_VERSION, WS_VERSION_HEADER_VALUE)) {
       context.setStatus(HttpStatus.UPGRADE_REQUIRED);
       responseHeaders.set(HttpHeaders.SEC_WEBSOCKET_VERSION, WS_VERSION_HEADER_VALUE);
       return;
     }
 
-    final String key = requestHeaders.getFirst(HttpHeaders.SEC_WEBSOCKET_KEY);
+    String key = requestHeaders.getFirst(HttpHeaders.SEC_WEBSOCKET_KEY);
     if (key == null) {
       throw new BadRequestException("WebSocket Key not found");
     }
@@ -108,7 +108,7 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
     List<WebSocketExtension> requestedExtensions = new ArrayList<>();
     List<String> extHeaders = requestHeaders.get(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS);
     if (extHeaders != null) {
-      for (final String extHeader : extHeaders) {
+      for (String extHeader : extHeaders) {
         UpgradeUtils.parseExtensionHeader(requestedExtensions, extHeader);
       }
     }
@@ -148,10 +148,9 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
    * @param supported the subprotocols supported by the server endpoint
    * @return the negotiated subprotocol or the empty string if there isn't one.
    */
-  public String getNegotiatedSubProtocol(
-          final List<String> supported, final List<String> requested) {
+  public String getNegotiatedSubProtocol(List<String> supported, List<String> requested) {
     if (CollectionUtils.isNotEmpty(supported)) {
-      for (final String request : requested) {
+      for (String request : requested) {
         if (supported.contains(request)) {
           return request;
         }
@@ -176,13 +175,13 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
    * @return the list of extensions negotiated, the empty list if none.
    */
   public List<WebSocketExtension> getNegotiatedExtensions(
-          final List<WebSocketExtension> installed, final List<WebSocketExtension> requested) {
-    final LinkedHashSet<String> installedNames = new LinkedHashSet<>();
-    for (final WebSocketExtension e : installed) {
+          List<WebSocketExtension> installed, List<WebSocketExtension> requested) {
+    LinkedHashSet<String> installedNames = new LinkedHashSet<>();
+    for (WebSocketExtension e : installed) {
       installedNames.add(e.getName());
     }
-    final ArrayList<WebSocketExtension> result = new ArrayList<>();
-    for (final WebSocketExtension request : requested) {
+    ArrayList<WebSocketExtension> result = new ArrayList<>();
+    for (WebSocketExtension request : requested) {
       if (installedNames.contains(request.getName())) {
         result.add(request);
       }
