@@ -61,12 +61,7 @@ public interface ParameterResolvingStrategy {
     boolean supports(MethodParameter parameter);
   }
 
-  class TargetSupportsFunction implements SupportsFunction {
-    final Class<?> targetType;
-
-    public TargetSupportsFunction(Class<?> targetType) {
-      this.targetType = targetType;
-    }
+  record TargetSupportsFunction(Class<?> targetType) implements SupportsFunction {
 
     @Override
     public boolean supports(MethodParameter parameter) {
