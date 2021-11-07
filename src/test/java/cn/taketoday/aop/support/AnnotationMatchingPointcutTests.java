@@ -20,14 +20,11 @@
 
 package cn.taketoday.aop.support;
 
-
-
 import org.junit.jupiter.api.Test;
-
-import javax.inject.Qualifier;
 
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
+import jakarta.inject.Qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
