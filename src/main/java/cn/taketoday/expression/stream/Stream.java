@@ -87,58 +87,50 @@ public class Stream {
   }
 
   public Stream filter(final LambdaExpression predicate) {
-    return new Stream(this, (upstream) -> {
-      return new Iterator2(upstream) {
-        @Override
-        public void doItem(Object item) {
-          if ((Boolean) predicate.invoke(item)) {
-            yield(item);
-          }
+    return new Stream(this, (upstream) -> new Iterator2(upstream) {
+      @Override
+      public void doItem(Object item) {
+        if ((Boolean) predicate.invoke(item)) {
+          doYield(item);
         }
-      };
+      }
     });
   }
 
   public Stream map(final LambdaExpression mapper) {
-    return new Stream(this, (up) -> {
-      return new Iterator1(up) {
-        @Override
-        public Object next() {
-          return mapper.invoke(iter.next());
-        }
-      };
+    return new Stream(this, (up) -> new Iterator1(up) {
+      @Override
+      public Object next() {
+        return mapper.invoke(iter.next());
+      }
     });
   }
 
   public Stream peek(final LambdaExpression comsumer) {
-    return new Stream(this, up -> {
-      return new Iterator2(up) {
-        @Override
-        protected void doItem(Object item) {
-          comsumer.invoke(item);
-          yield(item);
-        }
-      };
+    return new Stream(this, up -> new Iterator2(up) {
+      @Override
+      protected void doItem(Object item) {
+        comsumer.invoke(item);
+        doYield(item);
+      }
     });
   }
 
   public Stream limit(final long n) {
     Assert.isTrue(n > 0, "limit must be non-negative");
-    return new Stream(this, up -> {
-      return new Iterator0() {
-        long limit = n;
+    return new Stream(this, up -> new Iterator0() {
+      long limit = n;
 
-        @Override
-        public boolean hasNext() {
-          return (limit > 0) ? up.hasNext() : false;
-        }
+      @Override
+      public boolean hasNext() {
+        return limit > 0 && up.hasNext();
+      }
 
-        @Override
-        public Object next() {
-          limit--;
-          return up.next();
-        }
-      };
+      @Override
+      public Object next() {
+        limit--;
+        return up.next();
+      }
     });
   }
 
@@ -163,35 +155,24 @@ public class Stream {
   }
 
   public Stream distinct() {
-    return new Stream(this, new Operator() {
-      @Override
-      public Iterator<Object> iterator(final Iterator<Object> up) {
-        return new Iterator2(up) {
-          private HashSet<Object> set = new HashSet<Object>();
+    return new Stream(this, up -> new Iterator2(up) {
+      private final HashSet<Object> set = new HashSet<Object>();
 
-          @Override
-          public void doItem(Object item) {
-            if (set.add(item)) {
-              yield(item);
-            }
-          }
-        };
+      @Override
+      public void doItem(Object item) {
+        if (set.add(item)) {
+          doYield(item);
+        }
       }
     });
   }
 
-  private static final Comparator<Object> COMPARATOR = new Comparator<Object>() {
-    @Override
-    @SuppressWarnings("unchecked")
-    public int compare(Object o1, Object o2) {
-      return ((Comparable<Object>) o1).compareTo(o2);
-    }
-  };
+  private static final Comparator<Object> COMPARATOR = (o1, o2) -> ((Comparable<Object>) o1).compareTo(o2);
 
   public Stream sorted() {
     return new Stream(this, new Operator() {
 
-      private final PriorityQueue<Object> queue = new PriorityQueue<Object>(16, COMPARATOR);
+      private final PriorityQueue<Object> queue = new PriorityQueue<>(16, COMPARATOR);
 
       @Override
       public Iterator<Object> iterator(final Iterator<Object> up) {
@@ -216,18 +197,12 @@ public class Stream {
 
   public Stream sorted(final LambdaExpression comparator) {
     return new Stream(this, new Operator() {
-
       private PriorityQueue<Object> queue = null;
 
       @Override
       public Iterator<Object> iterator(final Iterator<Object> up) {
         if (queue == null) {
-          queue = new PriorityQueue<Object>(16, new Comparator<Object>() {
-            @Override
-            public int compare(Object o1, Object o2) {
-              return (Integer) ExpressionUtils.coerceToType(comparator.invoke(o1, o2), Integer.class);
-            }
-          });
+          this.queue = new PriorityQueue<>(16, (o1, o2) -> (Integer) ExpressionUtils.coerceToType(comparator.invoke(o1, o2), Integer.class));
 
           while (up.hasNext()) {
             queue.add(up.next());
@@ -250,42 +225,37 @@ public class Stream {
   }
 
   public Stream flatMap(final LambdaExpression mapper) {
-    return new Stream(this, new Operator() {
+    return new Stream(this, upstream -> new Iterator0() {
+      Iterator<Object> iter = null;
+
       @Override
-      public Iterator<Object> iterator(final Iterator<Object> upstream) {
-        return new Iterator0() {
-          Iterator<Object> iter = null;
-
-          @Override
-          public boolean hasNext() {
-            while (true) {
-              if (iter == null) {
-                if (!upstream.hasNext()) {
-                  return false;
-                }
-                Object mapped = mapper.invoke(upstream.next());
-                if (!(mapped instanceof Stream)) {
-                  throw new ExpressionException("Expecting a Stream " + "from flatMap's mapper function.");
-                }
-                iter = ((Stream) mapped).iterator();
-              }
-              else {
-                if (iter.hasNext()) {
-                  return true;
-                }
-                iter = null;
-              }
+      public boolean hasNext() {
+        while (true) {
+          if (iter == null) {
+            if (!upstream.hasNext()) {
+              return false;
             }
-          }
-
-          @Override
-          public Object next() {
-            if (iter == null) {
-              return null;
+            Object mapped = mapper.invoke(upstream.next());
+            if (!(mapped instanceof Stream)) {
+              throw new ExpressionException("Expecting a Stream " + "from flatMap's mapper function.");
             }
-            return iter.next();
+            iter = ((Stream) mapped).iterator();
           }
-        };
+          else {
+            if (iter.hasNext()) {
+              return true;
+            }
+            iter = null;
+          }
+        }
+      }
+
+      @Override
+      public Object next() {
+        if (iter == null) {
+          return null;
+        }
+        return iter.next();
       }
     });
   }
@@ -394,7 +364,7 @@ public class Stream {
   }
 
   public Object sum() {
-    Number sum = Long.valueOf(0);
+    Number sum = 0L;
     final Iterator<Object> iter = iterator();
     while (iter.hasNext()) {
       sum = ExpressionArithmetic.add(sum, iter.next());
@@ -441,7 +411,7 @@ public class Stream {
     final Iterator<Object> iter = iterator();
     while (iter.hasNext()) {
       Object item = iter.next();
-      if (min == null || ExpressionUtils.compare(comparator.invoke(item, min), Long.valueOf(0)) < 0) {
+      if (min == null || ExpressionUtils.compare(comparator.invoke(item, min), 0L) < 0) {
         min = item;
       }
     }
@@ -453,7 +423,7 @@ public class Stream {
     final Iterator<Object> iter = iterator();
     while (iter.hasNext()) {
       final Object item = iter.next();
-      if (max == null || ExpressionUtils.compare(comparator.invoke(max, item), Long.valueOf(0)) < 0) {
+      if (max == null || ExpressionUtils.compare(comparator.invoke(max, item), 0L) < 0) {
         max = item;
       }
     }
@@ -461,7 +431,7 @@ public class Stream {
   }
 
   public Optional<?> average() {
-    Number sum = Long.valueOf(0);
+    Number sum = 0L;
     long count = 0;
     Iterator<Object> iter = iterator();
     while (iter.hasNext()) {
@@ -474,14 +444,14 @@ public class Stream {
     return Optional.of(ExpressionArithmetic.divide(sum, count));
   }
 
-  abstract class Iterator0 implements Iterator<Object> {
+  abstract static class Iterator0 implements Iterator<Object> {
     @Override
     public void remove() {
       throw new UnsupportedOperationException();
     }
   }
 
-  abstract class Iterator1 extends Iterator0 {
+  abstract static class Iterator1 extends Iterator0 {
 
     protected final Iterator<Object> iter;
 
@@ -495,7 +465,7 @@ public class Stream {
     }
   }
 
-  abstract class Iterator2 extends Iterator1 {
+  abstract static class Iterator2 extends Iterator1 {
     private Object current;
     private boolean yielded;
 
@@ -517,7 +487,7 @@ public class Stream {
       return yielded;
     }
 
-    void yield(Object current) {
+    void doYield(Object current) {
       this.current = current;
       yielded = true;
     }
