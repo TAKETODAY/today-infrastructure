@@ -57,5 +57,8 @@ public class NoOpLogger extends Logger {
   }
 
   @Override
+  protected void logInternal(Level level, Object msg, Throwable t) {  }
+
+  @Override
   protected void logInternal(Level level, String msg, Throwable t, Object[] args) { }
 }
