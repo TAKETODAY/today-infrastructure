@@ -32,11 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.websocket.Extension;
-import jakarta.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
@@ -50,6 +45,10 @@ import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.Extension;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
  * Tomcat WebSocket HandlerAdapter
@@ -69,15 +68,13 @@ public class TomcatWebSocketHandlerAdapter
       INSTALLED_EXTENSIONS = Collections.unmodifiableList(new ArrayList<>());
     }
     else {
-      List<Extension> installed = new ArrayList<>(1);
-      installed.add(new StandardWebSocketExtension("permessage-deflate"));
-      INSTALLED_EXTENSIONS = Collections.unmodifiableList(installed);
+      INSTALLED_EXTENSIONS = List.of(new StandardWebSocketExtension("permessage-deflate"));
     }
   }
 
   protected TomcatServerContainer serverContainer;
 
-  protected TomcatServerContainer getServerContainer() {
+  public TomcatServerContainer getServerContainer() {
     return serverContainer;
   }
 
@@ -177,8 +174,7 @@ public class TomcatWebSocketHandlerAdapter
 
   private static List<Transformation> createTransformations(List<Extension> negotiatedExtensions) {
     TransformationFactory factory = TransformationFactory.getInstance();
-    LinkedHashMap<String, List<List<Extension.Parameter>>> extensionPreferences =
-            new LinkedHashMap<>();
+    LinkedHashMap<String, List<List<Extension.Parameter>>> extensionPreferences = new LinkedHashMap<>();
 
     // Result will likely be smaller than this
     List<Transformation> result = new ArrayList<>(negotiatedExtensions.size());
@@ -194,8 +190,8 @@ public class TomcatWebSocketHandlerAdapter
       preferences.add(extension.getParameters());
     }
 
-    for (Map.Entry<String, List<List<Extension.Parameter>>> entry :
-            extensionPreferences.entrySet()) {
+    for (Map.Entry<String, List<List<Extension.Parameter>>> entry
+            : extensionPreferences.entrySet()) {
       Transformation transformation = factory.create(entry.getKey(), entry.getValue(), true);
       if (transformation != null) {
         result.add(transformation);
