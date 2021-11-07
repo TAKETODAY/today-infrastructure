@@ -24,6 +24,7 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Duration;
 
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -81,32 +82,32 @@ public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
 
   @Override
   public long getMaxIdleTimeout() {
-    return obtainNativeSession().getPolicy().getIdleTimeout();
+    return obtainNativeSession().getPolicy().getIdleTimeout().toMillis();
   }
 
   @Override
   public void setMaxIdleTimeout(long timeout) {
-    obtainNativeSession().getPolicy().setIdleTimeout(timeout);
+    obtainNativeSession().getPolicy().setIdleTimeout(Duration.ofMillis(timeout));
   }
 
   @Override
   public void setMaxBinaryMessageBufferSize(int max) {
-    obtainNativeSession().getPolicy().setMaxBinaryMessageBufferSize(max);
+    obtainNativeSession().getPolicy().setMaxBinaryMessageSize(max);
   }
 
   @Override
   public int getMaxBinaryMessageBufferSize() {
-    return obtainNativeSession().getPolicy().getMaxBinaryMessageBufferSize();
+    return (int) obtainNativeSession().getPolicy().getMaxBinaryMessageSize();
   }
 
   @Override
   public void setMaxTextMessageBufferSize(int max) {
-    obtainNativeSession().getPolicy().setMaxTextMessageBufferSize(max);
+    obtainNativeSession().getPolicy().setMaxTextMessageSize(max);
   }
 
   @Override
   public int getMaxTextMessageBufferSize() {
-    return obtainNativeSession().getPolicy().getMaxTextMessageBufferSize();
+    return (int) obtainNativeSession().getPolicy().getMaxTextMessageSize();
   }
 
   @Override

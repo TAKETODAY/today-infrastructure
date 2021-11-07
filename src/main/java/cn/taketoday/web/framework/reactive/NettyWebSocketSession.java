@@ -113,11 +113,10 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof NettyWebSocketSession))
+    if (!(o instanceof final NettyWebSocketSession that))
       return false;
     if (!super.equals(o))
       return false;
-    final NettyWebSocketSession that = (NettyWebSocketSession) o;
     return secure == that.secure && Objects.equals(channel, that.channel);
   }
 

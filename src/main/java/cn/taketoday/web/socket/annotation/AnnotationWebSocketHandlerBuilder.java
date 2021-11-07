@@ -27,6 +27,8 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.conversion.support.StringToBytesConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -45,6 +47,8 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   protected final ArrayList<EndpointParameterResolver> resolvers = new ArrayList<>(16);
   protected boolean supportPartialMessage;
 
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+
   /**
    * register default resolvers
    */
@@ -53,10 +57,10 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
       resolvers.add(new JettySessionEndpointParameterResolver());
     }
     resolvers.add(new IsLastEndpointParameterResolver());
-    resolvers.add(new MessageEndpointParameterResolver(String.class));
+    resolvers.add(new MessageEndpointParameterResolver(String.class, conversionService));
     resolvers.add(new MessageEndpointParameterResolver(byte[].class, new StringToBytesConverter()));
-    resolvers.add(new MessageEndpointParameterResolver(ByteBuffer.class));
-    resolvers.add(new PathVariableEndpointParameterResolver());
+    resolvers.add(new MessageEndpointParameterResolver(ByteBuffer.class, conversionService));
+    resolvers.add(new PathVariableEndpointParameterResolver(conversionService));
     resolvers.add(new WebSocketSessionEndpointParameterResolver());
   }
 
@@ -106,6 +110,21 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
 
   public boolean isSupportPartialMessage() {
     return supportPartialMessage;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
+  /**
+   * @param conversionService conversionService
+   * @see DefaultConversionService#getSharedInstance()
+   */
+  public void setConversionService(@Nullable ConversionService conversionService) {
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+    }
+    this.conversionService = conversionService;
   }
 
 }

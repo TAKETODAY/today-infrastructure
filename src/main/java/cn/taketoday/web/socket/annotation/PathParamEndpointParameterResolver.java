@@ -20,15 +20,19 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import jakarta.websocket.server.PathParam;
-
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.web.handler.MethodParameter;
+import jakarta.websocket.server.PathParam;
 
 /**
  * @author TODAY 2021/5/9 22:25
  * @since 3.0.1
  */
 public class PathParamEndpointParameterResolver extends PathVariableEndpointParameterResolver {
+
+  public PathParamEndpointParameterResolver(ConversionService conversionService) {
+    super(conversionService);
+  }
 
   @Override
   public boolean supports(MethodParameter parameter) {

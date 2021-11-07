@@ -41,7 +41,7 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
   public void registerDefaultResolvers() {
     super.registerDefaultResolvers();
 
-    resolvers.add(new PathParamEndpointParameterResolver());
+    resolvers.add(new PathParamEndpointParameterResolver(getConversionService()));
     resolvers.add(new EndpointConfigEndpointParameterResolver());
     resolvers.add(new StandardSessionEndpointParameterResolver());
   }

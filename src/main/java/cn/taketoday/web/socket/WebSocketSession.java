@@ -21,6 +21,7 @@
 package cn.taketoday.web.socket;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
@@ -35,15 +36,13 @@ import cn.taketoday.util.AlternativeJdkIdGenerator;
  */
 public abstract class WebSocketSession
         extends AttributeAccessorSupport implements Serializable, AttributeAccessor {
+  @Serial
   private static final long serialVersionUID = 1L;
-
-  public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
-
-  public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
-  public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
-
-  public static final String PATH_MATCHER = PathMatcher.class + "-PathMatcher";
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
+  public static final String PATH_MATCHER = PathMatcher.class + "-PathMatcher";
+  public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
+  public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
+  public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
   private final String id = idGenerator.generateId().toString();
 

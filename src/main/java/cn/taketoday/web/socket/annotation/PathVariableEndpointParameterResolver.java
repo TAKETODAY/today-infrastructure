@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import java.util.Map;
 
-import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.MissingPathVariableParameterException;
@@ -33,6 +33,12 @@ import cn.taketoday.web.socket.WebSocketSession;
  * @since 3.0.1
  */
 public class PathVariableEndpointParameterResolver implements EndpointParameterResolver {
+
+  private final ConversionService conversionService;
+
+  public PathVariableEndpointParameterResolver(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
 
   @Override
   public boolean supports(MethodParameter parameter) {
@@ -45,8 +51,7 @@ public class PathVariableEndpointParameterResolver implements EndpointParameterR
     final Object attribute = session.getAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES);
     if (attribute instanceof Map) {
       final String value = ((Map<String, String>) attribute).get(resolveName(parameter));
-      return DefaultConversionService.getSharedInstance()
-              .convert(value, parameter.getTypeDescriptor());
+      return conversionService.convert(value, parameter.getTypeDescriptor());
     }
     throw new MissingPathVariableParameterException(parameter);
   }

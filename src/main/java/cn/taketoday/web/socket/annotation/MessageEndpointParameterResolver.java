@@ -23,8 +23,8 @@ package cn.taketoday.web.socket.annotation;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -39,10 +39,11 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
   private final Class<?> supportParameterType;
   private ConversionService conversionService;
 
+  @Nullable
   private TypeConverter converter;
 
   public MessageEndpointParameterResolver(Class<?> supportParameterType) {
-    this(supportParameterType, DefaultConversionService.getSharedInstance());
+    this(supportParameterType, (ConversionService) null);
   }
 
   public MessageEndpointParameterResolver(Class<?> supportParameterType, TypeConverter converter) {
@@ -64,17 +65,17 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
   @Override
   public Object resolve(
           WebSocketSession session, cn.taketoday.web.socket.Message<?> message, MethodParameter parameter) {
-    final Object payload = message.getPayload();
+    Object payload = message.getPayload();
     if (supportParameterType.isInstance(payload)) {
       return payload;
     }
 
-    final TypeConverter converter = getConverter();
-    final TypeDescriptor targetType = parameter.getTypeDescriptor();
+    TypeConverter converter = getConverter();
+    TypeDescriptor targetType = parameter.getTypeDescriptor();
     if (converter != null && converter.supports(targetType, payload.getClass())) {
       return converter.convert(targetType, payload);
     }
-    final ConversionService conversionService = getConversionService();
+    ConversionService conversionService = getConversionService();
     Assert.state(conversionService != null, "No ConversionService");
     return conversionService.convert(payload, targetType);
   }
@@ -87,10 +88,11 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
     this.conversionService = conversionService;
   }
 
-  public void setConverter(TypeConverter converter) {
+  public void setConverter(@Nullable TypeConverter converter) {
     this.converter = converter;
   }
 
+  @Nullable
   public TypeConverter getConverter() {
     return converter;
   }
