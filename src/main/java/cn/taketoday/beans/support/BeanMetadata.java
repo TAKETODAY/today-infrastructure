@@ -20,8 +20,6 @@
 
 package cn.taketoday.beans.support;
 
-import com.hazelcast.util.ConcurrentReferenceHashMap;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -40,6 +38,7 @@ import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
