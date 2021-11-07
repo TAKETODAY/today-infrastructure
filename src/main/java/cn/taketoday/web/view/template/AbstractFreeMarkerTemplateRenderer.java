@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -75,6 +76,9 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   private ObjectWrapper objectWrapper;
   private Configuration configuration;
 
+  // @since 4.0
+  private ResourceLoader resourceLoader;
+
   public AbstractFreeMarkerTemplateRenderer() {
     super(LOWEST_PRECEDENCE - 100);
     setSuffix(".ftl");
@@ -107,9 +111,13 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   @Autowired
   public void initFreeMarker(
-          WebApplicationContext context, @Props(prefix = "freemarker.", replace = true) Properties settings) {
-    log.info("Initialize FreeMarker");
+          WebApplicationContext context,
+          @Props(prefix = "freemarker.", replace = true) Properties settings) {
 
+    log.info("Initialize FreeMarker");
+    if (resourceLoader == null) {
+      resourceLoader = context;
+    }
     configConfiguration(context);
     configObjectWrapper();
 
@@ -142,9 +150,12 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   @SuppressWarnings("unchecked")
   protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
-    return CollectionUtils.isEmpty(loaders)
-           ? new DefaultResourceTemplateLoader(prefix, suffix, cacheSize)
-           : new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
+    if (CollectionUtils.isEmpty(loaders)) {
+      DefaultResourceTemplateLoader templateLoader = new DefaultResourceTemplateLoader(prefix, suffix, cacheSize);
+      templateLoader.setResourceLoader(getResourceLoader());
+      return templateLoader;
+    }
+    return new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
   }
 
   /**
@@ -270,6 +281,16 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   public void setConfiguration(Configuration configuration) {
     this.configuration = configuration;
+  }
+
+  // @since 4.0
+  public void setResourceLoader(ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
+
+  // @since 4.0
+  public ResourceLoader getResourceLoader() {
+    return resourceLoader;
   }
 
   // ParameterResolver

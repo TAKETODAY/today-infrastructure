@@ -22,13 +22,13 @@ package cn.taketoday.web.view.template;
 import java.io.IOException;
 import java.io.Reader;
 
-import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
-import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ConcurrentCache;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
 import freemarker.cache.TemplateLoader;
 
@@ -43,12 +43,17 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   private String prefix;
   private String suffix;
-  private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
+  private ResourceLoader resourceLoader;
 
-  public final ConcurrentCache<String, TemplateSource> cache;
+  public final ConcurrentReferenceHashMap<String, TemplateSource> cache;
 
   public DefaultResourceTemplateLoader() {
     this(TemplateRenderer.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 128);
+  }
+
+  public DefaultResourceTemplateLoader(ResourceLoader resourceLoader) {
+    setResourceLoader(resourceLoader);
+    this.cache = new ConcurrentReferenceHashMap<>(128);
   }
 
   public DefaultResourceTemplateLoader(String prefix, String suffix) {
@@ -58,7 +63,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public DefaultResourceTemplateLoader(String prefix, String suffix, int size) {
     this.prefix = prefix;
     this.suffix = suffix;
-    this.cache = ConcurrentCache.fromSize(size);
+    this.cache = new ConcurrentReferenceHashMap<>(size);
   }
 
   protected String getTemplate(String name) {
@@ -75,17 +80,14 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     if (ret == null) {
       String template = getTemplate(name);
       try {
-        Resource[] resources = resourceLoader.getResourcesArray(template);
-        if (ObjectUtils.isNotEmpty(resources)) {
-          for (Resource resource : resources) {
-            if (resource.exists()) {
-              cache.put(name, ret = TemplateSource.create(resource));
-              if (log.isDebugEnabled()) {
-                log.debug("Template: [{}] Found", resource);
-              }
-              return ret;
-            }
+        Assert.state(resourceLoader != null, "No ResourceLoader");
+        Resource resource = resourceLoader.getResource(template);
+        if (resource.exists()) {
+          cache.put(name, ret = TemplateSource.create(resource));
+          if (log.isDebugEnabled()) {
+            log.debug("Template: [{}] Found", resource);
           }
+          return ret;
         }
       }
       catch (IOException ignored) { }
@@ -119,11 +121,11 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   @Override
   public void closeTemplateSource(Object source) { }
 
-  public void setResourceLoader(PatternResourceLoader resourceLoader) {
+  public void setResourceLoader(ResourceLoader resourceLoader) {
     this.resourceLoader = resourceLoader;
   }
 
-  public PatternResourceLoader getResourceLoader() {
+  public ResourceLoader getResourceLoader() {
     return resourceLoader;
   }
 
@@ -203,6 +205,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   @FunctionalInterface
   public interface ReaderSupplier {
     Reader get(String encoding) throws IOException;
+
   }
 
   // Setter Getter
