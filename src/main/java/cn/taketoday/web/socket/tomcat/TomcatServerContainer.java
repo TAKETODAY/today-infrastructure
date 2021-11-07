@@ -203,10 +203,6 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
    */
   @Override
   public void addEndpoint(Class<?> pojo) throws DeploymentException {
-    addEndpoint(pojo, false);
-  }
-
-  private void addEndpoint(Class<?> pojo, boolean fromAnnotatedPojo) throws DeploymentException {
     if (deploymentFailed) {
       throw new DeploymentException(
               String.format(
@@ -253,7 +249,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
       throw de;
     }
 
-    addEndpoint(sec, fromAnnotatedPojo);
+    addEndpoint(sec, false);
   }
 
   void failDeployment() {
@@ -269,14 +265,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     return endpointsRegistered;
   }
 
-  static class WebSocketMappingResult {
-    private final ServerEndpointConfig config;
-    private final Map<String, String> pathParams;
-
-    WebSocketMappingResult(ServerEndpointConfig config, Map<String, String> pathParams) {
-      this.config = config;
-      this.pathParams = pathParams;
-    }
+  record WebSocketMappingResult(ServerEndpointConfig config, Map<String, String> pathParams) {
 
     ServerEndpointConfig getConfig() {
       return config;
@@ -363,8 +352,8 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     if (wsSession.isOpen() &&
             wsSession.getUserPrincipal() != null &&
             wsSession.getHttpSessionId() != null) {
-      registerAuthenticatedSession(wsSession,
-                                   wsSession.getHttpSessionId());
+      registerAuthenticatedSession(
+              wsSession, wsSession.getHttpSessionId());
     }
   }
 
@@ -382,8 +371,8 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     super.unregisterSession(key, wsSession);
   }
 
-  private void registerAuthenticatedSession(WsSession wsSession,
-                                            String httpSessionId) {
+  private void registerAuthenticatedSession(
+          WsSession wsSession, String httpSessionId) {
     Set<WsSession> wsSessions = authenticatedSessions.get(httpSessionId);
     if (wsSessions == null) {
       wsSessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -435,17 +424,8 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     }
   }
 
-  private static class TemplatePathMatch {
-    private final ServerEndpointConfig config;
-    private final UriTemplate uriTemplate;
-    private final boolean fromAnnotatedPojo;
-
-    public TemplatePathMatch(ServerEndpointConfig config, UriTemplate uriTemplate,
-                             boolean fromAnnotatedPojo) {
-      this.config = config;
-      this.uriTemplate = uriTemplate;
-      this.fromAnnotatedPojo = fromAnnotatedPojo;
-    }
+  private record TemplatePathMatch(
+          ServerEndpointConfig config, UriTemplate uriTemplate, boolean fromAnnotatedPojo) {
 
     public ServerEndpointConfig getConfig() {
       return config;
@@ -460,14 +440,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     }
   }
 
-  private static class ExactPathMatch {
-    private final ServerEndpointConfig config;
-    private final boolean fromAnnotatedPojo;
-
-    public ExactPathMatch(ServerEndpointConfig config, boolean fromAnnotatedPojo) {
-      this.config = config;
-      this.fromAnnotatedPojo = fromAnnotatedPojo;
-    }
+  private record ExactPathMatch(ServerEndpointConfig config, boolean fromAnnotatedPojo) {
 
     public ServerEndpointConfig getConfig() {
       return config;
