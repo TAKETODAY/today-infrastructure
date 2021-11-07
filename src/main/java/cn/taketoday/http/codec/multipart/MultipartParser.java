@@ -24,7 +24,6 @@ import org.reactivestreams.Subscription;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -94,8 +93,8 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
    * @param headersCharset the charset to use for decoding headers
    * @return a stream of parsed tokens
    */
-  public static Flux<Token> parse(Flux<DataBuffer> buffers, byte[] boundary, int maxHeadersSize,
-                                  Charset headersCharset) {
+  public static Flux<Token> parse(
+          Flux<DataBuffer> buffers, byte[] boundary, int maxHeadersSize, Charset headersCharset) {
     return Flux.create(sink -> {
       MultipartParser parser = new MultipartParser(sink, boundary, maxHeadersSize, headersCharset);
       sink.onCancel(parser::onSinkCancel);
@@ -333,8 +332,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     private final DataBufferUtils.Matcher endHeaders = DataBufferUtils.matcher(MultipartUtils.concat(CR_LF, CR_LF));
 
     private final AtomicInteger byteCount = new AtomicInteger();
-
-    private final List<DataBuffer> buffers = new ArrayList<>();
+    private final ArrayList<DataBuffer> buffers = new ArrayList<>();
 
     /**
      * First checks whether the multipart boundary leading to this state
@@ -352,9 +350,8 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       if (prevCount < 2 && count >= 2) {
         if (isLastBoundary(buf)) {
           if (logger.isTraceEnabled()) {
-            logger.trace("Last boundary found in " + buf);
+            logger.trace("Last boundary found in {}", buf);
           }
-
           if (changeState(this, DisposedState.INSTANCE, buf)) {
             emitComplete();
           }
@@ -363,15 +360,16 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       }
       else if (count > MultipartParser.this.maxHeadersSize) {
         if (changeState(this, DisposedState.INSTANCE, buf)) {
-          emitError(new DataBufferLimitException("Part headers exceeded the memory usage limit of " +
-                                                         MultipartParser.this.maxHeadersSize + " bytes"));
+          emitError(new DataBufferLimitException(
+                  "Part headers exceeded the memory usage limit of " +
+                          MultipartParser.this.maxHeadersSize + " bytes"));
         }
         return;
       }
       int endIdx = this.endHeaders.match(buf);
       if (endIdx != -1) {
         if (logger.isTraceEnabled()) {
-          logger.trace("End of headers found @" + endIdx + " in " + buf);
+          logger.trace("End of headers found @{} in {}", endIdx, buf);
         }
         DataBuffer headerBuf = MultipartUtils.sliceTo(buf, endIdx);
         this.buffers.add(headerBuf);
@@ -392,15 +390,16 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
      * If it is the second buffer, check whether it makes up {@code --} together with the first buffer.
      */
     private boolean isLastBoundary(DataBuffer buf) {
-      return (this.buffers.isEmpty() &&
-              buf.readableByteCount() >= 2 &&
-              buf.getByte(0) == HYPHEN && buf.getByte(1) == HYPHEN)
-              ||
-              (this.buffers.size() == 1 &&
-                      this.buffers.get(0).readableByteCount() == 1 &&
-                      this.buffers.get(0).getByte(0) == HYPHEN &&
-                      buf.readableByteCount() >= 1 &&
-                      buf.getByte(0) == HYPHEN);
+      return (this.buffers.isEmpty()
+              && buf.readableByteCount() >= 2
+              && buf.getByte(0) == HYPHEN && buf.getByte(1) == HYPHEN)
+              || (
+              this.buffers.size() == 1
+                      && this.buffers.get(0).readableByteCount() == 1
+                      && this.buffers.get(0).getByte(0) == HYPHEN
+                      && buf.readableByteCount() >= 1
+                      && buf.getByte(0) == HYPHEN
+      );
     }
 
     /**
@@ -480,7 +479,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       int endIdx = this.boundary.match(buffer);
       if (endIdx != -1) {
         if (logger.isTraceEnabled()) {
-          logger.trace("Boundary found @" + endIdx + " in " + buffer);
+          logger.trace("Boundary found @{} in {}", endIdx, buffer);
         }
         int len = endIdx - buffer.readPosition() - this.boundary.delimiter().length + 1;
         if (len > 0) {
