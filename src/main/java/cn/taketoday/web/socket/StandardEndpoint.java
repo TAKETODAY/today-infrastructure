@@ -47,7 +47,7 @@ public class StandardEndpoint extends Endpoint {
   public void onOpen(Session stdSession, EndpointConfig config) {
     session.initializeNativeSession(stdSession);
 
-    final WebSocketHandler socketHandler = this.socketHandler;
+    WebSocketHandler socketHandler = this.socketHandler;
     socketHandler.onOpen(session);
 
     if (socketHandler.supportPartialMessage()) {

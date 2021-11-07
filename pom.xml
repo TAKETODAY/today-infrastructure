@@ -388,28 +388,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.jetty.websocket</groupId>
-      <artifactId>websocket-jakarta-server</artifactId>
-      <version>${jetty.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty.websocket</groupId>
-      <artifactId>websocket-servlet</artifactId>
-      <version>${jetty.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- To write basic websockets against -->
-    <dependency>
-      <groupId>org.eclipse.jetty.websocket</groupId>
-      <artifactId>websocket-jetty-api</artifactId>
-      <version>${jetty.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- To run websockets in embedded server -->
     <dependency>
       <groupId>org.eclipse.jetty.websocket</groupId>

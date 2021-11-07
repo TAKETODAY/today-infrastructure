@@ -20,18 +20,15 @@
 
 package cn.taketoday.web.socket.jetty;
 
-import org.eclipse.jetty.io.ByteBufferPool;
-import org.eclipse.jetty.io.MappedByteBufferPool;
-import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServerContainer;
 
-import cn.taketoday.beans.DisposableBean;
+import java.lang.reflect.UndeclaredThrowableException;
+
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletContextAware;
-import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
+import cn.taketoday.web.socket.HandshakeFailedException;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import jakarta.servlet.ServletContext;
@@ -42,28 +39,28 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author TODAY 2021/5/6 21:21
  * @since 3.0.1
  */
-public class JettyWebSocketHandlerAdapter
-        extends AbstractWebSocketHandlerAdapter implements ServletContextAware, DisposableBean {
-
-  private WebSocketPolicy policy;
-  private ByteBufferPool bufferPool;
+public class JettyWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapter {
 
   @Override
   protected void doHandshake(
-          RequestContext context, WebSocketSession session, WebSocketHandler handler) throws Throwable {
+          RequestContext context, WebSocketSession session, WebSocketHandler handler) {
     HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
 
-    JettyWebSocketCreator webSocketCreator = (upgradeRequest, upgradeResponse) -> {
-      if (handler.supportPartialMessage()) {
-        return new JettyPartialWebSocketConnectionListener((JettyWebSocketSession) session, handler);
-      }
-      return new JettyWebSocketConnectionListener((JettyWebSocketSession) session, handler);
-    };
+    JettyWebSocketHandler handlerAdapter = new JettyWebSocketHandler(handler, (JettyWebSocketSession) session);
+    JettyWebSocketCreator webSocketCreator = (upgradeRequest, upgradeResponse) -> handlerAdapter;
 
     ServletContext servletContext = servletRequest.getServletContext();
     JettyWebSocketServerContainer container = JettyWebSocketServerContainer.getContainer(servletContext);
-    container.upgrade(webSocketCreator, servletRequest, servletResponse);
+    try {
+      container.upgrade(webSocketCreator, servletRequest, servletResponse);
+    }
+    catch (UndeclaredThrowableException ex) {
+      throw new HandshakeFailedException("Failed to upgrade", ex.getUndeclaredThrowable());
+    }
+    catch (Exception ex) {
+      throw new HandshakeFailedException("Failed to upgrade", ex);
+    }
   }
 
   @Override
@@ -71,41 +68,4 @@ public class JettyWebSocketHandlerAdapter
     return new JettyWebSocketSession();
   }
 
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    if (policy == null) {
-      policy = WebSocketPolicy.newServerPolicy();
-    }
-    if (bufferPool == null) {
-      bufferPool = new MappedByteBufferPool();
-    }
-    try {
-    }
-    catch (Exception e) {
-      throw new WebNestedRuntimeException("WebSocketServerFactory cannot start successfully");
-    }
-  }
-
-  public void setPolicy(WebSocketPolicy policy) {
-    this.policy = policy;
-  }
-
-  public void setBufferPool(ByteBufferPool bufferPool) {
-    this.bufferPool = bufferPool;
-  }
-
-  public ByteBufferPool getBufferPool() {
-    return bufferPool;
-  }
-
-  public WebSocketPolicy getPolicy() {
-    return policy;
-  }
-
-  @Override
-  public void destroy() throws Exception {
-    if (webSocketServerFactory != null) {
-      webSocketServerFactory.stop();
-    }
-  }
 }
