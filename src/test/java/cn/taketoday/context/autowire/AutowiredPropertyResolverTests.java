@@ -21,15 +21,14 @@ package cn.taketoday.context.autowire;
 
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.lang.Autowired;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
