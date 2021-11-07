@@ -1,15 +1,13 @@
 package cn.taketoday.jdbc;
 
-
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
