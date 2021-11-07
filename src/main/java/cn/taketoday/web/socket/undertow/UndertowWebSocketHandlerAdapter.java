@@ -87,10 +87,10 @@ public class UndertowWebSocketHandlerAdapter
   private boolean dispatchToWorker = !invokeInIoThread;
   private Supplier<XnioWorker> workerSupplier;
 
-  private ClassLoader classLoader = UndertowWebSocketHandlerAdapter.class.getClassLoader();
-  private ClassIntrospecter classIntrospector = DefaultClassIntrospector.INSTANCE;
-  private ByteBufferPool buffers = new DefaultByteBufferPool(directBuffers, 1024, 100, 12);
   private List<ThreadSetupHandler> threadSetupHandlers = Collections.emptyList();
+  private ClassIntrospecter classIntrospector = DefaultClassIntrospector.INSTANCE;
+  private ClassLoader classLoader = UndertowWebSocketHandlerAdapter.class.getClassLoader();
+  private ByteBufferPool buffers = new DefaultByteBufferPool(directBuffers, 1024, 100, 12);
 
   /**
    * @see ServerWebSocketContainer#deploymentComplete()
