@@ -52,13 +52,12 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
   @Nullable
   private Supplier<List<HttpMessageWriter<?>>> partWritersSupplier;
 
-  ClientDefaultCodecsImpl() {
-  }
+  ClientDefaultCodecsImpl() { }
 
   ClientDefaultCodecsImpl(ClientDefaultCodecsImpl other) {
     super(other);
-    this.multipartCodecs = (other.multipartCodecs != null ?
-                            new DefaultMultipartCodecs(other.multipartCodecs) : null);
+    this.multipartCodecs = other.multipartCodecs != null
+                           ? new DefaultMultipartCodecs(other.multipartCodecs) : null;
     this.sseDecoder = other.sseDecoder;
   }
 
@@ -90,10 +89,11 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
   @Override
   protected void extendObjectReaders(List<HttpMessageReader<?>> objectReaders) {
 
-    Decoder<?> decoder = (this.sseDecoder != null ? this.sseDecoder :
-                          jackson2Present ? getJackson2JsonDecoder() :
-                          kotlinSerializationJsonPresent ? getKotlinSerializationJsonDecoder() :
-                          null);
+    Decoder<?> decoder = this.sseDecoder != null
+                         ? this.sseDecoder
+                         : jackson2Present
+                           ? getJackson2JsonDecoder()
+                           : null;
 
     addCodec(objectReaders, new ServerSentEventHttpMessageReader(decoder));
   }
@@ -120,10 +120,9 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
    */
   private class DefaultMultipartCodecs implements ClientCodecConfigurer.MultipartCodecs {
 
-    private final List<HttpMessageWriter<?>> writers = new ArrayList<>();
+    private final ArrayList<HttpMessageWriter<?>> writers = new ArrayList<>();
 
-    DefaultMultipartCodecs() {
-    }
+    DefaultMultipartCodecs() { }
 
     DefaultMultipartCodecs(DefaultMultipartCodecs other) {
       this.writers.addAll(other.writers);
