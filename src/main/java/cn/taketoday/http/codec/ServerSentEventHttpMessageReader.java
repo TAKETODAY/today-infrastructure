@@ -48,8 +48,7 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public class ServerSentEventHttpMessageReader implements HttpMessageReader<Object> {
-
-  private static final ResolvableType STRING_TYPE = ResolvableType.forClass(String.class);
+  private static final ResolvableType STRING_TYPE = ResolvableType.fromClass(String.class);
 
   @Nullable
   private final Decoder<?> decoder;
@@ -89,7 +88,6 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
    * <p>By default this is set to 256K.
    *
    * @param byteCount the max number of bytes to buffer, or -1 for unlimited
-   * @since 4.0
    */
   public void setMaxInMemorySize(int byteCount) {
     this.lineDecoder.setMaxInMemorySize(byteCount);
@@ -97,8 +95,6 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
 
   /**
    * Return the {@link #setMaxInMemorySize configured} byte count limit.
-   *
-   * @since 4.0
    */
   public int getMaxInMemorySize() {
     return this.lineDecoder.getMaxInMemorySize();
