@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import cn.taketoday.core.conversion.ConversionUtils;
-
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -101,15 +99,6 @@ public class MimeTypeTest {
     assertThat(mimeType.getSubtype()).as("Invalid subtype").isEqualTo("xop+xml");
     assertThat(mimeType.getCharset()).as("Invalid charset").isEqualTo(StandardCharsets.UTF_8);
     assertThat(mimeType.getParameter("type")).isEqualTo("\"application/soap+xml;action=\\\"https://x.y.z\\\"\"");
-  }
-
-  @Test
-  public void withTypeConverter() {
-
-    assertThat(ConversionUtils.supports("application/xml", MimeType.class)).isTrue();
-
-    MimeType mimeType = MimeType.valueOf("application/xml");
-    assertThat(ConversionUtils.convert("application/xml", MimeType.class)).isEqualTo(mimeType);
   }
 
   @Test

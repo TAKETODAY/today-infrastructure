@@ -26,7 +26,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
@@ -105,7 +104,7 @@ public class WebApplicationLoader
   protected void logStartup(WebApplicationContext context) {
     if (TodayStrategies.getFlag(ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-              System.currentTimeMillis() - context.getStartupDate()//
+               System.currentTimeMillis() - context.getStartupDate()//
       );
     }
   }
@@ -125,8 +124,8 @@ public class WebApplicationLoader
     mvcConfiguration.configureHandlerRegistry(registries);
 
     obtainDispatcher.setHandlerRegistry(registries.size() == 1
-            ? registries.get(0)
-            : new CompositeHandlerRegistry(registries));
+                                        ? registries.get(0)
+                                        : new CompositeHandlerRegistry(registries));
   }
 
   private void configureHandlerAdapter(
@@ -259,7 +258,6 @@ public class WebApplicationLoader
   protected void configureConversionService(
           List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
     mvcConfiguration.configureConversionService(typeConverters);
-    ConversionUtils.addConverter(typeConverters);// FIXME ConversionService
   }
 
   private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {

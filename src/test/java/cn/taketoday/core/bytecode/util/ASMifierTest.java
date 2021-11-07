@@ -104,7 +104,7 @@ public class ASMifierTest extends AsmTest {
   private static byte[] compile(final String name, final String source) throws IOException {
     Parser parser = new Parser(new Scanner(name, new StringReader(source)));
     try {
-      UnitCompiler unitCompiler = new UnitCompiler(parser.parseCompilationUnit(), ICLASS_LOADER);
+      UnitCompiler unitCompiler = new UnitCompiler(parser.parseAbstractCompilationUnit(), ICLASS_LOADER);
       return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
     }
     catch (CompileException e) {

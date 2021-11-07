@@ -32,11 +32,9 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionFailedException;
-import cn.taketoday.core.conversion.ConversionUtils;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.support.DurationConverter;
 import cn.taketoday.core.io.Resource;
 
 import static cn.taketoday.core.conversion.ConversionUtils.convert;
@@ -48,23 +46,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 2018-07-12 20:43:53
  */
 class ConvertUtilsTests {
-
-  @Test
-  public void addConverter() {
-    ConversionUtils.addConverter(new TypeConverter() {
-
-      @Override
-      public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
-        return false;
-      }
-
-      @Override
-      public Object convert(TypeDescriptor targetType, Object source) {
-        return null;
-      }
-
-    });
-  }
 
   enum Scope {
     SINGLETON, PROTOTYPE;
@@ -200,14 +181,14 @@ class ConvertUtilsTests {
   @Test
   public void testParseDuration() {
 
-    Duration s = ConversionUtils.parseDuration("123s");
-    Duration h = ConversionUtils.parseDuration("123h");
-    Duration ns = ConversionUtils.parseDuration("123ns");
-    Duration ms = ConversionUtils.parseDuration("123ms");
-    Duration min = ConversionUtils.parseDuration("123min");
-    Duration d = ConversionUtils.parseDuration("123d");
+    Duration s = DurationConverter.parseDuration("123s");
+    Duration h = DurationConverter.parseDuration("123h");
+    Duration ns = DurationConverter.parseDuration("123ns");
+    Duration ms = DurationConverter.parseDuration("123ms");
+    Duration min = DurationConverter.parseDuration("123min");
+    Duration d = DurationConverter.parseDuration("123d");
 
-    Duration convert = ConversionUtils.parseDuration("PT20S");
+    Duration convert = DurationConverter.parseDuration("PT20S");
 
     assert s.equals(Duration.of(123, ChronoUnit.SECONDS));
     assert h.equals(Duration.of(123, ChronoUnit.HOURS));

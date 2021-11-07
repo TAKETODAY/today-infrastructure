@@ -28,8 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import cn.taketoday.core.conversion.ConversionUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -431,15 +429,6 @@ public class MediaTypeTest {
     for (int i = 0; i < result.size(); i++) {
       assertThat(result.get(i)).as("Invalid media type at " + i).isSameAs(expected.get(i));
     }
-  }
-
-  @Test
-  public void withTypeConverter() {
-
-    assertThat(ConversionUtils.supports("application/xml", MediaType.class)).isTrue();
-
-    MediaType mediaType = MediaType.valueOf("application/xml");
-    assertThat(ConversionUtils.convert("application/xml", MediaType.class)).isEqualTo(mediaType);
   }
 
   @Test
