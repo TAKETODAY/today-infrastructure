@@ -151,4 +151,155 @@ public final class TodayStrategies extends StrategiesDetector {
     return value;
   }
 
+  /**
+   * Retrieve the property value for the given key, checking local
+   * properties first and falling back to JVM-level system properties.
+   *
+   * @param key the name of the system property.
+   * @param def a default value.
+   * @return the string value of the system property,
+   * or the default value if there is no property with that key.
+   * @see #setProperty
+   * @see java.lang.System#getProperties()
+   */
+  public static String getProperty(String key, String def) {
+    String property = getProperty(key);
+    if (property == null) {
+      property = def;
+    }
+    return property;
+  }
+
+  /**
+   * Determines the integer value of the property with the specified name.
+   *
+   * <p>The first argument is treated as the name of a system property.
+   * System properties are accessible through the {@link
+   * java.lang.System#getProperty(java.lang.String)} method. The
+   * string value of this property is then interpreted as an integer
+   * value using the grammar supported by {@link Integer#decode decode} and
+   * an {@code Integer} object representing this value is returned.
+   *
+   * <p>If there is no property with the specified name, if the
+   * specified name is empty or {@code null}, or if the property
+   * does not have the correct numeric format, then {@code null} is
+   * returned.
+   *
+   * <p>In other words, this method returns an {@code Integer}
+   * object equal to the value of:
+   *
+   * <blockquote>
+   * {@code getInteger(nm, null)}
+   * </blockquote>
+   *
+   * @param key property name.
+   * @return the {@code Integer} value of the property.
+   * @throws SecurityException for the same reasons as
+   * {@link System#getProperty(String) System.getProperty}
+   * @see java.lang.System#getProperty(java.lang.String)
+   * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
+   */
+  public static Integer getInteger(String key) {
+    return getInteger(key, null);
+  }
+
+  /**
+   * Determines the integer value of the system property with the
+   * specified name.
+   *
+   * <p>The first argument is treated as the name of a system
+   * property.  System properties are accessible through the {@link
+   * java.lang.System#getProperty(java.lang.String)} method. The
+   * string value of this property is then interpreted as an integer
+   * value using the grammar supported by {@link Integer#decode decode} and
+   * an {@code Integer} object representing this value is returned.
+   *
+   * <p>The second argument is the default value. An {@code Integer} object
+   * that represents the value of the second argument is returned if there
+   * is no property of the specified name, if the property does not have
+   * the correct numeric format, or if the specified name is empty or
+   * {@code null}.
+   *
+   * <p>In other words, this method returns an {@code Integer} object
+   * equal to the value of:
+   *
+   * <blockquote>
+   * {@code getInteger(nm, new Integer(val))}
+   * </blockquote>
+   *
+   * but in practice it may be implemented in a manner such as:
+   *
+   * <blockquote><pre>
+   * Integer result = getInteger(nm, null);
+   * return (result == null) ? new Integer(val) : result;
+   * </pre></blockquote>
+   *
+   * to avoid the unnecessary allocation of an {@code Integer}
+   * object when the default value is not needed.
+   *
+   * @param key property name.
+   * @param val default value.
+   * @return the {@code Integer} value of the property.
+   * @throws SecurityException for the same reasons as
+   * {@link System#getProperty(String) System.getProperty}
+   * @see java.lang.System#getProperty(java.lang.String)
+   * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
+   */
+  public static Integer getInteger(String key, int val) {
+    Integer result = getInteger(key, null);
+    return (result == null) ? Integer.valueOf(val) : result;
+  }
+
+  /**
+   * Returns the integer value of the property with the
+   * specified name.  The first argument is treated as the name of a
+   * system property.  System properties are accessible through the
+   * {@link java.lang.System#getProperty(java.lang.String)} method.
+   * The string value of this property is then interpreted as an
+   * integer value, as per the {@link Integer#decode decode} method,
+   * and an {@code Integer} object representing this value is
+   * returned; in summary:
+   *
+   * <ul><li>If the property value begins with the two ASCII characters
+   *         {@code 0x} or the ASCII character {@code #}, not
+   *      followed by a minus sign, then the rest of it is parsed as a
+   *      hexadecimal integer exactly as by the method
+   *      {@link Integer#valueOf(java.lang.String, int)} with radix 16.
+   * <li>If the property value begins with the ASCII character
+   *     {@code 0} followed by another character, it is parsed as an
+   *     octal integer exactly as by the method
+   *     {@link Integer#valueOf(java.lang.String, int)} with radix 8.
+   * <li>Otherwise, the property value is parsed as a decimal integer
+   * exactly as by the method {@link Integer#valueOf(java.lang.String, int)}
+   * with radix 10.
+   * </ul>
+   *
+   * <p>The second argument is the default value. The default value is
+   * returned if there is no property of the specified name, if the
+   * property does not have the correct numeric format, or if the
+   * specified name is empty or {@code null}.
+   *
+   * @param key property name.
+   * @param val default value.
+   * @return the {@code Integer} value of the property.
+   * {@link System#getProperty(String) System.getProperty}
+   * @see System#getProperty(java.lang.String)
+   * @see System#getProperty(java.lang.String, java.lang.String)
+   * @see Integer#decode(String)
+   */
+  public static Integer getInteger(String key, Integer val) {
+    String v = null;
+    try {
+      v = getProperty(key);
+    }
+    catch (IllegalArgumentException | NullPointerException ignored) { }
+    if (v != null) {
+      try {
+        return Integer.decode(v);
+      }
+      catch (NumberFormatException ignored) { }
+    }
+    return val;
+  }
+
 }
