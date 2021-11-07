@@ -63,7 +63,7 @@ public class FactoryBeanDefinition<T> extends BeanDefinition {
   }
 
   @Override
-  public Class<T> getBeanClass() {
+  public Class<?> getBeanClass() {
     return getFactory().getBeanClass();
   }
 
