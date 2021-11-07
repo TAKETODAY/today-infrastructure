@@ -77,7 +77,7 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
           Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED);
 
   private static final ResolvableType MULTIVALUE_TYPE =
-          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
+          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
   private Charset defaultCharset = DEFAULT_CHARSET;
 
@@ -120,9 +120,9 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
   }
 
   @Override
-  public Mono<Void> write(Publisher<? extends MultiValueMap<String, String>> inputStream,
-                          ResolvableType elementType, @Nullable MediaType mediaType, ReactiveHttpOutputMessage message,
-                          Map<String, Object> hints) {
+  public Mono<Void> write(
+          Publisher<? extends MultiValueMap<String, String>> inputStream, ResolvableType elementType,
+          @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
     mediaType = getMediaType(mediaType);
     message.getHeaders().setContentType(mediaType);
@@ -160,22 +160,25 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
 
   protected String serializeForm(MultiValueMap<String, String> formData, Charset charset) {
     StringBuilder builder = new StringBuilder();
-    formData.forEach((name, values) ->
-                             values.forEach(value -> {
-                               try {
-                                 if (builder.length() != 0) {
-                                   builder.append('&');
-                                 }
-                                 builder.append(URLEncoder.encode(name, charset.name()));
-                                 if (value != null) {
-                                   builder.append('=');
-                                   builder.append(URLEncoder.encode(value, charset.name()));
-                                 }
-                               }
-                               catch (UnsupportedEncodingException ex) {
-                                 throw new IllegalStateException(ex);
-                               }
-                             }));
+    for (Map.Entry<String, List<String>> entry : formData.entrySet()) {
+      String name = entry.getKey();
+      List<String> values = entry.getValue();
+      for (String value : values) {
+        try {
+          if (builder.length() != 0) {
+            builder.append('&');
+          }
+          builder.append(URLEncoder.encode(name, charset.name()));
+          if (value != null) {
+            builder.append('=');
+            builder.append(URLEncoder.encode(value, charset.name()));
+          }
+        }
+        catch (UnsupportedEncodingException ex) {
+          throw new IllegalStateException(ex);
+        }
+      }
+    }
     return builder.toString();
   }
 
