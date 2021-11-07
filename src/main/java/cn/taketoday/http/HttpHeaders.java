@@ -48,6 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -545,6 +546,13 @@ public abstract class HttpHeaders
           ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", US), //
           ofPattern("EEE MMM dd HH:mm:ss yyyy", US).withZone(GMT)
   };
+
+  /**
+   * An empty {@code HttpHeaders} instance (immutable).
+   *
+   * @since 4.0
+   */
+  public static final HttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultMultiValueMap<>());
 
   /**
    * Get the list of header values for the given header name, if any.

@@ -33,6 +33,7 @@ import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -268,8 +269,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
     void onComplete();
 
-    default void dispose() {
-    }
+    default void dispose() { }
   }
 
   /**
@@ -410,7 +410,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
      */
     private HttpHeaders parseHeaders() {
       if (this.buffers.isEmpty()) {
-        return HttpHeaders.EMPTY;
+        return DefaultHttpHeaders.EMPTY;
       }
       DataBuffer joined = this.buffers.get(0).factory().join(this.buffers);
       this.buffers.clear();

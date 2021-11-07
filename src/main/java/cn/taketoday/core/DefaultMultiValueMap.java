@@ -57,12 +57,7 @@ public class DefaultMultiValueMap<K, V>
   @Serial
   private static final long serialVersionUID = 1L;
 
-  static final Function defaultMappingFunction = new Function() {
-    @Override
-    public Object apply(Object k) {
-      return new ArrayList<>();
-    }
-  };
+  public static final Function defaultMappingFunction = k -> new ArrayList<>();
 
   private final Map<K, List<V>> map;
   private final Function<K, List<V>> mappingFunction;
