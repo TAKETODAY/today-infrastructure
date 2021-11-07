@@ -212,29 +212,32 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
 
   @Override
   public boolean canRead(ResolvableType elementType, @Nullable MediaType mediaType) {
-    return Part.class.equals(elementType.toClass()) &&
-            (mediaType == null || MediaType.MULTIPART_FORM_DATA.isCompatibleWith(mediaType));
+    return Part.class.equals(elementType.toClass())
+            && (mediaType == null || MediaType.MULTIPART_FORM_DATA.isCompatibleWith(mediaType));
   }
 
   @Override
-  public Mono<Part> readMono(ResolvableType elementType, ReactiveHttpInputMessage message,
-                             Map<String, Object> hints) {
+  public Mono<Part> readMono(
+          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Mono.error(new UnsupportedOperationException("Cannot read multipart request body into single Part"));
   }
 
   @Override
-  public Flux<Part> read(ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Flux<Part> read(
+          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Flux.defer(() -> {
       byte[] boundary = boundary(message);
       if (boundary == null) {
-        return Flux.error(new DecodingException("No multipart boundary found in Content-Type: \"" +
-                                                        message.getHeaders().getContentType() + "\""));
+        return Flux.error(new DecodingException(
+                "No multipart boundary found in Content-Type: \""
+                        + message.getHeaders().getContentType() + "\""));
       }
       Flux<MultipartParser.Token> tokens = MultipartParser.parse(
               message.getBody(), boundary, this.maxHeadersSize, this.headersCharset);
 
-      return PartGenerator.createParts(tokens, this.maxParts, this.maxInMemorySize, this.maxDiskUsagePerPart,
-                                       this.streaming, this.fileStorage.directory(), this.blockingOperationScheduler);
+      return PartGenerator.createParts(
+              tokens, this.maxParts, this.maxInMemorySize, this.maxDiskUsagePerPart,
+              this.streaming, this.fileStorage.directory(), this.blockingOperationScheduler);
     });
   }
 
