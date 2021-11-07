@@ -61,7 +61,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
   public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final ResolvableType MULTIVALUE_STRINGS_TYPE =
-          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
+          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
   private Charset defaultCharset = DEFAULT_CHARSET;
 
@@ -117,15 +117,15 @@ public class FormHttpMessageReader extends LoggingCodecSupport
   }
 
   @Override
-  public Flux<MultiValueMap<String, String>> read(ResolvableType elementType,
-                                                  ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Flux<MultiValueMap<String, String>> read(
+          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
 
     return Flux.from(readMono(elementType, message, hints));
   }
 
   @Override
-  public Mono<MultiValueMap<String, String>> readMono(ResolvableType elementType,
-                                                      ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Mono<MultiValueMap<String, String>> readMono(
+          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
 
     MediaType contentType = message.getHeaders().getContentType();
     Charset charset = getMediaTypeCharset(contentType);
