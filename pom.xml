@@ -289,6 +289,12 @@
       <artifactId>tomcat-embed-core</artifactId>
       <version>${embed.tomcat.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-annotations-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -296,6 +302,12 @@
       <artifactId>jetty-webapp</artifactId>
       <version>${jetty.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty.toolchain</groupId>
+          <artifactId>jetty-jakarta-servlet-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -366,6 +378,12 @@
       <artifactId>tomcat-embed-websocket</artifactId>
       <version>${embed.tomcat.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-annotations-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
