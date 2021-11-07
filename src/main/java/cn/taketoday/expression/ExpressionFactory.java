@@ -21,8 +21,6 @@
 package cn.taketoday.expression;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -39,6 +37,8 @@ import cn.taketoday.expression.parser.ExpressionParser;
 import cn.taketoday.expression.parser.Node;
 import cn.taketoday.expression.parser.NodeVisitor;
 import cn.taketoday.expression.stream.StreamExpressionResolver;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ConcurrentCache;
 
 /**
@@ -121,23 +121,17 @@ import cn.taketoday.util.ConcurrentCache;
  * @since JSP 2.1
  */
 public class ExpressionFactory implements NodeVisitor {
-
-  private final Properties properties;
-  private final HashMap<String, Method> functionMap = new HashMap<>();
-
-  private static final String CACHE_SIZE_PROP = "expression.cache.size";
+  public static final String CACHE_SIZE_PROP = "expression.cache.size";
   private static final ExpressionFactory sharedExpressionFactory;
   private static final ConcurrentCache<String, Node> EXPRESSION_CACHE;
 
-  static {
-    String cacheSizeStr =
-            System.getSecurityManager() == null
-            ? System.getProperty(CACHE_SIZE_PROP, "2048")
-            : AccessController.doPrivileged((PrivilegedAction<String>) () -> {
-              return System.getProperty(CACHE_SIZE_PROP, "2048");
-            });
+  @Nullable
+  private final Properties properties;
 
-    EXPRESSION_CACHE = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
+  private final HashMap<String, Method> functionMap = new HashMap<>();
+
+  static {
+    EXPRESSION_CACHE = new ConcurrentCache<>(TodayStrategies.getInteger(CACHE_SIZE_PROP, 2048));
     sharedExpressionFactory = new ExpressionFactory();
   }
 
@@ -145,7 +139,7 @@ public class ExpressionFactory implements NodeVisitor {
     this(null);
   }
 
-  public ExpressionFactory(Properties properties) {
+  public ExpressionFactory(@Nullable Properties properties) {
     this.properties = properties;
   }
 
@@ -401,12 +395,11 @@ public class ExpressionFactory implements NodeVisitor {
 
   @Override
   public void visit(Node node, ExpressionContext context) {
-    if (node instanceof AstFunction) {
+    if (node instanceof AstFunction funcNode) {
 
       FunctionMapper fnMapper = context.getFunctionMapper();
       VariableMapper varMapper = context.getVariableMapper();
 
-      AstFunction funcNode = (AstFunction) node;
       final String prefix = funcNode.getPrefix();
       if ((prefix.isEmpty()) && //
               (fnMapper == null || fnMapper.resolveFunction(prefix, funcNode.getLocalName()) == null)) //
