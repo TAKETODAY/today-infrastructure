@@ -92,7 +92,7 @@ public class ELProcessorTests {
     meth = factory.createMethodExpression(ctxt, "#{'abc'.length()}", Object.class, null);
     Object result = meth.invoke(ctxt, new Object[] { "abcde" });
     System.out.println("'abc'.length() called, equals " + result);
-    assertEquals(result, new Integer(3));
+    assertEquals(result, 3);
   }
 
   @Test
@@ -197,9 +197,9 @@ public class ELProcessorTests {
     assertTrue((Boolean) elp.eval("ELProcessorTests$MyBean.aaaa == 101"));
     assertTrue((Boolean) elp.eval("ELProcessorTests$MyBean.getBar() == 64"));
     elm.importStatic("cn.taketoday.context.el.ELProcessorTests$MyBean.aaaa");
-    assertEquals(new Integer(101), elp.eval("aaaa"));
+    assertEquals(101, elp.eval("aaaa"));
     elm.importStatic("cn.taketoday.context.el.ELProcessorTests$MyBean.getBar");
-    assertEquals(new Integer(64), elp.eval("getBar()"));
+    assertEquals(64, elp.eval("getBar()"));
     /*
      * elm.importStatic("a.b.NonExisting.foobar"); elp.eval("foobar");
      * elp.eval("ELProcessorTest$MyBean.getFoo()");

@@ -45,11 +45,11 @@ public class TestBulkBean {
           String.class, Long.class, String.class, String.class
   };
 
-  private Object[] values = {
-          new Integer(2), new Long(4), new Byte((byte) 8),
-          new Short((short) 4), new Float(1.2), Boolean.TRUE,
-          new Character('S'), new Double(5.6),
-          "test", new Long(88), "test2", "private"
+  private final Object[] values = {
+          2, 4L, (byte) 8,
+          (short) 4, (float) 1.2, Boolean.TRUE,
+          'S', 5.6,
+          "test", 88L, "test2", "private"
   };
 
   @Test
@@ -173,14 +173,14 @@ public class TestBulkBean {
       int i = 0;
       MA ma = (MA) bean;
 
-      values[i++] = new Integer(ma.getIntP());
-      values[i++] = new Long(ma.getLongP());
-      values[i++] = new Byte(ma.getByteP());
-      values[i++] = new Short(ma.getShortP());
-      values[i++] = new Float(ma.getFloatP());
-      values[i++] = new Boolean(ma.isBooleanP());
-      values[i++] = new Character(ma.getCharP());
-      values[i++] = new Double(ma.getDoubleP());
+      values[i++] = ma.getIntP();
+      values[i++] = ma.getLongP();
+      values[i++] = ma.getByteP();
+      values[i++] = ma.getShortP();
+      values[i++] = ma.getFloatP();
+      values[i++] = ma.isBooleanP();
+      values[i++] = ma.getCharP();
+      values[i++] = ma.getDoubleP();
       values[i++] = ma.getStringP();
       values[i++] = ma.getId();
       values[i++] = ma.getName();

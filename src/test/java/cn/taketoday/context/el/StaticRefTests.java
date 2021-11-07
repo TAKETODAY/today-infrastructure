@@ -91,7 +91,7 @@ public class StaticRefTests {
   @Test
   void testConstructor() {
 //        assertEquals(new Integer(1001), elp.eval("T(Integer)(1001)"));
-    assertEquals(new Integer(1001), elp.eval("Integer(1001)"));
+    assertEquals(1001, elp.eval("Integer(1001)"));
   }
 
   @Test

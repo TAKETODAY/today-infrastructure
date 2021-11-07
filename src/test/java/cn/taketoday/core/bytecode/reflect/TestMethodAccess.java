@@ -108,7 +108,7 @@ public class TestMethodAccess {
   public void testStatic() throws Throwable {
     MethodAccess fc = MethodAccess.from(MemberSwitchBean.class);
     // MemberSwitchBean bean = (MemberSwitchBean)fc.newInstance();
-    assertEquals(fc.invoke("staticMethod", new Class[0], null, null), new Integer(10));
+    assertEquals(fc.invoke("staticMethod", new Class[0], null, null), 10);
   }
 
   private static abstract class ReallyBigClass {

@@ -42,7 +42,7 @@ public class TestReflectPerf {
     MethodAccess fc = MethodAccess.from(String.class);
     FastMethodAccessor fm = fc.getMethod("indexOf", types);
     int fidx = fm.getIndex();
-    Object[] args = new Object[] { "ab", new Integer(1) };
+    Object[] args = new Object[] { "ab", 1 };
 
     IndexOf fast = MethodDelegate.create(test, "indexOf", IndexOf.class);
 
@@ -61,7 +61,7 @@ public class TestReflectPerf {
     }
     long t2 = System.currentTimeMillis();
     for (int i = 0; i < iterations; i++) {
-      args = new Object[] { "ab", new Integer(1) };
+      args = new Object[] { "ab", 1 };
       result = ((Integer) indexOf.invoke(test, args)).intValue();
     }
     long t3 = System.currentTimeMillis();
@@ -70,7 +70,7 @@ public class TestReflectPerf {
     }
     long t4 = System.currentTimeMillis();
     for (int i = 0; i < iterations; i++) {
-      args = new Object[] { "ab", new Integer(1) };
+      args = new Object[] { "ab", 1 };
       result = ((Integer) fm.invoke(test, args)).intValue();
     }
     long t5 = System.currentTimeMillis();

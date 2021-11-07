@@ -346,12 +346,12 @@ public class TestEnhancer {
     for (int i = 0; i < 10; ++i) {
       System.gc();
       Thread.sleep(100);
-      if (clRef.isEnqueued()) {
+      if (clRef.enqueue()) {
         break;
       }
     }
     assertTrue(
-            clRef.isEnqueued(),
+            clRef.enqueue(),
             "CGLIB should allow classloaders to be evicted. PhantomReference<ClassLoader> was not cleared after 10 gc cycles, thus it is likely some cache is preventing the class loader to be garbage collected");
 
   }
@@ -466,7 +466,7 @@ public class TestEnhancer {
 
     @Override
     public Object intercept(Object obj, java.lang.reflect.Method method, Object[] args, MethodProxy proxy) throws Throwable {
-      return new Short((short) 0);
+      return (short) 0;
     }
 
   }

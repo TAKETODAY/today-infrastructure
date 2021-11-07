@@ -96,7 +96,7 @@ public class TestBeanMap {
     assertEquals("FOO", bean.getFoo());
     assertEquals("x", map.get("bar"));
     assertEquals(42, ((Integer) map.get("quick")).intValue());
-    map.put("quud", new Integer(13));
+    map.put("quud", 13);
     assertEquals(13, bean.getQuud());
 
     assertEquals(map.getPropertyType("foo"), String.class);
