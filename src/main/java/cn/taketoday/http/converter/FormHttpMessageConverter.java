@@ -20,8 +20,6 @@
 
 package cn.taketoday.http.converter;
 
-import org.apache.commons.fileupload.util.mime.MimeUtility;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -50,6 +48,7 @@ import cn.taketoday.util.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
+import jakarta.mail.internet.MimeUtility;
 
 /**
  * Implementation of {@link HttpMessageConverter} to read and write 'normal' HTML
@@ -207,7 +206,6 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    *
    * @param supportedMediaTypes a var-args list of {@code MediaType} objects to add
    * @see #setSupportedMediaTypes(List)
-   * @since 4.0
    */
   public void addSupportedMediaTypes(MediaType... supportedMediaTypes) {
     Assert.notNull(supportedMediaTypes, "'supportedMediaTypes' must not be null");
@@ -238,8 +236,6 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   /**
    * Return the {@linkplain #setPartConverters configured converters} for MIME
    * parts.
-   *
-   * @since 4.0
    */
   public List<HttpMessageConverter<?>> getPartConverters() {
     return Collections.unmodifiableList(this.partConverters);
@@ -297,7 +293,6 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * {@link #setCharset(Charset)} or {@code UTF-8} by default.
    *
    * @see <a href="https://en.wikipedia.org/wiki/MIME#Encoded-Word">Encoded-Word</a>
-   * @since 4.0
    */
   public void setMultipartCharset(Charset charset) {
     this.multipartCharset = charset;
@@ -422,7 +417,6 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    *
    * @param contentType the preferred content type (can be {@code null})
    * @return the content type to be used
-   * @since 4.0
    */
   protected MediaType getFormContentType(@Nullable MediaType contentType) {
     if (contentType == null) {
@@ -513,7 +507,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * otherwise we encode directly using the configured {@link #setCharset(Charset)}.
    */
   private boolean isFilenameCharsetSet() {
-    return (this.multipartCharset != null);
+    return this.multipartCharset != null;
   }
 
   private void writeParts(OutputStream os, MultiValueMap<String, Object> parts, byte[] boundary) throws IOException {
