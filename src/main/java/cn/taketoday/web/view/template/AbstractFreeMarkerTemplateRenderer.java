@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
@@ -44,6 +45,7 @@ import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
 import freemarker.ext.util.WrapperTemplateModel;
 import freemarker.template.Configuration;
+import freemarker.template.DefaultMapAdapter;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
@@ -51,6 +53,7 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.Version;
+import freemarker.template.utility.ObjectWrapperWithAPISupport;
 
 /**
  * Abstract FreeMarker template-renderer
@@ -65,6 +68,8 @@ import freemarker.template.Version;
 public abstract class AbstractFreeMarkerTemplateRenderer
         extends AbstractTemplateRenderer implements WebMvcConfiguration {
   private static final Logger log = LoggerFactory.getLogger(AbstractFreeMarkerTemplateRenderer.class);
+
+  public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
   protected int cacheSize = 1024;
   private ObjectWrapper objectWrapper;
@@ -148,7 +153,13 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * @param context Current request context
    * @return {@link TemplateHashModel}
    */
-  protected abstract TemplateHashModel createModel(RequestContext context);
+  protected TemplateHashModel createModel(RequestContext context) {
+    ObjectWrapper wrapper = getObjectWrapper();
+    Map<String, Object> attributes = context.asMap();
+    // Create hash model wrapper for request
+    attributes.put(KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(wrapper, context));
+    return DefaultMapAdapter.adapt(attributes, (ObjectWrapperWithAPISupport) wrapper);
+  }
 
   @Override
   public void render(String name, RequestContext context) throws IOException {
