@@ -20,8 +20,6 @@
 
 package cn.taketoday.http.server.reactive;
 
-import org.apache.commons.logging.Log;
-
 import java.net.URISyntaxException;
 import java.util.function.BiFunction;
 
@@ -29,6 +27,7 @@ import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServerRequest;
@@ -42,8 +41,7 @@ import reactor.netty.http.server.HttpServerResponse;
  * @since 4.0
  */
 public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, HttpServerResponse, Mono<Void>> {
-
-  private static final Log logger = HttpLogging.forLogName(ReactorHttpHandlerAdapter.class);
+  private static final Logger logger = HttpLogging.forLogName(ReactorHttpHandlerAdapter.class);
 
   private final HttpHandler httpHandler;
 
@@ -64,12 +62,12 @@ public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, 
       }
 
       return this.httpHandler.handle(request, response)
-              .doOnError(ex -> logger.trace(request.getLogPrefix() + "Failed to complete: " + ex.getMessage()))
-              .doOnSuccess(aVoid -> logger.trace(request.getLogPrefix() + "Handling completed"));
+              .doOnError(ex -> logger.trace("{}Failed to complete: {}", request.getLogPrefix(), ex.getMessage()))
+              .doOnSuccess(aVoid -> logger.trace("{}Handling completed", request.getLogPrefix()));
     }
     catch (URISyntaxException ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Failed to get request URI: " + ex.getMessage());
+        logger.debug("Failed to get request URI: {}", ex.getMessage());
       }
       reactorResponse.status(HttpResponseStatus.BAD_REQUEST);
       return Mono.empty();
