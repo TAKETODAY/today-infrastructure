@@ -21,6 +21,7 @@
 package cn.taketoday.web.socket.tomcat;
 
 import org.apache.coyote.http11.upgrade.InternalHttpUpgradeHandler;
+import org.apache.coyote.http11.upgrade.UpgradeInfo;
 import org.apache.tomcat.util.net.AbstractEndpoint.Handler.SocketState;
 import org.apache.tomcat.util.net.SSLSupport;
 import org.apache.tomcat.util.net.SocketEvent;
@@ -34,6 +35,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.WebConnection;
 import jakarta.websocket.CloseReason;
@@ -42,10 +46,6 @@ import jakarta.websocket.DeploymentException;
 import jakarta.websocket.Endpoint;
 import jakarta.websocket.Extension;
 import jakarta.websocket.server.ServerEndpointConfig;
-
-import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Servlet 3.1 HTTP upgrade handler for WebSocket connections.
@@ -74,6 +74,9 @@ public final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandle
   private TomcatRemoteEndpointImplServer wsRemoteEndpointServer;
   private TomcatFrameServer wsFrame;
   private WsSession wsSession;
+
+  // @since 4.0
+  private final UpgradeInfo upgradeInfo = new UpgradeInfo();
 
   public TomcatHttpUpgradeHandler() {
     applicationClassLoader = Thread.currentThread().getContextClassLoader();
@@ -110,7 +113,7 @@ public final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandle
                                 Collections.emptyMap(),
                                 secure,
                                 serverEndpointConfig);
-      wsFrame = new TomcatFrameServer(socketWrapper, wsSession, transformation, applicationClassLoader);
+      wsFrame = new TomcatFrameServer(socketWrapper, upgradeInfo, wsSession, transformation, applicationClassLoader);
       // WsFrame adds the necessary final transformations. Copy the
       // completed transformation chain to the remote end point.
       wsRemoteEndpointServer.setTransformation(wsFrame.getTransformation());
@@ -335,4 +338,11 @@ public final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandle
   public void setWsSession(WsSession wsSession) {
     this.wsSession = wsSession;
   }
+
+  // @since 4.0
+  @Override
+  public UpgradeInfo getUpgradeInfo() {
+    return upgradeInfo;
+  }
+
 }

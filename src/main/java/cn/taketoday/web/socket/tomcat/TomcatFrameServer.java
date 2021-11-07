@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.socket.tomcat;
 
+import org.apache.coyote.http11.upgrade.UpgradeInfo;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.websocket.Transformation;
 import org.apache.tomcat.websocket.WsSession;
@@ -31,9 +32,9 @@ import org.apache.tomcat.websocket.server.WsFrameServer;
  */
 final class TomcatFrameServer extends WsFrameServer {
 
-  public TomcatFrameServer(SocketWrapperBase<?> socketWrapper, WsSession wsSession,
+  public TomcatFrameServer(SocketWrapperBase<?> socketWrapper, UpgradeInfo upgradeInfo, WsSession wsSession,
                            Transformation transformation, ClassLoader applicationClassLoader) {
-    super(socketWrapper, wsSession, transformation, applicationClassLoader);
+    super(socketWrapper, upgradeInfo, wsSession, transformation, applicationClassLoader);
   }
 
   @Override
