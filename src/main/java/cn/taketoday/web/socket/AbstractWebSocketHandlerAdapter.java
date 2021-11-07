@@ -113,7 +113,15 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
       }
     }
     List<WebSocketExtension> supportedExtensions = getNegotiatedExtensions(installedExtensions, requestedExtensions);
-    doUpgrade(context, session, handler, subProtocol, supportedExtensions);
+    try {
+      doUpgrade(context, session, handler, subProtocol, supportedExtensions);
+    }
+    catch (HandshakeFailedException e) {
+      throw e;
+    }
+    catch (Exception e) {
+      throw new HandshakeFailedException("Failed to upgrade", e);
+    }
   }
 
   protected abstract WebSocketSession createSession(RequestContext context, WebSocketHandler handler);
