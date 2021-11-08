@@ -1,10 +1,3 @@
-ignore-jar-prefix = h2-,jstl-,jodd-,mysql-,slf4j-,junit-,\
-guava-,jedis-,javax.,jboss-,lombok-,netty-,commons-,mockito-,\
-logback-,mybatis-,fastjson-,jackson-,rxjava-,HikariCP-,hamcrest-,\
-redisson-,objenesis-,freemarker-,activation-,byte-buddy-,snakeyaml-,\
-cache-api-,reactor-core-,reactive-streams-,today-,hibernate-,validation-,\
-classmate-,tomcat-,quartz-,fst-,log4j-
-
 cn.taketoday.context.loader.BeanDefinitionLoadingStrategy=\
 cn.taketoday.context.annotation.ComponentAnnotationBeanDefinitionCreator,\
 cn.taketoday.context.loader.MissingBeanLoadingStrategy
