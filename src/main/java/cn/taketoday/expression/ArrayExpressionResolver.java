@@ -46,6 +46,7 @@ import java.lang.reflect.Array;
  * @since JSP 2.1
  */
 public class ArrayExpressionResolver extends ExpressionResolver {
+  private final boolean isReadOnly;
 
   /**
    * Creates a new read/write <code>ArrayELResolver</code>.
@@ -101,11 +102,11 @@ public class ArrayExpressionResolver extends ExpressionResolver {
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
     if (base != null) {
-      final Class<?> beanClass = base.getClass();
+      Class<?> beanClass = base.getClass();
       if (beanClass.isArray()) {
 
         context.setPropertyResolved(true);
-        final int index = toInteger(property);
+        int index = toInteger(property);
         if (index < 0 || index >= Array.getLength(base)) {
           throw new PropertyNotFoundException();
         }
@@ -149,7 +150,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
     if (base != null && base.getClass().isArray()) {
       context.setPropertyResolved(base, property);
 
-      final int index = toInteger(property);
+      int index = toInteger(property);
       if (index >= 0 && index < Array.getLength(base)) {
         return Array.get(base, index);
       }
@@ -198,7 +199,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
     if (base != null) {
-      final Class<?> beanClass = base.getClass();
+      Class<?> beanClass = base.getClass();
       if (beanClass.isArray()) {
         context.setPropertyResolved(base, property);
         if (isReadOnly) {
@@ -208,7 +209,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
         if (val != null && !beanClass.getComponentType().isInstance(val)) {
           throw new ClassCastException();
         }
-        final int index = toInteger(property);
+        int index = toInteger(property);
         if (index < 0 || index >= Array.getLength(base)) {
           throw new PropertyNotFoundException();
         }
@@ -283,5 +284,4 @@ public class ArrayExpressionResolver extends ExpressionResolver {
     throw new IllegalArgumentException();
   }
 
-  private boolean isReadOnly;
 }
