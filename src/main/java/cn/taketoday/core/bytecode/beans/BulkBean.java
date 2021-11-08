@@ -15,13 +15,13 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
+import java.security.ProtectionDomain;
+
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.CglibReflectUtils;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.security.ProtectionDomain;
 
 /**
  * @author Juozas Baliuka
@@ -84,6 +84,7 @@ abstract public class BulkBean {
 
     public void setTarget(Class target) {
       this.target = target;
+      setNeighbor(target);
     }
 
     public void setGetters(String[] getters) {
@@ -104,11 +105,6 @@ abstract public class BulkBean {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(target);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return target;
     }
 
     public BulkBean create() {

@@ -15,12 +15,6 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import cn.taketoday.core.bytecode.ClassVisitor;
-import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
-import cn.taketoday.core.bytecode.core.KeyFactory;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ReflectionUtils;
-
 import java.security.ProtectionDomain;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -30,6 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
+import cn.taketoday.core.bytecode.core.KeyFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -98,8 +98,13 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
      */
     public void setBean(Object bean) {
       this.bean = bean;
-      if (bean != null)
+      if (bean != null) {
         beanClass = bean.getClass();
+        setNeighbor(beanClass);
+      }
+      else {
+        setNeighbor(null);
+      }
     }
 
     /**
@@ -110,6 +115,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
      */
     public void setBeanClass(Class beanClass) {
       this.beanClass = beanClass;
+      setNeighbor(beanClass);
     }
 
     /**
@@ -128,11 +134,6 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(beanClass);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return beanClass;
     }
 
     /**

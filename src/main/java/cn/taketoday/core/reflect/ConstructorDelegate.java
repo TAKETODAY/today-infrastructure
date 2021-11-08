@@ -78,6 +78,7 @@ abstract public class ConstructorDelegate {
 
     public void setTargetClass(Class targetClass) {
       this.targetClass = targetClass;
+      setNeighbor(targetClass);
     }
 
     public ConstructorDelegate create() {
@@ -92,11 +93,6 @@ abstract public class ConstructorDelegate {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(targetClass);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return targetClass;
     }
 
     public void generateClass(ClassVisitor v) {

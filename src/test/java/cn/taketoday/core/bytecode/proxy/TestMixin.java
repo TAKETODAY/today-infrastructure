@@ -115,9 +115,9 @@ public class TestMixin {
   private static Set<String> getGetters(Class<?> beanClass) throws Exception {
     Set<String> getters = new HashSet<>();
     PropertyDescriptor[] descriptors = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
-    for (int i = 0; i < descriptors.length; i++) {
-      if (descriptors[i].getReadMethod() != null) {
-        getters.add(descriptors[i].getName());
+    for (PropertyDescriptor descriptor : descriptors) {
+      if (descriptor.getReadMethod() != null) {
+        getters.add(descriptor.getName());
       }
     }
     return getters;

@@ -72,7 +72,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       log.debug("Creating standard proxy: {}", config.getTargetSource());
     }
     final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(config, proxySuperClass);
-
+    proxyGenerator.setNeighbor(proxySuperClass);
     proxyGenerator.setClassLoader(classLoader);
 
     return proxyGenerator.create();
@@ -135,11 +135,6 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     @Override
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(targetClass);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return targetClass;
     }
 
     public Object create() {

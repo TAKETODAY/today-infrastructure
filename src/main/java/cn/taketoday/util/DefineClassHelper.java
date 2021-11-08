@@ -36,13 +36,15 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -51,6 +53,29 @@ import java.security.ProtectionDomain;
  * @since 4.0
  */
 public class DefineClassHelper {
+  private static final Method defineClass;
+  private static final Throwable THROWABLE;
+  private static final ProtectionDomain PROTECTION_DOMAIN;
+
+  // SPRING PATCH BEGIN
+  static {
+    // Resolve protected ClassLoader.defineClass method for fallback use
+    // (even if JDK 9+ Lookup.defineClass is preferably used below)
+    Method classLoaderDefineClass;
+    Throwable throwable = null;
+    try {
+      classLoaderDefineClass = ClassLoader.class.getDeclaredMethod(
+              "defineClass", String.class, byte[].class, int.class, int.class, ProtectionDomain.class);
+    }
+    catch (Throwable t) {
+      classLoaderDefineClass = null;
+      throwable = t;
+    }
+
+    THROWABLE = throwable;
+    defineClass = classLoaderDefineClass;
+    PROTECTION_DOMAIN = ReflectionUtils.getProtectionDomain(DefineClassHelper.class);
+  }
 
   /**
    * Loads a class file by a given class loader.
@@ -73,12 +98,11 @@ public class DefineClassHelper {
    * @param domain if it is null, a default domain is used.
    * @param bcode the bytecode for the loaded class.
    */
-  public static Class<?> toClass(String className, @Nullable Class<?> neighbor, ClassLoader loader,
-                                 ProtectionDomain domain, byte[] bcode)
-          throws ReflectionException {
+  public static Class<?> toClass(
+          String className, @Nullable Class<?> neighbor,
+          ClassLoader loader, ProtectionDomain domain, byte[] bcode) throws ReflectionException {
     try {
-      return defineClass(className, bcode, 0, bcode.length,
-              neighbor, loader, domain);
+      return defineClass(className, bcode, loader, domain, neighbor);
     }
     catch (RuntimeException e) {
       throw e;
@@ -104,16 +128,14 @@ public class DefineClassHelper {
           throws ReflectionException {
     try {
       DefineClassHelper.class.getModule().addReads(neighbor.getModule());
-      Lookup prvlookup = MethodHandles.privateLookupIn(neighbor, lookup);
+      Lookup prvlookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
       return prvlookup.defineClass(bcode);
     }
     catch (IllegalAccessException | IllegalArgumentException e) {
-      throw new ReflectionException(e.getMessage() + ": " + neighbor.getName()
-              + " has no permission to define the class", e);
+      throw new ReflectionException(
+              e.getMessage() + ": " + neighbor.getName() + " has no permission to define the class", e);
     }
   }
-
-  static Lookup lookup = MethodHandles.lookup();
 
   /**
    * Loads a class file by {@code java.lang.invoke.MethodHandles.Lookup}.
@@ -146,39 +168,109 @@ public class DefineClassHelper {
     }
   }
 
-  private static final Method defineClass = getDefineClassMethod();
-
-  private static Method getDefineClassMethod() {
-    try {
-      return ClassLoader.class.getDeclaredMethod("defineClass",
-              String.class, byte[].class, int.class, int.class, ProtectionDomain.class);
-    }
-    catch (NoSuchMethodException e) {
-      throw new RuntimeException("cannot initialize", e);
-    }
+  // SPRING PATCH BEGIN
+  public static Class defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+    return defineClass(className, b, loader, null, null);
   }
 
-  static Class<?> defineClass(String name, byte[] b, int off, int len, Class<?> neighbor,
-                              ClassLoader loader, ProtectionDomain protectionDomain)
-          throws ClassFormatError, ReflectionException //
-  {
-    if (neighbor != null)
-      return toClass(neighbor, b);
-    else {
-      // Lookup#defineClass() is not available.  So fallback to invoking defineClass on
-      // ClassLoader, which causes a warning message.
+  public static Class defineClass(
+          String className, byte[] b, ClassLoader loader,
+          ProtectionDomain protectionDomain) throws Exception {
+
+    return defineClass(className, b, loader, protectionDomain, null);
+  }
+
+  @SuppressWarnings("deprecation")
+  public static Class defineClass(
+          String className, byte[] b, ClassLoader loader,
+          ProtectionDomain protectionDomain, Class<?> contextClass) throws Exception {
+
+    Class c = null;
+    Throwable t = THROWABLE;
+
+    // Preferred option: JDK 9+ Lookup.defineClass API if ClassLoader matches
+    if (contextClass != null && contextClass.getClassLoader() == loader) {
       try {
-        return (Class<?>) defineClass.invoke(loader, new Object[] {
-                name, b, off, len, protectionDomain
-        });
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(contextClass, MethodHandles.lookup());
+        c = lookup.defineClass(b);
       }
-      catch (Throwable e) {
-        if (e instanceof ClassFormatError)
-          throw (ClassFormatError) e;
-        if (e instanceof RuntimeException)
-          throw (RuntimeException) e;
-        throw new ReflectionException(e);
+      catch (LinkageError | IllegalArgumentException ex) {
+        // in case of plain LinkageError (class already defined)
+        // or IllegalArgumentException (class in different package):
+        // fall through to traditional ClassLoader.defineClass below
+        t = ex;
+      }
+      catch (Throwable ex) {
+        throw new CodeGenerationException(ex);
       }
     }
+
+    // Direct defineClass attempt on the target Classloader
+    if (c == null) {
+      if (protectionDomain == null) {
+        protectionDomain = PROTECTION_DOMAIN;
+      }
+
+      // Look for publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain)
+      try {
+        Method publicDefineClass = loader.getClass().getMethod(
+                "publicDefineClass", String.class, byte[].class, ProtectionDomain.class);
+        c = (Class) publicDefineClass.invoke(loader, className, b, protectionDomain);
+      }
+      catch (InvocationTargetException ex) {
+        if (!(ex.getTargetException() instanceof UnsupportedOperationException)) {
+          throw new CodeGenerationException(ex.getTargetException());
+        }
+        // in case of UnsupportedOperationException, fall through
+        t = ex.getTargetException();
+      }
+      catch (Throwable ex) {
+        // publicDefineClass method not available -> fall through
+        t = ex;
+      }
+
+      // Classic option: protected ClassLoader.defineClass method
+      if (c == null && defineClass != null) {
+        Object[] args = new Object[] { className, b, 0, b.length, protectionDomain };
+        try {
+          if (!defineClass.isAccessible()) {
+            defineClass.setAccessible(true);
+          }
+          c = (Class) defineClass.invoke(loader, args);
+        }
+        catch (InvocationTargetException ex) {
+          throw new CodeGenerationException(ex.getTargetException());
+        }
+        catch (Throwable ex) {
+          // Fall through if setAccessible fails with InaccessibleObjectException on JDK 9+
+          // (on the module path and/or with a JVM bootstrapped with --illegal-access=deny)
+          if (!ex.getClass().getName().endsWith("InaccessibleObjectException")) {
+            throw new CodeGenerationException(ex);
+          }
+          t = ex;
+        }
+      }
+    }
+
+    // Fallback option: JDK 9+ Lookup.defineClass API even if ClassLoader does not match
+    if (c == null && contextClass != null && contextClass.getClassLoader() != loader) {
+      try {
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(contextClass, MethodHandles.lookup());
+        c = lookup.defineClass(b);
+      }
+      catch (Throwable ex) {
+        throw new CodeGenerationException(ex);
+      }
+    }
+
+    // No defineClass variant available at all?
+    if (c == null) {
+      throw new CodeGenerationException(t);
+    }
+
+    // Force static initializers to run.
+    Class.forName(className, true, loader);
+    return c;
   }
+
 }

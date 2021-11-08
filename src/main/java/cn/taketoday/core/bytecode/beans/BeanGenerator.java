@@ -63,6 +63,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     if (superclass != null && superclass.equals(Object.class)) {
       superclass = null;
     }
+    setNeighbor(superclass);
     this.superclass = superclass;
   }
 
@@ -84,11 +85,6 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
   @Override
   protected ProtectionDomain getProtectionDomain() {
     return ReflectionUtils.getProtectionDomain(superclass);
-  }
-
-  @Override
-  protected Class<?> getNeighbor() {
-    return superclass;
   }
 
   public Object create() {

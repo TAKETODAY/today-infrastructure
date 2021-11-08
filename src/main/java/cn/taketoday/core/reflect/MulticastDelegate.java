@@ -105,13 +105,9 @@ abstract public class MulticastDelegate implements Cloneable {
       return ReflectionUtils.getProtectionDomain(iface);
     }
 
-    @Override
-    protected Class<?> getNeighbor() {
-      return iface;
-    }
-
     public Generator setInterface(Class<?> iface) {
       this.iface = iface;
+      setNeighbor(iface);
       return this;
     }
 

@@ -19,12 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.ConstructorNotFoundException;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -40,6 +34,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Fast reflection operation
@@ -885,7 +885,7 @@ public abstract class ReflectionUtils {
    * @param method the method to make accessible
    * @see java.lang.reflect.Method#setAccessible
    */
-//  @SuppressWarnings("deprecation") // on JDK 9
+  @SuppressWarnings("deprecation") // on JDK 9
   public static Method makeAccessible(Method method) {
     Assert.notNull(method, "method must not be null");
     if ((!Modifier.isPublic(method.getModifiers()) ||
@@ -907,8 +907,8 @@ public abstract class ReflectionUtils {
    */
   public static Method[] toMethodArray(Collection<Method> collection) {
     return CollectionUtils.isEmpty(collection)
-            ? EMPTY_METHOD_ARRAY
-            : collection.toArray(new Method[collection.size()]);
+           ? EMPTY_METHOD_ARRAY
+           : collection.toArray(new Method[collection.size()]);
   }
 
   // Field handling
@@ -1107,15 +1107,7 @@ public abstract class ReflectionUtils {
                       "] must be same or subclass as source class [" + src.getClass().getName() + "]");
     }
 
-    final class CopyFieldCallback implements FieldCallback {
-
-      @Override
-      public void doWith(final Field field) {
-        copyField(field, src, dest);
-      }
-    }
-
-    doWithFields(src.getClass(), new CopyFieldCallback(), COPYABLE_FIELDS);
+    doWithFields(src.getClass(), field -> copyField(field, src, dest), COPYABLE_FIELDS);
   }
 
   /**
@@ -1141,9 +1133,9 @@ public abstract class ReflectionUtils {
   public static Field makeAccessible(Field field) {
     Assert.notNull(field, "field must not be null");
 
-    if ((!Modifier.isPublic(field.getModifiers()) ||
-            !Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
-            Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
+    if ((!Modifier.isPublic(field.getModifiers())
+            || !Modifier.isPublic(field.getDeclaringClass().getModifiers())
+            || Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
       field.setAccessible(true);
     }
     return field;
@@ -1164,8 +1156,8 @@ public abstract class ReflectionUtils {
    */
   public static Field[] toFieldArray(Collection<Field> fields) {
     return CollectionUtils.isEmpty(fields)
-            ? EMPTY_FIELD_ARRAY
-            : fields.toArray(new Field[fields.size()]);
+           ? EMPTY_FIELD_ARRAY
+           : fields.toArray(new Field[0]);
   }
 
   // Constructor handling
@@ -1175,6 +1167,7 @@ public abstract class ReflectionUtils {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
 
+  @SuppressWarnings("deprecation")
   public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
     Assert.notNull(constructor, "constructor must not be null");
 

@@ -119,11 +119,6 @@ public abstract class MethodAccess {
       return ReflectionUtils.getProtectionDomain(type);
     }
 
-    @Override
-    protected Class<?> getNeighbor() {
-      return type;
-    }
-
     public void generateClass(ClassVisitor v) throws Exception {
       new MethodAccessEmitter(v, getClassName(), type);
     }
@@ -221,6 +216,7 @@ public abstract class MethodAccess {
   public static MethodAccess from(ClassLoader loader, Class type) {
     Generator gen = new Generator(type);
     gen.setClassLoader(loader);
+    gen.setNeighbor(type);
     return gen.create();
   }
 

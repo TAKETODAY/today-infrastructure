@@ -59,7 +59,8 @@ public abstract class ImmutableBean {
 
     public void setBean(Object bean) {
       this.bean = bean;
-      target = bean.getClass();
+      this.target = bean.getClass();
+      setNeighbor(target);
     }
 
     protected ClassLoader getDefaultClassLoader() {
@@ -68,11 +69,6 @@ public abstract class ImmutableBean {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(target);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return target;
     }
 
     public Object create() {

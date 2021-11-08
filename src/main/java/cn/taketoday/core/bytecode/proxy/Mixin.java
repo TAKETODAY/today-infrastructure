@@ -15,6 +15,12 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
+import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.CglibReflectUtils;
@@ -22,12 +28,6 @@ import cn.taketoday.core.bytecode.core.ClassesKey;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.security.ProtectionDomain;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * <code>Mixin</code> allows multiple objects to be combined into a single
@@ -113,11 +113,6 @@ public abstract class Mixin {
       return ReflectionUtils.getProtectionDomain(classes[0]);
     }
 
-    @Override
-    protected Class<?> getNeighbor() {
-      return classes[0];
-    }
-
     public void setStyle(int style) {
       switch (style) {
         case STYLE_INTERFACES:
@@ -184,15 +179,9 @@ public abstract class Mixin {
 
     public void generateClass(ClassVisitor v) {
       switch (style) {
-        case STYLE_INTERFACES:
-          new MixinEmitter(v, getClassName(), classes, route);
-          break;
-        case STYLE_BEANS:
-          new MixinBeanEmitter(v, getClassName(), classes);
-          break;
-        case STYLE_EVERYTHING:
-          new MixinEverythingEmitter(v, getClassName(), classes);
-          break;
+        case STYLE_INTERFACES -> new MixinEmitter(v, getClassName(), classes, route);
+        case STYLE_BEANS -> new MixinBeanEmitter(v, getClassName(), classes);
+        case STYLE_EVERYTHING -> new MixinEverythingEmitter(v, getClassName(), classes);
       }
     }
 

@@ -16,6 +16,11 @@
 
 package cn.taketoday.core.bytecode.core;
 
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.List;
+
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -26,11 +31,6 @@ import cn.taketoday.core.bytecode.core.internal.CustomizerRegistry;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-import java.util.Collections;
-import java.util.List;
 
 import static cn.taketoday.core.bytecode.Type.array;
 
@@ -143,6 +143,7 @@ public abstract class KeyFactory {
   {
     Generator gen = new Generator();
     gen.setInterface(keyInterface);
+    gen.setNeighbor(keyInterface);// @since 4.0
 
     if (customizer != null) {
       gen.addCustomizer(customizer);
@@ -176,11 +177,6 @@ public abstract class KeyFactory {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(keyInterface);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return keyInterface;
     }
 
     public void addCustomizer(KeyFactoryCustomizer customizer) {

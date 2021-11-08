@@ -15,17 +15,17 @@
  */
 package cn.taketoday.core.bytecode.core;
 
-import cn.taketoday.core.bytecode.core.internal.LoadingCache;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.DefineClassHelper;
-
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.core.bytecode.core.internal.LoadingCache;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.DefineClassHelper;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to
@@ -52,6 +52,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private boolean useCache = true;
   private String className;
   private boolean attemptLoad;
+
+  private Class<?> neighbor;
 
   protected AbstractClassGenerator(String source) {
     this.source = source;
@@ -284,8 +286,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
       final Object obj = data.get(this, getUseCache());
       return obj instanceof Class
-              ? firstInstance((Class<T>) obj)
-              : nextInstance(obj);
+             ? firstInstance((Class<T>) obj)
+             : nextInstance(obj);
     }
     catch (RuntimeException | Error e) {
       throw e;
@@ -322,22 +324,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       }
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) { // just in case
-        Class<?> neighbor = getNeighbor();
-
-        if (neighbor != null) {
-          Module module = neighbor.getModule();
-          String name = module.getName();
-          if (name == null || !name.startsWith("java")) {
-            return DefineClassHelper.toClass(neighbor, bytes);
-          }
-        }
-
-//        if (neighbor != null && neighbor != Object.class) {
-//          return DefineClassHelper.toClass(neighbor, bytes);
-//        }
-//        else {
-          return DefineClassHelper.toClass(getClassName(), null, classLoader, getProtectionDomain(), bytes);
-//        }
+        return DefineClassHelper.toClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
       }
     }
     catch (RuntimeException | Error e) {
@@ -351,8 +338,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     }
   }
 
-  protected Class<?> getNeighbor() {
-    return null;
+  // @since 4.0
+  public void setNeighbor(Class<?> neighbor) {
+    this.neighbor = neighbor;
   }
 
   protected abstract Object firstInstance(Class<T> type) throws Exception;

@@ -80,6 +80,7 @@ public abstract class BeanCopier {
       if (!Modifier.isPublic(target.getModifiers())) {
         setNamePrefix(target.getName());
       }
+      setNeighbor(source);
 
       this.source = source;
       this.target = target;
@@ -94,11 +95,6 @@ public abstract class BeanCopier {
     @Override
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(source);
-    }
-
-    @Override
-    protected Class<?> getNeighbor() {
-      return source;
     }
 
     public BeanCopier create() {
