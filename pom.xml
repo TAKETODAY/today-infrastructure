@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.taketoday</groupId>
@@ -903,12 +903,12 @@
                     <imagesdir>images</imagesdir>
                     <doctype>book</doctype>
                     <status>${status}</status>
-                    <data-uri />
+                    <data-uri/>
                     <icons>font</icons>
                     <toc>left</toc>
                     <icons>font</icons>
                     <sectanchors>true</sectanchors>
-                    <idprefix />
+                    <idprefix/>
                     <idseparator>-</idseparator>
                     <docinfo1>true</docinfo1>
                   </attributes>
@@ -933,13 +933,13 @@
                     <pdf-style>today</pdf-style>
                     <doctype>book</doctype>
                     <status>${status}</status>
-                    <data-uri />
+                    <data-uri/>
                     <icons>font</icons>
-                    <pagenums />
-                    <toc />
+                    <pagenums/>
+                    <toc/>
                     <icons>font</icons>
                     <sectanchors>true</sectanchors>
-                    <idprefix />
+                    <idprefix/>
                     <idseparator>-</idseparator>
                     <docinfo1>true</docinfo1>
                     <embedAssets>true</embedAssets>
