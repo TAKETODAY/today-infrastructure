@@ -245,10 +245,9 @@ public class MethodSignature {
 
   @Override
   public boolean equals(final Object other) {
-    if (!(other instanceof MethodSignature)) {
+    if (!(other instanceof MethodSignature otherMethod)) {
       return false;
     }
-    MethodSignature otherMethod = (MethodSignature) other;
     return name.equals(otherMethod.name)
             && descriptor.equals(otherMethod.descriptor);
   }
