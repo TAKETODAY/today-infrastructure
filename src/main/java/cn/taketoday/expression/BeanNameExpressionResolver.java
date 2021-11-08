@@ -137,9 +137,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    */
   @Override
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
-
-    if (base == null && property instanceof String) {
-      String beanName = (String) property;
+    if (base == null && property instanceof String beanName) {
       if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
         beanNameResolver.setBeanValue(beanName, value);
         context.setPropertyResolved(base, property);
@@ -206,7 +204,6 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    */
   @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
     if (base == null && property instanceof String) {
       if (beanNameResolver.isNameResolved((String) property)) {
         context.setPropertyResolved(true);
