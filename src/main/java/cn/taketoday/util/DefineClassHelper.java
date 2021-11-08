@@ -36,7 +36,6 @@
 
 package cn.taketoday.util;
 
-
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.Nullable;
 
@@ -78,7 +77,7 @@ public class DefineClassHelper {
                                  ProtectionDomain domain, byte[] bcode)
           throws ReflectionException {
     try {
-      return Helper.defineClass(className, bcode, 0, bcode.length,
+      return defineClass(className, bcode, 0, bcode.length,
               neighbor, loader, domain);
     }
     catch (RuntimeException e) {
@@ -110,7 +109,7 @@ public class DefineClassHelper {
     }
     catch (IllegalAccessException | IllegalArgumentException e) {
       throw new ReflectionException(e.getMessage() + ": " + neighbor.getName()
-              + " has no permission to define the class");
+              + " has no permission to define the class", e);
     }
   }
 
@@ -147,40 +146,38 @@ public class DefineClassHelper {
     }
   }
 
-  private static class Helper {
-    private static final Method defineClass = getDefineClassMethod();
+  private static final Method defineClass = getDefineClassMethod();
 
-    private static Method getDefineClassMethod() {
-      try {
-        return ClassLoader.class.getDeclaredMethod("defineClass",
-                String.class, byte[].class, int.class, int.class, ProtectionDomain.class);
-      }
-      catch (NoSuchMethodException e) {
-        throw new RuntimeException("cannot initialize", e);
-      }
+  private static Method getDefineClassMethod() {
+    try {
+      return ClassLoader.class.getDeclaredMethod("defineClass",
+              String.class, byte[].class, int.class, int.class, ProtectionDomain.class);
     }
+    catch (NoSuchMethodException e) {
+      throw new RuntimeException("cannot initialize", e);
+    }
+  }
 
-    static Class<?> defineClass(String name, byte[] b, int off, int len, Class<?> neighbor,
-                                ClassLoader loader, ProtectionDomain protectionDomain)
-            throws ClassFormatError, ReflectionException //
-    {
-      if (neighbor != null)
-        return toClass(neighbor, b);
-      else {
-        // Lookup#defineClass() is not available.  So fallback to invoking defineClass on
-        // ClassLoader, which causes a warning message.
-        try {
-          return (Class<?>) defineClass.invoke(loader, new Object[] {
-                  name, b, off, len, protectionDomain
-          });
-        }
-        catch (Throwable e) {
-          if (e instanceof ClassFormatError)
-            throw (ClassFormatError) e;
-          if (e instanceof RuntimeException)
-            throw (RuntimeException) e;
-          throw new ReflectionException(e);
-        }
+  static Class<?> defineClass(String name, byte[] b, int off, int len, Class<?> neighbor,
+                              ClassLoader loader, ProtectionDomain protectionDomain)
+          throws ClassFormatError, ReflectionException //
+  {
+    if (neighbor != null)
+      return toClass(neighbor, b);
+    else {
+      // Lookup#defineClass() is not available.  So fallback to invoking defineClass on
+      // ClassLoader, which causes a warning message.
+      try {
+        return (Class<?>) defineClass.invoke(loader, new Object[] {
+                name, b, off, len, protectionDomain
+        });
+      }
+      catch (Throwable e) {
+        if (e instanceof ClassFormatError)
+          throw (ClassFormatError) e;
+        if (e instanceof RuntimeException)
+          throw (RuntimeException) e;
+        throw new ReflectionException(e);
       }
     }
   }
