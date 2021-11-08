@@ -72,7 +72,7 @@ public abstract class MethodAccess {
    * @param obj the object the underlying method is invoked from
    * @param args the arguments used for the method call
    * @throws java.lang.reflect.InvocationTargetException if the underlying method throws an exception
-   * @see getIndex(name, Class[])
+   * @see #getIndex(String, Class[])
    */
   public abstract Object invoke(int index, Object obj, Object[] args) throws InvocationTargetException;
 
@@ -82,7 +82,7 @@ public abstract class MethodAccess {
    * @param index the constructor index
    * @param args the arguments passed to the constructor
    * @throws java.lang.reflect.InvocationTargetException if the constructor throws an exception
-   * @see getIndex(Class[])
+   * @see #getIndex(Class[])
    */
   public abstract Object newInstance(int index, Object[] args) throws InvocationTargetException;
 
