@@ -50,6 +50,9 @@ import java.util.List;
  * @since JSP 2.1
  */
 public class ListExpressionResolver extends ExpressionResolver {
+  private static final Class<?> theUnmodifiableListClass = Collections.unmodifiableList(new ArrayList<>()).getClass();
+
+  private final boolean isReadOnly;
 
   /**
    * Creates a new read/write <code>ListELResolver</code>.
@@ -145,10 +148,9 @@ public class ListExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
-    if (base instanceof List) {
+    if (base instanceof final List<?> list) {
       context.setPropertyResolved(base, property);
       final int index = toInteger(property);
-      final List<?> list = (List<?>) base;
       if (index < 0 || index >= list.size()) {
         return null;
       }
@@ -230,7 +232,6 @@ public class ListExpressionResolver extends ExpressionResolver {
     }
   }
 
-  static private Class<?> theUnmodifiableListClass = Collections.unmodifiableList(new ArrayList<>()).getClass();
 
   /**
    * If the base object is a list, returns whether a call to {@link #setValue}
@@ -276,9 +277,8 @@ public class ListExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-    if (base instanceof List) {
+    if (base instanceof final List<?> list) {
       context.setPropertyResolved(true);
-      final List<?> list = (List<?>) base;
       final int index = toInteger(property);
       if (index < 0 || index >= list.size()) {
         throw new PropertyNotFoundException();
@@ -303,6 +303,4 @@ public class ListExpressionResolver extends ExpressionResolver {
     }
     throw new IllegalArgumentException();
   }
-
-  private boolean isReadOnly;
 }
