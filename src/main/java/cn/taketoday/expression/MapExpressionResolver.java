@@ -49,6 +49,8 @@ import java.util.Map;
  * @since JSP 2.1
  */
 public class MapExpressionResolver extends ExpressionResolver {
+  private static final Class<?> theUnmodifiableMapClass = Collections.unmodifiableMap(new HashMap<>()).getClass();
+  private final boolean isReadOnly;
 
   /**
    * Creates a new read/write <code>MapELResolver</code>.
@@ -143,15 +145,12 @@ public class MapExpressionResolver extends ExpressionResolver {
    */
   @SuppressWarnings("rawtypes")
   public Object getValue(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof Map) {
       context.setPropertyResolved(base, property);
       return ((Map) base).get(property);
     }
     return null;
   }
-
-  static private Class<?> theUnmodifiableMapClass = Collections.unmodifiableMap(new HashMap<>()).getClass();
 
   /**
    * If the base object is a map, attempts to set the value associated with the
@@ -263,6 +262,4 @@ public class MapExpressionResolver extends ExpressionResolver {
     }
     return false;
   }
-
-  private boolean isReadOnly;
 }
