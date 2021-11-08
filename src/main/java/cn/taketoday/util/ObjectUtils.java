@@ -108,7 +108,7 @@ public abstract class ObjectUtils {
    * @since 3.0
    */
   public static boolean isArray(@Nullable Object obj) {
-    return (obj != null && obj.getClass().isArray());
+    return obj != null && obj.getClass().isArray();
   }
 
   /**

@@ -17,6 +17,8 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.util.ObjectUtils;
+
 import java.lang.reflect.Array;
 
 /**
@@ -147,9 +149,8 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
-    if (base != null && base.getClass().isArray()) {
+    if (ObjectUtils.isArray(base)) {
       context.setPropertyResolved(base, property);
-
       int index = toInteger(property);
       if (index >= 0 && index < Array.getLength(base)) {
         return Array.get(base, index);
@@ -197,24 +198,20 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
-
-    if (base != null) {
-      Class<?> beanClass = base.getClass();
-      if (beanClass.isArray()) {
-        context.setPropertyResolved(base, property);
-        if (isReadOnly) {
-          throw new PropertyNotWritableException();
-        }
-        // .isAssignableFrom(val.getClass())
-        if (val != null && !beanClass.getComponentType().isInstance(val)) {
-          throw new ClassCastException();
-        }
-        int index = toInteger(property);
-        if (index < 0 || index >= Array.getLength(base)) {
-          throw new PropertyNotFoundException();
-        }
-        Array.set(base, index, val);
+    if (ObjectUtils.isArray(base)) {
+      context.setPropertyResolved(base, property);
+      if (isReadOnly) {
+        throw new PropertyNotWritableException();
       }
+      Class<?> beanClass = base.getClass();
+      if (val != null && !beanClass.getComponentType().isInstance(val)) {
+        throw new ClassCastException();
+      }
+      int index = toInteger(property);
+      if (index < 0 || index >= Array.getLength(base)) {
+        throw new PropertyNotFoundException();
+      }
+      Array.set(base, index, val);
     }
   }
 
@@ -253,8 +250,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
-    if (base != null && base.getClass().isArray()) {
+    if (ObjectUtils.isArray(base)) {
       context.setPropertyResolved(true);
       int index = toInteger(property);
       if (index < 0 || index >= Array.getLength(base)) {
