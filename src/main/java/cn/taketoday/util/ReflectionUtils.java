@@ -19,6 +19,12 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -27,8 +33,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,12 +40,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import cn.taketoday.core.ConstructorNotFoundException;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Fast reflection operation
@@ -94,25 +92,6 @@ public abstract class ReflectionUtils {
    */
   private static final ConcurrentReferenceHashMap<Method, Method>
           interfaceMethodCache = new ConcurrentReferenceHashMap<>(256);
-
-  private static final Method defineClass;
-
-  static {
-    try {
-      defineClass = ClassLoader.class.getDeclaredMethod(
-              "defineClass",
-              String.class,
-              byte[].class,
-              int.class,
-              int.class,
-              ProtectionDomain.class
-      );
-      ReflectionUtils.makeAccessible(defineClass);
-    }
-    catch (NoSuchMethodException e) {
-      throw new ReflectionException("'defineClass()' Not Found in ClassLoader", e);
-    }
-  }
 
   // Exception handling
 
@@ -928,8 +907,8 @@ public abstract class ReflectionUtils {
    */
   public static Method[] toMethodArray(Collection<Method> collection) {
     return CollectionUtils.isEmpty(collection)
-           ? EMPTY_METHOD_ARRAY
-           : collection.toArray(new Method[collection.size()]);
+            ? EMPTY_METHOD_ARRAY
+            : collection.toArray(new Method[collection.size()]);
   }
 
   // Field handling
@@ -1185,8 +1164,8 @@ public abstract class ReflectionUtils {
    */
   public static Field[] toFieldArray(Collection<Field> fields) {
     return CollectionUtils.isEmpty(fields)
-           ? EMPTY_FIELD_ARRAY
-           : fields.toArray(new Field[fields.size()]);
+            ? EMPTY_FIELD_ARRAY
+            : fields.toArray(new Field[fields.size()]);
   }
 
   // Constructor handling
@@ -1533,7 +1512,7 @@ public abstract class ReflectionUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return (T) newInstance(ClassUtils.getDefaultClassLoader().loadClass(beanClassName));
+    return (T) newInstance(ClassUtils.resolveClassName(beanClassName, null));
   }
 
   /**
@@ -1557,13 +1536,7 @@ public abstract class ReflectionUtils {
     if (source == null) {
       return null;
     }
-    final class GetProtectionDomainAction implements PrivilegedAction<ProtectionDomain> {
-      @Override
-      public ProtectionDomain run() {
-        return source.getProtectionDomain();
-      }
-    }
-    return AccessController.doPrivileged(new GetProtectionDomainAction());
+    return source.getProtectionDomain();
   }
 
   /**
@@ -1578,10 +1551,7 @@ public abstract class ReflectionUtils {
    * Before the <tt>Class</tt> can be used it must be resolved.
    *
    * <p> This method assigns a default {@link java.security.ProtectionDomain
-   * <tt>ProtectionDomain</tt>} to the newly defined class.  The
-   * <tt>ProtectionDomain</tt> is effectively granted the same set of
-   * permissions returned when {@link
-   * java.security.Policy#getPermissions(java.security.CodeSource)
+   * <tt>ProtectionDomain</tt>} to the newly defined class.
    * <tt>Policy.getPolicy().getPermissions(new CodeSource(null, null))</tt>}
    * is invoked.  The default domain is created on the first invocation of
    * {@link #defineClass(String, byte[]) <tt>defineClass</tt>},
@@ -1665,11 +1635,32 @@ public abstract class ReflectionUtils {
   public static <T> Class<T> defineClass(
           String className, byte[] bytes, ClassLoader loader, @Nullable ProtectionDomain protection) {
     try {
-      return (Class<T>) defineClass.invoke(loader, className, bytes, 0, bytes.length, protection);
+      return (Class<T>) new DefineClassClassLoader(loader, bytes, className, protection).loadClass(className);
     }
-    catch (IllegalAccessException | InvocationTargetException e) {
+    catch (Exception e) {
       throw new ReflectionException("defineClass '" + className + "' failed", e);
     }
+  }
+}
+
+final class DefineClassClassLoader extends ClassLoader {
+  final byte[] bytes;
+  private final String className;
+  private final ProtectionDomain protection;
+
+  public DefineClassClassLoader(ClassLoader loader, byte[] bytes, String className, ProtectionDomain protection) {
+    super(loader);
+    this.bytes = bytes;
+    this.className = className;
+    this.protection = protection;
+  }
+
+  @Override
+  public Class<?> loadClass(String name) throws ClassNotFoundException {
+    if (name.equals(this.className)) {
+      return defineClass(name, bytes, 0, bytes.length, protection);
+    }
+    return getParent().loadClass(name);
   }
 
 }

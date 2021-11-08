@@ -19,10 +19,6 @@
  */
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
-
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -35,8 +31,13 @@ import cn.taketoday.core.bytecode.core.DefaultGeneratorStrategy;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.DefineClassHelper;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
@@ -121,10 +122,10 @@ public abstract class GeneratorSupport<T extends Accessor> {
     try {
       return (Class<T>) classLoader.loadClass(getClassName());
     }
-    catch (ClassNotFoundException ignored) {
-    }
+    catch (ClassNotFoundException ignored) { }
     byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return ReflectionUtils.defineClass(
+//    return (Class<T>) DefineClassHelper.toClass(className, targetClass, classLoader, ReflectionUtils.getProtectionDomain(targetClass), bytes);
+   return ReflectionUtils.defineClass(
             getClassName(), bytes, classLoader, ReflectionUtils.getProtectionDomain(targetClass));
   }
 

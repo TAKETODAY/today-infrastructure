@@ -281,9 +281,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     public boolean equals(Object o) {
       if (this == o)
         return true;
-      if (!(o instanceof MethodInvokerCacheKey))
+      if (!(o instanceof MethodInvokerCacheKey that))
         return false;
-      MethodInvokerCacheKey that = (MethodInvokerCacheKey) o;
       return Objects.equals(targetMethod, that.targetMethod) && Objects.equals(targetClass, that.targetClass);
     }
 

@@ -20,12 +20,12 @@
 
 package cn.taketoday.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.FileCopyUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * {@code ClassLoader} that does <i>not</i> always delegate to the parent loader
@@ -43,10 +43,9 @@ import cn.taketoday.util.FileCopyUtils;
 public class OverridingClassLoader extends DecoratingClassLoader {
 
   /** Packages that are excluded by default. */
-  public static final String[] DEFAULT_EXCLUDED_PACKAGES = new String[]
-          { "java.", "javax.", "sun.", "oracle.", "javassist.", "org.aspectj.", "net.sf.cglib." };
-
-  private static final String CLASS_FILE_SUFFIX = ClassUtils.CLASS_FILE_SUFFIX;
+  public static final String[] DEFAULT_EXCLUDED_PACKAGES = {
+          "java.", "javax.", "sun.", "oracle.", "javassist.", "org.aspectj.", "net.sf.cglib."
+  };
 
   static {
     ClassLoader.registerAsParallelCapable();
@@ -172,7 +171,7 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    */
   @Nullable
   protected InputStream openStreamForClass(String name) {
-    String internalName = name.replace('.', '/') + CLASS_FILE_SUFFIX;
+    String internalName = name.replace('.', '/') + ClassUtils.CLASS_FILE_SUFFIX;
     return getParent().getResourceAsStream(internalName);
   }
 
