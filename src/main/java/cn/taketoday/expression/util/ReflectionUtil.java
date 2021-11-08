@@ -66,7 +66,7 @@ import cn.taketoday.expression.lang.ExpressionUtils;
 public abstract class ReflectionUtil {
 
   /**
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   public static Object invokeMethod(ExpressionContext context, Method m, Object base, Object[] params) {
@@ -120,7 +120,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   public static Method findMethod(
@@ -262,7 +262,7 @@ public abstract class ReflectionUtil {
   }
 
   /**
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static Wrapper findMostSpecificWrapper(List<Wrapper> candidates,
@@ -298,7 +298,7 @@ public abstract class ReflectionUtil {
   }
 
   /**
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static int isMoreSpecific(
@@ -353,7 +353,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static int isMoreSpecific(Class<?> type1, Class<?> type2, Class<?> matchingType, boolean elSpecific) {
@@ -394,7 +394,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static Class<?> getBoxingTypeIfPrimitive(Class<?> clazz) {
@@ -428,7 +428,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static Class<?>[] getComparingParamTypesForVarArgsMethod(Class<?>[] paramTypes, int length) {
@@ -442,7 +442,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static String paramString(Class<?>[] types) {
@@ -465,7 +465,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   static boolean isAssignableFrom(Class<?> src, Class<?> target) {
@@ -482,7 +482,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static boolean isCoercibleFrom(Object src, Class<?> target) {
@@ -498,7 +498,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
   private static Class<?>[] getTypesFromValues(Object[] values) {
@@ -519,7 +519,7 @@ public abstract class ReflectionUtil {
   }
 
   /*
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
+   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync. Get a public method form a public class or interface of a given
    * method. Note that if a PropertyDescriptor is obtained for a non-public class
    * that implements a public interface, the read/write methods will be for the

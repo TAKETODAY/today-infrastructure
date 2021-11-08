@@ -54,8 +54,8 @@ import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
  */
 public class AutowiredPropertyResolver implements PropertyValueResolver {
 
-  private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.load("javax.inject.Inject");
-  private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.load("javax.annotation.Resource");
+  private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.load("jakarta.inject.Inject");
+  private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.load("jakarta.annotation.Resource");
 
   // @since 3.0 Required
   public static boolean isRequired(AnnotatedElement element, @Nullable MergedAnnotation<Autowired> autowired) {

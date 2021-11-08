@@ -64,9 +64,9 @@ public interface AnnotationFilter {
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
-   * {@code java} and {@code javax} packages and their subpackages.
+   * {@code java} and {@code jakarta} packages and their subpackages.
    */
-  AnnotationFilter JAVA = packages("java", "javax");
+  AnnotationFilter JAVA = packages("java", "jakarta", "javax");
 
   /**
    * {@link AnnotationFilter} that always matches and can be used when no

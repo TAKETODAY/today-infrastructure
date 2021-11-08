@@ -58,7 +58,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   private static final Logger log = LoggerFactory.getLogger(DisposableBeanAdapter.class);
 
   public static final Class<? extends Annotation>
-          PreDestroy = ClassUtils.load("javax.annotation.PreDestroy");
+          PreDestroy = ClassUtils.load("jakarta.annotation.PreDestroy");
 
   private static final String CLOSE_METHOD_NAME = "close";
   private static final String DESTROY_METHOD_NAME = "destroy";

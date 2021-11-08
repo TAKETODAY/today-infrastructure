@@ -1153,8 +1153,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * @see DefaultTransactionStatus#isLocalRollbackOnly()
    * @see TransactionStatus#setRollbackOnly()
    * @see UnexpectedRollbackException
-   * @see javax.transaction.UserTransaction#commit()
-   * @see javax.transaction.RollbackException
+   * @see jakarta.transaction.UserTransaction#commit()
+   * @see jakarta.transaction.RollbackException
    */
   protected boolean shouldCommitOnGlobalRollbackOnly() {
     return false;

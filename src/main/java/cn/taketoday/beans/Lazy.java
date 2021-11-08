@@ -51,9 +51,9 @@ import cn.taketoday.lang.Configuration;
  *
  * <p>In addition to its role for component initialization, this annotation may also be placed
  * on injection points marked with {@link Autowired}
- * or {@link javax.inject.Inject}: In that context, it leads to the creation of a
+ * or {@link jakarta.inject.Inject}: In that context, it leads to the creation of a
  * lazy-resolution proxy for all affected dependencies, as an alternative to using
- * {@link Supplier} or {@link javax.inject.Provider}.
+ * {@link Supplier} or {@link jakarta.inject.Provider}.
  *
  * @author Chris Beams
  * @author Juergen Hoeller

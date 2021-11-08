@@ -32,7 +32,7 @@ public interface Csrf {
 
   /**
    * Property that can be used to globally enable CSRF protection for an application.
-   * Values of this property must be of type {@link javax.mvc.security.Csrf.CsrfOptions}.
+   * Values of this property must be of type {@link jakarta.mvc.security.Csrf.CsrfOptions}.
    */
   String CSRF_PROTECTION = "cn.taketoday.web.security.CsrfProtected";
 

@@ -218,8 +218,8 @@ public class ScanningBeanDefinitionReader {
    * {@link Component @Component} meta-annotation including the
    * {@link Repository @Repository}, {@link Service @Service}, and
    * {@link Controller @Controller} stereotype annotations.
-   * <p>Also supports Java EE's {@link javax.annotation.ManagedBean} and
-   * {@link javax.inject.Named} annotations, if available.
+   * <p>Also supports Java EE's {@link jakarta.annotation.ManagedBean} and
+   * {@link jakarta.inject.Named} annotations, if available.
    */
   @SuppressWarnings("unchecked")
   protected void registerDefaultFilters() {
@@ -227,16 +227,16 @@ public class ScanningBeanDefinitionReader {
     ClassLoader cl = getClass().getClassLoader();
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
-              ((Class<? extends Annotation>) ClassUtils.forName("javax.annotation.ManagedBean", cl)), false));
-      log.trace("'javax.annotation.ManagedBean' found and supported for component scanning");
+              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.annotation.ManagedBean", cl)), false));
+      log.trace("'jakarta.annotation.ManagedBean' found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
-      // JSR-250 1.1 API (as included in javax EE) not available - simply skip.
+      // JSR-250 1.1 API (as included in jakarta EE) not available - simply skip.
     }
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
-              ((Class<? extends Annotation>) ClassUtils.forName("javax.inject.Named", cl)), false));
-      log.trace("'javax.inject.Named' annotation found and supported for component scanning");
+              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.inject.Named", cl)), false));
+      log.trace("'jakarta.inject.Named' annotation found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-330 API not available - simply skip.

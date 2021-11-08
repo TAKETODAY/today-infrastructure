@@ -36,7 +36,7 @@ import cn.taketoday.core.annotation.OrderUtils;
  * {@code Ordered.LOWEST_PRECEDENCE}, indicating low-est priority (losing to any other
  * specified order value).
  *
- * <p>The standard {@link javax.annotation.Priority} annotation
+ * <p>The standard {@link jakarta.annotation.Priority} annotation
  * can be used as a drop-in replacement for this annotation in ordering scenarios.
  * Note that {@code @Priority} may have additional semantics when a single element
  * has to be picked (see {@link AnnotationAwareOrderComparator#getPriority}).
@@ -54,7 +54,7 @@ import cn.taketoday.core.annotation.OrderUtils;
  * @see AnnotationAwareOrderComparator
  * @see OrderUtils
  * @see Ordered
- * @see javax.annotation.Priority
+ * @see jakarta.annotation.Priority
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -436,7 +436,7 @@ public abstract class AbstractBeanFactory
    * @throws BeanInitializingException when invoke init methods
    * @see Component
    * @see InitializingBean
-   * @see javax.annotation.PostConstruct
+   * @see jakarta.annotation.PostConstruct
    */
   protected void invokeInitMethods(Object bean, BeanDefinition def) {
     String[] initMethods = def.getInitMethods();
