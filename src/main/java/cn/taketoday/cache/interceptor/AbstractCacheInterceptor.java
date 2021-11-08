@@ -19,9 +19,11 @@
  */
 package cn.taketoday.cache.interceptor;
 
+import cn.taketoday.lang.Autowired;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -52,7 +54,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.StringUtils;
-import jakarta.annotation.PostConstruct;
 
 /**
  * @author TODAY <br>
@@ -126,7 +127,7 @@ public abstract class AbstractCacheInterceptor
   /**
    * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
-  @PostConstruct
+  @Autowired
   public void initCacheInterceptor(ApplicationContext context) {
     if (getCacheManager() == null) {
       setCacheManager(context.getBean(CacheManager.class));
@@ -273,6 +274,7 @@ public abstract class AbstractCacheInterceptor
   // -----------------------------
 
   static final class MethodKey implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final int hash;
@@ -289,9 +291,8 @@ public abstract class AbstractCacheInterceptor
     public boolean equals(Object o) {
       if (this == o)
         return true;
-      if (!(o instanceof MethodKey))
+      if (!(o instanceof MethodKey methodKey))
         return false;
-      MethodKey methodKey = (MethodKey) o;
       return hash == methodKey.hash
               && Objects.equals(targetMethod, methodKey.targetMethod)
               && Objects.equals(annotationClass, methodKey.annotationClass);

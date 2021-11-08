@@ -27,7 +27,6 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.expression.lang.EvaluationContext;
-import jakarta.el.ELContextListener;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -57,16 +56,14 @@ import jakarta.el.ELContextListener;
  * <p>
  * The collection of context objects is necessary because each
  * <code>ELResolver</code> may need access to a different context object. For
- * example, JSP and Faces resolvers need access to a
- * {@link jakarta.servlet.jsp.JspContext} and a
- * {@link javax.faces.context.FacesContext}, respectively.
+ * example, JSP and Faces resolvers need access to a jakarta.servlet.jsp.JspContext
  * </p>
  *
  * <p>
  * When used in a web container, the creation of <code>ELContext</code> objects
  * is controlled through the underlying technology. For example, in JSP the
  * <code>JspContext.getELContext()</code> factory method is used. Some
- * technologies provide the ability to add an {@link ELContextListener} so that
+ * technologies provide the ability to add an ELContextListener so that
  * applications and frameworks can ensure their own context objects are attached
  * to any newly created <code>ELContext</code>.
  * </p>
@@ -88,7 +85,6 @@ import jakarta.el.ELContextListener;
  * @see ImportHandler
  * @see LambdaExpression
  * @see StandardExpressionContext
- * @see jakarta.servlet.jsp.JspContext
  * @since EL 2.1 and EL 3.0
  */
 public abstract class ExpressionContext {
