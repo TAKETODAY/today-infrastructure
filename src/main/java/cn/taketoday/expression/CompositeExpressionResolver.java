@@ -149,7 +149,7 @@ public class CompositeExpressionResolver extends ExpressionResolver implements A
   public Object getValue(ExpressionContext context, Object base, Object property) {
     context.setPropertyResolved(false);
     for (ExpressionResolver elResolver : elResolvers) {
-      final Object value = elResolver.getValue(context, base, property);
+      Object value = elResolver.getValue(context, base, property);
       if (context.isPropertyResolved()) {
         return value;
       }
@@ -218,7 +218,7 @@ public class CompositeExpressionResolver extends ExpressionResolver implements A
   public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
     context.setPropertyResolved(false);
     for (ExpressionResolver elResolver : elResolvers) {
-      final Object value = elResolver.invoke(context, base, method, paramTypes, params);
+      Object value = elResolver.invoke(context, base, method, paramTypes, params);
       if (context.isPropertyResolved()) {
         return value;
       }
@@ -289,7 +289,7 @@ public class CompositeExpressionResolver extends ExpressionResolver implements A
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
     context.setPropertyResolved(false);
     for (ExpressionResolver elResolver : elResolvers) {
-      final Class<?> type = elResolver.getType(context, base, property);
+      Class<?> type = elResolver.getType(context, base, property);
       if (context.isPropertyResolved()) {
         return type;
       }
@@ -429,7 +429,7 @@ public class CompositeExpressionResolver extends ExpressionResolver implements A
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
     context.setPropertyResolved(false);
     for (ExpressionResolver elResolver : elResolvers) {
-      final boolean readOnly = elResolver.isReadOnly(context, base, property);
+      boolean readOnly = elResolver.isReadOnly(context, base, property);
       if (context.isPropertyResolved()) {
         return readOnly;
       }
@@ -455,7 +455,7 @@ public class CompositeExpressionResolver extends ExpressionResolver implements A
   public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType) {
     context.setPropertyResolved(false);
     for (ExpressionResolver elResolver : elResolvers) {
-      final Object value = elResolver.convertToType(context, obj, targetType);
+      Object value = elResolver.convertToType(context, obj, targetType);
       if (context.isPropertyResolved()) {
         return value;
       }
