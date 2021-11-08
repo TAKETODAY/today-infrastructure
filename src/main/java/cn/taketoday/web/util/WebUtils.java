@@ -22,11 +22,23 @@ package cn.taketoday.web.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URI;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpRequest;
+import cn.taketoday.http.server.ServletServerHttpRequest;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletRequestWrapper;
@@ -36,12 +48,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -763,6 +769,90 @@ public abstract class WebUtils {
       }
     }
     return result;
+  }
+
+  /**
+   * Check the given request origin against a list of allowed origins.
+   * A list containing "*" means that all origins are allowed.
+   * An empty list means only same origin is allowed.
+   *
+   * <p><strong>Note:</strong> as of 5.1 this method ignores
+   * {@code "Forwarded"} and {@code "X-Forwarded-*"} headers that specify the
+   * client-originated address. Consider using the {@code ForwardedHeaderFilter}
+   * to extract and use, or to discard such headers.
+   *
+   * @return {@code true} if the request origin is valid, {@code false} otherwise
+   * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454: The Web Origin Concept</a>
+   */
+  public static boolean isValidOrigin(HttpRequest request, Collection<String> allowedOrigins) {
+    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(allowedOrigins, "Allowed origins must not be null");
+
+    String origin = request.getHeaders().getOrigin();
+    if (origin == null || allowedOrigins.contains("*")) {
+      return true;
+    }
+    else if (CollectionUtils.isEmpty(allowedOrigins)) {
+      return isSameOrigin(request);
+    }
+    else {
+      return allowedOrigins.contains(origin);
+    }
+  }
+
+  /**
+   * Check if the request is a same-origin one, based on {@code Origin}, {@code Host},
+   * {@code Forwarded}, {@code X-Forwarded-Proto}, {@code X-Forwarded-Host} and
+   * {@code X-Forwarded-Port} headers.
+   *
+   * <p><strong>Note:</strong> as of 5.1 this method ignores
+   * {@code "Forwarded"} and {@code "X-Forwarded-*"} headers that specify the
+   * client-originated address. Consider using the {@code ForwardedHeaderFilter}
+   * to extract and use, or to discard such headers.
+   *
+   * @return {@code true} if the request is a same-origin one, {@code false} in case
+   * of cross-origin request
+   */
+  public static boolean isSameOrigin(HttpRequest request) {
+    HttpHeaders headers = request.getHeaders();
+    String origin = headers.getOrigin();
+    if (origin == null) {
+      return true;
+    }
+
+    String scheme;
+    String host;
+    int port;
+    if (request instanceof ServletServerHttpRequest servletServerHttpRequest) {
+      // Build more efficiently if we can: we only need scheme, host, port for origin comparison
+      HttpServletRequest servletRequest = servletServerHttpRequest.getServletRequest();
+      scheme = servletRequest.getScheme();
+      host = servletRequest.getServerName();
+      port = servletRequest.getServerPort();
+    }
+    else {
+      URI uri = request.getURI();
+      scheme = uri.getScheme();
+      host = uri.getHost();
+      port = uri.getPort();
+    }
+
+    UriComponents originUrl = UriComponentsBuilder.fromOriginHeader(origin).build();
+    return (ObjectUtils.nullSafeEquals(scheme, originUrl.getScheme()) &&
+            ObjectUtils.nullSafeEquals(host, originUrl.getHost()) &&
+            getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort()));
+  }
+
+  private static int getPort(@Nullable String scheme, int port) {
+    if (port == -1) {
+      if ("http".equals(scheme) || "ws".equals(scheme)) {
+        port = 80;
+      }
+      else if ("https".equals(scheme) || "wss".equals(scheme)) {
+        port = 443;
+      }
+    }
+    return port;
   }
 
 }

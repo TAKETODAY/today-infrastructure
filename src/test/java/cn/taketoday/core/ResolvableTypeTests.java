@@ -177,7 +177,7 @@ public class ResolvableTypeTests {
   }
 
   @Test
-  void resolveTypeVariableFromReflectiveParameterizedTypeReference() throws Exception {
+  void resolveTypeVariableFromReflectiveTypeReference() throws Exception {
     Type sourceType = Methods.class.getMethod("typedReturn").getGenericReturnType();
     ResolvableType type = ResolvableType.fromType(TypeReference.fromType(sourceType));
     assertThat(type.resolve()).isNull();
@@ -835,7 +835,7 @@ public class ResolvableTypeTests {
   }
 
   @Test
-  void resolveTypeVariableFromDeclaredParameterizedTypeReference() throws Exception {
+  void resolveTypeVariableFromDeclaredTypeReference() throws Exception {
     Type sourceType = Methods.class.getMethod("charSequenceReturn").getGenericReturnType();
     ResolvableType reflectiveType = ResolvableType.fromType(sourceType);
     ResolvableType declaredType = ResolvableType.fromType(new TypeReference<List<CharSequence>>() { });

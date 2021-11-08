@@ -168,7 +168,6 @@ public class DefineClassHelper {
     }
   }
 
-  // SPRING PATCH BEGIN
   public static Class defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
     return defineClass(className, b, loader, null, null);
   }

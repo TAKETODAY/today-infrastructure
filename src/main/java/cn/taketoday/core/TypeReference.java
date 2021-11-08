@@ -42,8 +42,8 @@ public abstract class TypeReference<T> {
   private final Type type;
 
   protected TypeReference() {
-    Class<?> parameterizedTypeReferenceSubclass = findParameterizedTypeReferenceSubclass(getClass());
-    Type type = parameterizedTypeReferenceSubclass.getGenericSuperclass();
+    Class<?> TypeReferenceSubclass = findTypeReferenceSubclass(getClass());
+    Type type = TypeReferenceSubclass.getGenericSuperclass();
     Assert.isInstanceOf(ParameterizedType.class, type, "Type must be a parameterized type");
     ParameterizedType parameterizedType = (ParameterizedType) type;
     Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
@@ -91,7 +91,7 @@ public abstract class TypeReference<T> {
     return new TypeReference<T>(type) { };
   }
 
-  private static Class<?> findParameterizedTypeReferenceSubclass(Class<?> child) {
+  private static Class<?> findTypeReferenceSubclass(Class<?> child) {
     Class<?> parent = child.getSuperclass();
     if (Object.class == parent) {
       throw new IllegalStateException("Expected TypeReference superclass");
@@ -100,7 +100,7 @@ public abstract class TypeReference<T> {
       return child;
     }
     else {
-      return findParameterizedTypeReferenceSubclass(parent);
+      return findTypeReferenceSubclass(parent);
     }
   }
 }
