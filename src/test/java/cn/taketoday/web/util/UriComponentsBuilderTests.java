@@ -40,7 +40,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.mock.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -290,8 +290,8 @@ class UriComponentsBuilderTests {
   @Test
     // SPR-10539
   void fromHttpUrlInvalidIPv6Host() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            UriComponentsBuilder.fromHttpUrl("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource"));
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> UriComponentsBuilder.fromHttpUrl("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource"));
   }
 
   @Test
