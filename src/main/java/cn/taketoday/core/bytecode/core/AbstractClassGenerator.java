@@ -19,7 +19,6 @@ import cn.taketoday.core.bytecode.core.internal.LoadingCache;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DefineClassHelper;
-import cn.taketoday.util.ReflectionUtils;
 
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
@@ -318,17 +317,27 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         try {
           return classLoader.loadClass(getClassName());
         }
-        catch (ClassNotFoundException ignored) {}
+        catch (ClassNotFoundException ignored) {
+        }
       }
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) { // just in case
         Class<?> neighbor = getNeighbor();
-        if(neighbor != null&& neighbor != Object.class) {
-          return DefineClassHelper.toClass(neighbor, bytes);
+
+        if (neighbor != null) {
+          Module module = neighbor.getModule();
+          String name = module.getName();
+          if (name == null || !name.startsWith("java")) {
+            return DefineClassHelper.toClass(neighbor, bytes);
+          }
         }
-        else {
+
+//        if (neighbor != null && neighbor != Object.class) {
+//          return DefineClassHelper.toClass(neighbor, bytes);
+//        }
+//        else {
           return DefineClassHelper.toClass(getClassName(), null, classLoader, getProtectionDomain(), bytes);
-        }
+//        }
       }
     }
     catch (RuntimeException | Error e) {
