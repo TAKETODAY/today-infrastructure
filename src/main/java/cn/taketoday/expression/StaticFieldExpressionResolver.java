@@ -137,12 +137,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    */
   @Override
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
-
-    if (base instanceof Class && property instanceof String) {
-
-      Class<?> klass = ((Class<?>) base);
-      String fieldName = (String) property;
-
+    if (base instanceof Class<?> klass && property instanceof String fieldName) {
       throw new PropertyNotWritableException("Cannot write to the field '" + klass.getName() + "' of the class '" + fieldName + "'");
     }
   }
@@ -194,11 +189,9 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
   public Object invoke(
           ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
 
-    if (!(base instanceof Class && method instanceof String)) {
+    if (!(base instanceof Class<?> klass && method instanceof String name)) {
       return null;
     }
-    Class<?> klass = ((Class<?>) base);
-    String name = (String) method;
 
     Object ret;
     if (MethodSignature.CONSTRUCTOR_NAME.equals(name)) {
@@ -241,10 +234,8 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    */
   @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof Class && property instanceof String) {
       try {
-
         context.setPropertyResolved(true);
         final Field field = ((Class<?>) base).getField((String) property);
         return field.getType();
@@ -282,7 +273,6 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    */
   @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof Class && property instanceof String) {
       context.setPropertyResolved(true);
     }
