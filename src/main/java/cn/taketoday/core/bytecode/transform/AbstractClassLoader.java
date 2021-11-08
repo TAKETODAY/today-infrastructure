@@ -57,15 +57,11 @@ public abstract class AbstractClassLoader extends ClassLoader {
     }
     ClassReader r;
     try {
-      InputStream is = classPath.getResourceAsStream(name.replace('.', '/').concat(".class"));
-      if (is == null) {
-        throw new ClassNotFoundException(name);
-      }
-      try {
+      try (InputStream is = classPath.getResourceAsStream(name.replace('.', '/').concat(".class"))) {
+        if (is == null) {
+          throw new ClassNotFoundException(name);
+        }
         r = new ClassReader(is);
-      }
-      finally {
-        is.close();
       }
     }
     catch (IOException e) {
