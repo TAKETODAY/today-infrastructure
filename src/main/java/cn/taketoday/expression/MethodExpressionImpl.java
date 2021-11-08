@@ -43,6 +43,8 @@ package cn.taketoday.expression;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.parser.Node;
 
+import java.io.Serial;
+
 /**
  * An <code>Expression</code> that refers to a method on an object.
  *
@@ -83,6 +85,7 @@ import cn.taketoday.expression.parser.Node;
  * @see cn.taketoday.expression.MethodExpression
  */
 public final class MethodExpressionImpl extends MethodExpression {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Node node;
@@ -199,8 +202,6 @@ public final class MethodExpressionImpl extends MethodExpression {
    */
   public Object invoke(final ExpressionContext context, Object[] params) {
     Object value = getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
-
-    final Class<?> expectedType = this.expectedType;
     if (value != null && expectedType != null && !expectedType.isInstance(value)) {
       try {
         value = context.convertToType(value, expectedType);
@@ -248,8 +249,7 @@ public final class MethodExpressionImpl extends MethodExpression {
    * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object obj) {
-    if (obj instanceof MethodExpressionImpl) {
-      MethodExpressionImpl me = (MethodExpressionImpl) obj;
+    if (obj instanceof MethodExpressionImpl me) {
       return getNode().equals(me.getNode());
     }
     return false;
