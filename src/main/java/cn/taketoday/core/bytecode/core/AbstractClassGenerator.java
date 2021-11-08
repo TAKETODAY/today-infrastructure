@@ -15,17 +15,18 @@
  */
 package cn.taketoday.core.bytecode.core;
 
+import cn.taketoday.core.bytecode.core.internal.LoadingCache;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.DefineClassHelper;
+import cn.taketoday.util.ReflectionUtils;
+
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import cn.taketoday.core.bytecode.core.internal.LoadingCache;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to
@@ -284,8 +285,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
       final Object obj = data.get(this, getUseCache());
       return obj instanceof Class
-             ? firstInstance((Class<T>) obj)
-             : nextInstance(obj);
+              ? firstInstance((Class<T>) obj)
+              : nextInstance(obj);
     }
     catch (RuntimeException | Error e) {
       throw e;
@@ -317,12 +318,17 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         try {
           return classLoader.loadClass(getClassName());
         }
-        catch (ClassNotFoundException ignored) { }
+        catch (ClassNotFoundException ignored) {}
       }
       final byte[] bytes = getStrategy().generate(this);
-      final String className = getClassName();
       synchronized(classLoader) { // just in case
-        return ReflectionUtils.defineClass(className, bytes, classLoader, getProtectionDomain());
+        Class<?> neighbor = getNeighbor();
+        if(neighbor != null&& neighbor != Object.class) {
+          return DefineClassHelper.toClass(neighbor, bytes);
+        }
+        else {
+          return DefineClassHelper.toClass(getClassName(), null, classLoader, getProtectionDomain(), bytes);
+        }
       }
     }
     catch (RuntimeException | Error e) {
@@ -334,6 +340,10 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     finally {
       CURRENT.set(save);
     }
+  }
+
+  protected Class<?> getNeighbor() {
+    return null;
   }
 
   protected abstract Object firstInstance(Class<T> type) throws Exception;

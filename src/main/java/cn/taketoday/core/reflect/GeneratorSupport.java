@@ -57,8 +57,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
   protected ClassLoader classLoader;
   protected final Class<?> targetClass;
 
-  protected static final Mappings<Accessor, GeneratorSupport<?>> mappings
-          = new Mappings<Accessor, GeneratorSupport<?>>() {
+  protected static final Mappings<Accessor, GeneratorSupport<?>> mappings = new Mappings<>() {
     @Override
     protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
       try {
@@ -124,9 +123,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
     catch (ClassNotFoundException ignored) { }
     byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-//    return (Class<T>) DefineClassHelper.toClass(className, targetClass, classLoader, ReflectionUtils.getProtectionDomain(targetClass), bytes);
-   return ReflectionUtils.defineClass(
-            getClassName(), bytes, classLoader, ReflectionUtils.getProtectionDomain(targetClass));
+    return (Class<T>) DefineClassHelper.toClass(targetClass, bytes);
   }
 
   protected abstract Object cacheKey();

@@ -96,6 +96,11 @@ public abstract class BeanCopier {
       return ReflectionUtils.getProtectionDomain(source);
     }
 
+    @Override
+    protected Class<?> getNeighbor() {
+      return source;
+    }
+
     public BeanCopier create() {
       return (BeanCopier) super.create(KEY_FACTORY.newInstance(source.getName(), target.getName(), useConverter));
     }

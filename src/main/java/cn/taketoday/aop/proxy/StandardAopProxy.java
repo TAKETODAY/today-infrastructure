@@ -137,6 +137,11 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       return ReflectionUtils.getProtectionDomain(targetClass);
     }
 
+    @Override
+    protected Class<?> getNeighbor() {
+      return targetClass;
+    }
+
     public Object create() {
       setUseCache(false);
       setNamePrefix(targetClass.getName());

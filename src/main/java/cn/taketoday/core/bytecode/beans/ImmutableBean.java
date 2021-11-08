@@ -15,10 +15,6 @@
  */
 package cn.taketoday.core.bytecode.beans;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -31,6 +27,10 @@ import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
 
 /**
  * @author Chris Nokleberg
@@ -68,6 +68,11 @@ public abstract class ImmutableBean {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(target);
+    }
+
+    @Override
+    protected Class<?> getNeighbor() {
+      return target;
     }
 
     public Object create() {

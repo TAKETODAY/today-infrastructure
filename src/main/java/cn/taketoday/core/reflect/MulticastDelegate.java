@@ -19,10 +19,6 @@
  */
 package cn.taketoday.core.reflect;
 
-import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.List;
-
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -36,6 +32,10 @@ import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.bytecode.core.ProcessArrayCallback;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author TODAY <br>
@@ -105,6 +105,11 @@ abstract public class MulticastDelegate implements Cloneable {
       return ReflectionUtils.getProtectionDomain(iface);
     }
 
+    @Override
+    protected Class<?> getNeighbor() {
+      return iface;
+    }
+
     public Generator setInterface(Class<?> iface) {
       this.iface = iface;
       return this;
@@ -122,7 +127,7 @@ abstract public class MulticastDelegate implements Cloneable {
       ClassEmitter ce = new ClassEmitter(cv);
 
       ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
-                    Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
+              Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
 
       EmitUtils.nullConstructor(ce);
 

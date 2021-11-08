@@ -19,11 +19,6 @@
  */
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.security.ProtectionDomain;
-import java.util.Objects;
-
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -36,6 +31,11 @@ import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.ProtectionDomain;
+import java.util.Objects;
 
 // TODO: don't require exact match for return type
 
@@ -211,6 +211,11 @@ public abstract class MethodDelegate {
       return ReflectionUtils.getProtectionDomain(targetClass);
     }
 
+    @Override
+    protected Class<?> getNeighbor() {
+      return targetClass;
+    }
+
     public MethodDelegate create() {
       setNamePrefix(targetClass.getName());
       Object key = KEY_FACTORY.newInstance(targetClass, methodName, iface);
@@ -248,7 +253,7 @@ public abstract class MethodDelegate {
       CodeEmitter e;
 
       ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
-                    Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
+              Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
 
       ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, "eqMethod", Type.TYPE_STRING, null);
       EmitUtils.nullConstructor(ce);

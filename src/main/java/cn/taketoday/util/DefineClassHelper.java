@@ -38,6 +38,7 @@ package cn.taketoday.util;
 
 
 import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Nullable;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -73,7 +74,7 @@ public class DefineClassHelper {
    * @param domain if it is null, a default domain is used.
    * @param bcode the bytecode for the loaded class.
    */
-  public static Class<?> toClass(String className, Class<?> neighbor, ClassLoader loader,
+  public static Class<?> toClass(String className, @Nullable Class<?> neighbor, ClassLoader loader,
                                  ProtectionDomain domain, byte[] bcode)
           throws ReflectionException {
     try {
@@ -104,7 +105,6 @@ public class DefineClassHelper {
           throws ReflectionException {
     try {
       DefineClassHelper.class.getModule().addReads(neighbor.getModule());
-      Lookup lookup = MethodHandles.lookup();
       Lookup prvlookup = MethodHandles.privateLookupIn(neighbor, lookup);
       return prvlookup.defineClass(bcode);
     }
@@ -113,6 +113,8 @@ public class DefineClassHelper {
               + " has no permission to define the class");
     }
   }
+
+  static Lookup lookup = MethodHandles.lookup();
 
   /**
    * Loads a class file by {@code java.lang.invoke.MethodHandles.Lookup}.
@@ -168,7 +170,6 @@ public class DefineClassHelper {
         // Lookup#defineClass() is not available.  So fallback to invoking defineClass on
         // ClassLoader, which causes a warning message.
         try {
-          defineClass.setAccessible(true);
           return (Class<?>) defineClass.invoke(loader, new Object[] {
                   name, b, off, len, protectionDomain
           });

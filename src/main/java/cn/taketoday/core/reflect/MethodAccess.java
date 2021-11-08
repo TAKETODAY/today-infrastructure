@@ -19,17 +19,17 @@
  */
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
 
 /**
  * @author TODAY 2018-11-08 15:08
@@ -119,6 +119,11 @@ public abstract class MethodAccess {
       return ReflectionUtils.getProtectionDomain(type);
     }
 
+    @Override
+    protected Class<?> getNeighbor() {
+      return type;
+    }
+
     public void generateClass(ClassVisitor v) throws Exception {
       new MethodAccessEmitter(v, getClassName(), type);
     }
@@ -197,11 +202,11 @@ public abstract class MethodAccess {
   }
 
   protected static String getSignatureWithoutReturnType(String name, Class[] parameterTypes) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append(name);
     sb.append('(');
-    for (int i = 0; i < parameterTypes.length; i++) {
-      sb.append(Type.getDescriptor(parameterTypes[i]));
+    for (Class parameterType : parameterTypes) {
+      sb.append(Type.getDescriptor(parameterType));
     }
     sb.append(')');
     return sb.toString();

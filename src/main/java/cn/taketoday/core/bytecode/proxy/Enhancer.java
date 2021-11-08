@@ -15,26 +15,6 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
@@ -66,6 +46,26 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_FRAMES;
@@ -616,6 +616,17 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     return null;
   }
 
+  @Override
+  protected Class<?> getNeighbor() {
+    if (superclass != null) {
+      return superclass;
+    }
+    if (ObjectUtils.isNotEmpty(interfaces)) {
+      return interfaces[0];
+    }
+    return null;
+  }
+
   private MethodSignature rename(MethodSignature sig, int index) {
     return new MethodSignature("today$" + sig.getName() + '$' + index, sig.getDescriptor());
   }
@@ -707,20 +718,20 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final ClassEmitter e = new ClassEmitter(v);
     if (currentData == null) {
       e.beginClass(Opcodes.JAVA_VERSION, //
-                   ACC_PUBLIC, //
-                   getClassName(), //
-                   Type.fromClass(superclass), //
-                   (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
-                   Constant.SOURCE_FILE//
+              ACC_PUBLIC, //
+              getClassName(), //
+              Type.fromClass(superclass), //
+              (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
+              Constant.SOURCE_FILE//
       );
     }
     else {
       e.beginClass(Opcodes.JAVA_VERSION, //
-                   ACC_PUBLIC, //
-                   getClassName(), //
-                   null, //
-                   Type.array(FACTORY),
-                   Constant.SOURCE_FILE//
+              ACC_PUBLIC, //
+              getClassName(), //
+              null, //
+              Type.array(FACTORY),
+              Constant.SOURCE_FILE//
       );
     }
     List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());

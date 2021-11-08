@@ -19,10 +19,6 @@
  */
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
@@ -33,6 +29,10 @@ import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.core.bytecode.Opcodes.JAVA_VERSION;
@@ -92,6 +92,11 @@ abstract public class ConstructorDelegate {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(targetClass);
+    }
+
+    @Override
+    protected Class<?> getNeighbor() {
+      return targetClass;
     }
 
     public void generateClass(ClassVisitor v) {

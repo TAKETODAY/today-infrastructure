@@ -86,6 +86,11 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     return ReflectionUtils.getProtectionDomain(superclass);
   }
 
+  @Override
+  protected Class<?> getNeighbor() {
+    return superclass;
+  }
+
   public Object create() {
     classOnly = false;
     return createHelper();

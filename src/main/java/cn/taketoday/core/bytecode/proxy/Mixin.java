@@ -15,12 +15,6 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import java.security.ProtectionDomain;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.CglibReflectUtils;
@@ -28,6 +22,12 @@ import cn.taketoday.core.bytecode.core.ClassesKey;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <code>Mixin</code> allows multiple objects to be combined into a single
@@ -111,6 +111,11 @@ public abstract class Mixin {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(classes[0]);
+    }
+
+    @Override
+    protected Class<?> getNeighbor() {
+      return classes[0];
     }
 
     public void setStyle(int style) {
