@@ -69,10 +69,6 @@ jobs:
     #    uses a compiled language
 
     - run: |
-        git clone https://github.com/TAKETODAY/today-context.git
-        cd ./today-context
-        mvn install
-        cd ../
         mvn package -DskipTests=true
         
     - name: Perform CodeQL Analysis
