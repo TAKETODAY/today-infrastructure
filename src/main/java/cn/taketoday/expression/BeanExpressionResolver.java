@@ -20,6 +20,8 @@ package cn.taketoday.expression;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 
+import java.lang.reflect.Method;
+
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
 
@@ -130,7 +132,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
       return null;
     }
 
-    final BeanProperty beanProperty = getProperty(base, property);
+    BeanProperty beanProperty = getProperty(base, property);
     context.setPropertyResolved(true);
     return beanProperty.getType();
   }
@@ -173,9 +175,9 @@ public class BeanExpressionResolver extends ExpressionResolver {
     if (base == null || property == null) {
       return null;
     }
-    final BeanProperty beanProperty = getProperty(base, property);
+    BeanProperty beanProperty = getProperty(base, property);
     try {
-      final Object value = beanProperty.getValue(base);
+      Object value = beanProperty.getValue(base);
       context.setPropertyResolved(base, property);
       return value;
     }
@@ -232,20 +234,19 @@ public class BeanExpressionResolver extends ExpressionResolver {
       throw new PropertyNotWritableException("The ELResolver for the class '" + base.getClass().getName() + "' is not writable.");
     }
 
-    final BeanProperty beanProperty = getProperty(base, property);
+    BeanProperty beanProperty = getProperty(base, property);
     try {
       beanProperty.setValue(base, val);
       context.setPropertyResolved(base, property);
     }
     catch (Exception ex) {
-      final StringBuilder message = new StringBuilder("Can't set property '")//
+      StringBuilder message = new StringBuilder("Can't set property '")//
               .append(property)//
               .append("' on class '")//
               .append(base.getClass().getName())//
               .append("' to value '")//
               .append(val)//
               .append("'.");
-
       throw new ExpressionException(message.toString(), ex);
     }
   }
@@ -307,15 +308,11 @@ public class BeanExpressionResolver extends ExpressionResolver {
    * @since EL 2.2
    */
   public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
-
     if (base == null || method == null) {
       return null;
     }
-
-    final Object ret = invokeMethod(context, findMethod(base.getClass(), method.toString(), paramTypes, params, false),
-                                    base,
-                                    params);
-
+    Method methodToUse = findMethod(base.getClass(), method.toString(), paramTypes, params, false);
+    Object ret = invokeMethod(context, methodToUse, base, params);
     context.setPropertyResolved(base, method);
     return ret;
   }
@@ -362,20 +359,18 @@ public class BeanExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
     if (base == null || property == null) {
       return false;
     }
-
     context.setPropertyResolved(true);
     return isReadOnly;
   }
 
   private BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
-    final BeanProperty beanProperty = BeanMetadata.ofObject(base).getBeanProperty(prop.toString());
+    BeanProperty beanProperty = BeanMetadata.ofObject(base).getBeanProperty(prop.toString());
     if (beanProperty == null) {
-      throw new PropertyNotFoundException("The class '" + base.getClass().getName() //
-                                                  + "' does not have the property '" + prop + "'.");
+      throw new PropertyNotFoundException(
+              "The class '" + base.getClass().getName() + "' does not have the property '" + prop + "'.");
     }
     return beanProperty;
   }
