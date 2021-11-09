@@ -6,38 +6,39 @@ package cn.taketoday.protobuf;
 /**
  * Protobuf type {@code SecondMsg}
  */
-public  final class SecondMsg extends
-    com.google.protobuf.GeneratedMessage
-    implements SecondMsgOrBuilder {
+public final class SecondMsg extends
+    com.google.protobuf.GeneratedMessageV3 implements
+    // @@protoc_insertion_point(message_implements:SecondMsg)
+    SecondMsgOrBuilder {
+private static final long serialVersionUID = 0L;
   // Use SecondMsg.newBuilder() to construct.
-  private SecondMsg(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  private SecondMsg(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
-    this.unknownFields = builder.getUnknownFields();
   }
-  private SecondMsg(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-  private static final SecondMsg defaultInstance;
-  public static SecondMsg getDefaultInstance() {
-    return defaultInstance;
+  private SecondMsg() {
   }
 
-  public SecondMsg getDefaultInstanceForType() {
-    return defaultInstance;
+  @java.lang.Override
+  @SuppressWarnings({"unused"})
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
+    return new SecondMsg();
   }
 
-  private final com.google.protobuf.UnknownFieldSet unknownFields;
-  @Override
+  @java.lang.Override
   public final com.google.protobuf.UnknownFieldSet
-      getUnknownFields() {
+  getUnknownFields() {
     return this.unknownFields;
   }
   private SecondMsg(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
-    initFields();
-    @SuppressWarnings("unused")
-	int mutable_bitField0_ = 0;
+    this();
+    if (extensionRegistry == null) {
+      throw new java.lang.NullPointerException();
+    }
+    int mutable_bitField0_ = 0;
     com.google.protobuf.UnknownFieldSet.Builder unknownFields =
         com.google.protobuf.UnknownFieldSet.newBuilder();
     try {
@@ -48,16 +49,16 @@ public  final class SecondMsg extends
           case 0:
             done = true;
             break;
-          default: {
-            if (!parseUnknownField(input, unknownFields,
-                                   extensionRegistry, tag)) {
-              done = true;
-            }
-            break;
-          }
           case 8: {
             bitField0_ |= 0x00000001;
             blah_ = input.readInt32();
+            break;
+          }
+          default: {
+            if (!parseUnknownField(
+                input, unknownFields, extensionRegistry, tag)) {
+              done = true;
+            }
             break;
           }
         }
@@ -66,7 +67,7 @@ public  final class SecondMsg extends
       throw e.setUnfinishedMessage(this);
     } catch (java.io.IOException e) {
       throw new com.google.protobuf.InvalidProtocolBufferException(
-          e.getMessage()).setUnfinishedMessage(this);
+          e).setUnfinishedMessage(this);
     } finally {
       this.unknownFields = unknownFields.build();
       makeExtensionsImmutable();
@@ -77,88 +78,115 @@ public  final class SecondMsg extends
     return cn.taketoday.protobuf.OuterSample.internal_static_SecondMsg_descriptor;
   }
 
-  protected FieldAccessorTable
+  @java.lang.Override
+  protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
     return cn.taketoday.protobuf.OuterSample.internal_static_SecondMsg_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             cn.taketoday.protobuf.SecondMsg.class, cn.taketoday.protobuf.SecondMsg.Builder.class);
   }
 
-  public static com.google.protobuf.Parser<SecondMsg> PARSER =
-      new com.google.protobuf.AbstractParser<SecondMsg>() {
-    public SecondMsg parsePartialFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return new SecondMsg(input, extensionRegistry);
-    }
-  };
-
-  @Override
-  public com.google.protobuf.Parser<SecondMsg> getParserForType() {
-    return PARSER;
-  }
-
   private int bitField0_;
-  // optional int32 blah = 1;
   public static final int BLAH_FIELD_NUMBER = 1;
   private int blah_;
   /**
    * <code>optional int32 blah = 1;</code>
+   * @return Whether the blah field is set.
    */
+  @java.lang.Override
   public boolean hasBlah() {
-    return ((bitField0_ & 0x00000001) == 0x00000001);
+    return ((bitField0_ & 0x00000001) != 0);
   }
   /**
    * <code>optional int32 blah = 1;</code>
+   * @return The blah.
    */
+  @java.lang.Override
   public int getBlah() {
     return blah_;
   }
 
-  private void initFields() {
-    blah_ = 0;
-  }
   private byte memoizedIsInitialized = -1;
+  @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
-    if (isInitialized != -1) return isInitialized == 1;
+    if (isInitialized == 1) return true;
+    if (isInitialized == 0) return false;
 
     memoizedIsInitialized = 1;
     return true;
   }
 
+  @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    getSerializedSize();
-    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+    if (((bitField0_ & 0x00000001) != 0)) {
       output.writeInt32(1, blah_);
     }
-    getUnknownFields().writeTo(output);
+    unknownFields.writeTo(output);
   }
 
-  private int memoizedSerializedSize = -1;
+  @java.lang.Override
   public int getSerializedSize() {
-    int size = memoizedSerializedSize;
+    int size = memoizedSize;
     if (size != -1) return size;
 
     size = 0;
-    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+    if (((bitField0_ & 0x00000001) != 0)) {
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(1, blah_);
     }
-    size += getUnknownFields().getSerializedSize();
-    memoizedSerializedSize = size;
+    size += unknownFields.getSerializedSize();
+    memoizedSize = size;
     return size;
   }
 
-  private static final long serialVersionUID = 0L;
-  @Override
-  protected Object writeReplace()
-      throws java.io.ObjectStreamException {
-    return super.writeReplace();
+  @java.lang.Override
+  public boolean equals(final java.lang.Object obj) {
+    if (obj == this) {
+     return true;
+    }
+    if (!(obj instanceof cn.taketoday.protobuf.SecondMsg)) {
+      return super.equals(obj);
+    }
+    cn.taketoday.protobuf.SecondMsg other = (cn.taketoday.protobuf.SecondMsg) obj;
+
+    if (hasBlah() != other.hasBlah()) return false;
+    if (hasBlah()) {
+      if (getBlah()
+          != other.getBlah()) return false;
+    }
+    if (!unknownFields.equals(other.unknownFields)) return false;
+    return true;
   }
 
+  @java.lang.Override
+  public int hashCode() {
+    if (memoizedHashCode != 0) {
+      return memoizedHashCode;
+    }
+    int hash = 41;
+    hash = (19 * hash) + getDescriptor().hashCode();
+    if (hasBlah()) {
+      hash = (37 * hash) + BLAH_FIELD_NUMBER;
+      hash = (53 * hash) + getBlah();
+    }
+    hash = (29 * hash) + unknownFields.hashCode();
+    memoizedHashCode = hash;
+    return hash;
+  }
+
+  public static cn.taketoday.protobuf.SecondMsg parseFrom(
+      java.nio.ByteBuffer data)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    return PARSER.parseFrom(data);
+  }
+  public static cn.taketoday.protobuf.SecondMsg parseFrom(
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    return PARSER.parseFrom(data, extensionRegistry);
+  }
   public static cn.taketoday.protobuf.SecondMsg parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -182,46 +210,59 @@ public  final class SecondMsg extends
   }
   public static cn.taketoday.protobuf.SecondMsg parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return PARSER.parseFrom(input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
   public static cn.taketoday.protobuf.SecondMsg parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return PARSER.parseFrom(input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
   public static cn.taketoday.protobuf.SecondMsg parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return PARSER.parseDelimitedFrom(input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
   public static cn.taketoday.protobuf.SecondMsg parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
   public static cn.taketoday.protobuf.SecondMsg parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
-    return PARSER.parseFrom(input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
   public static cn.taketoday.protobuf.SecondMsg parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return PARSER.parseFrom(input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static Builder newBuilder() { return Builder.create(); }
+  @java.lang.Override
   public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder(cn.taketoday.protobuf.SecondMsg prototype) {
-    return newBuilder().mergeFrom(prototype);
+  public static Builder newBuilder() {
+    return DEFAULT_INSTANCE.toBuilder();
   }
-  public Builder toBuilder() { return newBuilder(this); }
+  public static Builder newBuilder(cn.taketoday.protobuf.SecondMsg prototype) {
+    return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+  }
+  @java.lang.Override
+  public Builder toBuilder() {
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
+  }
 
-  @Override
+  @java.lang.Override
   protected Builder newBuilderForType(
-      BuilderParent parent) {
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
@@ -229,14 +270,16 @@ public  final class SecondMsg extends
    * Protobuf type {@code SecondMsg}
    */
   public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-     implements cn.taketoday.protobuf.SecondMsgOrBuilder {
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+      // @@protoc_insertion_point(builder_implements:SecondMsg)
+      cn.taketoday.protobuf.SecondMsgOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
       return cn.taketoday.protobuf.OuterSample.internal_static_SecondMsg_descriptor;
     }
 
-    protected FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return cn.taketoday.protobuf.OuterSample.internal_static_SecondMsg_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
@@ -249,18 +292,16 @@ public  final class SecondMsg extends
     }
 
     private Builder(
-        BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
       maybeForceBuilderInitialization();
     }
     private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+      if (com.google.protobuf.GeneratedMessageV3
+              .alwaysUseFieldBuilders) {
       }
     }
-    private static Builder create() {
-      return new Builder();
-    }
-
+    @java.lang.Override
     public Builder clear() {
       super.clear();
       blah_ = 0;
@@ -268,19 +309,18 @@ public  final class SecondMsg extends
       return this;
     }
 
-    public Builder clone() {
-      return create().mergeFrom(buildPartial());
-    }
-
+    @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
       return cn.taketoday.protobuf.OuterSample.internal_static_SecondMsg_descriptor;
     }
 
+    @java.lang.Override
     public cn.taketoday.protobuf.SecondMsg getDefaultInstanceForType() {
       return cn.taketoday.protobuf.SecondMsg.getDefaultInstance();
     }
 
+    @java.lang.Override
     public cn.taketoday.protobuf.SecondMsg build() {
       cn.taketoday.protobuf.SecondMsg result = buildPartial();
       if (!result.isInitialized()) {
@@ -289,19 +329,53 @@ public  final class SecondMsg extends
       return result;
     }
 
+    @java.lang.Override
     public cn.taketoday.protobuf.SecondMsg buildPartial() {
       cn.taketoday.protobuf.SecondMsg result = new cn.taketoday.protobuf.SecondMsg(this);
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
-      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.blah_ = blah_;
         to_bitField0_ |= 0x00000001;
       }
-      result.blah_ = blah_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
 
+    @java.lang.Override
+    public Builder clone() {
+      return super.clone();
+    }
+    @java.lang.Override
+    public Builder setField(
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
+      return super.setField(field, value);
+    }
+    @java.lang.Override
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
+      return super.clearField(field);
+    }
+    @java.lang.Override
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+      return super.clearOneof(oneof);
+    }
+    @java.lang.Override
+    public Builder setRepeatedField(
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
+      return super.setRepeatedField(field, index, value);
+    }
+    @java.lang.Override
+    public Builder addRepeatedField(
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
+      return super.addRepeatedField(field, value);
+    }
+    @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof cn.taketoday.protobuf.SecondMsg) {
         return mergeFrom((cn.taketoday.protobuf.SecondMsg)other);
@@ -316,14 +390,17 @@ public  final class SecondMsg extends
       if (other.hasBlah()) {
         setBlah(other.getBlah());
       }
-      this.mergeUnknownFields(other.getUnknownFields());
+      this.mergeUnknownFields(other.unknownFields);
+      onChanged();
       return this;
     }
 
+    @java.lang.Override
     public final boolean isInitialized() {
       return true;
     }
 
+    @java.lang.Override
     public Builder mergeFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -333,7 +410,7 @@ public  final class SecondMsg extends
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         parsedMessage = (cn.taketoday.protobuf.SecondMsg) e.getUnfinishedMessage();
-        throw e;
+        throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
           mergeFrom(parsedMessage);
@@ -343,22 +420,27 @@ public  final class SecondMsg extends
     }
     private int bitField0_;
 
-    // optional int32 blah = 1;
     private int blah_ ;
     /**
      * <code>optional int32 blah = 1;</code>
+     * @return Whether the blah field is set.
      */
+    @java.lang.Override
     public boolean hasBlah() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>optional int32 blah = 1;</code>
+     * @return The blah.
      */
+    @java.lang.Override
     public int getBlah() {
       return blah_;
     }
     /**
      * <code>optional int32 blah = 1;</code>
+     * @param value The blah to set.
+     * @return This builder for chaining.
      */
     public Builder setBlah(int value) {
       bitField0_ |= 0x00000001;
@@ -368,6 +450,7 @@ public  final class SecondMsg extends
     }
     /**
      * <code>optional int32 blah = 1;</code>
+     * @return This builder for chaining.
      */
     public Builder clearBlah() {
       bitField0_ = (bitField0_ & ~0x00000001);
@@ -375,15 +458,56 @@ public  final class SecondMsg extends
       onChanged();
       return this;
     }
+    @java.lang.Override
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
+      return super.setUnknownFields(unknownFields);
+    }
+
+    @java.lang.Override
+    public final Builder mergeUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
+      return super.mergeUnknownFields(unknownFields);
+    }
+
 
     // @@protoc_insertion_point(builder_scope:SecondMsg)
   }
 
+  // @@protoc_insertion_point(class_scope:SecondMsg)
+  private static final cn.taketoday.protobuf.SecondMsg DEFAULT_INSTANCE;
   static {
-    defaultInstance = new SecondMsg(true);
-    defaultInstance.initFields();
+    DEFAULT_INSTANCE = new cn.taketoday.protobuf.SecondMsg();
   }
 
-  // @@protoc_insertion_point(class_scope:SecondMsg)
+  public static cn.taketoday.protobuf.SecondMsg getDefaultInstance() {
+    return DEFAULT_INSTANCE;
+  }
+
+  private static final com.google.protobuf.Parser<SecondMsg>
+      PARSER = new com.google.protobuf.AbstractParser<SecondMsg>() {
+    @java.lang.Override
+    public SecondMsg parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return new SecondMsg(input, extensionRegistry);
+    }
+  };
+
+  public static com.google.protobuf.Parser<SecondMsg> parser() {
+    return PARSER;
+  }
+
+  @java.lang.Override
+  public com.google.protobuf.Parser<SecondMsg> getParserForType() {
+    return PARSER;
+  }
+
+  @java.lang.Override
+  public cn.taketoday.protobuf.SecondMsg getDefaultInstanceForType() {
+    return DEFAULT_INSTANCE;
+  }
+
 }
 
