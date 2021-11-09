@@ -36,15 +36,16 @@
 
 package cn.taketoday.util;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.Nullable;
+
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -57,7 +58,6 @@ public class DefineClassHelper {
   private static final Throwable THROWABLE;
   private static final ProtectionDomain PROTECTION_DOMAIN;
 
-  // SPRING PATCH BEGIN
   static {
     // Resolve protected ClassLoader.defineClass method for fallback use
     // (even if JDK 9+ Lookup.defineClass is preferably used below)
@@ -87,8 +87,6 @@ public class DefineClassHelper {
    * via {@code PrivilegedAction}.  Since the latter approach is not available
    * any longer by default in Java 9 or later, the JVM argument
    * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
-   * If this JVM argument cannot be given, {@link #toPublicClass(String, byte[])}
-   * should be used instead.
    * </p>
    *
    * @param className the name of the loaded class.
@@ -98,7 +96,7 @@ public class DefineClassHelper {
    * @param domain if it is null, a default domain is used.
    * @param bcode the bytecode for the loaded class.
    */
-  public static Class<?> toClass(
+  public static Class<?> defineClass(
           String className, @Nullable Class<?> neighbor,
           ClassLoader loader, ProtectionDomain domain, byte[] bcode) throws ReflectionException {
     try {
@@ -124,7 +122,7 @@ public class DefineClassHelper {
    * class belogns to.
    * @param bcode the bytecode.
    */
-  public static Class<?> toClass(Class<?> neighbor, byte[] bcode)
+  public static Class<?> defineClass(Class<?> neighbor, byte[] bcode)
           throws ReflectionException {
     try {
       DefineClassHelper.class.getModule().addReads(neighbor.getModule());
@@ -137,42 +135,11 @@ public class DefineClassHelper {
     }
   }
 
-  /**
-   * Loads a class file by {@code java.lang.invoke.MethodHandles.Lookup}.
-   * It can be obtained by {@code MethodHandles.lookup()} called from
-   * somewhere in the package that the loaded class belongs to.
-   *
-   * @param bcode the bytecode.
-   */
-  public static Class<?> toClass(Lookup lookup, byte[] bcode)
-          throws ReflectionException {
-    try {
-      return lookup.defineClass(bcode);
-    }
-    catch (IllegalAccessException | IllegalArgumentException e) {
-      throw new ReflectionException(e.getMessage());
-    }
-  }
-
-  /**
-   * Loads a class file by {@code java.lang.invoke.MethodHandles.Lookup}.
-   */
-  static Class<?> toPublicClass(String className, byte[] bcode) throws ReflectionException {
-    try {
-      Lookup lookup = MethodHandles.lookup();
-      lookup = lookup.dropLookupMode(java.lang.invoke.MethodHandles.Lookup.PRIVATE);
-      return lookup.defineClass(bcode);
-    }
-    catch (Throwable t) {
-      throw new ReflectionException(t);
-    }
-  }
-
-  public static Class defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+  public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
     return defineClass(className, b, loader, null, null);
   }
 
-  public static Class defineClass(
+  public static Class<?> defineClass(
           String className, byte[] b, ClassLoader loader,
           ProtectionDomain protectionDomain) throws Exception {
 
@@ -180,11 +147,11 @@ public class DefineClassHelper {
   }
 
   @SuppressWarnings("deprecation")
-  public static Class defineClass(
+  public static Class<?> defineClass(
           String className, byte[] b, ClassLoader loader,
           ProtectionDomain protectionDomain, Class<?> contextClass) throws Exception {
 
-    Class c = null;
+    Class<?> c = null;
     Throwable t = THROWABLE;
 
     // Preferred option: JDK 9+ Lookup.defineClass API if ClassLoader matches
@@ -214,7 +181,7 @@ public class DefineClassHelper {
       try {
         Method publicDefineClass = loader.getClass().getMethod(
                 "publicDefineClass", String.class, byte[].class, ProtectionDomain.class);
-        c = (Class) publicDefineClass.invoke(loader, className, b, protectionDomain);
+        c = (Class<?>) publicDefineClass.invoke(loader, className, b, protectionDomain);
       }
       catch (InvocationTargetException ex) {
         if (!(ex.getTargetException() instanceof UnsupportedOperationException)) {
@@ -230,23 +197,22 @@ public class DefineClassHelper {
 
       // Classic option: protected ClassLoader.defineClass method
       if (c == null && defineClass != null) {
-        Object[] args = new Object[] { className, b, 0, b.length, protectionDomain };
         try {
           if (!defineClass.isAccessible()) {
             defineClass.setAccessible(true);
           }
-          c = (Class) defineClass.invoke(loader, args);
+          c = (Class<?>) defineClass.invoke(loader, new Object[] { className, b, 0, b.length, protectionDomain });
         }
         catch (InvocationTargetException ex) {
           throw new CodeGenerationException(ex.getTargetException());
         }
-        catch (Throwable ex) {
+        catch (InaccessibleObjectException ex) {
           // Fall through if setAccessible fails with InaccessibleObjectException on JDK 9+
           // (on the module path and/or with a JVM bootstrapped with --illegal-access=deny)
-          if (!ex.getClass().getName().endsWith("InaccessibleObjectException")) {
-            throw new CodeGenerationException(ex);
-          }
           t = ex;
+        }
+        catch (Throwable ex) {
+          throw new CodeGenerationException(ex);
         }
       }
     }

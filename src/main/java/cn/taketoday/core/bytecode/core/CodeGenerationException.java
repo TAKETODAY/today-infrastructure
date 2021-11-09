@@ -18,11 +18,14 @@ package cn.taketoday.core.bytecode.core;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.util.ExceptionUtils;
 
+import java.io.Serial;
+
 /**
  * @version $Id: CodeGenerationException.java,v 1.3 2004/06/24 21:15:21
  * herbyderby Exp $
  */
 public class CodeGenerationException extends NestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public CodeGenerationException() { }

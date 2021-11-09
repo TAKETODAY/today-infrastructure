@@ -335,10 +335,9 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public boolean equals(Object o) {
-      if (!(o instanceof FieldInfo)) {
+      if (!(o instanceof final FieldInfo other)) {
         return false;
       }
-      final FieldInfo other = (FieldInfo) o;
       if (access != other.access || !name.equals(other.name) || !type.equals(other.type)) {
         return false;
       }

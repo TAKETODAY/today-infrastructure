@@ -123,7 +123,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
     catch (ClassNotFoundException ignored) { }
     byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return (Class<T>) DefineClassHelper.toClass(targetClass, bytes);
+    return (Class<T>) DefineClassHelper.defineClass(targetClass, bytes);
   }
 
   protected abstract Object cacheKey();
