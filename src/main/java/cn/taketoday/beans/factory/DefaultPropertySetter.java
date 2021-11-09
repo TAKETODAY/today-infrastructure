@@ -20,10 +20,11 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.style.ToStringBuilder;
+
 import java.lang.reflect.Field;
 import java.util.Objects;
-
-import cn.taketoday.beans.support.BeanProperty;
 
 /**
  * Default implementation of {@link PropertySetter}
@@ -59,11 +60,10 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof DefaultPropertySetter))
+    if (!(o instanceof final DefaultPropertySetter that))
       return false;
     if (!super.equals(o))
       return false;
-    final DefaultPropertySetter that = (DefaultPropertySetter) o;
     return Objects.equals(value, that.value);
   }
 
@@ -74,12 +74,11 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
 
   @Override
   public String toString() {
-    return new StringBuilder()
-            .append("{\"value\":\"").append(value)
-            .append("\",\"property\":\"").append(getName())
-            .append("\",\"propertyClass\":\"").append(getProperty().getType())
-            .append("\",\"beanClass:\":\"").append(getProperty().getDeclaringClass())
-            .append("\"}")
+    return new ToStringBuilder(this)
+            .append("value", value)
+            .append("property", property.getName())
+            .append("propertyClass", property.getType())
+            .append("beanClass", property.getDeclaringClass())
             .toString();
   }
 

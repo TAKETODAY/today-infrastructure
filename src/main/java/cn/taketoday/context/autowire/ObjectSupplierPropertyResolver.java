@@ -84,11 +84,10 @@ public class ObjectSupplierPropertyResolver
     public boolean equals(Object o) {
       if (this == o)
         return true;
-      if (!(o instanceof ObjectSupplierPropertySetter))
+      if (!(o instanceof ObjectSupplierPropertySetter that))
         return false;
       if (!super.equals(o))
         return false;
-      ObjectSupplierPropertySetter that = (ObjectSupplierPropertySetter) o;
       return Objects.equals(generic, that.generic);
     }
 

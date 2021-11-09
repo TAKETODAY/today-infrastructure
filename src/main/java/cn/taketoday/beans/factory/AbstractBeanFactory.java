@@ -417,7 +417,7 @@ public abstract class AbstractBeanFactory
 
     if (CollectionUtils.isNotEmpty(propertySetters)) {
       for (PropertySetter propertySetter : propertySetters) {
-        propertySetter.applyValue(bean, this);
+        propertySetter.applyTo(bean, this);
       }
     }
 

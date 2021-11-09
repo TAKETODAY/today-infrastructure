@@ -20,11 +20,12 @@
 
 package cn.taketoday.beans.factory;
 
-import java.util.Objects;
-
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * Use BeanReference to resolve value
@@ -47,7 +48,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   private BeanDefinition reference;
 
   /** @since 3.0.2 */
-  public BeanReferencePropertySetter(String referenceName, boolean required, BeanProperty property) {
+  public BeanReferencePropertySetter(@Nullable String referenceName, boolean required, BeanProperty property) {
     super(property);
     this.required = required;
     this.referenceName = referenceName;
@@ -55,7 +56,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   }
 
   public BeanReferencePropertySetter(
-          String referenceName, boolean required, BeanProperty property, Class<?> referenceClass) {
+          @Nullable String referenceName, boolean required, BeanProperty property, Class<?> referenceClass) {
     super(property);
     this.required = required;
     this.referenceName = referenceName;
@@ -155,11 +156,10 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof BeanReferencePropertySetter))
+    if (!(o instanceof final BeanReferencePropertySetter that))
       return false;
     if (!super.equals(o))
       return false;
-    final BeanReferencePropertySetter that = (BeanReferencePropertySetter) o;
     return required == that.required
             && Objects.equals(referenceName, that.referenceName)
             && Objects.equals(referenceClass, that.referenceClass);
@@ -172,19 +172,15 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("{\n\t\"referenceName\":\"");
-    builder.append(referenceName);
-    builder.append("\",\n\t\"required\":\"");
-    builder.append(required);
-    builder.append("\",\n\t\"referenceClass\":\"");
-    builder.append(referenceClass);
-    builder.append("\",\n\t\"field\":\"");
-    builder.append(getField());
-    builder.append("\",\n\t\"prototype\":\"");
-    builder.append(isPrototype());
-    builder.append("\"\n}");
-    return builder.toString();
+    return new ToStringBuilder(this)
+            .append("required", required)
+            .append("prototype", prototype)
+            .append("referenceName", referenceName)
+            .append("property", property.getName())
+            .append("propertyClass", property.getType())
+            .append("beanClass", property.getDeclaringClass())
+            .toString();
+
   }
 
 }

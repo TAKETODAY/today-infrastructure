@@ -126,13 +126,9 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
 
   record PropertySetter0(Method method, MergedAnnotation<Autowired> autowired) implements PropertySetter {
 
-    @Override
-    public String getName() {
-      return null;
-    }
 
     @Override
-    public void applyValue(Object bean, AbstractBeanFactory beanFactory) {
+    public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
       ArgumentsResolver argumentsResolver = beanFactory.getArgumentsResolver();
       Object[] args = argumentsResolver.resolve(method);
       ReflectionUtils.invokeMethod(method, bean, args);
