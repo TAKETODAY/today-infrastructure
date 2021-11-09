@@ -19,34 +19,24 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 
-import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.ClassWriter;
+import cn.taketoday.lang.TodayStrategies;
 
 @SuppressWarnings("all")
 public class DebuggingClassWriter extends ClassVisitor {
 
   public static final String DEBUG_LOCATION_PROPERTY = "bytecode.debugLocation";
-
-  private static String debugLocation = "D:/debug";
-  private static Constructor traceCtor;
+  private static String debugLocation = "/Users/today/temp";
 
   private String className;
   private String superName;
 
   static {
-    debugLocation = System.getProperty(DEBUG_LOCATION_PROPERTY);
+    debugLocation = TodayStrategies.getProperty(DEBUG_LOCATION_PROPERTY);
     if (debugLocation != null) {
       System.err.println("CGLIB debugging enabled, writing to '" + debugLocation + "'");
-      try {
-        Class clazz = Class.forName("cn.taketoday.core.bytecode.util.TraceClassVisitor");
-        traceCtor = clazz.getConstructor(new Class[] { ClassVisitor.class, PrintWriter.class });
-      }
-      catch (Throwable ignore) { }
     }
   }
 
@@ -81,10 +71,8 @@ public class DebuggingClassWriter extends ClassVisitor {
   }
 
   private void debug(byte[] b) {
-
     this.className = className.replace('/', '.');
     this.superName = superName.replace('/', '.');
-
     String dirs = className.replace('.', File.separatorChar);
     try {
       new File(debugLocation + File.separatorChar + dirs).getParentFile().mkdirs();
@@ -96,21 +84,6 @@ public class DebuggingClassWriter extends ClassVisitor {
       }
       finally {
         out.close();
-      }
-
-      if (traceCtor != null) {
-        file = new File(new File(debugLocation), dirs + ".asm");
-        out = new BufferedOutputStream(new FileOutputStream(file));
-        try {
-          ClassReader cr = new ClassReader(b);
-          PrintWriter pw = new PrintWriter(new OutputStreamWriter(out));
-          ClassVisitor tcv = (ClassVisitor) traceCtor.newInstance(new Object[] { null, pw });
-          cr.accept(tcv, 0);
-          pw.flush();
-        }
-        finally {
-          out.close();
-        }
       }
     }
     catch (Exception e) {
