@@ -22,6 +22,7 @@ package cn.taketoday.http.codec;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -77,7 +78,7 @@ public class FormHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   public void writeForm() {
-    MultiValueMap<String, String> body = new DefaultMultiValueMap<>();
+    MultiValueMap<String, String> body = new DefaultMultiValueMap<>(new LinkedHashMap<>());
     body.set("name 1", "value 1");
     body.add("name 2", "value 2+1");
     body.add("name 2", "value 2+2");
