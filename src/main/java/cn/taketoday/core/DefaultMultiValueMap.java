@@ -19,6 +19,9 @@
  */
 package cn.taketoday.core;
 
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.CollectionUtils;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,9 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.CollectionUtils;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
@@ -267,6 +267,13 @@ public class DefaultMultiValueMap<K, V>
    */
   @Override
   public DefaultMultiValueMap<K, V> clone() {
+    return cloneMap();
+  }
+
+  /**
+   * @since 4.0
+   */
+  public DefaultMultiValueMap<K, V> cloneMap() {
     return new DefaultMultiValueMap<>(this, true);
   }
 
