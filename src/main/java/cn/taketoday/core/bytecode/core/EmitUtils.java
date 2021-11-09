@@ -15,17 +15,6 @@
  */
 package cn.taketoday.core.bytecode.core;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -37,6 +26,17 @@ import cn.taketoday.core.bytecode.core.internal.CustomizerRegistry;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class EmitUtils {
@@ -158,25 +158,18 @@ public abstract class EmitUtils {
 
   public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
     switch (switchStyle) {
-      case Opcodes.SWITCH_STYLE_TRIE:
-        stringSwitchTrie(e, strings, callback);
-        break;
-      case Opcodes.SWITCH_STYLE_HASH:
-        stringSwitchHash(e, strings, callback, false);
-        break;
-      case Opcodes.SWITCH_STYLE_HASHONLY:
-        stringSwitchHash(e, strings, callback, true);
-        break;
-      default:
-        throw new IllegalArgumentException("unknown switch style " + switchStyle);
+      case Opcodes.SWITCH_STYLE_TRIE -> stringSwitchTrie(e, strings, callback);
+      case Opcodes.SWITCH_STYLE_HASH -> stringSwitchHash(e, strings, callback, false);
+      case Opcodes.SWITCH_STYLE_HASHONLY -> stringSwitchHash(e, strings, callback, true);
+      default -> throw new IllegalArgumentException("unknown switch style " + switchStyle);
     }
   }
 
   private static void stringSwitchTrie(
-          final CodeEmitter e, String[] strings, final ObjectSwitchCallback callback) {
-    final Label def = e.newLabel();
-    final Label end = e.newLabel();
-    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, String::length);
+          CodeEmitter e, String[] strings, ObjectSwitchCallback callback) {
+    Label def = e.newLabel();
+    Label end = e.newLabel();
+    Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, String::length);
 
     e.dup();
     e.invokeVirtual(Type.TYPE_STRING, LENGTH);
@@ -196,14 +189,10 @@ public abstract class EmitUtils {
     e.mark(end);
   }
 
-  private static void stringSwitchHelper(final CodeEmitter e, List strings, final ObjectSwitchCallback callback,
-                                         final Label def, final Label end, final int index) {
-    final int len = ((String) strings.get(0)).length();
-    final Map buckets = CollectionUtils.buckets(strings, new Function() {
-      public Object apply(Object value) {
-        return (int) ((String) value).charAt(index);
-      }
-    });
+  private static void stringSwitchHelper(CodeEmitter e, List strings, ObjectSwitchCallback callback,
+                                         Label def, Label end, int index) {
+    int len = ((String) strings.get(0)).length();
+    Map buckets = CollectionUtils.buckets(strings, (Function) value -> (int) ((String) value).charAt(index));
     e.dup();
     e.push(index);
     e.invokeVirtual(Type.TYPE_STRING, STRING_CHAR_AT);
@@ -226,7 +215,7 @@ public abstract class EmitUtils {
   }
 
   protected static <T> int[] getSwitchKeys(Map<Integer, List<T>> buckets) {
-    final int[] keys = new int[buckets.size()];
+    int[] keys = new int[buckets.size()];
     int i = 0;
     for (Integer k : buckets.keySet()) {
       keys[i++] = k;
@@ -236,13 +225,13 @@ public abstract class EmitUtils {
   }
 
   private static void stringSwitchHash(
-          final CodeEmitter e, final String[] strings,
-          final ObjectSwitchCallback callback, final boolean skipEquals) {
+          CodeEmitter e, String[] strings,
+          ObjectSwitchCallback callback, boolean skipEquals) {
 
-    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, Object::hashCode);
+    Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, Object::hashCode);
 
-    final Label def = e.newLabel();
-    final Label end = e.newLabel();
+    Label def = e.newLabel();
+    Label end = e.newLabel();
     e.dup();
     e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
@@ -255,7 +244,7 @@ public abstract class EmitUtils {
         }
         else {
           for (Iterator<String> it = bucket.iterator(); it.hasNext(); ) {
-            final String string = it.next();
+            String string = it.next();
             if (next != null) {
               e.mark(next);
             }
@@ -301,7 +290,7 @@ public abstract class EmitUtils {
     }
   }
 
-  private static void loadClassHelper(CodeEmitter e, final Type type) {
+  private static void loadClassHelper(CodeEmitter e, Type type) {
     if (e.isStaticHook()) {
       // have to fall back on non-optimized load
       e.push(type.emulateClassGetName());
@@ -313,7 +302,7 @@ public abstract class EmitUtils {
 
       // TODO: can end up with duplicated field names when using chained transformers;
       // incorporate static hook # somehow
-      String fieldName = "TODAY$LoadClass$".concat(escapeType(typeName));
+      String fieldName = "$today$LoadClass$".concat(escapeType(typeName));
       if (!ce.isFieldDeclared(fieldName)) {
         ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, fieldName, Type.TYPE_CLASS, null);
         CodeEmitter hook = ce.getStaticHook();
@@ -382,11 +371,11 @@ public abstract class EmitUtils {
    * instead
    */
   @Deprecated
-  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, final Customizer customizer) {
+  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, Customizer customizer) {
     hashCode(e, type, multiplier, CustomizerRegistry.singleton(customizer));
   }
 
-  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, final CustomizerRegistry registry) {
+  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, CustomizerRegistry registry) {
     if (type.isArray()) {
       hashArray(e, type, multiplier, registry);
     }
@@ -405,10 +394,10 @@ public abstract class EmitUtils {
     }
   }
 
-  private static void hashArray(final GeneratorAdapter e,
-                                final Type type,
-                                final int multiplier,
-                                final CustomizerRegistry registry) //
+  private static void hashArray(GeneratorAdapter e,
+                                Type type,
+                                int multiplier,
+                                CustomizerRegistry registry) //
   {
     Label skip = e.newLabel();
     Label end = e.newLabel();
@@ -490,7 +479,7 @@ public abstract class EmitUtils {
    * instead
    */
   @Deprecated
-  public static void notEquals(CodeEmitter e, Type type, final Label notEquals, final Customizer customizer) {
+  public static void notEquals(CodeEmitter e, Type type, Label notEquals, Customizer customizer) {
     notEquals(e, type, notEquals, CustomizerRegistry.singleton(customizer));
   }
 
@@ -501,11 +490,11 @@ public abstract class EmitUtils {
    * <code>equals</code> method for Objects. Arrays are recursively processed in
    * the same manner.
    */
-  public static void notEquals(final CodeEmitter e,
-                               final Type type,
-                               final Label notEquals,
-                               final CustomizerRegistry registry) {
-    final ProcessArrayCallback processArrayCallback = new ProcessArrayCallback() {
+  public static void notEquals(CodeEmitter e,
+                               Type type,
+                               Label notEquals,
+                               CustomizerRegistry registry) {
+    ProcessArrayCallback processArrayCallback = new ProcessArrayCallback() {
       public void processElement(Type type) {
         notEqualsHelper(e, type, notEquals, registry, this);
       }
@@ -513,11 +502,11 @@ public abstract class EmitUtils {
     processArrayCallback.processElement(type);
   }
 
-  private static void notEqualsHelper(final CodeEmitter e,
-                                      final Type type,
-                                      final Label notEquals,
-                                      final CustomizerRegistry registry,
-                                      final ProcessArrayCallback callback)//
+  private static void notEqualsHelper(CodeEmitter e,
+                                      Type type,
+                                      Label notEquals,
+                                      CustomizerRegistry registry,
+                                      ProcessArrayCallback callback)//
   {
     if (type.isPrimitive()) {
       e.ifCmp(type, CodeEmitter.NE, notEquals);
@@ -597,19 +586,19 @@ public abstract class EmitUtils {
    * instead
    */
   @Deprecated
-  public static void appendString(final CodeEmitter e,
-                                  final Type type,
-                                  final ArrayDelimiters delims,
-                                  final Customizer customizer) {
+  public static void appendString(CodeEmitter e,
+                                  Type type,
+                                  ArrayDelimiters delims,
+                                  Customizer customizer) {
     appendString(e, type, delims, CustomizerRegistry.singleton(customizer));
   }
 
-  public static void appendString(final CodeEmitter e,
-                                  final Type type,
-                                  final ArrayDelimiters delims,
-                                  final CustomizerRegistry registry) //
+  public static void appendString(CodeEmitter e,
+                                  Type type,
+                                  ArrayDelimiters delims,
+                                  CustomizerRegistry registry) //
   {
-    final ArrayDelimiters d = (delims != null) ? delims : DEFAULT_DELIMITERS;
+    ArrayDelimiters d = (delims != null) ? delims : DEFAULT_DELIMITERS;
     ProcessArrayCallback callback = new ProcessArrayCallback() {
       public void processElement(Type type) {
         appendStringHelper(e, type, d, registry, this);
@@ -620,38 +609,24 @@ public abstract class EmitUtils {
     appendStringHelper(e, type, d, registry, callback);
   }
 
-  private static void appendStringHelper(final CodeEmitter e,
-                                         final Type type,
-                                         final ArrayDelimiters delims,
-                                         final CustomizerRegistry registry,
-                                         final ProcessArrayCallback callback)//
+  private static void appendStringHelper(CodeEmitter e,
+                                         Type type,
+                                         ArrayDelimiters delims,
+                                         CustomizerRegistry registry,
+                                         ProcessArrayCallback callback)//
   {
     Label skip = e.newLabel();
     Label end = e.newLabel();
     if (type.isPrimitive()) {
       switch (type.getSort()) {
-        case Type.INT:
-        case Type.SHORT:
-        case Type.BYTE:
-          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_INT);
-          break;
-        case Type.DOUBLE:
-          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_DOUBLE);
-          break;
-        case Type.FLOAT:
-          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_FLOAT);
-          break;
-        case Type.LONG:
-          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_LONG);
-          break;
-        case Type.BOOLEAN:
-          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_BOOLEAN);
-          break;
-        case Type.CHAR:
-          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
-          break;
-        default:
-          break;
+        case Type.INT, Type.SHORT, Type.BYTE -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_INT);
+        case Type.DOUBLE -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_DOUBLE);
+        case Type.FLOAT -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_FLOAT);
+        case Type.LONG -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_LONG);
+        case Type.BOOLEAN -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_BOOLEAN);
+        case Type.CHAR -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
+        default -> {
+        }
       }
     }
     else if (type.isArray()) {
@@ -687,7 +662,7 @@ public abstract class EmitUtils {
     e.mark(end);
   }
 
-  private static void shrinkStringBuffer(final CodeEmitter e, final int amt) {
+  private static void shrinkStringBuffer(CodeEmitter e, int amt) {
     e.dup();
     e.dup();
     e.invokeVirtual(Type.TYPE_STRING_BUFFER, LENGTH);
@@ -708,7 +683,7 @@ public abstract class EmitUtils {
     }
   }
 
-  public static void loadMethod(final CodeEmitter e, final MethodInfo method) {
+  public static void loadMethod(CodeEmitter e, MethodInfo method) {
     loadClass(e, method.getClassInfo().getType());
     e.push(method.getSignature().getName());
     pushObject(e, method.getSignature().getArgumentTypes());
@@ -728,14 +703,14 @@ public abstract class EmitUtils {
     memberSwitchHelper(e, constructors, callback, false);
   }
 
-  private static void memberSwitchHelper(final CodeEmitter e, //
-                                         final List members,
-                                         final ObjectSwitchCallback callback, boolean useName)//
+  private static void memberSwitchHelper(CodeEmitter e, //
+                                         List members,
+                                         ObjectSwitchCallback callback, boolean useName)//
   {
     try {
 
-      final HashMap<MethodInfo, Type[]> cache = new HashMap<>();
-      final ParameterTyper cached = (MethodInfo member) -> {
+      HashMap<MethodInfo, Type[]> cache = new HashMap<>();
+      ParameterTyper cached = (MethodInfo member) -> {
         Type[] types = cache.get(member);
         if (types == null) {
           cache.put(member, types = member.getSignature().getArgumentTypes());
@@ -743,11 +718,11 @@ public abstract class EmitUtils {
         return types;
       };
 
-      final Label def = e.newLabel();
-      final Label end = e.newLabel();
+      Label def = e.newLabel();
+      Label end = e.newLabel();
       if (useName) {
         e.swap();
-        final Map<String, List<MethodInfo>> buckets = //
+        Map<String, List<MethodInfo>> buckets = //
                 CollectionUtils.buckets(members, (MethodInfo value) -> value.getSignature().getName());
 
         String[] names = StringUtils.toStringArray(buckets.keySet());
@@ -780,16 +755,15 @@ public abstract class EmitUtils {
     }
   }
 
-  private static void memberHelperSize(final CodeEmitter e,
-                                       final List members,
-                                       final ObjectSwitchCallback callback,
-                                       final ParameterTyper typer,
-                                       final Label def, final Label end) //
+  private static void memberHelperSize(CodeEmitter e,
+                                       List members,
+                                       ObjectSwitchCallback callback,
+                                       ParameterTyper typer,
+                                       Label def, Label end) //
   {
 
-    final Map<Integer, List<MethodInfo>> buckets = CollectionUtils.buckets(members, (MethodInfo value) -> {
-      return typer.getParameterTypes(value).length;
-    });
+    Map<Integer, List<MethodInfo>> buckets = CollectionUtils.buckets(
+            members, (MethodInfo value) -> typer.getParameterTypes(value).length);
 
     e.dup();
     e.arrayLength();
@@ -807,15 +781,15 @@ public abstract class EmitUtils {
     });
   }
 
-  private static void memberHelperType(final CodeEmitter e,
-                                       final List<MethodInfo> members,
-                                       final ObjectSwitchCallback callback,
-                                       final ParameterTyper typer, final Label def,
-                                       final Label end, final BitSet checked)  //
+  private static void memberHelperType(CodeEmitter e,
+                                       List<MethodInfo> members,
+                                       ObjectSwitchCallback callback,
+                                       ParameterTyper typer, Label def,
+                                       Label end, BitSet checked)  //
   {
 
     if (members.size() == 1) {
-      final MethodInfo member = members.get(0);
+      MethodInfo member = members.get(0);
       Type[] types = typer.getParameterTypes(member);
       // need to check classes that have not already been checked via switches
       for (int i = 0; i < types.length; i++) {
@@ -837,10 +811,10 @@ public abstract class EmitUtils {
       Map<String, List<MethodInfo>> buckets = null;
       int index = -1;
       for (int i = 0; i < example.length; i++) {
-        final int j = i;
+        int j = i;
 
-        final Map<String, List<MethodInfo>> test = CollectionUtils.buckets(members, (MethodInfo value) -> {
-          final Type[] parameterTypes = typer.getParameterTypes(value);
+        Map<String, List<MethodInfo>> test = CollectionUtils.buckets(members, (MethodInfo value) -> {
+          Type[] parameterTypes = typer.getParameterTypes(value);
           return parameterTypes[j].emulateClassGetName();
         });
 
@@ -861,7 +835,7 @@ public abstract class EmitUtils {
         e.aaload(index);
         e.invokeVirtual(Type.TYPE_CLASS, GET_NAME);
 
-        final Map<String, List<MethodInfo>> fbuckets = buckets;
+        Map<String, List<MethodInfo>> fbuckets = buckets;
         String[] names = StringUtils.toStringArray(buckets.keySet());
         EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
@@ -898,7 +872,7 @@ public abstract class EmitUtils {
   }
 
   public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
-    final String property = StringUtils.capitalize(name);
+    String property = StringUtils.capitalize(name);
     CodeEmitter e;
     e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(type, "get" + property, Constant.TYPES_EMPTY_ARRAY));
     e.loadThis();
@@ -933,7 +907,7 @@ public abstract class EmitUtils {
       needThrow = true;
     }
     if (exceptions != null) {
-      for (final Type exception : exceptions) {
+      for (Type exception : exceptions) {
         e.catchException(handler, exception);
       }
     }
@@ -968,30 +942,14 @@ public abstract class EmitUtils {
     for (int i = 0, len = s.length(); i < len; i++) {
       char c = s.charAt(i);
       switch (c) {
-        case '$':
-          sb.append("$24");
-          break;
-        case '.':
-          sb.append("$2E");
-          break;
-        case '[':
-          sb.append("$5B");
-          break;
-        case ';':
-          sb.append("$3B");
-          break;
-        case '(':
-          sb.append("$28");
-          break;
-        case ')':
-          sb.append("$29");
-          break;
-        case '/':
-          sb.append("$2F");
-          break;
-        default:
-          sb.append(c);
-          break;
+        case '$' -> sb.append("$24");
+        case '.' -> sb.append("$2E");
+        case '[' -> sb.append("$5B");
+        case ';' -> sb.append("$3B");
+        case '(' -> sb.append("$28");
+        case ')' -> sb.append("$29");
+        case '/' -> sb.append("$2F");
+        default -> sb.append(c);
       }
     }
     return sb.toString();

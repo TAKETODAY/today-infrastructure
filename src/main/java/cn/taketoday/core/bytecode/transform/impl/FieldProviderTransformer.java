@@ -15,10 +15,6 @@
  */
 package cn.taketoday.core.bytecode.transform.impl;
 
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -30,7 +26,10 @@ import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.core.bytecode.transform.ClassEmitterTransformer;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
+
 public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   private static final String FIELD_NAMES = "today$FieldNames";
@@ -46,7 +45,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   private static final MethodSignature PROVIDER_GET_NAMES = MethodSignature.from("String[] getFieldNames()");
 
   private int access;
-  private Map fields;
+  private Map<String, Type> fields;
 
   public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
                          String sourceFile) {
@@ -54,7 +53,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       interfaces = Type.add(interfaces, FIELD_PROVIDER);
     }
     this.access = access;
-    fields = new HashMap();
+    fields = new HashMap<>();
     super.beginClass(version, access, className, superType, interfaces, sourceFile);
   }
 
@@ -66,6 +65,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     }
   }
 
+  @Override
   public void endClass() {
     if (!Modifier.isInterface(access)) {
       try {
@@ -82,9 +82,9 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   }
 
   private void generate() throws Exception {
-    final String[] names = (String[]) fields.keySet().toArray(new String[fields.size()]);
+    final String[] names = fields.keySet().toArray(new String[0]);
 
-    int indexes[] = new int[names.length];
+    int[] indexes = new int[names.length];
     for (int i = 0; i < indexes.length; i++) {
       indexes[i] = i;
     }
@@ -114,7 +114,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     for (int i = 0; i < names.length; i++) {
       e.dup();
       e.push(i);
-      Type type = (Type) fields.get(names[i]);
+      Type type = fields.get(names[i]);
       EmitUtils.loadClass(e, type);
       e.aastore();
     }
@@ -142,7 +142,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.loadArg(0);
     e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
-        Type type = (Type) fields.get(names[key]);
+        Type type = fields.get(names[key]);
         e.unbox(type);
         e.putField(names[key]);
         e.returnValue();
@@ -162,7 +162,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.loadArg(0);
     e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
-        Type type = (Type) fields.get(names[key]);
+        Type type = fields.get(names[key]);
         e.getField(names[key]);
         e.box(type);
         e.returnValue();
@@ -177,13 +177,13 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   // TODO: if this is used to enhance class files SWITCH_STYLE_TRIE should be used
   // to avoid JVM hashcode implementation incompatibilities
-  private void getField(String[] names) throws Exception {
+  private void getField(String[] names) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET);
     e.loadThis();
     e.loadArg(0);
     EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
-        Type type = (Type) fields.get(key);
+        Type type = fields.get(key);
         e.getField((String) key);
         e.box(type);
         e.returnValue();
@@ -196,14 +196,14 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.end_method();
   }
 
-  private void setField(String[] names) throws Exception {
+  private void setField(String[] names) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_SET);
     e.loadThis();
     e.loadArg(1);
     e.loadArg(0);
     EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
-        Type type = (Type) fields.get(key);
+        Type type = fields.get(key);
         e.unbox(type);
         e.putField((String) key);
         e.returnValue();

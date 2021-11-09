@@ -43,7 +43,6 @@ public class CustomizerRegistry {
   /**
    * @deprecated Only to keep backward compatibility.
    */
-  @Deprecated
   public static CustomizerRegistry singleton(Customizer customizer) {
     CustomizerRegistry registry = new CustomizerRegistry(Customizer.class);
     registry.add(customizer);
