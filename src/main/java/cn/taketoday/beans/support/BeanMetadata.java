@@ -244,9 +244,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof BeanMetadata))
+    if (!(o instanceof final BeanMetadata that))
       return false;
-    final BeanMetadata that = (BeanMetadata) o;
     return Objects.equals(beanClass, that.beanClass);
   }
 

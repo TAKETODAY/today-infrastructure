@@ -20,20 +20,6 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
@@ -42,13 +28,23 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.io.Serial;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author TODAY
@@ -56,9 +52,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 3.0
  */
 public class BeanProperty extends AbstractAnnotatedElement implements Member {
+  @Serial
   private static final long serialVersionUID = 1L;
-
-  private static final Mappings<Annotation[], BeanProperty> annotationsCache = new Mappings<>();
 
   private final Field field;
   private final Class<?> fieldType;
@@ -222,8 +217,8 @@ public class BeanProperty extends AbstractAnnotatedElement implements Member {
     if (componentConstructor == null) {
       Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-                             ? NullInstantiator.INSTANCE
-                             : BeanInstantiator.fromConstructor(componentClass);
+              ? NullInstantiator.INSTANCE
+              : BeanInstantiator.fromConstructor(componentClass);
     }
     return componentConstructor.instantiate(args);
   }
@@ -394,31 +389,7 @@ public class BeanProperty extends AbstractAnnotatedElement implements Member {
 
   @Override
   public Annotation[] getAnnotations() {
-    if (annotations == null) {
-      annotations = resolveAnnotations();
-    }
-    if (ObjectUtils.isNotEmpty(annotations)) {
-      return annotations.clone();
-    }
-    return annotations;
-  }
-
-  private Annotation[] resolveAnnotations() {
-    return annotationsCache.get(this, k -> {
-      ArrayList<Annotation> annotations = new ArrayList<>();
-      Method readMethod = obtainAccessor().getReadMethod();
-      if (!((BeanProperty) k).isReadOnly()) {
-        Method writeMethod = obtainAccessor().getWriteMethod();
-        if (writeMethod != null) {
-          Collections.addAll(annotations, writeMethod.getAnnotations());
-        }
-      }
-      if (readMethod != null) {
-        Collections.addAll(annotations, readMethod.getAnnotations());
-      }
-      Collections.addAll(annotations, field.getAnnotations());
-      return annotations.toArray(Constant.EMPTY_ANNOTATION_ARRAY);
-    });
+    return field.getAnnotations();
   }
 
   //---------------------------------------------------------------------
@@ -429,11 +400,10 @@ public class BeanProperty extends AbstractAnnotatedElement implements Member {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof BeanProperty))
+    if (!(o instanceof BeanProperty that))
       return false;
     if (!super.equals(o))
       return false;
-    BeanProperty that = (BeanProperty) o;
     return Objects.equals(field, that.field);
   }
 
