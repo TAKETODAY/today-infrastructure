@@ -130,8 +130,7 @@ final class Jackson2Tokenizer {
     boolean previousNull = false;
     while (!this.parser.isClosed()) {
       JsonToken token = this.parser.nextToken();
-      if (token == JsonToken.NOT_AVAILABLE ||
-              token == null && previousNull) {
+      if (token == JsonToken.NOT_AVAILABLE || token == null && previousNull) {
         break;
       }
       else if (token == null) { // !previousNull
@@ -154,18 +153,10 @@ final class Jackson2Tokenizer {
 
   private void updateDepth(JsonToken token) {
     switch (token) {
-      case START_OBJECT:
-        this.objectDepth++;
-        break;
-      case END_OBJECT:
-        this.objectDepth--;
-        break;
-      case START_ARRAY:
-        this.arrayDepth++;
-        break;
-      case END_ARRAY:
-        this.arrayDepth--;
-        break;
+      case START_OBJECT -> this.objectDepth++;
+      case END_OBJECT -> this.objectDepth--;
+      case START_ARRAY -> this.arrayDepth++;
+      case END_ARRAY -> this.arrayDepth--;
     }
   }
 
