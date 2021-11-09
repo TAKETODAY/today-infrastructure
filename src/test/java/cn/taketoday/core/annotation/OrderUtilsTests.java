@@ -22,7 +22,7 @@ package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import cn.taketoday.core.Order;
 

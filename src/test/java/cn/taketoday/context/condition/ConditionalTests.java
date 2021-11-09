@@ -34,7 +34,7 @@ import cn.taketoday.lang.Singleton;
 class ConditionalTests {
 
   @Singleton
-  @ConditionalOnClass("javax.inject.Inject")
+  @ConditionalOnClass("jakarta.inject.Inject")
   public static class ConditionalClass {
 
   }
@@ -53,7 +53,7 @@ class ConditionalTests {
   }
 
   @Singleton
-  @ConditionalOnMissingClass("javax.inject.Inject")
+  @ConditionalOnMissingClass("jakarta.inject.Inject")
   public static class ConditionalMissed {
 
   }

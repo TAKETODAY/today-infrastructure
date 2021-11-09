@@ -32,7 +32,7 @@ import cn.taketoday.lang.Singleton;
 import org.aopalliance.intercept.Joinpoint;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -33,7 +33,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

@@ -19,7 +19,7 @@
  */
 package test.context.props;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;

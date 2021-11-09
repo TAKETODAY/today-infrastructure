@@ -641,6 +641,7 @@
     </dependency>
 
     <!-- other ORMs for performance testing -->
+<!--
 
     <dependency>
       <groupId>javax.xml.bind</groupId>
@@ -648,6 +649,7 @@
       <version>2.3.1</version>
       <scope>test</scope>
     </dependency>
+-->
 
     <dependency>
       <scope>test</scope>

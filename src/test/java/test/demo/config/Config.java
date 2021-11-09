@@ -22,7 +22,7 @@ package test.demo.config;
 import java.io.File;
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Value;

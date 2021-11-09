@@ -70,7 +70,7 @@ class BeanValidationConfig {
   }
 
   @MissingBean
-  @ConditionalOnClass("javax.validation.Valid")
+  @ConditionalOnClass("jakarta.validation.Valid")
   ValidationParameterResolver validationParameterResolver(WebValidator validator, ParameterResolvingRegistry resolvers) {
     return new ValidationParameterResolver(validator, resolvers);
   }

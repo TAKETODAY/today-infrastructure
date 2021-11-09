@@ -33,14 +33,14 @@ import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2019-07-20 17:00
- * @see javax.validation.Valid
+ * @see jakarta.validation.Valid
  */
 public class ValidationParameterResolver implements ParameterResolvingStrategy {
 
   /** list of validators @since 3.0 */
   private final WebValidator validator;
   private final HashMap<MethodParameter, ParameterResolvingStrategy> resolverMap = new HashMap<>();
-  private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.load("javax.validation.Valid");
+  private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.load("jakarta.validation.Valid");
 
   private ParameterResolvingRegistry resolvingRegistry;
 

@@ -102,7 +102,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", classLoader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
+    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
   }
 
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();

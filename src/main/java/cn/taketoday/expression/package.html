@@ -53,7 +53,7 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
   to adapt to the specific requirements of the environment where it is
   being used.</p>
 
-<p>Class {@link javax.el.ELContext} is what links
+<p>Class {@link jakarta.el.ELContext} is what links
   the EL with the specific environment where it is being used.
   It provides
   the mechanism through which all relevant context for creating or
@@ -64,10 +64,10 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
 </code> objects is controlled through the underlying technology.
   For example, in JSP, the
   <code>JspContext.getELContext()</code> factory method is used. In an
-  stand-alone environment, a default {@link javax.el.StandardELContext} is
+  stand-alone environment, a default {@link jakarta.el.StandardELContext} is
   provided.</p>
 
-<p>Some technologies provide the ability to add an {@link javax.el.ELContextListener}
+<p>Some technologies provide the ability to add an {@link jakarta.el.ELContextListener}
   so that applications and frameworks can ensure their own context objects
   are attached to any newly created <code>ELContext</code>.</p>
 
@@ -77,14 +77,14 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
   that gets parsed according to the grammar defined by the Expression Language.</p>
 
 <p>There are two types of expressions defined by the EL: <i>value expressions</i>
-  and <i>method expressions</i>. A {@link javax.el.ValueExpression} such as
+  and <i>method expressions</i>. A {@link jakarta.el.ValueExpression} such as
   <code>"${customer.name}"</code> can be used either
   as an <i>rvalue</i> (return the value associated with property <code>name</code>
   of the model object <code>customer</code>) or as an <i>lvalue</i>
   (set the value of the property <code>name</code> of the model object
   <code>customer</code>).</p>
 
-<p>A {@link javax.el.MethodExpression} such as
+<p>A {@link jakarta.el.MethodExpression} such as
   <code>"${handler.process}"</code> makes it possible to invoke a method
   (<code>process</code>) on a specific model object (<code>handler</code>).</p>
 
@@ -92,20 +92,20 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
   invocation, such as <code>${trader.buy("JAVA")}</code>, where the arugments to
   the method invocation are specified in the expression.</p>
 
-<p>All expression classes extend the base class {@link javax.el.Expression}, making them
+<p>All expression classes extend the base class {@link jakarta.el.Expression}, making them
   serializable and forcing them to implement <code>equals()</code> and
   <code>hashCode()</code>. Morevover, each method on these expression classes
   that actually evaluates an expression receives a parameter
-  of class {@link javax.el.ELContext},
+  of class {@link jakarta.el.ELContext},
   which provides the context required to evaluate the expression.</p>
 
 <h3><a name="ExpressionCreation">Creation of Expressions</a></h3>
 
-<p>An expression is created through the {@link javax.el.ExpressionFactory} class.
+<p>An expression is created through the {@link jakarta.el.ExpressionFactory} class.
   The factory provides two creation methods; one for each type of expression
   supported by the EL.</p>
 
-<p>To create an expression, one must provide an {@link javax.el.ELContext},
+<p>To create an expression, one must provide an {@link jakarta.el.ELContext},
   a string representing
   the expression, and the expected type (<code>ValueExpression</code>) or signature
   (<code>MethodExpression</code>).
@@ -114,14 +114,14 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
   Specifically, if the expression uses an EL function
   (for example <code>${fn:toUpperCase(customer.name)}</code>) or an
   EL variable, then
-  {@link javax.el.FunctionMapper} and {@link javax.el.VariableMapper}
+  {@link jakarta.el.FunctionMapper} and {@link jakarta.el.VariableMapper}
   objects must be available within the <code>ELContext</code> so that EL functions and
   EL variables are properly mapped.
 
 <h3><a name="ExpressionEvaluation">Evaluation of Expressions</a></h3>
 <p>The creation and the evaluation of an expression are done in two separate
   steps. At the evaluation of an expression,
-  the {@link javax.el.ELContext}
+  the {@link jakarta.el.ELContext}
   provides the context necessary to support property and method resolution
   for modal objects.</p>
 
@@ -130,13 +130,13 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
   in the tree building phase and evaluated in the rendering phrase.</p>
 
 <p>Adding parameters to a <code>ValueExpression</code> further enhances the
-  power of deferred expressions. The {@link javax.el.LambdaExpression}
+  power of deferred expressions. The {@link jakarta.el.LambdaExpression}
   encapsulates such a construct. A <code>LambdaExpression</code> can be
   invoked by supplying the actual parameters at evaluation. It plays
   an important role in the support for collections operators.</p>
 
 <h3><a name="EvaluationListener">Evaluation Listeners</a></h3>
-<p>By registering {@link javax.el.EvaluationListener}s in ELContext, a user can
+<p>By registering {@link jakarta.el.EvaluationListener}s in ELContext, a user can
   receive notifications during the EL expression evaluations. There are three
   events that trigger the notification:
 <ul>
@@ -148,16 +148,16 @@ Provides the API for the <strong>Unified Expression Language 3.0</strong>
 
 <h3><a name="Resolver">Resolution of Model Objects and their Properties</a></h3>
 
-<p>Through the {@link javax.el.ELResolver} base class, the EL
+<p>Through the {@link jakarta.el.ELResolver} base class, the EL
   features a pluggable mechanism
   to resolve model object references as well as properties and method
   invocations of these objects.</p>
 
 <p>The EL API provides implementations of <code>ELResolver</code> supporting
   property resolution for common data types which include
-  arrays ({@link javax.el.ArrayELResolver}), JavaBeans ({@link javax.el.BeanELResolver}), <code>List</code>s ({@link
-  javax.el.ListELResolver}),
-  <code>Map</code>s ({@link javax.el.MapELResolver}), and <code>ResourceBundle</code>s ({@link javax.el.ResourceBundleELResolver}).</p>
+  arrays ({@link jakarta.el.ArrayELResolver}), JavaBeans ({@link jakarta.el.BeanELResolver}), <code>List</code>s ({@link
+  jakarta.el.ListELResolver}),
+  <code>Map</code>s ({@link jakarta.el.MapELResolver}), and <code>ResourceBundle</code>s ({@link javax.el.ResourceBundleELResolver}).</p>
 
 <p>Tools can easily obtain more information about resolvable model objects and their
   resolvable properties by calling

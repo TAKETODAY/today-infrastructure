@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;

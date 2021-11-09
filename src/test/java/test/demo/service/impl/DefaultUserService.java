@@ -19,7 +19,7 @@
  */
 package test.demo.service.impl;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Autowired;

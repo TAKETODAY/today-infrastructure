@@ -21,7 +21,7 @@ package test.demo.config;
 
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;

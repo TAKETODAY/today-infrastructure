@@ -51,7 +51,7 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
             ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
+    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
   }
 
   public AllEncompassingFormHttpMessageConverter() {

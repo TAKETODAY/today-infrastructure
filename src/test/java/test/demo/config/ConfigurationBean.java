@@ -19,7 +19,7 @@
  */
 package test.demo.config;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Prototype;

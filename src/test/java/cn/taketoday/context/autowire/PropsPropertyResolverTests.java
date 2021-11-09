@@ -68,7 +68,6 @@ class PropsPropertyResolverTests {
       assertThat(property.isArray()).isFalse();
       assertThat(property.isList()).isFalse();
       assertThat(property.isMap()).isTrue();
-      assertThat(property.isAnnotationEmpty()).isFalse();
       assertThat(property.isAnnotationPresent(Props.class)).isTrue();
 
       Object value = resolveProperty.getValue();

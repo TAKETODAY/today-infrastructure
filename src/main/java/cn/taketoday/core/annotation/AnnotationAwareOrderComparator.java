@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  * {@code AnnotationAwareOrderComparator} is an extension of
  * {@link OrderComparator} that supports
  * {@link cn.taketoday.core.Ordered} interface as well as the
- * {@link Order @Order} and {@link javax.annotation.Priority @Priority}
+ * {@link Order @Order} and {@link jakarta.annotation.Priority @Priority}
  * annotations, with an order value provided by an {@code Ordered}
  * instance overriding a statically defined annotation value (if any).
  *
@@ -47,7 +47,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2021/9/12 11:35
  * @see cn.taketoday.core.Ordered
  * @see cn.taketoday.core.Order
- * @see javax.annotation.Priority
+ * @see jakarta.annotation.Priority
  * @since 4.0
  */
 public class AnnotationAwareOrderComparator extends OrderComparator {
@@ -59,7 +59,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
 
   /**
    * This implementation checks for {@link Order @Order} or
-   * {@link javax.annotation.Priority @Priority} on various kinds of
+   * {@link jakarta.annotation.Priority @Priority} on various kinds of
    * elements, in addition to the {@link cn.taketoday.core.Ordered}
    * check in the superclass.
    */
@@ -85,7 +85,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
   }
 
   /**
-   * This implementation retrieves an @{@link javax.annotation.Priority}
+   * This implementation retrieves an @{@link jakarta.annotation.Priority}
    * value, allowing for additional semantics over the regular @{@link Order}
    * annotation: typically, selecting one object over another in case of
    * multiple matches but only one object to be returned.
