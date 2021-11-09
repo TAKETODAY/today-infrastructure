@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * variety of helper methods like {@link #testDecodeAll} or {@link #testDecodeToMonoAll}.
  *
  * @author Arjen Poutsma
- * @since 5.1.3
+ * @since 4.0
  */
 public abstract class AbstractDecoderTests<D extends Decoder<?>> extends AbstractLeakCheckingTests {
 

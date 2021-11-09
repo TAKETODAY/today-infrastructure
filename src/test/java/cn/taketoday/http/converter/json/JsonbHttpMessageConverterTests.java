@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.within;
  * Integration tests for the JSON Binding API, running against Apache Johnzon.
  *
  * @author Juergen Hoeller
- * @since 5.0
+ * @since 4.0
  */
 public class JsonbHttpMessageConverterTests {
 

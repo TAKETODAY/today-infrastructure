@@ -45,7 +45,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Brian Clozel
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class MockClientHttpResponse implements ClientHttpResponse {
 

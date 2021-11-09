@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * helper methods like {@link #testEncodeAll}.
  *
  * @author Arjen Poutsma
- * @since 5.1.3
+ * @since 4.0
  */
 public abstract class AbstractEncoderTests<E extends Encoder<?>> extends AbstractLeakCheckingTests {
 

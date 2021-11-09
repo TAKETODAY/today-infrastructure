@@ -97,32 +97,26 @@ public class HttpServerErrorException extends HttpStatusCodeException {
   public static HttpServerErrorException create(@Nullable String message, HttpStatus statusCode,
                                                 String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
-    switch (statusCode) {
-      case INTERNAL_SERVER_ERROR:
-        return message != null ?
-               new InternalServerError(message, statusText, headers, body, charset) :
-               new InternalServerError(statusText, headers, body, charset);
-      case NOT_IMPLEMENTED:
-        return message != null ?
-               new NotImplemented(message, statusText, headers, body, charset) :
-               new NotImplemented(statusText, headers, body, charset);
-      case BAD_GATEWAY:
-        return message != null ?
-               new BadGateway(message, statusText, headers, body, charset) :
-               new BadGateway(statusText, headers, body, charset);
-      case SERVICE_UNAVAILABLE:
-        return message != null ?
-               new ServiceUnavailable(message, statusText, headers, body, charset) :
-               new ServiceUnavailable(statusText, headers, body, charset);
-      case GATEWAY_TIMEOUT:
-        return message != null ?
-               new GatewayTimeout(message, statusText, headers, body, charset) :
-               new GatewayTimeout(statusText, headers, body, charset);
-      default:
-        return message != null ?
-               new HttpServerErrorException(message, statusCode, statusText, headers, body, charset) :
-               new HttpServerErrorException(statusCode, statusText, headers, body, charset);
-    }
+    return switch (statusCode) {
+      case INTERNAL_SERVER_ERROR -> message != null ?
+              new InternalServerError(message, statusText, headers, body, charset) :
+              new InternalServerError(statusText, headers, body, charset);
+      case NOT_IMPLEMENTED -> message != null ?
+              new NotImplemented(message, statusText, headers, body, charset) :
+              new NotImplemented(statusText, headers, body, charset);
+      case BAD_GATEWAY -> message != null ?
+              new BadGateway(message, statusText, headers, body, charset) :
+              new BadGateway(statusText, headers, body, charset);
+      case SERVICE_UNAVAILABLE -> message != null ?
+              new ServiceUnavailable(message, statusText, headers, body, charset) :
+              new ServiceUnavailable(statusText, headers, body, charset);
+      case GATEWAY_TIMEOUT -> message != null ?
+              new GatewayTimeout(message, statusText, headers, body, charset) :
+              new GatewayTimeout(statusText, headers, body, charset);
+      default -> message != null ?
+              new HttpServerErrorException(message, statusCode, statusText, headers, body, charset) :
+              new HttpServerErrorException(statusCode, statusText, headers, body, charset);
+    };
   }
 
   // Subclasses for specific HTTP status codes

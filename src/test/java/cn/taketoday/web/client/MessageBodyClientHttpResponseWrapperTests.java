@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Unit tests for {@link MessageBodyClientHttpResponseWrapper}.
  *
- * @since 5.3.10
+ * @since 4.0
  * @author Yin-Jui Liao
  */
 class MessageBodyClientHttpResponseWrapperTests {

@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Violeta Georgieva
- * @since 5.0
+ * @since 4.0
  */
 class WriteOnlyHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 

@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
  * Unit tests for {@link PartHttpMessageWriter}.
  *
  * @author Rossen Stoyanchev
- * @since 5.3
+ * @since 4.0
  */
 public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 

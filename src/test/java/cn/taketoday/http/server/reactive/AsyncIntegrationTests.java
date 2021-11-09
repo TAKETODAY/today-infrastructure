@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Stephane Maldini
- * @since 5.0
+ * @since 4.0
  */
 class AsyncIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 

@@ -53,7 +53,7 @@ import reactor.core.publisher.Flux;
  * an actual server. Use the static methods to obtain a builder.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
@@ -251,7 +251,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
    * @param uri the URI template for target the URL
    * @param vars variables to expand into the template
    * @return the created builder
-   * @since 5.2.7
+   * @since 4.0
    */
   public static BodyBuilder method(String httpMethod, String uri, Object... vars) {
     return new DefaultBodyBuilder(httpMethod, toUri(uri, vars));
@@ -302,7 +302,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
     /**
      * Set the local address to return.
      *
-     * @since 5.2.3
+     * @since 4.0
      */
     B localAddress(InetSocketAddress localAddress);
 

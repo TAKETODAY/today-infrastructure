@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for the {@link PathPatternRouteMatcher}.
  *
  * @author Brian Clozel
- * @since 5.2
+ * @since 4.0
  */
 public class PathPatternRouteMatcherTests {
 

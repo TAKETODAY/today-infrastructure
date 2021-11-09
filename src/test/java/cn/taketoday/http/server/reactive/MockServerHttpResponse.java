@@ -49,7 +49,7 @@ import reactor.core.publisher.Sinks;
  * {@link #setWriteHandler(Function) writeHandler}.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class MockServerHttpResponse extends AbstractServerHttpResponse {
 
