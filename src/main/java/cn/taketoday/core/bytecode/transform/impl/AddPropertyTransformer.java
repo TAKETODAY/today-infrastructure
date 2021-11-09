@@ -15,24 +15,26 @@
  */
 package cn.taketoday.core.bytecode.transform.impl;
 
-import java.lang.reflect.Modifier;
-import java.util.Map;
-
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.transform.ClassEmitterTransformer;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+import java.lang.reflect.Modifier;
+import java.util.Map;
+
+/**
+ * @author TODAY
+ */
 public class AddPropertyTransformer extends ClassEmitterTransformer {
   private final String[] names;
   private final Type[] types;
 
-  public AddPropertyTransformer(Map props) {
+  public AddPropertyTransformer(Map<String, Type> props) {
     int size = props.size();
-    names = (String[]) props.keySet().toArray(new String[size]);
+    names = props.keySet().toArray(new String[size]);
     types = new Type[size];
     for (int i = 0; i < size; i++) {
-      types[i] = (Type) props.get(names[i]);
+      types[i] = props.get(names[i]);
     }
   }
 

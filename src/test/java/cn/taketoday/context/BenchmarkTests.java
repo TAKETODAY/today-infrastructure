@@ -160,13 +160,15 @@ class BenchmarkTests {
   @Setter
   @Getter
   static class PropertyTestBean {
-    String value;
+    private String value;
   }
 
   @Test
   void testProperty() throws IllegalAccessException {
     Field field = ReflectionUtils.findField(PropertyTestBean.class, "value");
     PropertyAccessor propertyAccessor = PropertyAccessor.fromField(field);
+
+    field.trySetAccessible();
 
     PropertyTestBean propertyTestBean = new PropertyTestBean();
     propertyAccessor.set(propertyTestBean, "TODAY");
@@ -176,7 +178,7 @@ class BenchmarkTests {
 
     // set
     long start = System.currentTimeMillis();
-    int times = 1_0000_000;
+    int times = 1_0000_0000;
     for (int i = 0; i < times; i++) {
       field.set(propertyTestBean, "reflect");
     }
@@ -185,7 +187,7 @@ class BenchmarkTests {
 
     start = System.currentTimeMillis();
     for (int i = 0; i < times; i++) {
-      propertyAccessor.get(propertyTestBean);
+      propertyAccessor.set(propertyTestBean, "propertyAccessor");
     }
     System.out.println("Accessor set used: " + (System.currentTimeMillis() - start) + "ms");
 
@@ -235,10 +237,10 @@ class BenchmarkTests {
     void testReflect() throws Throwable {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
       MethodHandle[] ms = {
-              lookup.unreflect(Bench1.class.getMethod("func0")),
-              lookup.unreflect(Bench1.class.getMethod("func1")),
-              lookup.unreflect(Bench1.class.getMethod("func2")),
-              lookup.unreflect(Bench1.class.getMethod("func3")),
+              lookup.unreflect(Bench1.class.getDeclaredMethod("func0")),
+              lookup.unreflect(Bench1.class.getDeclaredMethod("func1")),
+              lookup.unreflect(Bench1.class.getDeclaredMethod("func2")),
+              lookup.unreflect(Bench1.class.getDeclaredMethod("func3")),
       };
       long t = System.nanoTime();
       for (int i = 0; i < 1_0000_0000; i++)
@@ -250,10 +252,10 @@ class BenchmarkTests {
     void testMethodAccessor() throws Throwable {
 
       MethodInvoker[] ma = new MethodInvoker[] {
-              MethodInvoker.fromMethod(Bench1.class.getMethod("func0")),
-              MethodInvoker.fromMethod(Bench1.class.getMethod("func1")),
-              MethodInvoker.fromMethod(Bench1.class.getMethod("func2")),
-              MethodInvoker.fromMethod(Bench1.class.getMethod("func3")),
+              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func0")),
+              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func1")),
+              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func2")),
+              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func3")),
       };
       Bench1 self = this;
       long t = System.nanoTime();
@@ -299,7 +301,7 @@ class BenchmarkTests {
 
     void testReflect() throws Throwable {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
-      MethodHandle ms = lookup.unreflect(Bench2.class.getMethod("func0"));
+      MethodHandle ms = lookup.unreflect(Bench2.class.getDeclaredMethod("func0"));
       long t = System.nanoTime();
       for (int i = 0; i < 4_0000_0000; i++)
         ms.invoke(this);
@@ -309,7 +311,7 @@ class BenchmarkTests {
 
     void testMethodAccessor() throws Throwable {
 
-      MethodInvoker ma = MethodInvoker.fromMethod(Bench2.class.getMethod("func0"));
+      MethodInvoker ma = MethodInvoker.fromMethod(Bench2.class.getDeclaredMethod("func0"));
 
       Bench2 self = this;
       long t = System.nanoTime();
