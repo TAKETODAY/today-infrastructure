@@ -38,7 +38,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.AnnotatedElementAdapter;
+import cn.taketoday.util.AnnotationsAnnotatedElementAdapter;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -705,7 +705,7 @@ public class TypeDescriptor implements Serializable {
    * @see AnnotationUtils#isPresent(AnnotatedElement, Class)
    * @see AnnotationUtils#getAnnotation(AnnotatedElement, Class)
    */
-  class TypeDescriptorAnnotatedElementAdapter extends AnnotatedElementAdapter {
+  class TypeDescriptorAnnotatedElementAdapter extends AnnotationsAnnotatedElementAdapter {
 
     public TypeDescriptorAnnotatedElementAdapter(Annotation[] annotations) {
       super(annotations);
