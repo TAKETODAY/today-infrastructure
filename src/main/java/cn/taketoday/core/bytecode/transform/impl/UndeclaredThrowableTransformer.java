@@ -29,16 +29,15 @@ import cn.taketoday.core.bytecode.transform.ClassEmitterTransformer;
  * @author Today <br>
  * 2018-11-08 15:07
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
 
   private final Type wrapper;
 
-  public UndeclaredThrowableTransformer(Class wrapper) {
+  public UndeclaredThrowableTransformer(Class<?> wrapper) {
     this.wrapper = Type.fromClass(wrapper);
-    Constructor[] cstructs = wrapper.getConstructors();
-    for (final Constructor cstruct : cstructs) {
-      Class[] types = cstruct.getParameterTypes();
+    Constructor<?>[] cstructs = wrapper.getConstructors();
+    for (final Constructor<?> cstruct : cstructs) {
+      Class<?>[] types = cstruct.getParameterTypes();
       if (types.length == 1 && types[0].equals(Throwable.class)) {
         return;
       }
