@@ -20,6 +20,7 @@
 
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
@@ -28,8 +29,7 @@ import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 
 /**
- * Adapter class for exposing a {@code TypeDescriptor}'s annotations as an
- * {@link AnnotatedElement}, in particular to {@link ClassUtils}.
+ * Adapter class for exposing annotations as an {@link AnnotatedElement}
  *
  * @author TODAY 2021/3/26 13:42
  * @see AnnotationUtils#isPresent(AnnotatedElement, Class)
@@ -37,6 +37,7 @@ import cn.taketoday.lang.Constant;
  */
 public class AnnotatedElementAdapter
         extends AbstractAnnotatedElement implements AnnotatedElement {
+  @Serial
   private static final long serialVersionUID = 1L;
   private final Annotation[] annotations;
 
@@ -53,9 +54,8 @@ public class AnnotatedElementAdapter
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof AnnotatedElementAdapter))
+    if (!(o instanceof final AnnotatedElementAdapter that))
       return false;
-    final AnnotatedElementAdapter that = (AnnotatedElementAdapter) o;
     return Arrays.equals(annotations, that.annotations);
   }
 

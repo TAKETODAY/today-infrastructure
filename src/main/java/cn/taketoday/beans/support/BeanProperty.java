@@ -29,13 +29,13 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.AbstractAnnotatedElement;
+import cn.taketoday.util.AnnotatedElementDecorator;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 
 import java.io.Serial;
-import java.lang.annotation.Annotation;
+import java.io.Serializable;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -51,7 +51,7 @@ import java.util.Objects;
  * 2021/1/27 22:28
  * @since 3.0
  */
-public class BeanProperty extends AbstractAnnotatedElement implements Member {
+public class BeanProperty extends AnnotatedElementDecorator implements Member, AnnotatedElement, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -72,13 +72,12 @@ public class BeanProperty extends AbstractAnnotatedElement implements Member {
   @Nullable
   private transient ConversionService conversionService;
 
-  private transient Annotation[] annotations;
-
   /** @since 3.0.4 */
   private transient TypeDescriptor typeDescriptor;
   private final String alias;
 
   BeanProperty(String alias, Field field) {
+    super(field);
     this.alias = alias;
     this.field = field;
     this.fieldType = field.getType();
@@ -381,15 +380,6 @@ public class BeanProperty extends AbstractAnnotatedElement implements Member {
    */
   public Class<?> getDeclaringClass() {
     return field.getDeclaringClass();
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of AnnotatedElement interface
-  //---------------------------------------------------------------------
-
-  @Override
-  public Annotation[] getAnnotations() {
-    return field.getAnnotations();
   }
 
   //---------------------------------------------------------------------
