@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * @author TODAY 2020/9/11 11:06
@@ -39,6 +39,17 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
 
   @Override
   public abstract void set(Object obj, Object value);
+
+  /**
+   * read-only ?
+   *
+   * @since 4.0
+   */
+  public boolean isReadOnly() {
+    return false;
+  }
+
+  // static
 
   /**
    * PropertyAccessor

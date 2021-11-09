@@ -20,9 +20,10 @@
 
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Method;
-
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * read-only PropertyAccessor
@@ -34,11 +35,18 @@ abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
   public final void set(final Object obj, final Object value) {
-    throw new PropertyReadOnlyException("Can't set value to read only property");
+    throw new PropertyReadOnlyException(
+            "Can't set value '" + ObjectUtils.toHexString(value) + "' to '" + obj.getClass() + "' read only property");
   }
 
   @Override
   public final Method getWriteMethod() {
     throw new PropertyReadOnlyException("read only property");
   }
+
+  @Override
+  public boolean isReadOnly() {
+    return true;
+  }
+
 }
