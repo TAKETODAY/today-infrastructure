@@ -116,7 +116,7 @@ public abstract class AbstractHttpHandlerIntegrationTests {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
   @ParameterizedTest(name = "[{index}] {0}")
-  @MethodSource("cn.taketoday.web.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests#httpServers()")
+  @MethodSource("cn.taketoday.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests#httpServers()")
   // public for Kotlin
   public @interface ParameterizedHttpServerTest {
   }
