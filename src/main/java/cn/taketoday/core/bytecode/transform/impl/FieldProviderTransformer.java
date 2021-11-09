@@ -32,8 +32,8 @@ import java.util.Map;
 
 public class FieldProviderTransformer extends ClassEmitterTransformer {
 
-  private static final String FIELD_NAMES = "today$FieldNames";
-  private static final String FIELD_TYPES = "today$FieldTypes";
+  private static final String FIELD_NAMES = "$today$FieldNames";
+  private static final String FIELD_TYPES = "$today$FieldTypes";
 
   private static final Type FIELD_PROVIDER = Type.fromClass(FieldProvider.class);
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");

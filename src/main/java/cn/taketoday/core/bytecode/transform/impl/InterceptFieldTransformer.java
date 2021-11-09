@@ -193,13 +193,10 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   }
 
   private static Type remap(Type type) {
-    switch (type.getSort()) {
-      case Type.OBJECT:
-      case Type.ARRAY:
-        return Type.TYPE_OBJECT;
-      default:
-        return type;
-    }
+    return switch (type.getSort()) {
+      case Type.OBJECT, Type.ARRAY -> Type.TYPE_OBJECT;
+      default -> type;
+    };
   }
 
   private static String callbackName(Type type) {
