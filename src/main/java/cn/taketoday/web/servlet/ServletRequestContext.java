@@ -391,6 +391,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   private final class ServletRequestModel extends ModelAttributes {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // auto flush to request attributes
