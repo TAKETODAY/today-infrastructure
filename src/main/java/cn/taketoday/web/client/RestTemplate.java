@@ -20,18 +20,6 @@
 
 package cn.taketoday.web.client;
 
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -60,9 +48,22 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.web.util.AbstractUriTemplateHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
 import cn.taketoday.web.util.UriTemplateHandler;
+
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Synchronous client to perform HTTP requests, exposing a simple, template
@@ -232,14 +233,12 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    *
    * @param uriVars the default URI variable values
    */
-  @SuppressWarnings("deprecation")
   public void setDefaultUriVariables(Map<String, ?> uriVars) {
     if (this.uriTemplateHandler instanceof DefaultUriBuilderFactory) {
       ((DefaultUriBuilderFactory) this.uriTemplateHandler).setDefaultUriVariables(uriVars);
     }
-    else if (this.uriTemplateHandler instanceof cn.taketoday.web.util.AbstractUriTemplateHandler) {
-      ((cn.taketoday.web.util.AbstractUriTemplateHandler) this.uriTemplateHandler)
-              .setDefaultUriVariables(uriVars);
+    else if (this.uriTemplateHandler instanceof AbstractUriTemplateHandler uriTemplateHandler) {
+      uriTemplateHandler.setDefaultUriVariables(uriVars);
     }
     else {
       throw new IllegalArgumentException(
@@ -905,8 +904,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       else {
         Class<?> requestBodyClass = requestBody.getClass();
         Type requestBodyType = this.requestEntity instanceof RequestEntity
-                               ? ((RequestEntity<?>) this.requestEntity).getType()
-                               : requestBodyClass;
+                ? ((RequestEntity<?>) this.requestEntity).getType()
+                : requestBodyClass;
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
         MediaType requestContentType = requestHeaders.getContentType();

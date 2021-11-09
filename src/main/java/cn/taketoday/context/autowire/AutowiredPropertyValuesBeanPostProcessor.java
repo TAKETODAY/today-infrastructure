@@ -112,7 +112,6 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
     }
 
     // process methods
-
     ReflectionUtils.doWithMethods(beanClass, method -> {
       MergedAnnotations annotations = MergedAnnotations.from(method);
       MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class);
@@ -125,7 +124,6 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   }
 
   record PropertySetter0(Method method, MergedAnnotation<Autowired> autowired) implements PropertySetter {
-
 
     @Override
     public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
