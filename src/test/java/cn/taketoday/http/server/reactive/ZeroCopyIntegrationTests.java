@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 class ZeroCopyIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
-  private static final Resource springLogoResource = new ClassPathResource("/org/springframework/web/spring.png");
+  private static final Resource springLogoResource = new ClassPathResource("/cn/taketoday/web/spring.png");
 
   private final ZeroCopyHandler handler = new ZeroCopyHandler();
 

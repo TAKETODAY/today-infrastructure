@@ -20,8 +20,10 @@
 
 package cn.taketoday.web.view;
 
+import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
@@ -131,7 +133,7 @@ public class JacksonMessageBodyConverterTests {
 
   @Test
   public void testRead() throws IOException {
-    final ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = Jackson2ObjectMapperBuilder.json().featuresToDisable().build();
 
     final User today = new User().setAge(20).setName("TODAY");
     final List<User> list = Arrays.asList(today, new User().setAge(21).setName("TODAY1"));

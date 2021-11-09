@@ -161,11 +161,11 @@ public class FormHttpMessageConverterTests {
     parts.add("name 2", "value 2+2");
     parts.add("name 3", null);
 
-    Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
     parts.add("logo", logo);
 
     // SPR-12108
-    Resource utf8 = new ClassPathResource("/org/springframework/http/converter/logo.jpg") {
+    Resource utf8 = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg") {
       @Override
       public String getName() {
         return "Hall\u00F6le.jpg";
@@ -276,7 +276,7 @@ public class FormHttpMessageConverterTests {
   @Test
   public void writeMultipartCharset() throws Exception {
     MultiValueMap<String, Object> parts = new DefaultMultiValueMap<>();
-    Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
     parts.add("logo", logo);
 
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();

@@ -50,7 +50,7 @@ public class MultipartBodyBuilderTests {
     multipartData.add("form field", "form value");
     builder.part("key", multipartData).header("foo", "bar");
 
-    Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
     builder.part("logo", logo).header("baz", "qux");
 
     HttpHeaders entityHeaders = HttpHeaders.create();

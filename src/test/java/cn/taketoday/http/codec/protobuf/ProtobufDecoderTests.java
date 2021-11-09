@@ -69,8 +69,8 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
 
   @Test
   public void extensionRegistryNull() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new ProtobufDecoder(null));
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new ProtobufDecoder(null));
   }
 
   @Override
@@ -152,8 +152,7 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
               int len = buffer.readableByteCount() / 2;
               Flux<DataBuffer> result = Flux.just(
                       DataBufferUtils.retain(buffer.slice(0, len)),
-                      DataBufferUtils
-                              .retain(buffer.slice(len, buffer.readableByteCount() - len))
+                      DataBufferUtils.retain(buffer.slice(len, buffer.readableByteCount() - len))
               );
               release(buffer);
               return result;

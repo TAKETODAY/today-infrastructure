@@ -91,8 +91,8 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   public void writeMultipartFormData() throws Exception {
-    Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
-    Resource utf8 = new ClassPathResource("/org/springframework/http/converter/logo.jpg") {
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
+    Resource utf8 = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg") {
       @Override
       public String getName() {
         // SPR-12108
@@ -219,7 +219,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @Test  // SPR-16402
   public void singleSubscriberWithResource() throws IOException {
     Sinks.Many<Resource> sink = Sinks.many().unicast().onBackpressureBuffer();
-    Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
     sink.tryEmitNext(logo);
 
     MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
@@ -261,7 +261,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test  // SPR-16376
   public void customContentDisposition() throws IOException {
-    Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
     Flux<DataBuffer> buffers = DataBufferUtils.read(logo, DefaultDataBufferFactory.sharedInstance, 1024);
     long contentLength = logo.contentLength();
 
