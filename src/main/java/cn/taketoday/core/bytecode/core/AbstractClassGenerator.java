@@ -321,7 +321,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       }
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) { // just in case
-        return DefineClassHelper.defineClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
+//        return DefineClassHelper.defineClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
+        return DefineClassHelper.defineClass(getClassName(), bytes, getProtectionDomain());
       }
     }
     catch (RuntimeException | Error e) {
@@ -338,7 +339,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   // @since 4.0
   public void setNeighbor(Class<?> neighbor) {
 //    if (neighbor != Object.class) {
-      this.neighbor = neighbor;
+    this.neighbor = neighbor;
 //    }
   }
 

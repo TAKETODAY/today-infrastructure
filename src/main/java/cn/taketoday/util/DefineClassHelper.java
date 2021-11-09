@@ -43,6 +43,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
+import cn.taketoday.core.bytecode.ByteCodeClassLoader;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.NonNull;
@@ -242,6 +243,13 @@ public class DefineClassHelper {
   @NonNull
   private static CodeGenerationException newException(String className, Throwable ex) {
     return new CodeGenerationException("Class: '" + className + "' define failed", ex);
+  }
+
+  static final ByteCodeClassLoader classLoader = new ByteCodeClassLoader(ClassUtils.getDefaultClassLoader());
+
+  public static Class<?> defineClass(
+          String className, byte[] b, ProtectionDomain domain) throws Exception {
+    return classLoader.loadClass(className, b, domain);
   }
 
 }

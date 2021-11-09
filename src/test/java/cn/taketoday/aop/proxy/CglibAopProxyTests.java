@@ -485,8 +485,7 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
     }
   }
 
-  public static class PackageMethodTestBean {
-
+  private static class PackageMethodTestBean {
     public String value;
 
     String getString() {
@@ -494,7 +493,7 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
     }
   }
 
-  private static class PrivateCglibTestBean {
+  public static class PrivateCglibTestBean {
 
     private String name;
 
