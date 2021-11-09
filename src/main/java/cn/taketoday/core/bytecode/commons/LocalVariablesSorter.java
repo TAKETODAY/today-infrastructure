@@ -105,32 +105,14 @@ public class LocalVariablesSorter extends MethodVisitor {
 
   @Override
   public void visitVarInsn(final int opcode, final int var) {
-    Type varType;
-    switch (opcode) {
-      case Opcodes.LLOAD:
-      case Opcodes.LSTORE:
-        varType = Type.LONG_TYPE;
-        break;
-      case Opcodes.DLOAD:
-      case Opcodes.DSTORE:
-        varType = Type.DOUBLE_TYPE;
-        break;
-      case Opcodes.FLOAD:
-      case Opcodes.FSTORE:
-        varType = Type.FLOAT_TYPE;
-        break;
-      case Opcodes.ILOAD:
-      case Opcodes.ISTORE:
-        varType = Type.INT_TYPE;
-        break;
-      case Opcodes.ALOAD:
-      case Opcodes.ASTORE:
-      case Opcodes.RET:
-        varType = Type.TYPE_OBJECT;
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid opcode " + opcode);
-    }
+    Type varType = switch (opcode) {
+      case Opcodes.LLOAD, Opcodes.LSTORE -> Type.LONG_TYPE;
+      case Opcodes.DLOAD, Opcodes.DSTORE -> Type.DOUBLE_TYPE;
+      case Opcodes.FLOAD, Opcodes.FSTORE -> Type.FLOAT_TYPE;
+      case Opcodes.ILOAD, Opcodes.ISTORE -> Type.INT_TYPE;
+      case Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RET -> Type.TYPE_OBJECT;
+      default -> throw new IllegalArgumentException("Invalid opcode " + opcode);
+    };
     super.visitVarInsn(opcode, remap(var, varType));
   }
 
@@ -260,33 +242,15 @@ public class LocalVariablesSorter extends MethodVisitor {
    * @return the identifier of the newly created local variable.
    */
   public int newLocalIndex(final Type type) {
-    Object localType;
-    switch (type.getSort()) {
-      case Type.BOOLEAN:
-      case Type.CHAR:
-      case Type.BYTE:
-      case Type.SHORT:
-      case Type.INT:
-        localType = Opcodes.INTEGER;
-        break;
-      case Type.FLOAT:
-        localType = Opcodes.FLOAT;
-        break;
-      case Type.LONG:
-        localType = Opcodes.LONG;
-        break;
-      case Type.DOUBLE:
-        localType = Opcodes.DOUBLE;
-        break;
-      case Type.ARRAY:
-        localType = type.getDescriptor();
-        break;
-      case Type.OBJECT:
-        localType = type.getInternalName();
-        break;
-      default:
-        throw new AssertionError();
-    }
+    Object localType = switch (type.getSort()) {
+      case Type.BOOLEAN, Type.CHAR, Type.BYTE, Type.SHORT, Type.INT -> Opcodes.INTEGER;
+      case Type.FLOAT -> Opcodes.FLOAT;
+      case Type.LONG -> Opcodes.LONG;
+      case Type.DOUBLE -> Opcodes.DOUBLE;
+      case Type.ARRAY -> type.getDescriptor();
+      case Type.OBJECT -> type.getInternalName();
+      default -> throw new AssertionError();
+    };
     int local = newLocalMapping(type);
     setLocalType(local, type);
     setFrameLocal(local, localType);
