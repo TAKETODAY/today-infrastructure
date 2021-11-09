@@ -235,7 +235,7 @@ public class TestXmlParsing {
     String[] interned = new String[numWords];
     for (int i = 0; i < words.length; i++) {
       interned[i] = M1[(int) (Math.random() * M1.length)].intern();
-      words[i] = new String(interned[i]);
+      words[i] = interned[i];
     }
     long total1 = 0;
     long total2 = 0;

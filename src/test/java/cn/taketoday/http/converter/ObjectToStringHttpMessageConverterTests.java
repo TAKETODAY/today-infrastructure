@@ -68,7 +68,6 @@ public class ObjectToStringHttpMessageConverterTests {
   @Test
   public void canRead() {
     assertThat(this.converter.canRead(Math.class, null)).isFalse();
-    assertThat(this.converter.canRead(Resource.class, null)).isFalse();
 
     assertThat(this.converter.canRead(Locale.class, null)).isTrue();
     assertThat(this.converter.canRead(BigInteger.class, null)).isTrue();
@@ -76,6 +75,8 @@ public class ObjectToStringHttpMessageConverterTests {
     assertThat(this.converter.canRead(BigInteger.class, MediaType.TEXT_HTML)).isFalse();
     assertThat(this.converter.canRead(BigInteger.class, MediaType.TEXT_XML)).isFalse();
     assertThat(this.converter.canRead(BigInteger.class, MediaType.APPLICATION_XML)).isFalse();
+
+    assertThat(this.converter.canRead(Resource.class, null)).isFalse();
   }
 
   @Test
@@ -102,7 +103,8 @@ public class ObjectToStringHttpMessageConverterTests {
 
   @Test
   public void defaultCharsetModified() throws IOException {
-    ConversionService cs = new DefaultConversionService();
+    DefaultConversionService cs = new DefaultConversionService();
+    DefaultConversionService.addDefaultConverters(cs);
     ObjectToStringHttpMessageConverter converter = new ObjectToStringHttpMessageConverter(cs, StandardCharsets.UTF_16);
     converter.write((byte) 31, null, this.response);
 
