@@ -20,11 +20,6 @@
 
 package cn.taketoday.http.client.support;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
@@ -34,6 +29,11 @@ import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}
@@ -130,7 +130,9 @@ public abstract class HttpAccessor {
   }
 
   private void initialize(ClientHttpRequest request) {
-    this.clientHttpRequestInitializers.forEach(initializer -> initializer.initialize(request));
+    for (ClientHttpRequestInitializer initializer : clientHttpRequestInitializers) {
+      initializer.initialize(request);
+    }
   }
 
 }
