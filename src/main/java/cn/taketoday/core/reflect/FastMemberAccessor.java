@@ -23,7 +23,7 @@ import java.lang.reflect.Member;
 
 import cn.taketoday.lang.Assert;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 abstract public class FastMemberAccessor implements Accessor {
 
   protected final int index;

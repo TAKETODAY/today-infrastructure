@@ -220,7 +220,7 @@ public class ClientHttpConnectorTests {
   }
 
   static List<Arguments> methodsWithConnectors() {
-    List<Arguments> result = new ArrayList<>();
+    ArrayList<Arguments> result = new ArrayList<>();
     for (ClientHttpConnector connector : connectors()) {
       for (HttpMethod method : HttpMethod.values()) {
         result.add(Arguments.of(connector, method));

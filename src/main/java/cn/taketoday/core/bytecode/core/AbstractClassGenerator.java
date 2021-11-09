@@ -141,9 +141,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     return className;
   }
 
-  private AbstractClassGenerator setClassName(String className) {
+  private void setClassName(String className) {
     this.className = className;
-    return this;
   }
 
   private String generateClassName(Predicate<String> nameTestPredicate) {
@@ -207,9 +206,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * <code>ClassLoader</code> before generating them. Because generated class
    * names are not guaranteed to be unique, the default is <code>false</code>.
    */
-  public AbstractClassGenerator setAttemptLoad(boolean attemptLoad) {
+  public void setAttemptLoad(boolean attemptLoad) {
     this.attemptLoad = attemptLoad;
-    return this;
   }
 
   public boolean isAttemptLoad() {
@@ -319,8 +317,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         try {
           return classLoader.loadClass(getClassName());
         }
-        catch (ClassNotFoundException ignored) {
-        }
+        catch (ClassNotFoundException ignored) { }
       }
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) { // just in case
@@ -340,7 +337,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   // @since 4.0
   public void setNeighbor(Class<?> neighbor) {
-    this.neighbor = neighbor;
+//    if (neighbor != Object.class) {
+      this.neighbor = neighbor;
+//    }
   }
 
   protected abstract Object firstInstance(Class<T> type) throws Exception;

@@ -22,7 +22,7 @@ package cn.taketoday.core.reflect;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 public class FastMethodAccessor extends FastMemberAccessor {
 
   FastMethodAccessor(MethodAccess fc, Method method) {

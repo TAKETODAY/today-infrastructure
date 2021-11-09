@@ -371,7 +371,7 @@ public abstract class AbstractAopProxyTests {
     // Test return value
     MethodInterceptor mi = new MethodInterceptor() {
       @Override
-      public Object invoke(MethodInvocation invocation) throws Throwable {
+      public Object invoke(MethodInvocation invocation) {
         if (!context) {
           assertNoInvocationContext();
         }

@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -59,7 +60,7 @@ import jakarta.websocket.server.ServerEndpointConfig;
 public class TomcatWebSocketHandlerAdapter
         extends AbstractStandardWebSocketHandlerAdapter implements ServletContextAware {
 
-  static final boolean DISABLE_BUILTIN_EXTENSIONS = Boolean.getBoolean("websocket.DISABLE_BUILTIN_EXTENSIONS");
+  static final boolean DISABLE_BUILTIN_EXTENSIONS = TodayStrategies.getFlag("websocket.DISABLE_BUILTIN_EXTENSIONS");
 
   public static final List<Extension> INSTALLED_EXTENSIONS;
 

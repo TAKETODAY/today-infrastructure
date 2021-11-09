@@ -144,8 +144,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class Jackson2ObjectMapperFactoryBean
-        implements FactoryBean<ObjectMapper>,
-                   BeanClassLoaderAware, ApplicationContextAware, InitializingBean {
+        implements FactoryBean<ObjectMapper>, BeanClassLoaderAware, ApplicationContextAware, InitializingBean {
 
   private final Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
 
@@ -290,7 +289,6 @@ public class Jackson2ObjectMapperFactoryBean
    * returned by {@link JsonDeserializer#handledType()}, which must not be {@code null}.
    *
    * @see #setDeserializersByType(Map)
-   * @since 4.0
    */
   public void setDeserializers(JsonDeserializer<?>... deserializers) {
     this.builder.deserializers(deserializers);
@@ -321,8 +319,6 @@ public class Jackson2ObjectMapperFactoryBean
 
   /**
    * Shortcut for {@link MapperFeature#DEFAULT_VIEW_INCLUSION} option.
-   *
-   * @since 4.0
    */
   public void setDefaultViewInclusion(boolean defaultViewInclusion) {
     this.builder.defaultViewInclusion(defaultViewInclusion);
@@ -330,8 +326,6 @@ public class Jackson2ObjectMapperFactoryBean
 
   /**
    * Shortcut for {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} option.
-   *
-   * @since 4.0
    */
   public void setFailOnUnknownProperties(boolean failOnUnknownProperties) {
     this.builder.failOnUnknownProperties(failOnUnknownProperties);
@@ -354,8 +348,6 @@ public class Jackson2ObjectMapperFactoryBean
   /**
    * Define if a wrapper will be used for indexed (List, array) properties or not by
    * default (only applies to {@link XmlMapper}).
-   *
-   * @since 4.0
    */
   public void setDefaultUseWrapper(boolean defaultUseWrapper) {
     this.builder.defaultUseWrapper(defaultUseWrapper);
@@ -396,7 +388,6 @@ public class Jackson2ObjectMapperFactoryBean
    * <p>Specify either this or {@link #setModulesToInstall}, not both.
    *
    * @see Module
-   * @since 4.0
    */
   public void setModules(List<Module> modules) {
     this.builder.modules(modules);
@@ -412,7 +403,6 @@ public class Jackson2ObjectMapperFactoryBean
    * <p>Specify either this or {@link #setModules}, not both.
    *
    * @see Module
-   * @since 4.0.1
    */
   @SafeVarargs
   public final void setModulesToInstall(Class<? extends Module>... modules) {
@@ -427,7 +417,6 @@ public class Jackson2ObjectMapperFactoryBean
    * provided that Java 8 and Joda-Time themselves are available, respectively.
    *
    * @see ObjectMapper#findModules()
-   * @since 4.0.1
    */
   public void setFindModulesViaServiceLoader(boolean findModules) {
     this.builder.findModulesViaServiceLoader(findModules);
@@ -444,7 +433,6 @@ public class Jackson2ObjectMapperFactoryBean
    * {@code TypeResolverBuilder} and {@code TypeIdResolver}).
    *
    * @see Jackson2ObjectMapperFactoryBean#setApplicationContext(ApplicationContext)
-   * @since 4.0
    */
   public void setHandlerInstantiator(HandlerInstantiator handlerInstantiator) {
     this.builder.handlerInstantiator(handlerInstantiator);
@@ -457,7 +445,6 @@ public class Jackson2ObjectMapperFactoryBean
    *
    * @see Jackson2ObjectMapperBuilder#applicationContext(ApplicationContext)
    * @see BeanFactoryHandlerInstantiator
-   * @since 4.0
    */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
@@ -485,7 +472,7 @@ public class Jackson2ObjectMapperFactoryBean
 
   @Override
   public Class<?> getBeanClass() {
-    return (this.objectMapper != null ? this.objectMapper.getClass() : null);
+    return this.objectMapper != null ? this.objectMapper.getClass() : null;
   }
 
   @Override

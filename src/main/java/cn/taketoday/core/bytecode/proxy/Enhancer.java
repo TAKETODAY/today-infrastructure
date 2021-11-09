@@ -356,9 +356,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   @Override
-  public Enhancer setAttemptLoad(boolean attemptLoad) {
+  public void setAttemptLoad(boolean attemptLoad) {
     super.setAttemptLoad(attemptLoad);
-    return this;
   }
 
   @Override

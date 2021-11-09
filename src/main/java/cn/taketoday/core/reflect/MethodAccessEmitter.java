@@ -50,7 +50,8 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY <br>
  * 2018-11-08 15:08
  */
-@SuppressWarnings({ "rawtypes", "unchecked" }) final class MethodAccessEmitter extends ClassEmitter {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+final class MethodAccessEmitter extends ClassEmitter {
 
   static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
   static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");
@@ -87,7 +88,7 @@ import cn.taketoday.util.StringUtils;
     CollectionUtils.filter(methods, vp);
     CollectionUtils.filter(methods, new DuplicatesPredicate());
 
-    final Constructor[] declaredConstructors = type.getDeclaredConstructors();
+    Constructor[] declaredConstructors = type.getDeclaredConstructors();
     ArrayList<Constructor> constructors = new ArrayList<>(declaredConstructors.length);
     Collections.addAll(constructors, declaredConstructors);
     CollectionUtils.filter(constructors, vp);
@@ -152,7 +153,7 @@ import cn.taketoday.util.StringUtils;
       // hack for big classes
       List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
         public String apply(Method obj) {
-          final String s = MethodSignature.from(obj).toString();
+          String s = MethodSignature.from(obj).toString();
           return s.substring(0, s.lastIndexOf(')') + 1);
         }
       });
@@ -168,7 +169,7 @@ import cn.taketoday.util.StringUtils;
     e.end_method();
   }
 
-  private void signatureSwitchHelper(final CodeEmitter e, final List<String> signatures) {
+  private void signatureSwitchHelper(CodeEmitter e, List<String> signatures) {
     ObjectSwitchCallback callback = new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         // TODO: remove linear indexOf
@@ -186,10 +187,10 @@ import cn.taketoday.util.StringUtils;
     EmitUtils.stringSwitch(e, strings, Opcodes.SWITCH_STYLE_HASH, callback);
   }
 
-  private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {
-    final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
-    final Label illegalArg = e.newLabel();
-    final Block block = e.begin_block();
+  private static void invokeSwitchHelper(CodeEmitter e, List members, int arg, Type base) {
+    List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
+    Label illegalArg = e.newLabel();
+    Block block = e.begin_block();
     e.tableSwitch(getIntRange(info.size()), new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         MethodInfo method = info.get(key);

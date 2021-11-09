@@ -36,16 +36,17 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.core.bytecode.core.CodeGenerationException;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -167,7 +168,7 @@ public class DefineClassHelper {
         t = ex;
       }
       catch (Throwable ex) {
-        throw new CodeGenerationException(ex);
+        throw newException(className, ex);
       }
     }
 
@@ -212,7 +213,7 @@ public class DefineClassHelper {
           t = ex;
         }
         catch (Throwable ex) {
-          throw new CodeGenerationException(ex);
+          throw newException(className, ex);
         }
       }
     }
@@ -224,18 +225,23 @@ public class DefineClassHelper {
         c = lookup.defineClass(b);
       }
       catch (Throwable ex) {
-        throw new CodeGenerationException(ex);
+        throw newException(className, ex);
       }
     }
 
     // No defineClass variant available at all?
     if (c == null) {
-      throw new CodeGenerationException(t);
+      throw newException(className, t);
     }
 
     // Force static initializers to run.
     Class.forName(className, true, loader);
     return c;
+  }
+
+  @NonNull
+  private static CodeGenerationException newException(String className, Throwable ex) {
+    return new CodeGenerationException("Class: '" + className + "' define failed", ex);
   }
 
 }

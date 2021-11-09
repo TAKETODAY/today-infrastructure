@@ -38,6 +38,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseStatusException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.HandshakeFailedException;
@@ -78,8 +79,12 @@ import jakarta.websocket.server.ServerEndpointConfig;
 public class UndertowWebSocketHandlerAdapter
         extends AbstractStandardWebSocketHandlerAdapter implements InitializingBean {
 
-  private static final boolean directBuffers = Boolean.getBoolean("io.undertow.websockets.direct-buffers");
-  private static final boolean invokeInIoThread = Boolean.getBoolean("io.undertow.websockets.invoke-in-io-thread");
+  private static final boolean directBuffers = TodayStrategies.getFlag(
+          "io.undertow.websockets.direct-buffers");
+
+  private static final boolean invokeInIoThread = TodayStrategies.getFlag(
+          "io.undertow.websockets.invoke-in-io-thread");
+
   private static final String SESSION_ATTRIBUTE = "io.undertow.websocket.current-connections";
 
   /**

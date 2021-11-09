@@ -63,11 +63,11 @@ import cn.taketoday.lang.Autowired;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test class for {@link SpringHandlerInstantiatorTests}.
+ * Test class for {@link BeanFactoryHandlerInstantiatorTests}.
  *
  * @author Sebastien Deleuze
  */
-public class SpringHandlerInstantiatorTests {
+public class BeanFactoryHandlerInstantiatorTests {
 
   private BeanFactoryHandlerInstantiator instantiator;
 
@@ -79,7 +79,7 @@ public class SpringHandlerInstantiatorTests {
     AutowiredPropertyValuesBeanPostProcessor bpp = new AutowiredPropertyValuesBeanPostProcessor(context);
     StandardBeanFactory beanFactory = context.getBeanFactory();
     beanFactory.addBeanPostProcessor(bpp);
-    beanFactory.registerBeanDefinition("capitalizer", new BeanDefinition(Capitalizer.class));
+    beanFactory.registerBeanDefinition(new BeanDefinition("capitalizer", Capitalizer.class));
     instantiator = new BeanFactoryHandlerInstantiator(beanFactory);
     objectMapper = Jackson2ObjectMapperBuilder.json().handlerInstantiator(instantiator).build();
   }

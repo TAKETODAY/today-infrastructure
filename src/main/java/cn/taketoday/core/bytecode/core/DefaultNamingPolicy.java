@@ -17,6 +17,8 @@ package cn.taketoday.core.bytecode.core;
 
 import java.util.function.Predicate;
 
+import cn.taketoday.lang.TodayStrategies;
+
 /**
  * The default policy used by {@link AbstractClassGenerator}. Generates names
  * such as
@@ -36,24 +38,22 @@ public class DefaultNamingPolicy implements NamingPolicy {
   /**
    * This allows to test collisions of {@code key.hashCode()}.
    */
-  private static final boolean STRESS_HASH_CODE =
-          Boolean.getBoolean("cn.taketoday.core.bytecode.stressHashCodes");
+  private static final boolean STRESS_HASH_CODE = TodayStrategies.getFlag("bytecode.stressHashCodes");
 
   @Override
   public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
-
     if (prefix == null) {
       prefix = "cn.taketoday.core.bytecode.Object";
     }
     else if (prefix.startsWith("java")) {
-      prefix = '$' + prefix;
+      prefix = "system$" + prefix;
     }
 
-    final String base = new StringBuilder(prefix)//
-            .append("$$")//
-            .append(source)//
-            .append(getTag())//
-            .append("$$")//
+    String base = new StringBuilder(prefix)
+            .append("$$")
+            .append(source)
+            .append(getTag())
+            .append("$$")
             .append(Integer.toHexString(STRESS_HASH_CODE ? 0 : key.hashCode())).toString();
 
     String attempt = base;
@@ -76,6 +76,6 @@ public class DefaultNamingPolicy implements NamingPolicy {
   }
 
   public boolean equals(Object o) {
-    return (o instanceof DefaultNamingPolicy) && ((DefaultNamingPolicy) o).getTag().equals(getTag());
+    return o instanceof DefaultNamingPolicy policy && policy.getTag().equals(getTag());
   }
 }
