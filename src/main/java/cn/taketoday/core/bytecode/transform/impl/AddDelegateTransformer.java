@@ -31,17 +31,17 @@ import cn.taketoday.core.bytecode.transform.ClassEmitterTransformer;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class AddDelegateTransformer extends ClassEmitterTransformer {
 
-  private static final String DELEGATE = "$TODAY_DELEGATE";
+  private static final String DELEGATE = "$todayDelegate";
   private static final MethodSignature CSTRUCT_OBJECT = MethodSignature.from("void <init>(Object)");
 
-  private Class[] delegateIf;
-  private Class delegateImpl;
-  private Type delegateType;
+  private final Class[] delegateIf;
+  private final Class delegateImpl;
+  private final Type delegateType;
 
   /** Creates a new instance of AddDelegateTransformer */
-  public AddDelegateTransformer(Class delegateIf[], Class delegateImpl) {
+  public AddDelegateTransformer(Class[] delegateIf, Class delegateImpl) {
     try {
-      delegateImpl.getConstructor(new Class[] { Object.class });
+      delegateImpl.getConstructor(Object.class);
       this.delegateIf = delegateIf;
       this.delegateImpl = delegateImpl;
       delegateType = Type.fromClass(delegateImpl);
@@ -64,17 +64,16 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
       super.beginClass(version, access, className, superType, interfaces, sourceFile);
     }
     else {
-      final Class[] delegateIf = this.delegateIf;
       Type[] all = Type.add(interfaces, Type.getTypes(delegateIf));
       super.beginClass(version, access, className, superType, all, sourceFile);
 
       declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, DELEGATE, delegateType, null);
 
-      for (int i = 0; i < delegateIf.length; i++) {
-        Method[] methods = delegateIf[i].getMethods();
-        for (int j = 0; j < methods.length; j++) {
-          if (Modifier.isAbstract(methods[j].getModifiers())) {
-            addDelegate(methods[j]);
+      for (Class aClass : delegateIf) {
+        Method[] methods = aClass.getMethods();
+        for (Method method : methods) {
+          if (Modifier.isAbstract(method.getModifiers())) {
+            addDelegate(method);
           }
         }
       }
