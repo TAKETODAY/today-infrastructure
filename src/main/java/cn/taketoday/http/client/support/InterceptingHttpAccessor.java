@@ -20,9 +20,6 @@
 
 package cn.taketoday.http.client.support;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
@@ -30,6 +27,9 @@ import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}
@@ -48,7 +48,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 public abstract class InterceptingHttpAccessor extends HttpAccessor {
 
-  private final List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+  private final ArrayList<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
 
   @Nullable
   private volatile ClientHttpRequestFactory interceptingRequestFactory;
@@ -67,8 +67,25 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
     if (this.interceptors != interceptors) {
       this.interceptors.clear();
       this.interceptors.addAll(interceptors);
+      this.interceptors.trimToSize();
       AnnotationAwareOrderComparator.sort(this.interceptors);
     }
+  }
+
+  /**
+   * Set the request interceptors that this accessor should use.
+   * <p>The interceptors will get immediately sorted according to their
+   * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
+   *
+   * @see #getRequestFactory()
+   * @see AnnotationAwareOrderComparator
+   */
+  public void setInterceptors(ClientHttpRequestInterceptor... interceptors) {
+    Assert.noNullElements(interceptors, "'interceptors' must not contain null elements");
+    this.interceptors.clear();
+    CollectionUtils.addAll(this.interceptors, interceptors);
+    this.interceptors.trimToSize();
+    AnnotationAwareOrderComparator.sort(this.interceptors);
   }
 
   /**
@@ -100,7 +117,7 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
   @Override
   public ClientHttpRequestFactory getRequestFactory() {
     List<ClientHttpRequestInterceptor> interceptors = getInterceptors();
-    if (!CollectionUtils.isEmpty(interceptors)) {
+    if (CollectionUtils.isNotEmpty(interceptors)) {
       ClientHttpRequestFactory factory = this.interceptingRequestFactory;
       if (factory == null) {
         factory = new InterceptingClientHttpRequestFactory(super.getRequestFactory(), interceptors);

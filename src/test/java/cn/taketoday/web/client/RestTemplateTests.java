@@ -687,7 +687,7 @@ class RestTemplateTests {
 			request.getHeaders().add("MyHeader", "MyInterceptorValue");
 			return execution.execute(request, body);
 		};
-		template.setInterceptors(Collections.singletonList(interceptor));
+		template.setInterceptors(interceptor);
 
 		HttpHeaders requestHeaders = HttpHeaders.create();
 		mockSentRequest(POST, "https://example.com", requestHeaders);
@@ -708,7 +708,7 @@ class RestTemplateTests {
 			request.getHeaders().add("MyHeader", "MyInterceptorValue");
 			return execution.execute(request, body);
 		};
-		template.setInterceptors(Collections.singletonList(interceptor));
+		template.setInterceptors(interceptor);
 
 		MediaType contentType = MediaType.TEXT_PLAIN;
 		given(converter.canWrite(String.class, contentType)).willReturn(true);
@@ -735,7 +735,7 @@ class RestTemplateTests {
 			return execution.execute(request, body);
 		};
 		template.setClientHttpRequestInitializers(Collections.singletonList(initializer));
-		template.setInterceptors(Collections.singletonList(interceptor));
+		template.setInterceptors(interceptor);
 
 		MediaType contentType = MediaType.TEXT_PLAIN;
 		given(converter.canWrite(String.class, contentType)).willReturn(true);
