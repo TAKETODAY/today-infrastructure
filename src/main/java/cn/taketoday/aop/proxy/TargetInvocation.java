@@ -107,9 +107,8 @@ public class TargetInvocation implements TargetClassAware {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof TargetInvocation))
+    if (!(o instanceof final TargetInvocation target))
       return false;
-    final TargetInvocation target = (TargetInvocation) o;
     return adviceLength == target.adviceLength
             && Objects.equals(method, target.method)
             && Objects.equals(invoker, target.invoker)

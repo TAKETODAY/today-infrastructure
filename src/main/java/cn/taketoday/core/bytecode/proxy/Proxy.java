@@ -15,11 +15,11 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
-import java.io.Serializable;
-import java.util.Objects;
-
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.lang.Constant;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This class is meant to be used as replacement for
@@ -79,14 +79,14 @@ public class Proxy implements Serializable {
   }
 
   public static Class<?> getProxyClass(final ClassLoader loader, final Class<?>... interfaces) {
-    return new Enhancer()
-            .setClassLoader(loader)
-            .setInterfaces(interfaces)
-            .setSuperclass(ProxyImpl.class)
-            .setCallbackTypes(InvocationHandler.class, NoOp.class)
-            .setCallbackFilter(BAD_OBJECT_METHOD_FILTER)
-            .setUseFactory(false)
-            .createClass();
+    Enhancer enhancer = new Enhancer();
+    enhancer.setClassLoader(loader);
+    enhancer.setUseFactory(false);
+    enhancer.setInterfaces(interfaces);
+    enhancer.setSuperclass(ProxyImpl.class);
+    enhancer.setCallbackTypes(InvocationHandler.class, NoOp.class);
+    enhancer.setCallbackFilter(BAD_OBJECT_METHOD_FILTER);
+    return enhancer.createClass();
   }
 
   public static boolean isProxyClass(Class<?> cl) {

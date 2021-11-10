@@ -121,9 +121,11 @@ public abstract class GeneratorSupport<T extends Accessor> {
     try {
       return (Class<T>) classLoader.loadClass(getClassName());
     }
-    catch (ClassNotFoundException ignored) { }
+    catch (ClassNotFoundException ignored) {
+    }
     byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return (Class<T>) DefineClassHelper.defineClass(targetClass, bytes);
+    return (Class<T>) DefineClassHelper.defineClass(
+            getClassName(), targetClass, classLoader, ReflectionUtils.getProtectionDomain(targetClass), bytes);
   }
 
   protected abstract Object cacheKey();

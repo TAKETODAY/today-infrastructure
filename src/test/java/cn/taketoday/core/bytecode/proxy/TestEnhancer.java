@@ -687,20 +687,14 @@ public class TestEnhancer {
     e.setUseCache(false);
     e.setCallback(NoOp.INSTANCE);
     e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) { });
-    e.setNamingPolicy(new NamingPolicy() {
-      public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
-        return "cn.taketoday.core.bytecode.Object$$ByDerby$$123";
-      }
-    });
+    e.setNamingPolicy((prefix, source, key, names) -> "cn.taketoday.core.bytecode.Object$$ByDerby$$123");
     Class<?> proxied = e.create().getClass();
     final String name = proxied.getCanonicalName();
     final boolean[] ran = new boolean[1];
-    e.setNamingPolicy(new NamingPolicy() {
-      public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
-        ran[0] = true;
-        assertTrue(names.test(name));
-        return name + "45";
-      }
+    e.setNamingPolicy((prefix, source, key, names) -> {
+      ran[0] = true;
+      assertTrue(names.test(name));
+      return name + "45";
     });
     Class<?> proxied2 = e.create().getClass();
     assertTrue(ran[0]);
@@ -721,11 +715,7 @@ public class TestEnhancer {
     final String desiredClassName = "cn.taketoday.core.bytecode.Object$$42";
     e.setCallback(NoOp.INSTANCE);
     e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) { });
-    e.setNamingPolicy(new NamingPolicy() {
-      public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
-        return desiredClassName;
-      }
-    });
+    e.setNamingPolicy((prefix, source, key, names) -> desiredClassName);
     Class<?> proxied = e.create().getClass();
     assertEquals(desiredClassName, proxied.getName(),
                  "Class name should match the one returned by NamingPolicy");
@@ -1116,12 +1106,10 @@ public class TestEnhancer {
   public void testMethodsDifferingByReturnTypeOnly() throws IOException {
     Enhancer e = new Enhancer();
     e.setInterfaces(ReturnTypeA.class, ReturnTypeB.class);
-    e.setCallback(new MethodInterceptor() {
-      public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        if (method.getReturnType().equals(String.class))
-          return "hello";
-        return 42;
-      }
+    e.setCallback((MethodInterceptor) (obj, method, args, proxy) -> {
+      if (method.getReturnType().equals(String.class))
+        return "hello";
+      return 42;
     });
     Object obj = e.create();
     assertEquals(42, ((ReturnTypeA) obj).foo("foo"));

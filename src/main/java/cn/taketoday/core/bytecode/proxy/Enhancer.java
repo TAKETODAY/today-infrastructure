@@ -15,6 +15,36 @@
  */
 package cn.taketoday.core.bytecode.proxy;
 
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Label;
+import cn.taketoday.core.bytecode.MethodVisitor;
+import cn.taketoday.core.bytecode.Opcodes;
+import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.Local;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
+import cn.taketoday.core.bytecode.commons.TableSwitchGenerator;
+import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
+import cn.taketoday.core.bytecode.core.CglibReflectUtils;
+import cn.taketoday.core.bytecode.core.ClassEmitter;
+import cn.taketoday.core.bytecode.core.CodeEmitter;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.bytecode.core.DuplicatesPredicate;
+import cn.taketoday.core.bytecode.core.EmitUtils;
+import cn.taketoday.core.bytecode.core.KeyFactory;
+import cn.taketoday.core.bytecode.core.MethodInfo;
+import cn.taketoday.core.bytecode.core.MethodInfoTransformer;
+import cn.taketoday.core.bytecode.core.MethodWrapper;
+import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
+import cn.taketoday.core.bytecode.core.RejectModifierPredicate;
+import cn.taketoday.core.bytecode.core.VisibilityPredicate;
+import cn.taketoday.core.bytecode.core.WeakCacheKey;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -34,38 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.core.bytecode.ClassVisitor;
-import cn.taketoday.core.bytecode.Label;
-import cn.taketoday.core.bytecode.MethodVisitor;
-import cn.taketoday.core.bytecode.Opcodes;
-import cn.taketoday.core.bytecode.Type;
-import cn.taketoday.core.bytecode.commons.Local;
-import cn.taketoday.core.bytecode.commons.MethodSignature;
-import cn.taketoday.core.bytecode.commons.TableSwitchGenerator;
-import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
-import cn.taketoday.core.bytecode.core.CglibReflectUtils;
-import cn.taketoday.core.bytecode.core.ClassEmitter;
-import cn.taketoday.core.bytecode.core.CodeEmitter;
-import cn.taketoday.core.bytecode.core.CodeGenerationException;
-import cn.taketoday.core.bytecode.core.DuplicatesPredicate;
-import cn.taketoday.core.bytecode.core.EmitUtils;
-import cn.taketoday.core.bytecode.core.GeneratorStrategy;
-import cn.taketoday.core.bytecode.core.KeyFactory;
-import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.core.bytecode.core.MethodInfoTransformer;
-import cn.taketoday.core.bytecode.core.MethodWrapper;
-import cn.taketoday.core.bytecode.core.NamingPolicy;
-import cn.taketoday.core.bytecode.core.ObjectSwitchCallback;
-import cn.taketoday.core.bytecode.core.RejectModifierPredicate;
-import cn.taketoday.core.bytecode.core.VisibilityPredicate;
-import cn.taketoday.core.bytecode.core.WeakCacheKey;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.core.bytecode.ClassReader.SKIP_FRAMES;
@@ -220,7 +218,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param superclass class to extend or interface to implement
    * @see #setInterfaces(Class[])
    */
-  public Enhancer setSuperclass(Class<?> superclass) {
+  public void setSuperclass(Class<?> superclass) {
     if (superclass != null && superclass.isInterface()) {
       setInterfaces(superclass);
       setNeighbor(superclass);
@@ -233,7 +231,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       setNeighbor(superclass);
       this.superclass = superclass;
     }
-    return this;
   }
 
   /**
@@ -243,9 +240,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param interfaces array of interfaces to implement, or null
    * @see Factory
    */
-  public Enhancer setInterfaces(Class<?>... interfaces) {
+  public void setInterfaces(Class<?>... interfaces) {
     this.interfaces = interfaces;
-    return this;
   }
 
   /**
@@ -256,9 +252,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param filter the callback filter to use when generating a new class
    * @see #setCallbacks
    */
-  public Enhancer setCallbackFilter(CallbackFilter filter) {
+  public void setCallbackFilter(CallbackFilter filter) {
     this.filter = filter;
-    return this;
   }
 
   /**
@@ -268,9 +263,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param callback the callback to use for all methods
    * @see #setCallbacks
    */
-  public Enhancer setCallback(final Callback callback) {
+  public void setCallback(final Callback callback) {
     setCallbacks(callback);
-    return this;
   }
 
   /**
@@ -282,12 +276,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @see #setCallbackFilter
    * @see #setCallback
    */
-  public Enhancer setCallbacks(Callback... callbacks) {
+  public void setCallbacks(Callback... callbacks) {
     if (ObjectUtils.isEmpty(callbacks)) {
       throw new IllegalArgumentException("Array cannot be empty");
     }
     this.callbacks = callbacks;
-    return this;
   }
 
   /**
@@ -300,9 +293,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param useFactory whether to implement <code>Factory</code>; default is
    * <code>true</code>
    */
-  public Enhancer setUseFactory(boolean useFactory) {
+  public void setUseFactory(boolean useFactory) {
     this.useFactory = useFactory;
-    return this;
   }
 
   /**
@@ -312,9 +304,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *
    * @param interceptDuringConstruction whether to intercept methods called from the constructor
    */
-  public Enhancer setInterceptDuringConstruction(boolean interceptDuringConstruction) {
+  public void setInterceptDuringConstruction(boolean interceptDuringConstruction) {
     this.interceptDuringConstruction = interceptDuringConstruction;
-    return this;
   }
 
   /**
@@ -325,9 +316,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param callbackType the type of callback to use for all methods
    * @see #setCallbackTypes
    */
-  public Enhancer setCallbackType(Class<?> callbackType) {
+  public void setCallbackType(Class<?> callbackType) {
     setCallbackTypes(callbackType);
-    return this;
   }
 
   /**
@@ -339,46 +329,14 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *
    * @param callbackTypes the array of callback types
    */
-  public Enhancer setCallbackTypes(Class<?>... callbackTypes) {
+  public void setCallbackTypes(Class<?>... callbackTypes) {
     if (ObjectUtils.isEmpty(callbackTypes)) {
       throw new IllegalArgumentException("Array cannot be empty");
     }
     this.callbackTypes = CallbackInfo.determineTypes(callbackTypes);
-    return this;
   }
 
   // --------------------------
-
-  @Override
-  public Enhancer setUseCache(boolean useCache) {
-    super.setUseCache(useCache);
-    return this;
-  }
-
-  @Override
-  public void setAttemptLoad(boolean attemptLoad) {
-    super.setAttemptLoad(attemptLoad);
-  }
-
-  @Override
-  public Enhancer setClassLoader(ClassLoader classLoader) {
-    super.setClassLoader(classLoader);
-    return this;
-  }
-
-  @Override
-  public Enhancer setNamingPolicy(NamingPolicy namingPolicy) {
-    super.setNamingPolicy(namingPolicy);
-    return this;
-  }
-
-  @Override
-  public Enhancer setStrategy(GeneratorStrategy strategy) {
-    super.setStrategy(strategy);
-    return this;
-  }
-
-  // ------------------------------
 
   /**
    * Generate a new class if necessary and uses the specified callbacks (if any)
@@ -431,9 +389,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *
    * @param sUID the field value, or null to avoid generating field.
    */
-  public Enhancer setSerialVersionUID(Long sUID) {
+  public void setSerialVersionUID(Long sUID) {
     this.serialVersionUID = sUID;
-    return this;
   }
 
   private void preValidate() {
@@ -570,13 +527,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private Object createHelper() {
     preValidate();
     Object key = KEY_FACTORY.newInstance(
-            (superclass != null) ? superclass.getName() : null, //
-            CglibReflectUtils.getNames(interfaces), //
-            filter == ALL_ZERO ? null : new WeakCacheKey<>(filter), //
-            callbackTypes, //
-            useFactory, //
-            interceptDuringConstruction, //
-            serialVersionUID//
+            (superclass != null) ? superclass.getName() : null,
+            CglibReflectUtils.getNames(interfaces),
+            filter == ALL_ZERO ? null : new WeakCacheKey<>(filter),
+            callbackTypes,
+            useFactory,
+            interceptDuringConstruction,
+            serialVersionUID
     );
 
     this.currentKey = key;
@@ -708,20 +665,20 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final ClassEmitter e = new ClassEmitter(v);
     if (currentData == null) {
       e.beginClass(Opcodes.JAVA_VERSION, //
-                   ACC_PUBLIC, //
-                   getClassName(), //
-                   Type.fromClass(superclass), //
-                   (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
-                   Constant.SOURCE_FILE//
+              ACC_PUBLIC, //
+              getClassName(), //
+              Type.fromClass(superclass), //
+              (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
+              Constant.SOURCE_FILE//
       );
     }
     else {
       e.beginClass(Opcodes.JAVA_VERSION, //
-                   ACC_PUBLIC, //
-                   getClassName(), //
-                   null, //
-                   Type.array(FACTORY),
-                   Constant.SOURCE_FILE//
+              ACC_PUBLIC, //
+              getClassName(), //
+              null, //
+              Type.array(FACTORY),
+              Constant.SOURCE_FILE//
       );
     }
     List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
@@ -1224,22 +1181,19 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.end_method();
   }
 
-  private void emitMethods(final ClassEmitter ce, List<MethodInfo> methods, List<Method> actualMethods) {
+  private void emitMethods(ClassEmitter ce, List<MethodInfo> methods, List<Method> actualMethods) {
+    CallbackGenerator[] generators = CallbackInfo.getGenerators(callbackTypes);
 
-    final Type[] callbackTypes = this.callbackTypes;
-    final CallbackGenerator[] generators = CallbackInfo.getGenerators(callbackTypes);
+    HashMap<MethodInfo, Integer> indexes = new HashMap<>();
+    HashMap<MethodInfo, Integer> originalModifiers = new HashMap<>();
+    HashMap<MethodInfo, Integer> positions = getIndexMap(methods);
+    HashMap<Class<?>, Set<MethodSignature>> declToBridge = new HashMap<>();
+    HashMap<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
 
-    final HashMap<MethodInfo, Integer> indexes = new HashMap<>();
-    final HashMap<MethodInfo, Integer> originalModifiers = new HashMap<>();
-    final HashMap<MethodInfo, Integer> positions = getIndexMap(methods);
-    final HashMap<Class<?>, Set<MethodSignature>> declToBridge = new HashMap<>();
-    final HashMap<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
+    Iterator<Method> it2 = (actualMethods != null) ? actualMethods.iterator() : null;
 
-    final Iterator<Method> it2 = (actualMethods != null) ? actualMethods.iterator() : null;
-
-    final CallbackFilter filter = this.filter;
-    for (final MethodInfo method : methods) {
-      final Method actualMethod = (it2 != null) ? it2.next() : null;
+    for (MethodInfo method : methods) {
+      Method actualMethod = (it2 != null) ? it2.next() : null;
       int index = filter.accept(actualMethod);
 
       if (index >= callbackTypes.length) {
@@ -1265,15 +1219,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
     }
 
-    final HashSet seenGen = new HashSet<>();
-    final CodeEmitter se = ce.getStaticHook();
+    HashSet seenGen = new HashSet<>();
+    CodeEmitter se = ce.getStaticHook();
 
     se.newInstance(THREAD_LOCAL);
     se.dup();
     se.invokeConstructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
     se.putField(THREAD_CALLBACKS_FIELD);
 
-    final CallbackGenerator.Context context = new CallbackGenerator.Context() {
+    CallbackGenerator.Context context = new CallbackGenerator.Context() {
       Map<MethodSignature, MethodSignature> bridgeToTarget = null;
 
       @Override
@@ -1310,10 +1264,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (bridgeToTarget == null) {
           bridgeToTarget = BridgeMethodResolver.resolve(getClassLoader(), declToBridge);
         }
-        final MethodSignature bridgeTarget = bridgeToTarget.get(method.getSignature());
+        MethodSignature bridgeTarget = bridgeToTarget.get(method.getSignature());
         if (bridgeTarget != null) {
           // checkcast each argument against the target's argument types
-          final Type[] argumentTypes = bridgeTarget.getArgumentTypes();
+          Type[] argumentTypes = bridgeTarget.getArgumentTypes();
           for (int i = 0; i < argumentTypes.length; i++) {
             e.loadArg(i);
             Type target = argumentTypes[i];
@@ -1366,7 +1320,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       CallbackGenerator gen = generators[i];
       if (!seenGen.contains(gen)) {
         seenGen.add(gen);
-        final List<MethodInfo> fmethods = groups.get(gen);
+        List<MethodInfo> fmethods = groups.get(gen);
         if (fmethods != null) {
           try {
             gen.generate(ce, context, fmethods);
@@ -1386,9 +1340,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   static <T> HashMap<T, Integer> getIndexMap(List<T> list) {
-    final HashMap<T, Integer> indexes = new HashMap<>(list.size());
+    HashMap<T, Integer> indexes = new HashMap<>(list.size());
     int index = 0;
-    for (final T obj : list) {
+    for (T obj : list) {
       indexes.put(obj, index++);
     }
     return indexes;
@@ -1498,12 +1452,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             ClassLoader classLoader, Map<Class<?>, Set<MethodSignature>> declToBridge) //
     {
 
-      final Map<MethodSignature, MethodSignature> resolved = new HashMap<>();
+      Map<MethodSignature, MethodSignature> resolved = new HashMap<>();
 
-      for (final Entry<Class<?>, Set<MethodSignature>> entry : declToBridge.entrySet()) {
+      for (Entry<Class<?>, Set<MethodSignature>> entry : declToBridge.entrySet()) {
         try {
 
-          final InputStream is = //
+          InputStream is = //
                   classLoader.getResourceAsStream(entry.getKey().getName().replace('.', '/') + ".class");
           if (is == null) {
             return resolved;
@@ -1540,17 +1494,17 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        final MethodSignature sig = new MethodSignature(name, desc);
+        MethodSignature sig = new MethodSignature(name, desc);
         if (!eligibleMethods.remove(sig)) {
           return null;
         }
 
-        final class BridgedFinderMethodVisitor extends MethodVisitor {
+        class BridgedFinderMethodVisitor extends MethodVisitor {
 
           @Override
           public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
             if ((opcode == INVOKESPECIAL || (itf && opcode == INVOKEINTERFACE)) && currentMethod != null) {
-              final MethodSignature target = new MethodSignature(name, desc);
+              MethodSignature target = new MethodSignature(name, desc);
               // If the target signature is the same as the current,
               // we shouldn't change our bridge becaues invokespecial
               // is the only way to make progress (otherwise we'll
