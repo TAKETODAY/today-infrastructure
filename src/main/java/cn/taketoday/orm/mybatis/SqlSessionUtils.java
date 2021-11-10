@@ -153,8 +153,7 @@ public abstract class SqlSessionUtils {
           final SqlSession session, final SqlSessionFactory sessionFactory) {
 
     final Object resource = metaData.getResource(sessionFactory);
-    if (resource instanceof SqlSessionHolder) {
-      final SqlSessionHolder holder = (SqlSessionHolder) resource;
+    if (resource instanceof final SqlSessionHolder holder) {
       if (holder.getSqlSession() == session) {
         if (debugEnabled) {
           log.debug("Releasing transactional SqlSession [{}]", session);

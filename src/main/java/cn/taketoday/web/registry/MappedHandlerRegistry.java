@@ -236,8 +236,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     Assert.notNull(handler, "Handler must not be null");
     Assert.notNull(handlerKey, "Handler Key must not be null");
 
-    if (handler instanceof String) {
-      String handlerName = (String) handler;
+    if (handler instanceof String handlerName) {
       WebApplicationContext context = obtainApplicationContext();
       // singleton
       if (context.isSingleton(handlerName)) {

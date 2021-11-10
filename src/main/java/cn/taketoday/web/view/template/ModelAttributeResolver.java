@@ -52,8 +52,7 @@ public class ModelAttributeResolver extends ExpressionResolver {
 
   @Override
   public void setValue(ExpressionContext elContext, Object base, Object property, Object value) {
-    if (base == null && property instanceof String) {
-      String beanName = (String) property;
+    if (base == null && property instanceof String beanName) {
       if (model.containsAttribute(beanName)) {
         model.setAttribute(beanName, value);
         elContext.setPropertyResolved(null, property);

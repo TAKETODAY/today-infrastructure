@@ -157,7 +157,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   }
 
   static final Mappings<ResultSetHandler, ResultSetMetaData> CACHE
-          = new Mappings<ResultSetHandler, ResultSetMetaData>(new ConcurrentReferenceHashMap<>()) {
+          = new Mappings<>(new ConcurrentReferenceHashMap<>()) {
 
     @Override
     protected ResultSetHandler createValue(Object key, ResultSetMetaData param) {

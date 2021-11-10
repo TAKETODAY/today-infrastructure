@@ -71,7 +71,7 @@ public abstract class UndertowCompressionUtils {
   private static Predicate[] getCompressionPredicates(CompressionConfiguration compression) {
     final List<Predicate> predicates = new ArrayList<>();
 
-    predicates.add(Predicates.maxContentSize(compression.getMinResponseSize().toBytes()));
+    predicates.add(Predicates.requestLargerThan(compression.getMinResponseSize().toBytes()));
     if (compression.getIncludeMethods() != null
             || compression.getExcludeMethods() != null
             || compression.getIncludedPaths() != null
@@ -88,7 +88,7 @@ public abstract class UndertowCompressionUtils {
     }
 
     predicates.add(new MimeTypesPredicate(compression.getMimeTypes()));
-    return predicates.toArray(new Predicate[predicates.size()]);
+    return predicates.toArray(new Predicate[0]);
   }
 
   private static <T> boolean contains(T[] targets, java.util.function.Predicate<T> function) {

@@ -215,8 +215,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     int length = nl.getLength();
     for (int i = 0; i < length; i++) {
       Node node = nl.item(i);
-      if (node instanceof Element) {
-        Element ele = (Element) node;
+      if (node instanceof Element ele) {
         String nodeName = ele.getNodeName();
 
         log.debug("Found Element: [{}]", nodeName);

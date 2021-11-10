@@ -25,10 +25,9 @@ public class NettyWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapte
 
   @Override
   protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
-    if (!(context instanceof NettyRequestContext)) {
+    if (!(context instanceof final NettyRequestContext nettyContext)) {
       throw new IllegalStateException("not running in netty");
     }
-    final NettyRequestContext nettyContext = (NettyRequestContext) context;
     final ChannelHandlerContext channelContext = nettyContext.getChannelContext();
     final String scheme = nettyContext.getScheme();
     return new NettyWebSocketSession(

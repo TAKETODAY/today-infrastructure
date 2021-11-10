@@ -52,9 +52,8 @@ final class RequestParameter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof RequestParameter))
+    if (!(o instanceof final RequestParameter that))
       return false;
-    final RequestParameter that = (RequestParameter) o;
     return Objects.equals(name, that.name)
             && Objects.equals(value, that.value);
   }

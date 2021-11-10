@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 
 import cn.taketoday.web.multipart.AbstractMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -36,6 +37,7 @@ import io.netty.handler.codec.http.multipart.FileUpload;
  */
 final class FileUploadMultipartFile
         extends AbstractMultipartFile implements MultipartFile {
+  @Serial
   private static final long serialVersionUID = 1L;
   private final FileUpload fileUpload;
 

@@ -343,9 +343,8 @@ public class StopWatch {
    */
   public static final class TaskInfo {
 
-    private final String taskName;
-
     private final long timeNanos;
+    private final String taskName;
 
     TaskInfo(String taskName, long timeNanos) {
       this.taskName = taskName;

@@ -19,12 +19,15 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
+
 /**
  * @author TODAY <br>
  * 2019-11-08 20:13
  */
 public class NoTransactionException extends TransactionException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public NoTransactionException(String msg) {

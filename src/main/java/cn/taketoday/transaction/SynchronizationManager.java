@@ -19,6 +19,7 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,13 +38,13 @@ import cn.taketoday.util.CollectionUtils;
  * 2018-10-09 10:22
  */
 public abstract class SynchronizationManager {
-
   private static final Logger log = LoggerFactory.getLogger(SynchronizationManager.class);
 
   private static final ThreadLocal<SynchronizationMetaData> META_DATA = ThreadLocal.withInitial(SynchronizationMetaData::new);
 
   public static final class SynchronizationMetaData implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String name;

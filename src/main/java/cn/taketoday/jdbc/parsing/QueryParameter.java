@@ -79,9 +79,8 @@ public final class QueryParameter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof QueryParameter))
+    if (!(o instanceof final QueryParameter parameter))
       return false;
-    final QueryParameter parameter = (QueryParameter) o;
     return Objects.equals(name, parameter.name)
             && Objects.equals(setter, parameter.setter)
             && Objects.equals(applier, parameter.applier);

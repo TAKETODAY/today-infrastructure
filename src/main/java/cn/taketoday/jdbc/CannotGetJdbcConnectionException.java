@@ -19,6 +19,8 @@
  */
 package cn.taketoday.jdbc;
 
+import java.io.Serial;
+
 /**
  * Fatal exception thrown when we can't connect to an RDBMS using JDBC.
  *
@@ -26,6 +28,7 @@ package cn.taketoday.jdbc;
  * 2019-11-09 14:53
  */
 public class CannotGetJdbcConnectionException extends DataAccessException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public CannotGetJdbcConnectionException(String msg) {

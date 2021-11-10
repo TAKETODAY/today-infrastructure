@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.framework;
 
+import java.io.Serial;
+
 import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
@@ -26,6 +28,7 @@ import cn.taketoday.web.WebNestedRuntimeException;
  * 2019-02-14 21:09
  */
 public class WebServerException extends WebNestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public WebServerException(Throwable cause) {

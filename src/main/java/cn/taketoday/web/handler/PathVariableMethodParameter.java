@@ -81,11 +81,10 @@ public class PathVariableMethodParameter extends MethodParameter {
   public boolean equals(final Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof PathVariableMethodParameter))
+    if (!(o instanceof final PathVariableMethodParameter that))
       return false;
     if (!super.equals(o))
       return false;
-    final PathVariableMethodParameter that = (PathVariableMethodParameter) o;
     return variableIndex == that.variableIndex
             && Objects.equals(pathPattern, that.pathPattern)
             && Objects.equals(pathMatcher, that.pathMatcher);

@@ -59,16 +59,12 @@ public class ListenableFutureCallbackRegistry<T> {
     Assert.notNull(callback, "'callback' must not be null");
     synchronized(this.mutex) {
       switch (this.state) {
-        case NEW:
+        case NEW -> {
           this.successCallbacks.add(callback);
           this.failureCallbacks.add(callback);
-          break;
-        case SUCCESS:
-          notifySuccess(callback);
-          break;
-        case FAILURE:
-          notifyFailure(callback);
-          break;
+        }
+        case SUCCESS -> notifySuccess(callback);
+        case FAILURE -> notifyFailure(callback);
       }
     }
   }
@@ -103,12 +99,8 @@ public class ListenableFutureCallbackRegistry<T> {
     Assert.notNull(callback, "'callback' must not be null");
     synchronized(this.mutex) {
       switch (this.state) {
-        case NEW:
-          this.successCallbacks.add(callback);
-          break;
-        case SUCCESS:
-          notifySuccess(callback);
-          break;
+        case NEW -> this.successCallbacks.add(callback);
+        case SUCCESS -> notifySuccess(callback);
       }
     }
   }
@@ -123,12 +115,8 @@ public class ListenableFutureCallbackRegistry<T> {
     Assert.notNull(callback, "'callback' must not be null");
     synchronized(this.mutex) {
       switch (this.state) {
-        case NEW:
-          this.failureCallbacks.add(callback);
-          break;
-        case FAILURE:
-          notifyFailure(callback);
-          break;
+        case NEW -> this.failureCallbacks.add(callback);
+        case FAILURE -> notifyFailure(callback);
       }
     }
   }

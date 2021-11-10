@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.view.template;
 
+import java.io.Serial;
+
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.InternalServerException;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -30,6 +32,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class TemplateRenderingException extends InternalServerException {
+  @Serial
   private static final long serialVersionUID = 1L;
   public static final String TemplateRenderingFailed = "Template rendering failed";
 

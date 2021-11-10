@@ -221,15 +221,8 @@ public class SessionTemplate implements SqlSession, DisposableBean {
 
   }
 
-  private final static class SqlSessionInterceptor implements InvocationHandler {
-
-    private final ExecutorType executorType;
-    private final SqlSessionFactory sqlSessionFactory;
-
-    public SqlSessionInterceptor(ExecutorType executorType, SqlSessionFactory sqlSessionFactory) {
-      this.executorType = executorType;
-      this.sqlSessionFactory = sqlSessionFactory;
-    }
+  private record SqlSessionInterceptor(ExecutorType executorType, SqlSessionFactory sqlSessionFactory)
+          implements InvocationHandler {
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {

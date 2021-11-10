@@ -20,11 +20,14 @@
 
 package cn.taketoday.jdbc;
 
+import java.io.Serial;
+
 /**
  * @author TODAY 2021/8/25 22:38
  * @since 4.0
  */
 public class GeneratedKeysException extends PersistenceException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public GeneratedKeysException() { }

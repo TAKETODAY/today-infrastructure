@@ -19,6 +19,8 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
+
 /**
  * Exception thrown when attempting to work with a nested transaction but nested
  * transactions are not supported by the underlying backend.
@@ -29,6 +31,7 @@ package cn.taketoday.transaction;
  */
 public class NestedTransactionNotSupportedException extends CannotCreateTransactionException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public NestedTransactionNotSupportedException(String msg) {

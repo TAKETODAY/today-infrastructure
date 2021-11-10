@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web;
 
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -26,6 +28,7 @@ import cn.taketoday.core.NestedRuntimeException;
  * 2019-06-03 10:27
  */
 public class WebNestedRuntimeException extends NestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public WebNestedRuntimeException() {

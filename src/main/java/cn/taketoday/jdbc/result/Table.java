@@ -51,7 +51,7 @@ public final class Table {
   }
 
   public List<Map<String, Object>> asList() {
-    return new AbstractList<Map<String, Object>>() {
+    return new AbstractList<>() {
       @Override
       public Map<String, Object> get(int index) {
         return rows.get(index).asMap();

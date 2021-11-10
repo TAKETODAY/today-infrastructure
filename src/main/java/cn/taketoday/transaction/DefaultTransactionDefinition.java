@@ -19,6 +19,7 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.core.Constants;
@@ -31,6 +32,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
  */
 public class DefaultTransactionDefinition implements TransactionDefinition, Serializable, TransactionAttribute {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** Prefix for the propagation constants defined in TransactionDefinition */

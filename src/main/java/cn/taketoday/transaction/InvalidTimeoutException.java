@@ -19,12 +19,15 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
+
 /**
  * @author TODAY <br>
  * 2018-10-09 11:09
  */
 public class InvalidTimeoutException extends TransactionException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final int timeout;

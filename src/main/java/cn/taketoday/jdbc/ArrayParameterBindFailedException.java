@@ -20,6 +20,8 @@
 
 package cn.taketoday.jdbc;
 
+import java.io.Serial;
+
 /**
  * for array parameter bind failed exception
  *
@@ -27,6 +29,7 @@ package cn.taketoday.jdbc;
  * @since 4.0
  */
 public class ArrayParameterBindFailedException extends ParameterBindFailedException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public ArrayParameterBindFailedException() { }

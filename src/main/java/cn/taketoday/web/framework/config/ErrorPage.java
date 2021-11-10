@@ -56,9 +56,8 @@ public class ErrorPage {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof ErrorPage))
+    if (!(o instanceof final ErrorPage errorPage))
       return false;
-    final ErrorPage errorPage = (ErrorPage) o;
     return status == errorPage.status && Objects.equals(path, errorPage.path) && Objects
             .equals(exception, errorPage.exception);
   }

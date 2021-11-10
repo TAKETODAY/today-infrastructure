@@ -19,6 +19,8 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
+
 /**
  * Exception thrown when a transaction can't be created using an underlying
  * transaction API such as JTA.
@@ -28,6 +30,7 @@ package cn.taketoday.transaction;
  */
 public class CannotCreateTransactionException extends TransactionException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**

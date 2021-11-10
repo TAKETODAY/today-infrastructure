@@ -347,8 +347,7 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
       if (obj == this) {
         return true;
       }
-      if (obj instanceof Mapping) {
-        final Mapping other = (Mapping) obj;
+      if (obj instanceof final Mapping other) {
         return this.extension.equals(other.extension) && this.mimeType.equals(other.mimeType);
       }
       return false;

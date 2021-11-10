@@ -1,11 +1,14 @@
 package cn.taketoday.jdbc;
 
+import java.io.Serial;
+
 /**
  * Represents an exception thrown by today-jdbc.
  *
  * @author TODAY
  */
 public class PersistenceException extends DataAccessException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public PersistenceException() { }
