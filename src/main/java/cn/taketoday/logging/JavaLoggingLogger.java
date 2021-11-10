@@ -20,7 +20,6 @@
 package cn.taketoday.logging;
 
 import java.io.IOException;
-import java.io.Serial;
 import java.net.URL;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
@@ -70,13 +69,19 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
   }
 
   private java.util.logging.Level levelToJavaLevel(Level level) {
-    return switch (level) {
-      case TRACE -> java.util.logging.Level.FINEST;
-      case DEBUG -> java.util.logging.Level.FINER;
-      case WARN -> java.util.logging.Level.WARNING;
-      case ERROR -> java.util.logging.Level.SEVERE;
-      case INFO -> java.util.logging.Level.INFO;
-    };
+    switch (level) {
+      case TRACE:
+        return java.util.logging.Level.FINEST;
+      case DEBUG:
+        return java.util.logging.Level.FINER;
+      case WARN:
+        return java.util.logging.Level.WARNING;
+      case ERROR:
+        return java.util.logging.Level.SEVERE;
+      case INFO:
+      default:
+        return java.util.logging.Level.INFO;
+    }
   }
 
   @Override
@@ -169,7 +174,6 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
       setSourceMethodName(sourceMethodName);
     }
 
-    @Serial
     protected Object writeReplace() {
       LogRecord serialized = new LogRecord(getLevel(), getMessage());
       serialized.setLoggerName(getLoggerName());
@@ -179,8 +183,6 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
       serialized.setSourceMethodName(getSourceMethodName());
       serialized.setSequenceNumber(getSequenceNumber());
       serialized.setParameters(getParameters());
-      serialized.setLongThreadID(getLongThreadID());
-      serialized.setInstant(getInstant());
       serialized.setThrown(getThrown());
       return serialized;
     }

@@ -19,7 +19,7 @@ package cn.taketoday.web.http.client.support;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;

@@ -20,7 +20,7 @@ import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.HttpRequest;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 import java.net.URI;
 

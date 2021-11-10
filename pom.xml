@@ -25,9 +25,9 @@
     <undertow.version>2.2.8.Final</undertow.version>
     <embed.tomcat.version>9.0.43</embed.tomcat.version>
 
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
 
     <commons-dbutils.version>1.5</commons-dbutils.version>
     <embedded-db-junit.version>1.0.0</embedded-db-junit.version>
@@ -672,6 +672,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>

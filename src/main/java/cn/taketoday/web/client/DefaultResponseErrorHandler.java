@@ -16,10 +16,9 @@
 
 package cn.taketoday.web.client;
 
-import cn.taketoday.core.log.LogFormatUtils;
+import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.http.MediaType;
 import cn.taketoday.web.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;

@@ -47,7 +47,7 @@ import cn.taketoday.web.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import cn.taketoday.web.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.web.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;

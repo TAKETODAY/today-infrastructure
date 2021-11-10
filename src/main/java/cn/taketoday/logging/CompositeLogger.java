@@ -109,13 +109,19 @@ final class CompositeLogger extends Logger {
   }
 
   private Logger logger(Level level) {
-    return switch (level) {
-      case INFO -> infoLogger;
-      case WARN -> warnLogger;
-      case ERROR -> errorLogger;
-      case DEBUG -> debugLogger;
-      case TRACE -> traceLogger;
-    };
+    switch (level) {
+      case INFO:
+        return infoLogger;
+      case WARN:
+        return warnLogger;
+      case ERROR:
+        return errorLogger;
+      case DEBUG:
+        return debugLogger;
+      case TRACE:
+      default:
+        return traceLogger;
+    }
   }
 
   @Override

@@ -24,7 +24,6 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.apache.logging.log4j.spi.LoggerContext;
 
-import java.io.Serial;
 
 /**
  * @author TODAY <br>
@@ -77,12 +76,18 @@ final class Log4j2Logger extends cn.taketoday.logging.Logger {
   }
 
   private org.apache.logging.log4j.Level getLevel(Level level) {
-    return switch (level) {
-      case INFO -> org.apache.logging.log4j.Level.INFO;
-      case WARN -> org.apache.logging.log4j.Level.WARN;
-      case DEBUG -> org.apache.logging.log4j.Level.DEBUG;
-      case ERROR, TRACE -> org.apache.logging.log4j.Level.ERROR;
-    };
+    switch (level) {
+      case INFO:
+      default:
+        return org.apache.logging.log4j.Level.INFO;
+      case WARN:
+        return org.apache.logging.log4j.Level.WARN;
+      case DEBUG:
+        return org.apache.logging.log4j.Level.DEBUG;
+      case ERROR:
+      case TRACE:
+        return org.apache.logging.log4j.Level.ERROR;
+    }
   }
 
   @Override
@@ -105,7 +110,6 @@ final class Log4j2Logger extends cn.taketoday.logging.Logger {
   @Override
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
     final Message message = new Message() {
-      @Serial
       private static final long serialVersionUID = 1L;
       private String msg;
 

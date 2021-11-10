@@ -19,7 +19,7 @@ package cn.taketoday.web.client.support;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import cn.taketoday.web.http.client.ClientHttpRequestFactory;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.client.RestTemplate;
 
 /**

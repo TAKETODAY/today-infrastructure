@@ -25,7 +25,7 @@ import cn.taketoday.web.http.client.ClientHttpRequestExecution;
 import cn.taketoday.web.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.web.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.Base64Utils;
 
 import java.io.IOException;

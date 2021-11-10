@@ -28,7 +28,7 @@ import cn.taketoday.web.http.client.ClientHttpRequest;
 import cn.taketoday.web.http.client.ClientHttpRequestFactory;
 import cn.taketoday.web.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.web.http.client.SimpleClientHttpRequestFactory;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 import java.io.IOException;
 import java.net.URI;

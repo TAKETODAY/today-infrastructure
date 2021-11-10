@@ -19,7 +19,7 @@ package cn.taketoday.web.client;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.client.ClientHttpResponse;

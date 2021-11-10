@@ -21,8 +21,6 @@ package cn.taketoday.logging;
 
 import org.slf4j.spi.LocationAwareLogger;
 
-import java.io.Serial;
-
 /**
  * @author TODAY <br>
  * 2019-11-03 13:55
@@ -70,11 +68,16 @@ class Slf4jLogger extends Logger {
   protected void logInternal(Level level, Object msg, Throwable t) {
     String message = String.valueOf(msg);
     switch (level) {
-      case DEBUG -> target.debug(message, t);
-      case ERROR -> target.error(message, t);
-      case TRACE -> target.trace(message, t);
-      case WARN -> target.warn(message, t);
-      default -> target.info(message, t);
+      case DEBUG:
+        target.debug(message, t);
+      case ERROR:
+        target.error(message, t);
+      case TRACE:
+        target.trace(message, t);
+      case WARN:
+        target.warn(message, t);
+      default:
+        target.info(message, t);
     }
   }
 
@@ -82,15 +85,19 @@ class Slf4jLogger extends Logger {
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
     final String msg = MessageFormatter.format(format, args);
     switch (level) {
-      case DEBUG -> target.debug(msg, t);
-      case ERROR -> target.error(msg, t);
-      case TRACE -> target.trace(msg, t);
-      case WARN -> target.warn(msg, t);
-      default -> target.info(msg, t);
+      case DEBUG:
+        target.debug(msg, t);
+      case ERROR:
+        target.error(msg, t);
+      case TRACE:
+        target.trace(msg, t);
+      case WARN:
+        target.warn(msg, t);
+      default:
+        target.info(msg, t);
     }
   }
 
-  @Serial
   protected Object readResolve() {
     return Slf4jLoggerFactory.createLog(this.name);
   }
@@ -111,13 +118,18 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
   }
 
   private static int getLevel(Level level) {
-    return switch (level) {
-      case DEBUG -> LocationAwareLogger.DEBUG_INT;
-      case ERROR -> LocationAwareLogger.ERROR_INT;
-      case TRACE -> LocationAwareLogger.TRACE_INT;
-      case WARN -> LocationAwareLogger.WARN_INT;
-      default -> LocationAwareLogger.INFO_INT;
-    };
+    switch (level) {
+      case DEBUG:
+        return LocationAwareLogger.DEBUG_INT;
+      case ERROR:
+        return LocationAwareLogger.ERROR_INT;
+      case TRACE:
+        return LocationAwareLogger.TRACE_INT;
+      case WARN:
+        return LocationAwareLogger.WARN_INT;
+      default:
+        return LocationAwareLogger.INFO_INT;
+    }
   }
 
   @Override
@@ -128,6 +140,10 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
 
 final class Slf4jLoggerFactory extends LoggerFactory {
 
+  Slf4jLoggerFactory() {
+    SLF4JBridgeHandler.install(); // @since 4.0
+  }
+
   @Override
   protected Logger createLogger(String name) {
     return createLog(name);
@@ -136,7 +152,7 @@ final class Slf4jLoggerFactory extends LoggerFactory {
   static Logger createLog(String name) {
     org.slf4j.Logger target = org.slf4j.LoggerFactory.getLogger(name);
     return target instanceof LocationAwareLogger ?
-           new LocationAwareSlf4jLogger((LocationAwareLogger) target) : new Slf4jLogger(target);
+            new LocationAwareSlf4jLogger((LocationAwareLogger) target) : new Slf4jLogger(target);
   }
 
 }
