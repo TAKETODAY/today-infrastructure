@@ -35,7 +35,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
 /**
@@ -94,7 +93,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
         }
       }
     }
-    return CollectionUtils.unmodifiableMultiValueMap(result);
+    return MultiValueMap.unmodifiable(result);
   }
 
   @Nullable

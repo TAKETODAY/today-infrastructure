@@ -20,20 +20,16 @@
 
 package cn.taketoday.core.bytecode;
 
+import cn.taketoday.lang.Nullable;
+
 import java.security.ProtectionDomain;
 import java.util.concurrent.ConcurrentHashMap;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/11/9 22:59
  */
 public class ByteCodeClassLoader extends ClassLoader {
   private final ConcurrentHashMap<String, ClassBytes> bytesCache = new ConcurrentHashMap<>(256);
-
-//  public void putBytes(String name, byte[] bytes) {
-//    bytesCache.put(name, bytes);
-//  }
 
   public ByteCodeClassLoader(@Nullable ClassLoader parent) {
     super(parent);
@@ -62,7 +58,7 @@ public class ByteCodeClassLoader extends ClassLoader {
 
   @Override
   protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-    Class<?> result = loadClassForOverriding(name);
+    Class<?> result = loadClassFromBytes(name);
     if (result != null) {
       if (resolve) {
         resolveClass(result);
@@ -72,16 +68,15 @@ public class ByteCodeClassLoader extends ClassLoader {
     return super.loadClass(name, resolve);
   }
 
-  protected Class<?> loadClassForOverriding(String name) throws ClassNotFoundException {
+  protected Class<?> loadClassFromBytes(String name) {
     ClassBytes classBytes = bytesCache.get(name);
-    byte[] bytes;
     if (classBytes == null) {
       return null;
     }
     else {
-      bytes = classBytes.bytes;
+      byte[] bytes = classBytes.bytes;
+      return defineClass(name, bytes, 0, bytes.length, classBytes.domain);
     }
-    return defineClass(name, bytes, 0, bytes.length, classBytes.domain);
   }
 
 }

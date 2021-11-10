@@ -20,16 +20,6 @@
 
 package cn.taketoday.http.server.reactive;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.security.cert.X509Certificate;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -42,7 +32,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
@@ -54,6 +43,16 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import reactor.core.publisher.Flux;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Adapt {@link ServerHttpRequest} to the Servlet {@link HttpServletRequest}.
@@ -102,8 +101,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private static MultiValueMap<String, String> createDefaultHttpHeaders(HttpServletRequest request) {
-    MultiValueMap<String, String> headers =
-            CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+    MultiValueMap<String, String> headers = MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
     for (Enumeration<String> names = request.getHeaderNames(); names.hasMoreElements(); ) {
       String name = names.nextElement();
       headers.addAll(name, request.getHeaders(name));

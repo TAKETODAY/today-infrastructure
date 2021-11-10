@@ -32,7 +32,6 @@ import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -220,7 +219,7 @@ final class DefaultPathContainer implements PathContainer {
   private static final class DefaultPathSegment implements PathSegment {
 
     private static final MultiValueMap<String, String> EMPTY_PARAMS =
-            CollectionUtils.unmodifiableMultiValueMap(new DefaultMultiValueMap<>());
+            MultiValueMap.unmodifiable(new DefaultMultiValueMap<>());
 
     private final String value;
     private final String valueToMatch;
@@ -247,7 +246,7 @@ final class DefaultPathContainer implements PathContainer {
      * Factory for decoded and parsed segments.
      */
     static DefaultPathSegment from(String value, String valueToMatch, MultiValueMap<String, String> params) {
-      return new DefaultPathSegment(value, valueToMatch, CollectionUtils.unmodifiableMultiValueMap(params));
+      return new DefaultPathSegment(value, valueToMatch, MultiValueMap.unmodifiable(params));
     }
 
     private DefaultPathSegment(String value, String valueToMatch, MultiValueMap<String, String> params) {

@@ -19,6 +19,13 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,13 +51,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2019-12-29 23:39
@@ -788,7 +788,7 @@ public abstract class CollectionUtils {
   }
 
   public static <K, V> MultiValueMap<K, V> buckets(V[] c, Function<V, K> transformer) {
-    DefaultMultiValueMap<K, V> buckets = new DefaultMultiValueMap<>(new LinkedHashMap<>());
+    DefaultMultiValueMap<K, V> buckets = MultiValueMap.fromLinkedHashMap();
     for (final V value : c) {
       final K key = transformer.apply(value);
       buckets.add(key, value);
@@ -797,7 +797,7 @@ public abstract class CollectionUtils {
   }
 
   public static <K, V> MultiValueMap<K, V> buckets(Iterable<V> c, Function<V, K> transformer) {
-    DefaultMultiValueMap<K, V> buckets = new DefaultMultiValueMap<>(new LinkedHashMap<>());
+    DefaultMultiValueMap<K, V> buckets = MultiValueMap.fromLinkedHashMap();
     for (final V value : c) {
       final K key = transformer.apply(value);
       buckets.add(key, value);
@@ -920,36 +920,6 @@ public abstract class CollectionUtils {
    */
   public static <E> Iterator<E> singletonIterator(final E e) {
     return new SingletonIterator<>(e);
-  }
-
-  /**
-   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
-   *
-   * @param targetMap the original map
-   * @return the adapted multi-value map (wrapping the original map)
-   * @since 4.0
-   */
-  public static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, List<V>> targetMap) {
-    return new DefaultMultiValueMap<>(targetMap);
-  }
-
-  /**
-   * Return an unmodifiable view of the specified multi-value map.
-   *
-   * @param targetMap the map for which an unmodifiable view is to be returned.
-   * @return an unmodifiable view of the specified multi-value map
-   * @since 4.0
-   */
-  public static <K, V> MultiValueMap<K, V> unmodifiableMultiValueMap(
-          MultiValueMap<? extends K, ? extends V> targetMap) {
-
-    Assert.notNull(targetMap, "'targetMap' must not be null");
-    Map<K, List<V>> result = newLinkedHashMap(targetMap.size());
-    for (Map.Entry<? extends K, ? extends List<? extends V>> entry : targetMap.entrySet()) {
-      result.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
-    }
-    Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
-    return toMultiValueMap(unmodifiableMap);
   }
 
   /**

@@ -32,7 +32,6 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -129,7 +128,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   @Override
   public MultiValueMap<String, String> getQueryParams() {
     if (this.queryParams == null) {
-      this.queryParams = CollectionUtils.unmodifiableMultiValueMap(initQueryParams());
+      this.queryParams = MultiValueMap.unmodifiable(initQueryParams());
     }
     return this.queryParams;
   }
@@ -164,7 +163,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
     if (this.cookies == null) {
-      this.cookies = CollectionUtils.unmodifiableMultiValueMap(initCookies());
+      this.cookies = MultiValueMap.unmodifiable(initCookies());
     }
     return this.cookies;
   }

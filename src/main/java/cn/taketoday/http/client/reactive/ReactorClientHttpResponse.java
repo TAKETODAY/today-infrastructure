@@ -37,7 +37,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.cookie.Cookie;
@@ -155,7 +154,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
                            .build());
       }
     }
-    return CollectionUtils.unmodifiableMultiValueMap(result);
+    return MultiValueMap.unmodifiable(result);
   }
 
   @Nullable

@@ -63,7 +63,7 @@ final class HierarchicalUriComponents extends UriComponents {
   private static final String PATH_DELIMITER_STRING = String.valueOf(PATH_DELIMITER);
 
   private static final MultiValueMap<String, String> EMPTY_QUERY_PARAMS =
-          CollectionUtils.unmodifiableMultiValueMap(new DefaultMultiValueMap<>());
+          MultiValueMap.unmodifiable(new DefaultMultiValueMap<>());
 
   /**
    * Represents an empty path.
@@ -149,7 +149,7 @@ final class HierarchicalUriComponents extends UriComponents {
     this.host = host;
     this.port = port;
     this.path = path != null ? path : NULL_PATH_COMPONENT;
-    this.queryParams = query != null ? CollectionUtils.unmodifiableMultiValueMap(query) : EMPTY_QUERY_PARAMS;
+    this.queryParams = query != null ? MultiValueMap.unmodifiable(query) : EMPTY_QUERY_PARAMS;
     this.encodeState = encoded ? EncodeState.FULLY_ENCODED : EncodeState.RAW;
 
     // Check for illegal characters..
@@ -313,13 +313,13 @@ final class HierarchicalUriComponents extends UriComponents {
       String key = entry.getKey();
       List<String> values = entry.getValue();
       String name = encoder.apply(key, Type.QUERY_PARAM);
-      List<String> encodedValues = new ArrayList<>(values.size());
+      ArrayList<String> encodedValues = new ArrayList<>(values.size());
       for (String value : values) {
         encodedValues.add(value != null ? encoder.apply(value, Type.QUERY_PARAM) : null);
       }
       result.put(name, encodedValues);
     }
-    return CollectionUtils.unmodifiableMultiValueMap(result);
+    return MultiValueMap.unmodifiable(result);
   }
 
   /**
@@ -471,7 +471,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, expandedValues);
     }
-    return CollectionUtils.unmodifiableMultiValueMap(result);
+    return MultiValueMap.unmodifiable(result);
   }
 
   @Override

@@ -321,8 +321,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       }
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) { // just in case
-//        return DefineClassHelper.defineClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
-        return DefineClassHelper.defineClass(getClassName(), bytes, getProtectionDomain());
+        return DefineClassHelper.defineClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
       }
     }
     catch (RuntimeException | Error e) {

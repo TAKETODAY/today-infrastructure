@@ -20,6 +20,10 @@
 
 package cn.taketoday.http.server.reactive;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.undertow.util.HeaderMap;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.eclipse.jetty.http.HttpFields;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,12 +38,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.stream.Stream;
-
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.undertow.util.HeaderMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -136,7 +134,7 @@ class HeadersAdaptersTests {
 
   static Stream<Arguments> headers() {
     return Stream.of(
-            arguments("Map", CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH))),
+            arguments("Map", MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH))),
             arguments("Netty", new NettyHeadersAdapter(new DefaultHttpHeaders())),
             arguments("Tomcat", new TomcatHeadersAdapter(new MimeHeaders())),
             arguments("Undertow", new UndertowHeadersAdapter(new HeaderMap())),

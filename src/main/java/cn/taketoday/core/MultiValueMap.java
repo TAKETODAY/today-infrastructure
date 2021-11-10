@@ -19,14 +19,16 @@
  */
 package cn.taketoday.core;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
+
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.CollectionUtils;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
@@ -157,6 +159,55 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
         newMap.put(entry.getKey(), toArray);
       }
     }
+  }
+
+  // static
+
+  /**
+   * default MultiValueMap
+   *
+   * @since 4.0
+   */
+  static <K, V> DefaultMultiValueMap<K, V> defaults() {
+    return new DefaultMultiValueMap<>();
+  }
+
+  /**
+   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
+   * @return the adapted multi-value map (wrapping the original map)
+   * @since 4.0
+   */
+  static <K, V> DefaultMultiValueMap<K, V> from(Map<K, List<V>> targetMap) {
+    return new DefaultMultiValueMap<>(targetMap);
+  }
+
+  /**
+   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @since 4.0
+   */
+  static <K, V> DefaultMultiValueMap<K, V> fromLinkedHashMap() {
+    return from(new LinkedHashMap<>());
+  }
+
+  /**
+   * Return an unmodifiable view of the specified multi-value map.
+   *
+   * @param targetMap the map for which an unmodifiable view is to be returned.
+   * @return an unmodifiable view of the specified multi-value map
+   * @since 4.0
+   */
+  static <K, V> MultiValueMap<K, V> unmodifiable(
+          MultiValueMap<? extends K, ? extends V> targetMap) {
+    Assert.notNull(targetMap, "'targetMap' must not be null");
+    Map<K, List<V>> result = CollectionUtils.newLinkedHashMap(targetMap.size());
+    for (Map.Entry<? extends K, ? extends List<? extends V>> entry : targetMap.entrySet()) {
+      result.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+    }
+    Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
+    return from(unmodifiableMap);
   }
 
 }

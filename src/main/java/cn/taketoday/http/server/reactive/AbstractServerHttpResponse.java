@@ -38,7 +38,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -143,7 +142,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     return this.state.get() == State.COMMITTED
-           ? CollectionUtils.unmodifiableMultiValueMap(this.cookies) : this.cookies;
+           ? MultiValueMap.unmodifiable(this.cookies) : this.cookies;
   }
 
   @Override

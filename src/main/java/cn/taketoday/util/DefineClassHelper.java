@@ -36,18 +36,18 @@
 
 package cn.taketoday.util;
 
+import cn.taketoday.core.bytecode.ByteCodeClassLoader;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
-
-import cn.taketoday.core.bytecode.ByteCodeClassLoader;
-import cn.taketoday.core.bytecode.core.CodeGenerationException;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -59,6 +59,7 @@ public class DefineClassHelper {
   private static final Method defineClass;
   private static final Throwable THROWABLE;
   private static final ProtectionDomain PROTECTION_DOMAIN;
+  static final ByteCodeClassLoader byteCodeLoader = new ByteCodeClassLoader(ClassUtils.getDefaultClassLoader());
 
   static {
     // Resolve protected ClassLoader.defineClass method for fallback use
@@ -77,43 +78,6 @@ public class DefineClassHelper {
     THROWABLE = throwable;
     defineClass = classLoaderDefineClass;
     PROTECTION_DOMAIN = ReflectionUtils.getProtectionDomain(DefineClassHelper.class);
-  }
-
-  /**
-   * Loads a class file by a given class loader.
-   *
-   * <p>This first tries to use {@code java.lang.invoke.MethodHandle} to load a class.
-   * Otherwise, or if {@code neighbor} is null,
-   * this tries to use {@code sun.misc.Unsafe} to load a class.
-   * Then it tries to use a {@code protected} method in {@code java.lang.ClassLoader}
-   * via {@code PrivilegedAction}.  Since the latter approach is not available
-   * any longer by default in Java 9 or later, the JVM argument
-   * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
-   * </p>
-   *
-   * @param className the name of the loaded class.
-   * @param neighbor the class contained in the same package as the loaded class.
-   * @param loader the class loader.  It can be null if {@code neighbor} is not null
-   * and the JVM is Java 11 or later.
-   * @param domain if it is null, a default domain is used.
-   * @param bcode the bytecode for the loaded class.
-   */
-  public static Class<?> defineClass(
-          String className, @Nullable Class<?> neighbor,
-          ClassLoader loader, ProtectionDomain domain, byte[] bcode) throws ReflectionException {
-    try {
-      return defineClass(className, bcode, loader, domain, neighbor);
-    }
-    catch (RuntimeException e) {
-      throw e;
-    }
-    catch (ClassFormatError e) {
-      Throwable t = e.getCause();
-      throw new ReflectionException(t == null ? e : t);
-    }
-    catch (Exception e) {
-      throw new ReflectionException(e);
-    }
   }
 
   /**
@@ -138,29 +102,47 @@ public class DefineClassHelper {
   }
 
   public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
-    return defineClass(className, b, loader, null, null);
+    return defineClass(className, null, loader, null, b);
   }
 
   public static Class<?> defineClass(
           String className, byte[] b, ClassLoader loader,
           ProtectionDomain protectionDomain) throws Exception {
-
-    return defineClass(className, b, loader, protectionDomain, null);
+    return defineClass(className, null, loader, protectionDomain, b);
   }
 
+  /**
+   * Loads a class file by a given class loader.
+   *
+   * <p>This first tries to use {@code java.lang.invoke.MethodHandle} to load a class.
+   * Otherwise, or if {@code neighbor} is null,
+   * this tries to use {@code sun.misc.Unsafe} to load a class.
+   * Then it tries to use a {@code protected} method in {@code java.lang.ClassLoader}
+   * via {@code PrivilegedAction}.  Since the latter approach is not available
+   * any longer by default in Java 9 or later, the JVM argument
+   * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
+   * </p>
+   *
+   * @param className the name of the loaded class.
+   * @param neighbor the class contained in the same package as the loaded class.
+   * @param loader the class loader.  It can be null if {@code neighbor} is not null
+   * and the JVM is Java 11 or later.
+   * @param domain if it is null, a default domain is used.
+   * @param bcode the bytecode for the loaded class.
+   */
   @SuppressWarnings("deprecation")
   public static Class<?> defineClass(
-          String className, byte[] b, ClassLoader loader,
-          ProtectionDomain protectionDomain, Class<?> contextClass) throws Exception {
+          String className, @Nullable Class<?> neighbor,
+          ClassLoader loader, @Nullable ProtectionDomain domain, byte[] bcode) throws ReflectionException {
 
     Class<?> c = null;
     Throwable t = THROWABLE;
 
     // Preferred option: JDK 9+ Lookup.defineClass API if ClassLoader matches
-    if (contextClass != null && contextClass.getClassLoader() == loader) {
+    if (neighbor != null && neighbor.getClassLoader() == loader) {
       try {
-        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(contextClass, MethodHandles.lookup());
-        c = lookup.defineClass(b);
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
+        c = lookup.defineClass(bcode);
       }
       catch (LinkageError | IllegalArgumentException ex) {
         // in case of plain LinkageError (class already defined)
@@ -175,15 +157,15 @@ public class DefineClassHelper {
 
     // Direct defineClass attempt on the target Classloader
     if (c == null) {
-      if (protectionDomain == null) {
-        protectionDomain = PROTECTION_DOMAIN;
+      if (domain == null) {
+        domain = PROTECTION_DOMAIN;
       }
 
       // Look for publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain)
       try {
         Method publicDefineClass = loader.getClass().getMethod(
                 "publicDefineClass", String.class, byte[].class, ProtectionDomain.class);
-        c = (Class<?>) publicDefineClass.invoke(loader, className, b, protectionDomain);
+        c = (Class<?>) publicDefineClass.invoke(loader, className, bcode, domain);
       }
       catch (InvocationTargetException ex) {
         if (!(ex.getTargetException() instanceof UnsupportedOperationException)) {
@@ -203,7 +185,7 @@ public class DefineClassHelper {
           if (!defineClass.isAccessible()) {
             defineClass.setAccessible(true);
           }
-          c = (Class<?>) defineClass.invoke(loader, new Object[] { className, b, 0, b.length, protectionDomain });
+          c = (Class<?>) defineClass.invoke(loader, new Object[] { className, bcode, 0, bcode.length, domain });
         }
         catch (InvocationTargetException ex) {
           throw new CodeGenerationException(ex.getTargetException());
@@ -220,13 +202,22 @@ public class DefineClassHelper {
     }
 
     // Fallback option: JDK 9+ Lookup.defineClass API even if ClassLoader does not match
-    if (c == null && contextClass != null && contextClass.getClassLoader() != loader) {
+    if (c == null && neighbor != null && neighbor.getClassLoader() != loader) {
       try {
-        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(contextClass, MethodHandles.lookup());
-        c = lookup.defineClass(b);
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
+        c = lookup.defineClass(bcode);
       }
       catch (Throwable ex) {
         throw newException(className, ex);
+      }
+    }
+
+    if (c == null) {
+      try {
+        c = byteCodeLoader.loadClass(className, bcode, domain);
+      }
+      catch (ClassNotFoundException e) {
+        throw newException(className, e);
       }
     }
 
@@ -236,7 +227,12 @@ public class DefineClassHelper {
     }
 
     // Force static initializers to run.
-    Class.forName(className, true, loader);
+    try {
+      Class.forName(className, true, loader);
+    }
+    catch (ClassNotFoundException e) {
+      throw newException(className, e);
+    }
     return c;
   }
 
@@ -245,11 +241,5 @@ public class DefineClassHelper {
     return new CodeGenerationException("Class: '" + className + "' define failed", ex);
   }
 
-  static final ByteCodeClassLoader classLoader = new ByteCodeClassLoader(ClassUtils.getDefaultClassLoader());
-
-  public static Class<?> defineClass(
-          String className, byte[] b, ProtectionDomain domain) throws Exception {
-    return classLoader.loadClass(className, b, domain);
-  }
 
 }

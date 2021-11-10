@@ -32,7 +32,6 @@ import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.Separator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -701,7 +700,7 @@ public class PathPattern implements Comparable<PathPattern> {
         if (this.extractedMatrixVariables == null) {
           this.extractedMatrixVariables = new HashMap<>();
         }
-        this.extractedMatrixVariables.put(key, CollectionUtils.unmodifiableMultiValueMap(parameters));
+        this.extractedMatrixVariables.put(key, MultiValueMap.unmodifiable(parameters));
       }
     }
 

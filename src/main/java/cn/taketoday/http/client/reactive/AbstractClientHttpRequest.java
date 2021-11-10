@@ -32,7 +32,6 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -90,7 +89,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
     if (State.COMMITTED.equals(this.state.get())) {
-      return CollectionUtils.unmodifiableMultiValueMap(this.cookies);
+      return MultiValueMap.unmodifiable(this.cookies);
     }
     return this.cookies;
   }
