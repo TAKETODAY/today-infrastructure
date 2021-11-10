@@ -163,8 +163,7 @@ public abstract class Remapper {
     if (value instanceof ClassValueHolder) {
       return mapType(((ClassValueHolder) value).getDescriptor());
     }
-    if (value instanceof Handle) {
-      Handle handle = (Handle) value;
+    if (value instanceof Handle handle) {
       boolean isFieldHandle = handle.getTag() <= Opcodes.H_PUTSTATIC;
       return new Handle(
               handle.getTag(),
@@ -175,8 +174,7 @@ public abstract class Remapper {
                             : mapMethodDesc(handle.getDesc()),
               handle.isInterface());
     }
-    if (value instanceof ConstantDynamic) {
-      ConstantDynamic constantDynamic = (ConstantDynamic) value;
+    if (value instanceof ConstantDynamic constantDynamic) {
       int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
       Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArgumentCount];
       for (int i = 0; i < bootstrapMethodArgumentCount; ++i) {
