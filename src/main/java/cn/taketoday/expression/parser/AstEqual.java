@@ -54,6 +54,6 @@ public final class AstEqual extends BooleanNode {
   }
 
   public Object getValue(EvaluationContext ctx) throws ExpressionException {
-    return Boolean.valueOf(ExpressionUtils.equals(this.children[0].getValue(ctx), this.children[1].getValue(ctx)));
+    return ExpressionUtils.equals(this.children[0].getValue(ctx), this.children[1].getValue(ctx));
   }
 }

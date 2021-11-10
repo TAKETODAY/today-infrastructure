@@ -124,16 +124,12 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   private int jjMoveStringLiteralDfa0_0() {
-    switch (curChar) {
-      case 35:
-        return jjMoveStringLiteralDfa1_0(0x8L);
-      case 36:
-        return jjMoveStringLiteralDfa1_0(0x4L);
-      case 92:
-        return jjStartNfaWithStates_0(0, 4, 2);
-      default:
-        return jjMoveNfa_0(6, 0);
-    }
+    return switch (curChar) {
+      case 35 -> jjMoveStringLiteralDfa1_0(0x8L);
+      case 36 -> jjMoveStringLiteralDfa1_0(0x4L);
+      case 92 -> jjStartNfaWithStates_0(0, 4, 2);
+      default -> jjMoveNfa_0(6, 0);
+    };
   }
 
   private int jjMoveStringLiteralDfa1_0(long active0) {
@@ -277,17 +273,15 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         long l2 = 1L << (curChar & 077);
         do {
           switch (jjstateSet[--i]) {
-            case 6:
-            case 0:
-            case 4:
+            case 6, 0, 4 -> {
               if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
                 break;
               if (kind > 1)
                 kind = 1;
               jjCheckNAddStates(0, 3);
-              break;
-            default:
-              break;
+            }
+            default -> {
+            }
           }
         }
         while (i != startsAt);
@@ -649,11 +643,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_2(4, active0);
       return 5;
     }
-    switch (curChar) {
-      case 110:
-        return jjMoveStringLiteralDfa6_2(active0, 0x400000000000L);
-      default:
-        break;
+    if (curChar == 110) {
+      return jjMoveStringLiteralDfa6_2(active0, 0x400000000000L);
     }
     return jjStartNfa_2(4, active0);
   }
@@ -668,11 +659,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_2(5, active0);
       return 6;
     }
-    switch (curChar) {
-      case 99:
-        return jjMoveStringLiteralDfa7_2(active0, 0x400000000000L);
-      default:
-        break;
+    if (curChar == 99) {
+      return jjMoveStringLiteralDfa7_2(active0, 0x400000000000L);
     }
     return jjStartNfa_2(5, active0);
   }
@@ -687,11 +675,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_2(6, active0);
       return 7;
     }
-    switch (curChar) {
-      case 101:
-        return jjMoveStringLiteralDfa8_2(active0, 0x400000000000L);
-      default:
-        break;
+    if (curChar == 101) {
+      return jjMoveStringLiteralDfa8_2(active0, 0x400000000000L);
     }
     return jjStartNfa_2(6, active0);
   }
@@ -706,11 +691,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_2(7, active0);
       return 8;
     }
-    switch (curChar) {
-      case 111:
-        return jjMoveStringLiteralDfa9_2(active0, 0x400000000000L);
-      default:
-        break;
+    if (curChar == 111) {
+      return jjMoveStringLiteralDfa9_2(active0, 0x400000000000L);
     }
     return jjStartNfa_2(7, active0);
   }
@@ -725,13 +707,9 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_2(8, active0);
       return 9;
     }
-    switch (curChar) {
-      case 102:
-        if ((active0 & 0x400000000000L) != 0L)
-          return jjStartNfaWithStates_2(9, 46, 6);
-        break;
-      default:
-        break;
+    if (curChar == 102) {
+      if ((active0 & 0x400000000000L) != 0L)
+        return jjStartNfaWithStates_2(9, 46, 6);
     }
     return jjStartNfa_2(8, active0);
   }
@@ -1411,11 +1389,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_1(4, active0);
       return 5;
     }
-    switch (curChar) {
-      case 110:
-        return jjMoveStringLiteralDfa6_1(active0, 0x400000000000L);
-      default:
-        break;
+    if (curChar == 110) {
+      return jjMoveStringLiteralDfa6_1(active0, 0x400000000000L);
     }
     return jjStartNfa_1(4, active0);
   }
@@ -1430,11 +1405,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       jjStopStringLiteralDfa_1(5, active0);
       return 6;
     }
-    switch (curChar) {
-      case 99:
-        return jjMoveStringLiteralDfa7_1(active0, 0x400000000000L);
-      default:
-        break;
+    if (curChar == 99) {
+      return jjMoveStringLiteralDfa7_1(active0, 0x400000000000L);
     }
     return jjStartNfa_1(5, active0);
   }
@@ -1823,29 +1795,18 @@ public class ExpressionParserTokenManager implements ELParserConstants {
     if (hiByte == 0) {
       return ((jjbitVec2[i2] & l2) != 0L);
     }
-    if ((jjbitVec0[i1] & l1) != 0L) {
-      return true;
-    }
-    return false;
+    return (jjbitVec0[i1] & l1) != 0L;
   }
 
   private static final boolean jjCanMove_1(int hiByte, int i1, int i2, long l1, long l2) {
-    switch (hiByte) {
-      case 0:
-        return ((jjbitVec4[i2] & l2) != 0L);
-      case 48:
-        return ((jjbitVec5[i2] & l2) != 0L);
-      case 49:
-        return ((jjbitVec6[i2] & l2) != 0L);
-      case 51:
-        return ((jjbitVec7[i2] & l2) != 0L);
-      case 61:
-        return ((jjbitVec8[i2] & l2) != 0L);
-      default:
-        if ((jjbitVec3[i1] & l1) != 0L)
-          return true;
-        return false;
-    }
+    return switch (hiByte) {
+      case 0 -> ((jjbitVec4[i2] & l2) != 0L);
+      case 48 -> ((jjbitVec5[i2] & l2) != 0L);
+      case 49 -> ((jjbitVec6[i2] & l2) != 0L);
+      case 51 -> ((jjbitVec7[i2] & l2) != 0L);
+      case 61 -> ((jjbitVec8[i2] & l2) != 0L);
+      default -> (jjbitVec3[i1] & l1) != 0L;
+    };
   }
 
   private void ReInitRounds() {
@@ -1916,12 +1877,12 @@ public class ExpressionParserTokenManager implements ELParserConstants {
       image.setLength(0);
 
       switch (curLexState) {
-        case 0:
+        case 0 -> {
           jjmatchedKind = 0x7fffffff;
           jjmatchedPos = 0;
           curPos = jjMoveStringLiteralDfa0_0();
-          break;
-        case 1:
+        }
+        case 1 -> {
           try {
             input_stream.backup(0);
             while (curChar <= 32 && (0x100002600L & (1L << curChar)) != 0L)
@@ -1936,8 +1897,8 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           if (jjmatchedPos == 0 && jjmatchedKind > 62) {
             jjmatchedKind = 62;
           }
-          break;
-        case 2:
+        }
+        case 2 -> {
           try {
 
             input_stream.backup(0);
@@ -1953,7 +1914,7 @@ public class ExpressionParserTokenManager implements ELParserConstants {
           if (jjmatchedPos == 0 && jjmatchedKind > 62) {
             jjmatchedKind = 62;
           }
-          break;
+        }
       }
       if (jjmatchedKind != 0x7fffffff) {
         if (jjmatchedPos + 1 < curPos)
@@ -1999,24 +1960,24 @@ public class ExpressionParserTokenManager implements ELParserConstants {
 
   void TokenLexicalActions(Token matchedToken) {
     switch (jjmatchedKind) {
-      case 2:
+      case 2 -> {
         image.append(jjstrLiteralImages[2]);
         stack.push(DEFAULT);
-        break;
-      case 3:
+      }
+      case 3 -> {
         image.append(jjstrLiteralImages[3]);
         stack.push(DEFAULT);
-        break;
-      case 9:
+      }
+      case 9 -> {
         image.append(jjstrLiteralImages[9]);
         stack.push(curLexState);
-        break;
-      case 10:
+      }
+      case 10 -> {
         image.append(jjstrLiteralImages[10]);
         SwitchTo(stack.pop());
-        break;
-      default:
-        break;
+      }
+      default -> {
+      }
     }
   }
 

@@ -189,10 +189,9 @@ public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
   @Override
   public boolean equals(Object node) {
 
-    if (!(node instanceof SimpleNode)) {
+    if (!(node instanceof SimpleNode n)) {
       return false;
     }
-    SimpleNode n = (SimpleNode) node;
     if (id != n.id) {
       return false;
     }
