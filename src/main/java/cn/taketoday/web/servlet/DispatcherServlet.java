@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.servlet;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import jakarta.servlet.Servlet;
@@ -41,6 +42,7 @@ import cn.taketoday.web.handler.DispatcherHandler;
 public class DispatcherServlet
         extends DispatcherHandler implements Servlet, Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private transient ServletConfig servletConfig;

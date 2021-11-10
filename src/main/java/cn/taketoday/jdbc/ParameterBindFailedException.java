@@ -20,6 +20,8 @@
 
 package cn.taketoday.jdbc;
 
+import java.io.Serial;
+
 /**
  * jdbc parameter bind failed exception
  *
@@ -28,6 +30,7 @@ package cn.taketoday.jdbc;
  */
 public class ParameterBindFailedException extends PersistenceException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public ParameterBindFailedException() { }

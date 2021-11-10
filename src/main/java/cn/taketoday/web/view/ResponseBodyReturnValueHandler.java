@@ -37,7 +37,7 @@ public class ResponseBodyReturnValueHandler extends OrderedSupport implements Re
   public ResponseBodyReturnValueHandler(MessageBodyConverter messageBodyConverter) {
     Assert.notNull(messageBodyConverter, "MessageBodyConverter must not be null");
     this.messageBodyConverter = messageBodyConverter;
-    setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
+    setOrder(100);
   }
 
   @Override

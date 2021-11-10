@@ -56,8 +56,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import jakarta.servlet.Servlet;
-
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.ClassPathResource;
@@ -73,6 +71,7 @@ import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import cn.taketoday.web.session.SessionConfiguration;
+import jakarta.servlet.Servlet;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -208,7 +207,7 @@ public class JettyServer
 
   private String getProtocols(Connector connector) {
     List<String> protocols = connector.getProtocols();
-    return " (" + StringUtils.arrayToString(protocols.toArray(new String[protocols.size()])) + ")";
+    return " (" + StringUtils.collectionToString(protocols) + ")";
   }
 
   @Override
@@ -331,7 +330,7 @@ public class JettyServer
   protected void configureWelcomePages(WebAppContext context) {
     final Set<String> welcomePages = getWelcomePages();
     getWebApplicationConfiguration().configureWelcomePages(welcomePages);
-    context.setWelcomeFiles(welcomePages.toArray(new String[welcomePages.size()]));
+    context.setWelcomeFiles(StringUtils.toStringArray(welcomePages));
   }
 
   /**
@@ -347,7 +346,7 @@ public class JettyServer
     configurations.addAll(getConfigurations()); // user define
     configurations.add(getErrorPageConfiguration());
     configurations.add(getMimeTypeConfiguration());
-    return configurations.toArray(new Configuration[configurations.size()]);
+    return configurations.toArray(new Configuration[0]);
   }
 
   /**
@@ -388,8 +387,7 @@ public class JettyServer
    */
   protected void addJettyErrorPages(ErrorHandler errorHandler, Set<ErrorPage> errorPages) {
     getWebApplicationConfiguration().configureErrorPages(errorPages);
-    if (errorHandler instanceof ErrorPageErrorHandler) {
-      ErrorPageErrorHandler handler = (ErrorPageErrorHandler) errorHandler;
+    if (errorHandler instanceof ErrorPageErrorHandler handler) {
       for (ErrorPage errorPage : errorPages) {
         if (errorPage.getException() != null) {
           handler.addErrorPage(errorPage.getException(), errorPage.getPath());

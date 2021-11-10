@@ -101,8 +101,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   @Override
   protected Object transformHandler(String handlerKey, Object handler) {
-    if (handler instanceof AnnotationMappingInfo) {
-      AnnotationMappingInfo mapping = (AnnotationMappingInfo) handler;
+    if (handler instanceof AnnotationMappingInfo mapping) {
       HandlerMethod handlerMethod = mapping.getHandler();
       Object transformed = super.transformHandler(handlerKey, handlerMethod);
       if (transformed != handlerMethod) {
@@ -235,8 +234,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   protected Object lookupHandler(String requestPath, RequestContext context) {
     Object handler = super.lookupHandler(requestPath, context);
     if (handler != null) {
-      if (handler instanceof AnnotationMappingInfo) {  // single MappingInfo
-        AnnotationMappingInfo mappingInfo = (AnnotationMappingInfo) handler;
+      if (handler instanceof AnnotationMappingInfo mappingInfo) {  // single MappingInfo
         if (testMapping(mappingInfo, context)) {
           return mappingInfo.getHandler();
         }

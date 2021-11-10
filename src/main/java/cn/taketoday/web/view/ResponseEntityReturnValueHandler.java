@@ -68,8 +68,7 @@ public class ResponseEntityReturnValueHandler
    */
   @Override
   public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {
-    if (returnValue instanceof ResponseEntity) {
-      ResponseEntity<?> response = (ResponseEntity<?>) returnValue;
+    if (returnValue instanceof ResponseEntity<?> response) {
 
       context.setStatus(response.getStatusCode());
       // apply headers

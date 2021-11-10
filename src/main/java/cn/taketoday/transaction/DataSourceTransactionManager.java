@@ -19,6 +19,7 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -41,6 +42,7 @@ import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
  */
 public class DataSourceTransactionManager
         extends AbstractTransactionManager implements ResourceTransactionManager, InitializingBean {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final Logger log = LoggerFactory.getLogger(DataSourceTransactionManager.class);

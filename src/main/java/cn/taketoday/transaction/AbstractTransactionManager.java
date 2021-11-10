@@ -21,6 +21,7 @@ package cn.taketoday.transaction;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import static cn.taketoday.transaction.TransactionDefinition.ISOLATION_DEFAULT;
  * 2018-11-06 22:51
  */
 public abstract class AbstractTransactionManager implements TransactionManager, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final Logger log = LoggerFactory.getLogger(AbstractTransactionManager.class);
@@ -288,13 +290,13 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     // No existing transaction found -> check propagation behavior to find out how to proceed.
     switch (def.getPropagationBehavior()) {
-      case TransactionDefinition.PROPAGATION_MANDATORY: {
+      case TransactionDefinition.PROPAGATION_MANDATORY -> {
         throw new IllegalStateException(
                 "No existing transaction found for transaction marked with propagation 'mandatory'");
       }
-      case TransactionDefinition.PROPAGATION_NESTED:
-      case TransactionDefinition.PROPAGATION_REQUIRED:
-      case TransactionDefinition.PROPAGATION_REQUIRES_NEW: {
+      case TransactionDefinition.PROPAGATION_NESTED,
+              TransactionDefinition.PROPAGATION_REQUIRED,
+              TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
         final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
         final SuspendedResourcesHolder res = suspend(metaData, null);
         if (log.isDebugEnabled()) {
@@ -326,15 +328,13 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   /**
    * Create a TransactionStatus for an existing transaction.
    */
-  protected TransactionStatus handleExistingTransaction(final TransactionDefinition def,
-                                                        final Object transaction) throws TransactionException //
-  {
+  protected TransactionStatus handleExistingTransaction(
+          final TransactionDefinition def, final Object transaction) throws TransactionException {
     final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
 
     switch (def.getPropagationBehavior()) {
-      case TransactionDefinition.PROPAGATION_NEVER:
-        throw new IllegalStateException("Existing transaction found for transaction marked with propagation 'never'");
-      case TransactionDefinition.PROPAGATION_NOT_SUPPORTED: {
+      case TransactionDefinition.PROPAGATION_NEVER -> throw new IllegalStateException("Existing transaction found for transaction marked with propagation 'never'");
+      case TransactionDefinition.PROPAGATION_NOT_SUPPORTED -> {
         if (log.isDebugEnabled()) {
           log.debug("Suspending current transaction");
         }
@@ -342,8 +342,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
         boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
         return prepareTransactionStatus(metaData, def, null, false, newSynchronization, suspendedResources);
       }
-      case TransactionDefinition.PROPAGATION_REQUIRES_NEW: {
-
+      case TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
         if (log.isDebugEnabled()) {
           log.debug("Suspending current transaction, creating new transaction with name [{}]",
                     def.getName());
@@ -364,7 +363,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
           throw beginEx;
         }
       }
-      case TransactionDefinition.PROPAGATION_NESTED: {
+      case TransactionDefinition.PROPAGATION_NESTED -> {
         if (!isNestedTransactionAllowed()) {
           throw new NestedTransactionNotSupportedException(
                   "Transaction manager does not allow nested transactions by default");
@@ -1262,6 +1261,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   // Serialization support
   // ---------------------------------------------------------------------
 
+  @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     // Rely on default serialization; just initialize state after deserialization.
     ois.defaultReadObject();

@@ -60,9 +60,8 @@ final class ListParameterIndexApplier extends ParameterIndexHolder {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof ListParameterIndexApplier))
+    if (!(o instanceof final ListParameterIndexApplier applier))
       return false;
-    final ListParameterIndexApplier applier = (ListParameterIndexApplier) o;
     return Objects.equals(indices, applier.indices);
   }
 

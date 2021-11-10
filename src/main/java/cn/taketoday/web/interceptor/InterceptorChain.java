@@ -50,7 +50,6 @@ public abstract class InterceptorChain {
    * @param context current context
    * @param handler this context request handler
    * @return handle result
-   * @throws Throwable
    */
   protected abstract Object proceedTarget(RequestContext context, Object handler) throws Throwable;
 

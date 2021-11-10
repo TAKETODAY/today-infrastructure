@@ -19,12 +19,15 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
+
 /**
  * @author TODAY <br>
  * 2018-11-06 22:46
  */
 public class TransactionException extends RuntimeException {
 
+  @Serial
   private static final long serialVersionUID = 1035812189386467319L;
 
   public TransactionException() {

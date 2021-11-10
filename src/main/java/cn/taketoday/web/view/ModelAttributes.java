@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.view;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ import cn.taketoday.core.AttributeAccessorSupport;
  * @since 3.0
  */
 public class ModelAttributes extends AttributeAccessorSupport implements Model, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Override

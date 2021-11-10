@@ -60,8 +60,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
       final ResourceMatchResult matchResult = getResourceMatchResult(context);
       throw ResourceNotFoundException.notFound(matchResult);
     }
-    else if (ret instanceof WebResource) {
-      final WebResource resource = (WebResource) ret;
+    else if (ret instanceof final WebResource resource) {
       if (resource.isDirectory()) {// TODO Directory listing
         throw ResourceNotFoundException.notFound();
       }

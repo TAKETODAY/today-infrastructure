@@ -19,6 +19,8 @@
  */
 package cn.taketoday.transaction;
 
+import java.io.Serial;
+
 /**
  * Exception to be thrown when a transaction has timed out.
  *
@@ -50,6 +52,7 @@ package cn.taketoday.transaction;
  */
 public class TransactionTimedOutException extends TransactionException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public TransactionTimedOutException(String msg) {

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import lombok.Getter;
  */
 @Getter
 public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsCapable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;

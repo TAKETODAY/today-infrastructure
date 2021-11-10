@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.session;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -29,6 +30,7 @@ import cn.taketoday.core.AttributeAccessorSupport;
  * 2019-09-27 19:40
  */
 public class DefaultSession extends AttributeAccessorSupport implements WebSession, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final String id;

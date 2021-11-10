@@ -42,16 +42,9 @@ import cn.taketoday.jdbc.parsing.QueryParameter;
  */
 final class ArrayParameters {
 
-  static class ArrayParameter implements Comparable<ArrayParameter> {
-    // the index of the parameter array
-    final int parameterIndex;
-    // the number of parameters to put in the query placeholder
-    final int parameterCount;
-
-    ArrayParameter(int parameterIndex, int parameterCount) {
-      this.parameterIndex = parameterIndex;
-      this.parameterCount = parameterCount;
-    }
+  record ArrayParameter(int parameterIndex, int parameterCount) implements Comparable<ArrayParameter> {
+    // parameterIndex the index of the parameter array
+    // parameterCount the number of parameters to put in the query placeholder
 
     @Override
     public int compareTo(ArrayParameter o) {
@@ -62,9 +55,8 @@ final class ArrayParameters {
     public boolean equals(Object o) {
       if (this == o)
         return true;
-      if (!(o instanceof ArrayParameter))
+      if (!(o instanceof ArrayParameter that))
         return false;
-      ArrayParameter that = (ArrayParameter) o;
       return parameterIndex == that.parameterIndex
               && parameterCount == that.parameterCount;
     }

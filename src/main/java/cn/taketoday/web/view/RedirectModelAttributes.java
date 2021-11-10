@@ -19,11 +19,14 @@
  */
 package cn.taketoday.web.view;
 
+import java.io.Serial;
+
 /**
  * @author TODAY 2018-12-10 16:31
  * @since 2.3.3
  */
 public class RedirectModelAttributes extends ModelAttributes implements RedirectModel {
+  @Serial
   private static final long serialVersionUID = 1L;
 
 }
