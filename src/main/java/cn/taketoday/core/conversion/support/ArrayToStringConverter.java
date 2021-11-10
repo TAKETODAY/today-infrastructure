@@ -47,8 +47,8 @@ final class ArrayToStringConverter extends ArraySourceConverter {
 
   @Override
   public Object convert(TypeDescriptor targetType, Object source) {
-    return this.helperConverter.convertInternal(targetType,
-                                                Arrays.asList(ObjectUtils.toObjectArray(source)));
+    return this.helperConverter.convertInternal(
+            targetType, Arrays.asList(ObjectUtils.toObjectArray(source)));
   }
 
 }

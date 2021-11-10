@@ -19,7 +19,7 @@ import cn.taketoday.core.bytecode.ClassVisitor;
 
 public class ClassTransformerTee extends ClassTransformer {
 
-  private ClassVisitor branch;
+  private final ClassVisitor branch;
 
   public ClassTransformerTee(ClassVisitor branch) {
 //		super(Constant.ASM_API);

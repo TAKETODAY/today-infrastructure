@@ -66,27 +66,15 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
     if (type == null) {
       return BasicValue.UNINITIALIZED_VALUE;
     }
-    switch (type.getSort()) {
-      case Type.VOID:
-        return null;
-      case Type.BOOLEAN:
-      case Type.CHAR:
-      case Type.BYTE:
-      case Type.SHORT:
-      case Type.INT:
-        return BasicValue.INT_VALUE;
-      case Type.FLOAT:
-        return BasicValue.FLOAT_VALUE;
-      case Type.LONG:
-        return BasicValue.LONG_VALUE;
-      case Type.DOUBLE:
-        return BasicValue.DOUBLE_VALUE;
-      case Type.ARRAY:
-      case Type.OBJECT:
-        return BasicValue.REFERENCE_VALUE;
-      default:
-        throw new AssertionError();
-    }
+    return switch (type.getSort()) {
+      case Type.VOID -> null;
+      case Type.LONG -> BasicValue.LONG_VALUE;
+      case Type.FLOAT -> BasicValue.FLOAT_VALUE;
+      case Type.DOUBLE -> BasicValue.DOUBLE_VALUE;
+      case Type.ARRAY, Type.OBJECT -> BasicValue.REFERENCE_VALUE;
+      case Type.BOOLEAN, Type.CHAR, Type.BYTE, Type.SHORT, Type.INT -> BasicValue.INT_VALUE;
+      default -> throw new AssertionError();
+    };
   }
 
   @Override

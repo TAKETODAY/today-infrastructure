@@ -153,28 +153,24 @@ public class FieldNode extends FieldVisitor {
     }
     // Visit the annotations.
     if (visibleAnnotations != null) {
-      for (int i = 0, n = visibleAnnotations.size(); i < n; ++i) {
-        AnnotationNode annotation = visibleAnnotations.get(i);
+      for (AnnotationNode annotation : visibleAnnotations) {
         annotation.accept(fieldVisitor.visitAnnotation(annotation.desc, true));
       }
     }
     if (invisibleAnnotations != null) {
-      for (int i = 0, n = invisibleAnnotations.size(); i < n; ++i) {
-        AnnotationNode annotation = invisibleAnnotations.get(i);
+      for (AnnotationNode annotation : invisibleAnnotations) {
         annotation.accept(fieldVisitor.visitAnnotation(annotation.desc, false));
       }
     }
     if (visibleTypeAnnotations != null) {
-      for (int i = 0, n = visibleTypeAnnotations.size(); i < n; ++i) {
-        TypeAnnotationNode typeAnnotation = visibleTypeAnnotations.get(i);
+      for (TypeAnnotationNode typeAnnotation : visibleTypeAnnotations) {
         typeAnnotation.accept(
                 fieldVisitor.visitTypeAnnotation(
                         typeAnnotation.typeRef, typeAnnotation.typePath, typeAnnotation.desc, true));
       }
     }
     if (invisibleTypeAnnotations != null) {
-      for (int i = 0, n = invisibleTypeAnnotations.size(); i < n; ++i) {
-        TypeAnnotationNode typeAnnotation = invisibleTypeAnnotations.get(i);
+      for (TypeAnnotationNode typeAnnotation : invisibleTypeAnnotations) {
         typeAnnotation.accept(
                 fieldVisitor.visitTypeAnnotation(
                         typeAnnotation.typeRef, typeAnnotation.typePath, typeAnnotation.desc, false));
@@ -182,8 +178,8 @@ public class FieldNode extends FieldVisitor {
     }
     // Visit the non standard attributes.
     if (attrs != null) {
-      for (int i = 0, n = attrs.size(); i < n; ++i) {
-        fieldVisitor.visitAttribute(attrs.get(i));
+      for (Attribute attr : attrs) {
+        fieldVisitor.visitAttribute(attr);
       }
     }
     fieldVisitor.visitEnd();

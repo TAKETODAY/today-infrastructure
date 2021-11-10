@@ -85,8 +85,7 @@ public abstract class AbstractResource implements Resource {
         // Try InputStream resolution for jar resources
         URLConnection con = url.openConnection();
         customizeConnection(con);
-        if (con instanceof HttpURLConnection) {
-          HttpURLConnection httpCon = (HttpURLConnection) con;
+        if (con instanceof HttpURLConnection httpCon) {
           int code = httpCon.getResponseCode();
           if (code != HttpURLConnection.HTTP_OK) {
             httpCon.disconnect();
@@ -199,7 +198,7 @@ public abstract class AbstractResource implements Resource {
     if (resources.isEmpty()) {
       return EMPTY_ARRAY;
     }
-    return resources.toArray(new Resource[resources.size()]);
+    return resources.toArray(Resource.EMPTY_ARRAY);
   }
 
   /**

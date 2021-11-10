@@ -124,10 +124,7 @@ public class ClassRemapper extends ClassVisitor {
 
   @Override
   public void visitAttribute(final Attribute attribute) {
-    if (attribute instanceof ModuleHashesAttribute) {
-      Remapper remapper = this.remapper;
-
-      ModuleHashesAttribute moduleHashesAttribute = (ModuleHashesAttribute) attribute;
+    if (attribute instanceof ModuleHashesAttribute moduleHashesAttribute) {
       List<String> modules = moduleHashesAttribute.modules;
       int size = modules.size();
       for (int i = 0; i < size; ++i) {

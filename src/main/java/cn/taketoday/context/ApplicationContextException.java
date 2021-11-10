@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -29,6 +31,7 @@ import cn.taketoday.core.NestedRuntimeException;
  */
 public class ApplicationContextException extends NestedRuntimeException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public ApplicationContextException() {

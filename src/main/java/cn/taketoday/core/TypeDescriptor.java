@@ -20,6 +20,7 @@
 
 package cn.taketoday.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -51,7 +52,9 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 3.0
  */
 public class TypeDescriptor implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
+
   private static final HashMap<Class<?>, TypeDescriptor> commonTypesCache = new HashMap<>(32);
   private static final Class<?>[] CACHED_COMMON_TYPES = {
           boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
@@ -455,10 +458,9 @@ public class TypeDescriptor implements Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof TypeDescriptor)) {
+    if (!(other instanceof TypeDescriptor otherDesc)) {
       return false;
     }
-    TypeDescriptor otherDesc = (TypeDescriptor) other;
     if (getType() != otherDesc.getType()) {
       return false;
     }

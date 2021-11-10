@@ -19,6 +19,8 @@
  */
 package cn.taketoday.core.conversion;
 
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.TypeDescriptor;
 
@@ -30,6 +32,7 @@ import cn.taketoday.core.TypeDescriptor;
  */
 public class ConversionException extends NestedRuntimeException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   final Object source;

@@ -119,24 +119,12 @@ public class FrameNode extends AbstractInsnNode {
   @Override
   public void accept(final MethodVisitor methodVisitor) {
     switch (type) {
-      case Opcodes.F_NEW:
-      case Opcodes.F_FULL:
-        methodVisitor.visitFrame(type, local.size(), asArray(local), stack.size(), asArray(stack));
-        break;
-      case Opcodes.F_APPEND:
-        methodVisitor.visitFrame(type, local.size(), asArray(local), 0, null);
-        break;
-      case Opcodes.F_CHOP:
-        methodVisitor.visitFrame(type, local.size(), null, 0, null);
-        break;
-      case Opcodes.F_SAME:
-        methodVisitor.visitFrame(type, 0, null, 0, null);
-        break;
-      case Opcodes.F_SAME1:
-        methodVisitor.visitFrame(type, 0, null, 1, asArray(stack));
-        break;
-      default:
-        throw new IllegalArgumentException();
+      case Opcodes.F_APPEND -> methodVisitor.visitFrame(type, local.size(), asArray(local), 0, null);
+      case Opcodes.F_CHOP -> methodVisitor.visitFrame(type, local.size(), null, 0, null);
+      case Opcodes.F_SAME -> methodVisitor.visitFrame(type, 0, null, 0, null);
+      case Opcodes.F_SAME1 -> methodVisitor.visitFrame(type, 0, null, 1, asArray(stack));
+      case Opcodes.F_NEW, Opcodes.F_FULL -> methodVisitor.visitFrame(type, local.size(), asArray(local), stack.size(), asArray(stack));
+      default -> throw new IllegalArgumentException();
     }
   }
 

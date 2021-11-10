@@ -79,7 +79,8 @@ public class ClassVisitorTee extends ClassVisitor {
   }
 
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-    return AnnotationVisitorTee.getInstance(cv1.visitAnnotation(desc, visible), cv2.visitAnnotation(desc, visible));
+    return AnnotationVisitorTee.getInstance(
+            cv1.visitAnnotation(desc, visible), cv2.visitAnnotation(desc, visible));
   }
 
   public void visitAttribute(Attribute attrs) {
@@ -88,7 +89,8 @@ public class ClassVisitorTee extends ClassVisitor {
   }
 
   public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-    return AnnotationVisitorTee.getInstance(cv1.visitTypeAnnotation(typeRef, typePath, desc, visible),
-                                            cv2.visitTypeAnnotation(typeRef, typePath, desc, visible));
+    return AnnotationVisitorTee.getInstance(
+            cv1.visitTypeAnnotation(typeRef, typePath, desc, visible),
+            cv2.visitTypeAnnotation(typeRef, typePath, desc, visible));
   }
 }

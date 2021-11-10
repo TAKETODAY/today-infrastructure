@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.core.bytecode.tree.analysis;
 
+import java.io.Serial;
+
 import cn.taketoday.core.bytecode.tree.AbstractInsnNode;
 
 /**
@@ -37,6 +39,7 @@ import cn.taketoday.core.bytecode.tree.AbstractInsnNode;
  */
 public class AnalyzerException extends Exception {
 
+  @Serial
   private static final long serialVersionUID = 3154190448018943333L;
 
   /* The bytecode instruction where the analysis failed. */

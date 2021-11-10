@@ -268,14 +268,9 @@ public abstract class GenericTypeResolver {
     }
   }
 
-  @SuppressWarnings({ "serial", "rawtypes" })
-  private static class TypeVariableMapVariableResolver implements ResolvableType.VariableResolver {
-
-    private final Map<TypeVariable, Type> typeVariableMap;
-
-    public TypeVariableMapVariableResolver(Map<TypeVariable, Type> typeVariableMap) {
-      this.typeVariableMap = typeVariableMap;
-    }
+  @SuppressWarnings({ "rawtypes" })
+  private record TypeVariableMapVariableResolver(Map<TypeVariable, Type> typeVariableMap)
+          implements ResolvableType.VariableResolver {
 
     @Override
     public ResolvableType resolveVariable(TypeVariable<?> variable) {

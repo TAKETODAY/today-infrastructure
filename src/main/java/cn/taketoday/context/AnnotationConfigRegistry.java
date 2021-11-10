@@ -41,11 +41,9 @@ public interface AnnotationConfigRegistry {
    *
    * @param components one or more component classes,
    * e.g. {@link Configuration @Configuration} classes
-   * @since 3.0
+   * @since 4.0
    */
   void register(Class<?>... components);
-
-//  void importComponents(Class<?>... components);
 
   /**
    * Perform a scan within the specified base packages.

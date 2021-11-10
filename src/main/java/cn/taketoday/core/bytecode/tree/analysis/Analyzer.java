@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -194,8 +195,7 @@ public class Analyzer<V extends Value> implements Opcodes {
           currentFrame.init(oldFrame).execute(insnNode, interpreter);
           subroutine = subroutine == null ? null : new Subroutine(subroutine);
 
-          if (insnNode instanceof JumpInsnNode) {
-            JumpInsnNode jumpInsn = (JumpInsnNode) insnNode;
+          if (insnNode instanceof JumpInsnNode jumpInsn) {
             if (insnOpcode != GOTO && insnOpcode != JSR) {
               currentFrame.initJumpTarget(insnOpcode, /* target = */ null);
               merge(insnIndex + 1, currentFrame, subroutine);
@@ -214,8 +214,7 @@ public class Analyzer<V extends Value> implements Opcodes {
             }
             newControlFlowEdge(insnIndex, jumpInsnIndex);
           }
-          else if (insnNode instanceof LookupSwitchInsnNode) {
-            LookupSwitchInsnNode lookupSwitchInsn = (LookupSwitchInsnNode) insnNode;
+          else if (insnNode instanceof LookupSwitchInsnNode lookupSwitchInsn) {
             int targetInsnIndex = insnList.indexOf(lookupSwitchInsn.dflt);
             currentFrame.initJumpTarget(insnOpcode, lookupSwitchInsn.dflt);
             merge(targetInsnIndex, currentFrame, subroutine);
@@ -228,8 +227,7 @@ public class Analyzer<V extends Value> implements Opcodes {
               newControlFlowEdge(insnIndex, targetInsnIndex);
             }
           }
-          else if (insnNode instanceof TableSwitchInsnNode) {
-            TableSwitchInsnNode tableSwitchInsn = (TableSwitchInsnNode) insnNode;
+          else if (insnNode instanceof TableSwitchInsnNode tableSwitchInsn) {
             int targetInsnIndex = insnList.indexOf(tableSwitchInsn.dflt);
             currentFrame.initJumpTarget(insnOpcode, tableSwitchInsn.dflt);
             merge(targetInsnIndex, currentFrame, subroutine);
@@ -285,13 +283,8 @@ public class Analyzer<V extends Value> implements Opcodes {
         List<TryCatchBlockNode> insnHandlers = handlers[insnIndex];
         if (insnHandlers != null) {
           for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
-            Type catchType;
-            if (tryCatchBlock.type == null) {
-              catchType = Type.fromInternalName("java/lang/Throwable");
-            }
-            else {
-              catchType = Type.fromInternalName(tryCatchBlock.type);
-            }
+            Type catchType = Type.fromInternalName(
+                    Objects.requireNonNullElse(tryCatchBlock.type, "java/lang/Throwable"));
             if (newControlFlowExceptionEdge(insnIndex, tryCatchBlock)) {
               Frame<V> handler = newFrame(oldFrame);
               handler.clearStack();
@@ -423,16 +416,14 @@ public class Analyzer<V extends Value> implements Opcodes {
           instructionIndicesToProcess.add(insnList.indexOf(jumpInsn.label));
         }
       }
-      else if (currentInsn instanceof TableSwitchInsnNode) {
-        TableSwitchInsnNode tableSwitchInsn = (TableSwitchInsnNode) currentInsn;
+      else if (currentInsn instanceof TableSwitchInsnNode tableSwitchInsn) {
         findSubroutine(insnList.indexOf(tableSwitchInsn.dflt), subroutine, jsrInsns);
         for (int i = tableSwitchInsn.labels.size() - 1; i >= 0; --i) {
           LabelNode labelNode = tableSwitchInsn.labels.get(i);
           instructionIndicesToProcess.add(insnList.indexOf(labelNode));
         }
       }
-      else if (currentInsn instanceof LookupSwitchInsnNode) {
-        LookupSwitchInsnNode lookupSwitchInsn = (LookupSwitchInsnNode) currentInsn;
+      else if (currentInsn instanceof LookupSwitchInsnNode lookupSwitchInsn) {
         findSubroutine(insnList.indexOf(lookupSwitchInsn.dflt), subroutine, jsrInsns);
         for (int i = lookupSwitchInsn.labels.size() - 1; i >= 0; --i) {
           LabelNode labelNode = lookupSwitchInsn.labels.get(i);

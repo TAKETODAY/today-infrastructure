@@ -193,7 +193,7 @@ public class MethodNode extends MethodVisitor {
   @Override
   public AnnotationVisitor visitAnnotationDefault() {
     return new AnnotationNode(
-            new ArrayList<Object>(0) {
+            new ArrayList<>(0) {
               @Override
               public boolean add(final Object o) {
                 annotationDefault = o;

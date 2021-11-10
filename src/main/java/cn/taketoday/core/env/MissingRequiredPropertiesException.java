@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.env;
 
+import java.io.Serial;
 import java.util.Set;
 
 /**
@@ -31,6 +32,7 @@ import java.util.Set;
  * @since 4.0
  */
 public class MissingRequiredPropertiesException extends IllegalStateException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final Set<String> missingRequiredProperties;

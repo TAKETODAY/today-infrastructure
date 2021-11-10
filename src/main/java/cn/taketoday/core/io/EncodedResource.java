@@ -167,10 +167,9 @@ public class EncodedResource implements InputStreamSource {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof EncodedResource)) {
+    if (!(other instanceof EncodedResource otherResource)) {
       return false;
     }
-    EncodedResource otherResource = (EncodedResource) other;
     return (this.resource.equals(otherResource.resource) &&
             Objects.equals(this.charset, otherResource.charset) &&
             Objects.equals(this.encoding, otherResource.encoding));

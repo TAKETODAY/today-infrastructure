@@ -514,30 +514,23 @@ public class CheckMethodAdapter extends MethodVisitor {
     int maxNumLocal;
     int maxNumStack;
     switch (type) {
-      case Opcodes.F_NEW:
-      case Opcodes.F_FULL:
+      case Opcodes.F_NEW, Opcodes.F_FULL -> {
         maxNumLocal = Integer.MAX_VALUE;
         maxNumStack = Integer.MAX_VALUE;
-        break;
-
-      case Opcodes.F_SAME:
+      }
+      case Opcodes.F_SAME -> {
         maxNumLocal = 0;
         maxNumStack = 0;
-        break;
-
-      case Opcodes.F_SAME1:
+      }
+      case Opcodes.F_SAME1 -> {
         maxNumLocal = 0;
         maxNumStack = 1;
-        break;
-
-      case Opcodes.F_APPEND:
-      case Opcodes.F_CHOP:
+      }
+      case Opcodes.F_APPEND, Opcodes.F_CHOP -> {
         maxNumLocal = 3;
         maxNumStack = 0;
-        break;
-
-      default:
-        throw new IllegalArgumentException("Invalid frame type " + type);
+      }
+      default -> throw new IllegalArgumentException("Invalid frame type " + type);
     }
 
     if (numLocal > maxNumLocal) {
@@ -915,8 +908,8 @@ public class CheckMethodAdapter extends MethodVisitor {
       checkLabel(start[i], true, START_LABEL);
       checkLabel(end[i], true, END_LABEL);
       checkUnsignedShort(index[i], INVALID_LOCAL_VARIABLE_INDEX);
-      int startInsnIndex = labelInsnIndices.get(start[i]).intValue();
-      int endInsnIndex = labelInsnIndices.get(end[i]).intValue();
+      int startInsnIndex = labelInsnIndices.get(start[i]);
+      int endInsnIndex = labelInsnIndices.get(end[i]);
       if (endInsnIndex < startInsnIndex) {
         throw new IllegalArgumentException(
                 "Invalid start and end labels (end must be greater than start)");
@@ -951,7 +944,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       if (startInsnIndex == null || endInsnIndex == null) {
         throw new IllegalStateException("Undefined try catch block labels");
       }
-      if (endInsnIndex.intValue() <= startInsnIndex.intValue()) {
+      if (endInsnIndex <= startInsnIndex) {
         throw new IllegalStateException("Emty try catch block handler range");
       }
     }
@@ -1101,11 +1094,10 @@ public class CheckMethodAdapter extends MethodVisitor {
         throw new IllegalArgumentException("ldc of a method type requires at least version 1.7");
       }
     }
-    else if (value instanceof Handle) {
+    else if (value instanceof Handle handle) {
       if ((version & 0xFFFF) < Opcodes.V1_7) {
         throw new IllegalArgumentException("ldc of a Handle requires at least version 1.7");
       }
-      Handle handle = (Handle) value;
       int tag = handle.getTag();
       if (tag < Opcodes.H_GETFIELD || tag > Opcodes.H_INVOKEINTERFACE) {
         throw new IllegalArgumentException("invalid handle tag " + tag);
@@ -1122,11 +1114,10 @@ public class CheckMethodAdapter extends MethodVisitor {
         checkMethodIdentifier(this.version, handleName, "handle name");
       }
     }
-    else if (value instanceof ConstantDynamic) {
+    else if (value instanceof ConstantDynamic constantDynamic) {
       if ((version & 0xFFFF) < Opcodes.V11) {
         throw new IllegalArgumentException("ldc of a ConstantDynamic requires at least version 11");
       }
-      ConstantDynamic constantDynamic = (ConstantDynamic) value;
       checkMethodIdentifier(this.version, constantDynamic.getName(), "constant dynamic name");
       checkDescriptor(this.version, constantDynamic.getDescriptor(), false);
       checkLdcConstant(constantDynamic.getBootstrapMethod());
@@ -1215,10 +1206,7 @@ public class CheckMethodAdapter extends MethodVisitor {
           ? !Character.isJavaIdentifierStart(name.codePointAt(i))
           : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
         throw new IllegalArgumentException(
-                INVALID
-                        + message
-                        + " (must be a '<init>', '<clinit>' or a valid Java identifier): "
-                        + name);
+                INVALID + message + " (must be a '<init>', '<clinit>' or a valid Java identifier): " + name);
       }
     }
   }

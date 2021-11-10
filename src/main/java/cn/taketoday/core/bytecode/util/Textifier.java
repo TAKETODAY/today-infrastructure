@@ -580,57 +580,49 @@ public class Textifier extends Printer {
     }
     else if (value.getClass().isArray()) {
       stringBuilder.append('{');
-      if (value instanceof byte[]) {
-        byte[] byteArray = (byte[]) value;
+      if (value instanceof byte[] byteArray) {
         for (int i = 0; i < byteArray.length; i++) {
           maybeAppendComma(i);
           visitByte(byteArray[i]);
         }
       }
-      else if (value instanceof boolean[]) {
-        boolean[] booleanArray = (boolean[]) value;
+      else if (value instanceof boolean[] booleanArray) {
         for (int i = 0; i < booleanArray.length; i++) {
           maybeAppendComma(i);
           visitBoolean(booleanArray[i]);
         }
       }
-      else if (value instanceof short[]) {
-        short[] shortArray = (short[]) value;
+      else if (value instanceof short[] shortArray) {
         for (int i = 0; i < shortArray.length; i++) {
           maybeAppendComma(i);
           visitShort(shortArray[i]);
         }
       }
-      else if (value instanceof char[]) {
-        char[] charArray = (char[]) value;
+      else if (value instanceof char[] charArray) {
         for (int i = 0; i < charArray.length; i++) {
           maybeAppendComma(i);
           visitChar(charArray[i]);
         }
       }
-      else if (value instanceof int[]) {
-        int[] intArray = (int[]) value;
+      else if (value instanceof int[] intArray) {
         for (int i = 0; i < intArray.length; i++) {
           maybeAppendComma(i);
           visitInt(intArray[i]);
         }
       }
-      else if (value instanceof long[]) {
-        long[] longArray = (long[]) value;
+      else if (value instanceof long[] longArray) {
         for (int i = 0; i < longArray.length; i++) {
           maybeAppendComma(i);
           visitLong(longArray[i]);
         }
       }
-      else if (value instanceof float[]) {
-        float[] floatArray = (float[]) value;
+      else if (value instanceof float[] floatArray) {
         for (int i = 0; i < floatArray.length; i++) {
           maybeAppendComma(i);
           visitFloat(floatArray[i]);
         }
       }
-      else if (value instanceof double[]) {
-        double[] doubleArray = (double[]) value;
+      else if (value instanceof double[] doubleArray) {
         for (int i = 0; i < doubleArray.length; i++) {
           maybeAppendComma(i);
           visitDouble(doubleArray[i]);
@@ -862,31 +854,25 @@ public class Textifier extends Printer {
     stringBuilder.append(ltab);
     stringBuilder.append("FRAME ");
     switch (type) {
-      case Opcodes.F_NEW:
-      case Opcodes.F_FULL:
+      case Opcodes.F_NEW, Opcodes.F_FULL -> {
         stringBuilder.append("FULL [");
         appendFrameTypes(numLocal, local);
         stringBuilder.append("] [");
         appendFrameTypes(numStack, stack);
         stringBuilder.append(']');
-        break;
-      case Opcodes.F_APPEND:
+      }
+      case Opcodes.F_APPEND -> {
         stringBuilder.append("APPEND [");
         appendFrameTypes(numLocal, local);
         stringBuilder.append(']');
-        break;
-      case Opcodes.F_CHOP:
-        stringBuilder.append("CHOP ").append(numLocal);
-        break;
-      case Opcodes.F_SAME:
-        stringBuilder.append("SAME");
-        break;
-      case Opcodes.F_SAME1:
+      }
+      case Opcodes.F_CHOP -> stringBuilder.append("CHOP ").append(numLocal);
+      case Opcodes.F_SAME -> stringBuilder.append("SAME");
+      case Opcodes.F_SAME1 -> {
         stringBuilder.append("SAME1 ");
         appendFrameTypes(1, stack);
-        break;
-      default:
-        throw new IllegalArgumentException();
+      }
+      default -> throw new IllegalArgumentException();
     }
     stringBuilder.append('\n');
     text.add(stringBuilder.toString());
@@ -998,8 +984,7 @@ public class Textifier extends Printer {
         if (value instanceof String) {
           appendString(stringBuilder, (String) value);
         }
-        else if (value instanceof Type) {
-          Type type = (Type) value;
+        else if (value instanceof Type type) {
           if (type.getSort() == Type.METHOD) {
             appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
           }
@@ -1460,40 +1445,31 @@ public class Textifier extends Printer {
     stringBuilder.append("// handle kind 0x").append(Integer.toHexString(tag)).append(" : ");
     boolean isMethodHandle = false;
     switch (tag) {
-      case Opcodes.H_GETFIELD:
-        stringBuilder.append("GETFIELD");
-        break;
-      case Opcodes.H_GETSTATIC:
-        stringBuilder.append("GETSTATIC");
-        break;
-      case Opcodes.H_PUTFIELD:
-        stringBuilder.append("PUTFIELD");
-        break;
-      case Opcodes.H_PUTSTATIC:
-        stringBuilder.append("PUTSTATIC");
-        break;
-      case Opcodes.H_INVOKEINTERFACE:
+      case Opcodes.H_GETFIELD -> stringBuilder.append("GETFIELD");
+      case Opcodes.H_GETSTATIC -> stringBuilder.append("GETSTATIC");
+      case Opcodes.H_PUTFIELD -> stringBuilder.append("PUTFIELD");
+      case Opcodes.H_PUTSTATIC -> stringBuilder.append("PUTSTATIC");
+      case Opcodes.H_INVOKEINTERFACE -> {
         stringBuilder.append("INVOKEINTERFACE");
         isMethodHandle = true;
-        break;
-      case Opcodes.H_INVOKESPECIAL:
+      }
+      case Opcodes.H_INVOKESPECIAL -> {
         stringBuilder.append("INVOKESPECIAL");
         isMethodHandle = true;
-        break;
-      case Opcodes.H_INVOKESTATIC:
+      }
+      case Opcodes.H_INVOKESTATIC -> {
         stringBuilder.append("INVOKESTATIC");
         isMethodHandle = true;
-        break;
-      case Opcodes.H_INVOKEVIRTUAL:
+      }
+      case Opcodes.H_INVOKEVIRTUAL -> {
         stringBuilder.append("INVOKEVIRTUAL");
         isMethodHandle = true;
-        break;
-      case Opcodes.H_NEWINVOKESPECIAL:
+      }
+      case Opcodes.H_NEWINVOKESPECIAL -> {
         stringBuilder.append("NEWINVOKESPECIAL");
         isMethodHandle = true;
-        break;
-      default:
-        throw new IllegalArgumentException();
+      }
+      default -> throw new IllegalArgumentException();
     }
     stringBuilder.append('\n');
     stringBuilder.append(tab3);
@@ -1636,8 +1612,7 @@ public class Textifier extends Printer {
       if (i > 0) {
         stringBuilder.append(' ');
       }
-      if (frameTypes[i] instanceof String) {
-        String descriptor = (String) frameTypes[i];
+      if (frameTypes[i] instanceof String descriptor) {
         if (descriptor.charAt(0) == '[') {
           appendDescriptor(FIELD_DESCRIPTOR, descriptor);
         }

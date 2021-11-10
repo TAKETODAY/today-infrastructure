@@ -1921,22 +1921,11 @@ final class MethodWriter extends MethodVisitor {
     int type = Frame.FULL_FRAME;
     if (numStack == 0) {
       switch (numLocalDelta) {
-        case -3:
-        case -2:
-        case -1:
-          type = Frame.CHOP_FRAME;
-          break;
-        case 0:
-          type = offsetDelta < 64 ? Frame.SAME_FRAME : Frame.SAME_FRAME_EXTENDED;
-          break;
-        case 1:
-        case 2:
-        case 3:
-          type = Frame.APPEND_FRAME;
-          break;
-        default:
-          // Keep the FULL_FRAME type.
-          break;
+        case -3, -2, -1 -> type = Frame.CHOP_FRAME;
+        case 0 -> type = offsetDelta < 64 ? Frame.SAME_FRAME : Frame.SAME_FRAME_EXTENDED;
+        case 1, 2, 3 -> type = Frame.APPEND_FRAME;
+        default -> { }
+        // Keep the FULL_FRAME type.
       }
     }
     else if (numLocalDelta == 0 && numStack == 1) {
@@ -2019,7 +2008,7 @@ final class MethodWriter extends MethodVisitor {
    */
   private void putFrameType(final Object type) {
     if (type instanceof Integer) {
-      stackMapTableEntries.putByte(((Integer) type).intValue());
+      stackMapTableEntries.putByte((Integer) type);
     }
     else if (type instanceof String) {
       stackMapTableEntries
@@ -2075,7 +2064,7 @@ final class MethodWriter extends MethodVisitor {
     if (source != symbolTable.getSource()
             || descriptorIndex != this.descriptorIndex
             || signatureIndex != this.signatureIndex
-            || hasDeprecatedAttribute != ((accessFlags & Opcodes.ACC_DEPRECATED) != 0)) {
+            || hasDeprecatedAttribute == ((accessFlags & Opcodes.ACC_DEPRECATED) == 0)) {
       return false;
     }
     boolean needSyntheticAttribute =
@@ -2084,9 +2073,7 @@ final class MethodWriter extends MethodVisitor {
       return false;
     }
     if (exceptionsOffset == 0) {
-      if (numberOfExceptions != 0) {
-        return false;
-      }
+      return numberOfExceptions == 0;
     }
     else if (source.readUnsignedShort(exceptionsOffset) == numberOfExceptions) {
       int currentExceptionOffset = exceptionsOffset + 2;

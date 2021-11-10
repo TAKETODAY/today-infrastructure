@@ -311,17 +311,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     }
     else {
       switch (opcode) {
-        case RETURN:
-        case IRETURN:
-        case FRETURN:
-        case ARETURN:
-        case LRETURN:
-        case DRETURN:
-        case ATHROW:
-          onMethodExit(opcode);
-          break;
-        default:
-          break;
+        case RETURN, IRETURN, FRETURN, ARETURN, LRETURN, DRETURN, ATHROW -> onMethodExit(opcode);
+        default -> {
+        }
       }
     }
     super.visitInsn(opcode);
@@ -332,33 +324,19 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     super.visitVarInsn(opcode, var);
     if (isConstructor && !superClassConstructorCalled) {
       switch (opcode) {
-        case ILOAD:
-        case FLOAD:
-          pushValue(OTHER);
-          break;
-        case LLOAD:
-        case DLOAD:
+        case ILOAD, FLOAD -> pushValue(OTHER);
+        case LLOAD, DLOAD -> {
           pushValue(OTHER);
           pushValue(OTHER);
-          break;
-        case ALOAD:
-          pushValue(var == 0 ? UNINITIALIZED_THIS : OTHER);
-          break;
-        case ASTORE:
-        case ISTORE:
-        case FSTORE:
-          popValue();
-          break;
-        case LSTORE:
-        case DSTORE:
+        }
+        case ALOAD -> pushValue(var == 0 ? UNINITIALIZED_THIS : OTHER);
+        case ASTORE, ISTORE, FSTORE -> popValue();
+        case LSTORE, DSTORE -> {
           popValue();
           popValue();
-          break;
-        case RET:
-          endConstructorBasicBlockWithoutSuccessor();
-          break;
-        default:
-          throw new IllegalArgumentException(INVALID_OPCODE + opcode);
+        }
+        case RET -> endConstructorBasicBlockWithoutSuccessor();
+        default -> throw new IllegalArgumentException(INVALID_OPCODE + opcode);
       }
     }
   }
@@ -463,11 +441,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
         }
       }
       switch (opcode) {
-        case INVOKEINTERFACE:
-        case INVOKEVIRTUAL:
-          popValue();
-          break;
-        case INVOKESPECIAL:
+        case INVOKEINTERFACE, INVOKEVIRTUAL -> popValue();
+        case INVOKESPECIAL -> {
           Object value = popValue();
           if (value == UNINITIALIZED_THIS
                   && !superClassConstructorCalled
@@ -475,9 +450,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
             superClassConstructorCalled = true;
             onMethodEnter();
           }
-          break;
-        default:
-          break;
+        }
+        default -> {
+        }
       }
 
       Type returnType = Type.forReturnType(descriptor);
@@ -505,35 +480,15 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     super.visitJumpInsn(opcode, label);
     if (isConstructor && !superClassConstructorCalled) {
       switch (opcode) {
-        case IFEQ:
-        case IFNE:
-        case IFLT:
-        case IFGE:
-        case IFGT:
-        case IFLE:
-        case IFNULL:
-        case IFNONNULL:
-          popValue();
-          break;
-        case IF_ICMPEQ:
-        case IF_ICMPNE:
-        case IF_ICMPLT:
-        case IF_ICMPGE:
-        case IF_ICMPGT:
-        case IF_ICMPLE:
-        case IF_ACMPEQ:
-        case IF_ACMPNE:
+        case IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IFNULL, IFNONNULL -> popValue();
+        case IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE -> {
           popValue();
           popValue();
-          break;
-        case JSR:
-          pushValue(OTHER);
-          break;
-        case GOTO:
-          endConstructorBasicBlockWithoutSuccessor();
-          break;
-        default:
-          break;
+        }
+        case JSR -> pushValue(OTHER);
+        case GOTO -> endConstructorBasicBlockWithoutSuccessor();
+        default -> {
+        }
       }
       addForwardJump(label);
     }

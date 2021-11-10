@@ -66,8 +66,7 @@ final class ByteBufferConverter implements TypeConverter {
   @Override
   public Object convert(TypeDescriptor targetType, Object source) {
     boolean byteBufferTarget = targetType.isAssignableTo(ByteBuffer.class);
-    if (source instanceof ByteBuffer) {
-      ByteBuffer buffer = (ByteBuffer) source;
+    if (source instanceof ByteBuffer buffer) {
       return (byteBufferTarget ? buffer.duplicate() : convertFromByteBuffer(buffer, targetType));
     }
     if (byteBufferTarget) {

@@ -247,7 +247,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
     if (resources.isEmpty()) {
       return EMPTY_ARRAY;
     }
-    return resources.toArray(new Resource[resources.size()]);
+    return resources.toArray(Resource.EMPTY_ARRAY);
   }
 
   @Override

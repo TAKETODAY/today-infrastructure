@@ -224,20 +224,17 @@ public class SignatureReader {
             // Now, parse the TypeArgument(s), one at a time.
             while ((currentChar = signature.charAt(offset)) != '>') {
               switch (currentChar) {
-                case '*':
+                case '*' -> {
                   // Unbounded TypeArgument.
                   ++offset;
                   signatureVisitor.visitTypeArgument();
-                  break;
-                case '+':
-                case '-':
-                  // Extends or Super TypeArgument. Use offset + 1 to skip the '+' or '-'.
-                  offset = parseType(signature, offset + 1, signatureVisitor.visitTypeArgument(currentChar));
-                  break;
-                default:
-                  // Instanceof TypeArgument. The '=' is implicit.
-                  offset = parseType(signature, offset, signatureVisitor.visitTypeArgument('='));
-                  break;
+                }
+                case '+', '-' ->
+                        // Extends or Super TypeArgument. Use offset + 1 to skip the '+' or '-'.
+                        offset = parseType(signature, offset + 1, signatureVisitor.visitTypeArgument(currentChar));
+                default ->
+                        // Instanceof TypeArgument. The '=' is implicit.
+                        offset = parseType(signature, offset, signatureVisitor.visitTypeArgument('='));
               }
             }
           }

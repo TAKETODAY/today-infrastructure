@@ -75,8 +75,7 @@ public class NumberConverter
     else if (source instanceof Number) {
       return convertNumber((Number) source);
     }
-    else if (source instanceof String) {
-      final String stringSource = (String) source;
+    else if (source instanceof final String stringSource) {
       if (stringSource.isEmpty()) {
         return convertNull(); // fix @since 3.0.4
       }
@@ -115,8 +114,7 @@ public class NumberConverter
       final Object next = ((Collection<?>) source).iterator().next();
       return convert(next);
     }
-    if (source instanceof Character) {
-      final Character character = (Character) source;
+    if (source instanceof final Character character) {
       return convertNumber((short) character.charValue());
     }
     if (source instanceof Enum) {

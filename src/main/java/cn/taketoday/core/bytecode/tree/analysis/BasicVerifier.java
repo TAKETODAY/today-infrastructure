@@ -174,11 +174,11 @@ public class BasicVerifier extends BasicInterpreter {
     BasicValue expected1;
     BasicValue expected2;
     switch (insn.getOpcode()) {
-      case IALOAD:
+      case IALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[I"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case BALOAD:
+      }
+      case BALOAD -> {
         if (isSubTypeOf(value1, newValue(Type.fromDescriptor("[Z")))) {
           expected1 = newValue(Type.fromDescriptor("[Z"));
         }
@@ -186,101 +186,62 @@ public class BasicVerifier extends BasicInterpreter {
           expected1 = newValue(Type.fromDescriptor("[B"));
         }
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case CALOAD:
+      }
+      case CALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[C"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case SALOAD:
+      }
+      case SALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[S"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case LALOAD:
+      }
+      case LALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[J"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case FALOAD:
+      }
+      case FALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[F"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case DALOAD:
+      }
+      case DALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[D"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case AALOAD:
+      }
+      case AALOAD -> {
         expected1 = newValue(Type.fromDescriptor("[Ljava/lang/Object;"));
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case IADD:
-      case ISUB:
-      case IMUL:
-      case IDIV:
-      case IREM:
-      case ISHL:
-      case ISHR:
-      case IUSHR:
-      case IAND:
-      case IOR:
-      case IXOR:
-      case IF_ICMPEQ:
-      case IF_ICMPNE:
-      case IF_ICMPLT:
-      case IF_ICMPGE:
-      case IF_ICMPGT:
-      case IF_ICMPLE:
+      }
+      case IADD, ISUB, IMUL, IDIV, IREM, ISHL, ISHR, IUSHR, IAND, IOR,
+              IXOR, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE -> {
         expected1 = BasicValue.INT_VALUE;
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case FADD:
-      case FSUB:
-      case FMUL:
-      case FDIV:
-      case FREM:
-      case FCMPL:
-      case FCMPG:
+      }
+      case FADD, FSUB, FMUL, FDIV, FREM, FCMPL, FCMPG -> {
         expected1 = BasicValue.FLOAT_VALUE;
         expected2 = BasicValue.FLOAT_VALUE;
-        break;
-      case LADD:
-      case LSUB:
-      case LMUL:
-      case LDIV:
-      case LREM:
-      case LAND:
-      case LOR:
-      case LXOR:
-      case LCMP:
+      }
+      case LADD, LSUB, LMUL, LDIV, LREM, LAND, LOR, LXOR, LCMP -> {
         expected1 = BasicValue.LONG_VALUE;
         expected2 = BasicValue.LONG_VALUE;
-        break;
-      case LSHL:
-      case LSHR:
-      case LUSHR:
+      }
+      case LSHL, LSHR, LUSHR -> {
         expected1 = BasicValue.LONG_VALUE;
         expected2 = BasicValue.INT_VALUE;
-        break;
-      case DADD:
-      case DSUB:
-      case DMUL:
-      case DDIV:
-      case DREM:
-      case DCMPL:
-      case DCMPG:
+      }
+      case DADD, DSUB, DMUL, DDIV, DREM, DCMPL, DCMPG -> {
         expected1 = BasicValue.DOUBLE_VALUE;
         expected2 = BasicValue.DOUBLE_VALUE;
-        break;
-      case IF_ACMPEQ:
-      case IF_ACMPNE:
+      }
+      case IF_ACMPEQ, IF_ACMPNE -> {
         expected1 = BasicValue.REFERENCE_VALUE;
         expected2 = BasicValue.REFERENCE_VALUE;
-        break;
-      case PUTFIELD:
+      }
+      case PUTFIELD -> {
         FieldInsnNode fieldInsn = (FieldInsnNode) insn;
         expected1 = newValue(Type.fromInternalName(fieldInsn.owner));
         expected2 = newValue(Type.fromDescriptor(fieldInsn.desc));
-        break;
-      default:
-        throw new AssertionError();
+      }
+      default -> throw new AssertionError();
     }
     if (!isSubTypeOf(value1, expected1)) {
       throw new AnalyzerException(insn, "First argument", expected1, value1);
@@ -306,11 +267,11 @@ public class BasicVerifier extends BasicInterpreter {
     BasicValue expected1;
     BasicValue expected3;
     switch (insn.getOpcode()) {
-      case IASTORE:
+      case IASTORE -> {
         expected1 = newValue(Type.fromDescriptor("[I"));
         expected3 = BasicValue.INT_VALUE;
-        break;
-      case BASTORE:
+      }
+      case BASTORE -> {
         if (isSubTypeOf(value1, newValue(Type.fromDescriptor("[Z")))) {
           expected1 = newValue(Type.fromDescriptor("[Z"));
         }
@@ -318,33 +279,32 @@ public class BasicVerifier extends BasicInterpreter {
           expected1 = newValue(Type.fromDescriptor("[B"));
         }
         expected3 = BasicValue.INT_VALUE;
-        break;
-      case CASTORE:
+      }
+      case CASTORE -> {
         expected1 = newValue(Type.fromDescriptor("[C"));
         expected3 = BasicValue.INT_VALUE;
-        break;
-      case SASTORE:
+      }
+      case SASTORE -> {
         expected1 = newValue(Type.fromDescriptor("[S"));
         expected3 = BasicValue.INT_VALUE;
-        break;
-      case LASTORE:
+      }
+      case LASTORE -> {
         expected1 = newValue(Type.fromDescriptor("[J"));
         expected3 = BasicValue.LONG_VALUE;
-        break;
-      case FASTORE:
+      }
+      case FASTORE -> {
         expected1 = newValue(Type.fromDescriptor("[F"));
         expected3 = BasicValue.FLOAT_VALUE;
-        break;
-      case DASTORE:
+      }
+      case DASTORE -> {
         expected1 = newValue(Type.fromDescriptor("[D"));
         expected3 = BasicValue.DOUBLE_VALUE;
-        break;
-      case AASTORE:
+      }
+      case AASTORE -> {
         expected1 = value1;
         expected3 = BasicValue.REFERENCE_VALUE;
-        break;
-      default:
-        throw new AssertionError();
+      }
+      default -> throw new AssertionError();
     }
     if (!isSubTypeOf(value1, expected1)) {
       throw new AnalyzerException(

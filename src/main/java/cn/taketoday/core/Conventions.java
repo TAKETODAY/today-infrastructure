@@ -195,11 +195,10 @@ public final class Conventions {
     else if (Collection.class.isAssignableFrom(resolvedType)) {
       valueClass = ResolvableType.forReturnType(method).asCollection().resolveGeneric();
       if (valueClass == null) {
-        if (!(value instanceof Collection)) {
+        if (!(value instanceof Collection<?> collection)) {
           throw new IllegalArgumentException("Cannot generate variable name " +
                   "for non-typed Collection return type and a non-Collection value");
         }
-        Collection<?> collection = (Collection<?>) value;
         if (collection.isEmpty()) {
           throw new IllegalArgumentException("Cannot generate variable name " +
                   "for non-typed Collection return type and an empty Collection value");

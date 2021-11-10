@@ -39,10 +39,8 @@ import cn.taketoday.core.bytecode.signature.SignatureVisitor;
  */
 public class SignatureRemapper extends SignatureVisitor {
 
-  private final SignatureVisitor signatureVisitor;
-
   private final Remapper remapper;
-
+  private final SignatureVisitor signatureVisitor;
   private final ArrayList<String> classNames = new ArrayList<>();
 
   /**

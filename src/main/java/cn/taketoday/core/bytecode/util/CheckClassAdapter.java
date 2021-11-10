@@ -714,14 +714,11 @@ public class CheckClassAdapter extends ClassVisitor {
     //   ArrayTypeSignature
     // ArrayTypeSignature:
     //   [ JavaTypeSignature
-    switch (getChar(signature, pos)) {
-      case 'L':
-        return checkClassTypeSignature(signature, pos);
-      case '[':
-        return checkJavaTypeSignature(signature, pos + 1);
-      default:
-        return checkTypeVariableSignature(signature, pos);
-    }
+    return switch (getChar(signature, pos)) {
+      case 'L' -> checkClassTypeSignature(signature, pos);
+      case '[' -> checkJavaTypeSignature(signature, pos + 1);
+      default -> checkTypeVariableSignature(signature, pos);
+    };
   }
 
   /**
@@ -837,20 +834,10 @@ public class CheckClassAdapter extends ClassVisitor {
     // BaseType:
     //   (one of)
     //   B C D F I J S Z
-    int pos = startPos;
-    switch (getChar(signature, pos)) {
-      case 'B':
-      case 'C':
-      case 'D':
-      case 'F':
-      case 'I':
-      case 'J':
-      case 'S':
-      case 'Z':
-        return pos + 1;
-      default:
-        return checkReferenceTypeSignature(signature, pos);
-    }
+    return switch (getChar(signature, startPos)) {
+      case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z' -> startPos + 1;
+      default -> checkReferenceTypeSignature(signature, startPos);
+    };
   }
 
   /**

@@ -49,8 +49,7 @@ public abstract class DecoratingClassLoader extends ClassLoader {
   /**
    * Create a new DecoratingClassLoader with no parent ClassLoader.
    */
-  public DecoratingClassLoader() {
-  }
+  public DecoratingClassLoader() { }
 
   /**
    * Create a new DecoratingClassLoader using the given parent ClassLoader
