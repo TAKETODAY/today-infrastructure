@@ -105,4 +105,18 @@ public class TestHandlerInvoker {
 
   }
 
+
+//  private void privateMethod() {
+//    System.out.println("privateMethod");
+//  }
+//
+//  public static final class Access {
+//
+//    void invoke() {
+//      TestHandlerInvoker invoker = new TestHandlerInvoker();
+//      invoker.privateMethod();
+//    }
+//
+//  }
+
 }

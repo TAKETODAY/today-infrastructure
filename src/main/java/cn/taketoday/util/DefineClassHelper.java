@@ -128,12 +128,12 @@ public class DefineClassHelper {
    * @param loader the class loader.  It can be null if {@code neighbor} is not null
    * and the JVM is Java 11 or later.
    * @param domain if it is null, a default domain is used.
-   * @param bcode the bytecode for the loaded class.
+   * @param classFile the bytecode for the loaded class.
    */
   @SuppressWarnings("deprecation")
   public static Class<?> defineClass(
           String className, @Nullable Class<?> neighbor,
-          ClassLoader loader, @Nullable ProtectionDomain domain, byte[] bcode) throws ReflectionException {
+          ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws ReflectionException {
 
     Class<?> c = null;
     Throwable t = THROWABLE;
@@ -142,7 +142,7 @@ public class DefineClassHelper {
     if (neighbor != null && neighbor.getClassLoader() == loader) {
       try {
         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
-        c = lookup.defineClass(bcode);
+        c = lookup.defineClass(classFile);
       }
       catch (LinkageError | IllegalArgumentException ex) {
         // in case of plain LinkageError (class already defined)
@@ -165,7 +165,7 @@ public class DefineClassHelper {
       try {
         Method publicDefineClass = loader.getClass().getMethod(
                 "publicDefineClass", String.class, byte[].class, ProtectionDomain.class);
-        c = (Class<?>) publicDefineClass.invoke(loader, className, bcode, domain);
+        c = (Class<?>) publicDefineClass.invoke(loader, className, classFile, domain);
       }
       catch (InvocationTargetException ex) {
         if (!(ex.getTargetException() instanceof UnsupportedOperationException)) {
@@ -185,7 +185,7 @@ public class DefineClassHelper {
           if (!defineClass.isAccessible()) {
             defineClass.setAccessible(true);
           }
-          c = (Class<?>) defineClass.invoke(loader, new Object[] { className, bcode, 0, bcode.length, domain });
+          c = (Class<?>) defineClass.invoke(loader, new Object[] { className, classFile, 0, classFile.length, domain });
         }
         catch (InvocationTargetException ex) {
           throw new CodeGenerationException(ex.getTargetException());
@@ -205,7 +205,7 @@ public class DefineClassHelper {
     if (c == null && neighbor != null && neighbor.getClassLoader() != loader) {
       try {
         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
-        c = lookup.defineClass(bcode);
+        c = lookup.defineClass(classFile);
       }
       catch (Throwable ex) {
         throw newException(className, ex);
@@ -214,13 +214,12 @@ public class DefineClassHelper {
 
     if (c == null) {
       try {
-        c = byteCodeLoader.loadClass(className, bcode, domain);
+        c = byteCodeLoader.loadClass(className, classFile, domain);
       }
       catch (ClassNotFoundException e) {
         throw newException(className, e);
       }
     }
-
     // No defineClass variant available at all?
     if (c == null) {
       throw newException(className, t);
@@ -240,6 +239,5 @@ public class DefineClassHelper {
   private static CodeGenerationException newException(String className, Throwable ex) {
     return new CodeGenerationException("Class: '" + className + "' define failed", ex);
   }
-
 
 }
