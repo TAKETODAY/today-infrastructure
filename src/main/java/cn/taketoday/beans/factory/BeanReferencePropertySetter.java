@@ -20,11 +20,12 @@
 
 package cn.taketoday.beans.factory;
 
-import java.util.Objects;
-
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * Use BeanReference to resolve value
@@ -172,19 +173,14 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("{\n\t\"referenceName\":\"");
-    builder.append(referenceName);
-    builder.append("\",\n\t\"required\":\"");
-    builder.append(required);
-    builder.append("\",\n\t\"referenceClass\":\"");
-    builder.append(referenceClass);
-    builder.append("\",\n\t\"field\":\"");
-    builder.append(getField());
-    builder.append("\",\n\t\"prototype\":\"");
-    builder.append(isPrototype());
-    builder.append("\"\n}");
-    return builder.toString();
+    return new ToStringBuilder(this)
+            .append("referenceName", referenceName)
+            .append("required", required)
+            .append("prototype", prototype)
+            .append("property", property.getName())
+            .append("propertyClass", property.getType())
+            .append("beanClass", property.getDeclaringClass())
+            .toString();
   }
 
 }

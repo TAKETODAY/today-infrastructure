@@ -20,11 +20,8 @@
 
 package cn.taketoday.context.autowire;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
+import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanMetadata;
@@ -32,11 +29,21 @@ import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/23 22:59
@@ -104,7 +111,31 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
       }
     }
 
+    // process methods
+    ReflectionUtils.doWithMethods(beanClass, method -> {
+      MergedAnnotations annotations = MergedAnnotations.from(method);
+      MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class);
+      if (autowired.isPresent()) {
+        propertySetters.add(new PropertySetter0(method));
+      }
+    }, ReflectionUtils.USER_DECLARED_METHODS);
+
     return propertySetters;
+  }
+
+  static class PropertySetter0 implements PropertySetter {
+    private final Method method;
+
+    PropertySetter0(Method method) {
+      this.method = method;
+    }
+
+    @Override
+    public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
+      ArgumentsResolver argumentsResolver = beanFactory.getArgumentsResolver();
+      Object[] args = argumentsResolver.resolve(method);
+      ReflectionUtils.invokeMethod(method, bean, args);
+    }
   }
 
   /**
@@ -141,16 +172,17 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
     resolvers.add(new ObjectSupplierPropertyResolver());
     resolvers.add(new AutowiredPropertyResolver());
 
-    try {
+    try { // @formatter:off
       resolvers.add(new JSR330InjectPropertyResolver());
       log.debug("Add JSR-330 annotation '@Inject,@Named' supports");
     }
-    catch (Exception ignored) { }
+    catch (Exception ignored) {}
     try {
       resolvers.add(new JSR250ResourcePropertyValueResolver());
       log.debug("Add JSR-250 annotation '@Resource' supports");
     }
-    catch (Exception ignored) { }
+    catch (Exception ignored) {}
+    // formatter:on
 
     List<PropertyValueResolver> strategies =
             TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, context);

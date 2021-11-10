@@ -65,7 +65,6 @@ class AutowiredPropertyResolverTests {
       );
 
       assertThat(resolveProperty).isNotNull();
-      assertThat(resolveProperty.getName()).isEqualTo("name");
 
 //      PropertySetter name1 = resolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name1"));
 //      PropertySetter name2 = resolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name2"));

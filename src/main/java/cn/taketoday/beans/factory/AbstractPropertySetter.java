@@ -20,11 +20,11 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Field;
-import java.util.Objects;
-
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.style.ToStringBuilder;
+
+import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * <p>
@@ -36,6 +36,10 @@ import cn.taketoday.core.style.ToStringBuilder;
  * @since 3.0
  */
 public abstract class AbstractPropertySetter implements PropertySetter {
+  /**
+   * It shows that the value is not set
+   */
+  public static final Object DO_NOT_SET = new Object();
 
   /** field info */
   protected final BeanProperty property;
@@ -48,8 +52,17 @@ public abstract class AbstractPropertySetter implements PropertySetter {
     this.property = property;
   }
 
+  /**
+   * set value to property
+   * <p>
+   * If property value is {@link #DO_NOT_SET} will not set value
+   * </p>
+   *
+   * @param bean property's bean
+   * @param beanFactory current AbstractBeanFactory
+   */
   @Override
-  public void applyValue(Object bean, AbstractBeanFactory beanFactory) {
+  public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
     final Object property = resolveValue(beanFactory);
     if (property != DO_NOT_SET) {
       doSetValue(bean, property);
@@ -69,7 +82,6 @@ public abstract class AbstractPropertySetter implements PropertySetter {
    */
   protected abstract Object resolveValue(AbstractBeanFactory beanFactory);
 
-  @Override
   public String getName() {
     return property.getName();
   }

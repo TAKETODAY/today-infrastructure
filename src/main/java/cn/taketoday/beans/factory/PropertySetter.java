@@ -25,28 +25,12 @@ package cn.taketoday.beans.factory;
  * @author TODAY 2018-06-23 11:28:01
  */
 public interface PropertySetter {
-  PropertySetter[] EMPTY_ARRAY = {};
-
-  /**
-   * It shows that the value is not set
-   */
-  Object DO_NOT_SET = new Object();
-
-  /**
-   * Get Property name
-   *
-   * @return Property name
-   */
-  String getName();
 
   /**
    * set value to property
-   * <p>
-   * If property value is {@link #DO_NOT_SET} will not set value
-   * </p>
    *
    * @param bean property's bean
    * @param beanFactory current AbstractBeanFactory
    */
-  void applyValue(Object bean, AbstractBeanFactory beanFactory);
+  void applyTo(Object bean, AbstractBeanFactory beanFactory);
 }
