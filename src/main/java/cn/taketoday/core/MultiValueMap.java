@@ -184,6 +184,17 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   }
 
   /**
+   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
+   * @return the adapted multi-value map (wrapping the original map)
+   * @since 4.0
+   */
+  static <K, V> DefaultMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
+    return new DefaultMultiValueMap<>(targetMap, true);
+  }
+
+  /**
    * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
    *
    * @since 4.0
