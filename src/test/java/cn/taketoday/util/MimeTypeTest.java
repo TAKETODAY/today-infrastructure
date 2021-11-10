@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
-import cn.taketoday.core.conversion.ConversionUtils;
 
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,10 +105,10 @@ public class MimeTypeTest {
   @Test
   public void withTypeConverter() {
 
-    assertThat(ConversionUtils.supports("application/xml", MimeType.class)).isTrue();
+    assertThat(DefaultConversionService.getSharedInstance().canConvert("application/xml", MimeType.class)).isTrue();
 
     MimeType mimeType = MimeType.valueOf("application/xml");
-    assertThat(ConversionUtils.convert("application/xml", MimeType.class)).isEqualTo(mimeType);
+    assertThat(DefaultConversionService.getSharedInstance().convert("application/xml", MimeType.class)).isEqualTo(mimeType);
   }
 
   @Test

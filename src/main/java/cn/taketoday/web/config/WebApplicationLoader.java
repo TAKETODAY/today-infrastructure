@@ -23,7 +23,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
@@ -259,7 +258,6 @@ public class WebApplicationLoader
   protected void configureConversionService(
           List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
     mvcConfiguration.configureConversionService(typeConverters);
-    ConversionUtils.addConverter(typeConverters);// FIXME ConversionService
   }
 
   private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-
-import cn.taketoday.core.conversion.ConversionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -436,10 +435,10 @@ public class MediaTypeTest {
   @Test
   public void withTypeConverter() {
 
-    assertThat(ConversionUtils.supports("application/xml", MediaType.class)).isTrue();
+    assertThat(DefaultConversionService.getSharedInstance().canConvert("application/xml", MediaType.class)).isTrue();
 
     MediaType mediaType = MediaType.valueOf("application/xml");
-    assertThat(ConversionUtils.convert("application/xml", MediaType.class)).isEqualTo(mediaType);
+    assertThat(DefaultConversionService.getSharedInstance().convert("application/xml", MediaType.class)).isEqualTo(mediaType);
   }
 
   @Test

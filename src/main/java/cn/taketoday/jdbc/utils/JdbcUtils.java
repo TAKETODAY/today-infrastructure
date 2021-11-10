@@ -30,7 +30,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 
-import cn.taketoday.core.conversion.ConversionUtils;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -126,7 +126,7 @@ public abstract class JdbcUtils {
         return obj;
       }
       else if (obj instanceof Number) {
-        return ConversionUtils.convert(obj, requiredType);
+        return DefaultConversionService.getSharedInstance().convert(obj, requiredType);
       }
       else {
         // e.g. on Postgres: getObject returns a PGObject but we need a String
