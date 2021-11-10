@@ -24,7 +24,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 
-import java.io.Serial;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,8 +42,6 @@ import java.util.stream.Collectors;
  * @since 4.0
  */
 class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
-
-  @Serial
   private static final long serialVersionUID = -8578554704772377436L;
 
   @Nullable

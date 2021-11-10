@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-import java.io.Serial;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -38,7 +37,6 @@ import cn.taketoday.util.LinkedCaseInsensitiveMap;
  * @since 3.0
  */
 public class DefaultHttpHeaders extends HttpHeaders {
-  @Serial
   private static final long serialVersionUID = 1L;
 
   final MultiValueMap<String, String> headers;

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serial;
 import java.net.HttpCookie;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -289,7 +288,6 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   static final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
-    @Serial
     private static final long serialVersionUID = 1L;
     private final HttpServletResponse response;
 
