@@ -25,6 +25,7 @@ import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.core.ClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.core.DebuggingClassWriter;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -55,22 +56,10 @@ public abstract class AbstractClassLoader extends ClassLoader {
     if (!filter.accept(name)) {
       return super.loadClass(name);
     }
-    ClassReader r;
-    try {
-      try (InputStream is = classPath.getResourceAsStream(name.replace('.', '/').concat(".class"))) {
-        if (is == null) {
-          throw new ClassNotFoundException(name);
-        }
-        r = new ClassReader(is);
-      }
-    }
-    catch (IOException e) {
-      throw new ClassNotFoundException(name + ':' + e.getMessage());
-    }
-
+    ClassReader reader = getClassReader(name);
     try {
       DebuggingClassWriter w = new DebuggingClassWriter(ClassWriter.COMPUTE_FRAMES);
-      getGenerator(r).generateClass(w);
+      getGenerator(reader).generateClass(w);
       byte[] b = w.toByteArray();
       Class c = super.defineClass(name, b, 0, b.length, DOMAIN);
       postProcess(c);
@@ -81,6 +70,21 @@ public abstract class AbstractClassLoader extends ClassLoader {
     }
     catch (Exception e) {
       throw new CodeGenerationException(e);
+    }
+  }
+
+  @NonNull
+  private ClassReader getClassReader(String name) throws ClassNotFoundException {
+    try {
+      try (InputStream is = classPath.getResourceAsStream(name.replace('.', '/').concat(".class"))) {
+        if (is == null) {
+          throw new ClassNotFoundException(name);
+        }
+        return new ClassReader(is);
+      }
+    }
+    catch (IOException e) {
+      throw new ClassNotFoundException(name + ':' + e.getMessage());
     }
   }
 
