@@ -18,6 +18,7 @@ package cn.taketoday.core.bytecode.proxy;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.lang.Constant;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -39,7 +40,7 @@ import java.util.Objects;
  * 2019-09-03 18:51
  */
 public class Proxy implements Serializable {
-
+  @Serial
   private static final long serialVersionUID = 1L;
 
   protected final InvocationHandler h;
@@ -63,7 +64,7 @@ public class Proxy implements Serializable {
 
   // private for security of isProxyClass
   private static class ProxyImpl extends Proxy {
-
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected ProxyImpl(InvocationHandler h) {

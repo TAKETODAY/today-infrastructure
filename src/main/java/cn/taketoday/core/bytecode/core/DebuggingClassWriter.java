@@ -15,20 +15,19 @@
  */
 package cn.taketoday.core.bytecode.core;
 
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.ClassWriter;
+import cn.taketoday.lang.TodayStrategies;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import cn.taketoday.core.bytecode.ClassVisitor;
-import cn.taketoday.core.bytecode.ClassWriter;
-import cn.taketoday.lang.TodayStrategies;
-
-@SuppressWarnings("all")
 public class DebuggingClassWriter extends ClassVisitor {
 
   public static final String DEBUG_LOCATION_PROPERTY = "bytecode.debugLocation";
-  private static String debugLocation = "/Users/today/temp";
+  private static String debugLocation; //"/Users/today/temp";
 
   private String className;
   private String superName;
@@ -78,12 +77,8 @@ public class DebuggingClassWriter extends ClassVisitor {
       new File(debugLocation + File.separatorChar + dirs).getParentFile().mkdirs();
 
       File file = new File(new File(debugLocation), dirs + ".class");
-      OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-      try {
+      try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
         out.write(b);
-      }
-      finally {
-        out.close();
       }
     }
     catch (Exception e) {
