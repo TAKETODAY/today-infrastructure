@@ -80,8 +80,7 @@ final class ObjectToObjectConverter implements TypeConverter {
     Member member = getValidatedMember(targetType.getType(), sourceClass);
 
     try {
-      if (member instanceof Method) {
-        Method method = (Method) member;
+      if (member instanceof Method method) {
         ReflectionUtils.makeAccessible(method);
         if (!Modifier.isStatic(method.getModifiers())) {
           return method.invoke(source);
@@ -90,8 +89,7 @@ final class ObjectToObjectConverter implements TypeConverter {
           return method.invoke(null, source);
         }
       }
-      else if (member instanceof Constructor) {
-        Constructor<?> ctor = (Constructor<?>) member;
+      else if (member instanceof Constructor<?> ctor) {
         ReflectionUtils.makeAccessible(ctor);
         return ctor.newInstance(source);
       }
@@ -138,14 +136,12 @@ final class ObjectToObjectConverter implements TypeConverter {
   }
 
   private static boolean isApplicable(Member member, Class<?> sourceClass) {
-    if (member instanceof Method) {
-      Method method = (Method) member;
+    if (member instanceof Method method) {
       return !Modifier.isStatic(method.getModifiers())
              ? isAssignable(method.getDeclaringClass(), sourceClass)
              : method.getParameterTypes()[0] == sourceClass;
     }
-    else if (member instanceof Constructor) {
-      Constructor<?> ctor = (Constructor<?>) member;
+    else if (member instanceof Constructor<?> ctor) {
       return ctor.getParameterTypes()[0] == sourceClass;
     }
     else {

@@ -66,7 +66,7 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
   public void accept(final MethodVisitor methodVisitor) {
     int[] keysArray = new int[this.keys.size()];
     for (int i = 0, n = keysArray.length; i < n; ++i) {
-      keysArray[i] = this.keys.get(i).intValue();
+      keysArray[i] = this.keys.get(i);
     }
     Label[] labelsArray = new Label[this.labels.size()];
     for (int i = 0, n = labelsArray.length; i < n; ++i) {

@@ -338,33 +338,15 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
     else {
       switch (value.getSort()) {
-        case Type.BOOLEAN:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Boolean", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.CHAR:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Character", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.BYTE:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Byte", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.SHORT:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Short", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.INT:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Integer", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.FLOAT:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Float", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.LONG:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Long", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        case Type.DOUBLE:
-          mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Double", "TYPE", CLASS_DESCRIPTOR);
-          break;
-        default:
-          mv.visitLdcInsn(value);
-          break;
+        case Type.BYTE -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Byte", "TYPE", CLASS_DESCRIPTOR);
+        case Type.LONG -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Long", "TYPE", CLASS_DESCRIPTOR);
+        case Type.SHORT -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Short", "TYPE", CLASS_DESCRIPTOR);
+        case Type.INT -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Integer", "TYPE", CLASS_DESCRIPTOR);
+        case Type.FLOAT -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Float", "TYPE", CLASS_DESCRIPTOR);
+        case Type.DOUBLE -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Double", "TYPE", CLASS_DESCRIPTOR);
+        case Type.CHAR -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Character", "TYPE", CLASS_DESCRIPTOR);
+        case Type.BOOLEAN -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Boolean", "TYPE", CLASS_DESCRIPTOR);
+        default -> mv.visitLdcInsn(value);
       }
     }
   }
@@ -919,29 +901,15 @@ public class GeneratorAdapter extends LocalVariablesSorter {
           throw new IllegalArgumentException("Bad comparison for type " + type);
         }
       default:
-        int intOp;
-        switch (mode) {
-          case EQ:
-            intOp = Opcodes.IF_ICMPEQ;
-            break;
-          case NE:
-            intOp = Opcodes.IF_ICMPNE;
-            break;
-          case GE:
-            intOp = Opcodes.IF_ICMPGE;
-            break;
-          case LT:
-            intOp = Opcodes.IF_ICMPLT;
-            break;
-          case LE:
-            intOp = Opcodes.IF_ICMPLE;
-            break;
-          case GT:
-            intOp = Opcodes.IF_ICMPGT;
-            break;
-          default:
-            throw new IllegalArgumentException("Bad comparison mode " + mode);
-        }
+        int intOp = switch (mode) {
+          case EQ -> Opcodes.IF_ICMPEQ;
+          case NE -> Opcodes.IF_ICMPNE;
+          case GE -> Opcodes.IF_ICMPGE;
+          case LT -> Opcodes.IF_ICMPLT;
+          case LE -> Opcodes.IF_ICMPLE;
+          case GT -> Opcodes.IF_ICMPGT;
+          default -> throw new IllegalArgumentException("Bad comparison mode " + mode);
+        };
         mv.visitJumpInsn(intOp, label);
         return;
     }

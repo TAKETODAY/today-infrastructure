@@ -195,9 +195,8 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     public boolean equals(Object o) {
       if (this == o)
         return true;
-      if (!(o instanceof ConverterKey))
+      if (!(o instanceof final ConverterKey that))
         return false;
-      final ConverterKey that = (ConverterKey) o;
       return sourceType == that.sourceType
               && Objects.equals(targetType, that.targetType);
     }
@@ -521,16 +520,8 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  static final class TypeConverterAdapter implements TypeConverter {
-    final Class<?> targetType;
-    final Converter converter;
-    final Class<?>[] sourceTypes;
-
-    TypeConverterAdapter(Class<?> targetType, Converter converter, Class<?>[] sourceTypes) {
-      this.targetType = targetType;
-      this.converter = converter;
-      this.sourceTypes = sourceTypes;
-    }
+  record TypeConverterAdapter(Class<?> targetType, Converter converter, Class<?>[] sourceTypes)
+          implements TypeConverter {
 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
@@ -552,16 +543,8 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  static final class GenericConverter implements TypeConverter, Ordered {
-    final Class<?> targetType;
-    final Class<?> sourceType;
-    final Converter converter;
-
-    GenericConverter(Class<?> targetType, Class<?> sourceType, Converter converter) {
-      this.converter = converter;
-      this.targetType = targetType;
-      this.sourceType = sourceType;
-    }
+  record GenericConverter(Class<?> targetType, Class<?> sourceType, Converter converter)
+          implements TypeConverter, Ordered {
 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {

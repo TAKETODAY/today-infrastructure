@@ -63,22 +63,13 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
   public SourceValue newOperation(final AbstractInsnNode insn) {
     int size;
     switch (insn.getOpcode()) {
-      case LCONST_0:
-      case LCONST_1:
-      case DCONST_0:
-      case DCONST_1:
-        size = 2;
-        break;
-      case LDC:
+      case LCONST_0, LCONST_1, DCONST_0, DCONST_1 -> size = 2;
+      case LDC -> {
         Object value = ((LdcInsnNode) insn).cst;
         size = value instanceof Long || value instanceof Double ? 2 : 1;
-        break;
-      case GETSTATIC:
-        size = Type.fromDescriptor(((FieldInsnNode) insn).desc).getSize();
-        break;
-      default:
-        size = 1;
-        break;
+      }
+      case GETSTATIC -> size = Type.fromDescriptor(((FieldInsnNode) insn).desc).getSize();
+      default -> size = 1;
     }
     return new SourceValue(size, insn);
   }
@@ -90,57 +81,22 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
 
   @Override
   public SourceValue unaryOperation(final AbstractInsnNode insn, final SourceValue value) {
-    int size;
-    switch (insn.getOpcode()) {
-      case LNEG:
-      case DNEG:
-      case I2L:
-      case I2D:
-      case L2D:
-      case F2L:
-      case F2D:
-      case D2L:
-        size = 2;
-        break;
-      case GETFIELD:
-        size = Type.fromDescriptor(((FieldInsnNode) insn).desc).getSize();
-        break;
-      default:
-        size = 1;
-        break;
-    }
+    int size = switch (insn.getOpcode()) {
+      case LNEG, DNEG, I2L, I2D, L2D, F2L, F2D, D2L -> 2;
+      case GETFIELD -> Type.fromDescriptor(((FieldInsnNode) insn).desc).getSize();
+      default -> 1;
+    };
     return new SourceValue(size, insn);
   }
 
   @Override
   public SourceValue binaryOperation(
           final AbstractInsnNode insn, final SourceValue value1, final SourceValue value2) {
-    int size;
-    switch (insn.getOpcode()) {
-      case LALOAD:
-      case DALOAD:
-      case LADD:
-      case DADD:
-      case LSUB:
-      case DSUB:
-      case LMUL:
-      case DMUL:
-      case LDIV:
-      case DDIV:
-      case LREM:
-      case DREM:
-      case LSHL:
-      case LSHR:
-      case LUSHR:
-      case LAND:
-      case LOR:
-      case LXOR:
-        size = 2;
-        break;
-      default:
-        size = 1;
-        break;
-    }
+    int size = switch (insn.getOpcode()) {
+      case LALOAD, DALOAD, LADD, DADD, LSUB, DSUB, LMUL, DMUL,
+              LDIV, DDIV, LREM, DREM, LSHL, LSHR, LUSHR, LAND, LOR, LXOR -> 2;
+      default -> 1;
+    };
     return new SourceValue(size, insn);
   }
 

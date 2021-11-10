@@ -198,29 +198,23 @@ public class ClassReader {
       cpInfoOffsets[currentCpInfoIndex++] = currentCpInfoOffset + 1;
       int cpInfoSize;
       switch (classFileBuffer[currentCpInfoOffset]) {
-        case Symbol.CONSTANT_FIELDREF_TAG:
-        case Symbol.CONSTANT_METHODREF_TAG:
-        case Symbol.CONSTANT_INTERFACE_METHODREF_TAG:
-        case Symbol.CONSTANT_INTEGER_TAG:
-        case Symbol.CONSTANT_FLOAT_TAG:
-        case Symbol.CONSTANT_NAME_AND_TYPE_TAG:
-          cpInfoSize = 5;
-          break;
-        case Symbol.CONSTANT_DYNAMIC_TAG:
+        case Symbol.CONSTANT_FIELDREF_TAG, Symbol.CONSTANT_METHODREF_TAG,
+                Symbol.CONSTANT_INTERFACE_METHODREF_TAG, Symbol.CONSTANT_INTEGER_TAG,
+                Symbol.CONSTANT_FLOAT_TAG, Symbol.CONSTANT_NAME_AND_TYPE_TAG -> cpInfoSize = 5;
+        case Symbol.CONSTANT_DYNAMIC_TAG -> {
           cpInfoSize = 5;
           hasBootstrapMethods = true;
           hasConstantDynamic = true;
-          break;
-        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
+        }
+        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG -> {
           cpInfoSize = 5;
           hasBootstrapMethods = true;
-          break;
-        case Symbol.CONSTANT_LONG_TAG:
-        case Symbol.CONSTANT_DOUBLE_TAG:
+        }
+        case Symbol.CONSTANT_LONG_TAG, Symbol.CONSTANT_DOUBLE_TAG -> {
           cpInfoSize = 9;
           currentCpInfoIndex++;
-          break;
-        case Symbol.CONSTANT_UTF8_TAG:
+        }
+        case Symbol.CONSTANT_UTF8_TAG -> {
           cpInfoSize = 3 + readUnsignedShort(currentCpInfoOffset + 1);
           if (cpInfoSize > currentMaxStringLength) {
             // The size in bytes of this CONSTANT_Utf8 structure provides a conservative estimate
@@ -228,19 +222,12 @@ public class ClassReader {
             // compute than this exact length.
             currentMaxStringLength = cpInfoSize;
           }
-          break;
-        case Symbol.CONSTANT_METHOD_HANDLE_TAG:
-          cpInfoSize = 4;
-          break;
-        case Symbol.CONSTANT_CLASS_TAG:
-        case Symbol.CONSTANT_STRING_TAG:
-        case Symbol.CONSTANT_METHOD_TYPE_TAG:
-        case Symbol.CONSTANT_PACKAGE_TAG:
-        case Symbol.CONSTANT_MODULE_TAG:
-          cpInfoSize = 3;
-          break;
-        default:
-          throw new IllegalArgumentException();
+        }
+        case Symbol.CONSTANT_METHOD_HANDLE_TAG -> cpInfoSize = 4;
+        case Symbol.CONSTANT_CLASS_TAG, Symbol.CONSTANT_STRING_TAG,
+                Symbol.CONSTANT_METHOD_TYPE_TAG, Symbol.CONSTANT_PACKAGE_TAG,
+                Symbol.CONSTANT_MODULE_TAG -> cpInfoSize = 3;
+        default -> throw new IllegalArgumentException();
       }
       currentCpInfoOffset += cpInfoSize;
     }
@@ -1388,8 +1375,7 @@ public class ClassReader {
     // adapter between the reader and the writer. In this case, it might be possible to copy
     // the method attributes directly into the writer. If so, return early without visiting
     // the content of these attributes.
-    if (methodVisitor instanceof MethodWriter) {
-      MethodWriter methodWriter = (MethodWriter) methodVisitor;
+    if (methodVisitor instanceof MethodWriter methodWriter) {
       if (methodWriter.canCopyMethodAttributes(
               this,
               synthetic,
@@ -3059,75 +3045,72 @@ public class ClassReader {
     int currentOffset = elementValueOffset;
     byte[] classFileBuffer = this.classFileBuffer;
     if (annotationVisitor == null) {
-      switch (classFileBuffer[currentOffset] & 0xFF) {
-        case 'e': // enum_const_value
-          return currentOffset + 5;
-        case '@': // annotation_value
-          return readElementValues(null, currentOffset + 3, /* named = */ true, charBuffer);
-        case '[': // array_value
-          return readElementValues(null, currentOffset + 1, /* named = */ false, charBuffer);
-        default:
-          return currentOffset + 3;
-      }
+      return switch (classFileBuffer[currentOffset] & 0xFF) {
+        case 'e' -> // enum_const_value
+                currentOffset + 5;
+        case '@' -> // annotation_value
+                readElementValues(null, currentOffset + 3, /* named = */ true, charBuffer);
+        case '[' -> // array_value
+                readElementValues(null, currentOffset + 1, /* named = */ false, charBuffer);
+        default -> currentOffset + 3;
+      };
     }
     int[] cpInfoOffsets = this.cpInfoOffsets;
     switch (classFileBuffer[currentOffset++] & 0xFF) {
-      case 'B': // const_value_index, CONSTANT_Integer
+      case 'B' -> { // const_value_index, CONSTANT_Integer
         annotationVisitor.visit(
                 elementName, (byte) readInt(cpInfoOffsets[readUnsignedShort(currentOffset)]));
         currentOffset += 2;
-        break;
-      case 'C': // const_value_index, CONSTANT_Integer
+      }
+      case 'C' -> { // const_value_index, CONSTANT_Integer
         annotationVisitor.visit(
                 elementName, (char) readInt(cpInfoOffsets[readUnsignedShort(currentOffset)]));
         currentOffset += 2;
-        break;
-      case 'D': // const_value_index, CONSTANT_Double
-      case 'F': // const_value_index, CONSTANT_Float
-      case 'I': // const_value_index, CONSTANT_Integer
-      case 'J': // const_value_index, CONSTANT_Long
+      } // const_value_index, CONSTANT_Double
+      // const_value_index, CONSTANT_Float
+      // const_value_index, CONSTANT_Integer
+      case 'D', 'F', 'I', 'J' -> { // const_value_index, CONSTANT_Long
         annotationVisitor.visit(
                 elementName, readConst(readUnsignedShort(currentOffset), charBuffer));
         currentOffset += 2;
-        break;
-      case 'S': // const_value_index, CONSTANT_Integer
+      }
+      case 'S' -> { // const_value_index, CONSTANT_Integer
         annotationVisitor.visit(
                 elementName, (short) readInt(cpInfoOffsets[readUnsignedShort(currentOffset)]));
         currentOffset += 2;
-        break;
-
-      case 'Z': // const_value_index, CONSTANT_Integer
+      }
+      case 'Z' -> { // const_value_index, CONSTANT_Integer
         annotationVisitor.visit(
                 elementName,
                 readInt(cpInfoOffsets[readUnsignedShort(currentOffset)]) == 0
                 ? Boolean.FALSE
                 : Boolean.TRUE);
         currentOffset += 2;
-        break;
-      case 's': // const_value_index, CONSTANT_Utf8
+      }
+      case 's' -> { // const_value_index, CONSTANT_Utf8
         annotationVisitor.visit(elementName, readUTF8(currentOffset, charBuffer));
         currentOffset += 2;
-        break;
-      case 'e': // enum_const_value
+      }
+      case 'e' -> { // enum_const_value
         annotationVisitor.visitEnum(
                 elementName,
                 readUTF8(currentOffset, charBuffer),
                 readUTF8(currentOffset + 2, charBuffer));
         currentOffset += 4;
-        break;
-      case 'c': // class_info
+      }
+      case 'c' -> { // class_info
         annotationVisitor.visit(elementName, Type.fromDescriptor(readUTF8(currentOffset, charBuffer)));
         currentOffset += 2;
-        break;
-      case '@': // annotation_value
+      }
+      case '@' -> {// annotation_value
         currentOffset =
                 readElementValues(
                         annotationVisitor.visitAnnotation(elementName, readUTF8(currentOffset, charBuffer)),
                         currentOffset + 2,
                         true,
                         charBuffer);
-        break;
-      case '[': // array_value
+      }
+      case '[' -> { // array_value
         int numValues = readUnsignedShort(currentOffset);
         currentOffset += 2;
         if (numValues == 0) {
@@ -3138,55 +3121,55 @@ public class ClassReader {
                   charBuffer);
         }
         switch (classFileBuffer[currentOffset] & 0xFF) {
-          case 'B':
+          case 'B' -> {
             byte[] byteValues = new byte[numValues];
             for (int i = 0; i < numValues; i++) {
               byteValues[i] = (byte) readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]);
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, byteValues);
-            break;
-          case 'Z':
+          }
+          case 'Z' -> {
             boolean[] booleanValues = new boolean[numValues];
             for (int i = 0; i < numValues; i++) {
               booleanValues[i] = readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]) != 0;
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, booleanValues);
-            break;
-          case 'S':
+          }
+          case 'S' -> {
             short[] shortValues = new short[numValues];
             for (int i = 0; i < numValues; i++) {
               shortValues[i] = (short) readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]);
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, shortValues);
-            break;
-          case 'C':
+          }
+          case 'C' -> {
             char[] charValues = new char[numValues];
             for (int i = 0; i < numValues; i++) {
               charValues[i] = (char) readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]);
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, charValues);
-            break;
-          case 'I':
+          }
+          case 'I' -> {
             int[] intValues = new int[numValues];
             for (int i = 0; i < numValues; i++) {
               intValues[i] = readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]);
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, intValues);
-            break;
-          case 'J':
+          }
+          case 'J' -> {
             long[] longValues = new long[numValues];
             for (int i = 0; i < numValues; i++) {
               longValues[i] = readLong(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]);
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, longValues);
-            break;
-          case 'F':
+          }
+          case 'F' -> {
             float[] floatValues = new float[numValues];
             for (int i = 0; i < numValues; i++) {
               floatValues[i] =
@@ -3195,8 +3178,8 @@ public class ClassReader {
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, floatValues);
-            break;
-          case 'D':
+          }
+          case 'D' -> {
             double[] doubleValues = new double[numValues];
             for (int i = 0; i < numValues; i++) {
               doubleValues[i] =
@@ -3205,19 +3188,18 @@ public class ClassReader {
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, doubleValues);
-            break;
-          default:
+          }
+          default -> {
             currentOffset =
                     readElementValues(
                             annotationVisitor.visitArray(elementName),
                             currentOffset - 2,
                             /* named = */ false,
                             charBuffer);
-            break;
+          }
         }
-        break;
-      default:
-        throw new IllegalArgumentException();
+      }
+      default -> throw new IllegalArgumentException();
     }
     return currentOffset;
   }
@@ -3250,23 +3232,11 @@ public class ClassReader {
     while (true) {
       int currentArgumentDescriptorStartOffset = currentMethodDescritorOffset;
       switch (methodDescriptor.charAt(currentMethodDescritorOffset++)) {
-        case 'Z':
-        case 'C':
-        case 'B':
-        case 'S':
-        case 'I':
-          locals[numLocal++] = Opcodes.INTEGER;
-          break;
-        case 'F':
-          locals[numLocal++] = Opcodes.FLOAT;
-          break;
-        case 'J':
-          locals[numLocal++] = Opcodes.LONG;
-          break;
-        case 'D':
-          locals[numLocal++] = Opcodes.DOUBLE;
-          break;
-        case '[':
+        case 'F' -> locals[numLocal++] = Opcodes.FLOAT;
+        case 'J' -> locals[numLocal++] = Opcodes.LONG;
+        case 'D' -> locals[numLocal++] = Opcodes.DOUBLE;
+        case 'Z', 'C', 'B', 'S', 'I' -> locals[numLocal++] = Opcodes.INTEGER;
+        case '[' -> {
           while (methodDescriptor.charAt(currentMethodDescritorOffset) == '[') {
             ++currentMethodDescritorOffset;
           }
@@ -3279,18 +3249,19 @@ public class ClassReader {
           locals[numLocal++] =
                   methodDescriptor.substring(
                           currentArgumentDescriptorStartOffset, ++currentMethodDescritorOffset);
-          break;
-        case 'L':
+        }
+        case 'L' -> {
           while (methodDescriptor.charAt(currentMethodDescritorOffset) != ';') {
             ++currentMethodDescritorOffset;
           }
           locals[numLocal++] =
                   methodDescriptor.substring(
                           currentArgumentDescriptorStartOffset + 1, currentMethodDescritorOffset++);
-          break;
-        default:
+        }
+        default -> {
           context.currentFrameLocalCount = numLocal;
           return;
+        }
       }
     }
   }
@@ -3425,37 +3396,22 @@ public class ClassReader {
     int currentOffset = verificationTypeInfoOffset;
     int tag = classFileBuffer[currentOffset++] & 0xFF;
     switch (tag) {
-      case Frame.ITEM_TOP:
-        frame[index] = Opcodes.TOP;
-        break;
-      case Frame.ITEM_INTEGER:
-        frame[index] = Opcodes.INTEGER;
-        break;
-      case Frame.ITEM_FLOAT:
-        frame[index] = Opcodes.FLOAT;
-        break;
-      case Frame.ITEM_DOUBLE:
-        frame[index] = Opcodes.DOUBLE;
-        break;
-      case Frame.ITEM_LONG:
-        frame[index] = Opcodes.LONG;
-        break;
-      case Frame.ITEM_NULL:
-        frame[index] = Opcodes.NULL;
-        break;
-      case Frame.ITEM_UNINITIALIZED_THIS:
-        frame[index] = Opcodes.UNINITIALIZED_THIS;
-        break;
-      case Frame.ITEM_OBJECT:
+      case Frame.ITEM_TOP -> frame[index] = Opcodes.TOP;
+      case Frame.ITEM_LONG -> frame[index] = Opcodes.LONG;
+      case Frame.ITEM_NULL -> frame[index] = Opcodes.NULL;
+      case Frame.ITEM_FLOAT -> frame[index] = Opcodes.FLOAT;
+      case Frame.ITEM_DOUBLE -> frame[index] = Opcodes.DOUBLE;
+      case Frame.ITEM_INTEGER -> frame[index] = Opcodes.INTEGER;
+      case Frame.ITEM_UNINITIALIZED_THIS -> frame[index] = Opcodes.UNINITIALIZED_THIS;
+      case Frame.ITEM_OBJECT -> {
         frame[index] = readClass(currentOffset, charBuffer);
         currentOffset += 2;
-        break;
-      case Frame.ITEM_UNINITIALIZED:
+      }
+      case Frame.ITEM_UNINITIALIZED -> {
         frame[index] = createLabel(readUnsignedShort(currentOffset), labels);
         currentOffset += 2;
-        break;
-      default:
-        throw new IllegalArgumentException();
+      }
+      default -> throw new IllegalArgumentException();
     }
     return currentOffset;
   }

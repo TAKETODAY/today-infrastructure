@@ -79,9 +79,8 @@ final class StreamConverter implements TypeConverter {
       }
     }
     else {
-      if (source instanceof Collection) {
-        Collection<?> collection = (Collection<?>) source;
-        ArrayList target = new ArrayList<>(collection.size());
+      if (source instanceof Collection<?> collection) {
+        ArrayList<Object> target = new ArrayList<>(collection.size());
 
         for (Object element : collection) {
           Object converted = conversionService.convert(element, elementDescriptor);
@@ -89,10 +88,9 @@ final class StreamConverter implements TypeConverter {
         }
         return target.stream();
       }
-      else if (source instanceof Object[]) {
+      else if (source instanceof Object[] sourceArray) {
         // array
-        Object[] sourceArray = (Object[]) source;
-        ArrayList target = new ArrayList<>(sourceArray.length);
+        ArrayList<Object> target = new ArrayList<>(sourceArray.length);
         for (Object element : sourceArray) {
           Object converted = conversionService.convert(element, elementDescriptor);
           target.add(converted);
@@ -104,7 +102,7 @@ final class StreamConverter implements TypeConverter {
     throw new IllegalStateException("Unexpected source/target types");
   }
 
-  protected Object convertFromStream(Stream<?> source, TypeDescriptor targetType) {
+  private Object convertFromStream(Stream<?> source, TypeDescriptor targetType) {
     final class MapFunction implements UnaryOperator<Object> {
       final TypeDescriptor elementType;
 

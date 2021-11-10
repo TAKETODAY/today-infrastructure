@@ -81,7 +81,7 @@ public class TryCatchBlockSorter extends MethodNode {
     // Sort the TryCatchBlockNode elements by the length of their "try" block.
     final List<TryCatchBlockNode> tryCatchBlocks = this.tryCatchBlocks;
     if (tryCatchBlocks != null) {
-      tryCatchBlocks.sort(new Comparator<TryCatchBlockNode>() {
+      tryCatchBlocks.sort(new Comparator<>() {
         @Override
         public int compare(
                 final TryCatchBlockNode tryCatchBlockNode1,

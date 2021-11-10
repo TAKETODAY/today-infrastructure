@@ -111,14 +111,7 @@ final class MapToMapConverter implements TypeConverter {
     return conversionService.convert(sourceValue, targetType);
   }
 
-  static class MapEntry {
-    final Object key;
-    final Object value;
-
-    MapEntry(Object key, Object value) {
-      this.key = key;
-      this.value = value;
-    }
+  record MapEntry(Object key, Object value) {
 
     void addToMap(Map<Object, Object> map) {
       map.put(this.key, this.value);

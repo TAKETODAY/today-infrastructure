@@ -139,7 +139,6 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
     LinkedHashSet<MethodMetadata> annotatedMethods = null;
     if (AnnotationUtils.isCandidateClass(getIntrospectedClass(), annotationName)) {

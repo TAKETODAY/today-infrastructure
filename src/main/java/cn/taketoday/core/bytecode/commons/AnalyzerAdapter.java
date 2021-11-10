@@ -132,32 +132,19 @@ public class AnalyzerAdapter extends MethodVisitor {
     }
     for (Type argumentType : Type.getArgumentTypes(descriptor)) {
       switch (argumentType.getSort()) {
-        case Type.BOOLEAN:
-        case Type.CHAR:
-        case Type.BYTE:
-        case Type.SHORT:
-        case Type.INT:
-          locals.add(Opcodes.INTEGER);
-          break;
-        case Type.FLOAT:
-          locals.add(Opcodes.FLOAT);
-          break;
-        case Type.LONG:
+        case Type.BOOLEAN, Type.CHAR, Type.BYTE, Type.SHORT, Type.INT -> locals.add(Opcodes.INTEGER);
+        case Type.FLOAT -> locals.add(Opcodes.FLOAT);
+        case Type.LONG -> {
           locals.add(Opcodes.LONG);
           locals.add(Opcodes.TOP);
-          break;
-        case Type.DOUBLE:
+        }
+        case Type.DOUBLE -> {
           locals.add(Opcodes.DOUBLE);
           locals.add(Opcodes.TOP);
-          break;
-        case Type.ARRAY:
-          locals.add(argumentType.getDescriptor());
-          break;
-        case Type.OBJECT:
-          locals.add(argumentType.getInternalName());
-          break;
-        default:
-          throw new AssertionError();
+        }
+        case Type.ARRAY -> locals.add(argumentType.getDescriptor());
+        case Type.OBJECT -> locals.add(argumentType.getInternalName());
+        default -> throw new AssertionError();
       }
     }
     maxLocals = locals.size();

@@ -1046,12 +1046,10 @@ public abstract class AnnotationUtils {
         return names;
       }
     }
-    if (value instanceof Annotation) {
-      Annotation annotation = (Annotation) value;
+    if (value instanceof Annotation annotation) {
       return MergedAnnotation.from(annotatedElement, annotation).synthesize();
     }
-    if (value instanceof Annotation[]) {
-      Annotation[] annotations = (Annotation[]) value;
+    if (value instanceof Annotation[] annotations) {
       Annotation[] synthesized = (Annotation[]) Array.newInstance(
               annotations.getClass().getComponentType(), annotations.length);
       for (int i = 0; i < annotations.length; i++) {
@@ -1102,8 +1100,9 @@ public abstract class AnnotationUtils {
     }
     catch (InvocationTargetException ex) {
       rethrowAnnotationConfigurationException(ex.getTargetException());
-      throw new IllegalStateException("Could not obtain value for annotation attribute '" +
-                                              attributeName + "' in " + annotation, ex);
+      throw new IllegalStateException(
+              "Could not obtain value for annotation attribute '"
+                      + attributeName + "' in " + annotation, ex);
     }
     catch (Throwable ex) {
       handleIntrospectionFailure(annotation.getClass(), ex);
@@ -1242,8 +1241,9 @@ public abstract class AnnotationUtils {
    * @see #getAnnotationAttributes(AnnotatedElement, Annotation)
    * @see #getAnnotationAttributes(AnnotatedElement, Annotation, boolean, boolean)
    */
-  public static <A extends Annotation> A synthesizeAnnotation(Map<String, Object> attributes,
-                                                              Class<A> annotationType, @Nullable AnnotatedElement annotatedElement) {
+  public static <A extends Annotation> A synthesizeAnnotation(
+          Map<String, Object> attributes, Class<A> annotationType,
+          @Nullable AnnotatedElement annotatedElement) {
 
     try {
       return MergedAnnotation.valueOf(annotatedElement, annotationType, attributes).synthesize();
@@ -1293,13 +1293,7 @@ public abstract class AnnotationUtils {
   /**
    * Internal holder used to wrap default values.
    */
-  private static class DefaultValueHolder {
-
-    final Object defaultValue;
-
-    public DefaultValueHolder(Object defaultValue) {
-      this.defaultValue = defaultValue;
-    }
+  private record DefaultValueHolder(Object defaultValue) {
 
     @Override
     public String toString() {

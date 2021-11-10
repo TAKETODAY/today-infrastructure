@@ -116,13 +116,13 @@ public class DefaultProps implements Props, Annotation {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof Props))
-      return false;
-    final Props that = (Props) o;
-    return replace == that.replace()
-            && Arrays.equals(value, that.value())
-            && Arrays.equals(prefix, that.prefix())
-            && Arrays.equals(nested, that.nested());
+    if (o instanceof Props that) {
+      return replace == that.replace()
+              && Arrays.equals(value, that.value())
+              && Arrays.equals(prefix, that.prefix())
+              && Arrays.equals(nested, that.nested());
+    }
+    return false;
   }
 
   @Override

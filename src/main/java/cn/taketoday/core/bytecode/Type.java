@@ -530,34 +530,21 @@ public final class Type {
    */
   private static Type getTypeInternal(
           final String descriptorBuffer, final int descriptorBegin, final int descriptorEnd) {
-    switch (descriptorBuffer.charAt(descriptorBegin)) {
-      case 'V':
-        return VOID_TYPE;
-      case 'Z':
-        return BOOLEAN_TYPE;
-      case 'C':
-        return CHAR_TYPE;
-      case 'B':
-        return BYTE_TYPE;
-      case 'S':
-        return SHORT_TYPE;
-      case 'I':
-        return INT_TYPE;
-      case 'F':
-        return FLOAT_TYPE;
-      case 'J':
-        return LONG_TYPE;
-      case 'D':
-        return DOUBLE_TYPE;
-      case '[':
-        return new Type(ARRAY, descriptorBuffer, descriptorBegin, descriptorEnd);
-      case 'L':
-        return new Type(OBJECT, descriptorBuffer, descriptorBegin + 1, descriptorEnd - 1);
-      case '(':
-        return new Type(METHOD, descriptorBuffer, descriptorBegin, descriptorEnd);
-      default:
-        throw new IllegalArgumentException();
-    }
+    return switch (descriptorBuffer.charAt(descriptorBegin)) {
+      case 'V' -> VOID_TYPE;
+      case 'Z' -> BOOLEAN_TYPE;
+      case 'C' -> CHAR_TYPE;
+      case 'B' -> BYTE_TYPE;
+      case 'S' -> SHORT_TYPE;
+      case 'I' -> INT_TYPE;
+      case 'F' -> FLOAT_TYPE;
+      case 'J' -> LONG_TYPE;
+      case 'D' -> DOUBLE_TYPE;
+      case '[' -> new Type(ARRAY, descriptorBuffer, descriptorBegin, descriptorEnd);
+      case 'L' -> new Type(OBJECT, descriptorBuffer, descriptorBegin + 1, descriptorEnd - 1);
+      case '(' -> new Type(METHOD, descriptorBuffer, descriptorBegin, descriptorEnd);
+      default -> throw new IllegalArgumentException();
+    };
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -571,37 +558,20 @@ public final class Type {
    * @return the binary name of the class corresponding to this type.
    */
   public String getClassName() {
-    switch (sort) {
-      case VOID:
-        return "void";
-      case BOOLEAN:
-        return "boolean";
-      case CHAR:
-        return "char";
-      case BYTE:
-        return "byte";
-      case SHORT:
-        return "short";
-      case INT:
-        return "int";
-      case FLOAT:
-        return "float";
-      case LONG:
-        return "long";
-      case DOUBLE:
-        return "double";
-      case ARRAY:
-        StringBuilder stringBuilder = new StringBuilder(getElementType().getClassName());
-        for (int i = getDimensions(); i > 0; --i) {
-          stringBuilder.append("[]");
-        }
-        return stringBuilder.toString();
-      case OBJECT:
-      case INTERNAL:
-        return valueBuffer.substring(valueBegin, valueEnd).replace('/', '.');
-      default:
-        throw new AssertionError();
-    }
+    return switch (sort) {
+      case INT -> "int";
+      case VOID -> "void";
+      case CHAR -> "char";
+      case BYTE -> "byte";
+      case LONG -> "long";
+      case SHORT -> "short";
+      case FLOAT -> "float";
+      case DOUBLE -> "double";
+      case BOOLEAN -> "boolean";
+      case OBJECT, INTERNAL -> valueBuffer.substring(valueBegin, valueEnd).replace('/', '.');
+      case ARRAY -> getElementType().getClassName() + "[]".repeat(Math.max(0, getDimensions()));
+      default -> throw new AssertionError();
+    };
   }
 
   /**
@@ -899,18 +869,17 @@ public final class Type {
    * @since 4.0
    */
   public Type getBoxedType() {
-    switch (getSort()) { // @formatter:off
-      case Type.CHAR :    return Type.TYPE_CHARACTER;
-      case Type.BOOLEAN : return Type.TYPE_BOOLEAN;
-      case Type.DOUBLE :  return Type.TYPE_DOUBLE;
-      case Type.FLOAT :   return Type.TYPE_FLOAT;
-      case Type.LONG :    return Type.TYPE_LONG;
-      case Type.INT :     return Type.TYPE_INTEGER;
-      case Type.SHORT :   return Type.TYPE_SHORT;
-      case Type.BYTE :    return Type.TYPE_BYTE;
-      default:
-        return this; // @formatter:on
-    }
+    return switch (getSort()) { // @formatter:off
+      case Type.CHAR -> Type.TYPE_CHARACTER;
+      case Type.BOOLEAN -> Type.TYPE_BOOLEAN;
+      case Type.DOUBLE -> Type.TYPE_DOUBLE;
+      case Type.FLOAT -> Type.TYPE_FLOAT;
+      case Type.LONG -> Type.TYPE_LONG;
+      case Type.INT -> Type.TYPE_INTEGER;
+      case Type.SHORT -> Type.TYPE_SHORT;
+      case Type.BYTE -> Type.TYPE_BYTE;
+      default -> this; // @formatter:on
+    };
   }
 
   /**
@@ -982,25 +951,12 @@ public final class Type {
    * {@code void} and 1 otherwise.
    */
   public int getSize() {
-    switch (sort) {
-      case VOID:
-        return 0;
-      case BOOLEAN:
-      case CHAR:
-      case BYTE:
-      case SHORT:
-      case INT:
-      case FLOAT:
-      case ARRAY:
-      case OBJECT:
-      case INTERNAL:
-        return 1;
-      case LONG:
-      case DOUBLE:
-        return 2;
-      default:
-        throw new AssertionError();
-    }
+    return switch (sort) {
+      case VOID -> 0;
+      case LONG, DOUBLE -> 2;
+      case BOOLEAN, CHAR, BYTE, SHORT, INT, FLOAT, ARRAY, OBJECT, INTERNAL -> 1;
+      default -> throw new AssertionError();
+    };
   }
 
   /**
@@ -1072,32 +1028,18 @@ public final class Type {
    */
   public int getOpcode(final int opcode) {
     if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {
-      switch (sort) {
-        case BOOLEAN:
-        case BYTE:
-          return opcode + (Opcodes.BALOAD - Opcodes.IALOAD);
-        case CHAR:
-          return opcode + (Opcodes.CALOAD - Opcodes.IALOAD);
-        case SHORT:
-          return opcode + (Opcodes.SALOAD - Opcodes.IALOAD);
-        case INT:
-          return opcode;
-        case FLOAT:
-          return opcode + (Opcodes.FALOAD - Opcodes.IALOAD);
-        case LONG:
-          return opcode + (Opcodes.LALOAD - Opcodes.IALOAD);
-        case DOUBLE:
-          return opcode + (Opcodes.DALOAD - Opcodes.IALOAD);
-        case ARRAY:
-        case OBJECT:
-        case INTERNAL:
-          return opcode + (Opcodes.AALOAD - Opcodes.IALOAD);
-        case METHOD:
-        case VOID:
-          throw new UnsupportedOperationException();
-        default:
-          throw new AssertionError();
-      }
+      return switch (sort) {
+        case INT -> opcode;
+        case CHAR -> opcode + (Opcodes.CALOAD - Opcodes.IALOAD);
+        case LONG -> opcode + (Opcodes.LALOAD - Opcodes.IALOAD);
+        case SHORT -> opcode + (Opcodes.SALOAD - Opcodes.IALOAD);
+        case FLOAT -> opcode + (Opcodes.FALOAD - Opcodes.IALOAD);
+        case DOUBLE -> opcode + (Opcodes.DALOAD - Opcodes.IALOAD);
+        case BOOLEAN, BYTE -> opcode + (Opcodes.BALOAD - Opcodes.IALOAD);
+        case ARRAY, OBJECT, INTERNAL -> opcode + (Opcodes.AALOAD - Opcodes.IALOAD);
+        case METHOD, VOID -> throw new UnsupportedOperationException();
+        default -> throw new AssertionError();
+      };
     }
     else {
       switch (sort) {
@@ -1243,10 +1185,9 @@ public final class Type {
     if (this == object) {
       return true;
     }
-    if (!(object instanceof Type)) {
+    if (!(object instanceof Type other)) {
       return false;
     }
-    Type other = (Type) object;
     if ((sort == INTERNAL ? OBJECT : sort) != (other.sort == INTERNAL ? OBJECT : other.sort)) {
       return false;
     }

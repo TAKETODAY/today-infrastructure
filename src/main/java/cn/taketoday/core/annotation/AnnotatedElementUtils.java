@@ -814,13 +814,7 @@ public abstract class AnnotatedElementUtils {
   /**
    * Adapted {@link AnnotatedElement} that hold specific annotations.
    */
-  private static class AnnotatedElementForAnnotations implements AnnotatedElement {
-
-    private final Annotation[] annotations;
-
-    AnnotatedElementForAnnotations(Annotation... annotations) {
-      this.annotations = annotations;
-    }
+  private record AnnotatedElementForAnnotations(Annotation... annotations) implements AnnotatedElement {
 
     @Override
     @SuppressWarnings("unchecked")

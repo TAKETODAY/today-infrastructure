@@ -1488,18 +1488,16 @@ public class ASMifier extends Printer {
       stringBuilder.append(((Type) value).getDescriptor());
       stringBuilder.append("\")");
     }
-    else if (value instanceof Handle) {
+    else if (value instanceof Handle handle) {
       stringBuilder.append("new Handle(");
-      Handle handle = (Handle) value;
       stringBuilder.append("Opcodes.").append(HANDLE_TAG[handle.getTag()]).append(", \"");
       stringBuilder.append(handle.getOwner()).append(COMMA);
       stringBuilder.append(handle.getName()).append(COMMA);
       stringBuilder.append(handle.getDesc()).append("\", ");
       stringBuilder.append(handle.isInterface()).append(")");
     }
-    else if (value instanceof ConstantDynamic) {
+    else if (value instanceof ConstantDynamic constantDynamic) {
       stringBuilder.append("new ConstantDynamic(\"");
-      ConstantDynamic constantDynamic = (ConstantDynamic) value;
       stringBuilder.append(constantDynamic.getName()).append(COMMA);
       stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
       appendConstant(constantDynamic.getBootstrapMethod());
@@ -1525,7 +1523,7 @@ public class ASMifier extends Printer {
     else if (value instanceof Character) {
       stringBuilder
               .append("new Character((char)")
-              .append((int) ((Character) value).charValue())
+              .append((int) (Character) value)
               .append(')');
     }
     else if (value instanceof Integer) {
@@ -1540,64 +1538,56 @@ public class ASMifier extends Printer {
     else if (value instanceof Double) {
       stringBuilder.append("new Double(\"").append(value).append("\")");
     }
-    else if (value instanceof byte[]) {
-      byte[] byteArray = (byte[]) value;
+    else if (value instanceof byte[] byteArray) {
       stringBuilder.append("new byte[] {");
       for (int i = 0; i < byteArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(byteArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof boolean[]) {
-      boolean[] booleanArray = (boolean[]) value;
+    else if (value instanceof boolean[] booleanArray) {
       stringBuilder.append("new boolean[] {");
       for (int i = 0; i < booleanArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(booleanArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof short[]) {
-      short[] shortArray = (short[]) value;
+    else if (value instanceof short[] shortArray) {
       stringBuilder.append("new short[] {");
       for (int i = 0; i < shortArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append("(short)").append(shortArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof char[]) {
-      char[] charArray = (char[]) value;
+    else if (value instanceof char[] charArray) {
       stringBuilder.append("new char[] {");
       for (int i = 0; i < charArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append("(char)").append((int) charArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof int[]) {
-      int[] intArray = (int[]) value;
+    else if (value instanceof int[] intArray) {
       stringBuilder.append("new int[] {");
       for (int i = 0; i < intArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(intArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof long[]) {
-      long[] longArray = (long[]) value;
+    else if (value instanceof long[] longArray) {
       stringBuilder.append("new long[] {");
       for (int i = 0; i < longArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(longArray[i]).append('L');
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof float[]) {
-      float[] floatArray = (float[]) value;
+    else if (value instanceof float[] floatArray) {
       stringBuilder.append("new float[] {");
       for (int i = 0; i < floatArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(floatArray[i]).append('f');
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof double[]) {
-      double[] doubleArray = (double[]) value;
+    else if (value instanceof double[] doubleArray) {
       stringBuilder.append("new double[] {");
       for (int i = 0; i < doubleArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(doubleArray[i]).append('d');
@@ -1637,7 +1627,7 @@ public class ASMifier extends Printer {
         appendConstant(frameTypes[i]);
       }
       else if (frameTypes[i] instanceof Integer) {
-        stringBuilder.append(FRAME_TYPES.get(((Integer) frameTypes[i]).intValue()));
+        stringBuilder.append(FRAME_TYPES.get((Integer) frameTypes[i]));
       }
       else {
         appendLabel((Label) frameTypes[i]);

@@ -56,15 +56,12 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public abstract class AbstractEnvironment implements ConfigurableEnvironment, IterablePropertyResolver {
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(AbstractEnvironment.class);
 
   private final LinkedHashSet<String> activeProfiles = new LinkedHashSet<>();
-
   private final LinkedHashSet<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());
 
   private final PropertySources propertySources;
-
   private final ConfigurablePropertyResolver propertyResolver;
 
   /**
@@ -245,8 +242,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
   @Override
   public void setActiveProfiles(String... profiles) {
     Assert.notNull(profiles, "Profile array must not be null");
-    if (logger.isDebugEnabled()) {
-      logger.debug("Activating profiles {}", Arrays.asList(profiles));
+    if (log.isDebugEnabled()) {
+      log.debug("Activating profiles {}", Arrays.asList(profiles));
     }
     synchronized(this.activeProfiles) {
       this.activeProfiles.clear();
@@ -259,7 +256,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
 
   @Override
   public void addActiveProfile(String profile) {
-    logger.debug("Activating profile '{}'", profile);
+    log.debug("Activating profile '{}'", profile);
     validateProfile(profile);
     doGetActiveProfiles();
     synchronized(this.activeProfiles) {

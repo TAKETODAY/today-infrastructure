@@ -189,12 +189,10 @@ public class AnnotationNode extends AnnotationVisitor {
   static void accept(
           final AnnotationVisitor visitor, final String name, final Object value) {
     if (visitor != null) {
-      if (value instanceof String[]) {
-        String[] typeValue = (String[]) value;
+      if (value instanceof String[] typeValue) {
         visitor.visitEnum(name, typeValue[0], typeValue[1]);
       }
-      else if (value instanceof AnnotationNode) {
-        AnnotationNode annotationValue = (AnnotationNode) value;
+      else if (value instanceof AnnotationNode annotationValue) {
         annotationValue.accept(visitor.visitAnnotation(name, annotationValue.desc));
       }
       else if (value instanceof ArrayList) {

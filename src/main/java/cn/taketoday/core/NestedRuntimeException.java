@@ -20,6 +20,8 @@
 
 package cn.taketoday.core;
 
+import java.io.Serial;
+
 import cn.taketoday.util.ExceptionUtils;
 
 /**
@@ -42,6 +44,7 @@ import cn.taketoday.util.ExceptionUtils;
  * @since 3.0
  */
 public abstract class NestedRuntimeException extends RuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   static {

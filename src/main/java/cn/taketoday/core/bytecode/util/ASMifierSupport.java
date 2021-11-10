@@ -40,6 +40,5 @@ public interface ASMifierSupport {
    * @param visitorVariableName the name of the visitor variable in the produced code.
    * @param labelNames the names of the labels in the generated code.
    */
-  void asmify(
-          StringBuilder outputBuilder, String visitorVariableName, Map<Label, String> labelNames);
+  void asmify(StringBuilder outputBuilder, String visitorVariableName, Map<Label, String> labelNames);
 }

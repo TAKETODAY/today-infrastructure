@@ -64,8 +64,7 @@ public class DefaultValueStyler implements ValueStyler {
     else if (value instanceof Class) {
       return ClassUtils.getShortName((Class<?>) value);
     }
-    else if (value instanceof Method) {
-      Method method = (Method) value;
+    else if (value instanceof Method method) {
       return method.getName() + "@" + ClassUtils.getShortName(method.getDeclaringClass());
     }
     else if (value instanceof Map) {

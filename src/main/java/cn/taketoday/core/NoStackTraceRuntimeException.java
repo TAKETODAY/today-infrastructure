@@ -20,11 +20,14 @@
 
 package cn.taketoday.core;
 
+import java.io.Serial;
+
 /**
  * @author TODAY 2021/7/27 20:50
  * @since 4.0
  */
 public class NoStackTraceRuntimeException extends NestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public NoStackTraceRuntimeException() { }

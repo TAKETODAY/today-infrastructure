@@ -444,17 +444,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   // Inner classes
   // -----------------------------------------------------------------------------------------------
 
-  private static final class Item implements Comparable<Item> {
-
-    public final int access;
-    public final String name;
-    public final String descriptor;
-
-    Item(final String name, final int access, final String descriptor) {
-      this.name = name;
-      this.access = access;
-      this.descriptor = descriptor;
-    }
+  private record Item(String name, int access, String descriptor) implements Comparable<Item> {
 
     @Override
     public int compareTo(final Item item) {

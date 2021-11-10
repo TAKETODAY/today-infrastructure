@@ -106,10 +106,9 @@ public class SourceValue implements Value {
 
   @Override
   public boolean equals(final Object value) {
-    if (!(value instanceof SourceValue)) {
+    if (!(value instanceof SourceValue sourceValue)) {
       return false;
     }
-    SourceValue sourceValue = (SourceValue) value;
     return size == sourceValue.size && insns.equals(sourceValue.insns);
   }
 
