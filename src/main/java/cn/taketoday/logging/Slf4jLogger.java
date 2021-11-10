@@ -127,7 +127,11 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
 }
 
 final class Slf4jLoggerFactory extends LoggerFactory {
-
+  
+  Slf4jLoggerFactory() {
+    SLF4JBridgeHandler.install(); // @since 4.0
+  }
+  
   @Override
   protected Logger createLogger(String name) {
     return createLog(name);
