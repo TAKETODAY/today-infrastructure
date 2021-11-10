@@ -1892,8 +1892,8 @@ public abstract class HttpHeaders
     if (headers instanceof ReadOnlyHttpHeaders) {
       return headers;
     }
-    if (headers instanceof DefaultHttpHeaders defaults) {
-      return new ReadOnlyHttpHeaders(defaults.headers);
+    if (headers instanceof DefaultHttpHeaders) {
+      return new ReadOnlyHttpHeaders(((DefaultHttpHeaders) headers).headers);
     }
     return new ReadOnlyHttpHeaders(headers);
   }
@@ -1908,8 +1908,8 @@ public abstract class HttpHeaders
    */
   public static HttpHeaders writableHttpHeaders(HttpHeaders headers) {
     Assert.notNull(headers, "HttpHeaders must not be null");
-    if (headers instanceof ReadOnlyHttpHeaders readOnly) {
-      return new DefaultHttpHeaders(readOnly.headers);
+    if (headers instanceof ReadOnlyHttpHeaders) {
+      return new DefaultHttpHeaders(((DefaultHttpHeaders) headers).headers);
     }
     return headers;
   }

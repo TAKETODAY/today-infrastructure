@@ -240,17 +240,17 @@ public class JettyServer
   protected void initializeContext() {
     super.initializeContext();
     log.info("Jetty Server initializing with port: {}", getPort());
-    final WebAppContext context = new WebAppContext();
-    final Server server = new Server(getThreadPool());
+    WebAppContext context = new WebAppContext();
+    Server server = new Server(getThreadPool());
     this.server = server;
     server.setConnectors(new Connector[] { getServerConnector(getHost(), getPort(), server) });
 
     configureWebAppContext(context);
     server.setHandler(getHandlerWrappers(context));
     if (this.useForwardHeaders) {
-      final ForwardedRequestCustomizer customizer = new ForwardedRequestCustomizer();
-      for (final Connector connector : server.getConnectors()) {
-        for (final ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
+      ForwardedRequestCustomizer customizer = new ForwardedRequestCustomizer();
+      for (Connector connector : server.getConnectors()) {
+        for (ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
           if (connectionFactory instanceof HttpConfiguration.ConnectionFactory) {
             ((HttpConfiguration.ConnectionFactory) connectionFactory).getHttpConfiguration()//
                     .addCustomizer(customizer);
@@ -269,11 +269,11 @@ public class JettyServer
    * @return a {@link ServerConnector}
    */
   protected ServerConnector getServerConnector(
-          final String host, final int port, final Server server) {
-    final ServerConnector connector = new ServerConnector(server, this.acceptors, this.selectors);
+          String host, int port, Server server) {
+    ServerConnector connector = new ServerConnector(server, this.acceptors, this.selectors);
     connector.setHost(host);
     connector.setPort(port);
-    for (final ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
+    for (ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
       if (connectionFactory instanceof HttpConfiguration.ConnectionFactory) {
         // send version
         ((HttpConfiguration.ConnectionFactory) connectionFactory).getHttpConfiguration()//
@@ -284,7 +284,7 @@ public class JettyServer
   }
 
   protected Handler getHandlerWrappers(Handler handler) {
-    final CompressionConfiguration compression = getCompression();
+    CompressionConfiguration compression = getCompression();
     if (compression != null) {
       getWebApplicationConfiguration().configureCompression(compression);
       if (compression.isEnable()) {
@@ -306,10 +306,10 @@ public class JettyServer
    *
    * @param context the context to configure
    */
-  protected void configureWebAppContext(final WebAppContext context) {
+  protected void configureWebAppContext(WebAppContext context) {
     Assert.notNull(context, "WebAppContext must not be null");
     context.setTempDirectory(getTemporalDirectory()); // base temp dir
-    final String contextPath = getContextPath();
+    String contextPath = getContextPath();
     context.setContextPath(StringUtils.isNotEmpty(contextPath) ? contextPath : "/");
     context.setDisplayName(getDisplayName());
     configureDocumentRoot(context);
@@ -317,19 +317,19 @@ public class JettyServer
     configureLocaleMappings(context);
     configureWelcomePages(context);
 
-    final Configuration[] configurations = getWebAppContextConfigurations(context);
+    Configuration[] configurations = getWebAppContextConfigurations(context);
     context.setConfigurations(configurations);
     context.setThrowUnavailableOnStartupException(throwUnavailableOnStartupException);
 
     // http session config
-    final SessionConfiguration sessionConfig = getSessionConfig();
+    SessionConfiguration sessionConfig = getSessionConfig();
     if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
       configureSession(context, sessionConfig);
     }
   }
 
   protected void configureWelcomePages(WebAppContext context) {
-    final Set<String> welcomePages = getWelcomePages();
+    Set<String> welcomePages = getWelcomePages();
     getWebApplicationConfiguration().configureWelcomePages(welcomePages);
     context.setWelcomeFiles(welcomePages.toArray(new String[welcomePages.size()]));
   }
@@ -340,8 +340,8 @@ public class JettyServer
    * @param webAppContext the Jetty {@link WebAppContext}
    * @return configurations to apply
    */
-  protected Configuration[] getWebAppContextConfigurations(final WebAppContext webAppContext) {
-    final List<Configuration> configurations = new ArrayList<>();
+  protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext) {
+    List<Configuration> configurations = new ArrayList<>();
     configurations.add(getJettyServletContextInitializer(webAppContext));
 
     configurations.addAll(getConfigurations()); // user define
@@ -359,8 +359,8 @@ public class JettyServer
     return new AbstractConfiguration() {
       @Override
       public void configure(WebAppContext context) {
-        final MimeTypes mimeTypes = context.getMimeTypes();
-        final MimeMappings mimeMappings = getMimeMappings();
+        MimeTypes mimeTypes = context.getMimeTypes();
+        MimeMappings mimeMappings = getMimeMappings();
         getWebApplicationConfiguration().configureMimeMappings(mimeMappings);
         for (MimeMappings.Mapping mapping : mimeMappings) {
           mimeTypes.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
@@ -409,7 +409,7 @@ public class JettyServer
    * @param webAppContext the Jetty {@link WebAppContext}
    * @return the {@link Configuration} instance
    */
-  protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
+  protected Configuration getJettyServletContextInitializer(WebAppContext webAppContext) {
     return new ServletContextInitializerConfiguration(this::getMergedInitializers);
   }
 
@@ -419,18 +419,18 @@ public class JettyServer
    * @param context jetty web app context
    * @param sessionConfig SessionConfiguration
    */
-  protected void configureSession(final WebAppContext context, SessionConfiguration sessionConfig) {
-    final SessionHandler sessionHandler = context.getSessionHandler();
-    final Duration sessionTimeout = sessionConfig.getTimeout();
+  protected void configureSession(WebAppContext context, SessionConfiguration sessionConfig) {
+    SessionHandler sessionHandler = context.getSessionHandler();
+    Duration sessionTimeout = sessionConfig.getTimeout();
     sessionHandler.setMaxInactiveInterval(isNegative(sessionTimeout)
                                           ? -1
                                           : (int) sessionTimeout.getSeconds());
 
     if (sessionConfig.isPersistent()) {
-      final DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
-      final FileSessionDataStore store = new FileSessionDataStore();
+      DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
+      FileSessionDataStore store = new FileSessionDataStore();
       try {
-        final Class<?> startupClass = obtainApplicationContext().getStartupClass();
+        Class<?> startupClass = obtainApplicationContext().getStartupClass();
         store.setStoreDir(getStoreDirectory(startupClass));
       }
       catch (IOException e) {
@@ -455,8 +455,8 @@ public class JettyServer
   /**
    * Configure jetty root document dir
    */
-  protected void configureDocumentRoot(final WebAppContext webAppContext) {
-    final WebDocumentConfiguration webDocument = getWebDocumentConfiguration();
+  protected void configureDocumentRoot(WebAppContext webAppContext) {
+    WebDocumentConfiguration webDocument = getWebDocumentConfiguration();
     try {
       webAppContext.setBaseResource(getRootResource(webDocument == null
                                                     ? null
@@ -467,7 +467,7 @@ public class JettyServer
     }
   }
 
-  protected Resource getRootResource(final cn.taketoday.core.io.Resource validDocBase) throws IOException {
+  protected Resource getRootResource(cn.taketoday.core.io.Resource validDocBase) throws IOException {
 
     if (validDocBase instanceof cn.taketoday.core.io.JarResource) {
       return JarResource.newJarResource(Resource.newResource(validDocBase.getFile()));
@@ -486,7 +486,7 @@ public class JettyServer
     return new DefaultServlet();
   }
 
-  protected GzipHandler configureCompression(final CompressionConfiguration compression) {
+  protected GzipHandler configureCompression(CompressionConfiguration compression) {
     GzipHandler handler = new GzipHandler();
     // handler.setCompressionLevel(compression.getLevel());
 
@@ -520,7 +520,7 @@ public class JettyServer
   public class ServletContextInitializerConfiguration extends AbstractConfiguration {
     private ServletWebServerApplicationLoader starter;
 
-    public ServletContextInitializerConfiguration(final Supplier<List<WebApplicationInitializer>> initializersSupplier) {
+    public ServletContextInitializerConfiguration(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
       this.starter = new ServletWebServerApplicationLoader(obtainApplicationContext(), initializersSupplier);
     }
 
@@ -540,11 +540,11 @@ public class JettyServer
       @Override
       protected void doStart() {
 
-        final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
         try {
           setExtendedListenerTypes(true);
-          final Context servletContext = this.context.getServletContext();
+          Context servletContext = this.context.getServletContext();
 
           starter.onStartup(null, servletContext);
         }

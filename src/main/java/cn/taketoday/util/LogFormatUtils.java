@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 
 import java.util.function.Function;
