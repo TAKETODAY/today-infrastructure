@@ -1,35 +1,22 @@
-/**
- * Produce Javadoc "build/docs/javadoc"
- */
-task apidocs(type: Javadoc) { doc ->
-  group = "Documentation"
+group = "Documentation"
+
+javadoc {
   description = "Generates aggregated Javadoc API documentation."
   title = "${rootProject.description} ${version} API"
 
-  dependsOn {
-    rootProject.tasks.getByName("jar")
-  }
-  doFirst {
-    classpath = rootProject.sourceSets.main.output
-  }
+  options.encoding = "UTF-8"
+  options.memberLevel = JavadocMemberLevel.PROTECTED
+  options.header = rootProject.description
+  options.overview = "docs/api/overview.html"
 
-  doc.options {
-    encoding = "UTF-8"
-    memberLevel = JavadocMemberLevel.PROTECTED
-    author = true
-    header = rootProject.description
-    use = true
-    overview = "docs/api/overview.html"
-    splitIndex = true
-    links(project.ext.javadocLinks)
-    addBooleanOption('Xdoclint:syntax', true) // only check syntax with doclint
-    addBooleanOption('Werror', true) // fail build on Javadoc warnings
-  }
+  options.links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+  options.links("https://jakarta.ee/specifications/platform/9/apidocs/")
+  options.links("https://fasterxml.github.io/jackson-core/javadoc/2.10/")
 
   source(rootProject.sourceSets.main.allJava)
-
   maxMemory = "1024m"
   destinationDir = file("$buildDir/docs/javadoc")
+
 }
 
 asciidoctorj {
@@ -74,7 +61,7 @@ asciidoctor {
       include 'images/*.png', 'css/**', 'js/**'
     }
     // projectDir + '/docs/theme/js
-    from ("$projectDir/docs/theme/css") {
+    from("$projectDir/docs/theme/css") {
       into "css"
     }
   }
