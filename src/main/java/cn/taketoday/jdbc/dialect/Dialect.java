@@ -21,6 +21,7 @@
 package cn.taketoday.jdbc.dialect;
 
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
@@ -105,8 +106,9 @@ public abstract class Dialect {
 
     StringBuilder setSQL = new StringBuilder();
 
-    if (null != sqlParams.getUpdateColumns() && !sqlParams.getUpdateColumns().isEmpty()) {
-      sqlParams.getUpdateColumns().forEach((key, value) -> setSQL.append(key).append(" = ?, "));
+    Map<String, Object> updateColumns = sqlParams.getUpdateColumns();
+    if (CollectionUtils.isNotEmpty(updateColumns)) {
+      updateColumns.forEach((key, value) -> setSQL.append(key).append(" = ?, "));
     }
     else {
       Object model = sqlParams.getModel();

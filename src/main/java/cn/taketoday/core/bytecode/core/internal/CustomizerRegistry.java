@@ -40,9 +40,6 @@ public class CustomizerRegistry {
     return list == null ? Collections.emptyList() : (List<T>) list;
   }
 
-  /**
-   * @deprecated Only to keep backward compatibility.
-   */
   public static CustomizerRegistry singleton(Customizer customizer) {
     CustomizerRegistry registry = new CustomizerRegistry(Customizer.class);
     registry.add(customizer);

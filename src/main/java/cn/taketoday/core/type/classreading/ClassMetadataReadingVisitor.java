@@ -45,9 +45,6 @@ import cn.taketoday.util.StringUtils;
  * @author Ramnivas Laddad
  * @author Chris Beams
  * @since 4.0
- * @deprecated this class and related classes in this
- * package have been replaced by {@link SimpleAnnotationMetadataReadingVisitor}
- * and related classes for internal use within the framework.
  */
 class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata {
 
