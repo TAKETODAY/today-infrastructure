@@ -11,6 +11,11 @@ plugins {
   id 'org.asciidoctor.jvm.pdf' version '3.3.2'
 }
 
+group = 'cn.taketoday'
+version = '4.0.0-Draft.1'
+description = 'TODAY Framework'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 repositories {
   mavenLocal()
@@ -53,12 +58,13 @@ dependencies {
   testImplementation 'org.xmlunit:xmlunit-assertj:2.8.3'
   testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.2'
   testImplementation 'org.eclipse:yasson:2.0.2'
+
+  compileOnly 'org.projectlombok:lombok:1.18.22'
   compileOnly 'io.netty:netty-codec-http:4.1.69.Final'
   compileOnly 'io.netty:netty-transport-native-kqueue:4.1.69.Final'
   compileOnly 'org.hibernate:hibernate-core-jakarta:5.6.0.Final'
   compileOnly 'joda-time:joda-time:2.10.13'
   compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-  compileOnly 'org.projectlombok:lombok:1.18.22'
   compileOnly 'org.yaml:snakeyaml:1.29'
   compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0'
   compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0'
@@ -109,6 +115,8 @@ dependencies {
   compileOnly 'org.apache.logging.log4j:log4j-api:2.14.1'
   compileOnly 'org.openjdk.jmh:jmh-core:1.33'
   compileOnly 'org.openjdk.jmh:jmh-generator-annprocess:1.33'
+
+  annotationProcessor('org.projectlombok:lombok:1.18.22')
 }
 
 // latest  4.0.0-Beta.1 -Alpha.1 -Draft.1 -SNAPSHOT
@@ -121,9 +129,6 @@ publishing {
   }
 }
 
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
-}
 
 ext {
   javadocLinks = [
@@ -144,10 +149,31 @@ ext {
   ] as String[]
 }
 
-group = 'cn.taketoday'
-version = '4.0.0-Draft.1'
-description = 'TODAY Framework'
-java.sourceCompatibility = JavaVersion.VERSION_17
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+jar {
+//  from {
+    //添加依懒到打包文件
+    //configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//    configurations.runtime.collect { zipTree(it) }
+//  }
+//  manifest {
+//    attributes 'Main-Class': appMainClass
+//  }
+}
+
+task clearJar(type: Delete) {
+  delete 'build/libs/lib'
+}
+
+task copyJar(type: Copy) {
+  into('build/libs/lib')
+}
+
+task release(type: Copy, dependsOn: [build, clearJar, copyJar])
 
 apply from: "${rootDir}/gradle/docs.gradle"
 
