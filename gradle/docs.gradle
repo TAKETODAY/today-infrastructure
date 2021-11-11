@@ -1,0 +1,85 @@
+/**
+ * Produce Javadoc "build/docs/javadoc"
+ */
+task apidocs(type: Javadoc) { doc ->
+  group = "Documentation"
+  description = "Generates aggregated Javadoc API documentation."
+  title = "${rootProject.description} ${version} API"
+
+  dependsOn {
+    rootProject.tasks.getByName("jar")
+  }
+  doFirst {
+    classpath = rootProject.sourceSets.main.output
+  }
+
+  doc.options {
+    encoding = "UTF-8"
+    memberLevel = JavadocMemberLevel.PROTECTED
+    author = true
+    header = rootProject.description
+    use = true
+    overview = "docs/api/overview.html"
+    splitIndex = true
+    links(project.ext.javadocLinks)
+    addBooleanOption('Xdoclint:syntax', true) // only check syntax with doclint
+    addBooleanOption('Werror', true) // fail build on Javadoc warnings
+  }
+
+  source(rootProject.sourceSets.main.allJava)
+
+  maxMemory = "1024m"
+  destinationDir = file("$buildDir/docs/javadoc")
+}
+
+asciidoctorj {
+  def docRoot = 'https://docs.taketoday.cn'
+  def docsFramework = "${docRoot}/today-framework/docs/${rootProject.version}" as Object
+  version = '2.4.1'
+  fatalWarnings ".*"
+  options doctype: 'book', eruby: 'erubis'
+  attributes([
+          icons                      : 'font',
+          idprefix                   : '',
+          idseparator                : '-',
+          docinfo                    : 'shared,private-header', // https://docs.asciidoctor.org/asciidoctor/latest/docinfo/
+          revnumber                  : rootProject.version,
+          sectanchors                : '',
+          sectnums                   : '',
+          'source-highlighter'       : 'highlight.js',
+          highlightjsdir             : 'js/highlight',
+          'highlightjs-theme'        : 'googlecode',
+          stylesdir                  : 'css/',
+          stylesheet                 : 'stylesheet.css',
+          'today-version'            : rootProject.version,
+          'today-framework-main-code': 'https://github.com/TAKETODAY/today-framework/tree/main',
+          'doc-root'                 : docRoot,
+          'docs-today-framework'     : docsFramework,
+          'api-today-framework'      : "${docsFramework}/javadoc-api/cn/taketoday"
+  ])
+}
+
+/**
+ * Reference documentation from "src/docs build/docs/html5".
+ */
+asciidoctor {
+  sourceDir file('docs')
+  sources {
+    include '*.adoc'
+  }
+  outputDir "$buildDir/docs/html5"
+  logDocuments = true
+}
+
+/**
+ * Reference documentation from "src/docs in "build/docs/pdf".
+ */
+asciidoctorPdf {
+  sourceDir("doc")
+  sources {
+    include '*.adoc'
+  }
+  outputDir "$buildDir/docs/pdf"
+  logDocuments = true
+}
+
