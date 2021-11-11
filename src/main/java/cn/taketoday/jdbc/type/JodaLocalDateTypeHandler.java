@@ -9,8 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * @author TODAY
- * @date 2021/1/6 16:04
+ * @author TODAY 2021/1/6 16:04
  */
 @MappedTypes(LocalDate.class)
 public class JodaLocalDateTypeHandler extends BaseTypeHandler<LocalDate> {

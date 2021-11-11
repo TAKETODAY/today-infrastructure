@@ -27,8 +27,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
- * @author TODAY
- * @date 2020/12/7 21:44
+ * @author TODAY 2020/12/7 21:44
  */
 @SuppressWarnings("all")
 public class DefaultResponseStatus implements ResponseStatus {

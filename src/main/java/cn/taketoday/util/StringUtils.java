@@ -211,8 +211,7 @@ public abstract class StringUtils {
    * @return the newly decoded {@code String}
    * @throws NullPointerException if {@code s} or {@code charset} is {@code null}
    * @throws IllegalArgumentException if the implementation encounters illegal
-   * characters
-   * @implNote This implementation will throw an {@link java.lang.IllegalArgumentException}
+   * characters This implementation will throw an {@link java.lang.IllegalArgumentException}
    * when illegal strings are encountered.
    * @since 3.0
    */

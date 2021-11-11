@@ -1844,9 +1844,10 @@ public abstract class HttpHeaders
     return headers.entrySet().stream()
             .map(entry -> {
               List<String> values = entry.getValue();
-              return entry.getKey() + ":" + (values.size() == 1 ?
-                                             "\"" + values.get(0) + "\"" :
-                                             values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+              return entry.getKey() + ":"
+                      + (values.size() == 1
+                         ? "\"" + values.get(0) + "\""
+                         : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }

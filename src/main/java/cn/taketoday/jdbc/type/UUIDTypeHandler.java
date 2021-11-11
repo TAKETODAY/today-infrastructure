@@ -9,8 +9,7 @@ import java.util.UUID;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY
- * @date 2021/1/6 16:52
+ * @author TODAY 2021/1/6 16:52
  */
 public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
 

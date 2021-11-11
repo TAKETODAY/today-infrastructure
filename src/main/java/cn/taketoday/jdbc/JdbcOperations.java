@@ -52,7 +52,6 @@ import cn.taketoday.lang.Assert;
  * to the database. If url, username and password was specified in the
  * constructor, a simple data source is created, which works as a simple wrapper
  * around the jdbc driver.
- * <p>
  *
  * @author TODAY
  */

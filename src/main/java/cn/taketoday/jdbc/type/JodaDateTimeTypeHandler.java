@@ -11,8 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 /**
- * @author TODAY
- * @date 2021/1/6 15:55
+ * @author TODAY 2021/1/6 15:55
  */
 @MappedTypes(DateTime.class)
 public class JodaDateTimeTypeHandler extends BaseTypeHandler<DateTime> {

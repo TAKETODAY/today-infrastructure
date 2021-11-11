@@ -19,6 +19,7 @@
  */
 package cn.taketoday.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -50,6 +51,7 @@ import cn.taketoday.lang.Assert;
 public class AnnotationAttributes
         /*extends LinkedHashMap<String, Object>*/
         implements Serializable, Map<String, Object>, ArraySizeTrimmer {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final String UNKNOWN = "unknown";
@@ -524,7 +526,7 @@ public class AnnotationAttributes
   }
 
   /**
-   * Trims the capacity of this <tt>ArrayList</tt> instance to be the
+   * Trims the capacity of this {@code ArrayList} instance to be the
    * list's current size.  An application can use this operation to minimize
    * the storage of an <tt>ArrayList</tt> instance.
    *

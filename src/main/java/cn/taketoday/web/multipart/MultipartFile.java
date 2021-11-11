@@ -48,7 +48,7 @@ public interface MultipartFile extends Serializable, InputStreamSource {
   /**
    * Gets the name of this part.
    *
-   * @return The name of this part as a <tt>String</tt>
+   * @return The name of this part as a {@code String}
    */
   String getName();
 

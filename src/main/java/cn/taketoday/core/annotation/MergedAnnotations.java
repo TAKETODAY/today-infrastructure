@@ -66,7 +66,7 @@ import cn.taketoday.lang.Nullable;
  * {@code @RequestMapping}. The merged view of the {@code @RequestMapping}
  * annotation will contain the following attributes:
  *
- * <p><table border="1">
+ *<table border="1">
  * <tr>
  * <th>Name</th>
  * <th>Value</th>

@@ -43,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  * placeholders are available to allow you to include runtime information in your log
  * messages. The placeholders available are:
  *
- * <p><ul>
+ * <ul>
  * <li>{@code $[methodName]} - replaced with the name of the method being invoked</li>
  * <li>{@code $[targetClassName]} - replaced with the name of the class that is
  * the target of the invocation</li>
