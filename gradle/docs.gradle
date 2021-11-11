@@ -48,7 +48,7 @@ asciidoctorj {
           sectnums                   : '',
           'source-highlighter'       : 'highlight.js',
           highlightjsdir             : 'js/highlight',
-          'highlightjs-theme'        : 'googlecode',
+          'highlightjs-theme'        : 'github',
           stylesdir                  : 'css/',
           stylesheet                 : 'stylesheet.css',
           'today-version'            : rootProject.version,
@@ -69,6 +69,15 @@ asciidoctor {
   }
   outputDir "$buildDir/docs/html5"
   logDocuments = true
+  resources {
+    from(sourceDir) {
+      include 'images/*.png', 'css/**', 'js/**'
+    }
+    // projectDir + '/docs/theme/js
+    from ("$projectDir/docs/theme/css") {
+      into "css"
+    }
+  }
 }
 
 /**
