@@ -19,6 +19,8 @@
  */
 package cn.taketoday.core.reflect;
 
+import java.security.ProtectionDomain;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -29,5 +31,17 @@ import cn.taketoday.lang.Nullable;
  */
 public interface DefineClassStrategy {
 
-  Class<?> defineClass(@Nullable String className, byte[] classFile);
+  /**
+   * define a class file to class
+   *
+   * @param className the name of the loaded class.
+   * @param neighbor the class contained in the same package as the loaded class.
+   * @param classLoader the class loader.  It can be null if {@code neighbor} is not null
+   * and the JVM is Java 11 or later.
+   * @param domain if it is null, a default domain is used.
+   * @param classFile the bytecode for the loaded class.
+   */
+  Class<?> defineClass(
+          String className, ClassLoader classLoader,
+          @Nullable ProtectionDomain domain, @Nullable Class<?> neighbor, byte[] classFile);
 }

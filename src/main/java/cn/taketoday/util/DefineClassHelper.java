@@ -36,18 +36,18 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.core.bytecode.ByteCodeClassLoader;
-import cn.taketoday.core.bytecode.core.CodeGenerationException;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+
+import cn.taketoday.core.bytecode.ByteCodeClassLoader;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -122,6 +122,11 @@ public class DefineClassHelper {
    * any longer by default in Java 9 or later, the JVM argument
    * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
    * </p>
+   * <pre>
+   * --add-opens java.base/java.lang=ALL-UNNAMED
+   * --add-opens java.base/java.util=ALL-UNNAMED
+   * --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+   * </pre>
    *
    * @param className the name of the loaded class.
    * @param neighbor the class contained in the same package as the loaded class.

@@ -23,7 +23,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.bytecode.core.internal.LoadingCache;
+import cn.taketoday.core.reflect.DefineClassStrategy;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DefineClassHelper;
 
@@ -53,7 +55,12 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private String className;
   private boolean attemptLoad;
 
+  // @since 4.0
   private Class<?> neighbor;
+
+  // @since 4.0
+  @Nullable
+  private DefineClassStrategy defineClassStrategy;
 
   protected AbstractClassGenerator(String source) {
     this.source = source;
@@ -183,6 +190,15 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    */
   public NamingPolicy getNamingPolicy() {
     return namingPolicy;
+  }
+
+  public void setDefineClassStrategy(@Nullable DefineClassStrategy defineClassStrategy) {
+    this.defineClassStrategy = defineClassStrategy;
+  }
+
+  @Nullable
+  public DefineClassStrategy getDefineClassStrategy() {
+    return defineClassStrategy;
   }
 
   /**
@@ -320,7 +336,12 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         catch (ClassNotFoundException ignored) { }
       }
       final byte[] bytes = getStrategy().generate(this);
-      synchronized(classLoader) { // just in case
+      synchronized(classLoader) {
+        DefineClassStrategy defineClassStrategy = getDefineClassStrategy();
+        if (defineClassStrategy != null) {
+          return defineClassStrategy.defineClass(
+                  getClassName(), classLoader, getProtectionDomain(), neighbor, bytes);
+        }
         return DefineClassHelper.defineClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
       }
     }
