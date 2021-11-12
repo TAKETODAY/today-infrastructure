@@ -111,6 +111,9 @@ public class StandardBeanFactory
 
   @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    if (def.getName() == null) {
+      def.setName(beanName);
+    }
     def = transformBeanDefinition(beanName, def);
     if (def == null) {
       return;
@@ -131,8 +134,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                           "for bean '{}' with a framework-generated bean " +
-                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                  "for bean '{}' with a framework-generated bean " +
+                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
