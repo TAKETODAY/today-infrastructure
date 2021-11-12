@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.reflect.PropertyAccessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -243,8 +244,17 @@ public class TypeDescriptorTests {
     assertThat(desc.getMapKeyDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueDescriptor().getElementDescriptor().getType()).isEqualTo(Long.class);
 
-    assertThat(desc.getAnnotation(MethodAnnotation1.class)).isNotNull();
-    assertThat(desc.getAnnotation(MethodAnnotation2.class)).isNotNull();
+
+    PropertyAccessor propertyAccessor = property.obtainAccessor();
+    Method writeMethod = propertyAccessor.getWriteMethod();
+    Method readMethod = propertyAccessor.getReadMethod();
+
+    assertThat(writeMethod).isNotNull();
+    assertThat(readMethod).isNotNull();
+
+    assertThat(readMethod.getAnnotation(MethodAnnotation1.class)).isNotNull();
+
+    assertThat(writeMethod.getAnnotation(MethodAnnotation2.class)).isNotNull();
     assertThat(desc.getAnnotation(MethodAnnotation3.class)).isNotNull();
   }
 
@@ -697,7 +707,7 @@ public class TypeDescriptorTests {
 
     TypeDescriptor typeDescriptor = new TypeDescriptor(property);
     TypeDescriptor upCast = typeDescriptor.upcast(Object.class);
-    assertThat(upCast.getAnnotation(MethodAnnotation1.class) != null).isTrue();
+    assertThat(upCast.getAnnotation(MethodAnnotation3.class) != null).isTrue();
   }
 
   @Test
