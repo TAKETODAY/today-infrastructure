@@ -253,7 +253,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   protected Map<String, Lifecycle> getLifecycleBeans() {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     Map<String, Lifecycle> beans = new LinkedHashMap<>();
-    Set<String> beanNames = beanFactory.getBeanNamesOfType(Lifecycle.class, false, false);
+    Set<String> beanNames = beanFactory.getBeanNamesForType(Lifecycle.class, false, false);
     for (String beanName : beanNames) {
       String beanNameToRegister = BeanFactoryUtils.transformedBeanName(beanName);
       boolean isFactoryBean = beanFactory.isFactoryBean(beanNameToRegister);

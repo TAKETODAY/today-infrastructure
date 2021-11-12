@@ -60,7 +60,7 @@ public class DefaultMultiValueMap<K, V>
   public static final Function defaultMappingFunction = k -> new ArrayList<>();
 
   private final Map<K, List<V>> map;
-  private final Function<K, List<V>> mappingFunction;
+  private transient final Function<K, List<V>> mappingFunction;
 
   public DefaultMultiValueMap() {
     this(new HashMap<>());

@@ -1075,7 +1075,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void removeBean(Class<?> beanClass) {
-    Set<String> beanNamesOfType = getBeanNamesOfType(beanClass, true, true);
+    Set<String> beanNamesOfType = getBeanNamesForType(beanClass, true, true);
     for (String name : beanNamesOfType) {
       removeBean(name);
     }

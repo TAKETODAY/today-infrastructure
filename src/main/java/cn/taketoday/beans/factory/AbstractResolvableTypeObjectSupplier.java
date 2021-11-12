@@ -32,23 +32,23 @@ import cn.taketoday.core.style.ToStringBuilder;
 abstract class AbstractResolvableTypeObjectSupplier<T> implements ObjectSupplier<T> {
 
   protected final ResolvableType requiredType;
-  protected final boolean includeNoneRegistered;
+  protected final boolean allowEagerInit;
   protected final boolean includeNonSingletons;
 
   AbstractResolvableTypeObjectSupplier(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     this.requiredType = requiredType;
     this.includeNonSingletons = includeNonSingletons;
-    this.includeNoneRegistered = includeNoneRegistered;
+    this.allowEagerInit = allowEagerInit;
   }
 
   @Override
   public T getIfAvailable() throws BeansException {
-    return getIfAvailable(requiredType, includeNoneRegistered, includeNonSingletons);
+    return getIfAvailable(requiredType, includeNonSingletons, allowEagerInit);
   }
 
   abstract T getIfAvailable(
-          ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
+          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
 
   @Override
   public Class<?> getRequiredType() {
@@ -59,17 +59,16 @@ abstract class AbstractResolvableTypeObjectSupplier<T> implements ObjectSupplier
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof AbstractResolvableTypeObjectSupplier))
+    if (!(o instanceof AbstractResolvableTypeObjectSupplier<?> that))
       return false;
-    AbstractResolvableTypeObjectSupplier<?> that = (AbstractResolvableTypeObjectSupplier<?>) o;
-    return includeNoneRegistered == that.includeNoneRegistered
+    return allowEagerInit == that.allowEagerInit
             && includeNonSingletons == that.includeNonSingletons
             && Objects.equals(requiredType, that.requiredType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requiredType, includeNoneRegistered, includeNonSingletons);
+    return Objects.hash(requiredType, allowEagerInit, includeNonSingletons);
   }
 
   @Override
@@ -77,7 +76,7 @@ abstract class AbstractResolvableTypeObjectSupplier<T> implements ObjectSupplier
     return new ToStringBuilder(this)
             .append("requiredType", requiredType)
             .append("includeNonSingletons", includeNonSingletons)
-            .append("includeNoneRegistered", includeNoneRegistered)
+            .append("allowEagerInit", allowEagerInit)
             .toString();
   }
 

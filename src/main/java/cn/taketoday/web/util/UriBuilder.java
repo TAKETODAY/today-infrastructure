@@ -190,7 +190,7 @@ public interface UriBuilder {
    * be applied by using a URI template variable along with stricter encoding
    * on variable values. For more details please read the
    * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#web-uri-encoding">"URI Encoding"</a>
-   * section of the Spring Framework reference.
+   * section of the Framework reference.
    *
    * @param name the query parameter name
    * @param values the query parameter values

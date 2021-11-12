@@ -132,7 +132,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   private CompositePathComponentBuilder pathBuilder;
 
-  private final DefaultMultiValueMap<String, String> queryParams = new DefaultMultiValueMap<>();
+  private final DefaultMultiValueMap<String, String> queryParams = MultiValueMap.fromLinkedHashMap();
 
   @Nullable
   private String fragment;
@@ -840,7 +840,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * if present, in order to reflect the client-originated protocol and address.
    * Consider using the {@code ForwardedHeaderFilter} in order to choose from a
    * central place whether to extract and use, or to discard such headers.
-   * See the Spring Framework reference for more on this filter.
+   * See the Framework reference for more on this filter.
    *
    * @param headers the HTTP headers to consider
    * @return this UriComponentsBuilder
