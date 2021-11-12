@@ -18,17 +18,7 @@
 *.iml
 *.DS_Store
 *.class
-
-*.jar
-*.war
-*.ear
-/target
-/.settings
-/.classpath
-/.project
 /tomcat.8080
-*.iml
-/.idea
 
 .gradle
 /build/
