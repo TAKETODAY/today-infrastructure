@@ -79,7 +79,7 @@ public class TypeDescriptor implements Serializable {
    * @param field the field
    */
   public TypeDescriptor(Field field) {
-    this.annotatedElement = field;
+    this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(field.getAnnotations());
     this.resolvableType = ResolvableType.fromField(field);
     this.type = this.resolvableType.resolve(field.getType());
   }
@@ -180,7 +180,7 @@ public class TypeDescriptor implements Serializable {
 
   @Nullable
   public TypeDescriptor getGeneric(Class<?> genericIfc) {
-    final ResolvableType generic = resolvableType.as(genericIfc).getGeneric(0);
+    ResolvableType generic = resolvableType.as(genericIfc).getGeneric(0);
     return getRelatedIfResolvable(this, generic);
   }
 
@@ -686,8 +686,8 @@ public class TypeDescriptor implements Serializable {
     return new TypeDescriptor(beanProperty);
   }
 
-  public static TypeDescriptor forParameter(final Executable executable, int parameterIndex) {
-    final Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
+  public static TypeDescriptor forParameter(Executable executable, int parameterIndex) {
+    Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     return fromParameter(parameter);
   }
 
@@ -695,7 +695,7 @@ public class TypeDescriptor implements Serializable {
    * @since 3.0.2
    */
   public static TypeDescriptor fromParameter(Parameter parameter) {
-    final ResolvableType resolvableType = ResolvableType.fromParameter(parameter);
+    ResolvableType resolvableType = ResolvableType.fromParameter(parameter);
     return new TypeDescriptor(resolvableType, parameter.getType(), parameter);
   }
 

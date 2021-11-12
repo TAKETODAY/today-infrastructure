@@ -20,14 +20,15 @@
 
 package cn.taketoday.util;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.Arrays;
+
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.util.Arrays;
 
 /**
  * Adapter class for exposing annotations as an {@link AnnotatedElement}
@@ -36,7 +37,7 @@ import java.util.Arrays;
  * @see AnnotationUtils#isPresent(AnnotatedElement, Class)
  * @see AnnotationUtils#getAnnotation(AnnotatedElement, Class)
  */
-public class AnnotationsAnnotatedElementAdapter implements AnnotatedElement {
+public class AnnotationsAnnotatedElementAdapter implements AnnotatedElement, Serializable {
 
   @Nullable
   private final Annotation[] annotations;

@@ -19,9 +19,6 @@
  */
 package cn.taketoday.core;
 
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.CollectionUtils;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
@@ -241,7 +241,6 @@ public class DefaultMultiValueMap<K, V>
    */
   public DefaultMultiValueMap<K, V> deepCopy() {
     DefaultMultiValueMap<K, V> ret = new DefaultMultiValueMap<>(map.size());
-    Function<K, List<V>> mappingFunction = this.mappingFunction;
     for (Entry<K, List<V>> entry : map.entrySet()) {
       K key = entry.getKey();
       List<V> value = entry.getValue();

@@ -852,6 +852,9 @@ public class StandardBeanFactory
 
     // Check manually registered singletons too.
     for (String beanName : this.manualSingletonNames) {
+      if (beanNames.contains(beanName)) {
+        continue;
+      }
       try {
         // In case of FactoryBean, match object created by FactoryBean.
         if (isFactoryBean(beanName)) {
