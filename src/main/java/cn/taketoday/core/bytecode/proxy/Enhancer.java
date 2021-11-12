@@ -226,6 +226,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     else if (superclass != null && superclass.equals(Object.class)) {
       // affects choice of ClassLoader
       this.superclass = null;
+      setNeighbor(null);
     }
     else {
       setNeighbor(superclass);

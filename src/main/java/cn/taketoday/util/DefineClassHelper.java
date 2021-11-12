@@ -101,13 +101,13 @@ public class DefineClassHelper {
     }
   }
 
-  public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+  public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws CodeGenerationException {
     return defineClass(className, null, loader, null, b);
   }
 
   public static Class<?> defineClass(
           String className, byte[] b, ClassLoader loader,
-          ProtectionDomain protectionDomain) throws Exception {
+          ProtectionDomain protectionDomain) throws CodeGenerationException {
     return defineClass(className, null, loader, protectionDomain, b);
   }
 
@@ -138,7 +138,7 @@ public class DefineClassHelper {
   @SuppressWarnings("deprecation")
   public static Class<?> defineClass(
           String className, @Nullable Class<?> neighbor,
-          ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws ReflectionException {
+          ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws CodeGenerationException {
 
     Class<?> c = null;
     Throwable t = THROWABLE;

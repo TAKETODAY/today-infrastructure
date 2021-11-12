@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.MethodVisitor;
@@ -635,52 +634,48 @@ public class TestEnhancer {
   }
 
   @Test
-  public void testProxyIface() throws Throwable {
+  public void testProxyIface() {
     final DI1 other = new DI1() {
       public String herby() {
         return "boop";
       }
     };
-    DI1 d = (DI1) Enhancer.create(DI1.class, new MethodInterceptor() {
-      public Object intercept(
-              Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        return proxy.invoke(other, args);
-      }
-    });
+    DI1 d = (DI1) Enhancer.create(DI1.class, (MethodInterceptor) (obj, method, args, proxy) -> proxy.invoke(other, args));
     assertEquals("boop", d.herby());
   }
 
-  static class NamingPolicyDummy { }
+//  static class NamingPolicyDummy { }
 
-  //    public void testNamingPolicy() throws Throwable {
-//        Enhancer e = new Enhancer();
-//        e.setSuperclass(NamingPolicyDummy.class);
-//        e.setUseCache(false);
-//        e.setUseFactory(false);
-//        e.setNamingPolicy(new DefaultNamingPolicy() {
-//            public String getTag() {
-//                return "ByHerby";
-//            }
+//  public void testNamingPolicy() throws Throwable {
+//    Enhancer e = new Enhancer();
+//    e.setSuperclass(NamingPolicyDummy.class);
+//    e.setUseCache(false);
+//    e.setUseFactory(false);
+//    e.setNamingPolicy(new DefaultNamingPolicy() {
+//      public String getTag() {
+//        return "ByHerby";
+//      }
 //
-//            public String toString() {
-//                return getTag();
-//            }
-//        });
-//        e.setCallbackType(MethodInterceptor.class);
-//        Class<?> proxied = e.createClass();
-//        final boolean[] ran = new boolean[1];
-//        Enhancer.registerStaticCallbacks(proxied, new Callback[] { new MethodInterceptor() {
-//            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-//                ran[0] = true;
-//                assertTrue(proxy.getSuperFastClass().getClass().getName().indexOf("$FastClassByHerby$") >= 0);
-//                return proxy.invokeSuper(obj, args);
-//            }
-//        }
-//        });
-//        NamingPolicyDummy dummy = (NamingPolicyDummy) proxied.newInstance();
-//        dummy.toString();
-//        assertTrue(ran[0]);
+//      public String toString() {
+//        return getTag();
+//      }
+//    });
+//    e.setCallbackType(MethodInterceptor.class);
+//    Class<?> proxied = e.createClass();
+//    final boolean[] ran = new boolean[1];
+//    Enhancer.registerStaticCallbacks(proxied, new Callback[] { new MethodInterceptor() {
+//      public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+//        ran[0] = true;
+//        assertTrue(proxy.getSuperFastClass().getClass().getName().indexOf("$MethodAccessByHerby$") >= 0);
+//        return proxy.invokeSuper(obj, args);
+//      }
 //    }
+//    });
+//    NamingPolicyDummy dummy = (NamingPolicyDummy) proxied.newInstance();
+//    dummy.toString();
+//    assertTrue(ran[0]);
+//  }
+
   @Test
   public void testBadNamingPolicyStillReservesNames() throws Throwable {
     Enhancer e = new Enhancer();
@@ -706,8 +701,7 @@ public class TestEnhancer {
    * the class name is occupied, however, in practice there are implementations in
    * the wild that just return whatever they feel is good.
    *
-   * @throws Throwable
-   *         if something wrong happens
+   * @throws Throwable if something wrong happens
    */
   @Test
   public void testNamingPolicyThatReturnsConstantNames() throws Throwable {

@@ -16,6 +16,8 @@
 
 package cn.taketoday.core.bytecode.transform.impl;
 
+import org.skife.jdbi.cglib.transform.impl.FieldProvider;
+
 import java.util.Arrays;
 
 import cn.taketoday.core.bytecode.Type;
@@ -59,9 +61,6 @@ public class TransformDemo {
     println("makePersistent " + obj.getClass() + " " + Arrays.asList(obj.getClass().getInterfaces()));
     InterceptFieldEnabled t = (InterceptFieldEnabled) obj;
     t.setInterceptFieldCallback(new StateManager());
-    FieldProvider provider = (FieldProvider) obj;
-    println("Field Names " + Arrays.asList(provider.getFieldNames()));
-    println("Field Types " + Arrays.asList(provider.getFieldTypes()));
     PersistenceCapable pc = (PersistenceCapable) obj;
     pc.setPersistenceManager("Manager");
 
@@ -83,8 +82,7 @@ public class TransformDemo {
                   AddDelegateTransformer t3 = new AddDelegateTransformer(
                           new Class[] { PersistenceCapable.class }, PersistenceCapableImpl.class);
 
-                  FieldProviderTransformer t4 = new FieldProviderTransformer();
-                  return new ClassTransformerChain(new ClassTransformer[] { t4, t1, t2, t3 });
+                  return new ClassTransformerChain(new ClassTransformer[] { t1, t2, t3 });
                 }
                 catch (Exception e) {
                   throw new CodeGenerationException(e);

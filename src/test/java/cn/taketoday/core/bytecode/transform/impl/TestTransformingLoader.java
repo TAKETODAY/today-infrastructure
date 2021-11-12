@@ -92,21 +92,6 @@ public class TestTransformingLoader extends CodeGenTestCase {
     // TODO
   }
 
-  public void testFieldProvider() throws Exception {
-    ClassTransformer t = new FieldProviderTransformer();
-    Class loaded = loadHelper(t, Example.class);
-    // TODO
-//         FieldProvider fp = (FieldProvider)loaded.newInstance();
-//         assertTrue(((Integer)fp.getField("example")).intValue() == 42);
-//         fp.setField("example", new Integer(6));
-//         assertTrue(((Integer)fp.getField("example")).intValue() == 6);
-//         assertTrue(fp.getField("example") == null);
-//         try {
-//             fp.getField("dsfjkl");
-//             fail("expected exception");
-//         } catch (IllegalArgumentException ignore) { }
-  }
-
   private static Class loadHelper(final ClassTransformer t, Class target) throws ClassNotFoundException {
     ClassLoader parent = TestTransformingLoader.class.getClassLoader();
     TransformingClassLoader loader = new TransformingClassLoader(
