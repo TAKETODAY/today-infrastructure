@@ -1753,11 +1753,11 @@ public abstract class HttpHeaders
    * @param headerValues the list of header values
    * @return a combined result with comma delimitation
    */
-  protected String toCommaDelimitedString(Collection<String> headerValues) {
+  protected String toCommaDelimitedString(Collection<?> headerValues) {
     StringJoiner joiner = new StringJoiner(", ");
-    for (String val : headerValues) {
+    for (Object val : headerValues) {
       if (val != null) {
-        joiner.add(val);
+        joiner.add(val.toString());
       }
     }
     return joiner.toString();
