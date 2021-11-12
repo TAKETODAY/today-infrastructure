@@ -36,10 +36,8 @@ public abstract class InterceptorChain {
   }
 
   public final Object proceed(RequestContext context, Object handler) throws Throwable {
-    HandlerInterceptor[] interceptors = getInterceptors();
     if (currentIndex < interceptors.length) {
-      HandlerInterceptor chainInterceptor = interceptors[currentIndex++];
-      return chainInterceptor.intercept(context, handler, this);
+      return interceptors[currentIndex++].intercept(context, handler, this);
     }
     return proceedTarget(context, handler);
   }
