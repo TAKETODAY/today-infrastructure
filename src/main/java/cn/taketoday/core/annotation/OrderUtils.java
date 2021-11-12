@@ -32,7 +32,7 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
 
 /**
  * General utility for determining the order of an object based on its type declaration.
- * Handles {@link Order} annotation as well as {@link javax.annotation.Priority}.
+ * Handles {@link Order} annotation as well as {@link jakarta.annotation.Priority}.
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller
@@ -44,7 +44,7 @@ public abstract class OrderUtils {
   private static final Object NOT_ANNOTATED = new Object();
 
   private static final Class<? extends Annotation>
-          JAVAX_PRIORITY_ANNOTATION = ClassUtils.load("javax.annotation.Priority");
+          JAVAX_PRIORITY_ANNOTATION = ClassUtils.load("jakarta.annotation.Priority");
 
   /** Cache for @Order value (or NOT_ANNOTATED marker) per Class. */
   private static final ConcurrentReferenceHashMap<AnnotatedElement, Object>
