@@ -1001,7 +1001,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
     "factoryBean":"false",
     "abstract":"false"
 }}
-2019-07-25 23:14:37.943 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextCloseEvent]
+2019-07-25 23:14:37.943 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextClosedEvent]
 context is closing
 2019-07-25 23:14:37.945  INFO - [            main] c.t.c.listener.ContextCloseListener        52 - Closing: [cn.taketoday.context.StandardApplicationContext@78c03f1f] at [2019-07-25 23:14:37.943]
 2019-07-25 23:14:37.947  INFO - [            main] test.context.LifecycleBean                 89 - preDestroy
