@@ -42,6 +42,6 @@ public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWe
 
   @Override
   protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
-    return new StandardWebSocketSession();
+    return new StandardWebSocketSession(context.requestHeaders(), null, null);
   }
 }

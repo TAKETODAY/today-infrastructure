@@ -20,15 +20,18 @@
 
 package cn.taketoday.web.socket;
 
-import java.io.IOException;
-import java.io.Serial;
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.PathMatcher;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AlternativeJdkIdGenerator;
+
+import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * @author TODAY 2021/4/5 14:16
@@ -241,5 +244,34 @@ public abstract class WebSocketSession
    * @throws IOException if there was a connection error closing the connection
    */
   public abstract void close(CloseStatus status) throws IOException;
+
+  /**
+   * Return the address on which the request was received.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public InetSocketAddress getLocalAddress() {
+    return null;
+  }
+
+  /**
+   * Return the address of the remote client.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public InetSocketAddress getRemoteAddress() {
+    return null;
+  }
+
+  /**
+   * Return the headers used in the handshake request (never {@code null}).
+   *
+   * @since 4.0
+   */
+  public HttpHeaders getHandshakeHeaders() {
+    return null;
+  }
 
 }

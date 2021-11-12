@@ -20,12 +20,15 @@
 
 package cn.taketoday.web.socket;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.CloseReason.CloseCodes;
 import jakarta.websocket.Session;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * Standard jakarta.websocket.Session WebSocketSession
@@ -34,6 +37,38 @@ import jakarta.websocket.Session;
  * @since 3.0
  */
 public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
+
+  private final HttpHeaders handshakeHeaders;
+
+  @Nullable
+  private final InetSocketAddress localAddress;
+
+  @Nullable
+  private final InetSocketAddress remoteAddress;
+
+  public StandardWebSocketSession(
+          HttpHeaders handshakeHeaders, @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress) {
+    this.handshakeHeaders = handshakeHeaders;
+    this.localAddress = localAddress;
+    this.remoteAddress = remoteAddress;
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getLocalAddress() {
+    return localAddress;
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getRemoteAddress() {
+    return remoteAddress;
+  }
+
+  @Override
+  public HttpHeaders getHandshakeHeaders() {
+    return handshakeHeaders;
+  }
 
   @Override
   public void sendText(String text) throws IOException {

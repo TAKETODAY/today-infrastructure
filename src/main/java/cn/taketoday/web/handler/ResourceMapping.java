@@ -149,7 +149,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * @see ResourceMapping#setPathPatterns(String...)
    */
   public ResourceMapping addPathPatterns(String... pathPatterns) {
-    final List<String> pathPatternsList = new ArrayList<>();
+    ArrayList<String> pathPatternsList = new ArrayList<>();
 
     Collections.addAll(pathPatternsList, Objects.requireNonNull(pathPatterns));
     Collections.addAll(pathPatternsList, this.pathPatterns);
@@ -167,7 +167,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    */
   public ResourceMapping setPathPatterns(String... pathPatterns) {
     this.pathPatterns = pathPatterns == null
-                        ? this.pathPatterns = Constant.EMPTY_STRING_ARRAY
+                        ? Constant.EMPTY_STRING_ARRAY
                         : pathPatterns;
     return this;
   }
