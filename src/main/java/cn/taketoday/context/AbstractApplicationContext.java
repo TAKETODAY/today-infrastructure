@@ -19,16 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -46,9 +36,11 @@ import cn.taketoday.context.autowire.AutowiredPropertyValuesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextPreRefreshEvent;
+import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
+import cn.taketoday.context.event.ContextStoppedEvent;
 import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -75,6 +67,16 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
+
 /**
  * Abstract implementation of the {@link ApplicationContext}
  * interface. Doesn't mandate the type of storage used for configuration; simply
@@ -97,8 +99,17 @@ import cn.taketoday.util.StringUtils;
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractApplicationContext
-        extends DefaultResourceLoader implements ConfigurableApplicationContext {
+        extends DefaultResourceLoader implements ConfigurableApplicationContext, Lifecycle {
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
+
+  /**
+   * Name of the LifecycleProcessor bean in the factory.
+   * If none is supplied, a DefaultLifecycleProcessor is used.
+   *
+   * @see LifecycleProcessor
+   * @see DefaultLifecycleProcessor
+   */
+  public static final String LIFECYCLE_PROCESSOR_BEAN_NAME = "lifecycleProcessor";
 
   private long startupDate;
 
@@ -141,6 +152,10 @@ public abstract class AbstractApplicationContext
   /** Reference to the JVM shutdown hook, if registered. */
   @Nullable
   private Thread shutdownHook;
+
+  /** LifecycleProcessor for managing the lifecycle of beans within this context. @since 4.0 */
+  @Nullable
+  private LifecycleProcessor lifecycleProcessor;
 
   public AbstractApplicationContext() { }
 
@@ -354,11 +369,86 @@ public abstract class AbstractApplicationContext
   protected void finishRefresh() {
     clearResourceCaches();
 
-    // start success publish started event
-    publishEvent(new ContextStartedEvent(this));
-    applyState(State.STARTED);
+    // Initialize lifecycle processor for this context.
+    initLifecycleProcessor();
 
+    // Propagate refresh to lifecycle processor first.
+    getLifecycleProcessor().onRefresh();
+
+    // Publish the final event.
+    publishEvent(new ContextRefreshedEvent(this));
+
+    applyState(State.STARTED);
     log.info("Application Context Startup in {}ms", System.currentTimeMillis() - getStartupDate());
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of Lifecycle interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public void start() {
+    getLifecycleProcessor().start();
+    publishEvent(new ContextStartedEvent(this));
+  }
+
+  @Override
+  public void stop() {
+    getLifecycleProcessor().stop();
+    publishEvent(new ContextStoppedEvent(this));
+  }
+
+  @Override
+  public boolean isRunning() {
+    return (this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning());
+  }
+
+  // lifecycleProcessor
+
+  // @since 4.0
+  public void setLifecycleProcessor(@Nullable LifecycleProcessor lifecycleProcessor) {
+    this.lifecycleProcessor = lifecycleProcessor;
+  }
+
+  /**
+   * Initialize the LifecycleProcessor.
+   * Uses DefaultLifecycleProcessor if none defined in the context.
+   *
+   * @see DefaultLifecycleProcessor
+   */
+  protected void initLifecycleProcessor() {
+    if (lifecycleProcessor == null) {
+      ConfigurableBeanFactory beanFactory = getBeanFactory();
+      if (beanFactory.containsLocalBean(LIFECYCLE_PROCESSOR_BEAN_NAME)) {
+        this.lifecycleProcessor = beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
+        if (log.isTraceEnabled()) {
+          log.trace("Using LifecycleProcessor [{}]", lifecycleProcessor);
+        }
+      }
+      else {
+        DefaultLifecycleProcessor defaultProcessor = new DefaultLifecycleProcessor();
+        defaultProcessor.setBeanFactory(beanFactory);
+        this.lifecycleProcessor = defaultProcessor;
+        beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
+        if (log.isTraceEnabled()) {
+          log.trace("No '{}' bean, using [{}]", LIFECYCLE_PROCESSOR_BEAN_NAME, lifecycleProcessor.getClass().getSimpleName());
+        }
+      }
+    }
+  }
+
+  /**
+   * Return the internal LifecycleProcessor used by the context.
+   *
+   * @return the internal LifecycleProcessor (never {@code null})
+   * @throws IllegalStateException if the context has not been initialized yet
+   */
+  LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
+    if (this.lifecycleProcessor == null) {
+      throw new IllegalStateException("LifecycleProcessor not initialized - " +
+              "call 'refresh' before invoking lifecycle methods via the context: " + this);
+    }
+    return this.lifecycleProcessor;
   }
 
   /**
@@ -566,7 +656,7 @@ public abstract class AbstractApplicationContext
    * destroys the singletons in the bean factory of this application context.
    * <p>Called by both {@code close()} and a JVM shutdown hook, if any.
    *
-   * @see ContextCloseEvent
+   * @see ContextClosedEvent
    * @see #destroyBeans()
    * @see #close()
    * @since 4.0
@@ -579,12 +669,20 @@ public abstract class AbstractApplicationContext
 
       try {
         // Publish shutdown event.
-        publishEvent(new ContextCloseEvent(this));
+        publishEvent(new ContextClosedEvent(this));
       }
       catch (Throwable ex) {
         log.warn("Exception thrown from ApplicationListener handling ContextCloseEvent", ex);
       }
-
+      // Stop all Lifecycle beans, to avoid delays during individual destruction.
+      if (this.lifecycleProcessor != null) {
+        try {
+          this.lifecycleProcessor.onClose();
+        }
+        catch (Throwable ex) {
+          log.warn("Exception thrown from LifecycleProcessor on context close", ex);
+        }
+      }
       // Destroy all cached singletons in the context's BeanFactory.
       destroyBeans();
 

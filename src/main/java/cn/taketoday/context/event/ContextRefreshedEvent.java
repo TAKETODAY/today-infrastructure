@@ -22,22 +22,24 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * Event raised when an {@code ApplicationContext} gets started.
+ * Event raised when an {@code ApplicationContext} gets initialized or refreshed.
  *
- * @author TODAY <br>
- * 2018-09-10 10:52
+ * @author Juergen Hoeller
+ * @author yanghaijian 2021/11/12 17:08
+ * @see ContextClosedEvent
+ * @since 4.0
  */
-@SuppressWarnings("serial")
-public class ContextStartedEvent extends ApplicationContextEvent {
+public class ContextRefreshedEvent extends ApplicationContextEvent {
 
   /**
-   * Create a new ContextStartedEvent.
+   * Create a new ContextRefreshedEvent.
    *
-   * @param source the {@code ApplicationContext} that has been started
-   * (must not be {@code null})
+   * @param source the {@code ApplicationContext} that has been initialized
+   * or refreshed (must not be {@code null})
    */
-  public ContextStartedEvent(ApplicationContext source) {
+  public ContextRefreshedEvent(ApplicationContext source) {
     super(source);
   }
 
 }
+

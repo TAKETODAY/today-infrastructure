@@ -22,22 +22,17 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * Event raised when an {@code ApplicationContext} gets started.
+ * When close {@link ApplicationContext} will publish this event
  *
  * @author TODAY <br>
- * 2018-09-10 10:52
+ *
+ * 2018-09-10 07:55
  */
 @SuppressWarnings("serial")
-public class ContextStartedEvent extends ApplicationContextEvent {
+public class ContextClosedEvent extends ApplicationContextEvent {
 
-  /**
-   * Create a new ContextStartedEvent.
-   *
-   * @param source the {@code ApplicationContext} that has been started
-   * (must not be {@code null})
-   */
-  public ContextStartedEvent(ApplicationContext source) {
-    super(source);
+  public ContextClosedEvent(ApplicationContext applicationContext) {
+    super(applicationContext);
   }
 
 }

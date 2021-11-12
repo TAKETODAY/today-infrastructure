@@ -22,17 +22,25 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * When close {@link ApplicationContext} will publish this event
+ * Event raised when an {@code ApplicationContext} gets stopped.
  *
- * @author TODAY <br>
- *
- * 2018-09-10 07:55
+ * @author Mark Fisher
+ * @author Juergen Hoeller
+ * @author TODAY 2021/11/12 17:07
+ * @see ContextStartedEvent
+ * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ContextCloseEvent extends ApplicationContextEvent {
+public class ContextStoppedEvent extends ApplicationContextEvent {
 
-  public ContextCloseEvent(ApplicationContext applicationContext) {
-    super(applicationContext);
+  /**
+   * Create a new ContextStoppedEvent.
+   *
+   * @param source the {@code ApplicationContext} that has been stopped
+   * (must not be {@code null})
+   */
+  public ContextStoppedEvent(ApplicationContext source) {
+    super(source);
   }
 
 }

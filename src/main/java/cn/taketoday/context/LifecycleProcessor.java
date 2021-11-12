@@ -15,29 +15,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.event;
-
-import cn.taketoday.context.ApplicationContext;
+package cn.taketoday.context;
 
 /**
- * Event raised when an {@code ApplicationContext} gets started.
+ * Strategy interface for processing Lifecycle beans within the ApplicationContext.
  *
- * @author TODAY <br>
- * 2018-09-10 10:52
+ * @author Mark Fisher
+ * @author Juergen Hoeller
+ * @since 4.0
  */
-@SuppressWarnings("serial")
-public class ContextStartedEvent extends ApplicationContextEvent {
+public interface LifecycleProcessor extends Lifecycle {
 
   /**
-   * Create a new ContextStartedEvent.
-   *
-   * @param source the {@code ApplicationContext} that has been started
-   * (must not be {@code null})
+   * Notification of context refresh, e.g. for auto-starting components.
    */
-  public ContextStartedEvent(ApplicationContext source) {
-    super(source);
-  }
+  void onRefresh();
+
+  /**
+   * Notification of context close phase, e.g. for auto-stopping components.
+   */
+  void onClose();
 
 }
