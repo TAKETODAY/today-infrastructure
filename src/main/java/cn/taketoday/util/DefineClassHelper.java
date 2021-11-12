@@ -226,12 +226,12 @@ public class DefineClassHelper {
     }
 
     // Force static initializers to run.
-    try {
-      Class.forName(className, true, loader);
-    }
-    catch (ClassNotFoundException e) {
-      throw newException(className, e);
-    }
+//    try {
+//      Class.forName(className, true, loader);
+//    }
+//    catch (ClassNotFoundException e) {
+//      throw newException(className, e);
+//    }
     return c;
   }
 
