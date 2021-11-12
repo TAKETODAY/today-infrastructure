@@ -19,10 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPOutputStream;
-
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
@@ -37,6 +33,10 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author TODAY 2019-12-25 16:12
@@ -54,13 +54,13 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   }
 
   @Override
-  public Object handleRequest(final RequestContext context) throws Throwable {
-    final Object ret = super.handleRequest(context);
+  public Object handleRequest(RequestContext context) throws Throwable {
+    Object ret = super.handleRequest(context);
     if (ret == null) {
-      final ResourceMatchResult matchResult = getResourceMatchResult(context);
+      ResourceMatchResult matchResult = getResourceMatchResult(context);
       throw ResourceNotFoundException.notFound(matchResult);
     }
-    else if (ret instanceof final WebResource resource) {
+    else if (ret instanceof WebResource resource) {
       if (resource.isDirectory()) {// TODO Directory listing
         throw ResourceNotFoundException.notFound();
       }
@@ -72,7 +72,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   }
 
   private ResourceMatchResult getResourceMatchResult(RequestContext context) {
-    final Object attribute = context.getAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT);
+    Object attribute = context.getAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT);
     if (attribute == null) {
       throw new NotFoundException("Resource Not Found");
     }
@@ -85,7 +85,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   }
 
   @Override
-  protected Object handleInternal(final RequestContext context) {
+  protected Object handleInternal(RequestContext context) {
     return resourceResolver.resolveResource((ResourceMatchResult) context.getAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT));
   }
 
@@ -96,15 +96,15 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * @param resource {@link Resource}
    * @throws IOException If an input or output exception occurs
    */
-  protected void handleResult(final RequestContext context, final WebResource resource) throws IOException {
-    final String contentType = getContentType(resource);
+  protected void handleResult(RequestContext context, WebResource resource) throws IOException {
+    String contentType = getContentType(resource);
 
     if (StringUtils.isNotEmpty(contentType)) {
       context.setContentType(contentType);
     }
 
-    final String eTag = resource.getETag();
-    final long lastModified = resource.lastModified();
+    String eTag = resource.getETag();
+    long lastModified = resource.lastModified();
 
     // lastModified
     if (WebUtils.checkNotModified(eTag, lastModified, context)) {
@@ -113,7 +113,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
     context.setStatus(HttpStatus.OK);
 
-    final ResourceMapping resourceMapping = getMapping();
+    ResourceMapping resourceMapping = getMapping();
     applyHeaders(context.responseHeaders(), lastModified, eTag, resourceMapping);
 
     if (WebUtils.isHeadRequest(context)) {
@@ -124,7 +124,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     context.flush();
   }
 
-  protected String getContentType(final WebResource resource) {
+  protected String getContentType(WebResource resource) {
     String contentType = resource.getContentType();
     if (StringUtils.isEmpty(contentType)) {
       contentType = getContentTypeInternal(resource);
@@ -143,21 +143,20 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * @param requestContext Current request context
    * @throws IOException If any IO exception occurred
    */
-  protected void writeCompressed(final Resource resource,
-                                 final RequestContext requestContext, //
-                                 final ResourceMapping resourceMapping) throws IOException //
-  {
-    final HttpHeaders requestHeaders = requestContext.requestHeaders();
+  protected void writeCompressed(
+          Resource resource, RequestContext requestContext, ResourceMapping mapping) throws IOException {
+
+    HttpHeaders requestHeaders = requestContext.requestHeaders();
     requestHeaders.set(HttpHeaders.CONTENT_ENCODING, HttpHeaders.GZIP);
 
-    final int bufferSize = resourceMapping.getBufferSize();
+    int bufferSize = mapping.getBufferSize();
 
-    try (final InputStream source = resource.getInputStream()) {
+    try (InputStream source = resource.getInputStream()) {
 
       // ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
       // GZIPOutputStream gzip = new GZIPOutputStream(baos);
       // WebUtils.writeToOutputStream(source, gzip, bufferSize);
-      // final byte[] byteArray = baos.toByteArray();
+      // byte[] byteArray = baos.toByteArray();
       // requestContext.contentLength(byteArray.length);
       // baos.writeTo(requestContext.getOutputStream());
 
@@ -173,18 +172,15 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * @param context Current request context
    * @throws IOException If any IO exception occurred
    */
-  protected void write(final Resource resource,
-                       final RequestContext context,
-                       final ResourceMapping resourceMapping) throws IOException //
-  {
+  protected void write(Resource resource, RequestContext context, ResourceMapping mapping) throws IOException {
     context.setContentLength(resource.contentLength());
 
-    try (final InputStream source = resource.getInputStream()) {
-      StreamUtils.copy(source, context.getOutputStream(), resourceMapping.getBufferSize());
+    try (InputStream source = resource.getInputStream()) {
+      StreamUtils.copy(source, context.getOutputStream(), mapping.getBufferSize());
     }
   }
 
-  protected boolean matches(final String matchHeader, final String etag) {
+  protected boolean matches(String matchHeader, String etag) {
     if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
       return "*".equals(etag) || matchHeader.equals(etag);
     }
@@ -195,22 +191,19 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
    */
   protected void applyHeaders(
-          HttpHeaders responseHeaders,
-          final long lastModified,
-          final String eTag, final ResourceMapping resourceMapping)  //
-  {
+          HttpHeaders responseHeaders, long lastModified, String eTag, ResourceMapping mapping) {
     if (lastModified > 0) {
       responseHeaders.setLastModified(lastModified);
     }
     if (StringUtils.isNotEmpty(eTag)) {
       responseHeaders.setETag(eTag);
     }
-    final CacheControl cacheControl = resourceMapping.getCacheControl();
+    CacheControl cacheControl = mapping.getCacheControl();
     if (cacheControl != null) {
       responseHeaders.setCacheControl(cacheControl);
     }
-    if (resourceMapping.getExpires() > 0) {
-      responseHeaders.setExpires(System.currentTimeMillis() + resourceMapping.getExpires());
+    if (mapping.getExpires() > 0) {
+      responseHeaders.setExpires(System.currentTimeMillis() + mapping.getExpires());
     }
   }
 
