@@ -22,7 +22,8 @@ package cn.taketoday.context;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.event.ContextClosedEvent;
+import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.core.Ordered;
 import org.junit.jupiter.api.Test;
@@ -39,10 +40,10 @@ class ApplicationListenerTests {
   void testAddApplicationListener() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.addApplicationListener(new ApplicationListener<ContextStartedEvent>() {
+      applicationContext.addApplicationListener(new ApplicationListener<ContextRefreshedEvent>() {
 
         @Override
-        public void onApplicationEvent(ContextStartedEvent event) {
+        public void onApplicationEvent(ContextRefreshedEvent event) {
           i = true;
         }
       });
@@ -65,10 +66,10 @@ class ApplicationListenerTests {
 
   private static boolean testLoadedMetaInfoListener = false;
 
-  public static class ContextCloseMetaInfoListener implements ApplicationListener<ContextCloseEvent>, Ordered {
+  public static class ContextCloseMetaInfoListener implements ApplicationListener<ContextClosedEvent>, Ordered {
 
     @Override
-    public void onApplicationEvent(ContextCloseEvent event) {
+    public void onApplicationEvent(ContextClosedEvent event) {
       System.err.println("context is closing");
       testLoadedMetaInfoListener = true;
     }

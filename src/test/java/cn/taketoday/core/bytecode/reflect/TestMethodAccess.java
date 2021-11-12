@@ -111,7 +111,7 @@ public class TestMethodAccess {
     assertEquals(fc.invoke("staticMethod", new Class[0], null, null), 10);
   }
 
-  private static abstract class ReallyBigClass {
+  public static abstract class ReallyBigClass {
     public ReallyBigClass() { }
 
     abstract public void method1(int i, short s, float f);
