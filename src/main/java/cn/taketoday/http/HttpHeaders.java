@@ -19,6 +19,14 @@
  */
 package cn.taketoday.http;
 
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -47,14 +55,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -601,7 +601,7 @@ public abstract class HttpHeaders
     }
 
     List<String> values = languages.stream().map(new Function0()).collect(Collectors.toList());
-    set(ACCEPT_LANGUAGE, collectionToString(values));
+    set(ACCEPT_LANGUAGE, toCommaDelimitedString(values));
   }
 
   /**
@@ -624,8 +624,8 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguageAsLocales(List<Locale> locales) {
     setAcceptLanguage(locales.stream()
-                              .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
-                              .collect(Collectors.toList()));
+            .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
+            .collect(Collectors.toList()));
   }
 
   /**
@@ -688,7 +688,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlAllowHeaders(List<String> allowedHeaders) {
-    set(ACCESS_CONTROL_ALLOW_HEADERS, collectionToString(allowedHeaders));
+    set(ACCESS_CONTROL_ALLOW_HEADERS, toCommaDelimitedString(allowedHeaders));
   }
 
   /**
@@ -703,7 +703,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlAllowMethods(List<?> allowedMethods) {
-    set(ACCESS_CONTROL_ALLOW_METHODS, collectionToString(allowedMethods));
+    set(ACCESS_CONTROL_ALLOW_METHODS, toCommaDelimitedString(allowedMethods));
   }
 
   /**
@@ -741,7 +741,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlExposeHeaders(List<String> exposedHeaders) {
-    set(ACCESS_CONTROL_EXPOSE_HEADERS, collectionToString(exposedHeaders));
+    set(ACCESS_CONTROL_EXPOSE_HEADERS, toCommaDelimitedString(exposedHeaders));
   }
 
   /**
@@ -781,7 +781,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlRequestHeaders(List<String> requestHeaders) {
-    set(ACCESS_CONTROL_REQUEST_HEADERS, collectionToString(requestHeaders));
+    set(ACCESS_CONTROL_REQUEST_HEADERS, toCommaDelimitedString(requestHeaders));
   }
 
   /**
@@ -980,7 +980,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Connection} header.
    */
   public void setConnection(List<String> connection) {
-    set(CONNECTION, collectionToString(connection));
+    set(CONNECTION, toCommaDelimitedString(connection));
   }
 
   /**
@@ -1039,8 +1039,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-           ? ContentDisposition.parse(contentDisposition)
-           : ContentDisposition.empty();
+            ? ContentDisposition.parse(contentDisposition)
+            : ContentDisposition.empty();
   }
 
   /**
@@ -1261,8 +1261,8 @@ public abstract class HttpHeaders
     String host = null;
     int port = 0;
     int separator = StringUtils.matchesFirst(value, '[')
-                    ? value.indexOf(':', value.indexOf(']'))
-                    : value.lastIndexOf(':');
+            ? value.indexOf(':', value.indexOf(']'))
+            : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);
@@ -1291,7 +1291,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code If-Match} header.
    */
   public void setIfMatch(List<String> ifMatchList) {
-    set(IF_MATCH, collectionToString(ifMatchList));
+    set(IF_MATCH, toCommaDelimitedString(ifMatchList));
   }
 
   /**
@@ -1350,7 +1350,7 @@ public abstract class HttpHeaders
    * Set the (new) values of the {@code If-None-Match} header.
    */
   public void setIfNoneMatch(List<String> ifNoneMatchList) {
-    set(IF_NONE_MATCH, collectionToString(ifNoneMatchList));
+    set(IF_NONE_MATCH, toCommaDelimitedString(ifNoneMatchList));
   }
 
   /**
@@ -1744,11 +1744,23 @@ public abstract class HttpHeaders
   @Nullable
   public String getFieldValues(String headerName) {
     List<String> headerValues = get(headerName);
-    return (headerValues != null ? collectionToString(headerValues) : null);
+    return (headerValues != null ? toCommaDelimitedString(headerValues) : null);
   }
 
-  protected String collectionToString(Collection<?> headerValues) {
-    return StringUtils.collectionToString(headerValues, ", ");
+  /**
+   * Turn the given list of header values into a comma-delimited result.
+   *
+   * @param headerValues the list of header values
+   * @return a combined result with comma delimitation
+   */
+  protected String toCommaDelimitedString(Collection<String> headerValues) {
+    StringJoiner joiner = new StringJoiner(", ");
+    for (String val : headerValues) {
+      if (val != null) {
+        joiner.add(val);
+      }
+    }
+    return joiner.toString();
   }
 
   /**
@@ -1846,8 +1858,8 @@ public abstract class HttpHeaders
               List<String> values = entry.getValue();
               return entry.getKey() + ":"
                       + (values.size() == 1
-                         ? "\"" + values.get(0) + "\""
-                         : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                      ? "\"" + values.get(0) + "\""
+                      : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }
