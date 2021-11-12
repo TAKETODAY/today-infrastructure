@@ -21,7 +21,6 @@
 package cn.taketoday.web.socket;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/4/5 14:45
@@ -67,9 +66,12 @@ public abstract class AbstractMessage<T> implements Message<T> {
 
   @Override
   public String toString() {
-    return ObjectUtils.toHexString(this) + " {" +
-            "payload=" + payload +
-            ", last=" + last +
-            '}';
+    return getClass().getSimpleName() + " payload=[" + toStringPayload() +
+            "], byteCount=" + getPayloadLength() + ", last=" + isLast() + "]";
   }
+
+  protected String toStringPayload() {
+    return getPayload().toString();
+  }
+
 }

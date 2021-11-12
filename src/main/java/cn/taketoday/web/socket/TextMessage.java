@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
  * @since 3.0
  */
 public class TextMessage extends AbstractMessage<String> {
+  private final byte[] bytes;
 
   /**
    * Create a new text WebSocket message from the given CharSequence payload.
@@ -35,6 +36,7 @@ public class TextMessage extends AbstractMessage<String> {
    */
   public TextMessage(String payload) {
     super(payload);
+    this.bytes = null;
   }
 
   /**
@@ -45,6 +47,7 @@ public class TextMessage extends AbstractMessage<String> {
    */
   public TextMessage(byte[] payload) {
     super(new String(payload, StandardCharsets.UTF_8));
+    this.bytes = payload;
   }
 
   /**
@@ -58,6 +61,22 @@ public class TextMessage extends AbstractMessage<String> {
    */
   public TextMessage(CharSequence payload, boolean isLast) {
     super(payload.toString(), isLast);
+    this.bytes = null;
+  }
+
+  @Override
+  public int getPayloadLength() {
+    return asBytes().length;
+  }
+
+  public byte[] asBytes() {
+    return this.bytes != null ? this.bytes : getPayload().getBytes(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  protected String toStringPayload() {
+    String payload = getPayload();
+    return payload.length() > 10 ? payload.substring(0, 10) + ".." : payload;
   }
 
 }

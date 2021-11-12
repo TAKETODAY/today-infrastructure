@@ -89,4 +89,14 @@ public class BinaryMessage extends AbstractMessage<ByteBuffer> {
     super(ByteBuffer.wrap(payload, offset, length), isLast);
   }
 
+  	@Override
+	public int getPayloadLength() {
+		return getPayload().remaining();
+	}
+
+	@Override
+	protected String toStringPayload() {
+		return getPayload().toString();
+	}
+
 }

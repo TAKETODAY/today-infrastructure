@@ -44,4 +44,9 @@ public final class PingMessage extends AbstractMessage<ByteBuffer> {
     super(payload);
   }
 
+  @Override
+  public int getPayloadLength() {
+    return getPayload().remaining();
+  }
+
 }

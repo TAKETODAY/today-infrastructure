@@ -21,12 +21,19 @@
 package cn.taketoday.web.socket;
 
 /**
+ * A message that can be handled or sent on a WebSocket connection.
+ *
  * @author TODAY 2021/4/3 11:56
  * @since 3.0
  */
 public interface Message<T> {
 
   T getPayload();
+
+  /**
+   * Return the number of bytes contained in the message.
+   */
+  int getPayloadLength();
 
   /**
    * @return Whether the partial message being sent is the last part of the message.
