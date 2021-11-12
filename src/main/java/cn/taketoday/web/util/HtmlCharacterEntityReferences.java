@@ -58,7 +58,7 @@ class HtmlCharacterEntityReferences {
 
   private final String[] characterToEntityReferenceMap = new String[3000];
 
-  private final Map<String, Character> entityReferenceToCharacterMap = new HashMap<>(512);
+  private final HashMap<String, Character> entityReferenceToCharacterMap = new HashMap<>(512);
 
   /**
    * Returns a new set of character entity references reflecting the HTML 4.0 character set.

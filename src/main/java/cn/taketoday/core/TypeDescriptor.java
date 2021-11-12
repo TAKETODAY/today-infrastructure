@@ -234,7 +234,6 @@ public class TypeDescriptor implements Serializable {
    * @return a new TypeDescriptor for the up-cast type
    * @throws IllegalArgumentException if this type is not assignable to the super-type
    */
-
   public TypeDescriptor upcast(Class<?> superType) {
     if (superType == null) {
       return null;

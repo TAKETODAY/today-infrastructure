@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StreamTokenizer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,7 +122,7 @@ public class HtmlCharacterEntityReferencesTests {
         if (inputStream == null) {
           throw new IOException("Cannot find definition resource [" + DTD_FILE + "]");
         }
-        tokenizer = new StreamTokenizer(new BufferedReader(new InputStreamReader(inputStream, "UTF-8")));
+        tokenizer = new StreamTokenizer(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)));
       }
       catch (IOException ex) {
         throw new IllegalStateException("Failed to open definition resource [" + DTD_FILE + "]");
