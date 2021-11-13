@@ -130,11 +130,11 @@ final class DefaultPathContainer implements PathContainer {
     Charset charset = StandardCharsets.UTF_8;
     int index = segment.indexOf(';');
     if (index == -1) {
-      String valueToMatch = StringUtils.decodeURL(segment, charset);
+      String valueToMatch = StringUtils.uriDecode(segment, charset);
       return DefaultPathSegment.from(segment, valueToMatch);
     }
     else {
-      String valueToMatch = StringUtils.decodeURL(segment.substring(0, index), charset);
+      String valueToMatch = StringUtils.uriDecode(segment.substring(0, index), charset);
       String pathParameterContent = segment.substring(index);
       MultiValueMap<String, String> parameters = parsePathParams(pathParameterContent, charset);
       return DefaultPathSegment.from(segment, valueToMatch, parameters);
@@ -161,16 +161,16 @@ final class DefaultPathContainer implements PathContainer {
       int index = input.indexOf('=');
       if (index != -1) {
         String name = input.substring(0, index);
-        name = StringUtils.decodeURL(name, charset);
+        name = StringUtils.uriDecode(name, charset);
         if (StringUtils.hasText(name)) {
           String value = input.substring(index + 1);
           for (String v : StringUtils.commaDelimitedListToStringArray(value)) {
-            output.add(name, StringUtils.decodeURL(v, charset));
+            output.add(name, StringUtils.uriDecode(v, charset));
           }
         }
       }
       else {
-        String name = StringUtils.decodeURL(input, charset);
+        String name = StringUtils.uriDecode(input, charset);
         if (StringUtils.hasText(name)) {
           output.add(input, "");
         }

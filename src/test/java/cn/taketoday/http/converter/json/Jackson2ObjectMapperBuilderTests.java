@@ -67,7 +67,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -88,7 +87,6 @@ import java.util.stream.StreamSupport;
 
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.util.StringUtils;
-import kotlin.ranges.IntRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -263,7 +261,7 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-  void wellKnownModules() throws JsonProcessingException, UnsupportedEncodingException {
+  void wellKnownModules() throws JsonProcessingException {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
     Path file = Paths.get("foo");
@@ -271,10 +269,6 @@ class Jackson2ObjectMapperBuilderTests {
 
     Optional<String> optional = Optional.of("test");
     assertThat(new String(objectMapper.writeValueAsBytes(optional), StandardCharsets.UTF_8)).isEqualTo("\"test\"");
-
-    // Kotlin module
-    IntRange range = new IntRange(1, 3);
-    assertThat(new String(objectMapper.writeValueAsBytes(range), StandardCharsets.UTF_8)).isEqualTo("{\"start\":1,\"end\":3}");
   }
 
   @Test

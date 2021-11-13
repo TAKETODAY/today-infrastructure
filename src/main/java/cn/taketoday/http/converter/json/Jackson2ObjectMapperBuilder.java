@@ -108,12 +108,11 @@ import cn.taketoday.util.StringUtils;
  */
 public class Jackson2ObjectMapperBuilder {
 
+  private final LinkedHashMap<Object, Boolean> features = new LinkedHashMap<>();
   private final LinkedHashMap<Class<?>, Class<?>> mixIns = new LinkedHashMap<>();
   private final LinkedHashMap<Class<?>, JsonSerializer<?>> serializers = new LinkedHashMap<>();
   private final LinkedHashMap<Class<?>, JsonDeserializer<?>> deserializers = new LinkedHashMap<>();
   private final LinkedHashMap<PropertyAccessor, JsonAutoDetect.Visibility> visibilities = new LinkedHashMap<>();
-
-  private final LinkedHashMap<Object, Boolean> features = new LinkedHashMap<>();
 
   private boolean createXmlMapper = false;
 
@@ -271,7 +270,6 @@ public class Jackson2ObjectMapperBuilder {
    */
   public Jackson2ObjectMapperBuilder annotationIntrospector(
           Function<AnnotationIntrospector, AnnotationIntrospector> pairingFunction) {
-
     this.annotationIntrospector = pairingFunction.apply(this.annotationIntrospector);
     return this;
   }
@@ -688,17 +686,20 @@ public class Jackson2ObjectMapperBuilder {
    */
   public void configure(ObjectMapper objectMapper) {
     Assert.notNull(objectMapper, "ObjectMapper must not be null");
-    DefaultMultiValueMap<Object, Module> modulesToRegister = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<Object, Module> modulesToRegister = MultiValueMap.fromLinkedHashMap();
     if (this.findModulesViaServiceLoader) {
-      ObjectMapper.findModules(this.moduleClassLoader)
-              .forEach(module -> registerModule(module, modulesToRegister));
+      for (Module module : ObjectMapper.findModules(this.moduleClassLoader)) {
+        registerModule(module, modulesToRegister);
+      }
     }
     else if (this.findWellKnownModules) {
       registerWellKnownModulesIfAvailable(modulesToRegister);
     }
 
     if (this.modules != null) {
-      this.modules.forEach(module -> registerModule(module, modulesToRegister));
+      for (Module module : modules) {
+        registerModule(module, modulesToRegister);
+      }
     }
     if (this.moduleClasses != null) {
       for (Class<? extends Module> moduleClass : this.moduleClasses) {
@@ -749,8 +750,13 @@ public class Jackson2ObjectMapperBuilder {
 
     this.visibilities.forEach(objectMapper::setVisibility);
 
+    for (Map.Entry<Object, Boolean> entry : features.entrySet()) {
+      Object feature = entry.getKey();
+      Boolean enabled = entry.getValue();
+      configureFeature(objectMapper, feature, enabled);
+    }
+
     customizeDefaultFeatures(objectMapper);
-    this.features.forEach((feature, enabled) -> configureFeature(objectMapper, feature, enabled));
 
     if (this.handlerInstantiator != null) {
       objectMapper.setHandlerInstantiator(this.handlerInstantiator);

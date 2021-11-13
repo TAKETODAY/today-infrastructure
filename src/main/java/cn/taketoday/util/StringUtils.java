@@ -20,6 +20,7 @@
 package cn.taketoday.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -254,12 +255,12 @@ public abstract class StringUtils {
     while (i < numChars) {
       c = s.charAt(i);
       switch (c) {
-        case '+':
+        case '+' -> {
           sb.append(' ');
           i++;
           needToChange = true;
-          break;
-        case '%':
+        }
+        case '%' -> {
           /*
            * Starting with this instance of %, process all
            * consecutive substrings of the form %xy. Each
@@ -300,15 +301,66 @@ public abstract class StringUtils {
                             + e.getMessage(), e);
           }
           needToChange = true;
-          break;
-        default:
+        }
+        default -> {
           sb.append(c);
           i++;
-          break;
+        }
       }
     }
 
     return (needToChange ? sb.toString() : s);
+  }
+
+  /**
+   * Decode the given encoded URI component value. Based on the following rules:
+   * <ul>
+   * <li>Alphanumeric characters {@code "a"} through {@code "z"}, {@code "A"} through {@code "Z"},
+   * and {@code "0"} through {@code "9"} stay the same.</li>
+   * <li>Special characters {@code "-"}, {@code "_"}, {@code "."}, and {@code "*"} stay the same.</li>
+   * <li>A sequence "{@code %<i>xy</i>}" is interpreted as a hexadecimal representation of the character.</li>
+   * </ul>
+   *
+   * @param source the encoded String
+   * @param charset the character set
+   * @return the decoded value
+   * @throws IllegalArgumentException when the given source contains invalid encoded sequences
+   * @see java.net.URLDecoder#decode(String, String)
+   * @since 4.0
+   */
+  public static String uriDecode(String source, Charset charset) {
+    int length = source.length();
+    if (length == 0) {
+      return source;
+    }
+    Assert.notNull(charset, "Charset must not be null");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
+    boolean changed = false;
+    for (int i = 0; i < length; i++) {
+      int ch = source.charAt(i);
+      if (ch == '%') {
+        if (i + 2 < length) {
+          char hex1 = source.charAt(i + 1);
+          char hex2 = source.charAt(i + 2);
+          int u = Character.digit(hex1, 16);
+          int l = Character.digit(hex2, 16);
+          if (u == -1 || l == -1) {
+            throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
+          }
+          baos.write((char) ((u << 4) + l));
+          i += 2;
+          changed = true;
+        }
+        else {
+          throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
+        }
+      }
+      else {
+        baos.write(ch);
+      }
+    }
+    return (changed ? StreamUtils.copyToString(baos, charset) : source);
   }
 
   /**
@@ -507,8 +559,8 @@ public abstract class StringUtils {
    */
   public static String[] toStringArray(@Nullable Enumeration<String> enumeration) {
     return enumeration == null
-            ? Constant.EMPTY_STRING_ARRAY
-            : toStringArray(Collections.list(enumeration));
+           ? Constant.EMPTY_STRING_ARRAY
+           : toStringArray(Collections.list(enumeration));
   }
 
   /**
@@ -864,8 +916,8 @@ else */
     }
     final char firstChar = str.charAt(0);
     if (capitalize
-            ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
-            : (firstChar >= 'a' && firstChar <= 'z')) {
+        ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
+        : (firstChar >= 'a' && firstChar <= 'z')) {
       return str;
     }
     final char[] chars = str.toCharArray();

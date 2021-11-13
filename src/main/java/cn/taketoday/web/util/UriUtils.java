@@ -386,7 +386,7 @@ public abstract class UriUtils {
    * @see java.net.URLDecoder#decode(String, String)
    */
   public static String decode(String source, String encoding) {
-    return StringUtils.decodeURL(source, Charset.forName(encoding));
+    return StringUtils.uriDecode(source, Charset.forName(encoding));
   }
 
   /**
@@ -401,7 +401,7 @@ public abstract class UriUtils {
    * @see java.net.URLDecoder#decode(String, String)
    */
   public static String decode(String source, Charset charset) {
-    return StringUtils.decodeURL(source, charset);
+    return StringUtils.uriDecode(source, charset);
   }
 
   /**
