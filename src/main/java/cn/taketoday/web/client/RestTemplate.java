@@ -894,9 +894,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       if (requestBody == null) {
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
-        if (!requestHeaders.isEmpty()) {
-          httpHeaders.addAll(requestHeaders);
-        }
+        copyHttpHeaders(httpHeaders, requestHeaders);
         if (httpHeaders.getContentLength() < 0) {
           httpHeaders.setContentLength(0L);
         }
@@ -913,18 +911,14 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         for (HttpMessageConverter messageConverter : getMessageConverters()) {
           if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
             if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
-              if (!requestHeaders.isEmpty()) {
-                requestHeaders.putAll(httpHeaders);
-              }
+              copyHttpHeaders(httpHeaders, requestHeaders);
               logBody(requestBody, requestContentType, genericConverter);
               genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
               return;
             }
           }
           else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
-            if (!requestHeaders.isEmpty()) {
-              requestHeaders.addAll(httpHeaders);
-            }
+            copyHttpHeaders(httpHeaders, requestHeaders);
             logBody(requestBody, requestContentType, messageConverter);
 
             messageConverter.write(requestBody, requestContentType, httpRequest);
@@ -948,6 +942,14 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         else {
           logger.debug("Writing [{}] with {}", body, converter.getClass().getName());
         }
+      }
+    }
+  }
+
+  private static void copyHttpHeaders(HttpHeaders httpHeaders, HttpHeaders requestHeaders) {
+    if (!requestHeaders.isEmpty()) {
+      for (Map.Entry<String, List<String>> entry : requestHeaders.entrySet()) {
+        httpHeaders.put(entry.getKey(), new ArrayList<>(entry.getValue()));
       }
     }
   }
