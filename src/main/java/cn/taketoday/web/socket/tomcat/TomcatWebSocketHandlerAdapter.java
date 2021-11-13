@@ -66,7 +66,7 @@ public class TomcatWebSocketHandlerAdapter
 
   static {
     if (DISABLE_BUILTIN_EXTENSIONS) {
-      INSTALLED_EXTENSIONS = Collections.unmodifiableList(new ArrayList<>());
+      INSTALLED_EXTENSIONS = new ArrayList<>();
     }
     else {
       INSTALLED_EXTENSIONS = List.of(new StandardWebSocketExtension("permessage-deflate"));

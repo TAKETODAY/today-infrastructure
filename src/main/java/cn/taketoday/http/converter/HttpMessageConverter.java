@@ -80,11 +80,10 @@ public interface HttpMessageConverter<T> {
    *
    * @param clazz the type of class to check
    * @return the list of media types supported for the given class
-   * @since 4.0
    */
   default List<MediaType> getSupportedMediaTypes(Class<?> clazz) {
-    return (canRead(clazz, null) || canWrite(clazz, null) ?
-            getSupportedMediaTypes() : Collections.emptyList());
+    return canRead(clazz, null) || canWrite(clazz, null)
+           ? getSupportedMediaTypes() : Collections.emptyList();
   }
 
   /**

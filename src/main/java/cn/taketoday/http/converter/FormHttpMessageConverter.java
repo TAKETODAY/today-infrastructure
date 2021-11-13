@@ -221,7 +221,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    */
   @Override
   public List<MediaType> getSupportedMediaTypes() {
-    return Collections.unmodifiableList(this.supportedMediaTypes);
+    return this.supportedMediaTypes;
   }
 
   /**
@@ -238,7 +238,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * parts.
    */
   public List<HttpMessageConverter<?>> getPartConverters() {
-    return Collections.unmodifiableList(this.partConverters);
+    return this.partConverters;
   }
 
   /**

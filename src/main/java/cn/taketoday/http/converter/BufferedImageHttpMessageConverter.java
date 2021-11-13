@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -72,14 +71,13 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class BufferedImageHttpMessageConverter implements HttpMessageConverter<BufferedImage> {
-
-  private final List<MediaType> readableMediaTypes = new ArrayList<>();
-
-  @Nullable
-  private MediaType defaultContentType;
+  private final ArrayList<MediaType> readableMediaTypes = new ArrayList<>();
 
   @Nullable
   private File cacheDir;
+
+  @Nullable
+  private MediaType defaultContentType;
 
   public BufferedImageHttpMessageConverter() {
     String[] readerMediaTypes = ImageIO.getReaderMIMETypes();
@@ -136,7 +134,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
 
   @Override
   public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
-    return (BufferedImage.class == clazz && isReadable(mediaType));
+    return BufferedImage.class == clazz && isReadable(mediaType);
   }
 
   private boolean isReadable(@Nullable MediaType mediaType) {
@@ -149,7 +147,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
 
   @Override
   public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
-    return (BufferedImage.class == clazz && isWritable(mediaType));
+    return BufferedImage.class == clazz && isWritable(mediaType);
   }
 
   private boolean isWritable(@Nullable MediaType mediaType) {
@@ -162,17 +160,15 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
 
   @Override
   public List<MediaType> getSupportedMediaTypes() {
-    return Collections.unmodifiableList(this.readableMediaTypes);
+    return this.readableMediaTypes;
   }
 
   @Override
   public BufferedImage read(@Nullable Class<? extends BufferedImage> clazz, HttpInputMessage inputMessage)
-          throws IOException, HttpMessageNotReadableException {
-
-    ImageInputStream imageInputStream = null;
+          throws IOException, HttpMessageNotReadableException //
+  {
     ImageReader imageReader = null;
-    try {
-      imageInputStream = createImageInputStream(inputMessage.getBody());
+    try (ImageInputStream imageInputStream = createImageInputStream(inputMessage.getBody())) {
       MediaType contentType = inputMessage.getHeaders().getContentType();
       if (contentType == null) {
         throw new HttpMessageNotReadableException("No Content-Type header", inputMessage);
@@ -195,14 +191,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
       if (imageReader != null) {
         imageReader.dispose();
       }
-      if (imageInputStream != null) {
-        try {
-          imageInputStream.close();
-        }
-        catch (IOException ex) {
-          // ignore
-        }
-      }
+      // ignore
     }
   }
 
@@ -216,11 +205,10 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
   }
 
   @Override
-  public void write(final BufferedImage image, @Nullable final MediaType contentType,
-                    final HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException {
-
-    final MediaType selectedContentType = getContentType(contentType);
+  public void write(BufferedImage image, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
+          throws IOException, HttpMessageNotWritableException //
+  {
+    MediaType selectedContentType = getContentType(contentType);
     outputMessage.getHeaders().setContentType(selectedContentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
@@ -235,14 +223,14 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
     if (contentType == null || contentType.isWildcardType() || contentType.isWildcardSubtype()) {
       contentType = getDefaultContentType();
     }
-    Assert.notNull(contentType, "Could not select Content-Type. " +
-            "Please specify one through the 'defaultContentType' property.");
+    Assert.notNull(
+            contentType, "Could not select Content-Type. Please specify one through the 'defaultContentType' property.");
     return contentType;
   }
 
   private void writeInternal(BufferedImage image, MediaType contentType, OutputStream body)
-          throws IOException, HttpMessageNotWritableException {
-
+          throws IOException, HttpMessageNotWritableException //
+  {
     ImageOutputStream imageOutputStream = null;
     ImageWriter imageWriter = null;
     try {
@@ -289,15 +277,13 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
    * before it is used to read an image.
    * <p>The default implementation is empty.
    */
-  protected void process(ImageReadParam irp) {
-  }
+  protected void process(ImageReadParam irp) { }
 
   /**
    * Template method that allows for manipulating the {@link ImageWriteParam}
    * before it is used to write an image.
    * <p>The default implementation is empty.
    */
-  protected void process(ImageWriteParam iwp) {
-  }
+  protected void process(ImageWriteParam iwp) { }
 
 }

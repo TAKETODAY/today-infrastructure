@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.BitSet;
@@ -62,6 +63,7 @@ import cn.taketoday.lang.Constant;
  */
 public class MimeType implements Comparable<MimeType>, Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public static final String WILDCARD_TYPE = "*";
@@ -196,9 +198,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
     if (CollectionUtils.isNotEmpty(parameters)) {
       LinkedCaseInsensitiveMap<String> map = new LinkedCaseInsensitiveMap<>(parameters.size(), Locale.ENGLISH);
-      for (final Map.Entry<String, String> entry : parameters.entrySet()) {
-        final String value = entry.getValue();
-        final String attribute = entry.getKey();
+      for (Map.Entry<String, String> entry : parameters.entrySet()) {
+        String value = entry.getValue();
+        String attribute = entry.getKey();
         checkParameters(attribute, value);
         map.put(attribute, value);
       }
@@ -233,7 +235,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * section 2.2</a>
    */
   private static void checkToken(String token) {
-    final int length = token.length();
+    int length = token.length();
     for (int i = 0; i < length; i++) {
       char ch = token.charAt(i);
       if (!TOKEN.get(ch)) {
@@ -367,8 +369,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       return true;
     }
     else if (getType().equals(other.getType())) {
-      final String subtype = getSubtype();
-      final String otherSubtype = other.getSubtype();
+      String subtype = getSubtype();
+      String otherSubtype = other.getSubtype();
       if (subtype.equals(otherSubtype)) {
         return true;
       }
@@ -415,8 +417,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       return true;
     }
     else if (getType().equals(other.getType())) {
-      final String subtype = getSubtype();
-      final String otherSubtype = other.getSubtype();
+      String subtype = getSubtype();
+      String otherSubtype = other.getSubtype();
       if (subtype.equals(otherSubtype)) {
         return true;
       }
@@ -480,13 +482,12 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof MimeType)) {
-      return false;
+    if (other instanceof MimeType otherType) {
+      return this.type.equalsIgnoreCase(otherType.type)
+              && this.subtype.equalsIgnoreCase(otherType.subtype)
+              && parametersAreEqual(otherType);
     }
-    MimeType otherType = (MimeType) other;
-    return (this.type.equalsIgnoreCase(otherType.type)
-            && this.subtype.equalsIgnoreCase(otherType.subtype)
-            && parametersAreEqual(otherType));
+    return false;
   }
 
   /**
@@ -495,14 +496,13 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@link Charset Charsets}.
    */
   private boolean parametersAreEqual(MimeType other) {
-    final Map<String, String> parameters = this.parameters;
-    final Map<String, String> otherParameters = other.parameters;
+    Map<String, String> otherParameters = other.parameters;
     if (parameters.size() != otherParameters.size()) {
       return false;
     }
 
     for (Map.Entry<String, String> entry : parameters.entrySet()) {
-      final String key = entry.getKey();
+      String key = entry.getKey();
       if (!otherParameters.containsKey(key)) {
         return false;
       }
@@ -547,7 +547,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   private void appendTo(Map<String, String> map, StringBuilder builder) {
-    for (final Map.Entry<String, String> entry : map.entrySet()) {
+    for (Map.Entry<String, String> entry : map.entrySet()) {
       builder.append(';');
       builder.append(entry.getKey());
       builder.append('=');
@@ -583,8 +583,6 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     Iterator<String> thisAttributesIterator = thisAttributes.iterator();
     Iterator<String> otherAttributesIterator = otherAttributes.iterator();
 
-    final String charset = PARAM_CHARSET;
-
     while (thisAttributesIterator.hasNext()) {
       String thisAttribute = thisAttributesIterator.next();
       String otherAttribute = otherAttributesIterator.next();
@@ -592,7 +590,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       if (comp != 0) {
         return comp;
       }
-      if (charset.equals(thisAttribute)) {
+      if (PARAM_CHARSET.equals(thisAttribute)) {
         Charset thisCharset = getCharset();
         Charset otherCharset = other.getCharset();
         if (thisCharset != otherCharset) {
@@ -609,8 +607,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
         }
       }
       else {
-        final String thisValue = getParameters().get(thisAttribute);
-        final String otherValue = other.getParameters().get(otherAttribute);
+        String thisValue = getParameters().get(thisAttribute);
+        String otherValue = other.getParameters().get(otherAttribute);
         comp = thisValue.compareTo(otherValue == null ? Constant.BLANK : otherValue);
         if (comp != 0) {
           return comp;

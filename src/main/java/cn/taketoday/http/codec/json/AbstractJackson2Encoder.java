@@ -38,7 +38,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -139,8 +138,9 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   }
 
   @Override
-  public Flux<DataBuffer> encode(Publisher<?> inputStream, DataBufferFactory bufferFactory,
-                                 ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public Flux<DataBuffer> encode(
+          Publisher<?> inputStream, DataBufferFactory bufferFactory,
+          ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Assert.notNull(inputStream, "'inputStream' must not be null");
     Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
@@ -194,8 +194,9 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   }
 
   @Override
-  public DataBuffer encodeValue(Object value, DataBufferFactory bufferFactory,
-                                ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public DataBuffer encodeValue(
+          Object value, DataBufferFactory bufferFactory,
+          ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     ObjectMapper mapper = selectObjectMapper(valueType, mimeType);
     if (mapper == null) {
@@ -309,8 +310,9 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     return customizeWriter(writer, mimeType, valueType, hints);
   }
 
-  protected ObjectWriter customizeWriter(ObjectWriter writer, @Nullable MimeType mimeType,
-                                         ResolvableType elementType, @Nullable Map<String, Object> hints) {
+  protected ObjectWriter customizeWriter(
+          ObjectWriter writer, @Nullable MimeType mimeType,
+          ResolvableType elementType, @Nullable Map<String, Object> hints) {
 
     return writer;
   }
@@ -365,7 +367,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
   @Override
   public List<MediaType> getStreamingMediaTypes() {
-    return Collections.unmodifiableList(this.streamingMediaTypes);
+    return this.streamingMediaTypes;
   }
 
   @Override

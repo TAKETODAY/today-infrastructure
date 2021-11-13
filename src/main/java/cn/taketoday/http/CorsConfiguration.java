@@ -58,9 +58,9 @@ public class CorsConfiguration {
 
   /** Wildcard representing <em>all</em> origins, methods, or headers. */
   public static final String ALL = "*";
-  private static final List<String> DEFAULT_METHODS = Collections.unmodifiableList(Arrays.asList("GET", "HEAD"));
+  private static final List<String> DEFAULT_METHODS = List.of("GET", "HEAD");
   private static final List<String> DEFAULT_PERMIT_ALL = Collections.singletonList(ALL);
-  private static final List<String> DEFAULT_PERMIT_METHODS = Collections.unmodifiableList(Arrays.asList("GET", "HEAD", "POST"));
+  private static final List<String> DEFAULT_PERMIT_METHODS = List.of("GET", "HEAD", "POST");
 
   private Long maxAge;
   private Boolean allowCredentials;

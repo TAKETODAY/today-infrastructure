@@ -136,7 +136,7 @@ public class MultipartHttpMessageWriter
    * @since 4.0
    */
   public List<HttpMessageWriter<?>> getPartWriters() {
-    return Collections.unmodifiableList(this.partWriters);
+    return this.partWriters;
   }
 
   /**

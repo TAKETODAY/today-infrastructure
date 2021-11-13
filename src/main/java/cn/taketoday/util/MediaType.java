@@ -372,7 +372,7 @@ public class MediaType extends MimeType implements Serializable {
     super.checkParameters(attribute, value);
     if (PARAM_QUALITY_FACTOR.equals(attribute)) {
       value = unquote(value);
-      final double d = Double.parseDouble(value);
+      double d = Double.parseDouble(value);
       if (!(d >= 0D && d <= 1D)) {
         throw new IllegalArgumentException("Invalid quality value \"" + value + "\": should be between 0.0 and 1.0");
       }
@@ -703,8 +703,7 @@ public class MediaType extends MimeType implements Serializable {
   /**
    * Comparator used by {@link #sortBySpecificity(List)}.
    */
-  public static final Comparator<MediaType>
-          SPECIFICITY_COMPARATOR = new SpecificityComparator<MediaType>() {
+  public static final Comparator<MediaType> SPECIFICITY_COMPARATOR = new SpecificityComparator<>() {
 
     @Override
     protected int compareParameters(MediaType mediaType1, MediaType mediaType2) {
@@ -737,11 +736,10 @@ public class MediaType extends MimeType implements Serializable {
    * @return a map, mapping media types to file extensions.
    */
   private static HashMap<String, MediaType> parseMimeTypes() {
-
     try (InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
 
-      final HashMap<String, MediaType> result = new HashMap<>();
+      HashMap<String, MediaType> result = new HashMap<>();
       String line;
 
       while ((line = reader.readLine()) != null) {
@@ -779,7 +777,7 @@ public class MediaType extends MimeType implements Serializable {
    * @return the corresponding media type, or {@code null} if none found
    */
   public static MediaType fromFileName(String filename) {
-    final String ext = StringUtils.getFilenameExtension(filename);
+    String ext = StringUtils.getFilenameExtension(filename);
     if (ext == null) {
       return null;
     }

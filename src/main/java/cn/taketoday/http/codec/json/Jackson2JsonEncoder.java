@@ -57,7 +57,6 @@ public class Jackson2JsonEncoder extends AbstractJackson2Encoder {
     this(Jackson2ObjectMapperBuilder.json().build());
   }
 
-  @SuppressWarnings("deprecation")
   public Jackson2JsonEncoder(ObjectMapper mapper, MimeType... mimeTypes) {
     super(mapper, mimeTypes);
     setStreamingMediaTypes(Arrays.asList(MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON));
@@ -71,13 +70,15 @@ public class Jackson2JsonEncoder extends AbstractJackson2Encoder {
   }
 
   @Override
-  protected ObjectWriter customizeWriter(ObjectWriter writer, @Nullable MimeType mimeType,
-                                         ResolvableType elementType, @Nullable Map<String, Object> hints) {
+  protected ObjectWriter customizeWriter(
+          ObjectWriter writer, @Nullable MimeType mimeType,
+          ResolvableType elementType, @Nullable Map<String, Object> hints) {
 
-    return (this.ssePrettyPrinter != null &&
-                    MediaType.TEXT_EVENT_STREAM.isCompatibleWith(mimeType) &&
-                    writer.getConfig().isEnabled(SerializationFeature.INDENT_OUTPUT) ?
-            writer.with(this.ssePrettyPrinter) : writer);
+    return this.ssePrettyPrinter != null
+                   && MediaType.TEXT_EVENT_STREAM.isCompatibleWith(mimeType)
+                   && writer.getConfig().isEnabled(SerializationFeature.INDENT_OUTPUT)
+           ? writer.with(this.ssePrettyPrinter)
+           : writer;
   }
 
 }

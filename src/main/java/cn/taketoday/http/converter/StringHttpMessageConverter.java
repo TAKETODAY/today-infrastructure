@@ -106,8 +106,8 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
   protected void addDefaultHeaders(HttpHeaders headers, String s, @Nullable MediaType type) throws IOException {
     if (headers.getContentType() == null) {
       if (type != null && type.isConcrete() &&
-              (type.isCompatibleWith(MediaType.APPLICATION_JSON) ||
-                      type.isCompatibleWith(APPLICATION_PLUS_JSON))) {
+              (type.isCompatibleWith(MediaType.APPLICATION_JSON)
+                      || type.isCompatibleWith(APPLICATION_PLUS_JSON))) {
         // Prevent charset parameter for JSON..
         headers.setContentType(type);
       }

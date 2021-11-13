@@ -108,7 +108,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 
   @Override
   public List<MediaType> getSupportedMediaTypes() {
-    return Collections.unmodifiableList(this.supportedMediaTypes);
+    return this.supportedMediaTypes;
   }
 
   /**

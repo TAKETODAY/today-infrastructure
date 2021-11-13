@@ -85,14 +85,12 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
   @Override
   public Object read(Type type, @Nullable Class<?> contextClass, HttpInputMessage inputMessage)
           throws IOException, HttpMessageNotReadableException {
-
     throw new UnsupportedOperationException();
   }
 
   @Override
   protected ResourceRegion readInternal(Class<?> clazz, HttpInputMessage inputMessage)
           throws IOException, HttpMessageNotReadableException {
-
     throw new UnsupportedOperationException();
   }
 
@@ -104,7 +102,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
   @Override
   public boolean canWrite(@Nullable Type type, @Nullable Class<?> clazz, @Nullable MediaType mediaType) {
     if (!(type instanceof ParameterizedType parameterizedType)) {
-      return (type instanceof Class<?> c && ResourceRegion.class.isAssignableFrom(c));
+      return type instanceof Class<?> c && ResourceRegion.class.isAssignableFrom(c);
     }
     if (!(parameterizedType.getRawType() instanceof Class<?> rawType)) {
       return false;
@@ -126,7 +124,6 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
   @SuppressWarnings("unchecked")
   protected void writeInternal(Object object, @Nullable Type type, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException {
-
     if (object instanceof ResourceRegion resourceRegion) {
       writeResourceRegion(resourceRegion, outputMessage);
     }
@@ -159,9 +156,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
   }
 
   private void writeResourceRegionCollection(
-          Collection<ResourceRegion> resourceRegions,
-          HttpOutputMessage outputMessage) throws IOException {
-
+          Collection<ResourceRegion> resourceRegions, HttpOutputMessage outputMessage) throws IOException {
     Assert.notNull(resourceRegions, "Collection of ResourceRegion should not be null");
     HttpHeaders responseHeaders = outputMessage.getHeaders();
 
@@ -197,9 +192,8 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
         }
         long resourceLength = region.getResource().contentLength();
         end = Math.min(end, resourceLength - inputStreamPosition - 1);
-        print(out, "Content-Range: bytes " +
-                region.getPosition() + '-' + (region.getPosition() + region.getCount() - 1) +
-                '/' + resourceLength);
+        print(out, "Content-Range: bytes " + region.getPosition() + '-'
+                + (region.getPosition() + region.getCount() - 1) + '/' + resourceLength);
         println(out);
         println(out);
         // Printing content
