@@ -1376,7 +1376,7 @@ public class ResolvableType implements Serializable {
     if (property.getField() != null) {
       return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(property.getField()), null);
     }
-    return forReturnType(property.getReadMethod());
+    return forReturnType(property.getReadMethod(), property.getDeclaringClass());
   }
 
   /**

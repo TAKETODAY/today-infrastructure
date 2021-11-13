@@ -186,52 +186,60 @@ public class TypeDescriptorTests {
     assertThat(t.getAnnotations()[0]).isNotNull();
   }
 
-//  @Test
-//  public void propertyComplex() throws Exception {
-//    final BeanProperty complexProperty = BeanProperty.of(getClass(), "complexProperty");
-//    TypeDescriptor desc = TypeDescriptor.ofProperty(complexProperty);
-//
-//    assertThat(desc.getMapKeyTypeDescriptor().getType()).isEqualTo(String.class);
-//    assertThat(desc.getMapValueTypeDescriptor().getElementDescriptor().getElementDescriptor().getType())
-//            .isEqualTo(Integer.class);
-//  }
+  @Test
+  public void propertyComplex() throws Exception {
+    BeanProperty complexProperty = BeanProperty.valueOf(getClass(), "complexProperty");
+    TypeDescriptor desc = TypeDescriptor.fromProperty(complexProperty);
 
-//  public void propertyGenericType() throws Exception {
-//    GenericType<Integer> genericBean = new IntegerType();
-//    final BeanProperty property = BeanProperty.of(genericBean.getClass(), "property");
-//    TypeDescriptor desc = new TypeDescriptor(property.getField());
-//    assertThat(desc.getType()).isEqualTo(Integer.class);
-//  }
+    assertThat(desc.getMapKeyDescriptor().getType()).isEqualTo(String.class);
+    assertThat(desc.getMapValueDescriptor().getElementDescriptor()
+                       .getElementDescriptor().getType())
+            .isEqualTo(Integer.class);
+  }
 
-//  @Test
-//  public void propertyTypeCovariance() throws Exception {
-//    GenericType<Number> genericBean = new NumberType();
-//    final BeanProperty property = BeanProperty.of(getClass(), "property");
-//    TypeDescriptor desc = new TypeDescriptor(property.getField());
-//    assertThat(desc.getType()).isEqualTo(Integer.class);
-//  }
+  @Test
+  void propertyGenericType() throws Exception {
+    GenericType<Integer> genericBean = new IntegerType();
+    BeanProperty property = BeanProperty.valueOf(
+            genericBean.getClass().getMethod("getProperty"),
+            genericBean.getClass().getMethod("setProperty", Integer.class));
+    TypeDescriptor desc = new TypeDescriptor(property);
+    assertThat(desc.getType()).isEqualTo(Integer.class);
+  }
 
-//  @Test
-//  public void propertyGenericTypeList() throws Exception {
-//    GenericType<Integer> genericBean = new IntegerType();
-//    final BeanProperty listProperty = BeanProperty.of(getClass(), "listProperty");
-//
-//    TypeDescriptor desc = new TypeDescriptor(listProperty);
-//    assertThat(desc.getType()).isEqualTo(List.class);
-//    assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
-//  }
+  @Test
+  void propertyTypeCovariance() throws Exception {
+    GenericType<Number> genericBean = new NumberType();
+    BeanProperty property = BeanProperty.valueOf(
+            genericBean.getClass().getMethod("getProperty"),
+            genericBean.getClass().getMethod("setProperty", Number.class));
+    TypeDescriptor desc = new TypeDescriptor(property);
+    assertThat(desc.getType()).isEqualTo(Integer.class);
+  }
 
-//  @Test
-//  public void propertyGenericClassList() throws Exception {
-//    IntegerClass genericBean = new IntegerClass();
-//    final BeanProperty listProperty = BeanProperty.of(getClass(), "listProperty");
-//
-//    TypeDescriptor desc = new TypeDescriptor(listProperty);
-//    assertThat(desc.getType()).isEqualTo(List.class);
-//    assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
-//    assertThat(desc.getAnnotation(MethodAnnotation1.class)).isNotNull();
-//    assertThat(desc.hasAnnotation(MethodAnnotation1.class)).isTrue();
-//  }
+  @Test
+  void propertyGenericTypeList() throws Exception {
+    GenericType<Integer> genericBean = new IntegerType();
+    BeanProperty property = BeanProperty.valueOf(
+            genericBean.getClass().getMethod("getListProperty"),
+            genericBean.getClass().getMethod("setListProperty", List.class));
+    TypeDescriptor desc = new TypeDescriptor(property);
+    assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
+  }
+
+  @Test
+  void propertyGenericClassList() throws Exception {
+    IntegerClass genericBean = new IntegerClass();
+    BeanProperty property = BeanProperty.valueOf(
+            genericBean.getClass().getMethod("getListProperty"),
+            genericBean.getClass().getMethod("setListProperty", List.class), IntegerClass.class);
+    TypeDescriptor desc = new TypeDescriptor(property);
+    assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
+    assertThat(desc.getAnnotation(MethodAnnotation1.class)).isNotNull();
+    assertThat(desc.hasAnnotation(MethodAnnotation1.class)).isTrue();
+  }
 
   @Test
   public void property() throws Exception {
@@ -243,7 +251,6 @@ public class TypeDescriptorTests {
 
     assertThat(desc.getMapKeyDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueDescriptor().getElementDescriptor().getType()).isEqualTo(Long.class);
-
 
     PropertyAccessor propertyAccessor = property.obtainAccessor();
     Method writeMethod = propertyAccessor.getWriteMethod();
@@ -850,8 +857,10 @@ public class TypeDescriptorTests {
   }
 
   public Map<String, List<List<Integer>>> getComplexProperty() {
-    return null;
+    return complexProperty;
   }
+
+  Map<String, List<List<Integer>>> complexProperty;
 
   @MethodAnnotation1
   public Map<List<Integer>, List<Long>> getProperty() {
@@ -876,6 +885,7 @@ public class TypeDescriptorTests {
   }
 
   public void setComplexProperty(Map<String, List<List<Integer>>> complexProperty) {
+    this.complexProperty = complexProperty;
   }
 
   public void testAnnotatedMethod(@ParameterAnnotation(123) String parameter) {

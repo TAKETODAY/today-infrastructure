@@ -90,6 +90,8 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
 
   /** @since 4.0 */
   private Class<?> propertyType;
+  /** @since 4.0 */
+  private Class<?> declaringClass;
 
   BeanProperty(String alias, Field field) {
     super(field);
@@ -108,6 +110,13 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     super(readMethod);
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
+  }
+
+  BeanProperty(Method readMethod, @Nullable Method writeMethod, Class<?> declaringClass) {
+    super(readMethod);
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
+    this.declaringClass = declaringClass;
   }
 
   /**
@@ -461,10 +470,15 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @since 4.0
    */
   public Class<?> getDeclaringClass() {
-    if (field == null) {
-      return readMethod.getDeclaringClass();
+    if (declaringClass == null) {
+      if (field == null) {
+        declaringClass = readMethod.getDeclaringClass();
+      }
+      else {
+        declaringClass = field.getDeclaringClass();
+      }
     }
-    return field.getDeclaringClass();
+    return declaringClass;
   }
 
   @Nullable
@@ -530,7 +544,16 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @param writeMethod can be null (read only)
    */
   public static BeanProperty valueOf(Method readMethod, @Nullable Method writeMethod) {
-    Assert.notNull(readMethod, "readMethod is required");
-    return new BeanProperty(readMethod, writeMethod);
+    return valueOf(readMethod, writeMethod, null);
   }
+
+  /**
+   * @param writeMethod can be null (read only)
+   * @param declaringClass the implementation class
+   */
+  public static BeanProperty valueOf(Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
+    Assert.notNull(readMethod, "readMethod is required");
+    return new BeanProperty(readMethod, writeMethod, declaringClass);
+  }
+
 }
