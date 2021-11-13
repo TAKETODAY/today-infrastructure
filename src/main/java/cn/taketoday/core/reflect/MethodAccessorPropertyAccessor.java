@@ -31,7 +31,7 @@ final class MethodAccessorPropertyAccessor extends PropertyAccessor {
   private final MethodInvoker readAccessor;
   private final MethodInvoker writeAccessor;
 
-  MethodAccessorPropertyAccessor(MethodInvoker writeAccessor, MethodInvoker readAccessor) {
+  MethodAccessorPropertyAccessor(MethodInvoker readAccessor, MethodInvoker writeAccessor) {
     this.readAccessor = readAccessor;
     this.writeAccessor = writeAccessor;
   }

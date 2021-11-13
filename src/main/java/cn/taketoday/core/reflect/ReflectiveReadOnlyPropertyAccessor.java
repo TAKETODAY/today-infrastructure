@@ -22,23 +22,28 @@ package cn.taketoday.core.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2020/9/18 22:03
  */
 final class ReflectiveReadOnlyPropertyAccessor extends ReadOnlyPropertyAccessor {
+  @Nullable
   private final Field field;
   private final Method readMethod;
 
-  ReflectiveReadOnlyPropertyAccessor(Field field, Method readMethod) {
+  ReflectiveReadOnlyPropertyAccessor(@Nullable Field field, Method readMethod) {
     this.field = field;
     this.readMethod = readMethod;
   }
 
   @Override
   public Object get(final Object obj) {
-    return ReflectionUtils.getField(field, obj);
+    if (field != null) {
+      return ReflectionUtils.getField(field, obj);
+    }
+    return ReflectionUtils.invokeMethod(readMethod, obj);
   }
 
   @Override

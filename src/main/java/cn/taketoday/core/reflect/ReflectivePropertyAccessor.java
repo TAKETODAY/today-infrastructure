@@ -23,6 +23,7 @@ package cn.taketoday.core.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -31,12 +32,14 @@ import cn.taketoday.util.ReflectionUtils;
  * @author TODAY 2020/9/11 17:56
  */
 final class ReflectivePropertyAccessor extends PropertyAccessor {
+
+  @Nullable
   private final Field field;
 
   private final Method readMethod;
   private final Method writeMethod;
 
-  ReflectivePropertyAccessor(Field field, Method readMethod, Method writeMethod) {
+  ReflectivePropertyAccessor(@Nullable Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
     this.field = field;
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
@@ -44,12 +47,20 @@ final class ReflectivePropertyAccessor extends PropertyAccessor {
 
   @Override
   public Object get(final Object obj) {
-    return ReflectionUtils.getField(field, obj);
+    if (field != null) {
+      return ReflectionUtils.getField(field, obj);
+    }
+    return ReflectionUtils.invokeMethod(readMethod, obj);
   }
 
   @Override
   public void set(Object obj, Object value) {
-    ReflectionUtils.setField(field, obj, value);
+    if (field != null) {
+      ReflectionUtils.setField(field, obj, value);
+    }
+    else {
+      ReflectionUtils.invokeMethod(writeMethod, obj, value);
+    }
   }
 
   @Override
