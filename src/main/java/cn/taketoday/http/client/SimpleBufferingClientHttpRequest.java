@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -101,7 +103,10 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
         headers.set(HttpHeaders.ACCEPT, "*/*");
       }
     }
-    headers.forEach((headerName, headerValues) -> {
+
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      String headerName = entry.getKey();
+      List<String> headerValues = entry.getValue();
       if (HttpHeaders.COOKIE.equalsIgnoreCase(headerName)) {  // RFC 6265
         String headerValue = StringUtils.collectionToString(headerValues, "; ");
         connection.setRequestProperty(headerName, headerValue);
@@ -112,7 +117,7 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
           connection.addRequestProperty(headerName, actualHeaderValue);
         }
       }
-    });
+    }
   }
 
 }
