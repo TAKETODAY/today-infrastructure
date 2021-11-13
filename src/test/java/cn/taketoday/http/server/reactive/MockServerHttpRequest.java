@@ -75,10 +75,14 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
   private final Flux<DataBuffer> body;
 
-  private MockServerHttpRequest(String httpMethod,
-                                URI uri, @Nullable String contextPath, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
-                                @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress,
-                                @Nullable SslInfo sslInfo, Publisher<? extends DataBuffer> body) {
+  private MockServerHttpRequest(
+          String httpMethod, URI uri,
+          @Nullable String contextPath,
+          HttpHeaders headers,
+          MultiValueMap<String, HttpCookie> cookies,
+          @Nullable InetSocketAddress localAddress,
+          @Nullable InetSocketAddress remoteAddress,
+          @Nullable SslInfo sslInfo, Publisher<? extends DataBuffer> body) {
 
     super(uri, contextPath, headers);
     Assert.isTrue(StringUtils.hasText(httpMethod), "HTTP method is required.");

@@ -77,6 +77,11 @@ public class ByteArrayResource extends AbstractResource {
     return this.byteArray;
   }
 
+  @Override
+  public boolean isReadable() {
+    return exists();
+  }
+
   /**
    * This implementation always returns {@code true}.
    */
