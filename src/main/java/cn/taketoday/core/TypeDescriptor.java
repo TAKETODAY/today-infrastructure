@@ -79,15 +79,15 @@ public class TypeDescriptor implements Serializable {
    * @param field the field
    */
   public TypeDescriptor(Field field) {
-    this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(field.getAnnotations());
     this.resolvableType = ResolvableType.fromField(field);
     this.type = this.resolvableType.resolve(field.getType());
+    this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(field.getAnnotations());
   }
 
   public TypeDescriptor(BeanProperty property) {
     this.type = property.getType();
     this.annotatedElement = property;
-    this.resolvableType = ResolvableType.fromField(property.getField());
+    this.resolvableType = ResolvableType.fromProperty(property);
   }
 
   /**
@@ -683,6 +683,9 @@ public class TypeDescriptor implements Serializable {
   }
 
   public static TypeDescriptor fromProperty(BeanProperty beanProperty) {
+    if (beanProperty.getTypeDescriptor() != null) {
+      return beanProperty.getTypeDescriptor();
+    }
     return new TypeDescriptor(beanProperty);
   }
 

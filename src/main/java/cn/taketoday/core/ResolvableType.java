@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -1360,6 +1361,22 @@ public class ResolvableType implements Serializable {
     Assert.notNull(field, "Field must not be null");
     ResolvableType owner = fromType(implementationClass).as(field.getDeclaringClass());
     return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(field), owner.asVariableResolver()).getNested(nestingLevel);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Field}.
+   *
+   * @param property the source field
+   * @return a {@link ResolvableType} for the specified field
+   * @see #fromField(Field, Class)
+   * @since 4.0
+   */
+  public static ResolvableType fromProperty(BeanProperty property) {
+    Assert.notNull(property, "property must not be null");
+    if (property.getField() != null) {
+      return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(property.getField()), null);
+    }
+    return forReturnType(property.getReadMethod());
   }
 
   /**
