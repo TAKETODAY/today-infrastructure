@@ -20,14 +20,14 @@
 
 package cn.taketoday.core.reflect;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * @author TODAY 2020/9/11 11:06
@@ -57,19 +57,19 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @param field Field
    * @return PropertyAccessor
    */
-  public static PropertyAccessor fromField(final Field field) {
-    final Method readMethod = ReflectionUtils.getReadMethod(field);
-    final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
+  public static PropertyAccessor fromField(Field field) {
+    Method readMethod = ReflectionUtils.getReadMethod(field);
+    boolean isReadOnly = Modifier.isFinal(field.getModifiers());
     if (isReadOnly && readMethod != null) {
       MethodInvoker invoker = MethodInvoker.fromMethod(readMethod);
       return new ReadOnlyMethodAccessorPropertyAccessor(invoker);
     }
-    final Method writeMethod = ReflectionUtils.getWriteMethod(field);
+    Method writeMethod = ReflectionUtils.getWriteMethod(field);
     if (writeMethod != null && readMethod != null) {
-      return fromMethod(writeMethod, readMethod);
+      return fromMethod(readMethod, writeMethod);
     }
     if (writeMethod != null) {
-      final MethodInvoker accessor = MethodInvoker.fromMethod(writeMethod);
+      MethodInvoker accessor = MethodInvoker.fromMethod(writeMethod);
       ReflectionUtils.makeAccessible(field);
       return new PropertyAccessor() {
         @Override
@@ -91,7 +91,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
 
     if (readMethod != null) {
       ReflectionUtils.makeAccessible(field);
-      final MethodInvoker accessor = MethodInvoker.fromMethod(readMethod);
+      MethodInvoker accessor = MethodInvoker.fromMethod(readMethod);
       return new PropertyAccessor() {
         @Override
         public Object get(Object obj) {
@@ -132,10 +132,13 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @param readMethod getter method
    * @return PropertyAccessor
    */
-  public static PropertyAccessor fromMethod(Method writeMethod, Method readMethod) {
+  public static PropertyAccessor fromMethod(Method readMethod, @Nullable Method writeMethod) {
     MethodInvoker readInvoker = MethodInvoker.fromMethod(readMethod);
+    if (writeMethod == null) {
+      return new ReadOnlyMethodAccessorPropertyAccessor(readInvoker);
+    }
     MethodInvoker writeInvoker = MethodInvoker.fromMethod(writeMethod);
-    return new MethodAccessorPropertyAccessor(writeInvoker, readInvoker);
+    return new MethodAccessorPropertyAccessor(readInvoker, writeInvoker);
   }
 
   /**
@@ -145,10 +148,12 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @param readMethod getter method
    * @return PropertyAccessor
    */
-  public static PropertyAccessor fromMethod(GetterMethod readMethod, SetterMethod writeMethod) {
+  public static PropertyAccessor fromMethod(GetterMethod readMethod, @Nullable SetterMethod writeMethod) {
     Assert.notNull(readMethod, "readMethod must not be null");
-    Assert.notNull(writeMethod, "writeMethod must not be null");
-    return new GetterSetterPropertyAccessor(readMethod, writeMethod);
+    if (writeMethod != null) {
+      return new GetterSetterPropertyAccessor(readMethod, writeMethod);
+    }
+    return new ReadOnlyGetterMethodPropertyAccessor(readMethod);
   }
 
   /**
@@ -176,12 +181,20 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @see ReflectionUtils#setField(Field, Object, Object)
    */
   public static PropertyAccessor fromReflective(
-          Field field, @Nullable Method writeMethod, @Nullable Method readMethod) {
-    ReflectionUtils.makeAccessible(field);
-    if (Modifier.isFinal(field.getModifiers())) {
+          @Nullable Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    boolean readOnly;
+    if (field != null) {
+      ReflectionUtils.makeAccessible(field);
+      readOnly = Modifier.isFinal(field.getModifiers());
+    }
+    else {
+      Assert.notNull(readMethod, "read-method is required");
+      readOnly = writeMethod == null;
+    }
+    if (readOnly) {
       return new ReflectiveReadOnlyPropertyAccessor(field, readMethod);
     }
-    return new ReflectivePropertyAccessor(field, writeMethod, readMethod);
+    return new ReflectivePropertyAccessor(field, readMethod, writeMethod);
   }
 
 }
