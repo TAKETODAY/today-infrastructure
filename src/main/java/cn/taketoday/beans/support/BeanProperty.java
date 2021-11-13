@@ -20,6 +20,20 @@
 
 package cn.taketoday.beans.support;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
@@ -32,31 +46,21 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AnnotatedElementDecorator;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY
- * 2021/1/27 22:28
+ * Field is first considered then readMethod
+ *
+ * @author TODAY 2021/1/27 22:28
  * @since 3.0
  */
 public class BeanProperty extends AnnotatedElementDecorator implements Member, AnnotatedElement, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private final Field field;
-  private final Class<?> fieldType;
+  @Nullable
+  private Field field;
+
   private transient BeanInstantiator constructor;
   private transient PropertyAccessor propertyAccessor;
 
@@ -73,18 +77,37 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   private transient ConversionService conversionService;
 
   /** @since 3.0.4 */
+  @Nullable
   private transient TypeDescriptor typeDescriptor;
-  private final String alias;
+  private String alias;
+
+  /** @since 4.0 */
+  private final Method readMethod;
+
+  /** @since 4.0 */
+  @Nullable
+  private final Method writeMethod;
+
+  /** @since 4.0 */
+  private Class<?> propertyType;
 
   BeanProperty(String alias, Field field) {
     super(field);
     this.alias = alias;
     this.field = field;
-    this.fieldType = field.getType();
+    this.propertyType = field.getType();
+    this.readMethod = null;
+    this.writeMethod = null;
   }
 
   BeanProperty(Field field) {
     this(field.getName(), field);
+  }
+
+  BeanProperty(Method readMethod, @Nullable Method writeMethod) {
+    super(readMethod);
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
   }
 
   /**
@@ -105,11 +128,10 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   public Object newInstance(@Nullable Object[] args) {
     BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
-      Class<?> fieldType = this.fieldType;
-      if (ClassUtils.primitiveTypes.contains(fieldType)) {
-        throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
+      if (ClassUtils.primitiveTypes.contains(propertyType)) {
+        throw new BeanInstantiationException(propertyType, "Cannot be instantiated a simple type");
       }
-      constructor = BeanInstantiator.fromConstructor(fieldType);
+      constructor = BeanInstantiator.fromConstructor(propertyType);
       this.constructor = constructor;
     }
     return constructor.instantiate(args);
@@ -119,7 +141,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * new a array object with given length
    */
   public Object newArrayInstance(int length) {
-    Class<?> type = this.fieldType;
+    Class<?> type = this.propertyType;
     if (type.isArray()) {
       type = type.getComponentType();
     }
@@ -148,7 +170,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public final void setValue(Object obj, Object value) {
-    if (!fieldType.isInstance(value)) {
+    if (!getType().isInstance(value)) {
       ConversionService conversionService = getConversionService();
       if (conversionService == null) {
         conversionService = DefaultConversionService.getSharedInstance();
@@ -176,6 +198,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   /**
    * @since 3.0.4
    */
+  @Nullable
   public TypeDescriptor getTypeDescriptor() {
     return typeDescriptor;
   }
@@ -193,7 +216,10 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    return PropertyAccessor.fromField(field);
+    if (field != null) {
+      return PropertyAccessor.fromField(field);
+    }
+    return PropertyAccessor.fromMethod(readMethod, writeMethod);
   }
 
   /**
@@ -216,8 +242,8 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     if (componentConstructor == null) {
       Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-              ? NullInstantiator.INSTANCE
-              : BeanInstantiator.fromConstructor(componentClass);
+                             ? NullInstantiator.INSTANCE
+                             : BeanInstantiator.fromConstructor(componentClass);
     }
     return componentConstructor.instantiate(args);
   }
@@ -249,10 +275,11 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     if (componentResolved) {
       return componentType;
     }
-    if (fieldType.isArray()) {
-      setComponentType(fieldType.getComponentType());
+    Class<?> type = getType();
+    if (type.isArray()) {
+      setComponentType(type.getComponentType());
     }
-    else if (Map.class.isAssignableFrom(fieldType)) {
+    else if (Map.class.isAssignableFrom(type)) {
       setComponentType(getGeneric(1));
     }
     else {
@@ -282,7 +309,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   }
 
   public boolean isInstance(Object value) {
-    return fieldType.isInstance(value);
+    return getType().isInstance(value);
   }
 
   public BeanInstantiator getConstructor() {
@@ -318,47 +345,99 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   }
 
   public boolean isMap() {
-    return Map.class.isAssignableFrom(fieldType);
+    return Map.class.isAssignableFrom(getType());
   }
 
   public boolean isList() {
-    return List.class.isAssignableFrom(fieldType);
+    return List.class.isAssignableFrom(getType());
   }
 
   public boolean isArray() {
-    return fieldType.isArray();
+    return getType().isArray();
   }
 
   public Class<?> getType() {
-    return fieldType;
+    if (propertyType == null) {
+      Field field = getField();
+      if (field != null) {
+        propertyType = field.getType();
+      }
+      else if (readMethod != null) {
+        propertyType = readMethod.getReturnType();
+      }
+      else {
+        throw new IllegalStateException("should never get here");
+      }
+    }
+    return propertyType;
   }
 
+  /**
+   * get or find a Field
+   *
+   * @return returns null show that isSynthetic
+   */
+  @Nullable
   public Field getField() {
+    if (field == null && !fieldIsNull) {
+      String name = getPropertyName();
+      if (StringUtils.isEmpty(name)) {
+        return null;
+      }
+      Class<?> declaringClass = getDeclaringClass();
+      if (declaringClass != null) {
+        field = ReflectionUtils.findField(declaringClass, name);
+        if (field == null) {
+          field = ReflectionUtils.findField(declaringClass, StringUtils.uncapitalize(name));
+          if (field == null) {
+            field = ReflectionUtils.findField(declaringClass, StringUtils.capitalize(name));
+          }
+        }
+      }
+      fieldIsNull = field == null;
+    }
     return field;
   }
+
+  private boolean fieldIsNull;
 
   /**
    * original property name
    */
   public String getName() {
-    return field.getName();
+    if (field != null) {
+      return field.getName();
+    }
+    return getPropertyName();
   }
 
   @Override
   public int getModifiers() {
-    return field.getModifiers();
+    if (field != null) {
+      return field.getModifiers();
+    }
+    return readMethod.getModifiers();
   }
 
   @Override
   public boolean isSynthetic() {
-    return field.isSynthetic();
+    Field field = getField();
+    if (field != null) {
+      return field.isSynthetic();
+    }
+    return true;
   }
 
   /**
+   * read only
+   *
    * @since 3.0.2
    */
   public boolean isReadOnly() {
-    return Modifier.isFinal(field.getModifiers());
+    if (field != null) {
+      return Modifier.isFinal(field.getModifiers());
+    }
+    return writeMethod == null;
   }
 
   /**
@@ -368,6 +447,9 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @since 4.0
    */
   public String getPropertyName() {
+    if (alias == null) {
+      alias = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+    }
     return alias;
   }
 
@@ -379,7 +461,20 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @since 4.0
    */
   public Class<?> getDeclaringClass() {
+    if (field == null) {
+      return readMethod.getDeclaringClass();
+    }
     return field.getDeclaringClass();
+  }
+
+  @Nullable
+  public Method getReadMethod() {
+    return readMethod;
+  }
+
+  @Nullable
+  public Method getWriteMethod() {
+    return writeMethod;
   }
 
   //---------------------------------------------------------------------
@@ -390,11 +485,14 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof BeanProperty that))
-      return false;
-    if (!super.equals(o))
-      return false;
-    return Objects.equals(field, that.field);
+    if (o instanceof BeanProperty property) {
+      return Objects.equals(field, property.field)
+              && Objects.equals(alias, property.alias)
+              && Objects.equals(readMethod, property.readMethod)
+              && Objects.equals(writeMethod, property.writeMethod)
+              && Objects.equals(propertyType, property.propertyType);
+    }
+    return false;
   }
 
   @Override
@@ -428,4 +526,11 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     return new BeanProperty(field);
   }
 
+  /**
+   * @param writeMethod can be null (read only)
+   */
+  public static BeanProperty valueOf(Method readMethod, @Nullable Method writeMethod) {
+    Assert.notNull(readMethod, "readMethod is required");
+    return new BeanProperty(readMethod, writeMethod);
+  }
 }
