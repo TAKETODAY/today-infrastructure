@@ -1363,6 +1363,44 @@ public abstract class ReflectionUtils {
   }
 
   /**
+   * get property name from readMethod or writeMethod
+   *
+   * @param readMethod get method
+   * @param writeMethod set method
+   * @return property name
+   */
+  public static String getPropertyName(@Nullable Method readMethod, @Nullable Method writeMethod) {
+    if (readMethod != null) {
+      int index = readMethod.getName().indexOf("get");
+      if (index != -1) {
+        index += 3;
+      }
+      else {
+        index = readMethod.getName().indexOf("is");
+        if (index != -1) {
+          index += 2;
+        }
+        else {
+          // Record-style plain accessor method, e.g. name()
+          index = 0;
+        }
+      }
+      return StringUtils.uncapitalize(readMethod.getName().substring(index));
+    }
+    else if (writeMethod != null) {
+      int index = writeMethod.getName().indexOf("set");
+      if (index == -1) {
+        throw new IllegalArgumentException("Not a setter method");
+      }
+      index += 3;
+      return StringUtils.uncapitalize(writeMethod.getName().substring(index));
+    }
+    else {
+      throw new IllegalStateException("Property is neither readable nor writeable");
+    }
+  }
+
+  /**
    * Action to take on each method.
    */
   @FunctionalInterface
