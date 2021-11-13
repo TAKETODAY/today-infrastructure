@@ -21,8 +21,6 @@ package cn.taketoday.core.bytecode.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,39 +69,34 @@ public class ASMifier extends Printer {
   private static final String VISIT_END = ".visitEnd();\n";
 
   private static final List<String> FRAME_TYPES =
-          Collections.unmodifiableList(
-                  Arrays.asList(
-                          "Opcodes.TOP",
-                          "Opcodes.INTEGER",
-                          "Opcodes.FLOAT",
-                          "Opcodes.DOUBLE",
-                          "Opcodes.LONG",
-                          "Opcodes.NULL",
-                          "Opcodes.UNINITIALIZED_THIS"));
+          List.of("Opcodes.TOP", "Opcodes.INTEGER",
+                  "Opcodes.FLOAT", "Opcodes.DOUBLE",
+                  "Opcodes.LONG", "Opcodes.NULL",
+                  "Opcodes.UNINITIALIZED_THIS");
 
   private static final Map<Integer, String> CLASS_VERSIONS;
 
   static {
-    HashMap<Integer, String> classVersions = new HashMap<>();
-    classVersions.put(Opcodes.V1_1, "V1_1");
-    classVersions.put(Opcodes.V1_2, "V1_2");
-    classVersions.put(Opcodes.V1_3, "V1_3");
-    classVersions.put(Opcodes.V1_4, "V1_4");
-    classVersions.put(Opcodes.V1_5, "V1_5");
-    classVersions.put(Opcodes.V1_6, "V1_6");
-    classVersions.put(Opcodes.V1_7, "V1_7");
-    classVersions.put(Opcodes.V1_8, "V1_8");
-    classVersions.put(Opcodes.V9, "V9");
-    classVersions.put(Opcodes.V10, "V10");
-    classVersions.put(Opcodes.V11, "V11");
-    classVersions.put(Opcodes.V12, "V12");
-    classVersions.put(Opcodes.V13, "V13");
-    classVersions.put(Opcodes.V14, "V14");
-    classVersions.put(Opcodes.V15, "V15");
-    classVersions.put(Opcodes.V16, "V16");
-    classVersions.put(Opcodes.V17, "V17");
-    classVersions.put(Opcodes.V18, "V18");
-    CLASS_VERSIONS = Collections.unmodifiableMap(classVersions);
+    CLASS_VERSIONS = Map.ofEntries(
+            Map.entry(Opcodes.V1_1, "V1_1"),
+            Map.entry(Opcodes.V1_2, "V1_2"),
+            Map.entry(Opcodes.V1_3, "V1_3"),
+            Map.entry(Opcodes.V1_4, "V1_4"),
+            Map.entry(Opcodes.V1_5, "V1_5"),
+            Map.entry(Opcodes.V1_6, "V1_6"),
+            Map.entry(Opcodes.V1_7, "V1_7"),
+            Map.entry(Opcodes.V1_8, "V1_8"),
+            Map.entry(Opcodes.V9, "V9"),
+            Map.entry(Opcodes.V10, "V10"),
+            Map.entry(Opcodes.V11, "V11"),
+            Map.entry(Opcodes.V12, "V12"),
+            Map.entry(Opcodes.V13, "V13"),
+            Map.entry(Opcodes.V14, "V14"),
+            Map.entry(Opcodes.V15, "V15"),
+            Map.entry(Opcodes.V16, "V16"),
+            Map.entry(Opcodes.V17, "V17"),
+            Map.entry(Opcodes.V18, "V18")
+    );
   }
 
   /** The name of the visitor variable in the produced code. */

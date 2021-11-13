@@ -75,8 +75,7 @@ public class Textifier extends Printer {
   private static final String RECORD = "// RECORD\n";
   private static final String INVISIBLE = " // invisible\n";
 
-  private static final List<String> FRAME_TYPES =
-          Collections.unmodifiableList(Arrays.asList("T", "I", "F", "D", "J", "N", "U"));
+  private static final List<String> FRAME_TYPES = List.of("T", "I", "F", "D", "J", "N", "U");
 
   /** The indentation of class members at depth level 1 (e.g. fields, methods). */
   protected String tab = "  ";
