@@ -134,7 +134,7 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
   @Override
   public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
     HttpURLConnection connection = openConnection(uri.toURL(), this.proxy);
-    prepareConnection(connection, httpMethod.name());
+    prepareConnection(connection, httpMethod);
 
     if (this.bufferRequestBody) {
       return new SimpleBufferingClientHttpRequest(connection, this.outputStreaming);
@@ -171,7 +171,7 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
    * @param httpMethod the HTTP request method ({@code GET}, {@code POST}, etc.)
    * @throws IOException in case of I/O errors
    */
-  protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
+  protected void prepareConnection(HttpURLConnection connection, HttpMethod httpMethod) throws IOException {
     if (this.connectTimeout >= 0) {
       connection.setConnectTimeout(this.connectTimeout);
     }
@@ -180,13 +180,15 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
     }
 
     boolean mayWrite =
-            ("POST".equals(httpMethod) || "PUT".equals(httpMethod) ||
-                    "PATCH".equals(httpMethod) || "DELETE".equals(httpMethod));
+            HttpMethod.POST == httpMethod
+                    || HttpMethod.PUT == httpMethod
+                    || HttpMethod.PATCH == httpMethod
+                    || HttpMethod.DELETE == httpMethod;
 
     connection.setDoInput(true);
-    connection.setInstanceFollowRedirects("GET".equals(httpMethod));
+    connection.setInstanceFollowRedirects(HttpMethod.GET == httpMethod);
     connection.setDoOutput(mayWrite);
-    connection.setRequestMethod(httpMethod);
+    connection.setRequestMethod(httpMethod.name());
   }
 
 }

@@ -66,14 +66,15 @@ public class BufferedSimpleHttpRequestFactoryTests extends AbstractHttpRequestFa
   @Test
   public void deleteWithoutBodyDoesNotRaiseException() throws Exception {
     HttpURLConnection connection = new TestHttpURLConnection(new URL("https://example.com"));
-    ((SimpleClientHttpRequestFactory) this.factory).prepareConnection(connection, "DELETE");
+    ((SimpleClientHttpRequestFactory) this.factory).prepareConnection(connection, HttpMethod.DELETE);
     SimpleBufferingClientHttpRequest request = new SimpleBufferingClientHttpRequest(connection, false);
     request.execute();
   }
 
   private void testRequestBodyAllowed(URL uri, String httpMethod, boolean allowed) throws IOException {
     HttpURLConnection connection = new TestHttpURLConnection(uri);
-    ((SimpleClientHttpRequestFactory) this.factory).prepareConnection(connection, httpMethod);
+    ((SimpleClientHttpRequestFactory) this.factory).prepareConnection(
+            connection, HttpMethod.valueOf(httpMethod));
     assertThat(connection.getDoOutput()).isEqualTo(allowed);
   }
 
