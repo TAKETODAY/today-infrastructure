@@ -45,7 +45,7 @@ public abstract class LoggerFactory {
     return factory.createLogger(name);
   }
 
-  private static LoggerFactory createFactory() {
+  private static synchronized LoggerFactory createFactory() {
     final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
     if (type != null) {
       try {

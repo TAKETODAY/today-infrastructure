@@ -71,10 +71,10 @@ public class BufferedImageHttpMessageConverterTests {
     Resource logo = new ClassPathResource("logo.jpg", BufferedImageHttpMessageConverterTests.class);
     byte[] body = FileCopyUtils.copyToByteArray(logo.getInputStream());
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
-    inputMessage.getHeaders().setContentType(new MediaType("image", "jpeg"));
+    inputMessage.getHeaders().setContentType(new MediaType("image", "png"));
     BufferedImage result = converter.read(BufferedImage.class, inputMessage);
-    assertThat(result.getHeight()).as("Invalid height").isEqualTo(500);
-    assertThat(result.getWidth()).as("Invalid width").isEqualTo(750);
+    assertThat(result.getHeight()).as("Invalid height").isEqualTo(292);
+    assertThat(result.getWidth()).as("Invalid width").isEqualTo(819);
   }
 
   @Test
@@ -87,8 +87,8 @@ public class BufferedImageHttpMessageConverterTests {
     assertThat(outputMessage.getWrittenHeaders().getContentType()).as("Invalid content type").isEqualTo(contentType);
     assertThat(outputMessage.getBodyAsBytes().length > 0).as("Invalid size").isTrue();
     BufferedImage result = ImageIO.read(new ByteArrayInputStream(outputMessage.getBodyAsBytes()));
-    assertThat(result.getHeight()).as("Invalid height").isEqualTo(500);
-    assertThat(result.getWidth()).as("Invalid width").isEqualTo(750);
+    assertThat(result.getHeight()).as("Invalid height").isEqualTo(292);
+    assertThat(result.getWidth()).as("Invalid width").isEqualTo(819);
   }
 
   @Test
@@ -102,8 +102,8 @@ public class BufferedImageHttpMessageConverterTests {
     assertThat(outputMessage.getWrittenHeaders().getContentType()).as("Invalid content type").isEqualTo(contentType);
     assertThat(outputMessage.getBodyAsBytes().length > 0).as("Invalid size").isTrue();
     BufferedImage result = ImageIO.read(new ByteArrayInputStream(outputMessage.getBodyAsBytes()));
-    assertThat(result.getHeight()).as("Invalid height").isEqualTo(500);
-    assertThat(result.getWidth()).as("Invalid width").isEqualTo(750);
+    assertThat(result.getHeight()).as("Invalid height").isEqualTo(292);
+    assertThat(result.getWidth()).as("Invalid width").isEqualTo(819);
   }
 
 }

@@ -134,11 +134,6 @@ public class SLF4JBridgeHandler extends Handler {
   private static final int WARN_LEVEL_THRESHOLD = Level.WARNING.intValue();
 
   /**
-   * Initialize this handler.
-   */
-  public SLF4JBridgeHandler() { }
-
-  /**
    * No-op implementation.
    */
   @Override

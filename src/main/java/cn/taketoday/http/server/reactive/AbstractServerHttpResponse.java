@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
@@ -83,7 +82,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
     Assert.notNull(headers, "HttpHeaders must not be null");
     this.headers = headers;
     this.dataBufferFactory = dataBufferFactory;
-    this.cookies = new DefaultMultiValueMap<>();
+    this.cookies = MultiValueMap.fromLinkedHashMap();
   }
 
   @Override

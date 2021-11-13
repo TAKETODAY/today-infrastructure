@@ -90,7 +90,7 @@ final class CommandLineArgs {
    * Return the list of non-option arguments specified on the command line.
    */
   public List<String> getNonOptionArgs() {
-    return this.nonOptionArgs;
+    return Collections.unmodifiableList(this.nonOptionArgs);
   }
 
 }
