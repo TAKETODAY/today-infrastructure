@@ -120,8 +120,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 	 */
 	@RegisterExtension
 	TestExecutionExceptionHandler serverErrorToAssertionErrorConverter = (context, throwable) -> {
-		if (throwable instanceof HttpServerErrorException) {
-			HttpServerErrorException ex = (HttpServerErrorException) throwable;
+		if (throwable instanceof HttpServerErrorException ex) {
 			String responseBody = ex.getResponseBodyAsString();
 			String prefix = AssertionError.class.getName() + ": ";
 			if (responseBody.startsWith(prefix)) {
@@ -171,7 +170,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 		setUpClient(clientHttpRequestFactory);
 
 		byte[] bytes = template.getForObject(baseUrl + "/get/nocontenttype", byte[].class);
-		assertThat(bytes).as("Invalid content").isEqualTo(helloWorld.getBytes("UTF-8"));
+		assertThat(bytes).as("Invalid content").isEqualTo(helloWorld.getBytes(StandardCharsets.UTF_8));
 	}
 
 	@ParameterizedRestTemplateTest
@@ -324,7 +323,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 	}
 
 	private MultiValueMap<String, Object> createMultipartParts() {
-		MultiValueMap<String, Object> parts = new DefaultMultiValueMap<>();
+		MultiValueMap<String, Object> parts = MultiValueMap.fromLinkedHashMap();
 		parts.add("name 1", "value 1");
 		parts.add("name 2", "value 2+1");
 		parts.add("name 2", "value 2+2");
