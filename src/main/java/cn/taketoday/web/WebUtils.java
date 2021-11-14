@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.StringTokenizer;
 
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -120,7 +122,7 @@ public abstract class WebUtils {
     httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, HttpHeaders.BINARY);
     httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
                     new StringBuilder(HttpHeaders.ATTACHMENT_FILE_NAME)
-                            .append(StringUtils.encodeURL(download.getName()))
+                            .append(URLEncoder.encode(download.getName(), StandardCharsets.UTF_8))
                             .append(Constant.QUOTATION_MARKS)
                             .toString()
     );

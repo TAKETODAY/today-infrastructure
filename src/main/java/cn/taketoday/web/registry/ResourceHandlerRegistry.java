@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.registry;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,6 @@ import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -70,9 +71,9 @@ public class ResourceHandlerRegistry
 
   @SafeVarargs
   public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
-    final HandlerMethodRegistry registry = obtainApplicationContext().getBean(HandlerMethodRegistry.class);
+    HandlerMethodRegistry registry = obtainApplicationContext().getBean(HandlerMethodRegistry.class);
 
-    final HandlerInterceptor[] interceptors = registry.getInterceptors(handlerInterceptors);
+    HandlerInterceptor[] interceptors = registry.getInterceptors(handlerInterceptors);
     ResourceMapping resourceMapping = new ResourceMapping(ObjectUtils.isEmpty(interceptors) ? null : interceptors);
     getResourceMappings().add(resourceMapping);
     return resourceMapping;
@@ -92,8 +93,8 @@ public class ResourceHandlerRegistry
   }
 
   @Override
-  protected Object lookupHandler(final String handlerKey, final RequestContext context) {
-    final Object handler = super.lookupHandler(handlerKey, context);
+  protected Object lookupHandler(String handlerKey, RequestContext context) {
+    Object handler = super.lookupHandler(handlerKey, context);
     if (handler instanceof ResourceMatchResult) {
       context.setAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT, handler);
       return ((ResourceMatchResult) handler).getHandler();
@@ -112,8 +113,8 @@ public class ResourceHandlerRegistry
   }
 
   @Override
-  protected Object lookupPatternHandler(final String handlerKey, final RequestContext context) {
-    final PatternHandler matched = matchingPatternHandler(handlerKey);
+  protected Object lookupPatternHandler(String handlerKey, RequestContext context) {
+    PatternHandler matched = matchingPatternHandler(handlerKey);
     if (matched != null) {
       return new ResourceMatchResult(handlerKey,
                                      matched.getPattern(),
@@ -137,8 +138,8 @@ public class ResourceHandlerRegistry
    * @param length context path length
    * @return Decoded request path
    */
-  protected String requestPath(final String requestURI, final int length) {
-    return StringUtils.decodeURL(length == 0 ? requestURI : requestURI.substring(length));
+  protected String requestPath(String requestURI, int length) {
+    return URLDecoder.decode(length == 0 ? requestURI : requestURI.substring(length), StandardCharsets.UTF_8);
   }
 
   public WebResourceResolver getResourceResolver() {
@@ -152,13 +153,13 @@ public class ResourceHandlerRegistry
   @Override
   public void onStartup(WebApplicationContext context) throws Throwable {
     this.contextPathLength = context.getContextPath().length();
-    final WebResourceResolver resourceResolver = getResourceResolver();
-    final List<ResourceMapping> resourceMappings = getResourceMappings();
+    WebResourceResolver resourceResolver = getResourceResolver();
+    List<ResourceMapping> resourceMappings = getResourceMappings();
 
     AnnotationAwareOrderComparator.sort(resourceMappings);
 
-    for (final ResourceMapping resourceMapping : resourceMappings) {
-      final String[] pathPatterns = resourceMapping.getPathPatterns();
+    for (ResourceMapping resourceMapping : resourceMappings) {
+      String[] pathPatterns = resourceMapping.getPathPatterns();
       registerHandler(new ResourceRequestHandler(resourceMapping, resourceResolver), pathPatterns);
     }
     // @since 4.0 trimToSize

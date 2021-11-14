@@ -21,6 +21,9 @@ package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -93,13 +96,12 @@ class StringUtilsTests {
 
   @Test
   void testDecodeUrl() {
-    assert "四川".equals(StringUtils.decodeURL("%e5%9b%9b%e5%b7%9d"));
+    assert "四川".equals(URLDecoder.decode("%e5%9b%9b%e5%b7%9d", StandardCharsets.UTF_8));
   }
 
   @Test
   void testEncodeUrl() {
-
-    assert StringUtils.encodeURL("四川").equalsIgnoreCase("%e5%9b%9b%e5%b7%9d");
+    assert URLEncoder.encode("四川").equalsIgnoreCase("%e5%9b%9b%e5%b7%9d");
   }
 
   @Test
@@ -650,7 +652,7 @@ class StringUtilsTests {
   }
 
   @Test
-  void matchesFirst(){
+  void matchesFirst() {
     assertThat(StringUtils.matchesFirst("Hello, world", 'H')).isTrue();
     assertThat(StringUtils.matchesFirst("Hello, world", 'f')).isFalse();
     assertThat(StringUtils.matchesFirst("world", 'w')).isTrue();

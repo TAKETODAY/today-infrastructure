@@ -21,12 +21,10 @@ package cn.taketoday.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -55,55 +53,7 @@ public abstract class StringUtils {
   public static final String WINDOWS_FOLDER_SEPARATOR = "\\";
   public static final char EXTENSION_SEPARATOR = Constant.PACKAGE_SEPARATOR;
 
-  private static final int caseDiff = ('a' - 'A');
-  private static final BitSet dontNeedEncoding;
   private static final Random random = new Random();
-
-  static {
-
-    /* The list of characters that are not encoded has been determined as follows:
-     *
-     * RFC 2396 states: ----- Data characters that are allowed in a URI but do not
-     * have a reserved purpose are called unreserved. These include upper and lower
-     * case letters, decimal digits, and a limited set of punctuation marks and
-     * symbols.
-     *
-     * unreserved = alphanum | mark
-     *
-     * mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
-     *
-     * Unreserved characters can be escaped without changing the semantics of the
-     * URI, but this should not be done unless the URI is being used in a context
-     * that does not allow the unescaped character to appear. -----
-     *
-     * It appears that both Netscape and Internet Explorer escape all special
-     * characters from this list with the exception of "-", "_", ".", "*". While it
-     * is not clear why they are escaping the other characters, perhaps it is safest
-     * to assume that there might be contexts in which the others are unsafe if not
-     * escaped. Therefore, we will use the same list. It is also noteworthy that
-     * this is consistent with O'Reilly's "HTML: The Definitive Guide" (page 164).
-     *
-     * As a last note, Intenet Explorer does not encode the "@" character which is
-     * clearly not unreserved according to the RFC. We are being consistent with the
-     * RFC in this matter, as is Netscape. */
-    dontNeedEncoding = new BitSet(256);
-    int i;
-    for (i = 'a'; i <= 'z'; i++) {
-      dontNeedEncoding.set(i);
-    }
-    for (i = 'A'; i <= 'Z'; i++) {
-      dontNeedEncoding.set(i);
-    }
-    for (i = '0'; i <= '9'; i++) {
-      dontNeedEncoding.set(i);
-    }
-    dontNeedEncoding.set(' '); // encoding a space to a + is done in the encode() method
-
-    dontNeedEncoding.set('-');
-    dontNeedEncoding.set('_');
-    dontNeedEncoding.set('.');
-    dontNeedEncoding.set('*');
-  }
 
   public static boolean isEmpty(CharSequence str) {
     return str == null || str.length() == 0;
@@ -196,123 +146,6 @@ public abstract class StringUtils {
   }
 
   /**
-   * Decodes an {@code application/x-www-form-urlencoded} string using
-   * a specific default charset {@link Constant#DEFAULT_CHARSET}.
-   * The supplied charset is used to determine
-   * what characters are represented by any consecutive sequences of the
-   * form "<i>{@code %xy}</i>".
-   * <p>
-   * <em><strong>Note:</strong> The <a href=
-   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
-   * World Wide Web Consortium Recommendation</a> states that
-   * UTF-8 should be used. Not doing so may introduce
-   * incompatibilities.</em>
-   *
-   * @param s the {@code String} to decode
-   * @return the newly decoded {@code String}
-   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}
-   * @throws IllegalArgumentException if the implementation encounters illegal
-   * characters This implementation will throw an {@link java.lang.IllegalArgumentException}
-   * when illegal strings are encountered.
-   * @since 3.0
-   */
-  public static String decodeURL(String s) {
-    return decodeURL(s, Constant.DEFAULT_CHARSET);
-  }
-
-  /**
-   * Decodes an {@code application/x-www-form-urlencoded} string using
-   * a specific {@linkplain java.nio.charset.Charset Charset}.
-   * The supplied charset is used to determine
-   * what characters are represented by any consecutive sequences of the
-   * form "<i>{@code %xy}</i>".
-   * <p>
-   * <em><strong>Note:</strong> The <a href=
-   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
-   * World Wide Web Consortium Recommendation</a> states that
-   * UTF-8 should be used. Not doing so may introduce
-   * incompatibilities.</em>
-   *
-   * @param s the {@code String} to decode
-   * @param charset the given charset
-   * @return the newly decoded {@code String}
-   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}
-   * @throws IllegalArgumentException if the implementation encounters illegal
-   * characters
-   * @implNote This implementation will throw an {@link java.lang.IllegalArgumentException}
-   * when illegal strings are encountered.
-   * @since 3.0
-   */
-  public static String decodeURL(String s, Charset charset) {
-    Assert.notNull(charset, "Charset cannot be null");
-    boolean needToChange = false;
-    int numChars = s.length();
-    StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
-    int i = 0;
-
-    char c;
-    byte[] bytes = null;
-    while (i < numChars) {
-      c = s.charAt(i);
-      switch (c) {
-        case '+' -> {
-          sb.append(' ');
-          i++;
-          needToChange = true;
-        }
-        case '%' -> {
-          /*
-           * Starting with this instance of %, process all
-           * consecutive substrings of the form %xy. Each
-           * substring %xy will yield a byte. Convert all
-           * consecutive  bytes obtained this way to whatever
-           * character(s) they represent in the provided
-           * encoding.
-           */
-          try {
-            // (numChars-i)/3 is an upper bound for the number
-            // of remaining bytes
-            if (bytes == null)
-              bytes = new byte[(numChars - i) / 3];
-            int pos = 0;
-
-            while (((i + 2) < numChars) && (c == '%')) {
-              int v = Integer.parseInt(s.substring(i + 1, i + 3), 16);
-              if (v < 0)
-                throw new IllegalArgumentException(
-                        "URLDecoder: Illegal hex characters in escape (%) pattern - negative value");
-              bytes[pos++] = (byte) v;
-              i += 3;
-              if (i < numChars)
-                c = s.charAt(i);
-            }
-
-            // A trailing, incomplete byte encoding such as
-            // "%x" will cause an exception to be thrown
-            if ((i < numChars) && (c == '%'))
-              throw new IllegalArgumentException(
-                      "URLDecoder: Incomplete trailing escape (%) pattern");
-
-            sb.append(new String(bytes, 0, pos, charset));
-          }
-          catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    "URLDecoder: Illegal hex characters in escape (%) pattern - "
-                            + e.getMessage(), e);
-          }
-          needToChange = true;
-        }
-        default -> {
-          sb.append(c);
-          i++;
-        }
-      }
-    }
-
-    return (needToChange ? sb.toString() : s);
-  }
-
-  /**
    * Decode the given encoded URI component value. Based on the following rules:
    * <ul>
    * <li>Alphanumeric characters {@code "a"} through {@code "z"}, {@code "A"} through {@code "Z"},
@@ -361,109 +194,6 @@ public abstract class StringUtils {
       }
     }
     return (changed ? StreamUtils.copyToString(baos, charset) : source);
-  }
-
-  /**
-   * Translates a string into {@code application/x-www-form-urlencoded}
-   * format using a default Charset {@link Constant#DEFAULT_CHARSET}.
-   * This method uses the supplied charset to obtain the bytes for unsafe
-   * characters.
-   * <p>
-   * <em><strong>Note:</strong> The <a href=
-   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
-   * World Wide Web Consortium Recommendation</a> states that
-   * UTF-8 should be used. Not doing so may introduce incompatibilities.</em>
-   *
-   * @param s {@code String} to be translated.
-   * @return the translated {@code String}.
-   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}.
-   */
-  public static String encodeURL(String s) {
-    return encodeURL(s, Constant.DEFAULT_CHARSET);
-  }
-
-  /**
-   * Translates a string into {@code application/x-www-form-urlencoded}
-   * format using a specific {@linkplain java.nio.charset.Charset Charset}.
-   * This method uses the supplied charset to obtain the bytes for unsafe
-   * characters.
-   * <p>
-   * <em><strong>Note:</strong> The <a href=
-   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
-   * World Wide Web Consortium Recommendation</a> states that
-   * UTF-8 should be used. Not doing so may introduce incompatibilities.</em>
-   *
-   * @param s {@code String} to be translated.
-   * @param charset the given charset
-   * @return the translated {@code String}.
-   * @throws NullPointerException if {@code s} or {@code charset} is {@code null}.
-   * @since 3.0
-   */
-  public static String encodeURL(String s, Charset charset) {
-    Assert.notNull(charset, "Charset cannot be null");
-    boolean needToChange = false;
-    final int length = s.length();
-    final StringBuilder out = new StringBuilder(length);
-    final CharArrayWriter charArrayWriter = new CharArrayWriter();
-
-    final BitSet dontNeedEncoding = StringUtils.dontNeedEncoding;
-    final int caseDiff = StringUtils.caseDiff;
-
-    for (int i = 0; i < length; ) {
-      int c = s.charAt(i);
-      // System.out.println("Examining character: " + c);
-      if (dontNeedEncoding.get(c)) {
-        if (c == ' ') {
-          c = '+';
-          needToChange = true;
-        }
-        // System.out.println("Storing: " + c);
-        out.append((char) c);
-        i++;
-        continue;
-      }
-      // convert to external encoding before hex conversion
-      do {
-        charArrayWriter.write(c);
-        /* If this character represents the start of a Unicode surrogate pair, then pass
-         * in two characters. It's not clear what should be done if a bytes reserved in
-         * the surrogate pairs range occurs outside of a legal surrogate pair. For now,
-         * just treat it as if it were any other character. */
-        if (c >= 0xD800 && c <= 0xDBFF && (i + 1) < length) {
-          // System.out.println(Integer.toHexString(c) + " is high surrogate");
-          int d = s.charAt(i + 1);
-          // System.out.println("\tExamining " + Integer.toHexString(d));
-          if (d >= 0xDC00 && d <= 0xDFFF) {
-            // System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
-            charArrayWriter.write(d);
-            i++;
-          }
-        }
-        i++;
-      }
-      while (i < length && !dontNeedEncoding.get((c = s.charAt(i))));
-
-      charArrayWriter.flush();
-      byte[] ba = new String(charArrayWriter.toCharArray()).getBytes(charset);
-      for (final byte b : ba) {
-        out.append('%');
-        char ch = Character.forDigit((b >> 4) & 0xF, 16);
-        // converting to use uppercase letter as part of
-        // the hex value if ch is a letter.
-        if (Character.isLetter(ch)) {
-          ch -= caseDiff;
-        }
-        out.append(ch);
-        ch = Character.forDigit(b & 0xF, 16);
-        if (Character.isLetter(ch)) {
-          ch -= caseDiff;
-        }
-        out.append(ch);
-      }
-      charArrayWriter.reset();
-      needToChange = true;
-    }
-    return (needToChange ? out.toString() : s);
   }
 
   //---------------------------------------------------------------------

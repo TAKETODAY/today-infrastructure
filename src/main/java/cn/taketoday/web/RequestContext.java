@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -46,7 +48,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -269,7 +270,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   }
 
   protected Map<String, String[]> doGetParameters() {
-    String queryString = StringUtils.decodeURL(getQueryString());
+    String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
     MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
     postGetParameters(parameters);
     if (!parameters.isEmpty()) {

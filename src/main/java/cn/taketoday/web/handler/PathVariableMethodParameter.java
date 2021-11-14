@@ -19,12 +19,13 @@
  */
 package cn.taketoday.web.handler;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.MissingPathVariableParameterException;
 import cn.taketoday.web.resolver.ParameterConversionException;
@@ -54,7 +55,7 @@ public class PathVariableMethodParameter extends MethodParameter {
   public Object resolveParameter(final RequestContext request) throws Throwable {
     String[] pathVariables = request.pathVariables();
     if (pathVariables == null) {
-      String requestURI = StringUtils.decodeURL(request.getRequestPath());
+      String requestURI = URLDecoder.decode(request.getRequestPath(), StandardCharsets.UTF_8);
       pathVariables = request.pathVariables(pathMatcher.extractVariables(pathPattern, requestURI));
       if (pathVariables == null) {
         throw new MissingPathVariableParameterException(this);

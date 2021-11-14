@@ -376,13 +376,13 @@ public abstract class UriUtils {
 
   /**
    * Decode the given encoded URI component.
-   * <p>See {@link StringUtils#decodeURL(String, Charset)} for the decoding rules.
+   * <p>See {@link StringUtils#uriDecode(String, Charset)} for the decoding rules.
    *
    * @param source the encoded String
    * @param encoding the character encoding to use
    * @return the decoded value
    * @throws IllegalArgumentException when the given source contains invalid encoded sequences
-   * @see StringUtils#decodeURL(String, Charset)
+   * @see StringUtils#uriDecode(String, Charset)
    * @see java.net.URLDecoder#decode(String, String)
    */
   public static String decode(String source, String encoding) {
@@ -391,13 +391,13 @@ public abstract class UriUtils {
 
   /**
    * Decode the given encoded URI component.
-   * <p>See {@link StringUtils#decodeURL(String, Charset)} for the decoding rules.
+   * <p>See {@link StringUtils#uriDecode(String, Charset)} for the decoding rules.
    *
    * @param source the encoded String
    * @param charset the character encoding to use
    * @return the decoded value
    * @throws IllegalArgumentException when the given source contains invalid encoded sequences
-   * @see StringUtils#decodeURL(String, Charset)
+   * @see StringUtils#uriDecode(String, Charset)
    * @see java.net.URLDecoder#decode(String, String)
    */
   public static String decode(String source, Charset charset) {
