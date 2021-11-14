@@ -46,7 +46,8 @@ public class Jackson2SmileEncoder extends AbstractJackson2Encoder {
 
   private static final MimeType[] DEFAULT_SMILE_MIME_TYPES = new MimeType[] {
           new MimeType("application", "x-jackson-smile"),
-          new MimeType("application", "*+x-jackson-smile") };
+          new MimeType("application", "*+x-jackson-smile")
+  };
 
   private static final byte[] STREAM_SEPARATOR = new byte[0];
 

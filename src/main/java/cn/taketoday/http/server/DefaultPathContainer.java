@@ -142,7 +142,7 @@ final class DefaultPathContainer implements PathContainer {
   }
 
   private static MultiValueMap<String, String> parsePathParams(String input, Charset charset) {
-    DefaultMultiValueMap<String, String> result = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
     int begin = 1;
     while (begin < input.length()) {
       int end = input.indexOf(';', begin);

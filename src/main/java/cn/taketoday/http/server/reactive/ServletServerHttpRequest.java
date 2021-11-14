@@ -158,7 +158,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    MultiValueMap<String, HttpCookie> httpCookies = new DefaultMultiValueMap<>();
+    MultiValueMap<String, HttpCookie> httpCookies = MultiValueMap.fromLinkedHashMap();
     Cookie[] cookies;
     synchronized(this.cookieLock) {
       cookies = this.request.getCookies();

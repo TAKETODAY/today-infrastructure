@@ -277,7 +277,7 @@ public abstract class UriUtils {
    */
   public static MultiValueMap<String, String> encodeQueryParams(MultiValueMap<String, String> params) {
     Charset charset = StandardCharsets.UTF_8;
-    MultiValueMap<String, String> result = new DefaultMultiValueMap<>(params.size());
+    MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(params.size());
     for (Map.Entry<String, List<String>> entry : params.entrySet()) {
       for (String value : entry.getValue()) {
         result.add(encodeQueryParam(entry.getKey(), charset), encodeQueryParam(value, charset));

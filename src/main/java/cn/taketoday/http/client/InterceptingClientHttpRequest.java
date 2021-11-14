@@ -72,7 +72,7 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
   }
 
   @Override
-  protected final ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
+  protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
     InterceptingRequestExecution requestExecution = new InterceptingRequestExecution();
     return requestExecution.execute(this, bufferedOutput);
   }

@@ -111,7 +111,7 @@ public class MultipartWriterSupport extends LoggingCodecSupport {
    * otherwise by default.
    */
   protected MediaType getMultipartMediaType(@Nullable MediaType mediaType, byte[] boundary) {
-    Map<String, String> params = new HashMap<>();
+    HashMap<String, String> params = new HashMap<>();
     if (mediaType != null) {
       params.putAll(mediaType.getParameters());
     }

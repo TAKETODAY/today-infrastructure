@@ -128,7 +128,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   @Override
   public MultiValueMap<String, String> getQueryParams() {
     if (this.queryParams == null) {
-      this.queryParams = MultiValueMap.unmodifiable(initQueryParams());
+      this.queryParams = initQueryParams();
     }
     return this.queryParams;
   }
@@ -141,7 +141,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
    * parsing is thread-safe nevertheless.
    */
   protected MultiValueMap<String, String> initQueryParams() {
-    DefaultMultiValueMap<String, String> queryParams = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, String> queryParams = MultiValueMap.fromLinkedHashMap();
     String query = getURI().getRawQuery();
     if (query != null) {
       Matcher matcher = QUERY_PATTERN.matcher(query);
@@ -163,7 +163,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
     if (this.cookies == null) {
-      this.cookies = MultiValueMap.unmodifiable(initCookies());
+      this.cookies = initCookies();
     }
     return this.cookies;
   }

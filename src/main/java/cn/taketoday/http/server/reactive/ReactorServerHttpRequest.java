@@ -144,7 +144,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    DefaultMultiValueMap<String, HttpCookie> cookies = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
     for (Map.Entry<CharSequence, Set<Cookie>> entry : request.cookies().entrySet()) {
       CharSequence name = entry.getKey();
       for (Cookie cookie : entry.getValue()) {

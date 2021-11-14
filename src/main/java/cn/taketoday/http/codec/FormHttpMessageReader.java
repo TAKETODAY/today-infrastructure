@@ -159,7 +159,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
   private MultiValueMap<String, String> parseFormData(Charset charset, String body) {
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    MultiValueMap<String, String> result = new DefaultMultiValueMap<>(pairs.length);
+    MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(pairs.length);
     try {
       for (String pair : pairs) {
         int idx = pair.indexOf('=');

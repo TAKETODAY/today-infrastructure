@@ -67,10 +67,9 @@ public interface HttpMessageWriter<T> {
    *
    * @param elementType the type of element to encode
    * @return the list of media types supported for the given class
-   * @since 4.0
    */
   default List<MediaType> getWritableMediaTypes(ResolvableType elementType) {
-    return (canWrite(elementType, null) ? getWritableMediaTypes() : Collections.emptyList());
+    return canWrite(elementType, null) ? getWritableMediaTypes() : Collections.emptyList();
   }
 
   /**
@@ -94,8 +93,9 @@ public interface HttpMessageWriter<T> {
    * @param hints additional information about how to encode and write
    * @return indicates completion or error
    */
-  Mono<Void> write(Publisher<? extends T> inputStream, ResolvableType elementType,
-                   @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints);
+  Mono<Void> write(
+          Publisher<? extends T> inputStream, ResolvableType elementType,
+          @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints);
 
   /**
    * Server-side only alternative to
@@ -113,8 +113,9 @@ public interface HttpMessageWriter<T> {
    * @return a {@link Mono} that indicates completion of writing or error
    */
   default Mono<Void> write(
-          Publisher<? extends T> inputStream, ResolvableType actualType,
-          ResolvableType elementType, @Nullable MediaType mediaType, ServerHttpRequest request,
+          Publisher<? extends T> inputStream,
+          ResolvableType actualType, ResolvableType elementType,
+          @Nullable MediaType mediaType, ServerHttpRequest request,
           ServerHttpResponse response, Map<String, Object> hints) {
 
     return write(inputStream, elementType, mediaType, response, hints);

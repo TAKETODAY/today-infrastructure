@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -69,7 +68,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   public AbstractClientHttpRequest(HttpHeaders headers) {
     Assert.notNull(headers, "HttpHeaders must not be null");
     this.headers = headers;
-    this.cookies = new DefaultMultiValueMap<>();
+    this.cookies = MultiValueMap.fromLinkedHashMap();
   }
 
   @Override

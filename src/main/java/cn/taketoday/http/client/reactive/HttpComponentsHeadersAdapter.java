@@ -57,7 +57,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public String getFirst(String key) {
     Header header = this.response.getFirstHeader(key);
-    return (header != null ? header.getValue() : null);
+    return header != null ? header.getValue() : null;
   }
 
   @Override
@@ -99,18 +99,18 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   public boolean isEmpty() {
-    return (this.response.getHeaders().length == 0);
+    return this.response.getHeaders().length == 0;
   }
 
   @Override
   public boolean containsKey(Object key) {
-    return (key instanceof String headerName && this.response.containsHeader(headerName));
+    return key instanceof String headerName && this.response.containsHeader(headerName);
   }
 
   @Override
   public boolean containsValue(Object value) {
-    return (value instanceof String &&
-            Arrays.stream(this.response.getHeaders()).anyMatch(h -> h.getValue().equals(value)));
+    return value instanceof String
+            && Arrays.stream(this.response.getHeaders()).anyMatch(h -> h.getValue().equals(value));
   }
 
   @Nullable
@@ -131,7 +131,9 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public List<String> put(String key, List<String> values) {
     List<String> oldValues = remove(key);
-    values.forEach(value -> add(key, value));
+    for (String value : values) {
+      add(key, value);
+    }
     return oldValues;
   }
 
@@ -158,7 +160,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   public Set<String> keySet() {
-    Set<String> keys = new LinkedHashSet<>(size());
+    LinkedHashSet<String> keys = new LinkedHashSet<>(size());
     for (Header header : this.response.getHeaders()) {
       keys.add(header.getName());
     }
@@ -167,7 +169,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   public Collection<List<String>> values() {
-    Collection<List<String>> values = new ArrayList<>(size());
+    ArrayList<List<String>> values = new ArrayList<>(size());
     for (Header header : this.response.getHeaders()) {
       values.add(get(header.getName()));
     }

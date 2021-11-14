@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  * @see Proxy
  * @since 4.0
  */
-public class ProxyFactoryBean implements FactoryBean<Proxy>, InitializingBean {
+public class NetworkProxyFactoryBean implements FactoryBean<Proxy>, InitializingBean {
 
   private Proxy.Type type = Proxy.Type.HTTP;
 
@@ -90,7 +90,7 @@ public class ProxyFactoryBean implements FactoryBean<Proxy>, InitializingBean {
   }
 
   @Override
-  public Class getBeanClass() {
+  public Class<?> getBeanClass() {
     return Proxy.class;
   }
 

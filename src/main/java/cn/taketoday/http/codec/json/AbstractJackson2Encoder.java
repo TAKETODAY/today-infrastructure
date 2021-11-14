@@ -166,8 +166,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
           SequenceWriter sequenceWriter = writer.writeValues(generator);
 
           return Flux.from(inputStream)
-                  .map(value -> encodeStreamingValue(value, bufferFactory, hints, sequenceWriter, byteBuilder,
-                                                     separator))
+                  .map(value -> encodeStreamingValue(
+                          value, bufferFactory, hints, sequenceWriter, byteBuilder, separator))
                   .doAfterTerminate(() -> {
                     try {
                       byteBuilder.release();
@@ -216,9 +216,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     ByteArrayBuilder byteBuilder = new ByteArrayBuilder(writer.getFactory()._getBufferRecycler());
     try {
       JsonEncoding encoding = getJsonEncoding(mimeType);
-
       logValue(hints, value);
-
       try (JsonGenerator generator = mapper.getFactory().createGenerator(byteBuilder, encoding)) {
         writer.writeValue(generator, value);
         generator.flush();
@@ -245,8 +243,9 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     }
   }
 
-  private DataBuffer encodeStreamingValue(Object value, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints,
-                                          SequenceWriter sequenceWriter, ByteArrayBuilder byteArrayBuilder, byte[] separator) {
+  private DataBuffer encodeStreamingValue(
+          Object value, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints,
+          SequenceWriter sequenceWriter, ByteArrayBuilder byteArrayBuilder, byte[] separator) {
 
     logValue(hints, value);
 
@@ -322,8 +321,6 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
    * <p>By default, this method returns new line {@code "\n"} if the given
    * mime type is one of the configured {@link #setStreamingMediaTypes(List)
    * streaming} mime types.
-   *
-   * @since 4.0
    */
   @Nullable
   protected byte[] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
@@ -340,7 +337,6 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
    *
    * @param mimeType the mime type as requested by the caller
    * @return the JSON encoding to use (never {@code null})
-   * @since 4.0
    */
   protected JsonEncoding getJsonEncoding(@Nullable MimeType mimeType) {
     if (mimeType != null && mimeType.getCharset() != null) {

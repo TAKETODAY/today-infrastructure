@@ -40,11 +40,9 @@ import okhttp3.Request;
  */
 class OkHttp3ClientHttpRequest extends AbstractBufferingClientHttpRequest {
 
-  private final OkHttpClient client;
-
   private final URI uri;
-
   private final HttpMethod method;
+  private final OkHttpClient client;
 
   public OkHttp3ClientHttpRequest(OkHttpClient client, URI uri, HttpMethod method) {
     this.client = client;

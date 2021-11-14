@@ -139,7 +139,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    MultiValueMap<String, ResponseCookie> result = new DefaultMultiValueMap<>();
+    MultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
     for (Map.Entry<CharSequence, Set<Cookie>> entry : response.cookies().entrySet()) {
       Set<Cookie> cookies = entry.getValue();
       for (Cookie cookie : cookies) {

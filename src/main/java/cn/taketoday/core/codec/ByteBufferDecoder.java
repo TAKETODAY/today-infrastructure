@@ -46,13 +46,14 @@ public class ByteBufferDecoder extends AbstractDataBufferDecoder<ByteBuffer> {
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return (ByteBuffer.class.isAssignableFrom(elementType.toClass()) &&
-            super.canDecode(elementType, mimeType));
+    return ByteBuffer.class.isAssignableFrom(elementType.toClass())
+            && super.canDecode(elementType, mimeType);
   }
 
   @Override
-  public ByteBuffer decode(DataBuffer dataBuffer, ResolvableType elementType,
-                           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public ByteBuffer decode(
+          DataBuffer dataBuffer, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     int byteCount = dataBuffer.readableByteCount();
     ByteBuffer copy = ByteBuffer.allocate(byteCount);

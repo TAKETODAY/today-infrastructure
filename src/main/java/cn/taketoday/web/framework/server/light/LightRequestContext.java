@@ -151,7 +151,7 @@ public class LightRequestContext extends RequestContext {
    */
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    final DefaultMultiValueMap<String, MultipartFile> ret = new DefaultMultiValueMap<>();
+    final DefaultMultiValueMap<String, MultipartFile> ret = MultiValueMap.fromLinkedHashMap();
     for (final RequestPart requestPart : getRequestParts()) {
       if (requestPart instanceof MultipartFile) {
         ret.add(requestPart.getName(), (MultipartFile) requestPart);

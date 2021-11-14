@@ -34,11 +34,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class ProxyFactoryBeanTests {
 
-  ProxyFactoryBean factoryBean;
+  NetworkProxyFactoryBean factoryBean;
 
   @BeforeEach
   public void setUp() {
-    factoryBean = new ProxyFactoryBean();
+    factoryBean = new NetworkProxyFactoryBean();
   }
 
   @Test

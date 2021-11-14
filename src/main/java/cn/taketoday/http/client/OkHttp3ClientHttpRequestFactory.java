@@ -34,6 +34,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import okhttp3.Cache;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -50,7 +51,6 @@ import okhttp3.RequestBody;
 public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
 
   private OkHttpClient client;
-
   private final boolean defaultClient;
 
   /**
@@ -123,9 +123,7 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
   static Request buildRequest(
           HttpHeaders headers, byte[] content, URI uri, HttpMethod method) throws MalformedURLException {
     okhttp3.MediaType contentType = getContentType(headers);
-    RequestBody body = (content.length > 0 ||
-                                okhttp3.internal.http.HttpMethod.requiresRequestBody(method.name()) ?
-                        RequestBody.create(contentType, content) : null);
+    RequestBody body = getRequestBody(content, method, contentType);
 
     Request.Builder builder = new Request.Builder()
             .url(uri.toURL())
@@ -140,6 +138,13 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
     }
 
     return builder.build();
+  }
+
+  @Nullable
+  private static RequestBody getRequestBody(
+          byte[] content, HttpMethod method, @Nullable MediaType contentType) {
+    return content.length > 0 || okhttp3.internal.http.HttpMethod.requiresRequestBody(method.name())
+           ? RequestBody.create(contentType, content) : null;
   }
 
   @Nullable

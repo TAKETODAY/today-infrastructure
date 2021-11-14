@@ -73,7 +73,7 @@ class CaptureTheRestPathElement extends PathElement {
           MultiValueMap<String, String> parameters = ((PathSegment) element).parameters();
           if (!parameters.isEmpty()) {
             if (parametersCollector == null) {
-              parametersCollector = new DefaultMultiValueMap<>();
+              parametersCollector = MultiValueMap.fromLinkedHashMap();
             }
             parametersCollector.addAll(parameters);
           }

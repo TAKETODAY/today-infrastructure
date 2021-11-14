@@ -132,8 +132,6 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
 
     /**
      * Create a deep copy of the given {@link DefaultCustomCodecs}.
-     *
-     * @since 4.0
      */
     DefaultCustomCodecs(DefaultCustomCodecs other) {
       this.typedReaders.putAll(other.typedReaders);

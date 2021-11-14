@@ -487,8 +487,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   /**
    * Hook for client or server specific typed writers.
    */
-  protected void extendTypedWriters(List<HttpMessageWriter<?>> typedWriters) {
-  }
+  protected void extendTypedWriters(List<HttpMessageWriter<?>> typedWriters) { }
 
   /**
    * Return Object writers (JSON, XML, SSE).
@@ -499,8 +498,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   /**
    * Reset and initialize object writers.
-   *
-   * @since 4.0
    */
   protected void initObjectWriters() {
     this.objectWriters.clear();

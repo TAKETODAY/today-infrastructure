@@ -34,11 +34,13 @@ import org.reactivestreams.Publisher;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
@@ -121,12 +123,14 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected void applyHeaders() {
-    HttpHeaders headers = getHeaders();
-
-    headers.entrySet()
-            .stream()
-            .filter(entry -> !HttpHeaders.CONTENT_LENGTH.equals(entry.getKey()))
-            .forEach(entry -> entry.getValue().forEach(v -> this.httpRequest.addHeader(entry.getKey(), v)));
+    for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+      String key = entry.getKey();
+      if (!HttpHeaders.CONTENT_LENGTH.equals(key)) {
+        for (String v : entry.getValue()) {
+          httpRequest.addHeader(key, v);
+        }
+      }
+    }
 
     if (!this.httpRequest.containsHeader(HttpHeaders.ACCEPT)) {
       this.httpRequest.addHeader(HttpHeaders.ACCEPT, ALL_VALUE);
@@ -140,15 +144,14 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
     }
 
     CookieStore cookieStore = this.context.getCookieStore();
-    getCookies().values()
-            .stream()
-            .flatMap(Collection::stream)
-            .forEach(cookie -> {
-              BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
-              clientCookie.setDomain(getURI().getHost());
-              clientCookie.setPath(getURI().getPath());
-              cookieStore.addCookie(clientCookie);
-            });
+    for (Map.Entry<String, List<HttpCookie>> entry : getCookies().entrySet()) {
+      for (HttpCookie cookie : entry.getValue()) {
+        BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
+        clientCookie.setDomain(getURI().getHost());
+        clientCookie.setPath(getURI().getPath());
+        cookieStore.addCookie(clientCookie);
+      }
+    }
   }
 
   public AsyncRequestProducer toRequestProducer() {

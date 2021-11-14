@@ -63,7 +63,7 @@ class OkHttp3ClientHttpResponse extends AbstractClientHttpResponse {
   @Override
   public InputStream getBody() throws IOException {
     ResponseBody body = this.response.body();
-    return (body != null ? body.byteStream() : StreamUtils.emptyInput());
+    return body != null ? body.byteStream() : StreamUtils.emptyInput();
   }
 
   @Override

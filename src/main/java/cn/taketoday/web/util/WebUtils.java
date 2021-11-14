@@ -746,7 +746,7 @@ public abstract class WebUtils {
    * @return a map with matrix variable names and values (never {@code null})
    */
   public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
-    MultiValueMap<String, String> result = new DefaultMultiValueMap<>();
+    MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
     if (!StringUtils.hasText(matrixVariables)) {
       return result;
     }

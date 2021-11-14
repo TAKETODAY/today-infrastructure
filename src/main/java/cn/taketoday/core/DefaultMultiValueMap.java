@@ -84,8 +84,12 @@ public class DefaultMultiValueMap<K, V>
     this.mappingFunction = mappingFunction;
   }
 
+  /**
+   * adaptation
+   */
   public DefaultMultiValueMap(Map<K, List<V>> map) {
-    this(map, false);
+    this.map = map;
+    this.mappingFunction = defaultMappingFunction;
   }
 
   public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy) {

@@ -218,7 +218,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * Return a builder for modifying the factory-level {@link RequestConfig}.
    */
   private RequestConfig.Builder requestConfigBuilder() {
-    return (this.requestConfig != null ? RequestConfig.copy(this.requestConfig) : RequestConfig.custom());
+    return this.requestConfig != null ? RequestConfig.copy(this.requestConfig) : RequestConfig.custom();
   }
 
   /**
@@ -277,26 +277,16 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * @return the Commons HttpMethodBase object
    */
   protected HttpUriRequest createHttpUriRequest(HttpMethod httpMethod, URI uri) {
-    switch (httpMethod) {
-      case GET:
-        return new HttpGet(uri);
-      case HEAD:
-        return new HttpHead(uri);
-      case POST:
-        return new HttpPost(uri);
-      case PUT:
-        return new HttpPut(uri);
-      case PATCH:
-        return new HttpPatch(uri);
-      case DELETE:
-        return new HttpDelete(uri);
-      case OPTIONS:
-        return new HttpOptions(uri);
-      case TRACE:
-        return new HttpTrace(uri);
-      default:
-        throw new IllegalArgumentException("Invalid HTTP method: " + httpMethod);
-    }
+    return switch (httpMethod) {
+      case GET -> new HttpGet(uri);
+      case PUT -> new HttpPut(uri);
+      case HEAD -> new HttpHead(uri);
+      case POST -> new HttpPost(uri);
+      case TRACE -> new HttpTrace(uri);
+      case PATCH -> new HttpPatch(uri);
+      case DELETE -> new HttpDelete(uri);
+      case OPTIONS -> new HttpOptions(uri);
+    };
   }
 
   /**
@@ -318,7 +308,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    */
   @Nullable
   protected HttpContext createHttpContext(HttpMethod httpMethod, URI uri) {
-    return (this.httpContextFactory != null ? this.httpContextFactory.apply(httpMethod, uri) : null);
+    return this.httpContextFactory != null ? this.httpContextFactory.apply(httpMethod, uri) : null;
   }
 
   /**

@@ -345,7 +345,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
 
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    DefaultMultiValueMap<String, String> result = new DefaultMultiValueMap<>(pairs.length);
+    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {

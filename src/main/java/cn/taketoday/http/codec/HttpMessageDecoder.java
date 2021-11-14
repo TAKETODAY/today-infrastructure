@@ -20,6 +20,7 @@
 
 package cn.taketoday.http.codec;
 
+import java.lang.reflect.Parameter;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
@@ -42,7 +43,7 @@ public interface HttpMessageDecoder<T> extends Decoder<T> {
    * target controller method parameter.
    *
    * @param actualType the actual target type to decode to, possibly a reactive
-   * wrapper and sourced from {@link cn.taketoday.core.MethodParameter},
+   * wrapper and sourced from {@link Parameter},
    * i.e. providing access to method parameter annotations
    * @param elementType the element type within {@code Flux/Mono} that we're
    * trying to decode to
@@ -50,7 +51,8 @@ public interface HttpMessageDecoder<T> extends Decoder<T> {
    * @param response the current response
    * @return a Map with hints, possibly empty
    */
-  Map<String, Object> getDecodeHints(ResolvableType actualType, ResolvableType elementType,
-                                     ServerHttpRequest request, ServerHttpResponse response);
+  Map<String, Object> getDecodeHints(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response);
 
 }

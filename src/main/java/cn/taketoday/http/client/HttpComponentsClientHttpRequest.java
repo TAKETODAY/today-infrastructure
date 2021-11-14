@@ -31,6 +31,8 @@ import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -51,10 +53,8 @@ import cn.taketoday.util.StringUtils;
 final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpRequest {
 
   private final HttpClient httpClient;
-
-  private final HttpUriRequest httpRequest;
-
   private final HttpContext httpContext;
+  private final HttpUriRequest httpRequest;
 
   HttpComponentsClientHttpRequest(HttpClient client, HttpUriRequest request, HttpContext context) {
     this.httpClient = client;
@@ -80,8 +80,7 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
   protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
     addHeaders(this.httpRequest, headers);
 
-    if (this.httpRequest instanceof HttpEntityEnclosingRequest) {
-      HttpEntityEnclosingRequest entityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+    if (this.httpRequest instanceof HttpEntityEnclosingRequest entityEnclosingRequest) {
       HttpEntity requestEntity = new ByteArrayEntity(bufferedOutput);
       entityEnclosingRequest.setEntity(requestEntity);
     }
@@ -96,18 +95,20 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
    * @param headers the headers to add
    */
   static void addHeaders(HttpUriRequest httpRequest, HttpHeaders headers) {
-    headers.forEach((headerName, headerValues) -> {
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      String headerName = entry.getKey();
+      List<String> headerValues = entry.getValue();
       if (HttpHeaders.COOKIE.equalsIgnoreCase(headerName)) {  // RFC 6265
         String headerValue = StringUtils.collectionToString(headerValues, "; ");
         httpRequest.addHeader(headerName, headerValue);
       }
-      else if (!HTTP.CONTENT_LEN.equalsIgnoreCase(headerName) &&
-              !HTTP.TRANSFER_ENCODING.equalsIgnoreCase(headerName)) {
+      else if (!HTTP.CONTENT_LEN.equalsIgnoreCase(headerName)
+              && !HTTP.TRANSFER_ENCODING.equalsIgnoreCase(headerName)) {
         for (String headerValue : headerValues) {
           httpRequest.addHeader(headerName, headerValue);
         }
       }
-    });
+    }
   }
 
 }

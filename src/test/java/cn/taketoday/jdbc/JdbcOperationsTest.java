@@ -6,7 +6,6 @@ import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -106,14 +105,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
       Date after = new Date();
       long span = after.getTime() - before.getTime();
-      System.out.println(String.format("Fetched %s user: %s ms", insertIntoUsers, span));
+      System.out.printf("Fetched %s user: %s ms%n", insertIntoUsers, span);
 
       // repeat this
       before = new Date();
       allUsers = con.createQuery("select * from User").fetch(User.class);
       after = new Date();
       span = after.getTime() - before.getTime();
-      System.out.println(String.format("Again Fetched %s user: %s ms", insertIntoUsers, span));
+      System.out.printf("Again Fetched %s user: %s ms%n", insertIntoUsers, span);
 
       assertEquals(allUsers.size(), insertIntoUsers);
 
@@ -207,7 +206,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     createAndFillUserTable();
 
     Object o = jdbcOperations.createQuery("select text from User where id = 2").fetchScalar();
-    assertTrue(o.getClass().equals(String.class));
+    assertEquals(o.getClass(), String.class);
 
     Object o2 = jdbcOperations.createQuery("select 10").fetchScalar();
     assertEquals(o2, 10);
@@ -266,12 +265,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     List<CIEntity> ciEntities = jdbcOperations.createQuery("select * from testCI").setCaseSensitive(false).fetch(CIEntity.class);
 
-    assertTrue(ciEntities.size() == 20);
+    assertEquals(20, ciEntities.size());
 
     // test defaultCaseSensitive;
     jdbcOperations.setDefaultCaseSensitive(false);
     List<CIEntity> ciEntities2 = jdbcOperations.createQuery("select * from testCI").fetch(CIEntity.class);
-    assertTrue(ciEntities2.size() == 20);
+    assertEquals(20, ciEntities2.size());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -354,7 +353,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     List<JodaEntity> list = jdbcOperations.createQuery("select * from testjoda").fetch(JodaEntity.class);
 
-    assertTrue(list.size() == 3);
+    assertEquals(3, list.size());
     assertTrue(list.get(0).getJoda2().isBeforeNow());
 
   }
@@ -372,7 +371,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       List<ColumnEntity> result = connection.createQuery("select * from test_column_annotation")
               .fetch(ColumnEntity.class);
 
-      assertTrue(result.size() == 2);
+      assertEquals(2, result.size());
       assertEquals(1, result.get(0).getId());
       assertEquals("test1", result.get(0).getText());
       assertEquals(2, result.get(1).getId());
@@ -394,7 +393,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     List<UtilDateEntity> list = jdbcOperations.createQuery("select * from testutildate").fetch(UtilDateEntity.class);
 
-    assertTrue(list.size() == 3);
+    assertEquals(3, list.size());
 
     // make sure d1, d2, d3 were properly inserted and selected
     for (UtilDateEntity e : list) {
@@ -409,9 +408,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testConversion() {
 
     String sql = "select cast(1 as smallint) as val1, 2 as val2 from (values(0)) union select cast(3 as smallint) as val1, 4 as val2 from (values(0))";
-    List<TypeConvertEntity> entities = jdbcOperations.createQuery(sql).fetch(TypeConvertEntity.class);
+    List<TypeConvertEntity> entities = jdbcOperations.createQuery(sql)
+            .fetch(TypeConvertEntity.class);
 
-    assertTrue(entities.size() == 2);
+    assertEquals(2, entities.size());
   }
 
   @Test
@@ -483,7 +483,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     // H2 will always just return the last generated identity.
     // HyperSQL returns all generated identities (which is more ideal).
     if (this.dbType == DbType.HyperSQL) {
-      assertTrue(keys.length == 2);
+      assertEquals(2, keys.length);
     }
     else {
       assertTrue(keys.length > 0);
@@ -522,7 +522,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     // H2 will always just return the last generated identity.
     // HyperSQL returns all generated identities (which is more ideal).
     if (this.dbType == DbType.HyperSQL) {
-      assertTrue(keys.size() == vals.size());
+      assertEquals(keys.size(), vals.size());
     }
     else {
       assertTrue(keys.size() > 0);
@@ -733,14 +733,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     boolean failed = false;
 
     try {
-      jdbcOperations.runInTransaction(new StatementRunnable() {
-        public void run(JdbcConnection connection, Object argument) throws Throwable {
-          connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
-                  .addParameter("value", "test").executeUpdate();
-
-          throw new RuntimeException("ouch!");
-
-        }
+      jdbcOperations.runInTransaction((StatementRunnable) (connection, argument) -> {
+        connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
+                .addParameter("value", "test").executeUpdate();
+        throw new RuntimeException("ouch!");
       });
     }
     catch (PersistenceException ex) {
@@ -792,7 +788,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     public List<Integer> run(JdbcConnection connection, Object argument) throws Throwable {
       String[] vals = (String[]) argument;
-      List<Integer> keys = new ArrayList<Integer>();
+      List<Integer> keys = new ArrayList<>();
       for (String val : vals) {
         Integer key = connection.createQuery("insert into testRunInsideTransactionWithResultTable(value) values(:val)",
                                              "runnerWithResultTester")
@@ -808,7 +804,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testDynamicExecuteScalar() {
     Object origVal = jdbcOperations.createQuery("select 1").fetchScalar();
-    assertTrue(Integer.class.equals(origVal.getClass()));
+    assertEquals(Integer.class, origVal.getClass());
     assertEquals(1, origVal);
 
     Long intVal = jdbcOperations.createQuery("select 1").fetchScalar(Long.class);
@@ -836,39 +832,35 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     jdbcOperations.createQuery("create table testExceptionInRunnable(id integer primary key, value varchar(20))").executeUpdate();
 
     try {
-      jdbcOperations.runInTransaction(new StatementRunnable() {
-        public void run(JdbcConnection connection, Object argument) throws Throwable {
-          connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
-                  .addParameter("id", 1)
-                  .addParameter("val", "something").executeUpdate();
+      jdbcOperations.runInTransaction((connection, argument) -> {
+        connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
+                .addParameter("id", 1)
+                .addParameter("val", "something").executeUpdate();
 
-          connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
-                  .addParameter("id", 1)
-                  .addParameter("val", "something").executeUpdate();
-        }
+        connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
+                .addParameter("id", 1)
+                .addParameter("val", "something").executeUpdate();
       });
     }
-    catch (Throwable t) {
+    catch (Throwable ignored) {
 
     }
 
     int c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
     assertEquals(0, c);
 
-    jdbcOperations.runInTransaction(new StatementRunnable() {
-      public void run(JdbcConnection connection, Object argument) throws Throwable {
+    jdbcOperations.runInTransaction((connection, argument) -> {
+      connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
+              .addParameter("id", 1)
+              .addParameter("val", "something").executeUpdate();
+
+      try {
         connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
                 .addParameter("id", 1)
                 .addParameter("val", "something").executeUpdate();
+      }
+      catch (PersistenceException ignored) {
 
-        try {
-          connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
-                  .addParameter("id", 1)
-                  .addParameter("val", "something").executeUpdate();
-        }
-        catch (PersistenceException ex) {
-
-        }
       }
     });
 
@@ -1019,7 +1011,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     Period p = new Period(new LocalTime(sqlTime), new LocalTime());
 
     assertThat(sqlTime).isNotNull();
-    assertTrue(p.getMinutes() == 0);
+    assertEquals(0, p.getMinutes());
 
     Date date = jdbcOperations.createQuery(sql)
             .fetchScalar(Date.class);
@@ -1063,13 +1055,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     @Override
     public boolean equals(Object obj) {
-      if ((obj != null) && (obj instanceof BindablePojo)) {
-        BindablePojo other = (BindablePojo) obj;
-                /*System.out.println(data1 + " == " + other.data1);
+      if (obj instanceof BindablePojo other) {
+        /*System.out.println(data1 + " == " + other.data1);
                 System.out.println(data2 + " == " + other.data2);
                 System.out.println(data3 + " == " + other.data3);*/
-        boolean res = data1.equals(other.data1) && data2.equals(other.data2) && data3.equals(other.data3);
-        return res;
+        return data1.equals(other.data1) && data2.equals(other.data2) && data3.equals(other.data3);
       }
       else
         return false;
@@ -1102,7 +1092,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     BindablePojo pojo2 = jdbcOperations.createQuery(selectSql)
             .fetchFirst(BindablePojo.class);
 
-    assertTrue(pojo1.equals(pojo2));
+    assertEquals(pojo1, pojo2);
   }
 
   @Test
@@ -1137,11 +1127,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     // read in batches, because maybe we are bulk exporting and can't fit them all into a list
     int totalSize = 0;
     int batchSize = 500;
-    List<User> batch = new ArrayList<User>(batchSize);
+    List<User> batch = new ArrayList<>(batchSize);
     for (User u : allUsers) {
       totalSize++;
       if (batch.size() == batchSize) {
-        System.out.println(String.format("Read batch of %d users, great!", batchSize));
+        System.out.printf("Read batch of %d users, great!%n", batchSize);
         batch.clear();
       }
       batch.add(u);
@@ -1149,7 +1139,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     allUsers.close();
 
-    assertTrue(totalSize == insertIntoUsers);
+    assertEquals(totalSize, insertIntoUsers);
     deleteUserTable();
   }
 
@@ -1174,7 +1164,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     allUsers.close();
 
-    assertTrue(totalSize == insertIntoUsers);
+    assertEquals(totalSize, insertIntoUsers);
     deleteUserTable();
   }
 
@@ -1223,9 +1213,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     createAndFillUserTable();
 
     Query q = jdbcOperations.createQuery("select * from User");
-    LazyTable lt = null;
-    try {
-      lt = q.fetchLazyTable();
+    try (LazyTable lt = q.fetchLazyTable()) {
       for (Row r : lt.rows()) {
         String name = r.getString("name");
 
@@ -1235,11 +1223,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       // still in autoClosable scope. Expecting connection to be open.
       assertThat(q.getConnection().getJdbcConnection().isClosed()).isFalse();
     }
-    finally {
-      // simulate autoClose.
-      lt.close();
-    }
-
+    // simulate autoClose.
     // simulated autoClosable scope exited. Expecting connection to be closed.
     assertThat(q.getConnection().getJdbcConnection().isClosed()).isTrue();
   }
@@ -1568,18 +1552,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     assertThat(users.size()).isEqualTo(10003);
 
     try {
-      jdbcOperations.withConnection(new StatementRunnable() {
-        public void run(JdbcConnection connection, Object argument) throws Throwable {
+      jdbcOperations.withConnection((StatementRunnable) (connection, argument) -> {
+        connection.createQuery(insertsql)
+                .addParameter("name", "Sql2o")
+                .addParameter("email", "sql2o@sql2o.org")
+                .addParameter("text", "bla bla")
+                .executeUpdate();
 
-          connection.createQuery(insertsql)
-                  .addParameter("name", "Sql2o")
-                  .addParameter("email", "sql2o@sql2o.org")
-                  .addParameter("text", "bla bla")
-                  .executeUpdate();
-
-          throw new RuntimeException("whaa!");
-
-        }
+        throw new RuntimeException("whaa!");
       });
     }
     catch (Exception e) {
@@ -1825,7 +1805,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     Date after = new Date();
     Long span = after.getTime() - before.getTime();
 
-    System.out.println(String.format("inserted %d rows into User table. Time used: %s ms", rowCount, span));
+    System.out.printf("inserted %d rows into User table. Time used: %s ms%n", rowCount, span);
 
     insertIntoUsers += rowCount;
 

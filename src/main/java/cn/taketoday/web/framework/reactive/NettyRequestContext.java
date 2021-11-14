@@ -507,7 +507,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    DefaultMultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
     for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload) {
         String name = data.getName();

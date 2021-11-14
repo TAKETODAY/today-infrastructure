@@ -85,7 +85,7 @@ import cn.taketoday.util.MediaType;
  * @since 4.0
  */
 public final class MultipartBodyBuilder {
-  private final DefaultMultiValueMap<String, DefaultPartBuilder> parts = new DefaultMultiValueMap<>();
+  private final DefaultMultiValueMap<String, DefaultPartBuilder> parts = MultiValueMap.fromLinkedHashMap();
 
   /**
    * Add a part where the Object may be:
@@ -212,7 +212,7 @@ public final class MultipartBodyBuilder {
    * Return a {@code MultiValueMap} with the configured parts.
    */
   public MultiValueMap<String, HttpEntity<?>> build() {
-    DefaultMultiValueMap<String, HttpEntity<?>> result = new DefaultMultiValueMap<>(this.parts.size());
+    DefaultMultiValueMap<String, HttpEntity<?>> result = MultiValueMap.fromLinkedHashMap(this.parts.size());
     for (Map.Entry<String, List<DefaultPartBuilder>> entry : this.parts.entrySet()) {
       for (DefaultPartBuilder builder : entry.getValue()) {
         HttpEntity<?> entity = builder.build();
@@ -232,7 +232,6 @@ public final class MultipartBodyBuilder {
      *
      * @param contentType the content type
      * @see HttpHeaders#setContentType(MediaType)
-     * @since 4.0
      */
     PartBuilder contentType(MediaType contentType);
 
@@ -326,8 +325,8 @@ public final class MultipartBodyBuilder {
       this.resolvableType = ResolvableType.fromClass(elementClass);
     }
 
-    public PublisherPartBuilder(String name, @Nullable HttpHeaders headers, P body,
-                                TypeReference<S> typeRef) {
+    public PublisherPartBuilder(
+            String name, @Nullable HttpHeaders headers, P body, TypeReference<S> typeRef) {
 
       super(name, headers, body);
       this.resolvableType = ResolvableType.fromType(typeRef);

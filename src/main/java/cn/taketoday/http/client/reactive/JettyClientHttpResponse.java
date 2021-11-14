@@ -46,14 +46,11 @@ import reactor.core.publisher.Flux;
  * @since 4.0
  */
 class JettyClientHttpResponse implements ClientHttpResponse {
-
   private static final Pattern SAMESITE_PATTERN = Pattern.compile("(?i).*SameSite=(Strict|Lax|None).*");
 
-  private final ReactiveResponse reactiveResponse;
-
-  private final Flux<DataBuffer> content;
-
   private final HttpHeaders headers;
+  private final Flux<DataBuffer> content;
+  private final ReactiveResponse reactiveResponse;
 
   public JettyClientHttpResponse(ReactiveResponse reactiveResponse, Publisher<DataBuffer> content) {
     this.reactiveResponse = reactiveResponse;
@@ -75,7 +72,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    DefaultMultiValueMap<String, ResponseCookie> result = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
     List<String> cookieHeader = getHeaders().get(HttpHeaders.SET_COOKIE);
     if (cookieHeader != null) {
       for (String header : cookieHeader) {

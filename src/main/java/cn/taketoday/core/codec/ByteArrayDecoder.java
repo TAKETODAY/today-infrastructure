@@ -44,7 +44,7 @@ public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return (elementType.resolve() == byte[].class && super.canDecode(elementType, mimeType));
+    return elementType.resolve() == byte[].class && super.canDecode(elementType, mimeType);
   }
 
   @Override
@@ -55,7 +55,7 @@ public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
     dataBuffer.read(result);
     DataBufferUtils.release(dataBuffer);
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + result.length + " bytes");
+      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), result.length);
     }
     return result;
   }

@@ -696,7 +696,7 @@ public class UrlPathHelper {
       return vars;
     }
     else {
-      MultiValueMap<String, String> decodedVars = new DefaultMultiValueMap<>(vars.size());
+      MultiValueMap<String, String> decodedVars = MultiValueMap.fromLinkedHashMap(vars.size());
       vars.forEach((key, values) -> {
         for (String value : values) {
           decodedVars.add(key, decodeInternal(request, value));

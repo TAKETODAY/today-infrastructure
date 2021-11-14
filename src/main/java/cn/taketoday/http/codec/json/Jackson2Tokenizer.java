@@ -55,20 +55,15 @@ import reactor.core.publisher.Flux;
 final class Jackson2Tokenizer {
 
   private final JsonParser parser;
-
   private final DeserializationContext deserializationContext;
 
+  private final int maxInMemorySize;
+  private final boolean forceUseOfBigDecimal;
   private final boolean tokenizeArrayElements;
 
-  private final boolean forceUseOfBigDecimal;
-
-  private final int maxInMemorySize;
-
-  private int objectDepth;
-
-  private int arrayDepth;
-
   private int byteCount;
+  private int arrayDepth;
+  private int objectDepth;
 
   private TokenBuffer tokenBuffer;
 
@@ -123,8 +118,8 @@ final class Jackson2Tokenizer {
     });
   }
 
-  private List<TokenBuffer> parseTokenBufferFlux() throws IOException {
-    List<TokenBuffer> result = new ArrayList<>();
+  private ArrayList<TokenBuffer> parseTokenBufferFlux() throws IOException {
+    ArrayList<TokenBuffer> result = new ArrayList<>();
 
     // SPR-16151: Smile data format uses null to separate documents
     boolean previousNull = false;
@@ -160,7 +155,7 @@ final class Jackson2Tokenizer {
     }
   }
 
-  private void processTokenNormal(JsonToken token, List<TokenBuffer> result) throws IOException {
+  private void processTokenNormal(JsonToken token, ArrayList<TokenBuffer> result) throws IOException {
     this.tokenBuffer.copyCurrentEvent(this.parser);
 
     if ((token.isStructEnd() || token.isScalarValue()) && this.objectDepth == 0 && this.arrayDepth == 0) {
@@ -169,13 +164,14 @@ final class Jackson2Tokenizer {
     }
   }
 
-  private void processTokenArray(JsonToken token, List<TokenBuffer> result) throws IOException {
+  private void processTokenArray(JsonToken token, ArrayList<TokenBuffer> result) throws IOException {
     if (!isTopLevelArrayToken(token)) {
       this.tokenBuffer.copyCurrentEvent(this.parser);
     }
 
-    if (this.objectDepth == 0 && (this.arrayDepth == 0 || this.arrayDepth == 1) &&
-            (token == JsonToken.END_OBJECT || token.isScalarValue())) {
+    if (this.objectDepth == 0
+            && (this.arrayDepth == 0 || this.arrayDepth == 1)
+            && (token == JsonToken.END_OBJECT || token.isScalarValue())) {
       result.add(this.tokenBuffer);
       this.tokenBuffer = createToken();
     }
@@ -227,8 +223,9 @@ final class Jackson2Tokenizer {
    * @param maxInMemorySize maximum memory size
    * @return the resulting token buffers
    */
-  public static Flux<TokenBuffer> tokenize(Flux<DataBuffer> dataBuffers, JsonFactory jsonFactory,
-                                           ObjectMapper objectMapper, boolean tokenizeArrays, boolean forceUseOfBigDecimal, int maxInMemorySize) {
+  public static Flux<TokenBuffer> tokenize(
+          Flux<DataBuffer> dataBuffers, JsonFactory jsonFactory,
+          ObjectMapper objectMapper, boolean tokenizeArrays, boolean forceUseOfBigDecimal, int maxInMemorySize) {
 
     try {
       JsonParser parser = jsonFactory.createNonBlockingByteArrayParser();

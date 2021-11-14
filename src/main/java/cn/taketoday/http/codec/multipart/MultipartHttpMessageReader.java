@@ -121,7 +121,7 @@ public class MultipartHttpMessageReader
   }
 
   private DefaultMultiValueMap<String, Part> toMultiValueMap(Map<String, Collection<Part>> map) {
-    DefaultMultiValueMap<String, Part> ret = new DefaultMultiValueMap<>(map.size());
+    DefaultMultiValueMap<String, Part> ret = MultiValueMap.fromLinkedHashMap(map.size());
     for (Map.Entry<String, Collection<Part>> entry : map.entrySet()) {
       ret.put(entry.getKey(), toList(entry.getValue()));
     }

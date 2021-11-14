@@ -128,7 +128,7 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
             }))
             .doOnTerminate(chunks::releaseAndClear)
             .doOnDiscard(PooledDataBuffer.class, PooledDataBuffer::release)
-            .map(buffer -> decode(buffer, elementType, mimeType, hints));
+            .mapNotNull(buffer -> decode(buffer, elementType, mimeType, hints));
   }
 
   private byte[][] getDelimiterBytes(@Nullable MimeType mimeType) {

@@ -132,20 +132,9 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
     this.client.close();
   }
 
-  private static class MonoFutureCallbackAdapter
+  private record MonoFutureCallbackAdapter(
+          MonoSink<ClientHttpResponse> sink, DataBufferFactory dataBufferFactory, HttpClientContext context)
           implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
-
-    private final HttpClientContext context;
-    private final MonoSink<ClientHttpResponse> sink;
-    private final DataBufferFactory dataBufferFactory;
-
-    public MonoFutureCallbackAdapter(
-            MonoSink<ClientHttpResponse> sink,
-            DataBufferFactory dataBufferFactory, HttpClientContext context) {
-      this.sink = sink;
-      this.dataBufferFactory = dataBufferFactory;
-      this.context = context;
-    }
 
     @Override
     public void completed(Message<HttpResponse, Publisher<ByteBuffer>> result) {

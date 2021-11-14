@@ -100,16 +100,7 @@ final class HttpComponentsStreamingClientHttpRequest
     return new HttpComponentsClientHttpResponse(httpResponse);
   }
 
-  private static class StreamingHttpEntity implements HttpEntity {
-
-    private final HttpHeaders headers;
-
-    private final StreamingHttpOutputMessage.Body body;
-
-    public StreamingHttpEntity(HttpHeaders headers, StreamingHttpOutputMessage.Body body) {
-      this.headers = headers;
-      this.body = body;
-    }
+  private record StreamingHttpEntity(HttpHeaders headers, Body body) implements HttpEntity {
 
     @Override
     public boolean isRepeatable() {

@@ -54,14 +54,14 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return (Resource.class.isAssignableFrom(elementType.toClass()) &&
-            super.canDecode(elementType, mimeType));
+    return Resource.class.isAssignableFrom(elementType.toClass())
+            && super.canDecode(elementType, mimeType);
   }
 
   @Override
-  public Flux<Resource> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
-                               @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
+  public Flux<Resource> decode(
+          Publisher<DataBuffer> inputStream, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     return Flux.from(decodeToMono(inputStream, elementType, mimeType, hints));
   }
 
@@ -74,7 +74,7 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
     DataBufferUtils.release(dataBuffer);
 
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + bytes.length + " bytes");
+      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), bytes.length);
     }
 
     Class<?> clazz = elementType.toClass();

@@ -308,7 +308,7 @@ final class HierarchicalUriComponents extends UriComponents {
   }
 
   private MultiValueMap<String, String> encodeQueryParams(BiFunction<String, Type, String> encoder) {
-    DefaultMultiValueMap<String, String> result = new DefaultMultiValueMap<>(queryParams.size());
+    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(queryParams.size());
     for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
       String key = entry.getKey();
       List<String> values = entry.getValue();
@@ -459,7 +459,7 @@ final class HierarchicalUriComponents extends UriComponents {
   }
 
   private MultiValueMap<String, String> expandQueryParams(UriTemplateVariables variables) {
-    DefaultMultiValueMap<String, String> result = new DefaultMultiValueMap<>(queryParams.size());
+    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(queryParams.size());
     QueryUriTemplateVariables queryVariables = new QueryUriTemplateVariables(variables);
 
     for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {

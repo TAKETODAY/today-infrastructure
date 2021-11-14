@@ -28,7 +28,8 @@ import org.reactivestreams.Publisher;
 
 import java.net.HttpCookie;
 import java.net.URI;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -52,9 +53,7 @@ import reactor.core.publisher.MonoSink;
 class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   private final Request jettyRequest;
-
   private final DataBufferFactory bufferFactory;
-
   private final ReactiveRequest.Builder builder;
 
   public JettyClientHttpRequest(Request jettyRequest, DataBufferFactory bufferFactory) {
@@ -130,16 +129,23 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected void applyCookies() {
-    getCookies().values().stream().flatMap(Collection::stream)
-            .map(cookie -> new HttpCookie(cookie.getName(), cookie.getValue()))
-            .forEach(this.jettyRequest::cookie);
+    for (Map.Entry<String, List<cn.taketoday.http.HttpCookie>> entry : getCookies().entrySet()) {
+      for (cn.taketoday.http.HttpCookie cookie : entry.getValue()) {
+        jettyRequest.cookie(new HttpCookie(cookie.getName(), cookie.getValue()));
+      }
+    }
   }
 
   @Override
   protected void applyHeaders() {
     HttpHeaders headers = getHeaders();
-    this.jettyRequest.headers(fields -> {
-      headers.forEach((key, value) -> value.forEach(v -> fields.add(key, v)));
+    jettyRequest.headers(fields -> {
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        String key = entry.getKey();
+        for (String v : entry.getValue()) {
+          fields.add(key, v);
+        }
+      }
       if (!headers.containsKey(HttpHeaders.ACCEPT)) {
         fields.add(HttpHeaders.ACCEPT, "*/*");
       }

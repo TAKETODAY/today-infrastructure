@@ -25,9 +25,8 @@ import java.time.Duration;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Representation for a Server-Sent Event for use with Spring's reactive Web support.
- * {@code Flux<ServerSentEvent>} or {@code Observable<ServerSentEvent>} is the
- * reactive equivalent to Spring MVC's {@code SseEmitter}.
+ * Representation for a Server-Sent Event for use with reactive Web support.
+ * {@code Flux<ServerSentEvent>} or {@code Observable<ServerSentEvent>}
  *
  * @param <T> the type of data that this event contains
  * @author Sebastien Deleuze
@@ -105,8 +104,8 @@ public final class ServerSentEvent<T> {
 
   @Override
   public String toString() {
-    return ("ServerSentEvent [id = '" + this.id + "\', event='" + this.event + "\', retry=" +
-            this.retry + ", comment='" + this.comment + "', data=" + this.data + ']');
+    return "ServerSentEvent [id = '" + this.id + "', event='" + this.event + "', retry=" +
+            this.retry + ", comment='" + this.comment + "', data=" + this.data + ']';
   }
 
   /**

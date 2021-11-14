@@ -361,7 +361,7 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    DefaultMultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
     try {
       for (final Part part : request.getParts()) {
         final String name = part.getName();

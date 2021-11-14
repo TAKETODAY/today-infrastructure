@@ -83,8 +83,8 @@ public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
   @Override
   public Flux<T> decode(Publisher<DataBuffer> input, ResolvableType elementType,
                         @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-    return Flux.from(input).map(buffer -> decode(buffer, elementType, mimeType, hints));
+    return Flux.from(input)
+            .mapNotNull(buffer -> decode(buffer, elementType, mimeType, hints));
   }
 
   @Override
@@ -92,7 +92,7 @@ public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
                               @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return DataBufferUtils.join(input, this.maxInMemorySize)
-            .map(buffer -> decode(buffer, elementType, mimeType, hints));
+            .mapNotNull(buffer -> decode(buffer, elementType, mimeType, hints));
   }
 
 }

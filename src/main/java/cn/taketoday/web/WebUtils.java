@@ -309,7 +309,7 @@ public abstract class WebUtils {
    * @return Map of list parameters
    */
   public static MultiValueMap<String, String> parseParameters(String s) {
-    DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, String> params = MultiValueMap.fromLinkedHashMap();
     parseParameters(params, s);
     return params;
   }
@@ -338,7 +338,7 @@ public abstract class WebUtils {
    * @since 3.0
    */
   public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
-    DefaultMultiValueMap<String, String> result = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
     if (StringUtils.hasText(matrixVariables)) {
       StringTokenizer pairs = new StringTokenizer(matrixVariables, ";");
       while (pairs.hasMoreTokens()) {

@@ -85,7 +85,7 @@ class UndertowServerHttpRequest extends AbstractServerHttpRequest {
   @SuppressWarnings("deprecation")
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    MultiValueMap<String, HttpCookie> cookies = new DefaultMultiValueMap<>();
+    MultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
     // getRequestCookies() is deprecated in Undertow 2.2
     for (Map.Entry<String, Cookie> entry : exchange.getRequestCookies().entrySet()) {
       String name = entry.getKey();

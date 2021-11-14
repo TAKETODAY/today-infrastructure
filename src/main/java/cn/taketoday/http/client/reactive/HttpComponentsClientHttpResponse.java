@@ -49,13 +49,10 @@ import reactor.core.publisher.Flux;
 class HttpComponentsClientHttpResponse implements ClientHttpResponse {
 
   private final DataBufferFactory dataBufferFactory;
-
   private final Message<HttpResponse, Publisher<ByteBuffer>> message;
 
   private final HttpHeaders headers;
-
   private final HttpClientContext context;
-
   private final AtomicBoolean rejectSubscribers = new AtomicBoolean();
 
   public HttpComponentsClientHttpResponse(
@@ -82,7 +79,7 @@ class HttpComponentsClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    DefaultMultiValueMap<String, ResponseCookie> result = new DefaultMultiValueMap<>();
+    DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
     this.context.getCookieStore().getCookies()
             .forEach(cookie -> result.add(
                     cookie.getName(),
