@@ -98,8 +98,6 @@ public interface CodecConfigurer {
    * own lists of default and custom codecs and generally can be configured
    * independently. Keep in mind however that codec instances (if any are
    * configured) are themselves not cloned.
-   *
-   * @since 4.0
    */
   CodecConfigurer clone();
 
@@ -154,7 +152,6 @@ public interface CodecConfigurer {
      *
      * @param decoder the decoder instance to use
      * @see cn.taketoday.http.codec.protobuf.ProtobufDecoder
-     * @since 4.0
      */
     void protobufDecoder(Decoder<?> decoder);
 
@@ -164,47 +161,8 @@ public interface CodecConfigurer {
      * @param encoder the encoder instance to use
      * @see cn.taketoday.http.codec.protobuf.ProtobufEncoder
      * @see cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter
-     * @since 4.0
      */
     void protobufEncoder(Encoder<?> encoder);
-
-    /**
-     * Override the default JAXB2 {@code Decoder}.
-     * <p>Note that {@link #maxInMemorySize(int)}, if configured, will be
-     * applied to the given decoder.
-     *
-     * @param decoder the decoder instance to use
-     * @see cn.taketoday.http.codec.xml.Jaxb2XmlDecoder
-     * @since 4.0
-     */
-    void jaxb2Decoder(Decoder<?> decoder);
-
-    /**
-     * Override the default JABX2 {@code Encoder}.
-     *
-     * @param encoder the encoder instance to use
-     * @see cn.taketoday.http.codec.xml.Jaxb2XmlEncoder
-     * @since 4.0
-     */
-    void jaxb2Encoder(Encoder<?> encoder);
-
-    /**
-     * Override the default Kotlin Serialization JSON {@code Decoder}.
-     *
-     * @param decoder the decoder instance to use
-     * @see cn.taketoday.http.codec.json.KotlinSerializationJsonDecoder
-     * @since 4.0
-     */
-    void kotlinSerializationJsonDecoder(Decoder<?> decoder);
-
-    /**
-     * Override the default Kotlin Serialization JSON {@code Encoder}.
-     *
-     * @param encoder the encoder instance to use
-     * @see cn.taketoday.http.codec.json.KotlinSerializationJsonEncoder
-     * @since 4.0
-     */
-    void kotlinSerializationJsonEncoder(Encoder<?> encoder);
 
     /**
      * Register a consumer to apply to default config instances. This can be
@@ -214,7 +172,6 @@ public interface CodecConfigurer {
      * instance.
      *
      * @param codecConsumer the consumer to apply
-     * @since 4.0
      */
     void configureDefaultCodec(Consumer<Object> codecConsumer);
 
@@ -230,7 +187,6 @@ public interface CodecConfigurer {
      * apply. All codecs are limited to 256K by default.
      *
      * @param byteCount the max number of bytes to buffer, or -1 for unlimited
-     * @since 4.0
      */
     void maxInMemorySize(int byteCount);
 
@@ -240,7 +196,6 @@ public interface CodecConfigurer {
      * <p>By default set to {@code false} so that request details are not shown.
      *
      * @param enable whether to enable or not
-     * @since 4.0
      */
     void enableLoggingRequestDetails(boolean enable);
   }
@@ -276,7 +231,6 @@ public interface CodecConfigurer {
      * readers or writers.
      *
      * @param codec the codec to register and apply default config to
-     * @since 4.0
      */
     void registerWithDefaultConfig(Object codec);
 
@@ -291,55 +245,8 @@ public interface CodecConfigurer {
      *
      * @param codec the codec to register
      * @param configConsumer consumer of the default config
-     * @since 4.0
      */
     void registerWithDefaultConfig(Object codec, Consumer<DefaultCodecConfig> configConsumer);
-
-    /**
-     * Add a custom {@code Decoder} internally wrapped with
-     * {@link DecoderHttpMessageReader}).
-     *
-     * @param decoder the decoder to add
-     * @deprecated as of 5.1.13, use {@link #register(Object)} or
-     * {@link #registerWithDefaultConfig(Object)} instead.
-     */
-    @Deprecated
-    void decoder(Decoder<?> decoder);
-
-    /**
-     * Add a custom {@code Encoder}, internally wrapped with
-     * {@link EncoderHttpMessageWriter}.
-     *
-     * @param encoder the encoder to add
-     * @deprecated as of 5.1.13, use {@link #register(Object)} or
-     * {@link #registerWithDefaultConfig(Object)} instead.
-     */
-    @Deprecated
-    void encoder(Encoder<?> encoder);
-
-    /**
-     * Add a custom {@link HttpMessageReader}. For readers of type
-     * {@link DecoderHttpMessageReader} consider using the shortcut
-     * {@link #decoder(Decoder)} instead.
-     *
-     * @param reader the reader to add
-     * @deprecated as of 5.1.13, use {@link #register(Object)} or
-     * {@link #registerWithDefaultConfig(Object)} instead.
-     */
-    @Deprecated
-    void reader(HttpMessageReader<?> reader);
-
-    /**
-     * Add a custom {@link HttpMessageWriter}. For writers of type
-     * {@link EncoderHttpMessageWriter} consider using the shortcut
-     * {@link #encoder(Encoder)} instead.
-     *
-     * @param writer the writer to add
-     * @deprecated as of 5.1.13, use {@link #register(Object)} or
-     * {@link #registerWithDefaultConfig(Object)} instead.
-     */
-    @Deprecated
-    void writer(HttpMessageWriter<?> writer);
 
     /**
      * Register a callback for the {@link DefaultCodecConfig configuration}
@@ -348,10 +255,7 @@ public interface CodecConfigurer {
      * the amount of buffered data.
      *
      * @param codecsConfigConsumer the default codecs configuration callback
-     * @deprecated as of 5.1.13, use {@link #registerWithDefaultConfig(Object)}
-     * or {@link #registerWithDefaultConfig(Object, Consumer)} instead.
      */
-    @Deprecated
     void withDefaultCodecConfig(Consumer<DefaultCodecConfig> codecsConfigConsumer);
   }
 

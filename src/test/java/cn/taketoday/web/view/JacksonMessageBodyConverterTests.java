@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -53,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author TODAY 2021/3/10 14:58
  */
+@Disabled
 public class JacksonMessageBodyConverterTests {
 
   void test(User user) { }

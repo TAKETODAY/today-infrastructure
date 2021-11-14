@@ -91,7 +91,6 @@ public interface ServerCodecConfigurer extends CodecConfigurer {
      * applied to the given reader, if applicable.
      *
      * @param reader the message reader to use for multipart requests.
-     * @since 4.0
      */
     void multipartReader(HttpMessageReader<?> reader);
 

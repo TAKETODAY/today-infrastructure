@@ -32,8 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,37 +63,29 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
-
   private static final Logger logger = LoggerFactory.getLogger(PartGenerator.class);
 
+  private final FluxSink<Part> sink;
+  private final AtomicInteger partCount = new AtomicInteger();
+  private final AtomicBoolean requestOutstanding = new AtomicBoolean();
   private final AtomicReference<State> state = new AtomicReference<>(new InitialState());
 
-  private final AtomicInteger partCount = new AtomicInteger();
-
-  private final AtomicBoolean requestOutstanding = new AtomicBoolean();
-
-  private final FluxSink<Part> sink;
-
   private final int maxParts;
-
   private final boolean streaming;
-
   private final int maxInMemorySize;
-
   private final long maxDiskUsagePerPart;
-
   private final Mono<Path> fileStorageDirectory;
-
   private final Scheduler blockingOperationScheduler;
 
-  private PartGenerator(FluxSink<Part> sink, int maxParts, int maxInMemorySize, long maxDiskUsagePerPart,
-                        boolean streaming, Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
+  private PartGenerator(
+          FluxSink<Part> sink, int maxParts, int maxInMemorySize, long maxDiskUsagePerPart,
+          boolean streaming, Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
 
     this.sink = sink;
     this.maxParts = maxParts;
+    this.streaming = streaming;
     this.maxInMemorySize = maxInMemorySize;
     this.maxDiskUsagePerPart = maxDiskUsagePerPart;
-    this.streaming = streaming;
     this.fileStorageDirectory = fileStorageDirectory;
     this.blockingOperationScheduler = blockingOperationScheduler;
   }
@@ -103,9 +93,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   /**
    * Creates parts from a given stream of tokens.
    */
-  public static Flux<Part> createParts(Flux<MultipartParser.Token> tokens, int maxParts, int maxInMemorySize,
-                                       long maxDiskUsagePerPart, boolean streaming, Mono<Path> fileStorageDirectory,
-                                       Scheduler blockingOperationScheduler) {
+  public static Flux<Part> createParts(
+          Flux<MultipartParser.Token> tokens, int maxParts,
+          int maxInMemorySize, long maxDiskUsagePerPart, boolean streaming,
+          Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
 
     return Flux.create(sink -> {
       PartGenerator generator = new PartGenerator(
@@ -135,11 +126,9 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     if (token instanceof MultipartParser.HeadersToken) {
       // finish previous part
       state.partComplete(false);
-
       if (tooManyParts()) {
         return;
       }
-
       newPart(state, token.headers());
     }
     else {
@@ -228,10 +217,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   }
 
   void requestToken() {
-    if (upstream() != null &&
-            !this.sink.isCancelled() &&
-            this.sink.requestedFromDownstream() > 0 &&
-            this.requestOutstanding.compareAndSet(false, true)) {
+    if (upstream() != null
+            && !this.sink.isCancelled()
+            && this.sink.requestedFromDownstream() > 0
+            && this.requestOutstanding.compareAndSet(false, true)) {
       request(1);
     }
   }
@@ -273,12 +262,12 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
    * {@link WritingFileState} when more body data comes in.</li>
    * </ol>
    */
-  private interface State {
+  private abstract static class State {
 
     /**
      * Invoked when a {@link MultipartParser.BodyToken} is received.
      */
-    void body(DataBuffer dataBuffer);
+    abstract void body(DataBuffer dataBuffer);
 
     /**
      * Invoked when all tokens for the part have been received.
@@ -286,25 +275,23 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
      * @param finalPart {@code true} if this was the last part (and
      * {@link #emitComplete()} should be called; {@code false} otherwise
      */
-    void partComplete(boolean finalPart);
+    abstract void partComplete(boolean finalPart);
 
     /**
      * Invoked when an error has been received.
      */
-    default void error(Throwable throwable) {
-    }
+    void error(Throwable throwable) { }
 
     /**
      * Cleans up any state.
      */
-    default void dispose() {
-    }
+    void dispose() { }
   }
 
   /**
    * The initial state of the creator. Throws an exception for {@link #body(DataBuffer)}.
    */
-  private final class InitialState implements State {
+  private final class InitialState extends State {
 
     private InitialState() { }
 
@@ -331,11 +318,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
    * The creator state when a {@linkplain #isFormField(HttpHeaders) form field} is received.
    * Stores all body buffers in memory (up until {@link #maxInMemorySize}).
    */
-  private final class FormFieldState implements State {
-
-    private final FastByteArrayOutputStream value = new FastByteArrayOutputStream();
+  private final class FormFieldState extends State {
 
     private final HttpHeaders headers;
+    private final FastByteArrayOutputStream value = new FastByteArrayOutputStream();
 
     public FormFieldState(HttpHeaders headers) {
       this.headers = headers;
@@ -344,8 +330,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     @Override
     public void body(DataBuffer dataBuffer) {
       int size = this.value.size() + dataBuffer.readableByteCount();
-      if (PartGenerator.this.maxInMemorySize == -1 ||
-              size < PartGenerator.this.maxInMemorySize) {
+      if (PartGenerator.this.maxInMemorySize == -1
+              || size < PartGenerator.this.maxInMemorySize) {
         store(dataBuffer);
         requestToken();
       }
@@ -392,7 +378,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
    * The creator state when {@link #streaming} is {@code true} (and not
    * handling a form field). Relays all received buffers to a sink.
    */
-  private final class StreamingState implements State {
+  private final class StreamingState extends State {
 
     private final FluxSink<DataBuffer> bodySink;
 
@@ -447,15 +433,12 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
    * is changed to {@link CreateFileState}, and eventually to
    * {@link CreateFileState}.
    */
-  private final class InMemoryState implements State {
-
-    private final AtomicLong byteCount = new AtomicLong();
-
-    private final Queue<DataBuffer> content = new ConcurrentLinkedQueue<>();
+  private final class InMemoryState extends State {
 
     private final HttpHeaders headers;
-
     private volatile boolean releaseOnDispose = true;
+    private final AtomicLong byteCount = new AtomicLong();
+    private final ConcurrentLinkedQueue<DataBuffer> content = new ConcurrentLinkedQueue<>();
 
     public InMemoryState(HttpHeaders headers) {
       this.headers = headers;
@@ -465,8 +448,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     public void body(DataBuffer dataBuffer) {
       long prevCount = this.byteCount.get();
       long count = this.byteCount.addAndGet(dataBuffer.readableByteCount());
-      if (PartGenerator.this.maxInMemorySize == -1 ||
-              count <= PartGenerator.this.maxInMemorySize) {
+      if (PartGenerator.this.maxInMemorySize == -1
+              || count <= PartGenerator.this.maxInMemorySize) {
         storeBuffer(dataBuffer);
       }
       else if (prevCount <= PartGenerator.this.maxInMemorySize) {
@@ -484,7 +467,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     private void switchToFile(DataBuffer current, long byteCount) {
-      List<DataBuffer> content = new ArrayList<>(this.content);
+      ArrayList<DataBuffer> content = new ArrayList<>(this.content);
       content.add(current);
       this.releaseOnDispose = false;
 
@@ -539,18 +522,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
    * count exceeds {@link #maxInMemorySize}, and then calls
    * {@link #createFile()} to switch to {@link WritingFileState}.
    */
-  private final class CreateFileState implements State {
+  private final class CreateFileState extends State {
 
     private final HttpHeaders headers;
-
     private final Collection<DataBuffer> content;
 
     private final long byteCount;
-
     private volatile boolean completed;
-
     private volatile boolean finalPart;
-
     private volatile boolean releaseOnDispose = true;
 
     public CreateFileState(HttpHeaders headers, Collection<DataBuffer> content, long byteCount) {
@@ -594,11 +573,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     private void fileCreated(WritingFileState newState) {
       this.releaseOnDispose = false;
-
       if (changeState(this, newState)) {
-
         newState.writeBuffers(this.content);
-
         if (this.completed) {
           newState.partComplete(this.finalPart);
         }
@@ -623,16 +599,12 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   }
 
-  private final class IdleFileState implements State {
-
-    private final HttpHeaders headers;
+  private final class IdleFileState extends State {
 
     private final Path file;
-
-    private final WritableByteChannel channel;
-
+    private final HttpHeaders headers;
     private final AtomicLong byteCount;
-
+    private final WritableByteChannel channel;
     private volatile boolean closeOnDispose = true;
 
     public IdleFileState(WritingFileState state) {
@@ -697,18 +669,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   }
 
-  private final class WritingFileState implements State {
-
-    private final HttpHeaders headers;
+  private final class WritingFileState extends State {
 
     private final Path file;
-
+    private final HttpHeaders headers;
+    private final AtomicLong byteCount;
     private final WritableByteChannel channel;
 
-    private final AtomicLong byteCount;
-
     private volatile boolean completed;
-
     private volatile boolean finalPart;
 
     public WritingFileState(CreateFileState state, Path file, WritableByteChannel channel) {
@@ -741,9 +709,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       Mono.just(dataBuffer)
               .flatMap(this::writeInternal)
               .subscribeOn(PartGenerator.this.blockingOperationScheduler)
-              .subscribe(null,
-                         PartGenerator.this::emitError,
-                         this::writeComplete);
+              .subscribe(null, PartGenerator.this::emitError, this::writeComplete);
     }
 
     public void writeBuffers(Iterable<DataBuffer> dataBuffers) {
@@ -751,9 +717,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
               .concatMap(this::writeInternal)
               .then()
               .subscribeOn(PartGenerator.this.blockingOperationScheduler)
-              .subscribe(null,
-                         PartGenerator.this::emitError,
-                         this::writeComplete);
+              .subscribe(null, PartGenerator.this::emitError, this::writeComplete);
     }
 
     private void writeComplete() {
@@ -792,12 +756,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
   }
 
-  private static final class DisposedState implements State {
-
+  private static final class DisposedState extends State {
     public static final DisposedState INSTANCE = new DisposedState();
 
-    private DisposedState() {
-    }
+    private DisposedState() { }
 
     @Override
     public void body(DataBuffer dataBuffer) {
@@ -805,8 +767,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
-    }
+    public void partComplete(boolean finalPart) { }
 
     @Override
     public String toString() {

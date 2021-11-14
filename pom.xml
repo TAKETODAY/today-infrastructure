@@ -18,7 +18,7 @@
   </description>
 
   <properties>
-    <skipTests>true</skipTests>
+<!--    <skipTests>true</skipTests>-->
     <java.version>17</java.version>
     <maven.compiler.release>17</maven.compiler.release>
     <maven.compiler.source>17</maven.compiler.source>

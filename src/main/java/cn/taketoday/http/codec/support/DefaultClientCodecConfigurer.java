@@ -21,7 +21,6 @@
 package cn.taketoday.http.codec.support;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.http.codec.ClientCodecConfigurer;
 import cn.taketoday.http.codec.HttpMessageWriter;
@@ -59,8 +58,8 @@ public class DefaultClientCodecConfigurer extends BaseCodecConfigurer implements
     return new ClientDefaultCodecsImpl((ClientDefaultCodecsImpl) defaultCodecs());
   }
 
-  private List<HttpMessageWriter<?>> getPartWriters() {
-    List<HttpMessageWriter<?>> result = new ArrayList<>();
+  private ArrayList<HttpMessageWriter<?>> getPartWriters() {
+    ArrayList<HttpMessageWriter<?>> result = new ArrayList<>();
     result.addAll(this.customCodecs.getTypedWriters().keySet());
     result.addAll(this.defaultCodecs.getBaseTypedWriters());
     result.addAll(this.customCodecs.getObjectWriters().keySet());

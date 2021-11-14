@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
@@ -468,7 +467,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     private final HttpHeaders headers = HttpHeaders.create();
 
-    private final MultiValueMap<String, HttpCookie> cookies = new DefaultMultiValueMap<>();
+    private final MultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
 
     @Nullable
     private InetSocketAddress remoteAddress;
@@ -619,13 +618,16 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
     @Override
     public MockServerHttpRequest body(Publisher<? extends DataBuffer> body) {
       applyCookiesIfNecessary();
-      return new MockServerHttpRequest(this.methodValue, getUrlToUse(), this.contextPath,
-                                       this.headers, this.cookies, this.localAddress, this.remoteAddress, this.sslInfo, body);
+      return new MockServerHttpRequest(
+              this.methodValue, getUrlToUse(), this.contextPath,
+              this.headers, this.cookies, this.localAddress, this.remoteAddress, this.sslInfo, body);
     }
 
     private void applyCookiesIfNecessary() {
       if (this.headers.get(HttpHeaders.COOKIE) == null) {
-        this.cookies.values().stream().flatMap(Collection::stream)
+        this.cookies.values()
+                .stream()
+                .flatMap(Collection::stream)
                 .forEach(cookie -> this.headers.add(HttpHeaders.COOKIE, cookie.toString()));
       }
     }

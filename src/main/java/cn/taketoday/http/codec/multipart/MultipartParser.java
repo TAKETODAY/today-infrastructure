@@ -49,32 +49,24 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 final class MultipartParser extends BaseSubscriber<DataBuffer> {
+  private static final Logger logger = LoggerFactory.getLogger(MultipartParser.class);
 
   private static final byte CR = '\r';
-
   private static final byte LF = '\n';
 
   private static final byte[] CR_LF = { CR, LF };
-
   private static final byte HYPHEN = '-';
-
   private static final byte[] TWO_HYPHENS = { HYPHEN, HYPHEN };
-
   private static final String HEADER_ENTRY_SEPARATOR = "\\r\\n";
 
-  private static final Logger logger = LoggerFactory.getLogger(MultipartParser.class);
-
+  private final FluxSink<Token> sink;
   private final AtomicReference<State> state;
 
-  private final FluxSink<Token> sink;
-
   private final byte[] boundary;
-
   private final int maxHeadersSize;
 
-  private final AtomicBoolean requestOutstanding = new AtomicBoolean();
-
   private final Charset headersCharset;
+  private final AtomicBoolean requestOutstanding = new AtomicBoolean();
 
   private MultipartParser(FluxSink<Token> sink, byte[] boundary, int maxHeadersSize, Charset headersCharset) {
     this.sink = sink;
@@ -140,7 +132,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   boolean changeState(State oldState, State newState, @Nullable DataBuffer remainder) {
     if (this.state.compareAndSet(oldState, newState)) {
       if (logger.isTraceEnabled()) {
-        logger.trace("Changed state: " + oldState + " -> " + newState);
+        logger.trace("Changed state: {} -> {}", oldState, newState);
       }
       oldState.dispose();
       if (remainder != null) {
@@ -162,14 +154,14 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
   void emitHeaders(HttpHeaders headers) {
     if (logger.isTraceEnabled()) {
-      logger.trace("Emitting headers: " + headers);
+      logger.trace("Emitting headers: {}", headers);
     }
     this.sink.next(new HeadersToken(headers));
   }
 
   void emitBody(DataBuffer buffer) {
     if (logger.isTraceEnabled()) {
-      logger.trace("Emitting body: " + buffer);
+      logger.trace("Emitting body: {}", buffer);
     }
     this.sink.next(new BodyToken(buffer));
   }
@@ -185,10 +177,10 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   }
 
   private void requestBuffer() {
-    if (upstream() != null &&
-            !this.sink.isCancelled() &&
-            this.sink.requestedFromDownstream() > 0 &&
-            this.requestOutstanding.compareAndSet(false, true)) {
+    if (upstream() != null
+            && !this.sink.isCancelled()
+            && this.sink.requestedFromDownstream() > 0
+            && this.requestOutstanding.compareAndSet(false, true)) {
       request(1);
     }
   }
@@ -295,7 +287,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       int endIdx = this.firstBoundary.match(buf);
       if (endIdx != -1) {
         if (logger.isTraceEnabled()) {
-          logger.trace("First boundary found @" + endIdx + " in " + buf);
+          logger.trace("First boundary found @{} in {}", endIdx, buf);
         }
         DataBuffer headersBuf = MultipartUtils.sliceFrom(buf, endIdx);
         DataBufferUtils.release(buf);

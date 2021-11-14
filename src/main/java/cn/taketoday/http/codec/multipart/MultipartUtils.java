@@ -92,8 +92,7 @@ abstract class MultipartUtils {
         channel.close();
       }
     }
-    catch (IOException ignore) {
-    }
+    catch (IOException ignore) { }
   }
 
 }

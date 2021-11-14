@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.IntFunction;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
@@ -47,14 +46,14 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * Construct a case-insensitive header map
    */
   public DefaultHttpHeaders() {
-    this(new DefaultMultiValueMap<>(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)));
+    this(MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)));
   }
 
   /**
    * Construct with a user input header map
    */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
-    this(new DefaultMultiValueMap<>(headers));
+    this(MultiValueMap.from(headers));
   }
 
   /**

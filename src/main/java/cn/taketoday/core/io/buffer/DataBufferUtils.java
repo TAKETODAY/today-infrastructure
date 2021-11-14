@@ -847,18 +847,9 @@ public abstract class DataBufferUtils {
     }
   }
 
-  private static class ReadableByteChannelGenerator implements Consumer<SynchronousSink<DataBuffer>> {
-    private final int bufferSize;
-    private final ReadableByteChannel channel;
-    private final DataBufferFactory dataBufferFactory;
-
-    public ReadableByteChannelGenerator(
-            ReadableByteChannel channel, DataBufferFactory dataBufferFactory, int bufferSize) {
-
-      this.channel = channel;
-      this.dataBufferFactory = dataBufferFactory;
-      this.bufferSize = bufferSize;
-    }
+  private record ReadableByteChannelGenerator(
+          ReadableByteChannel channel, DataBufferFactory dataBufferFactory, int bufferSize)
+          implements Consumer<SynchronousSink<DataBuffer>> {
 
     @Override
     public void accept(SynchronousSink<DataBuffer> sink) {

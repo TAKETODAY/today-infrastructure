@@ -158,38 +158,12 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
       this.defaultConfigConsumers.add(configConsumer);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void decoder(Decoder<?> decoder) {
-      addCodec(decoder, false);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void encoder(Encoder<?> encoder) {
-      addCodec(encoder, false);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void reader(HttpMessageReader<?> reader) {
-      addCodec(reader, false);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void writer(HttpMessageWriter<?> writer) {
-      addCodec(writer, false);
-    }
-
-    @SuppressWarnings("deprecation")
     @Override
     public void withDefaultCodecConfig(Consumer<DefaultCodecConfig> codecsConfigConsumer) {
       this.defaultConfigConsumers.add(codecsConfigConsumer);
     }
 
     private void addCodec(Object codec, boolean applyDefaultConfig) {
-
       if (codec instanceof Decoder) {
         codec = new DecoderHttpMessageReader<>((Decoder<?>) codec);
       }

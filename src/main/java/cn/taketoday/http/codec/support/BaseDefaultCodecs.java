@@ -111,18 +111,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   private Encoder<?> protobufEncoder;
 
   @Nullable
-  private Decoder<?> jaxb2Decoder;
-
-  @Nullable
-  private Encoder<?> jaxb2Encoder;
-
-  @Nullable
-  private Decoder<?> kotlinSerializationJsonDecoder;
-
-  @Nullable
-  private Encoder<?> kotlinSerializationJsonEncoder;
-
-  @Nullable
   private Consumer<Object> codecConsumer;
 
   @Nullable
@@ -171,10 +159,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     this.jackson2SmileEncoder = other.jackson2SmileEncoder;
     this.protobufDecoder = other.protobufDecoder;
     this.protobufEncoder = other.protobufEncoder;
-    this.jaxb2Decoder = other.jaxb2Decoder;
-    this.jaxb2Encoder = other.jaxb2Encoder;
-    this.kotlinSerializationJsonDecoder = other.kotlinSerializationJsonDecoder;
-    this.kotlinSerializationJsonEncoder = other.kotlinSerializationJsonEncoder;
     this.codecConsumer = other.codecConsumer;
     this.maxInMemorySize = other.maxInMemorySize;
     this.enableLoggingRequestDetails = other.enableLoggingRequestDetails;
@@ -221,30 +205,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   public void protobufEncoder(Encoder<?> encoder) {
     this.protobufEncoder = encoder;
     initTypedWriters();
-  }
-
-  @Override
-  public void jaxb2Decoder(Decoder<?> decoder) {
-    this.jaxb2Decoder = decoder;
-    initObjectReaders();
-  }
-
-  @Override
-  public void jaxb2Encoder(Encoder<?> encoder) {
-    this.jaxb2Encoder = encoder;
-    initObjectWriters();
-  }
-
-  @Override
-  public void kotlinSerializationJsonDecoder(Decoder<?> decoder) {
-    this.kotlinSerializationJsonDecoder = decoder;
-    initObjectReaders();
-  }
-
-  @Override
-  public void kotlinSerializationJsonEncoder(Encoder<?> encoder) {
-    this.kotlinSerializationJsonEncoder = encoder;
-    initObjectWriters();
   }
 
   @Override

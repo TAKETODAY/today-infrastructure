@@ -198,7 +198,6 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
    *
    * @param headersCharset the charset to use for decoding headers
    * @see <a href="https://tools.ietf.org/html/rfc7578#section-5.1">RFC-7578 Section 5.1</a>
-   * @since 4.0
    */
   public void setHeadersCharset(Charset headersCharset) {
     Assert.notNull(headersCharset, "HeadersCharset must not be null");
@@ -213,7 +212,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
   @Override
   public boolean canRead(ResolvableType elementType, @Nullable MediaType mediaType) {
     return Part.class.equals(elementType.toClass())
-            && (mediaType == null || MediaType.MULTIPART_FORM_DATA.isCompatibleWith(mediaType));
+            && mediaType == null || MediaType.MULTIPART_FORM_DATA.isCompatibleWith(mediaType);
   }
 
   @Override
