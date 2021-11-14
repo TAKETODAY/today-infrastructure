@@ -50,7 +50,7 @@ public class DefaultApplicationEventPublisher implements ApplicationEventPublish
           applicationListenerCache = new DefaultMultiValueMap<>(16);
 
   private final LinkedHashSet<String> listenerBeanNames = new LinkedHashSet<>();
-  private final ArrayList<ApplicationListener> applicationListeners = new ArrayList<>();
+  private final ArrayList<ApplicationListener<?>> applicationListeners = new ArrayList<>();
 
   @Nullable
   private BeanFactory beanFactory;
@@ -162,6 +162,11 @@ public class DefaultApplicationEventPublisher implements ApplicationEventPublish
       invalidateCache();
       applicationListeners.remove(listener);
     }
+  }
+
+  @Override
+  public ArrayList<ApplicationListener<?>> getApplicationListeners() {
+    return applicationListeners;
   }
 
   @Override

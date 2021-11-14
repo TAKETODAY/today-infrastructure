@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.event;
 
+import java.util.Collection;
+
 /**
  * @author TODAY 2018-09-09 21:26
  */
@@ -57,5 +59,10 @@ public interface ApplicationEventPublisher {
   void removeApplicationListener(String listenerBeanName);
 
   void removeApplicationListener(ApplicationListener<?> listener);
+
+  /**
+   * @since 4.0
+   */
+  Collection<ApplicationListener<?>> getApplicationListeners();
 
 }

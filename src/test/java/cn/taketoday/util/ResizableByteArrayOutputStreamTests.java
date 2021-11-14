@@ -23,6 +23,8 @@ package cn.taketoday.util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -40,7 +42,7 @@ class ResizableByteArrayOutputStreamTests {
   @BeforeEach
   void setUp() throws Exception {
     this.baos = new ResizableByteArrayOutputStream(INITIAL_CAPACITY);
-    this.helloBytes = "Hello World".getBytes("UTF-8");
+    this.helloBytes = "Hello World".getBytes(StandardCharsets.UTF_8);
   }
 
   @Test
@@ -80,8 +82,8 @@ class ResizableByteArrayOutputStreamTests {
   @Test
   void failResize() throws Exception {
     this.baos.write(helloBytes);
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            this.baos.resize(5));
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> this.baos.resize(5));
   }
 
   private void assertByteArrayEqualsString(ResizableByteArrayOutputStream actual) {

@@ -140,7 +140,6 @@ public abstract class UriUtils {
    * @param host the host to be encoded
    * @param charset the character encoding to encode to
    * @return the encoded host
-   * @since 4.0
    */
   public static String encodeHost(String host, Charset charset) {
     return encode(host, charset, HierarchicalUriComponents.Type.HOST_IPV4);
@@ -163,7 +162,6 @@ public abstract class UriUtils {
    * @param port the port to be encoded
    * @param charset the character encoding to encode to
    * @return the encoded port
-   * @since 4.0
    */
   public static String encodePort(String port, Charset charset) {
     return encode(port, charset, HierarchicalUriComponents.Type.PORT);
@@ -186,7 +184,6 @@ public abstract class UriUtils {
    * @param path the path to be encoded
    * @param charset the character encoding to encode to
    * @return the encoded path
-   * @since 4.0
    */
   public static String encodePath(String path, Charset charset) {
     return encode(path, charset, HierarchicalUriComponents.Type.PATH);

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1156,6 +1157,11 @@ public abstract class AbstractApplicationContext
   @Override
   public void removeAllListeners() {
     getEventPublisher().removeAllListeners();
+  }
+
+  @Override
+  public Collection<ApplicationListener<?>> getApplicationListeners() {
+    return getEventPublisher().getApplicationListeners();
   }
 
   /** @since 4.0 */
