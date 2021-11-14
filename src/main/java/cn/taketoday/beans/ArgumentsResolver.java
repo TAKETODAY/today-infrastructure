@@ -126,6 +126,23 @@ public class ArgumentsResolver {
     return null;
   }
 
+  /**
+   * resolve just one Parameter
+   */
+  public Object resolve(
+          Parameter parameter, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
+    ArgumentsResolvingContext resolvingContext
+            = new ArgumentsResolvingContext(parameter.getDeclaringExecutable(), beanFactory, providedArgs);
+    return resolve(parameter, resolvingContext);
+  }
+
+  /**
+   * resolve just one Parameter
+   */
+  public Object resolve(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
+    return argumentsResolvingComposite.resolveArgument(parameter, resolvingContext);
+  }
+
   @NonNull
   public ArgumentsResolvingComposite getResolvingStrategies() {
     return argumentsResolvingComposite;
