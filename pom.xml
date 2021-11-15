@@ -429,7 +429,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
-      <version>3.4.11</version>
+      <version>3.4.12</version>
       <scope>provided</scope>
     </dependency>
 
@@ -512,7 +512,7 @@
     <dependency>
       <groupId>io.projectreactor.netty</groupId>
       <artifactId>reactor-netty-http</artifactId>
-      <version>1.0.12</version>
+      <version>1.0.13</version>
       <scope>provided</scope>
     </dependency>
 
@@ -756,7 +756,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>3.4.11</version>
+      <version>3.4.12</version>
       <scope>test</scope>
     </dependency>
 
