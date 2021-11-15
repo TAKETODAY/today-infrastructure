@@ -21,9 +21,7 @@ package cn.taketoday.core.bytecode.proxy;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Chris Nokleberg
@@ -40,47 +38,21 @@ public class TestDispatcher {
 
   @Test
   public void testSimple() throws Exception {
-    final Object[] impls = new Object[] { new Foo() {
-      public String foo() {
-        return "foo1";
-      }
-    }, new Bar() {
-      public String bar() {
-        return "bar1";
-      }
-    }
-    };
+    final Object[] impls = new Object[] { (Foo) () -> "foo1", (Bar) () -> "bar1" };
 
-    Callback[] callbacks = new Callback[] { new Dispatcher() {
-      public Object loadObject() {
-        return impls[0];
-      }
-    }, new Dispatcher() {
-      public Object loadObject() {
-        return impls[1];
-      }
-    }
-    };
+    Callback[] callbacks = new Callback[] { (Dispatcher) () -> impls[0], (Dispatcher) () -> impls[1] };
 
     Enhancer e = new Enhancer();
-    e.setInterfaces(new Class[] { Foo.class, Bar.class });
+    e.setInterfaces(Foo.class, Bar.class);
     e.setCallbacks(callbacks);
-    e.setCallbackFilter(new CallbackFilter() {
-      public int accept(Method method) {
-        return (method.getDeclaringClass().equals(Foo.class)) ? 0 : 1;
-      }
-    });
+    e.setCallbackFilter(method -> (method.getDeclaringClass().equals(Foo.class)) ? 0 : 1);
     Object obj = e.create();
 
-    assertTrue(((Foo) obj).foo().equals("foo1"));
-    assertTrue(((Bar) obj).bar().equals("bar1"));
+    assertEquals("foo1", ((Foo) obj).foo());
+    assertEquals("bar1", ((Bar) obj).bar());
 
-    impls[0] = new Foo() {
-      public String foo() {
-        return "foo2";
-      }
-    };
-    assertTrue(((Foo) obj).foo().equals("foo2"));
+    impls[0] = (Foo) () -> "foo2";
+    assertEquals("foo2", ((Foo) obj).foo());
   }
 
   public void perform(ClassLoader loader) throws Throwable { }

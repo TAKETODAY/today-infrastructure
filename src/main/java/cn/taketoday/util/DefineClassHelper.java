@@ -43,7 +43,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
-import cn.taketoday.core.bytecode.ByteCodeClassLoader;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.lang.NonNull;
@@ -59,7 +58,6 @@ public class DefineClassHelper {
   private static final Method defineClass;
   private static final Throwable THROWABLE;
   private static final ProtectionDomain PROTECTION_DOMAIN;
-  static final ByteCodeClassLoader byteCodeLoader = new ByteCodeClassLoader(ClassUtils.getDefaultClassLoader());
 
   static {
     // Resolve protected ClassLoader.defineClass method for fallback use
@@ -217,14 +215,6 @@ public class DefineClassHelper {
       }
     }
 
-    if (c == null) {
-      try {
-        c = byteCodeLoader.loadClass(className, classFile, domain);
-      }
-      catch (ClassNotFoundException e) {
-        throw newException(className, e);
-      }
-    }
     // No defineClass variant available at all?
     if (c == null) {
       throw newException(className, t);
