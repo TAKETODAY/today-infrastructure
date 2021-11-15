@@ -19,18 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -56,6 +44,18 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -192,7 +192,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                    name, ClassUtils.getQualifiedName(requiredType), ex);
+                  name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -396,8 +396,8 @@ public abstract class AbstractBeanFactory
     if (!def.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
       String beanName = def.getName();
       for (BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
-          Set<DependencySetter> ret = ((InstantiationAwareBeanPostProcessor) postProcessor).postProcessPropertyValues(bean, beanName);
+        if (postProcessor instanceof InstantiationAwareBeanPostProcessor collector) {
+          Set<DependencySetter> ret = collector.collectDependencies(bean, beanName);
           if (CollectionUtils.isNotEmpty(ret)) {
             if (dependencySetters == null) {
               dependencySetters = new LinkedHashSet<>();
@@ -951,7 +951,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                       "that it should return null if the type of its object cannot be determined yet", ex);
+              "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
