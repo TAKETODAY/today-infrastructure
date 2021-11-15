@@ -20,13 +20,6 @@
 
 package cn.taketoday.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Executable;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
@@ -38,6 +31,13 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Executable;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of {@link ParameterNameDiscoverer} that uses the LocalVariableTable
@@ -74,12 +74,13 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
    * lack of debug information.
    */
   private Map<Executable, String[]> inspectClass(Class<?> clazz) {
-    try (InputStream is = clazz.getResourceAsStream(ClassUtils.getClassFileName(clazz))) {
+    ClassLoader classLoader = clazz.getClassLoader();
+    try (InputStream is = classLoader.getResourceAsStream(ClassUtils.getFullyClassFileName(clazz))) {
       if (is == null) {
         // We couldn't load the class file, which is not fatal as it
         // simply means this method of discovering parameter names won't work.
         log.debug("Cannot find '.class' file for class [{}] " +
-                          "- unable to determine constructor/method parameter names", clazz);
+                "- unable to determine constructor/method parameter names", clazz);
         return NO_DEBUG_INFO_MAP;
       }
       ClassReader classReader = new ClassReader(is);
@@ -89,12 +90,12 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
     }
     catch (IOException ex) {
       log.debug("Exception thrown while reading '.class' file for class " +
-                        "[{}] - unable to determine constructor/method parameter names", clazz, ex);
+              "[{}] - unable to determine constructor/method parameter names", clazz, ex);
     }
     catch (IllegalArgumentException ex) {
       log.debug("ASM ClassReader failed to parse class file [{}]," +
-                        " probably due to a new Java class file version that isn't supported yet " +
-                        "- unable to determine constructor/method parameter names", clazz, ex);
+              " probably due to a new Java class file version that isn't supported yet " +
+              "- unable to determine constructor/method parameter names", clazz, ex);
     }
     // ignore
     return NO_DEBUG_INFO_MAP;
@@ -154,12 +155,12 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
 
     public LocalVariableTableVisitor(
             Class<?> clazz, Map<Executable, String[]> map, String name, String desc, boolean isStatic) {
+      this.name = name;
       this.clazz = clazz;
       this.executableMap = map;
-      this.name = name;
+      this.isStatic = isStatic;
       this.args = Type.getArgumentTypes(desc);
       this.parameterNames = new String[this.args.length];
-      this.isStatic = isStatic;
       this.lvtSlotIndex = computeLvtSlotIndices(isStatic, this.args);
     }
 
