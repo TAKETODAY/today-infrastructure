@@ -21,7 +21,6 @@
 package cn.taketoday.context.autowire;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
@@ -44,13 +43,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * this class is a dependency collecting entrance, process every bean class
+ *
  * @author TODAY 2021/10/23 22:59
  * @see cn.taketoday.lang.Autowired
  * @see DependencySetter
  * @since 4.0
  */
-public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
-  private static final Logger log = LoggerFactory.getLogger(AutowiredPropertyValuesBeanPostProcessor.class);
+public class DependencyCollectingBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
+  private static final Logger log = LoggerFactory.getLogger(DependencyCollectingBeanPostProcessor.class);
 
   private final ApplicationContext context;
 
@@ -63,7 +64,7 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   @Nullable
   private PropertyValueResolverComposite resolvingStrategies;
 
-  public AutowiredPropertyValuesBeanPostProcessor(ApplicationContext context) {
+  public DependencyCollectingBeanPostProcessor(ApplicationContext context) {
     this.context = context;
   }
 
@@ -73,7 +74,7 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
 
   @Nullable
   @Override
-  public Set<DependencySetter> postProcessPropertyValues(Object bean, String beanName) {
+  public Set<DependencySetter> collectDependencies(Object bean, String beanName) {
 
     Class<?> beanClass = bean.getClass();
     LinkedHashSet<DependencySetter> dependencySetters = resolvePropertyValues(beanClass);

@@ -88,7 +88,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
   }
 
   @Nullable
-  default Set<DependencySetter> postProcessPropertyValues(Object bean, String beanName) {
+  default Set<DependencySetter> collectDependencies(Object bean, String beanName) {
     return null;
   }
 

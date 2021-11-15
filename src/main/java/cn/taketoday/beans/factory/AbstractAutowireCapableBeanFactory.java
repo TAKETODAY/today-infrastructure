@@ -20,13 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ResolvableType;
@@ -37,6 +30,13 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.function.Supplier;
 
 /**
  * AutowireCapableBeanFactory abstract implementation
@@ -199,8 +199,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Nullable
   protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
     for (BeanPostProcessor processor : postProcessors) {
-      if (processor instanceof InstantiationAwareBeanPostProcessor) {
-        InstantiationAwareBeanPostProcessor ip = (InstantiationAwareBeanPostProcessor) processor;
+      if (processor instanceof InstantiationAwareBeanPostProcessor ip) {
         Object result = ip.postProcessBeforeInstantiation(beanClass, beanName);
         if (result != null) {
           return result;
@@ -215,9 +214,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
-
-    // No special handling: simply use no-arg constructor.
-    return instantiate(mbd);
+    return instantiate(mbd, args);
   }
 
   @Override
@@ -225,11 +222,13 @@ public abstract class AbstractAutowireCapableBeanFactory
     return createBeanInstance(def, null);
   }
 
-  private Object instantiate(BeanDefinition def) {
+  private Object instantiate(BeanDefinition def, @Nullable Object[] constructorArgs) {
     BeanInstantiator instantiator = resolveBeanInstantiator(def);
-    Object[] constructorArgs = def.getConstructorArgs();
     if (constructorArgs == null) {
-      constructorArgs = getArgumentsResolver().resolve(def.executable, this);
+      constructorArgs = def.getConstructorArgs();
+      if (constructorArgs == null) {
+        constructorArgs = getArgumentsResolver().resolve(def.executable, this);
+      }
     }
     return instantiator.instantiate(constructorArgs);
   }
@@ -335,7 +334,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
-    Object existingBean = instantiate(prototypeDef);
+    Object existingBean = instantiate(prototypeDef, null);
     applyPropertyValues(existingBean, prototypeDef);
     return existingBean;
   }
@@ -362,8 +361,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
       String name = definition.getName();
       for (BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
-          InstantiationAwareBeanPostProcessor processor = (InstantiationAwareBeanPostProcessor) postProcessor;
+        if (postProcessor instanceof InstantiationAwareBeanPostProcessor processor) {
           if (!processor.postProcessAfterInstantiation(bean, name)) {
             return;
           }
