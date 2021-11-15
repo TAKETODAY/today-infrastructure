@@ -331,8 +331,8 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof NettyDataBuffer &&
-            this.byteBuf.equals(((NettyDataBuffer) other).byteBuf)));
+    return this == other || (other instanceof NettyDataBuffer
+            && this.byteBuf.equals(((NettyDataBuffer) other).byteBuf));
   }
 
   @Override

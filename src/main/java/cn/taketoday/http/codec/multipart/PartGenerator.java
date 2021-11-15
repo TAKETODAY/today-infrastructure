@@ -129,10 +129,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       if (tooManyParts()) {
         return;
       }
-      newPart(state, token.headers());
+      newPart(state, token.getHeaders());
     }
     else {
-      state.body(token.buffer());
+      state.applyBody(token.getBuffer());
     }
   }
 
@@ -267,7 +267,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     /**
      * Invoked when a {@link MultipartParser.BodyToken} is received.
      */
-    abstract void body(DataBuffer dataBuffer);
+    abstract void applyBody(DataBuffer dataBuffer);
 
     /**
      * Invoked when all tokens for the part have been received.
@@ -289,14 +289,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   }
 
   /**
-   * The initial state of the creator. Throws an exception for {@link #body(DataBuffer)}.
+   * The initial state of the creator. Throws an exception for {@link #applyBody(DataBuffer)}.
    */
   private final class InitialState extends State {
 
     private InitialState() { }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       DataBufferUtils.release(dataBuffer);
       emitError(new IllegalStateException("Body token not expected"));
     }
@@ -328,7 +328,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       int size = this.value.size() + dataBuffer.readableByteCount();
       if (PartGenerator.this.maxInMemorySize == -1
               || size < PartGenerator.this.maxInMemorySize) {
@@ -387,7 +387,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       if (!this.bodySink.isCancelled()) {
         this.bodySink.next(dataBuffer);
         if (this.bodySink.requestedFromDownstream() > 0) {
@@ -445,7 +445,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       long prevCount = this.byteCount.get();
       long count = this.byteCount.addAndGet(dataBuffer.readableByteCount());
       if (PartGenerator.this.maxInMemorySize == -1
@@ -539,7 +539,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       DataBufferUtils.release(dataBuffer);
       emitError(new IllegalStateException("Body token not expected"));
     }
@@ -615,7 +615,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       long count = this.byteCount.addAndGet(dataBuffer.readableByteCount());
       if (PartGenerator.this.maxDiskUsagePerPart == -1 || count <= PartGenerator.this.maxDiskUsagePerPart) {
 
@@ -694,7 +694,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       DataBufferUtils.release(dataBuffer);
       emitError(new IllegalStateException("Body token not expected"));
     }
@@ -762,7 +762,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     private DisposedState() { }
 
     @Override
-    public void body(DataBuffer dataBuffer) {
+    public void applyBody(DataBuffer dataBuffer) {
       DataBufferUtils.release(dataBuffer);
     }
 

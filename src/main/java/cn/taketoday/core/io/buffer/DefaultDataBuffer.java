@@ -425,7 +425,7 @@ public class DefaultDataBuffer implements DataBuffer {
       while (newCapacity < neededCapacity) {
         newCapacity <<= 1;
       }
-      return Math.min(newCapacity, MAX_CAPACITY);
+      return newCapacity;
     }
   }
 

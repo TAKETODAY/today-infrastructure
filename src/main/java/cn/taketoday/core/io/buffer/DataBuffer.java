@@ -20,6 +20,8 @@
 
 package cn.taketoday.core.io.buffer;
 
+import cn.taketoday.lang.Assert;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -29,8 +31,6 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.function.IntPredicate;
-
-import cn.taketoday.lang.Assert;
 
 /**
  * Basic abstraction over byte buffers.
@@ -272,8 +272,9 @@ public interface DataBuffer {
       ByteBuffer outBuffer = ensureCapacity(estimatedSize)
               .asByteBuffer(writePosition(), writableByteCount());
       while (true) {
-        CoderResult cr = (inBuffer.hasRemaining() ?
-                          charsetEncoder.encode(inBuffer, outBuffer, true) : CoderResult.UNDERFLOW);
+        CoderResult cr = inBuffer.hasRemaining()
+                ? charsetEncoder.encode(inBuffer, outBuffer, true)
+                : CoderResult.UNDERFLOW;
         if (cr.isUnderflow()) {
           cr = charsetEncoder.flush(outBuffer);
         }
@@ -365,7 +366,6 @@ public interface DataBuffer {
    * {@linkplain DataBufferUtils#release(DataBuffer) released} when the input stream is
    * {@linkplain InputStream#close() closed}.
    * @return this data buffer as an input stream
-   * @since 4.0
    */
   InputStream asInputStream(boolean releaseOnClose);
 
