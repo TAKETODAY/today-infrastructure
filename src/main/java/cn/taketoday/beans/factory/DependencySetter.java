@@ -25,7 +25,7 @@ package cn.taketoday.beans.factory;
  * @author TODAY 2018-06-23 11:28:01
  */
 @FunctionalInterface
-public interface PropertySetter {
+public interface DependencySetter {
 
   /**
    * set value to property

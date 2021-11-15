@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.beans.factory.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -54,7 +54,7 @@ class PropsPropertyResolverTests {
       PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
 
-      DefaultPropertySetter resolveProperty =
+      DefaultDependencySetter resolveProperty =
               propertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "properties"));
 
       assertThat(resolveProperty).isNotNull();

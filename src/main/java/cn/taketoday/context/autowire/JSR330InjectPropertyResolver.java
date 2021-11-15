@@ -22,8 +22,8 @@ package cn.taketoday.context.autowire;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.BeanReferencePropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.BeanReferenceDependencySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -55,7 +55,7 @@ public class JSR330InjectPropertyResolver implements PropertyValueResolver {
 
   @Nullable
   @Override
-  public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+  public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     MergedAnnotations annotations = MergedAnnotations.from(property);
     // @Inject
     MergedAnnotation<? extends Annotation> inject = annotations.get(Inject.class);
@@ -65,9 +65,9 @@ public class JSR330InjectPropertyResolver implements PropertyValueResolver {
       if (named.isPresent()) {
         // @since 3.0
         String referenceName = named.getString(MergedAnnotation.VALUE);
-        return new BeanReferencePropertySetter(referenceName, isRequired(property, null), property);
+        return new BeanReferenceDependencySetter(referenceName, isRequired(property, null), property);
       }
-      return new BeanReferencePropertySetter(null, isRequired(property, null), property);
+      return new BeanReferenceDependencySetter(null, isRequired(property, null), property);
     }
     return null;
   }

@@ -43,8 +43,8 @@ class DemoTests {
   @Test
   void testLogin() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-    try (StandardApplicationContext context = //
-                 new StandardApplicationContext("", "test.demo.service.impl", "test.demo.repository.impl")) {
+    try (StandardApplicationContext context =
+                 new StandardApplicationContext("info.properties", "test.demo.service.impl", "test.demo.repository.impl")) {
 
       UserService userService = context.getBean(DefaultUserService.class);
 
@@ -90,7 +90,7 @@ class DemoTests {
 
   }
 
-  @Test
+//  @Test
   void test() {
     boolean isStatic = true;
     Method[] candidates = BeanTEST.class.getDeclaredMethods();

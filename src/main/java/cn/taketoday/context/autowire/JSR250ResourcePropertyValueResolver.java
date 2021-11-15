@@ -22,8 +22,8 @@ package cn.taketoday.context.autowire;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.BeanReferencePropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.BeanReferenceDependencySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -48,13 +48,13 @@ public class JSR250ResourcePropertyValueResolver implements PropertyValueResolve
 
   @Nullable
   @Override
-  public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+  public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     MergedAnnotations annotations = MergedAnnotations.from(property);
     // @Resource
     MergedAnnotation<? extends Annotation> resource = annotations.get(Resource.class);
     if (resource.isPresent()) {
       String referenceName = resource.getString("name");
-      return new BeanReferencePropertySetter(
+      return new BeanReferenceDependencySetter(
               referenceName, AutowiredPropertyResolver.isRequired(property, null), property);
     }
     return null;

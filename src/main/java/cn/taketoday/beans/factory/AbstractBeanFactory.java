@@ -386,28 +386,33 @@ public abstract class AbstractBeanFactory
    * @param bean Bean instance
    * @param def use {@link BeanDefinition}
    * @throws PropertyException If any {@link Exception} occurred when apply
-   * {@link PropertySetter}
+   * {@link DependencySetter}
    * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
    * this {@link BeanFactory}
    */
   protected void applyPropertyValues(Object bean, BeanDefinition def) {
-    Set<PropertySetter> propertySetters = null;
+    // collect dependencies
+    Set<DependencySetter> dependencySetters = null;
     if (!def.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
       String beanName = def.getName();
       for (BeanPostProcessor postProcessor : postProcessors) {
         if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
-          Set<PropertySetter> ret = ((InstantiationAwareBeanPostProcessor) postProcessor).postProcessPropertyValues(bean, beanName);
+          Set<DependencySetter> ret = ((InstantiationAwareBeanPostProcessor) postProcessor).postProcessPropertyValues(bean, beanName);
           if (CollectionUtils.isNotEmpty(ret)) {
-            if (propertySetters == null) {
-              propertySetters = new LinkedHashSet<>();
+            if (dependencySetters == null) {
+              dependencySetters = new LinkedHashSet<>();
             }
-            propertySetters.addAll(ret);
+            dependencySetters.addAll(ret);
           }
         }
       }
     }
 
-    // apply map of property-values
+    // -----------------------------------------------
+    // apply dependency injection (DI)
+    // -----------------------------------------------
+
+    // 1. apply map of property-values from bean definition
     Map<String, Object> propertyValues = def.getPropertyValues();
     if (CollectionUtils.isNotEmpty(propertyValues)) {
       PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
@@ -415,12 +420,12 @@ public abstract class AbstractBeanFactory
       dataBinder.bind(propertyValues);
     }
 
-    if (CollectionUtils.isNotEmpty(propertySetters)) {
-      for (PropertySetter propertySetter : propertySetters) {
-        propertySetter.applyTo(bean, this);
+    // 2. apply outside framework expanded
+    if (CollectionUtils.isNotEmpty(dependencySetters)) {
+      for (DependencySetter dependencySetter : dependencySetters) {
+        dependencySetter.applyTo(bean, this);
       }
     }
-
   }
 
   /** @since 4.0 */

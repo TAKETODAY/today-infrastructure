@@ -23,7 +23,7 @@ package cn.taketoday.context.autowire;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -42,17 +42,17 @@ import cn.taketoday.util.ObjectUtils;
 public class PropertyValueResolverComposite implements PropertyValueResolver, ArraySizeTrimmer {
 
   /**
-   * @since 3.0 Resolve {@link PropertySetter}
+   * @since 3.0 Resolve {@link DependencySetter}
    */
   private final ArrayList<PropertyValueResolver> propertyResolvers = new ArrayList<>(4);
 
   @Nullable
   @Override
-  public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+  public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     for (PropertyValueResolver propertyValueResolver : propertyResolvers) {
-      PropertySetter propertySetter = propertyValueResolver.resolveProperty(context, property);
-      if (propertySetter != null) {
-        return propertySetter;
+      DependencySetter dependencySetter = propertyValueResolver.resolveProperty(context, property);
+      if (dependencySetter != null) {
+        return dependencySetter;
       }
     }
     return null;

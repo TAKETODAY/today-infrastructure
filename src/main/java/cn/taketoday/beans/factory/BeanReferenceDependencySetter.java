@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author TODAY 2021/3/6 15:18
  * @since 3.0
  */
-public class BeanReferencePropertySetter extends AbstractPropertySetter {
+public class BeanReferenceDependencySetter extends AbstractDependencySetter {
 
   /** reference name */
   @Nullable
@@ -48,14 +48,14 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   private BeanDefinition reference;
 
   /** @since 3.0.2 */
-  public BeanReferencePropertySetter(@Nullable String referenceName, boolean required, BeanProperty property) {
+  public BeanReferenceDependencySetter(@Nullable String referenceName, boolean required, BeanProperty property) {
     super(property);
     this.required = required;
     this.referenceName = referenceName;
     this.referenceClass = property.getType();
   }
 
-  public BeanReferencePropertySetter(
+  public BeanReferenceDependencySetter(
           @Nullable String referenceName, boolean required, BeanProperty property, Class<?> referenceClass) {
     super(property);
     this.required = required;
@@ -64,7 +64,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   }
 
   @Override
-  protected Object resolveValue(AbstractBeanFactory beanFactory) {
+  protected Object resolveValue(ConfigurableBeanFactory beanFactory) {
     // fix: same name of bean
     Object value = resolveBeanReference(beanFactory);
     if (value == null) {
@@ -80,13 +80,13 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   }
 
   /**
-   * Resolve reference {@link PropertySetter}
+   * Resolve reference {@link DependencySetter}
    *
-   * @return A {@link PropertySetter} bean or a proxy
+   * @return A {@link DependencySetter} bean or a proxy
    * @see ConfigurableBeanFactory#isFullLifecycle()
    * @see ConfigurableBeanFactory#isFullPrototype()
    */
-  protected Object resolveBeanReference(AbstractBeanFactory beanFactory) {
+  protected Object resolveBeanReference(ConfigurableBeanFactory beanFactory) {
     Class<?> type = getReferenceClass();
     if (!StringUtils.hasText(referenceName)) {
       // by-type
@@ -156,7 +156,7 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof final BeanReferencePropertySetter that))
+    if (!(o instanceof final BeanReferenceDependencySetter that))
       return false;
     if (!super.equals(o))
       return false;

@@ -28,14 +28,14 @@ import java.util.Objects;
 
 /**
  * <p>
- * Subclasses override {@link #resolveValue(AbstractBeanFactory)}
+ * Subclasses override {@link #resolveValue(ConfigurableBeanFactory)}
  * to resolve different Property
  * </p>
  *
  * @author TODAY 2021/3/6 14:50
  * @since 3.0
  */
-public abstract class AbstractPropertySetter implements PropertySetter {
+public abstract class AbstractDependencySetter implements DependencySetter {
   /**
    * It shows that the value is not set
    */
@@ -44,11 +44,11 @@ public abstract class AbstractPropertySetter implements PropertySetter {
   /** field info */
   protected final BeanProperty property;
 
-  public AbstractPropertySetter(Field field) {
+  public AbstractDependencySetter(Field field) {
     this(BeanProperty.valueOf(field));
   }
 
-  public AbstractPropertySetter(BeanProperty property) {
+  public AbstractDependencySetter(BeanProperty property) {
     this.property = property;
   }
 
@@ -80,7 +80,7 @@ public abstract class AbstractPropertySetter implements PropertySetter {
    * @return property value
    * @see #DO_NOT_SET
    */
-  protected abstract Object resolveValue(AbstractBeanFactory beanFactory);
+  protected abstract Object resolveValue(ConfigurableBeanFactory beanFactory);
 
   public String getName() {
     return property.getName();
@@ -98,7 +98,7 @@ public abstract class AbstractPropertySetter implements PropertySetter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (o instanceof final AbstractPropertySetter that)
+    if (o instanceof final AbstractDependencySetter that)
       return Objects.equals(property, that.property);
     return false;
   }

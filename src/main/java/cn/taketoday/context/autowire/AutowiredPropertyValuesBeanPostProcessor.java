@@ -22,17 +22,14 @@ package cn.taketoday.context.autowire;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -48,7 +45,7 @@ import java.util.Set;
 /**
  * @author TODAY 2021/10/23 22:59
  * @see cn.taketoday.lang.Autowired
- * @see PropertySetter
+ * @see DependencySetter
  * @since 4.0
  */
 public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
@@ -75,16 +72,16 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
 
   @Nullable
   @Override
-  public Set<PropertySetter> postProcessPropertyValues(Object bean, String beanName) {
+  public Set<DependencySetter> postProcessPropertyValues(Object bean, String beanName) {
 
     Class<?> beanClass = bean.getClass();
-    LinkedHashSet<PropertySetter> propertySetters = resolvePropertyValues(beanClass);
+    LinkedHashSet<DependencySetter> dependencySetters = resolvePropertyValues(beanClass);
 
     // fix missing @Props injection
-    List<PropertySetter> resolvedProps = propsReader().read(beanClass);
-    propertySetters.addAll(resolvedProps);
+    List<DependencySetter> resolvedProps = propsReader().read(beanClass);
+    dependencySetters.addAll(resolvedProps);
 
-    return propertySetters;
+    return dependencySetters;
   }
 
   //---------------------------------------------------------------------
@@ -97,33 +94,41 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
    * @param beanClass Bean class
    * @since 3.0
    */
-  public LinkedHashSet<PropertySetter> resolvePropertyValues(Class<?> beanClass) {
-    LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
+  public LinkedHashSet<DependencySetter> resolvePropertyValues(Class<?> beanClass) {
+    LinkedHashSet<DependencySetter> dependencySetters = new LinkedHashSet<>(32);
     BeanMetadata beanMetadata = BeanMetadata.ofClass(beanClass);
     for (BeanProperty beanProperty : beanMetadata) {
       if (!beanProperty.isReadOnly()) {
         // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-        PropertySetter created = resolveProperty(beanProperty);
+        DependencySetter created = resolveProperty(beanProperty);
         // not required
         if (created != null) {
-          propertySetters.add(created);
+          dependencySetters.add(created);
         }
       }
     }
 
     // process methods
     ReflectionUtils.doWithMethods(beanClass, method -> {
-      MergedAnnotations annotations = MergedAnnotations.from(method);
-      MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class);
-      if (autowired.isPresent()) {
-        propertySetters.add(new PropertySetter0(method, autowired));
+      if (AutowiredPropertyResolver.isInjectable(method)) {
+        dependencySetters.add(new InjectableDependencySetter(method));
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
 
-    return propertySetters;
+    return dependencySetters;
   }
 
-  record PropertySetter0(Method method, MergedAnnotation<Autowired> autowired) implements PropertySetter {
+  /**
+   * <pre>
+   *   &#64Autowired
+   * //  @Autowired
+   * //  @Inject
+   *   public void setUserRepository1(UserRepository userRepository1) {
+   *     this.userRepository1 = userRepository1;
+   *   }
+   * </pre>
+   */
+  record InjectableDependencySetter(Method method) implements DependencySetter {
 
     @Override
     public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
@@ -137,10 +142,10 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
    * Create property value
    *
    * @param property Property
-   * @return A new {@link PropertySetter}
+   * @return A new {@link DependencySetter}
    */
   @Nullable
-  public PropertySetter resolveProperty(BeanProperty property) {
+  public DependencySetter resolveProperty(BeanProperty property) {
     if (resolvingStrategies == null) {
       resolvingStrategies = new PropertyValueResolverComposite();
       initResolvingStrategies(resolvingStrategies);
@@ -177,7 +182,7 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
       log.debug("Add JSR-250 annotation '@Resource' supports");
     }
     catch (Exception ignored) {}
-    // formatter:on
+    // @formatter:on
 
     List<PropertyValueResolver> strategies =
             TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, context);

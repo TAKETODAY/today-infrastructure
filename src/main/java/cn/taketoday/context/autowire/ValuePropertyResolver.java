@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.beans.factory.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
@@ -50,7 +50,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
    */
   @Nullable
   @Override
-  public DefaultPropertySetter resolveProperty(
+  public DefaultDependencySetter resolveProperty(
           PropertyResolvingContext context, BeanProperty property) {
     MergedAnnotations annotations = MergedAnnotations.from(property);
     MergedAnnotation<Value> annotation = annotations.get(Value.class);
@@ -66,7 +66,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
     return null;
   }
 
-  private DefaultPropertySetter resolve(PropertyResolvingContext context, BeanProperty property, ExpressionInfo expr) {
+  private DefaultDependencySetter resolve(PropertyResolvingContext context, BeanProperty property, ExpressionInfo expr) {
     ExpressionEvaluator evaluator = context.getExpressionEvaluator();
 
     String expression = expr.getExpression();
@@ -88,7 +88,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
               "Can't resolve expression of field: [" + property +
                       "] with expression: [" + expr.getExpression() + "].");
     }
-    return new DefaultPropertySetter(value, property);
+    return new DefaultDependencySetter(value, property);
   }
 
 }

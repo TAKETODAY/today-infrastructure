@@ -27,22 +27,22 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
- * Default implementation of {@link PropertySetter}
+ * Default implementation of {@link DependencySetter}
  *
  * @author TODAY 2021/3/6 14:55
  * @since 3.0
  */
-public class DefaultPropertySetter extends AbstractPropertySetter {
+public class DefaultDependencySetter extends AbstractDependencySetter {
 
   /** property value */
   private final Object value;
 
-  public DefaultPropertySetter(Object value, Field property) {
+  public DefaultDependencySetter(Object value, Field property) {
     super(property);
     this.value = value;
   }
 
-  public DefaultPropertySetter(Object value, BeanProperty property) {
+  public DefaultDependencySetter(Object value, BeanProperty property) {
     super(property);
     this.value = value;
   }
@@ -52,7 +52,7 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
   }
 
   @Override
-  protected Object resolveValue(AbstractBeanFactory beanFactory) {
+  protected Object resolveValue(ConfigurableBeanFactory beanFactory) {
     return value;
   }
 
@@ -60,7 +60,7 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof final DefaultPropertySetter that))
+    if (!(o instanceof final DefaultDependencySetter that))
       return false;
     if (!super.equals(o))
       return false;

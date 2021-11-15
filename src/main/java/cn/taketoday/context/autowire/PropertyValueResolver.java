@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.lang.Nullable;
 
@@ -33,13 +33,13 @@ import cn.taketoday.lang.Nullable;
 public interface PropertyValueResolver {
 
   /**
-   * Resolve {@link PropertySetter}.
+   * Resolve {@link DependencySetter}.
    *
    * @param context resolving context
    * @param property bean's field not read only
    * @return property value
    */
   @Nullable
-  PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property);
+  DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property);
 
 }

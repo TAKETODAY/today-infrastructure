@@ -23,9 +23,9 @@ package cn.taketoday.context.autowire;
 import java.util.Optional;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.AbstractBeanFactory;
-import cn.taketoday.beans.factory.BeanReferencePropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.BeanReferenceDependencySetter;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 
@@ -55,15 +55,15 @@ public class OptionalPropertyValueResolver
   }
 
   @Override
-  protected PropertySetter resolveInternal(PropertyResolvingContext context, BeanProperty property) {
+  protected DependencySetter resolveInternal(PropertyResolvingContext context, BeanProperty property) {
     ResolvableType resolvableType = ResolvableType.fromField(property.getField());
     if (resolvableType.hasGenerics()) {
       ResolvableType generic = resolvableType.getGeneric(0);
       Class<?> resolve = generic.resolve();
-      return new BeanReferencePropertySetter("", false, property, resolve) {
+      return new BeanReferenceDependencySetter("", false, property, resolve) {
 
         @Override
-        protected Object resolveValue(AbstractBeanFactory beanFactory) {
+        protected Object resolveValue(ConfigurableBeanFactory beanFactory) {
           Object value = resolveBeanReference(beanFactory);
           return Optional.ofNullable(value);
         }

@@ -59,7 +59,6 @@ public interface Constant extends Serializable {
   String[] EMPTY_STRING_ARRAY = {};
 
   File[] EMPTY_FILE_ARRAY = {};
-  Type[] TYPES_EMPTY_ARRAY = {};
   Field[] EMPTY_FIELD_ARRAY = {};
   Method[] EMPTY_METHOD_ARRAY = {};
   Object[] EMPTY_OBJECT_ARRAY = {};

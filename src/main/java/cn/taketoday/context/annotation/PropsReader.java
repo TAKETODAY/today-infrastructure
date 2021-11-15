@@ -33,8 +33,8 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.DefaultPropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.DefaultDependencySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
@@ -107,7 +107,7 @@ public class PropsReader {
     this.propertyResolver = propertyResolver;
   }
 
-  public List<PropertySetter> read(AnnotatedElement annotated) {
+  public List<DependencySetter> read(AnnotatedElement annotated) {
     Assert.notNull(annotated, "AnnotatedElement must not be null");
 
     MergedAnnotation<Props> annotation = MergedAnnotations.from(annotated).get(Props.class);
@@ -123,17 +123,17 @@ public class PropsReader {
     DefaultProps defaultProps = new DefaultProps(annotation);
     PropertyResolver propertyResolver = getResolver(defaultProps);
 
-    ArrayList<PropertySetter> propertySetters = new ArrayList<>();
+    ArrayList<DependencySetter> dependencySetters = new ArrayList<>();
     for (BeanProperty property : BeanMetadata.ofClass(type)) {
       if (!property.isReadOnly()) {
         Object converted = read(property, defaultProps, propertyResolver);
         if (converted != null) {
-          propertySetters.add(new DefaultPropertySetter(converted, property));
+          dependencySetters.add(new DefaultDependencySetter(converted, property));
         }
       }
     }
-    propertySetters.trimToSize();
-    return propertySetters;
+    dependencySetters.trimToSize();
+    return dependencySetters;
   }
 
   public static Class<?> getBeanClass(AnnotatedElement annotated) {
@@ -158,7 +158,7 @@ public class PropsReader {
     return read(property, props, propertyResolver);
   }
 
-  public List<PropertySetter> read(Class<?> type) {
+  public List<DependencySetter> read(Class<?> type) {
     Assert.notNull(type, "Class must not be null");
 
     MergedAnnotation<Props> annotation = MergedAnnotations.from(type).get(Props.class);
@@ -173,17 +173,17 @@ public class PropsReader {
     DefaultProps defaultProps = new DefaultProps(annotation);
     PropertyResolver propertyResolver = getResolver(defaultProps);
 
-    ArrayList<PropertySetter> propertySetters = new ArrayList<>();
+    ArrayList<DependencySetter> dependencySetters = new ArrayList<>();
     for (BeanProperty property : BeanMetadata.ofClass(type)) {
       if (!property.isReadOnly()) {
         Object converted = read(property, defaultProps, propertyResolver);
         if (converted != null) {
-          propertySetters.add(new DefaultPropertySetter(converted, property));
+          dependencySetters.add(new DefaultDependencySetter(converted, property));
         }
       }
     }
-    propertySetters.trimToSize();
-    return propertySetters;
+    dependencySetters.trimToSize();
+    return dependencySetters;
   }
 
   /**

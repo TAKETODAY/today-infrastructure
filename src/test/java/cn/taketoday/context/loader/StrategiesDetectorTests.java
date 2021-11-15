@@ -20,13 +20,13 @@
 
 package cn.taketoday.context.loader;
 
+import cn.taketoday.beans.factory.DependencySetter;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.autowire.PropertyResolvingContext;
 import cn.taketoday.context.autowire.PropertyValueResolver;
@@ -90,7 +90,7 @@ class StrategiesDetectorTests {
 
     @Nullable
     @Override
-    public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
+    public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
       return null;
     }
   }
@@ -99,7 +99,7 @@ class StrategiesDetectorTests {
 
     @Nullable
     @Override
-    public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
+    public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
       return null;
     }
   }

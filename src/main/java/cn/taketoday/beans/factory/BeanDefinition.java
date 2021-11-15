@@ -472,9 +472,9 @@ public class BeanDefinition
   }
 
   /**
-   * Apply bean' {@link PropertySetter}s
+   * Apply bean' {@link DependencySetter}s
    *
-   * @param propertyValues The array of the bean's {@link PropertySetter}s
+   * @param propertyValues The array of the bean's {@link DependencySetter}s
    */
   public void setPropertyValues(PropertyValue... propertyValues) {
     if (this.propertyValues == null) {

@@ -24,10 +24,10 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.AbstractBeanFactory;
-import cn.taketoday.beans.factory.AbstractPropertySetter;
+import cn.taketoday.beans.factory.AbstractDependencySetter;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 
@@ -50,11 +50,11 @@ public class ObjectSupplierPropertyResolver
   }
 
   @Override
-  protected PropertySetter resolveInternal(PropertyResolvingContext context, BeanProperty property) {
+  protected DependencySetter resolveInternal(PropertyResolvingContext context, BeanProperty property) {
     ResolvableType resolvableType = ResolvableType.fromField(property.getField());
     if (resolvableType.hasGenerics()) {
       ResolvableType generic = resolvableType.getGeneric(0);
-      return new ObjectSupplierPropertySetter(property, generic);
+      return new ObjectSupplierDependencySetter(property, generic);
     }
     // Usage error
     throw new PropertyException("Unsupported '" + property + "' In -> " + property.getDeclaringClass());
@@ -65,18 +65,18 @@ public class ObjectSupplierPropertyResolver
    *
    * @since 3.0
    */
-  static class ObjectSupplierPropertySetter
-          extends AbstractPropertySetter implements PropertySetter {
+  static class ObjectSupplierDependencySetter
+          extends AbstractDependencySetter implements DependencySetter {
 
     final ResolvableType generic;
 
-    public ObjectSupplierPropertySetter(BeanProperty property, ResolvableType generic) {
+    public ObjectSupplierDependencySetter(BeanProperty property, ResolvableType generic) {
       super(property);
       this.generic = generic;
     }
 
     @Override
-    protected Object resolveValue(AbstractBeanFactory beanFactory) {
+    protected Object resolveValue(ConfigurableBeanFactory beanFactory) {
       return beanFactory.getObjectSupplier(generic);
     }
 
@@ -84,7 +84,7 @@ public class ObjectSupplierPropertyResolver
     public boolean equals(Object o) {
       if (this == o)
         return true;
-      if (!(o instanceof ObjectSupplierPropertySetter that))
+      if (!(o instanceof ObjectSupplierDependencySetter that))
         return false;
       if (!super.equals(o))
         return false;

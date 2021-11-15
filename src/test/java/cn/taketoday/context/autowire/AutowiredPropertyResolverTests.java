@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.autowire;
 
+import cn.taketoday.beans.factory.DependencySetter;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -58,7 +58,7 @@ class AutowiredPropertyResolverTests {
       AutowiredPropertyResolver resolver = new AutowiredPropertyResolver();
       PropsReader propsReader = new PropsReader(context.getEnvironment());
       PropertyResolvingContext resolvingContext = new PropertyResolvingContext(context, propsReader);
-      PropertySetter resolveProperty = resolver.resolveProperty(
+      DependencySetter resolveProperty = resolver.resolveProperty(
               resolvingContext,
               BeanProperty.valueOf(getClass(), "name")//
       );

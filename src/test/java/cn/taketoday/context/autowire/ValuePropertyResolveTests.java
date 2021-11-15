@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.beans.factory.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -58,7 +58,7 @@ class ValuePropertyResolveTests {
       applicationContext.refresh();
       // host
       // ----------------------------
-      DefaultPropertySetter host = propertyResolver.resolveProperty(
+      DefaultDependencySetter host = propertyResolver.resolveProperty(
               resolvingContext, BeanProperty.valueOf(getClass(), "host"));
 
       assert host.getValue() != null;
@@ -70,7 +70,7 @@ class ValuePropertyResolveTests {
 
       BeanProperty property = BeanProperty.valueOf(getClass(), "name");
 
-      DefaultPropertySetter name = propertyResolver.resolveProperty(resolvingContext, property);
+      DefaultDependencySetter name = propertyResolver.resolveProperty(resolvingContext, property);
 
       assert name.getValue() != null;
 
@@ -87,7 +87,7 @@ class ValuePropertyResolveTests {
 
       properties.put("cn.taketoday.context.autowire.ValuePropertyResolveTests.test", "TEST");
 
-      DefaultPropertySetter test = propertyResolver.resolveProperty(
+      DefaultDependencySetter test = propertyResolver.resolveProperty(
               resolvingContext, BeanProperty.valueOf(getClass(), "test"));
       assert "TEST".equals(test.getValue());
 

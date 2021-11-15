@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.env.MapPropertyResolver;
@@ -111,7 +111,7 @@ class PropsReaderTests {
     assertThat(bean.nested.userId).isEqualTo("666");
     assertThat(bean.nested.userName).isEqualTo("TODAY");
 
-    List<PropertySetter> none = propsReader.read(getClass().getDeclaredField("none"));
+    List<DependencySetter> none = propsReader.read(getClass().getDeclaredField("none"));
     assertThat(none).isNotNull().isEmpty();
   }
 

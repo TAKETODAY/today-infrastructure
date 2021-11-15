@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.lang.Nullable;
 
@@ -37,13 +37,13 @@ public abstract class AbstractPropertyValueResolver implements PropertyValueReso
 
   @Nullable
   @Override
-  public final PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+  public final DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     if (supportsProperty(context, property)) {
       return resolveInternal(context, property);
     }
     return null;
   }
 
-  protected abstract PropertySetter resolveInternal(PropertyResolvingContext context, BeanProperty property);
+  protected abstract DependencySetter resolveInternal(PropertyResolvingContext context, BeanProperty property);
 
 }

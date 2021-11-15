@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.DefaultPropertySetter;
+import cn.taketoday.beans.factory.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
@@ -41,7 +41,7 @@ public class PropsPropertyResolver implements PropertyValueResolver {
    * Resolve {@link Props} annotation property.
    */
   @Override
-  public DefaultPropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+  public DefaultDependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     MergedAnnotation<Props> annotation = MergedAnnotations.from(property).get(Props.class);
     if (annotation.isPresent()) {
       Class<?> propertyClass = property.getType();
@@ -57,9 +57,9 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 
       // feat: Enhance `Props`
       if (!Map.class.isAssignableFrom(propertyClass)) {
-        return new DefaultPropertySetter(propsReader.read(props, propertyClass), property);
+        return new DefaultDependencySetter(propsReader.read(props, propertyClass), property);
       }
-      return new DefaultPropertySetter(properties, property);
+      return new DefaultDependencySetter(properties, property);
     }
     return null; // next resolver
   }

@@ -288,14 +288,12 @@ public class TestEnhancer {
         }
       });
       enhancer.setInterfaces(Serializable.class);
-      enhancer.setCallback(new InvocationHandler() {
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-          if (method.getDeclaringClass() != Object.class && method.getReturnType() == String.class) {
-            return null;
-          }
-          else {
-            throw new RuntimeException("Do not know what to do.");
-          }
+      enhancer.setCallback((InvocationHandler) (proxy, method, args) -> {
+        if (method.getDeclaringClass() != Object.class && method.getReturnType() == String.class) {
+          return null;
+        }
+        else {
+          throw new RuntimeException("Do not know what to do.");
         }
       });
       Source proxy = (Source) enhancer.create();
@@ -364,7 +362,7 @@ public class TestEnhancer {
     final Class<?> eaClassFromCustomClassloader = custom.loadClass(EA.class.getName());
 
     CallbackFilter callbackFilter = new CallbackFilter() {
-      private Object advised = eaClassFromCustomClassloader.newInstance();
+      private final Object advised = eaClassFromCustomClassloader.newInstance();
 
       public int accept(Method method) {
         return 0;
@@ -737,6 +735,7 @@ public class TestEnhancer {
     e.setCallbackFilter(callbackFilter);
     e.setCallback(callback);
     e.setClassLoader(loader);
+    e.setNeighbor(null);
     return e.create();
   }
 

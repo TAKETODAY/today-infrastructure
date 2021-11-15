@@ -19,11 +19,8 @@
  */
 package cn.taketoday.context.autowire;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-
-import cn.taketoday.beans.factory.BeanReferencePropertySetter;
-import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.factory.BeanReferenceDependencySetter;
+import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -33,7 +30,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 import cn.taketoday.util.ClassUtils;
 
-import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * This {@link PropertyValueResolver} supports field that annotated
@@ -64,20 +62,25 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
   }
 
   public static boolean isInjectable(AnnotatedElement element) {
-    return isPresent(element, Autowired.class)
-            || isPresent(element, RESOURCE_CLASS)
-            || isPresent(element, INJECT_CLASS);
+    return isInjectable(MergedAnnotations.from(element));
+  }
+
+  // @since 4.0
+  public static boolean isInjectable(MergedAnnotations annotations) {
+    return annotations.isPresent(Autowired.class)
+            || annotations.isPresent(RESOURCE_CLASS)
+            || annotations.isPresent(INJECT_CLASS);
   }
 
   @Nullable
   @Override
-  public PropertySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
+  public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) {
     MergedAnnotations annotations = MergedAnnotations.from(property);
     MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class);
     if (autowired.isPresent()) {
       boolean required = isRequired(property, autowired);
       String referenceName = autowired.getString(MergedAnnotation.VALUE);
-      return new BeanReferencePropertySetter(referenceName, required, property);
+      return new BeanReferenceDependencySetter(referenceName, required, property);
     }
     return null;
   }
