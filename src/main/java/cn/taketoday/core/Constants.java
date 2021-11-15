@@ -19,6 +19,11 @@
  */
 package cn.taketoday.core;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -26,9 +31,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 
 /**
  * This class can be used to parse other classes containing constant definitions
@@ -105,7 +107,7 @@ public class Constants {
    * Exposes the field cache to subclasses: a Map from String field name to object
    * value.
    */
-  protected final Map<String, Object> getFieldCache() {
+  public final Map<String, Object> getFieldCache() {
     return this.fieldCache;
   }
 
@@ -169,8 +171,8 @@ public class Constants {
    * @return the set of constant names
    */
   public Set<String> getNames(String namePrefix) {
-    String prefixToUse = (namePrefix != null ? namePrefix.trim().toUpperCase(Locale.ENGLISH) : Constant.BLANK);
-    Set<String> names = new HashSet<>();
+    String prefixToUse = getPrefixToUse(namePrefix);
+    HashSet<String> names = new HashSet<>();
     for (String code : this.fieldCache.keySet()) {
       if (code.startsWith(prefixToUse)) {
         names.add(code);
@@ -202,8 +204,8 @@ public class Constants {
    * @return the set of constant names
    */
   public Set<String> getNamesForSuffix(String nameSuffix) {
-    String suffixToUse = (nameSuffix != null ? nameSuffix.trim().toUpperCase(Locale.ENGLISH) : "");
-    Set<String> names = new HashSet<>();
+    String suffixToUse = getPrefixToUse(nameSuffix);
+    HashSet<String> names = new HashSet<>();
     for (String code : this.fieldCache.keySet()) {
       if (code.endsWith(suffixToUse)) {
         names.add(code);
@@ -224,13 +226,15 @@ public class Constants {
    * @return the set of values
    */
   public Set<Object> getValues(String namePrefix) {
-    String prefixToUse = (namePrefix != null ? namePrefix.trim().toUpperCase(Locale.ENGLISH) : "");
-    Set<Object> values = new HashSet<>();
-    this.fieldCache.forEach((code, value) -> {
+    String prefixToUse = getPrefixToUse(namePrefix);
+    HashSet<Object> values = new HashSet<>();
+    for (Map.Entry<String, Object> entry : fieldCache.entrySet()) {
+      String code = entry.getKey();
+      Object value = entry.getValue();
       if (code.startsWith(prefixToUse)) {
         values.add(value);
       }
-    });
+    }
     return values;
   }
 
@@ -257,7 +261,7 @@ public class Constants {
    * @return the set of values
    */
   public Set<Object> getValuesForSuffix(String nameSuffix) {
-    String suffixToUse = (nameSuffix != null ? nameSuffix.trim().toUpperCase(Locale.ENGLISH) : "");
+    String suffixToUse = getPrefixToUse(nameSuffix);
     Set<Object> values = new HashSet<>();
     this.fieldCache.forEach((code, value) -> {
       if (code.endsWith(suffixToUse)) {
@@ -278,13 +282,18 @@ public class Constants {
    * @throws ConstantException if the value wasn't found
    */
   public String toCode(Object value, String namePrefix) throws ConstantException {
-    String prefixToUse = (namePrefix != null ? namePrefix.trim().toUpperCase(Locale.ENGLISH) : "");
+    String prefixToUse = getPrefixToUse(namePrefix);
     for (Map.Entry<String, Object> entry : this.fieldCache.entrySet()) {
       if (entry.getKey().startsWith(prefixToUse) && entry.getValue().equals(value)) {
         return entry.getKey();
       }
     }
     throw new ConstantException(this.className, prefixToUse, value);
+  }
+
+  @NonNull
+  private static String getPrefixToUse(String namePrefix) {
+    return namePrefix != null ? namePrefix.trim().toUpperCase(Locale.ENGLISH) : Constant.BLANK;
   }
 
   /**
@@ -312,7 +321,7 @@ public class Constants {
    * @throws ConstantException if the value wasn't found
    */
   public String toCodeForSuffix(Object value, String nameSuffix) throws ConstantException {
-    String suffixToUse = (nameSuffix != null ? nameSuffix.trim().toUpperCase(Locale.ENGLISH) : "");
+    String suffixToUse = getPrefixToUse(nameSuffix);
     for (Map.Entry<String, Object> entry : this.fieldCache.entrySet()) {
       if (entry.getKey().endsWith(suffixToUse) && entry.getValue().equals(value)) {
         return entry.getKey();
@@ -356,9 +365,9 @@ public class Constants {
    * Exception thrown when the {@link Constants} class is asked for an invalid
    * constant name.
    */
-  @SuppressWarnings("serial")
   public static class ConstantException extends IllegalArgumentException {
-
+    @Serial
+    private static final long serialVersionUID = 1L;
     /**
      * Thrown when an invalid constant name is requested.
      *
