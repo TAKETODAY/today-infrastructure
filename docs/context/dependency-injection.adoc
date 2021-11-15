@@ -66,3 +66,17 @@ public class Car {
 
 == 使用 `ArgumentsResolvingStrategy` 注入参数
 
+`ArgumentsResolvingStrategy` 这个接口用于处理构造器或方法的参数， 内置 的 解析器放在包 `cn.taketoday.context.autowire` 下.
+分别支持:
+
+. Map<String, T> 支持 name -> bean 类型
+. Collection<T> 所有的同类型 Bean
+. T 单个bean
+. T[] Bean 数组
+. ObjectSupplier<T>,Supplier<T>
+
+== 扩展注入
+
+NOTE: 在使用 Spring 过程中发现，Spring 好像并不能更好的扩展，于是我想到我能不能实现很方便的扩展,以便支持多种注入方式
+
+TODO
