@@ -995,7 +995,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
     "beanClass":"class test.context.LifecycleBean",
     "initMethods":"[public void test.context.LifecycleBean.initData()]",
     "destroyMethods":"[]",
-    "propertySetters":"[]",
+    "dependencySetters":"[]",
     "initialized":"true",
     "factoryBean":"false",
     "abstract":"false"

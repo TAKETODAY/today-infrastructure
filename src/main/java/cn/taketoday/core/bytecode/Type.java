@@ -19,17 +19,17 @@
  */
 package cn.taketoday.core.bytecode;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -154,6 +154,7 @@ public final class Type {
 
   /** The type of the java.lang.Object class. */
   public static final Type TYPE_OBJECT = Type.fromInternalName("java/lang/Object");
+  public static final Type[] EMPTY_ARRAY = { };
 
   // -----------------------------------------------------------------------------------------------
   // Fields
@@ -425,6 +426,10 @@ public final class Type {
         currentOffset = Math.max(currentOffset, semiColumnOffset + 1);
       }
       ++numArgumentTypes;
+    }
+    // @since 4.0
+    if (numArgumentTypes == 0) {
+      return EMPTY_ARRAY;
     }
 
     // Second step: create a Type instance for each argument type.
@@ -869,7 +874,7 @@ public final class Type {
    * @since 4.0
    */
   public Type getBoxedType() {
-    return switch (getSort()) { // @formatter:off
+    return switch (getSort()) {
       case Type.CHAR -> Type.TYPE_CHARACTER;
       case Type.BOOLEAN -> Type.TYPE_BOOLEAN;
       case Type.DOUBLE -> Type.TYPE_DOUBLE;
@@ -878,7 +883,7 @@ public final class Type {
       case Type.INT -> Type.TYPE_INTEGER;
       case Type.SHORT -> Type.TYPE_SHORT;
       case Type.BYTE -> Type.TYPE_BYTE;
-      default -> this; // @formatter:on
+      default -> this;
     };
   }
 

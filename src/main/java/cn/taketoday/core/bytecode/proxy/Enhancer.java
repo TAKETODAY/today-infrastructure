@@ -45,6 +45,7 @@ import cn.taketoday.core.bytecode.core.VisibilityPredicate;
 import cn.taketoday.core.bytecode.core.WeakCacheKey;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -268,7 +269,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param callback the callback to use for all methods
    * @see #setCallbacks
    */
-  public void setCallback(final Callback callback) {
+  public void setCallback(Callback callback) {
     setCallbacks(callback);
   }
 
@@ -441,7 +442,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       callbackTypes = CallbackInfo.determineTypes(callbacks);
     }
     if (interfaces != null) {
-      for (final Class<?> anInterface : interfaces) {
+      for (Class<?> anInterface : interfaces) {
         if (anInterface == null) {
           throw new IllegalStateException("Interfaces cannot be null");
         }
@@ -500,7 +501,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
       this.generatedClass = generatedClass;
-      final Method callbacksSetter = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
+      Method callbacksSetter = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
       if (callbacksSetter == null) {
         throw new CodeGenerationException(
                 SET_THREAD_CALLBACKS_NAME + " Not found in class: " + generatedClass);
@@ -613,7 +614,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     if (interfaces != null) {
-      for (final Class<?> anInterface : interfaces) {
+      for (Class<?> anInterface : interfaces) {
         if (anInterface != Factory.class) {
           CollectionUtils.addAll(target, anInterface.getMethods());
         }
@@ -652,8 +653,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     ArrayList<Method> interfaceMethods = new ArrayList<>();
     getMethods(superclass, interfaces, actualMethods, interfaceMethods);
 
-    final HashSet<Object> forcePublic = MethodWrapper.createSet(interfaceMethods);
-    final List<MethodInfo> methods = CollectionUtils.transform(actualMethods, (Method method) -> {
+    HashSet<Object> forcePublic = MethodWrapper.createSet(interfaceMethods);
+    List<MethodInfo> methods = CollectionUtils.transform(actualMethods, (Method method) -> {
 
       int modifiers = Opcodes.ACC_FINAL | (method.getModifiers() //
               & ~Opcodes.ACC_ABSTRACT //
@@ -667,7 +668,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       return MethodInfo.from(method, modifiers);
     });
 
-    final ClassEmitter e = new ClassEmitter(v);
+    ClassEmitter e = new ClassEmitter(v);
     if (currentData == null) {
       e.beginClass(Opcodes.JAVA_VERSION, //
               ACC_PUBLIC, //
@@ -871,7 +872,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static void setCallbacksHelper(Class type, Callback[] callbacks, String methodName) {
     try {
-      final Method callbacksSetter = getCallbacksSetter(type, methodName);
+      Method callbacksSetter = getCallbacksSetter(type, methodName);
       if (callbacksSetter == null) {
         throw new IllegalArgumentException(type + " is not an enhanced class");
       }
@@ -989,9 +990,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitConstructors(ClassEmitter ce, List<MethodInfo> constructors) {
     boolean seenNull = false;
-
-    final MethodSignature emptyConstructor = MethodSignature.EMPTY_CONSTRUCTOR;
-    final String descriptor = emptyConstructor.getDescriptor();
+    String descriptor = MethodSignature.EMPTY_CONSTRUCTOR.getDescriptor();
     for (MethodInfo constructor : constructors) {
 
       if (currentData != null && !descriptor.equals(constructor.getSignature().getDescriptor())) {
@@ -1030,7 +1029,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitGetCallback(ClassEmitter ce, int[] keys) {
-    final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, GET_CALLBACK);
+    CodeEmitter e = ce.beginMethod(ACC_PUBLIC, GET_CALLBACK);
     e.loadThis();
     e.invoke_static_this(BIND_CALLBACKS);
     e.loadThis();
@@ -1051,7 +1050,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitSetCallback(ClassEmitter ce, int[] keys) {
-    final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACK);
+    CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACK);
     e.loadArg(0);
     e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
@@ -1153,8 +1152,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitNewInstanceMultiarg(ClassEmitter ce, List constructors) {
-    final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MULTIARG_NEW_INSTANCE);
-    final Type thisType = getThisType(e);
+    CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MULTIARG_NEW_INSTANCE);
+    Type thisType = getThisType(e);
     e.loadArg(2);
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     e.newInstance(thisType);
@@ -1267,7 +1266,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         // a super, because super may itself be using super, which would bypass
         // any proxies on the target.
         if (bridgeToTarget == null) {
-          bridgeToTarget = BridgeMethodResolver.resolve(getClassLoader(), declToBridge);
+          bridgeToTarget = BridgeMethodResolver.resolve(declToBridge);
         }
         MethodSignature bridgeTarget = bridgeToTarget.get(method.getSignature());
         if (bridgeTarget != null) {
@@ -1453,30 +1452,20 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * Finds all bridge methods that are being called with invokespecial & returns
      * them.
      */
-    public static Map<MethodSignature, MethodSignature> resolve(
-            ClassLoader classLoader, Map<Class<?>, Set<MethodSignature>> declToBridge) //
-    {
-
-      Map<MethodSignature, MethodSignature> resolved = new HashMap<>();
-
+    public static Map<MethodSignature, MethodSignature> resolve(Map<Class<?>, Set<MethodSignature>> declToBridge) {
+      HashMap<MethodSignature, MethodSignature> resolved = new HashMap<>();
       for (Entry<Class<?>, Set<MethodSignature>> entry : declToBridge.entrySet()) {
         try {
-
-          InputStream is = //
-                  classLoader.getResourceAsStream(entry.getKey().getName().replace('.', '/') + ".class");
-          if (is == null) {
-            return resolved;
-          }
-
-          try {
+          Class<?> resource = entry.getKey();
+          ClassLoader classLoader = resource.getClassLoader();
+          try (InputStream is = classLoader.getResourceAsStream(ClassUtils.getFullyClassFileName(resource))) {
+            if (is == null) {
+              return resolved;
+            }
             new ClassReader(is).accept(new BridgedFinder(entry.getValue(), resolved), SKIP_FRAMES | SKIP_DEBUG);
           }
-          finally {
-            is.close();
-          }
         }
-        catch (IOException ignored) {
-        }
+        catch (IOException ignored) { }
       }
       return resolved;
     }
@@ -1494,7 +1483,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
 
       @Override
-      public void visit(int version, int access, String name, //
+      public void visit(int version, int access, String name,
                         String signature, String superName, String[] interfaces) { }
 
       @Override

@@ -362,9 +362,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   // @since 4.0
   public void setNeighbor(Class<?> neighbor) {
-//    if (neighbor != Object.class) {
     this.neighbor = neighbor;
-//    }
   }
 
   protected abstract Object firstInstance(Class<T> type) throws Exception;

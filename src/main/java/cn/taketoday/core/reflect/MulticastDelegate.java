@@ -87,7 +87,7 @@ abstract public class MulticastDelegate implements Cloneable {
     static final Type MULTICAST_DELEGATE = Type.fromClass(MulticastDelegate.class);
     static final MethodSignature ADD_DELEGATE = new MethodSignature(MULTICAST_DELEGATE, "add", Type.TYPE_OBJECT);
     static final MethodSignature ADD_HELPER = new MethodSignature(MULTICAST_DELEGATE, "addHelper", Type.TYPE_OBJECT);
-    static final MethodSignature NEW_INSTANCE = new MethodSignature(MULTICAST_DELEGATE, "newInstance", Constant.TYPES_EMPTY_ARRAY);
+    static final MethodSignature NEW_INSTANCE = new MethodSignature(MULTICAST_DELEGATE, "newInstance", Type.EMPTY_ARRAY);
 
     private Class<?> iface;
 
