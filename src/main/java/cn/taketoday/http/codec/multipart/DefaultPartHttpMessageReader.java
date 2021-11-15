@@ -64,21 +64,15 @@ import reactor.core.scheduler.Schedulers;
  */
 public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements HttpMessageReader<Part> {
 
-  private int maxInMemorySize = 256 * 1024;
-
   private int maxHeadersSize = 8 * 1024;
-
+  private int maxInMemorySize = 256 * 1024;
   private long maxDiskUsagePerPart = -1;
 
   private int maxParts = -1;
-
   private boolean streaming;
-
-  private Scheduler blockingOperationScheduler = Schedulers.boundedElastic();
-
-  private FileStorage fileStorage = FileStorage.tempDirectory(this::getBlockingOperationScheduler);
-
   private Charset headersCharset = StandardCharsets.UTF_8;
+  private Scheduler blockingOperationScheduler = Schedulers.boundedElastic();
+  private FileStorage fileStorage = FileStorage.tempDirectory(this::getBlockingOperationScheduler);
 
   /**
    * Configure the maximum amount of memory that is allowed per headers section of each part.
