@@ -19,6 +19,13 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.GenericTypeResolver;
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
@@ -53,13 +60,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-
-import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-0? ?
@@ -103,10 +103,10 @@ public abstract class ClassUtils {
    */
   private static final HashMap<String, Class<?>> commonClassCache = new HashMap<>(64);
 
-	/**
-	 * Common Java language interfaces which are supposed to be ignored
-	 * when searching for 'primary' user-level interfaces.
-	 */
+  /**
+   * Common Java language interfaces which are supposed to be ignored
+   * when searching for 'primary' user-level interfaces.
+   */
   private static final HashSet<Class<?>> javaLanguageInterfaces = new HashSet<>();
 
   static {
@@ -129,19 +129,19 @@ public abstract class ClassUtils {
     Set<Class<?>> primitiveTypes = new HashSet<>(32);
     primitiveTypes.addAll(primitiveWrapperTypeMap.values());
     Collections.addAll(primitiveTypes, boolean[].class, byte[].class, char[].class,
-                       double[].class, float[].class, int[].class, long[].class, short[].class);
+            double[].class, float[].class, int[].class, long[].class, short[].class);
     for (Class<?> primitiveType : primitiveTypes) {
       primitiveTypeNameMap.put(primitiveType.getName(), primitiveType);
     }
 
     registerCommonClasses(Boolean[].class, Byte[].class, Character[].class, Double[].class,
-                          Float[].class, Integer[].class, Long[].class, Short[].class);
+            Float[].class, Integer[].class, Long[].class, Short[].class);
     registerCommonClasses(Number.class, Number[].class, String.class, String[].class,
-                          Class.class, Class[].class, Object.class, Object[].class);
+            Class.class, Class[].class, Object.class, Object[].class);
     registerCommonClasses(Throwable.class, Exception.class, RuntimeException.class,
-                          Error.class, StackTraceElement.class, StackTraceElement[].class);
+            Error.class, StackTraceElement.class, StackTraceElement[].class);
     registerCommonClasses(Enum.class, Iterable.class, Iterator.class, Enumeration.class,
-                          Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
+            Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
 
     Class<?>[] javaLanguageInterfaceArray = {
             Serializable.class, Externalizable.class, Closeable.class,
@@ -533,31 +533,32 @@ public abstract class ClassUtils {
     return i > 0 ? load(name.substring(0, i)) : load(name);
   }
 
-	/**
-	 * Return a descriptive name for the given object's type: usually simply
-	 * the class name, but component type class name + "[]" for arrays,
-	 * and an appended list of implemented interfaces for JDK proxies.
-	 * @param value the value to introspect
-	 * @return the qualified name of the class
-	 */
-	@Nullable
-	public static String getDescriptiveType(@Nullable Object value) {
-		if (value == null) {
-			return null;
-		}
-		Class<?> clazz = value.getClass();
-		if (Proxy.isProxyClass(clazz)) {
-			String prefix = clazz.getName() + " implementing ";
-			StringJoiner result = new StringJoiner(",", prefix, Constant.BLANK);
-			for (Class<?> ifc : clazz.getInterfaces()) {
-				result.add(ifc.getName());
-			}
-			return result.toString();
-		}
-		else {
-			return clazz.getTypeName();
-		}
-	}
+  /**
+   * Return a descriptive name for the given object's type: usually simply
+   * the class name, but component type class name + "[]" for arrays,
+   * and an appended list of implemented interfaces for JDK proxies.
+   *
+   * @param value the value to introspect
+   * @return the qualified name of the class
+   */
+  @Nullable
+  public static String getDescriptiveType(@Nullable Object value) {
+    if (value == null) {
+      return null;
+    }
+    Class<?> clazz = value.getClass();
+    if (Proxy.isProxyClass(clazz)) {
+      String prefix = clazz.getName() + " implementing ";
+      StringJoiner result = new StringJoiner(",", prefix, Constant.BLANK);
+      for (Class<?> ifc : clazz.getInterfaces()) {
+        result.add(ifc.getName());
+      }
+      return result.toString();
+    }
+    else {
+      return clazz.getTypeName();
+    }
+  }
 
   // --------------------------------- Field
 
@@ -712,8 +713,8 @@ public abstract class ClassUtils {
    */
   public static Class<?>[] toClassArray(Collection<Class<?>> collection) {
     return CollectionUtils.isEmpty(collection)
-           ? Constant.EMPTY_CLASS_ARRAY
-           : collection.toArray(Constant.EMPTY_CLASS_ARRAY);
+            ? Constant.EMPTY_CLASS_ARRAY
+            : collection.toArray(Constant.EMPTY_CLASS_ARRAY);
   }
 
   /**
@@ -1098,6 +1099,20 @@ public abstract class ClassUtils {
     String className = clazz.getName();
     int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
     return className.substring(lastDotIndex + 1) + CLASS_FILE_SUFFIX;
+  }
+
+  /**
+   * Determine the name of the class file, relative to the containing
+   * package: e.g. "java/lang/String.class"
+   *
+   * @param clazz the class
+   * @return the file name of the ".class" file
+   * @since 4.0
+   */
+  public static String getFullyClassFileName(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    String className = clazz.getName();
+    return className.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR) + CLASS_FILE_SUFFIX;
   }
 
   /**

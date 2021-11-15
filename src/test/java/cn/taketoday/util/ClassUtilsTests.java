@@ -709,6 +709,12 @@ class ClassUtilsTests {
   }
 
   @Test
+  void getFullyClassFileName() {
+    assertThat(ClassUtils.getFullyClassFileName(String.class)).isEqualTo("java/lang/String.class");
+    assertThat(ClassUtils.getFullyClassFileName(getClass())).isEqualTo("cn/taketoday/util/ClassUtilsTests.class");
+  }
+
+  @Test
   void getPackageName() {
     assertThat(ClassUtils.getPackageName(String.class)).isEqualTo("java.lang");
     assertThat(ClassUtils.getPackageName(getClass())).isEqualTo(getClass().getPackage().getName());
