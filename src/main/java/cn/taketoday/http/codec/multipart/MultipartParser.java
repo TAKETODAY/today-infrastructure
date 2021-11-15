@@ -24,7 +24,6 @@ import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
-import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -336,43 +335,38 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
      */
     @Override
     public void onNext(DataBuffer buf) {
-      long prevCount = this.byteCount.get();
-      long count = this.byteCount.addAndGet(buf.readableByteCount());
-      if (prevCount < 2 && count >= 2) {
-        if (isLastBoundary(buf)) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Last boundary found in {}", buf);
-          }
-          if (changeState(this, DisposedState.INSTANCE, buf)) {
-            emitComplete();
-          }
-          return;
+      if (isLastBoundary(buf)) {
+        if (logger.isTraceEnabled()) {
+          logger.trace("Last boundary found in {}", buf);
         }
-      }
-      else if (count > MultipartParser.this.maxHeadersSize) {
+
         if (changeState(this, DisposedState.INSTANCE, buf)) {
-          emitError(new DataBufferLimitException(
-                  "Part headers exceeded the memory usage limit of " +
-                          MultipartParser.this.maxHeadersSize + " bytes"));
+          emitComplete();
         }
         return;
       }
-      int endIdx = endHeaders.match(buf);
+      int endIdx = this.endHeaders.match(buf);
       if (endIdx != -1) {
         if (logger.isTraceEnabled()) {
           logger.trace("End of headers found @{} in {}", endIdx, buf);
         }
-        DataBuffer headerBuf = MultipartUtils.sliceTo(buf, endIdx);
-        buffers.add(headerBuf);
-        DataBuffer bodyBuf = MultipartUtils.sliceFrom(buf, endIdx);
-        DataBufferUtils.release(buf);
+        long count = this.byteCount.addAndGet(endIdx);
+        if (belowMaxHeaderSize(count)) {
+          DataBuffer headerBuf = MultipartUtils.sliceTo(buf, endIdx);
+          this.buffers.add(headerBuf);
+          DataBuffer bodyBuf = MultipartUtils.sliceFrom(buf, endIdx);
+          DataBufferUtils.release(buf);
 
-        emitHeaders(parseHeaders());
-        changeState(this, new BodyState(), bodyBuf);
+          emitHeaders(parseHeaders());
+          changeState(this, new BodyState(), bodyBuf);
+        }
       }
       else {
-        buffers.add(buf);
-        requestBuffer();
+        long count = this.byteCount.addAndGet(buf.readableByteCount());
+        if (belowMaxHeaderSize(count)) {
+          this.buffers.add(buf);
+          requestBuffer();
+        }
       }
     }
 
@@ -394,13 +388,28 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     }
 
     /**
+     * Checks whether the given {@code count} is below or equal to {@link #maxHeadersSize}
+     * and emits a {@link DataBufferLimitException} if not.
+     */
+    private boolean belowMaxHeaderSize(long count) {
+      if (count <= MultipartParser.this.maxHeadersSize) {
+        return true;
+      }
+      else {
+        emitError(new DataBufferLimitException("Part headers exceeded the memory usage limit of " +
+                MultipartParser.this.maxHeadersSize + " bytes"));
+        return false;
+      }
+    }
+
+    /**
      * Parses the list of buffers into a {@link HttpHeaders} instance.
      * Converts the joined buffers into a string using ISO=8859-1, and parses
      * that string into key and values.
      */
     private HttpHeaders parseHeaders() {
       if (buffers.isEmpty()) {
-        return DefaultHttpHeaders.EMPTY;
+        return HttpHeaders.EMPTY;
       }
       DataBuffer joined = buffers.get(0).factory().join(buffers);
       buffers.clear();

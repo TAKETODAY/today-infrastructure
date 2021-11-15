@@ -146,14 +146,13 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       requestToken();
     }
     else {
-      Flux<DataBuffer> streamingContent = Flux.create(contentSink -> {
+      emitPart(DefaultParts.part(headers, Flux.create(contentSink -> {
         State newState = new StreamingState(contentSink);
         if (changeState(currentState, newState)) {
           contentSink.onRequest(l -> requestToken());
           requestToken();
         }
-      });
-      emitPart(DefaultParts.part(headers, streamingContent));
+      })));
     }
   }
 
