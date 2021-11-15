@@ -62,7 +62,7 @@ public abstract class AbstractDependencySetter implements DependencySetter {
    * @param beanFactory current AbstractBeanFactory
    */
   @Override
-  public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
+  public void applyTo(Object bean, ConfigurableBeanFactory beanFactory) {
     final Object property = resolveValue(beanFactory);
     if (property != DO_NOT_SET) {
       doSetValue(bean, property);

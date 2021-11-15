@@ -22,6 +22,7 @@ package cn.taketoday.context.autowire;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.support.BeanMetadata;
@@ -131,7 +132,7 @@ public class AutowiredPropertyValuesBeanPostProcessor implements InstantiationAw
   record InjectableDependencySetter(Method method) implements DependencySetter {
 
     @Override
-    public void applyTo(Object bean, AbstractBeanFactory beanFactory) {
+    public void applyTo(Object bean, ConfigurableBeanFactory beanFactory) {
       ArgumentsResolver argumentsResolver = beanFactory.getArgumentsResolver();
       Object[] args = argumentsResolver.resolve(method);
       ReflectionUtils.invokeMethod(method, bean, args);

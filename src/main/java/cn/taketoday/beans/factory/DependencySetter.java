@@ -31,7 +31,7 @@ public interface DependencySetter {
    * set value to property
    *
    * @param bean property's bean
-   * @param beanFactory current AbstractBeanFactory
+   * @param beanFactory current ConfigurableBeanFactory
    */
-  void applyTo(Object bean, AbstractBeanFactory beanFactory);
+  void applyTo(Object bean, ConfigurableBeanFactory beanFactory);
 }

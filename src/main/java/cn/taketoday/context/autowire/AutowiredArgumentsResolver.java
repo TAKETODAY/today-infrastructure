@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.autowire;
 
 import java.lang.reflect.Parameter;
 
@@ -25,6 +25,8 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.autowire.AutowiredPropertyResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;

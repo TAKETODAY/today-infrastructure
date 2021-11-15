@@ -30,6 +30,7 @@ import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.autowire.ArrayArgumentsResolver;
+import cn.taketoday.context.autowire.AutowiredArgumentsResolver;
 import cn.taketoday.context.autowire.CollectionArgumentsResolver;
 import cn.taketoday.context.autowire.MapArgumentsResolver;
 import cn.taketoday.context.autowire.ObjectSupplierArgumentsResolver;
