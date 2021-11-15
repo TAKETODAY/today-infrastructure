@@ -49,7 +49,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -390,43 +389,7 @@ public abstract class AbstractBeanFactory
    * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
    * this {@link BeanFactory}
    */
-  protected void applyPropertyValues(Object bean, BeanDefinition def) {
-    // collect dependencies
-    Set<DependencySetter> dependencySetters = null;
-    if (!def.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
-      String beanName = def.getName();
-      for (BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof InstantiationAwareBeanPostProcessor collector) {
-          Set<DependencySetter> ret = collector.collectDependencies(bean, beanName);
-          if (CollectionUtils.isNotEmpty(ret)) {
-            if (dependencySetters == null) {
-              dependencySetters = new LinkedHashSet<>();
-            }
-            dependencySetters.addAll(ret);
-          }
-        }
-      }
-    }
-
-    // -----------------------------------------------
-    // apply dependency injection (DI)
-    // -----------------------------------------------
-
-    // 1. apply map of property-values from bean definition
-    Map<String, Object> propertyValues = def.getPropertyValues();
-    if (CollectionUtils.isNotEmpty(propertyValues)) {
-      PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
-      initPropertyValuesBinder(dataBinder);
-      dataBinder.bind(propertyValues);
-    }
-
-    // 2. apply outside framework expanded
-    if (CollectionUtils.isNotEmpty(dependencySetters)) {
-      for (DependencySetter dependencySetter : dependencySetters) {
-        dependencySetter.applyTo(bean, this);
-      }
-    }
-  }
+  protected abstract void applyPropertyValues(Object bean, BeanDefinition def);
 
   /** @since 4.0 */
   protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {

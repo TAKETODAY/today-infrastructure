@@ -20,8 +20,10 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.NonNull;
@@ -29,6 +31,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -36,6 +39,10 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -47,6 +54,8 @@ import java.util.function.Supplier;
 public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
+
+  private final List<DependencyResolvingStrategy> dependencyResolvingStrategies = new ArrayList<>();
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
@@ -371,6 +380,44 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     applyPropertyValues(bean, definition);
   }
+
+  @Override
+  protected void applyPropertyValues(Object bean, BeanDefinition def) {
+    Set<DependencySetter> dependencySetters = null;
+    if (!def.isSynthetic()) {
+      String beanName = def.getName();
+      // collect dependencies
+      for (DependencyResolvingStrategy strategy : dependencyResolvingStrategies) {
+        Set<DependencySetter> ret = strategy.resolveDependencies(bean, beanName);
+        if (CollectionUtils.isNotEmpty(ret)) {
+          if (dependencySetters == null) {
+            dependencySetters = new LinkedHashSet<>();
+          }
+          dependencySetters.addAll(ret);
+        }
+      }
+    }
+
+    // -----------------------------------------------
+    // apply dependency injection (DI)
+    // -----------------------------------------------
+
+    // 1. apply map of property-values from bean definition
+    Map<String, Object> propertyValues = def.getPropertyValues();
+    if (CollectionUtils.isNotEmpty(propertyValues)) {
+      PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
+      initPropertyValuesBinder(dataBinder);
+      dataBinder.bind(propertyValues);
+    }
+
+    // 2. apply outside framework expanded
+    if (CollectionUtils.isNotEmpty(dependencySetters)) {
+      for (DependencySetter dependencySetter : dependencySetters) {
+        dependencySetter.applyTo(bean, this);
+      }
+    }
+  }
+
 
   @Override
   public Object initializeBean(Object existingBean) throws BeanInitializingException {
