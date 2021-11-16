@@ -26,6 +26,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -494,6 +495,7 @@ public abstract class CollectionUtils {
    */
   public static Properties createStringAdaptingProperties() {
     final class StringAdaptingProperties extends SortedProperties {
+      @Serial
       private static final long serialVersionUID = 1L;
 
       StringAdaptingProperties() {

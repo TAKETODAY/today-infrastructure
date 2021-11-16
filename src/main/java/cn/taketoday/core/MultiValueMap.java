@@ -219,15 +219,14 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return an unmodifiable view of the specified multi-value map
    * @since 4.0
    */
+  @SuppressWarnings("unchecked")
   static <K, V> MultiValueMap<K, V> unmodifiable(
           MultiValueMap<? extends K, ? extends V> targetMap) {
     Assert.notNull(targetMap, "'targetMap' must not be null");
-    Map<K, List<V>> result = CollectionUtils.newLinkedHashMap(targetMap.size());
-    for (Map.Entry<? extends K, ? extends List<? extends V>> entry : targetMap.entrySet()) {
-      result.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+    if (targetMap instanceof UnmodifiableMultiValueMap) {
+      return (MultiValueMap<K, V>) targetMap;
     }
-    Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
-    return from(unmodifiableMap);
+    return new UnmodifiableMultiValueMap<>(targetMap);
   }
 
 }

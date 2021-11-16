@@ -136,16 +136,15 @@ public abstract class DigestUtils {
     MessageDigest messageDigest = getDigest(algorithm);
     if (inputStream instanceof UpdateMessageDigestInputStream) {
       ((UpdateMessageDigestInputStream) inputStream).updateMessageDigest(messageDigest);
-      return messageDigest.digest();
     }
     else {
       final byte[] buffer = new byte[StreamUtils.BUFFER_SIZE];
-      int bytesRead = -1;
+      int bytesRead;
       while ((bytesRead = inputStream.read(buffer)) != -1) {
         messageDigest.update(buffer, 0, bytesRead);
       }
-      return messageDigest.digest();
     }
+    return messageDigest.digest();
   }
 
   private static String digestAsHexString(byte[] bytes) {
