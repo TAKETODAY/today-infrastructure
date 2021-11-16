@@ -27,10 +27,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.DependencyCollectingContext;
+import cn.taketoday.beans.dependency.DependencyCollector;
 import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
@@ -58,7 +58,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   /**
    * @since 4.0
    */
-  private final ArrayList<DependencyResolvingStrategy> dependencyResolvingStrategies = new ArrayList<>();
+  private final ArrayList<DependencyCollector> dependencyResolvingStrategies = new ArrayList<>();
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
@@ -386,19 +386,14 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   protected void applyPropertyValues(Object bean, BeanDefinition def) {
-    Set<DependencySetter> dependencySetters = null;
+    LinkedHashSet<DependencySetter> dependencies = null;
     if (!def.isSynthetic()) {
-      String beanName = def.getName();
       // collect dependencies
-      for (DependencyResolvingStrategy strategy : dependencyResolvingStrategies) {
-        Set<DependencySetter> ret = strategy.resolveDependencies(bean, beanName);
-        if (CollectionUtils.isNotEmpty(ret)) {
-          if (dependencySetters == null) {
-            dependencySetters = new LinkedHashSet<>();
-          }
-          dependencySetters.addAll(ret);
-        }
+      DependencyCollectingContext collectingContext = new DependencyCollectingContext(bean, def);
+      for (DependencyCollector strategy : dependencyResolvingStrategies) {
+        strategy.collectDependencies(collectingContext);
       }
+      dependencies = collectingContext.getDependencies();
     }
 
     // -----------------------------------------------
@@ -414,9 +409,9 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     // 2. apply outside framework expanded
-    if (CollectionUtils.isNotEmpty(dependencySetters)) {
-      for (DependencySetter dependencySetter : dependencySetters) {
-        dependencySetter.applyTo(bean, this);
+    if (CollectionUtils.isNotEmpty(dependencies)) {
+      for (DependencySetter dependency : dependencies) {
+        dependency.applyTo(bean, this);
       }
     }
   }
@@ -540,13 +535,13 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   // @since 4.0
-  public ArrayList<DependencyResolvingStrategy> getDependencyResolvingStrategies() {
+  public ArrayList<DependencyCollector> getDependencyResolvingStrategies() {
     return dependencyResolvingStrategies;
   }
 
   // @since 4.0
   @Override
-  public void addDependencyResolvingStrategies(DependencyResolvingStrategy... strategies) {
+  public void addDependencyResolvingStrategies(DependencyCollector... strategies) {
     CollectionUtils.addAll(dependencyResolvingStrategies, strategies);
   }
 
