@@ -171,18 +171,17 @@ final class SerializableTypeWrapper {
           if (other instanceof Type) {
             other = unwrap((Type) other);
           }
-          return Objects.equals(this.provider.getType(), other);
+          return Objects.equals(provider.getType(), other);
         case "hashCode":
-          return Objects.hashCode(this.provider.getType());
+          return Objects.hashCode(provider.getType());
         case "getTypeProvider":
-          return this.provider;
+          return provider;
         default:
           break;
       }
 
-      TypeProvider provider = this.provider;
-      Class<?> returnType = method.getReturnType();
       if (ObjectUtils.isEmpty(args)) {
+        Class<?> returnType = method.getReturnType();
         if (Type.class == returnType) {
           return fromTypeProvider(new MethodInvokeTypeProvider(provider, method, -1));
         }
