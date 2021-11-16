@@ -97,7 +97,7 @@ public class ResolvableType implements Serializable {
    */
   public static final ResolvableType NONE = new ResolvableType(EmptyType.INSTANCE, null, null, 0);
 
-  private static final ResolvableType[] EMPTY_TYPES_ARRAY = new ResolvableType[0];
+  public static final ResolvableType[] EMPTY_TYPES_ARRAY = new ResolvableType[0];
 
   private static final ConcurrentReferenceHashMap<ResolvableType, ResolvableType> cache =
           new ConcurrentReferenceHashMap<>(256);
