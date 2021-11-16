@@ -31,10 +31,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.dependency.DefaultDependencySetter;
 import cn.taketoday.beans.dependency.DependencySetter;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
@@ -253,7 +253,7 @@ public class PropsReader {
   }
 
   @NonNull
-  private PropertyResolver getResolver(Props props) {
+  public PropertyResolver getResolver(Props props) {
     String[] fileNames = props.value();
     if (ObjectUtils.isNotEmpty(fileNames)) {
       Properties propertiesToUse = new Properties();

@@ -20,7 +20,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.DependencyCollector;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
@@ -337,6 +337,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @param strategies dependency resolving strategies
    * @since 4.0
    */
-  void addDependencyResolvingStrategies(DependencyResolvingStrategy... strategies);
+  void addDependencyResolvingStrategies(DependencyCollector... strategies);
 
 }

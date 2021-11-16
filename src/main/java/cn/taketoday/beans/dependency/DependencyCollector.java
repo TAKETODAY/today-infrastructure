@@ -19,17 +19,12 @@
  */
 package cn.taketoday.beans.dependency;
 
-import cn.taketoday.lang.Nullable;
-
-import java.util.Set;
-
 /**
  * @author TODAY 2021/11/15 18:17
  * @since 4.0
  */
 @FunctionalInterface
-public interface DependencyResolvingStrategy {
+public interface DependencyCollector {
 
-  @Nullable
-  Set<DependencySetter> resolveDependencies(Object bean, String beanName);
+  void collectDependencies(DependencyCollectingContext collectingContext);
 }

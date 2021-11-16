@@ -21,11 +21,10 @@
 package cn.taketoday.context.autowire;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.DependencyCollectingContext;
+import cn.taketoday.beans.dependency.DependencyCollector;
 import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.dependency.InjectableMethodDependencySetter;
 import cn.taketoday.beans.support.BeanMetadata;
@@ -48,8 +47,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see DependencySetter
  * @since 4.0
  */
-public class AutowiredDependencyResolvingStrategy implements DependencyResolvingStrategy {
-  private static final Logger log = LoggerFactory.getLogger(AutowiredDependencyResolvingStrategy.class);
+public class AutowiredDependencyCollector implements DependencyCollector {
+  private static final Logger log = LoggerFactory.getLogger(AutowiredDependencyCollector.class);
 
   private final ApplicationContext context;
 
@@ -62,7 +61,7 @@ public class AutowiredDependencyResolvingStrategy implements DependencyResolving
   @Nullable
   private PropertyValueResolverComposite resolvingStrategies;
 
-  public AutowiredDependencyResolvingStrategy(ApplicationContext context) {
+  public AutowiredDependencyCollector(ApplicationContext context) {
     this.context = context;
   }
 
@@ -70,18 +69,10 @@ public class AutowiredDependencyResolvingStrategy implements DependencyResolving
   // Implementation of InstantiationAwareBeanPostProcessor interface
   //---------------------------------------------------------------------
 
-  @Nullable
   @Override
-  public Set<DependencySetter> resolveDependencies(Object bean, String beanName) {
-
-    Class<?> beanClass = bean.getClass();
-    LinkedHashSet<DependencySetter> dependencySetters = resolvePropertyValues(beanClass);
-
-    // fix missing @Props injection
-    List<DependencySetter> resolvedProps = propsReader().read(beanClass);
-    dependencySetters.addAll(resolvedProps);
-
-    return dependencySetters;
+  public void collectDependencies(DependencyCollectingContext collectingContext) {
+    Class<?> beanClass = collectingContext.getBeanClass();
+    resolvePropertyValues(collectingContext, beanClass);
   }
 
   //---------------------------------------------------------------------
@@ -91,19 +82,19 @@ public class AutowiredDependencyResolvingStrategy implements DependencyResolving
   /**
    * Process bean's property (field)
    *
+   * @param resolvingContext resolving context
    * @param beanClass Bean class
    * @since 3.0
    */
-  public LinkedHashSet<DependencySetter> resolvePropertyValues(Class<?> beanClass) {
-    LinkedHashSet<DependencySetter> dependencySetters = new LinkedHashSet<>(32);
+  public void resolvePropertyValues(
+          DependencyCollectingContext resolvingContext, Class<?> beanClass) {
     BeanMetadata beanMetadata = BeanMetadata.ofClass(beanClass);
     for (BeanProperty beanProperty : beanMetadata) {
       if (!beanProperty.isReadOnly()) {
         // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
         DependencySetter created = resolveProperty(beanProperty);
-        // not required
         if (created != null) {
-          dependencySetters.add(created);
+          resolvingContext.addDependency(created);
         }
       }
     }
@@ -111,11 +102,9 @@ public class AutowiredDependencyResolvingStrategy implements DependencyResolving
     // process methods
     ReflectionUtils.doWithMethods(beanClass, method -> {
       if (AutowiredPropertyResolver.isInjectable(method)) {
-        dependencySetters.add(new InjectableMethodDependencySetter(method));
+        resolvingContext.addDependency(new InjectableMethodDependencySetter(method));
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
-
-    return dependencySetters;
   }
 
   /**

@@ -20,13 +20,9 @@
 
 package cn.taketoday.context.autowire;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import cn.taketoday.beans.dependency.DefaultDependencySetter;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
-import cn.taketoday.beans.dependency.DependencySetter;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.dependency.DependencyCollectingContext;
+import cn.taketoday.beans.dependency.DependencyCollector;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
@@ -44,46 +40,40 @@ import cn.taketoday.logging.LoggerFactory;
  * @author TODAY 2021/11/15 22:55
  * @since 4.0
  */
-public class PropsDependencyResolvingStrategy implements DependencyResolvingStrategy {
-  private static final Logger log = LoggerFactory.getLogger(PropsDependencyResolvingStrategy.class);
+public class PropsDependencyCollector implements DependencyCollector {
+  private static final Logger log = LoggerFactory.getLogger(PropsDependencyCollector.class);
   private final ApplicationContext context;
 
   @Nullable
   private PropsReader propsReader;
 
-  public PropsDependencyResolvingStrategy(ApplicationContext context) {
+  public PropsDependencyCollector(ApplicationContext context) {
     this.context = context;
   }
 
-  @Nullable
   @Override
-  public Set<DependencySetter> resolveDependencies(Object bean, String beanName) {
+  public void collectDependencies(DependencyCollectingContext collectingContext) {
+    Object bean = collectingContext.getBean();
     Class<?> beanClass = bean.getClass();
 
     MergedAnnotation<Props> annotation = MergedAnnotations.from(beanClass).get(Props.class);
-    if (!annotation.isPresent()) {
-      return null;
-    }
-    BeanDefinition beanDefinition = context.getBeanDefinition(beanName);
+    if (annotation.isPresent()) {
+      if (log.isDebugEnabled()) {
+        log.debug("Loading Properties For: [{}]", beanClass.getName());
+      }
 
-    if (log.isDebugEnabled()) {
-      log.debug("Loading Properties For: [{}]", beanClass.getName());
-    }
+      DefaultProps defaultProps = new DefaultProps(annotation);
+      PropertyResolver propertyResolver = propsReader.getResolver(defaultProps);
 
-    DefaultProps defaultProps = new DefaultProps(annotation);
-    PropertyResolver propertyResolver = getResolver(defaultProps);
-
-    Set<DependencySetter> dependencySetters = new LinkedHashSet<>();
-    for (BeanProperty property : BeanMetadata.ofClass(beanClass)) {
-      if (!property.isReadOnly()) {
-        Object converted = read(property, defaultProps, propertyResolver);
-        if (converted != null) {
-          dependencySetters.add(new DefaultDependencySetter(converted, property));
+      for (BeanProperty property : BeanMetadata.ofClass(beanClass)) {
+        if (!property.isReadOnly()) {
+          Object converted = propsReader.read(property, defaultProps, propertyResolver);
+          if (converted != null) {
+            collectingContext.addDependency(new DefaultDependencySetter(converted, property));
+          }
         }
       }
     }
-    dependencySetters.trimToSize();
-    return dependencySetters;
   }
 
 }
