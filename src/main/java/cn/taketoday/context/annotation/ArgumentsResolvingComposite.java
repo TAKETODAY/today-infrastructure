@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.ArgumentsNotSupportedException;
+import cn.taketoday.beans.ArgumentResolvingFailedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -74,7 +74,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
    * @param parameter Target method {@link Parameter}
    * @param resolvingContext resolving context never {@code null}
    * @return arg never returns {@link NullValue}
-   * @throws ArgumentsNotSupportedException parameter not support, configure a ArgumentsResolvingStrategy
+   * @throws ArgumentResolvingFailedException parameter not support, configure a ArgumentsResolvingStrategy
    */
   @Override
   public Object resolveArgument(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
@@ -95,7 +95,7 @@ public class ArgumentsResolvingComposite implements ArgumentsResolvingStrategy {
           return null;
         }
       }
-      throw new ArgumentsNotSupportedException(
+      throw new ArgumentResolvingFailedException(
               "Target parameter:[" + parameter + "] declaring executable: " + parameter.getDeclaringExecutable() + " not supports in this context: " + resolvingContext);
     }
     return argument;

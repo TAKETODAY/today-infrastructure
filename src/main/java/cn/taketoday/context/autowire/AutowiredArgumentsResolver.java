@@ -19,15 +19,12 @@
  */
 package cn.taketoday.context.autowire;
 
-import java.lang.reflect.Parameter;
-
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.context.autowire.AutowiredPropertyResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Autowired;
@@ -35,6 +32,8 @@ import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.Parameter;
 
 /**
  * Resolve {@link Autowired} on {@link Parameter}

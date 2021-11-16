@@ -19,10 +19,10 @@
  */
 package cn.taketoday.beans;
 
-import java.lang.reflect.Parameter;
-
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
+
+import java.lang.reflect.Parameter;
 
 /**
  * Arguments Resolving Strategy for {@link java.lang.reflect.Executable}
@@ -37,11 +37,15 @@ public interface ArgumentsResolvingStrategy {
 
   /**
    * Resolve method/constructor parameter object
+   * <p>
+   * <b>NOTE<b/>: user must consider {@code resolvingContext}'s bean-factory is null or not
+   * </p>
    *
    * @param parameter Target method {@link Parameter}
    * @param resolvingContext resolving context never {@code null}
    * @return parameter object if returns a {@link NullValue} indicates
    * that returns null object, returns null indicates not supports
+   * @throws ArgumentResolvingFailedException argument cannot determine or resolve
    * @see NullValue#INSTANCE
    */
   @Nullable

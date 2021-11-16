@@ -20,16 +20,19 @@
 
 package cn.taketoday.context.autowire;
 
-import java.lang.reflect.Parameter;
-import java.util.Collection;
-import java.util.Map;
-
+import cn.taketoday.beans.ArgumentResolvingFailedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+
+import java.lang.reflect.Parameter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author TODAY 2020/10/11 21:54
@@ -46,10 +49,17 @@ public class CollectionArgumentsResolver implements ArgumentsResolvingStrategy {
         ResolvableType parameterType = ResolvableType.fromParameter(parameter);
         if (parameterType.hasGenerics()) {
           ResolvableType type = parameterType.asCollection().getGeneric(0);
+          if (type == ResolvableType.NONE) {
+            throw new ArgumentResolvingFailedException(
+                    "cannot determine a exactly bean type from parameter: " + parameter);
+          }
           Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);
           Collection<Object> objects = CollectionUtils.createCollection(parameter.getType(), beans.size());
           if (beans.isEmpty()) {
             objects.addAll(beans.values());
+          }
+          if (objects instanceof List list) {
+            AnnotationAwareOrderComparator.sort(list);
           }
           return objects;
         }

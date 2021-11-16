@@ -22,21 +22,24 @@ package cn.taketoday.beans;
 
 import cn.taketoday.beans.factory.BeansException;
 
+import java.io.Serial;
+
 /**
  * @author TODAY 2021/9/8 22:06
  * @since 4.0
  */
-public class ArgumentsNotSupportedException extends BeansException {
+public class ArgumentResolvingFailedException extends BeansException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  public ArgumentsNotSupportedException() { }
+  public ArgumentResolvingFailedException() { }
 
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message.
    *
    * @param msg the detail message
    */
-  public ArgumentsNotSupportedException(String msg) {
+  public ArgumentResolvingFailedException(String msg) {
     super(msg);
   }
 
@@ -45,7 +48,7 @@ public class ArgumentsNotSupportedException extends BeansException {
    *
    * @param cause the nested exception
    */
-  public ArgumentsNotSupportedException(Throwable cause) {
+  public ArgumentResolvingFailedException(Throwable cause) {
     super(cause);
   }
 
@@ -56,7 +59,7 @@ public class ArgumentsNotSupportedException extends BeansException {
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public ArgumentsNotSupportedException(String msg, Throwable cause) {
+  public ArgumentResolvingFailedException(String msg, Throwable cause) {
     super(msg, cause);
   }
 
