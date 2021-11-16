@@ -20,10 +20,14 @@
 
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.DependencySetter;
-import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.DependencySetter;
+import cn.taketoday.beans.dependency.InjectableMethodDependencySetter;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
@@ -36,12 +40,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * this class is a dependency collecting entrance, process every bean class
  *
@@ -50,8 +48,8 @@ import java.util.Set;
  * @see DependencySetter
  * @since 4.0
  */
-public class DependencyCollectingBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
-  private static final Logger log = LoggerFactory.getLogger(DependencyCollectingBeanPostProcessor.class);
+public class AutowiredDependencyResolvingStrategy implements DependencyResolvingStrategy {
+  private static final Logger log = LoggerFactory.getLogger(AutowiredDependencyResolvingStrategy.class);
 
   private final ApplicationContext context;
 
@@ -64,7 +62,7 @@ public class DependencyCollectingBeanPostProcessor implements InstantiationAware
   @Nullable
   private PropertyValueResolverComposite resolvingStrategies;
 
-  public DependencyCollectingBeanPostProcessor(ApplicationContext context) {
+  public AutowiredDependencyResolvingStrategy(ApplicationContext context) {
     this.context = context;
   }
 
@@ -74,7 +72,7 @@ public class DependencyCollectingBeanPostProcessor implements InstantiationAware
 
   @Nullable
   @Override
-  public Set<DependencySetter> collectDependencies(Object bean, String beanName) {
+  public Set<DependencySetter> resolveDependencies(Object bean, String beanName) {
 
     Class<?> beanClass = bean.getClass();
     LinkedHashSet<DependencySetter> dependencySetters = resolvePropertyValues(beanClass);
@@ -113,31 +111,11 @@ public class DependencyCollectingBeanPostProcessor implements InstantiationAware
     // process methods
     ReflectionUtils.doWithMethods(beanClass, method -> {
       if (AutowiredPropertyResolver.isInjectable(method)) {
-        dependencySetters.add(new InjectableDependencySetter(method));
+        dependencySetters.add(new InjectableMethodDependencySetter(method));
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
 
     return dependencySetters;
-  }
-
-  /**
-   * <pre>
-   *   &#64Autowired
-   * //  @Autowired
-   * //  @Inject
-   *   public void setUserRepository1(UserRepository userRepository1) {
-   *     this.userRepository1 = userRepository1;
-   *   }
-   * </pre>
-   */
-  record InjectableDependencySetter(Method method) implements DependencySetter {
-
-    @Override
-    public void applyTo(Object bean, ConfigurableBeanFactory beanFactory) {
-      ArgumentsResolver argumentsResolver = beanFactory.getArgumentsResolver();
-      Object[] args = argumentsResolver.resolve(method);
-      ReflectionUtils.invokeMethod(method, bean, args);
-    }
   }
 
   /**

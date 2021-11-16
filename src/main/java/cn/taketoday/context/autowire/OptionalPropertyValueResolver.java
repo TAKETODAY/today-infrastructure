@@ -23,9 +23,9 @@ package cn.taketoday.context.autowire;
 import java.util.Optional;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.BeanReferenceDependencySetter;
+import cn.taketoday.beans.dependency.BeanReferenceDependencySetter;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 

@@ -20,14 +20,12 @@
 
 package cn.taketoday.context.autowire;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.AbstractDependencySetter;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.dependency.DependencySetter;
+import cn.taketoday.beans.dependency.ObjectSupplierDependencySetter;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 
@@ -58,50 +56,6 @@ public class ObjectSupplierPropertyResolver
     }
     // Usage error
     throw new PropertyException("Unsupported '" + property + "' In -> " + property.getDeclaringClass());
-  }
-
-  /**
-   * {@link ObjectSupplier} property value
-   *
-   * @since 3.0
-   */
-  static class ObjectSupplierDependencySetter
-          extends AbstractDependencySetter implements DependencySetter {
-
-    final ResolvableType generic;
-
-    public ObjectSupplierDependencySetter(BeanProperty property, ResolvableType generic) {
-      super(property);
-      this.generic = generic;
-    }
-
-    @Override
-    protected Object resolveValue(ConfigurableBeanFactory beanFactory) {
-      return beanFactory.getObjectSupplier(generic);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (!(o instanceof ObjectSupplierDependencySetter that))
-        return false;
-      if (!super.equals(o))
-        return false;
-      return Objects.equals(generic, that.generic);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(super.hashCode(), generic);
-    }
-
-    @Override
-    public String toString() {
-      return "ObjectSupplierPropertyValue{" +
-              "generic=" + generic +
-              '}';
-    }
   }
 
 }

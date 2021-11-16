@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.support.BeanProperty;

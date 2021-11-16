@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.DefaultDependencySetter;
+import cn.taketoday.beans.dependency.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;

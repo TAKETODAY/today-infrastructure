@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.Set;
 
 import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 
 /**
  * Extension of the {@link BeanFactory} interface to be implemented

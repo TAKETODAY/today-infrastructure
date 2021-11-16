@@ -33,8 +33,8 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.DefaultDependencySetter;
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.DefaultDependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;

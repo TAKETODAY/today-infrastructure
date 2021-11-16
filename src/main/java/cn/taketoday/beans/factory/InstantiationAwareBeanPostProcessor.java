@@ -20,10 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.util.Set;
-
-import cn.taketoday.lang.Nullable;
-
 /**
  * Sub-interface of {@link BeanPostProcessor} that adds a before-instantiation callback,
  * and a callback after instantiation but before explicit properties are set or
@@ -85,11 +81,6 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    */
   default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
     return true;
-  }
-
-  @Nullable
-  default Set<DependencySetter> collectDependencies(Object bean, String beanName) {
-    return null;
   }
 
 }

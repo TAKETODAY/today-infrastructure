@@ -19,8 +19,8 @@
  */
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.factory.BeanReferenceDependencySetter;
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.BeanReferenceDependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;

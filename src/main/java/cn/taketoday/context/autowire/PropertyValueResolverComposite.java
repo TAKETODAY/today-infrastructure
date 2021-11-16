@@ -23,7 +23,7 @@ package cn.taketoday.context.autowire;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;

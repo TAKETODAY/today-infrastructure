@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;

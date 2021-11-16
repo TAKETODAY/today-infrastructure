@@ -17,29 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.dependency.DependencySetter;
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.lang.Nullable;
+package cn.taketoday.beans.dependency;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Resolve field property
- *
- * @author TODAY <br>
- * 2018-08-04 15:04
+ * @author TODAY 2021/11/15 23:05
  */
-@FunctionalInterface
-public interface PropertyValueResolver {
-
-  /**
-   * Resolve {@link DependencySetter}.
-   *
-   * @param context resolving context
-   * @param property bean's field not read only
-   * @return property value
-   */
-  @Nullable
-  DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property);
+class DependencyResolvingStrategyTests {
 
 }

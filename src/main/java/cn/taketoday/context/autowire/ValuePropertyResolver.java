@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.factory.DefaultDependencySetter;
+import cn.taketoday.beans.dependency.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;

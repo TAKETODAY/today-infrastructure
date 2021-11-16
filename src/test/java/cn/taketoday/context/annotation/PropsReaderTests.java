@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.env.MapPropertyResolver;

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.factory.DefaultDependencySetter;
+import cn.taketoday.beans.dependency.DefaultDependencySetter;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;

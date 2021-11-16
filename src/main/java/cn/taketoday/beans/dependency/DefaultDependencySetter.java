@@ -18,8 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans.dependency;
 
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.style.ToStringBuilder;
 

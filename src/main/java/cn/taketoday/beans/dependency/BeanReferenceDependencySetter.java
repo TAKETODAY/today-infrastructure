@@ -18,8 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans.dependency;
 
+import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;

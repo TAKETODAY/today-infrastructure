@@ -1,5 +1,18 @@
 package cn.taketoday.context;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
+import java.util.function.IntSupplier;
+import java.util.function.LongFunction;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
@@ -10,18 +23,7 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import test.demo.config.Config;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.function.IntSupplier;
-import java.util.function.LongFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -585,6 +587,46 @@ class BenchmarkTests {
 
   }
 
+  // varargs
+  @Test
+  void varargs() throws InterruptedException {
+    long n = 900000000L;
+    String s1 = new String("");
+    String s2 = new String("");
+    String s3 = new String("");
+    String s4 = new String("");
+    String s5 = new String("");
+
+    long t = System.currentTimeMillis();
+    for (long i = 0; i < n; i++) {
+      foo();
+    }
+    System.err.println(System.currentTimeMillis() - t);
+    TimeUnit.SECONDS.sleep(1);
+    t = System.currentTimeMillis();
+    for (long i = 0; i < n; i++) {
+      baz(s1, s2, s3, s4, s5);
+    }
+    System.err.println(System.currentTimeMillis() - t);
+
+    TimeUnit.SECONDS.sleep(1);
+
+    t = System.currentTimeMillis();
+    for (long i = 0; i < n; i++) {
+      bar(s1, s2, s3, s4, s5);
+    }
+    System.err.println(System.currentTimeMillis() - t);
+
+  }
+
+  static void foo() {
+  }
+
+  static void bar(String a1, String a2, String a3, String a4, String a5) {
+  }
+
+  static void baz(String... a) {
+  }
 
 }
 

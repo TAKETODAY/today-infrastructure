@@ -20,7 +20,18 @@
 
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
@@ -34,17 +45,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-
 /**
  * AutowireCapableBeanFactory abstract implementation
  *
@@ -55,7 +55,10 @@ public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
 
-  private final List<DependencyResolvingStrategy> dependencyResolvingStrategies = new ArrayList<>();
+  /**
+   * @since 4.0
+   */
+  private final ArrayList<DependencyResolvingStrategy> dependencyResolvingStrategies = new ArrayList<>();
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
@@ -418,7 +421,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
-
   @Override
   public Object initializeBean(Object existingBean) throws BeanInitializingException {
     return initializeBean(existingBean, createBeanName(existingBean.getClass()));
@@ -535,6 +537,17 @@ public abstract class AbstractAutowireCapableBeanFactory
     // unique candidate, cache the full type declaration context of the target factory method.
     cachedReturnType = ResolvableType.forReturnType(factoryMethod);
     return cachedReturnType.resolve();
+  }
+
+  // @since 4.0
+  public ArrayList<DependencyResolvingStrategy> getDependencyResolvingStrategies() {
+    return dependencyResolvingStrategies;
+  }
+
+  // @since 4.0
+  @Override
+  public void addDependencyResolvingStrategies(DependencyResolvingStrategy... strategies) {
+    CollectionUtils.addAll(dependencyResolvingStrategies, strategies);
   }
 
 }

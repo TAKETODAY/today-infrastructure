@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.DependencySetter;
+import cn.taketoday.beans.dependency.DependencySetter;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
