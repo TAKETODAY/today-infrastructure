@@ -30,7 +30,7 @@ public abstract class AbstractDependencyResolvingStrategy implements DependencyR
 
   @Override
   public final void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
-    if (supportsArgument(injectionPoint, resolvingContext)) {
+    if (supportsDependency(injectionPoint, resolvingContext)) {
       resolveInternal(injectionPoint, resolvingContext);
     }
   }
@@ -38,14 +38,14 @@ public abstract class AbstractDependencyResolvingStrategy implements DependencyR
   /**
    * If this {@link DependencyResolvingStrategy} supports target {@link DependencyInjectionPoint}
    *
-   * @param parameter Target method {@link Parameter}
-   * @param resolvingContext resolving context
+   * @param injectionPoint Target method {@link Parameter}
+   * @param context resolving context
    * @return If supports target {@link Parameter}
    */
-  protected abstract boolean supportsArgument(
-          DependencyInjectionPoint parameter, DependencyResolvingContext resolvingContext);
+  protected abstract boolean supportsDependency(
+          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context);
 
   protected abstract Object resolveInternal(
-          DependencyInjectionPoint parameter, DependencyResolvingContext resolvingContext);
+          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context);
 
 }
