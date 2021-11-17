@@ -20,11 +20,11 @@
 
 package cn.taketoday.beans.dependency;
 
-import java.lang.reflect.Executable;
-import java.util.Arrays;
-
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
+
+import java.lang.reflect.Executable;
+import java.util.Arrays;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:42</a>
@@ -65,6 +65,10 @@ public class DependencyResolvingContext {
     return beanFactory;
   }
 
+  public boolean hasBeanFactory() {
+    return beanFactory != null;
+  }
+
   @Nullable
   public Object getDependency() {
     return dependency;
@@ -73,6 +77,7 @@ public class DependencyResolvingContext {
   public void setDependency(@Nullable Object dependency) {
     this.dependency = dependency;
   }
+
 
   @Override
   public String toString() {
