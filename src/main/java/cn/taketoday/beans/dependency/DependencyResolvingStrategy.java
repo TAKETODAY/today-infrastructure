@@ -30,6 +30,7 @@ import java.lang.reflect.Parameter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:36</a>
  * @since 4.0
  */
+@FunctionalInterface
 public interface DependencyResolvingStrategy {
 
   /**
