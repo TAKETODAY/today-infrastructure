@@ -26,6 +26,10 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.util.CollectionUtils;
+
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Handle {@link Props} annotated on dependency
@@ -33,6 +37,7 @@ import cn.taketoday.context.annotation.PropsReader;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/17 15:38
  */
+@SuppressWarnings("rawtypes")
 public class PropsDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   private final PropsReader propsReader;
@@ -52,13 +57,29 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
       Object dependency = resolvingContext.getDependency();
       DefaultProps props = new DefaultProps(injectionPoint.getAnnotation(Props.class));
       if (dependency != null) {
+        // fill props even though already a dependency
         dependency = propsReader.read(props, dependency);
       }
       else {
-        dependency = propsReader.read(props, injectionPoint.getDependencyType());
+        // process map
+        if (injectionPoint.isMap()) {
+          Properties properties = propsReader.readMap(props);
+          dependency = convert(properties, injectionPoint.getDependencyType());
+        }
+        else {
+          dependency = propsReader.read(props, injectionPoint.getDependencyType());
+        }
       }
       resolvingContext.setDependency(dependency);
     }
+    // next
+  }
+
+  @SuppressWarnings("unchecked")
+  protected Map convert(Map map, Class<?> type) {
+    Map newMap = CollectionUtils.createMap(type, map.size());
+    newMap.putAll(map);
+    return newMap;
   }
 
 }
