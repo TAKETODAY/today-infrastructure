@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.autowire;
 
-import cn.taketoday.beans.ArgumentResolvingFailedException;
+import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -50,7 +50,7 @@ public class CollectionArgumentsResolver implements ArgumentsResolvingStrategy {
         if (parameterType.hasGenerics()) {
           ResolvableType type = parameterType.asCollection().getGeneric(0);
           if (type == ResolvableType.NONE) {
-            throw new ArgumentResolvingFailedException(
+            throw new DependencyResolvingFailedException(
                     "cannot determine a exactly bean type from parameter: " + parameter);
           }
           Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);

@@ -20,11 +20,13 @@
 
 package cn.taketoday.beans.dependency;
 
+import cn.taketoday.beans.DependencyResolvingFailedException;
+
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.beans.ArgumentResolvingFailedException;
-
 /**
+ * resolve dependency
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:36</a>
  * @since 4.0
  */
@@ -37,9 +39,9 @@ public interface DependencyResolvingStrategy {
    * </p>
    *
    * @param injectionPoint Target method {@link Parameter} or a {@link java.lang.reflect.Field}
-   * @param resolvingContext resolving context never {@code null}
-   * @throws ArgumentResolvingFailedException argument cannot determine or resolve
+   * @param context resolving context never {@code null}
+   * @throws DependencyResolvingFailedException dependency cannot determine or resolve
    */
-  void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext);
+  void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context);
 
 }

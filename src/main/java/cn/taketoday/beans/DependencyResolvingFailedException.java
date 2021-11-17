@@ -28,18 +28,18 @@ import cn.taketoday.beans.factory.BeansException;
  * @author TODAY 2021/9/8 22:06
  * @since 4.0
  */
-public class ArgumentResolvingFailedException extends BeansException {
+public class DependencyResolvingFailedException extends BeansException {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public ArgumentResolvingFailedException() { }
+  public DependencyResolvingFailedException() { }
 
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message.
    *
    * @param msg the detail message
    */
-  public ArgumentResolvingFailedException(String msg) {
+  public DependencyResolvingFailedException(String msg) {
     super(msg);
   }
 
@@ -48,7 +48,7 @@ public class ArgumentResolvingFailedException extends BeansException {
    *
    * @param cause the nested exception
    */
-  public ArgumentResolvingFailedException(Throwable cause) {
+  public DependencyResolvingFailedException(Throwable cause) {
     super(cause);
   }
 
@@ -59,7 +59,7 @@ public class ArgumentResolvingFailedException extends BeansException {
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public ArgumentResolvingFailedException(String msg, Throwable cause) {
+  public DependencyResolvingFailedException(String msg, Throwable cause) {
     super(msg, cause);
   }
 
