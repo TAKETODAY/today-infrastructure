@@ -80,3 +80,9 @@ public class Car {
 NOTE: 在使用 Spring 过程中发现，Spring 好像并不能更好的扩展，于是我想到我能不能实现很方便的扩展,以便支持多种注入方式
 
 TODO
+
+
+== 实现细节
+
+全局抽象了 `DependencyInjectionPoint` 依赖注入点, 统一处理依赖
+
