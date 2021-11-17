@@ -33,7 +33,8 @@ import java.lang.reflect.AnnotatedElement;
  */
 public abstract class DependencyInjectionPoint {
 
-  private MergedAnnotations annotations;
+  protected Boolean required = null;
+  protected MergedAnnotations annotations;
 
   public abstract Class<?> getDependencyType();
 
@@ -60,7 +61,10 @@ public abstract class DependencyInjectionPoint {
   }
 
   public boolean isRequired() {
-    return getAnnotations().isPresent(Required.class);
+    if (required == null) {
+      required = getAnnotations().isPresent(Required.class);
+    }
+    return required;
   }
 
 }
