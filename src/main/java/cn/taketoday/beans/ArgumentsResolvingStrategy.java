@@ -45,7 +45,7 @@ public interface ArgumentsResolvingStrategy {
    * @param resolvingContext resolving context never {@code null}
    * @return parameter object if returns a {@link NullValue} indicates
    * that returns null object, returns null indicates not supports
-   * @throws ArgumentResolvingFailedException argument cannot determine or resolve
+   * @throws DependencyResolvingFailedException argument cannot determine or resolve
    * @see NullValue#INSTANCE
    */
   @Nullable

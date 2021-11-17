@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.beans.ArgumentResolvingFailedException;
+import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.context.StandardApplicationContext;
 import lombok.Data;
@@ -54,7 +54,7 @@ class ParameterHandlerTests {
       argumentsResolver.resolve(test);
       fail("ArgumentsResolvingStrategy");
     }
-    catch (ArgumentResolvingFailedException ignored) {
+    catch (DependencyResolvingFailedException ignored) {
     }
   }
 

@@ -22,12 +22,9 @@ package cn.taketoday.beans.dependency;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -44,10 +41,6 @@ public class AutowiredDependencyResolvingStrategy implements DependencyResolving
       MergedAnnotations annotations = injectionPoint.getAnnotations();
       MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class); // @Autowired on parameter
       Object bean = resolveBean(autowired, dependencyType, beanFactory);
-      // @Props on a bean (pojo) which has already annotated @Autowired or not
-      if (injectionPoint.isAnnotationPresent(Props.class)) {
-        bean = resolvePropsInternal(dependencyType, annotations.get(Props.class).synthesize(), bean);
-      }
       if (bean == null) {
         if (injectionPoint.isRequired()) { // if it is required
           throw new NoSuchBeanDefinitionException(
@@ -69,14 +62,6 @@ public class AutowiredDependencyResolvingStrategy implements DependencyResolving
       }
     }
     return beanFactory.getBean(type);
-  }
-
-  protected Object resolvePropsInternal(Class<?> dependencyType, Props props, @Nullable Object bean) {
-    PropsReader propsReader = new PropsReader();
-    if (bean != null) {
-      return propsReader.read(props, bean);
-    }
-    return propsReader.read(props, dependencyType);
   }
 
 }
