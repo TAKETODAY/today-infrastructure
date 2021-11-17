@@ -20,11 +20,12 @@
 
 package cn.taketoday.beans.dependency;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Required;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 21:29</a>
@@ -52,6 +53,10 @@ public abstract class DependencyInjectionPoint {
 
   public <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType) {
     return annotations.isPresent(annotationType);
+  }
+
+  public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {
+    return annotations.get(annotationType);
   }
 
   public boolean isRequired() {
