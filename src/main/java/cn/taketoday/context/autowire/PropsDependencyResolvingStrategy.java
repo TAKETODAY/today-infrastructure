@@ -22,13 +22,12 @@ package cn.taketoday.context.autowire;
 import cn.taketoday.beans.dependency.DependencyInjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.MapBeanDependencyResolver;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
-import cn.taketoday.util.CollectionUtils;
 
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -64,7 +63,7 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
         // process map
         if (injectionPoint.isMap()) {
           Properties properties = propsReader.readMap(props);
-          dependency = convert(properties, injectionPoint.getDependencyType());
+          dependency = MapBeanDependencyResolver.adaptMap(properties, injectionPoint.getDependencyType());
         }
         else {
           dependency = propsReader.read(props, injectionPoint.getDependencyType());
@@ -73,13 +72,6 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
       resolvingContext.setDependency(dependency);
     }
     // next
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Map convert(Map map, Class<?> type) {
-    Map newMap = CollectionUtils.createMap(type, map.size());
-    newMap.putAll(map);
-    return newMap;
   }
 
 }
