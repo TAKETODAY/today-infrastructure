@@ -20,18 +20,18 @@
 
 package cn.taketoday.beans.support;
 
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.ObjectUtils;
+
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -112,8 +112,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     public boolean equals(Object o) {
       if (o == this)
         return true;
-      if (o instanceof Map.Entry) {
-        Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+      if (o instanceof Entry<?, ?> e) {
         return Objects.equals(key, e.getKey()) &&
                 Objects.equals(value, e.getValue());
       }
@@ -192,22 +191,19 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
   public boolean equals(Object o) {
     if (o != this) {
-      if (o instanceof BeanMapping) {
+      if (o instanceof BeanMapping other) {
         // is BeanMapping
-        BeanMapping other = (BeanMapping) o;
         return ObjectUtils.nullSafeEquals(target, other.target)
                 && Objects.equals(metadata, other.metadata);
       }
 
-      if (!(o instanceof Map)) {
+      if (!(o instanceof Map other)) {
         return false;
       }
 
       int propertySize = metadata.getPropertySize();
-      Map other = (Map) o;
       if (propertySize != other.size()) {
         return false;
       }
