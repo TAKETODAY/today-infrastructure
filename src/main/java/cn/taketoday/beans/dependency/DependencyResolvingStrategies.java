@@ -61,6 +61,9 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
       resolvingStrategy.resolveDependency(injectionPoint, resolvingContext);
+      if (resolvingContext.isTerminate()) {
+        return;
+      }
     }
   }
 
