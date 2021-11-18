@@ -20,6 +20,21 @@
 
 package cn.taketoday.beans.support;
 
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.AnnotatedElementDecorator;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.AnnotatedElement;
@@ -33,20 +48,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.AnnotatedElementDecorator;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Field is first considered then readMethod
@@ -93,7 +94,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   /** @since 4.0 */
   private Class<?> declaringClass;
 
-  BeanProperty(String alias, Field field) {
+  BeanProperty(String alias, @NonNull Field field) {
     super(field);
     this.alias = alias;
     this.field = field;
@@ -251,8 +252,8 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     if (componentConstructor == null) {
       Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-                             ? NullInstantiator.INSTANCE
-                             : BeanInstantiator.fromConstructor(componentClass);
+              ? NullInstantiator.INSTANCE
+              : BeanInstantiator.fromConstructor(componentClass);
     }
     return componentConstructor.instantiate(args);
   }
