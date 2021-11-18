@@ -28,6 +28,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2021/10/3 22:01
  * @since 4.0
  */
+@Deprecated
 public abstract class AbstractPropertyValueResolver implements PropertyValueResolver {
 
   /**

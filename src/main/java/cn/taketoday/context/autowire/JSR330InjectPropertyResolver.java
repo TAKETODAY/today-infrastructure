@@ -51,6 +51,7 @@ import static cn.taketoday.context.autowire.AutowiredPropertyResolver.isRequired
  * @see Named
  * @since 4.0
  */
+@Deprecated
 public class JSR330InjectPropertyResolver implements PropertyValueResolver {
 
   @Nullable

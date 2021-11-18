@@ -35,6 +35,7 @@ import cn.taketoday.util.ClassUtils;
 /**
  * @author TODAY 2018-08-04 16:01
  */
+@Deprecated
 public class PropsPropertyResolver implements PropertyValueResolver {
 
   /**

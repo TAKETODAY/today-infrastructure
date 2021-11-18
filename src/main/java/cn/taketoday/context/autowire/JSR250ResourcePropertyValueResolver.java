@@ -44,6 +44,7 @@ import jakarta.annotation.Resource;
  * @see Resource
  * @since 4.0
  */
+@Deprecated
 public class JSR250ResourcePropertyValueResolver implements PropertyValueResolver {
 
   @Nullable
