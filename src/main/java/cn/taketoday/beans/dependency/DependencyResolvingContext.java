@@ -78,6 +78,9 @@ public class DependencyResolvingContext {
     this.dependency = dependency;
   }
 
+  public boolean hasDependency() {
+    return dependency != null;
+  }
 
   @Override
   public String toString() {

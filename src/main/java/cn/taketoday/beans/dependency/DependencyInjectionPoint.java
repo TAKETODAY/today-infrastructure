@@ -20,21 +20,32 @@
 
 package cn.taketoday.beans.dependency;
 
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.util.Map;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 21:29</a>
  * @since 4.0
  */
-public abstract class DependencyInjectionPoint {
+public abstract class DependencyInjectionPoint implements Serializable {
 
   protected Boolean required = null;
   protected MergedAnnotations annotations;
+
+  @Nullable
+  private transient ResolvableType resolvableType;
+
+  @Nullable
+  private transient TypeDescriptor typeDescriptor;
 
   public abstract Class<?> getDependencyType();
 
@@ -57,7 +68,7 @@ public abstract class DependencyInjectionPoint {
   }
 
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {
-    return annotations.get(annotationType);
+    return getAnnotations().get(annotationType);
   }
 
   public boolean isRequired() {
@@ -65,6 +76,38 @@ public abstract class DependencyInjectionPoint {
       required = getAnnotations().isPresent(Required.class);
     }
     return required;
+  }
+
+  /**
+   * Build a {@link ResolvableType} object for the wrapped parameter/field.
+   */
+  public ResolvableType getResolvableType() {
+    if (resolvableType == null) {
+      resolvableType = doGetResolvableType();
+    }
+    return resolvableType;
+  }
+
+  protected abstract ResolvableType doGetResolvableType();
+
+  /**
+   * Build a {@link TypeDescriptor} object for the wrapped parameter/field.
+   */
+  public TypeDescriptor getTypeDescriptor() {
+    if (typeDescriptor == null) {
+      typeDescriptor = doGetTypeDescriptor();
+    }
+    return typeDescriptor;
+  }
+
+  protected abstract TypeDescriptor doGetTypeDescriptor();
+
+  public boolean isArray() {
+    return getDependencyType().isArray();
+  }
+
+  public boolean isMap() {
+    return Map.class.isAssignableFrom(getDependencyType());
   }
 
 }
