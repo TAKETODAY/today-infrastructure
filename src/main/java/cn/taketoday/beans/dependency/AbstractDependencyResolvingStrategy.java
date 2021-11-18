@@ -29,9 +29,10 @@ import java.lang.reflect.Parameter;
 public abstract class AbstractDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   @Override
-  public final void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
-    if (supportsDependency(injectionPoint, resolvingContext)) {
-      resolveInternal(injectionPoint, resolvingContext);
+  public final void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+    if (supportsDependency(injectionPoint, context)) {
+      Object internal = resolveInternal(injectionPoint, context);
+      context.setDependency(internal);
     }
   }
 
