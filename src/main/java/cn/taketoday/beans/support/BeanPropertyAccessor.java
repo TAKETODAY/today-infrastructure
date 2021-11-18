@@ -68,7 +68,7 @@ public class BeanPropertyAccessor {
     this(beanClass, null);
   }
 
-  public BeanPropertyAccessor(Class<?> beanClass, ConversionService conversionService) {
+  public BeanPropertyAccessor(Class<?> beanClass, @Nullable ConversionService conversionService) {
     BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
     this.rootObject = metadata.newInstance();
     this.metadata = metadata;
@@ -233,17 +233,14 @@ public class BeanPropertyAccessor {
    */
   @SuppressWarnings({ "rawtypes" })
   static Object getKeyedPropertyValue(Object propertyValue, String key) {
-    if (propertyValue instanceof Map) {
-      Map map = (Map) propertyValue;
+    if (propertyValue instanceof Map map) {
       return map.get(key);
     }
-    else if (propertyValue instanceof List) {
-      List list = (List) propertyValue;
+    else if (propertyValue instanceof List list) {
       return list.get(Integer.parseInt(key));
     }
-    else if (propertyValue instanceof Set) {
+    else if (propertyValue instanceof Set set) {
       // Apply index to Iterator in case of a Set.
-      Set set = (Set) propertyValue;
       int index = Integer.parseInt(key);
       if (index < 0 || index >= set.size()) {
         throw new IndexOutOfBoundsException(
@@ -443,14 +440,13 @@ public class BeanPropertyAccessor {
           Object root, BeanProperty beanProperty, Object propValue,
           String key, Object value, String propertyPath
   ) {
-    if (propValue instanceof List) {
+    if (propValue instanceof List<?> list) {
       Object convertedValue = value;
       Type valueType = beanProperty.getGeneric(0);
       if (valueType instanceof Class) {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
-      List<?> list = (List<?>) propValue;
       int index = Integer.parseInt(key);
       try {
         CollectionUtils.setValue(list, index, convertedValue);
@@ -592,7 +588,7 @@ public class BeanPropertyAccessor {
     return metadata;
   }
 
-  public void setConversionService(ConversionService conversionService) {
+  public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService;
   }
 
