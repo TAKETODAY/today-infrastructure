@@ -414,6 +414,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   /**
    * original property name
    */
+  @Override
   public String getName() {
     if (field != null) {
       return field.getName();
