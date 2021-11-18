@@ -43,6 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @see Value
  * @see Required
  */
+@Deprecated
 public class ValuePropertyResolver implements PropertyValueResolver {
 
   /**

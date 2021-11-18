@@ -37,6 +37,7 @@ import cn.taketoday.core.ResolvableType;
  * @see ObjectSupplier
  * @since 3.0
  */
+@Deprecated
 public class ObjectSupplierPropertyResolver
         extends AbstractPropertyValueResolver implements PropertyValueResolver {
 

@@ -29,6 +29,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY <br>
  * 2018-08-04 15:04
  */
+@Deprecated
 @FunctionalInterface
 public interface PropertyValueResolver {
 

@@ -50,6 +50,7 @@ import java.lang.reflect.AnnotatedElement;
  *
  * @author TODAY 2018-08-04 15:56
  */
+@Deprecated
 public class AutowiredPropertyResolver implements PropertyValueResolver {
 
   private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.load("jakarta.inject.Inject");
