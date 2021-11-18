@@ -44,6 +44,8 @@ public class DependencyResolvingContext {
   @Nullable
   private Object dependency;
 
+  private boolean terminate;
+
   public DependencyResolvingContext(
           Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
     this.providedArgs = providedArgs;
@@ -80,6 +82,18 @@ public class DependencyResolvingContext {
 
   public boolean hasDependency() {
     return dependency != null;
+  }
+
+  public void terminate() {
+    setTerminate(true);
+  }
+
+  public void setTerminate(boolean terminate) {
+    this.terminate = terminate;
+  }
+
+  public boolean isTerminate() {
+    return terminate;
   }
 
   @Override
