@@ -20,17 +20,17 @@
 
 package cn.taketoday.beans.dependency;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.Map;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
-
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.util.Map;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 21:29</a>
@@ -46,6 +46,16 @@ public abstract class DependencyInjectionPoint implements Serializable {
 
   @Nullable
   private transient TypeDescriptor typeDescriptor;
+
+  public int nestingLevel;
+
+  public void increaseNestingLevel() {
+    nestingLevel++;
+  }
+
+  public void decreaseNestingLevel() {
+    nestingLevel--;
+  }
 
   public abstract Class<?> getDependencyType();
 
@@ -73,9 +83,13 @@ public abstract class DependencyInjectionPoint implements Serializable {
 
   public boolean isRequired() {
     if (required == null) {
-      required = getAnnotations().isPresent(Required.class);
+      required = doGetRequiredStatus();
     }
     return required;
+  }
+
+  protected boolean doGetRequiredStatus() {
+    return getAnnotations().isPresent(Required.class);
   }
 
   /**
@@ -109,5 +123,11 @@ public abstract class DependencyInjectionPoint implements Serializable {
   public boolean isMap() {
     return Map.class.isAssignableFrom(getDependencyType());
   }
+
+  public boolean dependencyIs(Class<?> type) {
+    return type == getDependencyType();
+  }
+
+  public abstract Object getTarget();
 
 }
