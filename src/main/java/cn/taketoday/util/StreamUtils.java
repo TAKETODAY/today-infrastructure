@@ -20,6 +20,11 @@
 
 package cn.taketoday.util;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
@@ -29,15 +34,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Simple utility methods for dealing with streams. The copy methods of this class are
@@ -155,14 +154,7 @@ public abstract class StreamUtils {
   public static String copyToString(ByteArrayOutputStream baos, Charset charset) {
     Assert.notNull(baos, "No ByteArrayOutputStream specified");
     Assert.notNull(charset, "No Charset specified");
-    try {
-      // Can be replaced with toString(Charset) call in Java 10+
-      return baos.toString(charset.name());
-    }
-    catch (UnsupportedEncodingException ex) {
-      // Should never happen
-      throw new IllegalArgumentException("Invalid charset name: " + charset, ex);
-    }
+    return baos.toString(charset);
   }
 
   /**
@@ -277,7 +269,7 @@ public abstract class StreamUtils {
         bytesToCopy = 0;
       }
     }
-    return (end - start + 1 - bytesToCopy);
+    return end - start + 1 - bytesToCopy;
   }
 
   /**
