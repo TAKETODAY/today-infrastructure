@@ -41,7 +41,7 @@ public class PathPatternRouteMatcher implements RouteMatcher {
 
   private final PathPatternParser parser;
 
-  private final Map<String, PathPattern> pathPatternCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, PathPattern> pathPatternCache = new ConcurrentHashMap<>();
 
   /**
    * Default constructor with {@link PathPatternParser} customized for

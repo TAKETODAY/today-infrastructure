@@ -20,19 +20,19 @@
 
 package cn.taketoday.web.util.pattern;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
-
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.Separator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * Representation of a parsed path pattern. Includes a chain of path elements
@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * </ul>
  *
  * <p><strong>Note:</strong> In contrast to
- * {@link cn.taketoday.util.AntPathMatcher}, {@code **} is supported only
+ * {@link cn.taketoday.core.AntPathMatcher}, {@code **} is supported only
  * at the end of a pattern. For example {@code /pages/{**}} is valid but
  * {@code /pages/{**}/details} is not. The same applies also to the capturing
  * variant <code>{*spring}</code>. The aim is to eliminate ambiguity when
@@ -96,8 +96,7 @@ public class PathPattern implements Comparable<PathPattern> {
    */
   public static final Comparator<PathPattern> SPECIFICITY_COMPARATOR =
           Comparator.nullsLast(
-                  Comparator.<PathPattern>
-                                  comparingInt(p -> p.isCatchAll() ? 1 : 0)
+                  Comparator.<PathPattern>comparingInt(p -> p.isCatchAll() ? 1 : 0)
                           .thenComparingInt(p -> p.isCatchAll() ? scoreByNormalizedLength(p) : 0)
                           .thenComparingInt(PathPattern::getScore)
                           .thenComparingInt(PathPattern::scoreByNormalizedLength)
@@ -152,12 +151,12 @@ public class PathPattern implements Comparable<PathPattern> {
   private boolean catchAll = false;
 
   PathPattern(String patternText, PathPatternParser parser, @Nullable PathElement head) {
-    this.patternString = patternText;
-    this.parser = parser;
-    this.pathOptions = parser.getPathOptions();
-    this.matchOptionalTrailingSeparator = parser.isMatchOptionalTrailingSeparator();
-    this.caseSensitive = parser.isCaseSensitive();
     this.head = head;
+    this.parser = parser;
+    this.patternString = patternText;
+    this.pathOptions = parser.getPathOptions();
+    this.caseSensitive = parser.isCaseSensitive();
+    this.matchOptionalTrailingSeparator = parser.isMatchOptionalTrailingSeparator();
 
     // Compute fields for fast comparison
     PathElement elem = head;
@@ -226,9 +225,8 @@ public class PathPattern implements Comparable<PathPattern> {
   @Nullable
   public PathMatchInfo matchAndExtract(PathContainer pathContainer) {
     if (this.head == null) {
-      return (hasLength(pathContainer) &&
-                      !(this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer)) ?
-              null : PathMatchInfo.EMPTY);
+      return hasLength(pathContainer) && !(this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer))
+              ? null : PathMatchInfo.EMPTY;
     }
     else if (!hasLength(pathContainer)) {
       if (this.head instanceof WildcardTheRestPathElement || this.head instanceof CaptureTheRestPathElement) {
@@ -547,8 +545,8 @@ public class PathPattern implements Comparable<PathPattern> {
   }
 
   private boolean pathContainerIsJustSeparator(PathContainer pathContainer) {
-    return pathContainer.value().length() == 1 &&
-            pathContainer.value().charAt(0) == getSeparator();
+    return pathContainer.value().length() == 1
+            && pathContainer.value().charAt(0) == getSeparator();
   }
 
   /**
@@ -560,13 +558,12 @@ public class PathPattern implements Comparable<PathPattern> {
     private static final PathMatchInfo EMPTY = new PathMatchInfo(Collections.emptyMap(), Collections.emptyMap());
 
     private final Map<String, String> uriVariables;
-
     private final Map<String, MultiValueMap<String, String>> matrixVariables;
 
     PathMatchInfo(Map<String, String> uriVars, @Nullable Map<String, MultiValueMap<String, String>> matrixVars) {
       this.uriVariables = Collections.unmodifiableMap(uriVars);
-      this.matrixVariables = (matrixVars != null ?
-                              Collections.unmodifiableMap(matrixVars) : Collections.emptyMap());
+      this.matrixVariables = matrixVars != null
+              ? Collections.unmodifiableMap(matrixVars) : Collections.emptyMap();
     }
 
     /**
@@ -599,9 +596,7 @@ public class PathPattern implements Comparable<PathPattern> {
   public static class PathRemainingMatchInfo {
 
     private final PathContainer pathMatched;
-
     private final PathContainer pathRemaining;
-
     private final PathMatchInfo pathMatchInfo;
 
     PathRemainingMatchInfo(PathContainer pathMatched, PathContainer pathRemaining) {
