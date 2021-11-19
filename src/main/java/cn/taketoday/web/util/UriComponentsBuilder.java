@@ -475,7 +475,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    */
   public UriComponents build(boolean encoded) {
     return buildInternal(encoded ? EncodingHint.FULLY_ENCODED :
-                         (this.encodeTemplate ? EncodingHint.ENCODE_TEMPLATE : EncodingHint.NONE));
+                         this.encodeTemplate ? EncodingHint.ENCODE_TEMPLATE : EncodingHint.NONE);
   }
 
   private UriComponents buildInternal(EncodingHint hint) {
@@ -484,7 +484,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
       result = new OpaqueUriComponents(this.scheme, this.ssp, this.fragment);
     }
     else {
-      MultiValueMap<String, String> queryParams = MultiValueMap.from(this.queryParams);
+      MultiValueMap<String, String> queryParams = MultiValueMap.copyOf(this.queryParams);
       HierarchicalUriComponents uric = new HierarchicalUriComponents(
               this.scheme, this.fragment, this.userInfo, this.host,
               this.port, this.pathBuilder.build(), queryParams, hint == EncodingHint.FULLY_ENCODED);
