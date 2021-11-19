@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -251,6 +252,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * Serializes a copy of the state of this class,
    * filtering out non-serializable BeanPostProcessors.
    */
+  @Serial
   protected Object writeReplace() {
     ArrayList<DestructionBeanPostProcessor> serializablePostProcessors = null;
     if (this.beanPostProcessors != null) {
@@ -384,10 +386,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    *
    * @param obj Bean instance
    */
-  public static void destroyBean(Object obj,
-                                 BeanDefinition def,
-                                 List<BeanPostProcessor> postProcessors) {
-
+  public static void destroyBean(
+          Object obj, BeanDefinition def, List<DestructionBeanPostProcessor> postProcessors) {
     Assert.notNull(obj, "bean instance must not be null");
     ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = getFilteredPostProcessors(obj, postProcessors);
     new DisposableBeanAdapter(true, obj, def, filteredPostProcessors)
@@ -396,16 +396,13 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
 
   @Nullable
   static ArrayList<DestructionBeanPostProcessor> getFilteredPostProcessors(
-          Object obj, List<BeanPostProcessor> postProcessors) {
+          Object obj, List<DestructionBeanPostProcessor> postProcessors) {
     ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = null;
     if (CollectionUtils.isNotEmpty(postProcessors)) {
       filteredPostProcessors = new ArrayList<>(postProcessors.size());
-      for (BeanPostProcessor processor : postProcessors) {
-        if (processor instanceof DestructionBeanPostProcessor) {
-          DestructionBeanPostProcessor postProcessor = (DestructionBeanPostProcessor) processor;
-          if (postProcessor.requiresDestruction(obj)) {
-            filteredPostProcessors.add(postProcessor);
-          }
+      for (DestructionBeanPostProcessor postProcessor : postProcessors) {
+        if (postProcessor.requiresDestruction(obj)) {
+          filteredPostProcessors.add(postProcessor);
         }
       }
     }
