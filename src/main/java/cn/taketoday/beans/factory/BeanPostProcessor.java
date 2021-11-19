@@ -19,8 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 
@@ -31,9 +29,9 @@ import cn.taketoday.core.Ordered;
  *
  * <p>
  * Typically, post-processors that populate beans via marker interfaces or the
- * like will implement {@link #postProcessBeforeInitialization}, while
- * post-processors that wrap beans with proxies will normally implement
- * {@link #postProcessAfterInitialization}.
+ * like will implement {@link InitializationBeanPostProcessor#postProcessBeforeInitialization(Object, String)},
+ * while post-processors that wrap beans with proxies will normally implement
+ * {@link InitializationBeanPostProcessor#postProcessAfterInitialization(Object, String)}.
  *
  * <h3>Registration</h3>
  * <p>
@@ -56,50 +54,9 @@ import cn.taketoday.core.Ordered;
  * {@link Order @Order} annotation is not taken
  * into account for {@code BeanPostProcessor} beans.
  *
- * @author TODAY <br>
- * 2018-07-18 1:01:19
+ * @author TODAY 2018-07-18 1:01:19
+ * @see InitializationBeanPostProcessor
  */
 public interface BeanPostProcessor {
 
-  /**
-   * Apply this {@code BeanPostProcessor} to the given new bean instance
-   * <i>before</i> any bean initialization callbacks (like InitializingBean's
-   * {@code afterPropertiesSet} or a custom init-method). The bean will already be
-   * populated with property values. The returned bean instance may be a wrapper
-   * around the original.
-   * <p>
-   * The default implementation returns the given {@code bean} as-is.
-   *
-   * @param bean The new bean instance
-   * @param beanName The definition of the bean
-   * @return the bean instance to use, either the original or a wrapped one; if
-   * {@code null}, no subsequent BeanPostProcessors will be invoked
-   * @throws Exception in case of errors
-   * @see InitializingBean#afterPropertiesSet
-   */
-  default Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
-    return bean;
-  }
-
-  /**
-   * Apply this {@code BeanPostProcessor} to the given new bean instance
-   * <i>after</i> any bean initialization callbacks (like InitializingBean's
-   * {@code afterPropertiesSet} or a custom init-method). The bean will already be
-   * populated with property values. The returned bean instance may be a wrapper
-   * around the original.
-   *
-   * <p>
-   * The default implementation returns the given {@code bean} as-is.
-   *
-   * @param bean the new bean instance, fully initialized
-   * @param beanName the definition of the bean
-   * @return the bean instance to use, either the original or a wrapped one; if
-   * {@code null}, no subsequent BeanPostProcessors will be invoked
-   * @throws Exception in case of errors
-   * @see InitializingBean#afterPropertiesSet
-   * @see FactoryBean
-   */
-  default Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
-    return bean;
-  }
 }

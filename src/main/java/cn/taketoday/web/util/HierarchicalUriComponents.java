@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
@@ -142,7 +142,6 @@ final class HierarchicalUriComponents extends UriComponents {
           @Nullable String scheme, @Nullable String fragment, @Nullable String userInfo,
           @Nullable String host, @Nullable String port, @Nullable PathComponent path,
           @Nullable MultiValueMap<String, String> query, boolean encoded) {
-
     super(scheme, fragment);
 
     this.userInfo = userInfo;
@@ -221,34 +220,54 @@ final class HierarchicalUriComponents extends UriComponents {
   @Override
   @Nullable
   public String getQuery() {
-    if (!queryParams.isEmpty()) {
-      StringBuilder queryBuilder = new StringBuilder();
-      for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
-        String name = entry.getKey();
-        List<String> values = entry.getValue();
-        if (CollectionUtils.isEmpty(values)) {
+    if (queryParams.isEmpty()) {
+      return null;
+    }
+
+    StringBuilder queryBuilder = new StringBuilder();
+
+    this.queryParams.forEach((name, values) -> {
+      if (CollectionUtils.isEmpty(values)) {
+        if (queryBuilder.length() != 0) {
+          queryBuilder.append('&');
+        }
+        queryBuilder.append(name);
+      }
+      else {
+        for (Object value : values) {
           if (queryBuilder.length() != 0) {
             queryBuilder.append('&');
           }
           queryBuilder.append(name);
-        }
-        else {
-          for (Object value : values) {
-            if (queryBuilder.length() != 0) {
-              queryBuilder.append('&');
-            }
-            queryBuilder.append(name);
-            if (value != null) {
-              queryBuilder.append('=').append(value);
-            }
+          if (value != null) {
+            queryBuilder.append('=').append(value.toString());
           }
         }
       }
-      return queryBuilder.toString();
-    }
-    else {
-      return null;
-    }
+    });
+
+//    for (Entry<String, List<String>> entry : queryParams.entrySet()) {
+//      String name = entry.getKey();
+//      List<String> values = entry.getValue();
+//      if (CollectionUtils.isEmpty(values)) {
+//        if (queryBuilder.length() != 0) {
+//          queryBuilder.append('&');
+//        }
+//        queryBuilder.append(name);
+//      }
+//      else {
+//        for (Object value : values) {
+//          if (queryBuilder.length() != 0) {
+//            queryBuilder.append('&');
+//          }
+//          queryBuilder.append(name);
+//          if (value != null) {
+//            queryBuilder.append('=').append(value);
+//          }
+//        }
+//      }
+//    }
+    return queryBuilder.toString();
   }
 
   /**
@@ -309,7 +328,7 @@ final class HierarchicalUriComponents extends UriComponents {
 
   private MultiValueMap<String, String> encodeQueryParams(BiFunction<String, Type, String> encoder) {
     DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(queryParams.size());
-    for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+    for (Entry<String, List<String>> entry : queryParams.entrySet()) {
       String key = entry.getKey();
       List<String> values = entry.getValue();
       String name = encoder.apply(key, Type.QUERY_PARAM);
@@ -397,7 +416,7 @@ final class HierarchicalUriComponents extends UriComponents {
     verifyUriComponent(this.userInfo, Type.USER_INFO);
     verifyUriComponent(this.host, getHostType());
     this.path.verify();
-    for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+    for (Entry<String, List<String>> entry : queryParams.entrySet()) {
       verifyUriComponent(entry.getKey(), Type.QUERY_PARAM);
       for (String value : entry.getValue()) {
         verifyUriComponent(value, Type.QUERY_PARAM);
@@ -462,7 +481,7 @@ final class HierarchicalUriComponents extends UriComponents {
     DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(queryParams.size());
     QueryUriTemplateVariables queryVariables = new QueryUriTemplateVariables(variables);
 
-    for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+    for (Entry<String, List<String>> entry : queryParams.entrySet()) {
       String name = expandUriComponent(entry.getKey(), queryVariables, this.variableEncoder);
       List<String> values = entry.getValue();
       ArrayList<String> expandedValues = new ArrayList<>(values.size());
@@ -595,7 +614,7 @@ final class HierarchicalUriComponents extends UriComponents {
     return result;
   }
 
-  // Nested types
+// Nested types
 
   /**
    * Enumeration used to identify the allowed characters per URI component.
@@ -1015,8 +1034,8 @@ final class HierarchicalUriComponents extends UriComponents {
 
     @Override
     public boolean equals(@Nullable Object other) {
-      return (this == other || (other instanceof PathSegmentComponent pathSegmentComponent &&
-              getPathSegments().equals(pathSegmentComponent.getPathSegments())));
+      return (this == other || (other instanceof PathSegmentComponent pathSegmentComponent
+              && getPathSegments().equals(pathSegmentComponent.getPathSegments())));
     }
 
     @Override

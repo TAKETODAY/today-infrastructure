@@ -19,6 +19,17 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -46,17 +57,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
 /**
  * @author TODAY 2018-06-23 11:20:58
  */
@@ -66,8 +66,6 @@ public abstract class AbstractBeanFactory
 
   /** object factories */
   protected Map<Class<?>, Object> objectFactories;
-  /** Bean Post Processors */
-  protected final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   // @since 2.1.6
@@ -75,8 +73,6 @@ public abstract class AbstractBeanFactory
   // @since 2.1.6
   private boolean fullLifecycle = false;
 
-  /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
-  protected boolean hasInstantiationAwareBeanPostProcessors;
   /** @since 4.0 */
   private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
 
@@ -100,13 +96,11 @@ public abstract class AbstractBeanFactory
   // @since 4.0
   private boolean autoInferDestroyMethod = true;
 
-  /**
-   * Return whether this factory holds a DestructionAwareBeanPostProcessor
-   * that will get applied to singleton beans on shutdown.
-   *
-   * @since 4.0
-   */
-  protected boolean hasDestructionBeanPostProcessors;
+  // @since 4.0
+  private volatile BeanPostProcessors postProcessorCache;
+
+  /** Bean Post Processors */
+  private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
 
   //
 
@@ -192,7 +186,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                  name, ClassUtils.getQualifiedName(requiredType), ex);
+                    name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -542,7 +536,7 @@ public abstract class AbstractBeanFactory
     invokeAwareMethods(bean, def);
     Object ret = bean;
     // before properties
-    for (BeanPostProcessor processor : postProcessors) {
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
       try {
         ret = processor.postProcessBeforeInitialization(ret, def.getName());
       }
@@ -556,7 +550,7 @@ public abstract class AbstractBeanFactory
     // invoke initialize methods
     invokeInitMethods(ret, def);
     // after properties
-    for (BeanPostProcessor processor : postProcessors) {
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
       try {
         ret = processor.postProcessAfterInitialization(ret, def.getName());
       }
@@ -668,15 +662,9 @@ public abstract class AbstractBeanFactory
    */
   protected boolean requiresDestruction(Object bean, BeanDefinition mbd) {
     if (DisposableBeanAdapter.hasDestroyMethod(bean, mbd)) {
-      if (hasDestructionBeanPostProcessors) {
-        if (!CollectionUtils.isEmpty(postProcessors)) {
-          for (BeanPostProcessor processor : postProcessors) {
-            if (processor instanceof DestructionBeanPostProcessor) {
-              if (((DestructionBeanPostProcessor) processor).requiresDestruction(bean)) {
-                return true;
-              }
-            }
-          }
+      for (DestructionBeanPostProcessor processor : postProcessors().destruction) {
+        if (processor.requiresDestruction(bean)) {
+          return true;
         }
       }
     }
@@ -701,8 +689,8 @@ public abstract class AbstractBeanFactory
         // work for the given bean: DestructionAwareBeanPostProcessors,
         // DisposableBean interface, custom destroy method.
         registerDisposableBean(beanName, new DisposableBeanAdapter(
-                autoInferDestroyMethod,
-                bean, mbd, DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors)));
+                autoInferDestroyMethod, bean, mbd,
+                DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors().destruction)));
       }
       else {
         // A bean with a custom scope...
@@ -713,7 +701,7 @@ public abstract class AbstractBeanFactory
         scope.registerDestructionCallback(
                 beanName, new DisposableBeanAdapter(
                         autoInferDestroyMethod, bean, mbd,
-                        DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors)));
+                        DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors().destruction)));
       }
     }
   }
@@ -915,7 +903,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-              "that it should return null if the type of its object cannot be determined yet", ex);
+                       "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -1092,7 +1080,7 @@ public abstract class AbstractBeanFactory
     if (beanInstance == null || def == null) {
       return;
     }
-    DisposableBeanAdapter.destroyBean(beanInstance, def, postProcessors);
+    DisposableBeanAdapter.destroyBean(beanInstance, def, postProcessors().destruction);
   }
 
   @Override
@@ -1144,58 +1132,6 @@ public abstract class AbstractBeanFactory
         log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
       }
     }
-  }
-
-  // BeanPostProcessor
-
-  @Override
-  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
-    postProcessors.remove(beanPostProcessor);
-    postProcessors.add(beanPostProcessor);
-
-    AnnotationAwareOrderComparator.sort(postProcessors);
-
-    // Track whether it is instantiation/destruction aware
-    if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
-      this.hasInstantiationAwareBeanPostProcessors = true;
-    }
-
-    if (beanPostProcessor instanceof DestructionBeanPostProcessor) {
-      this.hasDestructionBeanPostProcessors = true;
-    }
-  }
-
-  /**
-   * Add new BeanPostProcessors that will get applied to beans created
-   * by this factory. To be invoked during factory configuration.
-   *
-   * @see #addBeanPostProcessor
-   * @since 4.0
-   */
-  public void addBeanPostProcessors(Collection<? extends BeanPostProcessor> beanPostProcessors) {
-    this.postProcessors.removeAll(beanPostProcessors);
-    this.postProcessors.addAll(beanPostProcessors);
-    AnnotationAwareOrderComparator.sort(postProcessors);
-  }
-
-  @Override
-  public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    postProcessors.remove(beanPostProcessor);
-
-    for (BeanPostProcessor postProcessor : postProcessors) {
-      if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
-        this.hasInstantiationAwareBeanPostProcessors = true;
-      }
-      else if (beanPostProcessor instanceof DestructionBeanPostProcessor) {
-        this.hasDestructionBeanPostProcessors = true;
-      }
-    }
-  }
-
-  @Override
-  public int getBeanPostProcessorCount() {
-    return this.postProcessors.size();
   }
 
   @Override
@@ -1313,8 +1249,7 @@ public abstract class AbstractBeanFactory
     Assert.notNull(otherFactory, "BeanFactory must not be null");
     setBeanClassLoader(otherFactory.getBeanClassLoader());
     setConversionService(otherFactory.getConversionService());
-    if (otherFactory instanceof AbstractBeanFactory) {
-      AbstractBeanFactory beanFactory = (AbstractBeanFactory) otherFactory;
+    if (otherFactory instanceof AbstractBeanFactory beanFactory) {
       setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
       this.beanSupplier.putAll(beanFactory.beanSupplier);
@@ -1324,9 +1259,6 @@ public abstract class AbstractBeanFactory
       this.fullPrototype = beanFactory.fullPrototype;
       this.objectFactories = beanFactory.objectFactories; // FIXME copy?
       this.argumentsResolver = beanFactory.argumentsResolver;
-      this.hasDestructionBeanPostProcessors = beanFactory.hasDestructionBeanPostProcessors;
-      this.hasInstantiationAwareBeanPostProcessors = beanFactory.hasInstantiationAwareBeanPostProcessors;
-
     }
     else {
       String[] otherScopeNames = otherFactory.getRegisteredScopeNames();
@@ -1351,6 +1283,92 @@ public abstract class AbstractBeanFactory
       sb.append("parent: ").append(ObjectUtils.identityToString(parent));
     }
     return sb.toString();
+  }
+
+  //
+
+  protected final BeanPostProcessors postProcessors() {
+    BeanPostProcessors postProcessors = postProcessorCache;
+    if (postProcessors == null) {
+      postProcessors = new BeanPostProcessors(this.postProcessors);
+      this.postProcessorCache = postProcessors;
+    }
+    return postProcessors;
+  }
+
+  //---------------------------------------------------------------------
+  // BeanPostProcessor
+  //---------------------------------------------------------------------
+
+  @Override
+  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+    Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+    invalidatePostProcessorsCache();
+
+    postProcessors.remove(beanPostProcessor);
+    postProcessors.add(beanPostProcessor);
+    AnnotationAwareOrderComparator.sort(postProcessors);
+  }
+
+  /**
+   * Add new BeanPostProcessors that will get applied to beans created
+   * by this factory. To be invoked during factory configuration.
+   *
+   * @see #addBeanPostProcessor
+   * @since 4.0
+   */
+  public void addBeanPostProcessors(Collection<? extends BeanPostProcessor> beanPostProcessors) {
+    invalidatePostProcessorsCache();
+
+    this.postProcessors.removeAll(beanPostProcessors);
+    this.postProcessors.addAll(beanPostProcessors);
+    AnnotationAwareOrderComparator.sort(postProcessors);
+  }
+
+  @Override
+  public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+    invalidatePostProcessorsCache();
+    postProcessors.remove(beanPostProcessor);
+  }
+
+  @Override
+  public int getBeanPostProcessorCount() {
+    return postProcessors.size();
+  }
+
+  // @since 4.0
+  private void invalidatePostProcessorsCache() {
+    postProcessorCache = null;
+  }
+
+  protected final static class BeanPostProcessors {
+    public final ArrayList<DestructionBeanPostProcessor> destruction = new ArrayList<>();
+    public final ArrayList<DependenciesBeanPostProcessor> dependencies = new ArrayList<>();
+    public final ArrayList<InitializationBeanPostProcessor> initialization = new ArrayList<>();
+    public final ArrayList<InstantiationAwareBeanPostProcessor> instantiation = new ArrayList<>();
+
+    BeanPostProcessors(ArrayList<BeanPostProcessor> postProcessors) {
+      for (BeanPostProcessor postProcessor : postProcessors) {
+        if (postProcessor instanceof DestructionBeanPostProcessor destruction) {
+          this.destruction.add(destruction);
+        }
+        if (postProcessor instanceof DependenciesBeanPostProcessor dependencies) {
+          this.dependencies.add(dependencies);
+        }
+        if (postProcessor instanceof InitializationBeanPostProcessor initialization) {
+          this.initialization.add(initialization);
+        }
+        if (postProcessor instanceof InstantiationAwareBeanPostProcessor instantiation) {
+          this.instantiation.add(instantiation);
+        }
+      }
+
+      this.destruction.trimToSize();
+      this.dependencies.trimToSize();
+      this.instantiation.trimToSize();
+      this.initialization.trimToSize();
+    }
+
   }
 
 }

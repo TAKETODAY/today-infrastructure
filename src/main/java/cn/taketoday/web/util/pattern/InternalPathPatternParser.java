@@ -20,13 +20,12 @@
 
 package cn.taketoday.web.util.pattern;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.PatternSyntaxException;
-
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.pattern.PatternParseException.PatternMessage;
+
+import java.util.ArrayList;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Parser for URI template patterns. It breaks the path pattern into a number of
@@ -72,7 +71,7 @@ class InternalPathPatternParser {
 
   // Variables captures in this path pattern
   @Nullable
-  private List<String> capturedVariableNames;
+  private ArrayList<String> capturedVariableNames;
 
   // The head of the path element chain currently being built
   @Nullable
@@ -125,48 +124,49 @@ class InternalPathPatternParser {
         if (this.pathElementStart == -1) {
           this.pathElementStart = this.pos;
         }
-        if (ch == '?') {
-          this.singleCharWildcardCount++;
-        }
-        else if (ch == '{') {
-          if (this.insideVariableCapture) {
-            throw new PatternParseException(
-                    this.pos, this.pathPatternData, PatternMessage.ILLEGAL_NESTED_CAPTURE);
+        switch (ch) {
+          case '?' -> this.singleCharWildcardCount++;
+          case '{' -> {
+            if (this.insideVariableCapture) {
+              throw new PatternParseException(
+                      this.pos, this.pathPatternData, PatternMessage.ILLEGAL_NESTED_CAPTURE);
+            }
+            // If we enforced that adjacent captures weren't allowed,
+            // this would do it (this would be an error: /foo/{bar}{boo}/)
+            // } else if (pos > 0 && pathPatternData[pos - 1] == '}') {
+            // throw new PatternParseException(pos, pathPatternData,
+            // PatternMessage.CANNOT_HAVE_ADJACENT_CAPTURES);
+            this.insideVariableCapture = true;
+            this.variableCaptureStart = this.pos;
           }
-          // If we enforced that adjacent captures weren't allowed,
-          // this would do it (this would be an error: /foo/{bar}{boo}/)
-          // } else if (pos > 0 && pathPatternData[pos - 1] == '}') {
-          // throw new PatternParseException(pos, pathPatternData,
-          // PatternMessage.CANNOT_HAVE_ADJACENT_CAPTURES);
-          this.insideVariableCapture = true;
-          this.variableCaptureStart = this.pos;
-        }
-        else if (ch == '}') {
-          if (!this.insideVariableCapture) {
-            throw new PatternParseException(
-                    this.pos, this.pathPatternData, PatternMessage.MISSING_OPEN_CAPTURE);
-          }
-          this.insideVariableCapture = false;
-          if (this.isCaptureTheRestVariable && (this.pos + 1) < this.pathPatternLength) {
-            throw new PatternParseException(
-                    this.pos + 1, this.pathPatternData,
-                    PatternMessage.NO_MORE_DATA_EXPECTED_AFTER_CAPTURE_THE_REST);
-          }
-          this.variableCaptureCount++;
-        }
-        else if (ch == ':') {
-          if (this.insideVariableCapture && !this.isCaptureTheRestVariable) {
-            skipCaptureRegex();
+          case '}' -> {
+            if (!this.insideVariableCapture) {
+              throw new PatternParseException(
+                      this.pos, this.pathPatternData, PatternMessage.MISSING_OPEN_CAPTURE);
+            }
             this.insideVariableCapture = false;
+            if (this.isCaptureTheRestVariable && (this.pos + 1) < this.pathPatternLength) {
+              throw new PatternParseException(
+                      this.pos + 1, this.pathPatternData,
+                      PatternMessage.NO_MORE_DATA_EXPECTED_AFTER_CAPTURE_THE_REST);
+            }
             this.variableCaptureCount++;
           }
-        }
-        else if (ch == '*') {
-          if (this.insideVariableCapture && this.variableCaptureStart == this.pos - 1) {
-            this.isCaptureTheRestVariable = true;
+          case ':' -> {
+            if (this.insideVariableCapture && !this.isCaptureTheRestVariable) {
+              skipCaptureRegex();
+              this.insideVariableCapture = false;
+              this.variableCaptureCount++;
+            }
           }
-          this.wildcard = true;
+          case '*' -> {
+            if (this.insideVariableCapture && this.variableCaptureStart == this.pos - 1) {
+              this.isCaptureTheRestVariable = true;
+            }
+            this.wildcard = true;
+          }
         }
+
         // Check that the characters used for captured variable names are like java identifiers
         if (this.insideVariableCapture) {
           if ((this.variableCaptureStart + 1 + (this.isCaptureTheRestVariable ? 1 : 0)) == this.pos &&
@@ -304,7 +304,7 @@ class InternalPathPatternParser {
   private char[] getPathElementText() {
     char[] pathElementText = new char[this.pos - this.pathElementStart];
     System.arraycopy(this.pathPatternData, this.pathElementStart, pathElementText, 0,
-                     this.pos - this.pathElementStart);
+            this.pos - this.pathElementStart);
     return pathElementText;
   }
 
@@ -367,8 +367,9 @@ class InternalPathPatternParser {
           newPE = new WildcardPathElement(this.pathElementStart, separator);
         }
         else {
-          newPE = new RegexPathElement(this.pathElementStart, getPathElementText(),
-                                       this.parser.isCaseSensitive(), this.pathPatternData, separator);
+          newPE = new RegexPathElement(
+                  this.pathElementStart, getPathElementText(),
+                  this.parser.isCaseSensitive(), this.pathPatternData, separator);
         }
       }
       else if (this.singleCharWildcardCount != 0) {

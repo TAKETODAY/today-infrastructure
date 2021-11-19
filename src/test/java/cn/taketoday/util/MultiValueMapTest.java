@@ -137,7 +137,7 @@ public class MultiValueMapTest {
     Map<String, List<String>> o2 = new HashMap<>();
     o2.put("key1", Collections.singletonList("value1"));
     assertThat(o2).isEqualTo(map);
-    assertThat(map).isNotEqualTo(o2);
+    assertThat(map).isEqualTo(o2);
   }
 
   @Test

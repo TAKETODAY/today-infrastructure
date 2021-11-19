@@ -282,13 +282,7 @@ public class DefaultMultiValueMap<K, V>
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof DefaultMultiValueMap) {
-      return map.equals(((DefaultMultiValueMap<?, ?>) obj).map);
-    }
-    return false;
+    return this == obj || map.equals(obj);
   }
 
   @Override

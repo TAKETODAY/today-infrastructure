@@ -19,15 +19,15 @@
  */
 package cn.taketoday.core;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.CollectionUtils;
-
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
@@ -190,7 +190,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 4.0
    */
   static <K, V> DefaultMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
-    return new DefaultMultiValueMap<>(targetMap, true);
+    return new DefaultMultiValueMap<>(new LinkedHashMap<>(targetMap));
   }
 
   /**

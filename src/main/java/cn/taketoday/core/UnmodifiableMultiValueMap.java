@@ -245,20 +245,21 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
-  public List<V> computeIfPresent(K key,
-                                  BiFunction<? super K, ? super List<V>, ? extends List<V>> remappingFunction) {
+  public List<V> computeIfPresent(
+          K key, BiFunction<? super K, ? super List<V>, ? extends List<V>> remappingFunction) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public List<V> compute(K key,
-                         BiFunction<? super K, ? super List<V>, ? extends List<V>> remappingFunction) {
+  public List<V> compute(
+          K key, BiFunction<? super K, ? super List<V>, ? extends List<V>> remappingFunction) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public List<V> merge(K key, List<V> value,
-                       BiFunction<? super List<V>, ? super List<V>, ? extends List<V>> remappingFunction) {
+  public List<V> merge(
+          K key, List<V> value,
+          BiFunction<? super List<V>, ? super List<V>, ? extends List<V>> remappingFunction) {
     throw new UnsupportedOperationException();
   }
 

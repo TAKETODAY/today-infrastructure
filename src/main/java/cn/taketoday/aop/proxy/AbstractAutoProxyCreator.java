@@ -23,6 +23,7 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.aop.Advice;
 
 import java.io.Closeable;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -58,8 +60,11 @@ import cn.taketoday.util.ObjectUtils;
  * @since 3.0
  */
 public abstract class AbstractAutoProxyCreator
-        extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean, ProxyCreator {
-
+        extends ProxyConfig
+        implements InstantiationAwareBeanPostProcessor,
+                   BeanFactoryAware, AopInfrastructureBean,
+                   ProxyCreator, InitializationBeanPostProcessor {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   protected final transient Logger log = LoggerFactory.getLogger(getClass());

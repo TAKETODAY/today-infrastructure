@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import java.util.EventObject;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -41,7 +41,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author TODAY 2021/3/17 12:35
  */
 @Configuration
-public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
+public class MethodEventDrivenPostProcessor implements InitializationBeanPostProcessor {
 
   private final ConfigurableApplicationContext context;
 
