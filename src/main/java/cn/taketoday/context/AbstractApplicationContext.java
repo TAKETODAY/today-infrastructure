@@ -43,7 +43,8 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.context.autowire.AutowiredDependencyCollector;
+import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
+import cn.taketoday.context.autowire.AutowiredDependenciesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
@@ -473,8 +474,9 @@ public abstract class AbstractApplicationContext
     }
 
     // register bean post processors
+    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
+    beanFactory.addBeanPostProcessor(new AutowiredDependenciesBeanPostProcessor(this));
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
-    beanFactory.addDependencyResolvingStrategies(new AutowiredDependencyCollector(this));
 
     beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
     beanFactory.registerResolvableDependency(ApplicationContext.class, this);

@@ -23,10 +23,11 @@ package cn.taketoday.context.autowire;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.dependency.DependencyCollectingContext;
-import cn.taketoday.beans.dependency.DependencyCollector;
 import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.dependency.InjectableMethodDependencySetter;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
@@ -47,8 +48,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see DependencySetter
  * @since 4.0
  */
-public class AutowiredDependencyCollector implements DependencyCollector {
-  private static final Logger log = LoggerFactory.getLogger(AutowiredDependencyCollector.class);
+public class AutowiredDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor {
+  private static final Logger log = LoggerFactory.getLogger(AutowiredDependenciesBeanPostProcessor.class);
 
   private final ApplicationContext context;
 
@@ -61,40 +62,24 @@ public class AutowiredDependencyCollector implements DependencyCollector {
   @Nullable
   private PropertyValueResolverComposite resolvingStrategies;
 
-  public AutowiredDependencyCollector(ApplicationContext context) {
+  public AutowiredDependenciesBeanPostProcessor(ApplicationContext context) {
     this.context = context;
   }
 
   //---------------------------------------------------------------------
-  // Implementation of InstantiationAwareBeanPostProcessor interface
+  // Implementation of DependenciesBeanPostProcessor interface
   //---------------------------------------------------------------------
 
   @Override
-  public void collectDependencies(DependencyCollectingContext collectingContext) {
-    Class<?> beanClass = collectingContext.getBeanClass();
-    resolvePropertyValues(collectingContext, beanClass);
-  }
-
-  //---------------------------------------------------------------------
-  // PropertyValue (PropertySetter) resolving @since 3.0
-  //---------------------------------------------------------------------
-
-  /**
-   * Process bean's property (field)
-   *
-   * @param resolvingContext resolving context
-   * @param beanClass Bean class
-   * @since 3.0
-   */
-  public void resolvePropertyValues(
-          DependencyCollectingContext resolvingContext, Class<?> beanClass) {
+  public void postProcessDependencies(Object bean, BeanDefinition definition, ConfigurableBeanFactory beanFactory) {
+    Class<?> beanClass = bean.getClass();
     BeanMetadata beanMetadata = BeanMetadata.ofClass(beanClass);
     for (BeanProperty beanProperty : beanMetadata) {
       if (!beanProperty.isReadOnly()) {
         // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
         DependencySetter created = resolveProperty(beanProperty);
         if (created != null) {
-          resolvingContext.addDependency(created);
+          created.applyTo(bean, beanFactory);
         }
       }
     }
@@ -102,10 +87,15 @@ public class AutowiredDependencyCollector implements DependencyCollector {
     // process methods
     ReflectionUtils.doWithMethods(beanClass, method -> {
       if (AutowiredPropertyResolver.isInjectable(method)) {
-        resolvingContext.addDependency(new InjectableMethodDependencySetter(method));
+        InjectableMethodDependencySetter created = new InjectableMethodDependencySetter(method);
+        created.applyTo(bean, beanFactory);
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
   }
+
+  //---------------------------------------------------------------------
+  // PropertyValue (PropertySetter) resolving @since 3.0
+  //---------------------------------------------------------------------
 
   /**
    * Create property value

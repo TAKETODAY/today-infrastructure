@@ -25,13 +25,9 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.dependency.DependencyCollectingContext;
-import cn.taketoday.beans.dependency.DependencyCollector;
-import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
@@ -54,11 +50,6 @@ import cn.taketoday.util.ReflectionUtils;
 public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
-
-  /**
-   * @since 4.0
-   */
-  private final ArrayList<DependencyCollector> dependencyResolvingStrategies = new ArrayList<>();
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
@@ -185,7 +176,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     Object bean = null;
     if (!Boolean.FALSE.equals(definition.beforeInstantiationResolved)) {
       // Make sure bean class is actually resolved at this point.
-      if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
+      if (!definition.isSynthetic()) {
         bean = applyBeanPostProcessorsBeforeInstantiation(beanClass, definition.getName());
         if (bean != null) {
           bean = applyBeanPostProcessorsAfterInitialization(bean, definition.getName());
@@ -210,12 +201,10 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   @Nullable
   protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
-    for (BeanPostProcessor processor : postProcessors) {
-      if (processor instanceof InstantiationAwareBeanPostProcessor ip) {
-        Object result = ip.postProcessBeforeInstantiation(beanClass, beanName);
-        if (result != null) {
-          return result;
-        }
+    for (InstantiationAwareBeanPostProcessor processor : postProcessors().instantiation) {
+      Object result = processor.postProcessBeforeInstantiation(beanClass, beanName);
+      if (result != null) {
+        return result;
       }
     }
     return null;
@@ -370,13 +359,11 @@ public abstract class AbstractAutowireCapableBeanFactory
     // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
     // state of the bean before properties are set. This can be used, for example,
     // to support styles of field injection.
-    if (!definition.isSynthetic() && hasInstantiationAwareBeanPostProcessors) {
+    if (!definition.isSynthetic()) {
       String name = definition.getName();
-      for (BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof InstantiationAwareBeanPostProcessor processor) {
-          if (!processor.postProcessAfterInstantiation(bean, name)) {
-            return;
-          }
+      for (InstantiationAwareBeanPostProcessor processor : postProcessors().instantiation) {
+        if (!processor.postProcessAfterInstantiation(bean, name)) {
+          return;
         }
       }
     }
@@ -386,16 +373,6 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   protected void applyPropertyValues(Object bean, BeanDefinition def) {
-    LinkedHashSet<DependencySetter> dependencies = null;
-    if (!def.isSynthetic()) {
-      // collect dependencies
-      DependencyCollectingContext collectingContext = new DependencyCollectingContext(bean, def);
-      for (DependencyCollector strategy : dependencyResolvingStrategies) {
-        strategy.collectDependencies(collectingContext);
-      }
-      dependencies = collectingContext.getDependencies();
-    }
-
     // -----------------------------------------------
     // apply dependency injection (DI)
     // -----------------------------------------------
@@ -409,9 +386,9 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     // 2. apply outside framework expanded
-    if (CollectionUtils.isNotEmpty(dependencies)) {
-      for (DependencySetter dependency : dependencies) {
-        dependency.applyTo(bean, this);
+    if (!def.isSynthetic()) {
+      for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
+        processor.postProcessDependencies(bean, def, this);
       }
     }
   }
@@ -433,7 +410,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   ) {
     Object ret = existingBean;
     // before properties
-    for (BeanPostProcessor processor : getPostProcessors()) {
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
       try {
         ret = processor.postProcessBeforeInitialization(ret, beanName);
       }
@@ -451,7 +428,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   ) {
     Object ret = existingBean;
     // after properties
-    for (BeanPostProcessor processor : getPostProcessors()) {
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
       try {
         ret = processor.postProcessAfterInitialization(ret, beanName);
       }
@@ -532,17 +509,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     // unique candidate, cache the full type declaration context of the target factory method.
     cachedReturnType = ResolvableType.forReturnType(factoryMethod);
     return cachedReturnType.resolve();
-  }
-
-  // @since 4.0
-  public ArrayList<DependencyCollector> getDependencyResolvingStrategies() {
-    return dependencyResolvingStrategies;
-  }
-
-  // @since 4.0
-  @Override
-  public void addDependencyResolvingStrategies(DependencyCollector... strategies) {
-    CollectionUtils.addAll(dependencyResolvingStrategies, strategies);
   }
 
 }

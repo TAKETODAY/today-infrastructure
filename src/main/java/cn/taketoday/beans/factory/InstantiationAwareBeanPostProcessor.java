@@ -45,8 +45,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * effectively suppressing default instantiation of the target bean.
    * <p>If a non-null object is returned by this method, the bean creation process
    * will be short-circuited. The only further processing applied is the
-   * {@link #postProcessAfterInitialization} callback from the configured
-   * {@link BeanPostProcessor BeanPostProcessors}.
+   * {@link InitializationBeanPostProcessor#postProcessAfterInitialization} callback
+   * from the configured {@link BeanPostProcessor BeanPostProcessors}.
    * <p>This callback will be applied to bean definitions with their bean class,
    * as well as to factory-method definitions in which case the returned bean type
    * will be passed in here.

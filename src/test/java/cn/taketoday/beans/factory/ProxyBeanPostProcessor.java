@@ -31,7 +31,7 @@ import cn.taketoday.logging.LoggerFactory;
  */
 //@Singleton
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ProxyBeanPostProcessor implements BeanPostProcessor {
+public class ProxyBeanPostProcessor implements InitializationBeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(ProxyBeanPostProcessor.class);
 
   @Override

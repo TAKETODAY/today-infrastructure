@@ -57,7 +57,7 @@ import java.util.Map;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.autowire.AutowiredDependencyCollector;
+import cn.taketoday.context.autowire.AutowiredDependenciesBeanPostProcessor;
 import cn.taketoday.lang.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,9 +76,9 @@ public class BeanFactoryHandlerInstantiatorTests {
   @BeforeEach
   public void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
-    AutowiredDependencyCollector bpp = new AutowiredDependencyCollector(context);
+    AutowiredDependenciesBeanPostProcessor bpp = new AutowiredDependenciesBeanPostProcessor(context);
     StandardBeanFactory beanFactory = context.getBeanFactory();
-    beanFactory.addDependencyResolvingStrategies(bpp);
+    beanFactory.addBeanPostProcessor(bpp);
     beanFactory.registerBeanDefinition(new BeanDefinition("capitalizer", Capitalizer.class));
     instantiator = new BeanFactoryHandlerInstantiator(beanFactory);
     objectMapper = Jackson2ObjectMapperBuilder.json().handlerInstantiator(instantiator).build();

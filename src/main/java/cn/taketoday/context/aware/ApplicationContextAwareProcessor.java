@@ -23,6 +23,7 @@ package cn.taketoday.context.aware;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -52,7 +53,7 @@ import cn.taketoday.lang.Nullable;
  * @see AbstractApplicationContext#refresh()
  * @since 4.0
  */
-public class ApplicationContextAwareProcessor implements BeanPostProcessor {
+public class ApplicationContextAwareProcessor implements InitializationBeanPostProcessor {
   private final ConfigurableApplicationContext context;
 
   /**

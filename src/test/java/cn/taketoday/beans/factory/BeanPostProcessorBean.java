@@ -30,7 +30,7 @@ import cn.taketoday.logging.LoggerFactory;
  */
 @Order(1)
 //@Singleton
-public class BeanPostProcessorBean implements BeanPostProcessor {
+public class BeanPostProcessorBean implements InitializationBeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(BeanPostProcessorBean.class);
 
   @Override

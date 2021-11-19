@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.autowire;
+package cn.taketoday.context.annotation;
+
+import java.util.Properties;
 
 import cn.taketoday.beans.dependency.DependencyInjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
@@ -25,10 +27,6 @@ import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 import cn.taketoday.beans.dependency.MapBeanDependencyResolver;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.PropsReader;
-
-import java.util.Properties;
 
 /**
  * Handle {@link Props} annotated on dependency
@@ -36,7 +34,6 @@ import java.util.Properties;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/17 15:38
  */
-@SuppressWarnings("rawtypes")
 public class PropsDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   private final PropsReader propsReader;

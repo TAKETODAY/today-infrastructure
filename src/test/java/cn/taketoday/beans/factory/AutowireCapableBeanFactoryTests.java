@@ -20,6 +20,10 @@
 
 package cn.taketoday.beans.factory;
 
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;
@@ -29,9 +33,6 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Value;
-import org.junit.jupiter.api.Test;
-
-import javax.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -145,7 +146,7 @@ class AutowireCapableBeanFactoryTests {
     }
   }
 
-  static class PostProcessor implements BeanPostProcessor, DestructionBeanPostProcessor {
+  static class PostProcessor implements InitializationBeanPostProcessor, DestructionBeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
