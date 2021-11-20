@@ -22,7 +22,6 @@ package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.dependency.DefaultDependencySetter;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
@@ -50,7 +49,7 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
   }
 
   @Override
-  public void postProcessDependencies(Object bean, BeanDefinition name, ConfigurableBeanFactory beanFactory) {
+  public void postProcessDependencies(Object bean, BeanDefinition name) {
     Class<?> beanClass = bean.getClass();
 
     MergedAnnotation<Props> annotation = MergedAnnotations.from(beanClass).get(Props.class);
@@ -66,7 +65,8 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
         if (!property.isReadOnly()) {
           Object converted = propsReader.read(property, defaultProps, propertyResolver);
           if (converted != null) {
-            new DefaultDependencySetter(converted, property).applyTo(bean, beanFactory);
+            new DefaultDependencySetter(converted, property)
+                    .applyTo(bean, null);
           }
         }
       }

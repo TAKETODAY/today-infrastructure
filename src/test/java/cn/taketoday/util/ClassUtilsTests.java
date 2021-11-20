@@ -84,26 +84,29 @@ class ClassUtilsTests {
     assert ClassUtils.resolvePrimitiveClassName(null) == null;
   }
 
+  void assertForName(String name, Class<?> typeToMatch) throws ClassNotFoundException {
+    Class<Object> objectClass = ClassUtils.forName(name);
+    assert objectClass == typeToMatch;
+  }
+
   @Test
   void forName() throws ClassNotFoundException {
 
-    assert ClassUtils.forName("java.lang.Float") == Float.class;
-    assert ClassUtils.forName("float") == float.class;
-    assert ClassUtils.forName("java.lang.String[]") == String[].class;
-    assert ClassUtils.forName("[Ljava.lang.String;") == String[].class;
-    assert ClassUtils.forName("[[Ljava.lang.String;") == String[][].class;
+    assertForName("java.lang.Float", Float.class);
+    assertForName("float", float.class);
+    assertForName("java.lang.String[]", String[].class);
+    assertForName("[Ljava.lang.String;", String[].class);
+    assertForName("[[Ljava.lang.String;", String[][].class);
 
     try {
       ClassUtils.forName("Float");
     }
-    catch (ClassNotFoundException e) {
-    }
-    assert ClassUtils.forName("cn.taketoday.util.ClassUtilsTests.INNER") == INNER.class;
+    catch (ClassNotFoundException ignored) { }
+    assertForName("cn.taketoday.util.ClassUtilsTests.INNER", INNER.class);
     try {
       ClassUtils.forName("cn.taketoday.util.ClassUtilsTests.INNERs");//
     }
-    catch (ClassNotFoundException e) {
-    }
+    catch (ClassNotFoundException ignored) { }
     assertThat(ClassUtils.forName("java.lang.String", classLoader)).isEqualTo(String.class);
     assertThat(ClassUtils.forName("java.lang.String[]", classLoader)).isEqualTo(String[].class);
     assertThat(ClassUtils.forName(String[].class.getName(), classLoader)).isEqualTo(String[].class);
@@ -636,13 +639,15 @@ class ClassUtilsTests {
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @ValueSource(classes = { Boolean.class, Character.class, Byte.class, Short.class,
-          Integer.class, Long.class, Float.class, Double.class, Void.class }) @interface WrapperTypes {
+          Integer.class, Long.class, Float.class, Double.class, Void.class })
+  @interface WrapperTypes {
   }
 
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @ValueSource(classes = { boolean.class, char.class, byte.class, short.class,
-          int.class, long.class, float.class, double.class, void.class }) @interface PrimitiveTypes {
+          int.class, long.class, float.class, double.class, void.class })
+  @interface PrimitiveTypes {
   }
 
   @Test
