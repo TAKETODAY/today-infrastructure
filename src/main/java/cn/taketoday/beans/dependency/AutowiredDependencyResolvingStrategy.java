@@ -20,10 +20,11 @@
 
 package cn.taketoday.beans.dependency;
 
+import java.lang.reflect.Member;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.util.StringUtils;
 
@@ -34,22 +35,36 @@ import cn.taketoday.util.StringUtils;
 public class AutowiredDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
-    BeanFactory beanFactory = resolvingContext.getBeanFactory();
+  public void resolveDependency(
+          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+    BeanFactory beanFactory = context.getBeanFactory();
     if (beanFactory != null) {
-      Class<?> dependencyType = injectionPoint.getDependencyType();
-      MergedAnnotations annotations = injectionPoint.getAnnotations();
-      MergedAnnotation<Autowired> autowired = annotations.get(Autowired.class); // @Autowired on parameter
-      Object bean = resolveBean(autowired, dependencyType, beanFactory);
-      if (bean == null) {
-        if (injectionPoint.isRequired()) { // if it is required
-          throw new NoSuchBeanDefinitionException(
-                  "[" + injectionPoint + "] is required and there isn't a [" + dependencyType + "] bean", (Throwable) null);
+      MergedAnnotation<Autowired> autowired = injectionPoint.getAnnotation(Autowired.class); // @Autowired on parameter
+      Object target = injectionPoint.getTarget();
+      if (target instanceof Member) {
+        if (autowired.isPresent()) {
+          resolve(injectionPoint, context, beanFactory, autowired);
         }
       }
-
-      resolvingContext.setDependency(bean);
+      else {
+        // resolve on parameter
+        resolve(injectionPoint, context, beanFactory, autowired);
+      }
     }
+  }
+
+  private void resolve(
+          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context,
+          BeanFactory beanFactory, MergedAnnotation<Autowired> autowired) {
+    Class<?> dependencyType = injectionPoint.getDependencyType();
+    Object bean = resolveBean(autowired, dependencyType, beanFactory);
+    if (bean == null) {
+      if (injectionPoint.isRequired()) { // if it is required
+        throw new NoSuchBeanDefinitionException(
+                "[" + injectionPoint + "] is required and there isn't a [" + dependencyType + "] bean", (Throwable) null);
+      }
+    }
+    context.setDependency(bean);
   }
 
   protected Object resolveBean(
