@@ -388,7 +388,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     // 2. apply outside framework expanded
     if (!def.isSynthetic()) {
       for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
-        processor.postProcessDependencies(bean, def, this);
+        processor.postProcessDependencies(bean, def);
       }
     }
   }

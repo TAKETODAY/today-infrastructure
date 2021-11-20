@@ -1320,8 +1320,8 @@ public abstract class AbstractBeanFactory
   public void addBeanPostProcessors(Collection<? extends BeanPostProcessor> beanPostProcessors) {
     invalidatePostProcessorsCache();
 
-    this.postProcessors.removeAll(beanPostProcessors);
-    this.postProcessors.addAll(beanPostProcessors);
+    postProcessors.removeAll(beanPostProcessors);
+    postProcessors.addAll(beanPostProcessors);
     AnnotationAwareOrderComparator.sort(postProcessors);
   }
 
