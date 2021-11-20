@@ -23,9 +23,9 @@ package cn.taketoday.beans.dependency;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -40,73 +40,87 @@ import cn.taketoday.util.ObjectUtils;
 public class DependencyResolvingStrategies implements DependencyResolvingStrategy {
   private static final Logger log = LoggerFactory.getLogger(DependencyResolvingStrategies.class);
 
-  private final StrategiesDetector strategiesDetector;
   private final ArrayList<DependencyResolvingStrategy> resolvingStrategies = new ArrayList<>();
-
-  public DependencyResolvingStrategies() {
-    this.strategiesDetector = TodayStrategies.getDetector();
-  }
-
-  public DependencyResolvingStrategies(StrategiesDetector strategiesDetector) {
-    Assert.notNull(strategiesDetector, "StrategiesDetector must not be null");
-    this.strategiesDetector = strategiesDetector;
-  }
 
   @Override
   public void resolveDependency(
           DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
-    Class<?> dependencyType = injectionPoint.getDependencyType();
-    Object dependency = findProvided(dependencyType, resolvingContext.getProvidedArgs());
-    resolvingContext.setDependency(dependency);
-
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
       resolvingStrategy.resolveDependency(injectionPoint, resolvingContext);
       if (resolvingContext.isTerminate()) {
         return;
       }
     }
-  }
-
-  @Nullable
-  public static Object findProvided(Class<?> dependencyType, @Nullable Object[] providedArgs) {
-    if (ObjectUtils.isNotEmpty(providedArgs)) {
-      for (final Object providedArg : providedArgs) {
-        if (dependencyType.isInstance(providedArg)) {
-          return providedArg;
-        }
-      }
+    if (!resolvingContext.hasDependency()) {
+      resolvingContext.setDependency(DependencyInjectionPoint.DO_NOT_SET);
     }
-    return null;
   }
 
-  public ArrayList<DependencyResolvingStrategy> getResolvingStrategies() {
+  public void initStrategies(
+          @Nullable StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
+    log.debug("Initialize dependency-resolving-strategies");
+    resolvingStrategies.add(new OptionalDependencyResolver());
+    resolvingStrategies.add(new ArrayBeanDependencyResolver());
+    resolvingStrategies.add(new ObjectSupplierDependencyResolvingStrategy());
+    resolvingStrategies.add(new CollectionDependencyResolvingStrategy());
+    resolvingStrategies.add(new AutowiredDependencyResolvingStrategy());
+
+    try { // @formatter:off
+      resolvingStrategies.add(new JSR330InjectDependencyResolver());
+      log.debug("Add JSR-330 '@Inject,@Named' annotation supports");
+    }
+    catch (Exception ignored) {}
+    try {
+      resolvingStrategies.add(new JSR250ResourceDependencyResolvingStrategy());
+      log.debug("Add JSR-250 '@Resource' annotation supports");
+    }
+    catch (Exception ignored) {}
+    // @formatter:on
+
+    if (strategiesDetector == null) {
+      strategiesDetector = TodayStrategies.getDetector();
+    }
+    List<DependencyResolvingStrategy> strategies =
+            strategiesDetector.getStrategies(DependencyResolvingStrategy.class, beanFactory);
+
+    // un-ordered
+    resolvingStrategies.addAll(strategies); // @since 4.0
+    resolvingStrategies.trimToSize();
+    AnnotationAwareOrderComparator.sort(resolvingStrategies);
+  }
+
+  public ArrayList<DependencyResolvingStrategy> getStrategies() {
     return resolvingStrategies;
   }
 
-  public void setResolvingStrategies(DependencyResolvingStrategy... strategies) {
-    resolvingStrategies.clear();
-    addResolvingStrategies(strategies);
+  public void setStrategies(DependencyResolvingStrategy... strategies) {
+    clear();
+    addStrategies(strategies);
     resolvingStrategies.trimToSize();
   }
 
-  public void setResolvingStrategies(List<DependencyResolvingStrategy> strategies) {
-    resolvingStrategies.clear();
-    addResolvingStrategies(strategies);
+  public void setStrategies(List<DependencyResolvingStrategy> strategies) {
+    clear();
+    addStrategies(strategies);
     resolvingStrategies.trimToSize();
   }
 
-  public void addResolvingStrategies(DependencyResolvingStrategy... strategies) {
+  public void addStrategies(DependencyResolvingStrategy... strategies) {
     if (ObjectUtils.isNotEmpty(strategies)) {
       CollectionUtils.addAll(resolvingStrategies, strategies);
       AnnotationAwareOrderComparator.sort(resolvingStrategies);
     }
   }
 
-  public void addResolvingStrategies(List<DependencyResolvingStrategy> strategies) {
+  public void addStrategies(List<DependencyResolvingStrategy> strategies) {
     if (CollectionUtils.isNotEmpty(strategies)) {
       CollectionUtils.addAll(resolvingStrategies, strategies);
       AnnotationAwareOrderComparator.sort(resolvingStrategies);
     }
+  }
+
+  public void clear() {
+    resolvingStrategies.clear();
   }
 
 }

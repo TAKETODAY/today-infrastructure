@@ -37,6 +37,10 @@ import cn.taketoday.lang.Required;
  * @since 4.0
  */
 public abstract class DependencyInjectionPoint implements Serializable {
+  /**
+   * It shows that the value is not set
+   */
+  public static final Object DO_NOT_SET = new Object();
 
   protected Boolean required = null;
   protected MergedAnnotations annotations;

@@ -21,7 +21,6 @@
 package cn.taketoday.beans.dependency;
 
 import java.lang.reflect.Executable;
-import java.util.Arrays;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
@@ -33,8 +32,6 @@ import cn.taketoday.lang.Nullable;
 public class DependencyResolvingContext {
 
   @Nullable
-  private final Object[] providedArgs;
-
   private final Executable executable;
 
   @Nullable
@@ -47,19 +44,14 @@ public class DependencyResolvingContext {
   private boolean terminate;
 
   public DependencyResolvingContext(
-          Executable executable, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
-    this.providedArgs = providedArgs;
+          @Nullable Executable executable, @Nullable BeanFactory beanFactory) {
     this.executable = executable;
     this.beanFactory = beanFactory;
   }
 
+  @Nullable
   public Executable getExecutable() {
     return executable;
-  }
-
-  @Nullable
-  public Object[] getProvidedArgs() {
-    return providedArgs;
   }
 
   @Nullable
@@ -99,8 +91,7 @@ public class DependencyResolvingContext {
   @Override
   public String toString() {
     return "DependencyResolvingContext{" +
-            "providedArgs=" + Arrays.toString(providedArgs) +
-            ", executable=" + executable +
+            "executable=" + executable +
             ", beanFactory=" + beanFactory +
             ", dependency=" + dependency +
             '}';
