@@ -57,11 +57,7 @@ import java.util.Map;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
-<<<<<<< HEAD
-import cn.taketoday.context.autowire.AutowiredDependencyCollector;
-=======
 import cn.taketoday.context.autowire.AutowiredDependenciesBeanPostProcessor;
->>>>>>> refactor-di
 import cn.taketoday.lang.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,11 +76,7 @@ public class BeanFactoryHandlerInstantiatorTests {
   @BeforeEach
   public void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
-<<<<<<< HEAD
-    AutowiredDependencyCollector bpp = new AutowiredDependencyCollector(context);
-=======
     AutowiredDependenciesBeanPostProcessor bpp = new AutowiredDependenciesBeanPostProcessor(context);
->>>>>>> refactor-di
     StandardBeanFactory beanFactory = context.getBeanFactory();
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.registerBeanDefinition(new BeanDefinition("capitalizer", Capitalizer.class));
