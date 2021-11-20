@@ -24,12 +24,16 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.dependency.DefaultDependencySetter;
+import cn.taketoday.beans.dependency.DependencyInjectionPoint;
+import cn.taketoday.beans.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.dependency.FieldInjectionPoint;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,32 +55,24 @@ class PropsPropertyResolverTests {
   public void propsPropertyResolver() throws Throwable {
 
     try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
-      PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
-      PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
+      PropsDependencyResolvingStrategy strategy = new PropsDependencyResolvingStrategy(applicationContext);
 
-      DefaultDependencySetter resolveProperty =
-              propertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "properties"));
+      BeanProperty property1 = BeanProperty.valueOf(getClass(), "properties");
+
+      DependencyInjectionPoint injectionPoint = new FieldInjectionPoint(property1.getField());
+
+      ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
+
+      DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
+      strategy.resolveDependency(injectionPoint, context);
+      Object resolveProperty = context.getDependency();
 
       assertThat(resolveProperty).isNotNull();
 
-      BeanProperty property = resolveProperty.getProperty();
-      assertThat(property).isNotNull();
-      assertThat(property.getPropertyName()).isNotNull()
-              .isEqualTo("properties").isEqualTo(property.getName());
-
-      assertThat(property.isReadOnly()).isFalse();
-      assertThat(property.isArray()).isFalse();
-      assertThat(property.isList()).isFalse();
-      assertThat(property.isMap()).isTrue();
-      assertThat(property.isAnnotationPresent(Props.class)).isTrue();
-
-      Object value = resolveProperty.getValue();
-      assertThat(property.isInstance(value)).isTrue();
-
-      assertThat(value).isNotNull()
+      assertThat(resolveProperty).isNotNull()
               .isInstanceOf(Properties.class);
 
-      Properties properties = (Properties) value;
+      Properties properties = (Properties) resolveProperty;
       assertThat(properties).isNotEmpty();
       for (String stringPropertyName : properties.stringPropertyNames()) {
         assertThat(stringPropertyName).startsWith("site.");
@@ -86,15 +82,6 @@ class PropsPropertyResolverTests {
 
   @Test
   void errorPropsPropertyResolver() throws Throwable {
-
-    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-      PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
-      PropertyResolvingContext resolvingContext = new PropertyResolvingContext(applicationContext);
-
-      assertThatThrownBy(() -> propertyResolver.resolveProperty(resolvingContext, BeanProperty.valueOf(getClass(), "name")))
-              .hasMessage("Props usage error, cannot declare it on simple-type property, Use @Value instead")
-              .isInstanceOf(PropertyException.class);
-    }
 
   }
 

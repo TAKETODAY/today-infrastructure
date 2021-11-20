@@ -48,7 +48,8 @@ import cn.taketoday.util.ObjectUtils;
  * @see BeanFactory
  * @see Value
  * @see Env
- * @see ArgumentsResolvingStrategy
+ * @see DependencyResolvingStrategies
+ * @see cn.taketoday.beans.dependency.DependencyResolvingStrategy
  * @since 4.0
  */
 public class ArgumentsResolver {

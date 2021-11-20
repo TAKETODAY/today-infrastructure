@@ -41,9 +41,9 @@ class YamlStrategiesReaderTests {
 
     assertThat(read)
             .hasSize(1)
-            .containsKey("cn.taketoday.context.autowire.PropertyValueResolver");
+            .containsKey("cn.taketoday.beans.dependency.DependencyResolvingStrategy");
 
-    final List<String> strings = read.get("cn.taketoday.context.autowire.PropertyValueResolver");
+    final List<String> strings = read.get("cn.taketoday.beans.dependency.DependencyResolvingStrategy");
 
     assertThat(strings)
             .hasSize(4)

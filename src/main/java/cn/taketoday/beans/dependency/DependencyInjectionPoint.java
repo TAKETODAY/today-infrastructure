@@ -78,7 +78,7 @@ public abstract class DependencyInjectionPoint implements Serializable {
   protected abstract MergedAnnotations doGetAnnotations();
 
   public <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType) {
-    return annotations.isPresent(annotationType);
+    return getAnnotations().isPresent(annotationType);
   }
 
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {

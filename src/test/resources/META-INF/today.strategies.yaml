@@ -1,8 +1,8 @@
 cn:
   taketoday:
-    context:
-      autowire:
-        PropertyValueResolver:
+    beans:
+      dependency:
+        DependencyResolvingStrategy:
           - 111111w
           - 222222w
           - 333333w
