@@ -19,13 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
@@ -60,6 +53,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+
+import cn.taketoday.core.GenericTypeResolver;
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-06-0? ?
@@ -129,19 +129,19 @@ public abstract class ClassUtils {
     Set<Class<?>> primitiveTypes = new HashSet<>(32);
     primitiveTypes.addAll(primitiveWrapperTypeMap.values());
     Collections.addAll(primitiveTypes, boolean[].class, byte[].class, char[].class,
-            double[].class, float[].class, int[].class, long[].class, short[].class);
+                       double[].class, float[].class, int[].class, long[].class, short[].class);
     for (Class<?> primitiveType : primitiveTypes) {
       primitiveTypeNameMap.put(primitiveType.getName(), primitiveType);
     }
 
     registerCommonClasses(Boolean[].class, Byte[].class, Character[].class, Double[].class,
-            Float[].class, Integer[].class, Long[].class, Short[].class);
+                          Float[].class, Integer[].class, Long[].class, Short[].class);
     registerCommonClasses(Number.class, Number[].class, String.class, String[].class,
-            Class.class, Class[].class, Object.class, Object[].class);
+                          Class.class, Class[].class, Object.class, Object[].class);
     registerCommonClasses(Throwable.class, Exception.class, RuntimeException.class,
-            Error.class, StackTraceElement.class, StackTraceElement[].class);
+                          Error.class, StackTraceElement.class, StackTraceElement[].class);
     registerCommonClasses(Enum.class, Iterable.class, Iterator.class, Enumeration.class,
-            Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
+                          Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
 
     Class<?>[] javaLanguageInterfaceArray = {
             Serializable.class, Externalizable.class, Closeable.class,
@@ -303,9 +303,15 @@ public abstract class ClassUtils {
    * @see Class#forName(String, boolean, ClassLoader)
    * @since 2.1.7
    */
-  public static Class<?> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
+  @SuppressWarnings("unchecked")
+  public static <T> Class<T> forName(
+          String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
     Assert.notNull(name, "Name must not be null");
+    return (Class<T>) doForName(name, classLoader);
+  }
 
+  private static Class<?> doForName(
+          String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
     Class<?> clazz = resolvePrimitiveClassName(name);
     if (clazz == null) {
       clazz = commonClassCache.get(name);
@@ -317,21 +323,22 @@ public abstract class ClassUtils {
 
     // "java.lang.String[]" style arrays
     if (name.endsWith(ARRAY_SUFFIX)) {
-      Class<?> elementClass = //
-              forName(name.substring(0, name.length() - ARRAY_SUFFIX.length()));
+      Class<?> elementClass = doForName(
+              name.substring(0, name.length() - ARRAY_SUFFIX.length()), classLoader);
       return Array.newInstance(elementClass, 0).getClass();
     }
 
     // "[Ljava.lang.String;" style arrays
     if (name.startsWith(NON_PRIMITIVE_ARRAY_PREFIX) && name.endsWith(";")) {
-      Class<?> elementClass = //
-              forName(name.substring(NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1));
+      Class<?> elementClass = doForName(
+              name.substring(NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1), classLoader);
       return Array.newInstance(elementClass, 0).getClass();
     }
 
     // "[[I" or "[[Ljava.lang.String;" style arrays
     if (name.startsWith(INTERNAL_ARRAY_PREFIX)) {
-      Class<?> elementClass = forName(name.substring(INTERNAL_ARRAY_PREFIX.length()));
+      Class<?> elementClass = doForName(
+              name.substring(INTERNAL_ARRAY_PREFIX.length()), classLoader);
       return Array.newInstance(elementClass, 0).getClass();
     }
 
@@ -369,7 +376,7 @@ public abstract class ClassUtils {
    * @throws ClassNotFoundException when class could not be found
    * @since 2.1.6
    */
-  public static Class<?> forName(String name) throws ClassNotFoundException {
+  public static <T> Class<T> forName(String name) throws ClassNotFoundException {
     return forName(name, getDefaultClassLoader());
   }
 
@@ -393,7 +400,7 @@ public abstract class ClassUtils {
    * @see #forName(String, ClassLoader)
    * @since 4.0
    */
-  public static Class<?> resolveClassName(
+  public static <T> Class<T> resolveClassName(
           String className, @Nullable ClassLoader classLoader) throws IllegalArgumentException {
     try {
       return forName(className, classLoader);
@@ -713,8 +720,8 @@ public abstract class ClassUtils {
    */
   public static Class<?>[] toClassArray(Collection<Class<?>> collection) {
     return CollectionUtils.isEmpty(collection)
-            ? Constant.EMPTY_CLASS_ARRAY
-            : collection.toArray(Constant.EMPTY_CLASS_ARRAY);
+           ? Constant.EMPTY_CLASS_ARRAY
+           : collection.toArray(Constant.EMPTY_CLASS_ARRAY);
   }
 
   /**
