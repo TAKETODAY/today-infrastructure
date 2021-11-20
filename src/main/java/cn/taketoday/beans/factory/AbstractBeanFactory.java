@@ -38,7 +38,6 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyException;
 import cn.taketoday.beans.SmartFactoryBean;
-import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -379,8 +378,7 @@ public abstract class AbstractBeanFactory
    *
    * @param bean Bean instance
    * @param def use {@link BeanDefinition}
-   * @throws PropertyException If any {@link Exception} occurred when apply
-   * {@link DependencySetter}
+   * @throws PropertyException If any {@link Exception} occurred when apply properties
    * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
    * this {@link BeanFactory}
    */

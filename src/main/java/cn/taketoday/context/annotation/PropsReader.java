@@ -22,18 +22,10 @@ package cn.taketoday.context.annotation;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 
-import cn.taketoday.beans.dependency.DefaultDependencySetter;
-import cn.taketoday.beans.dependency.DependencySetter;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
@@ -43,8 +35,6 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.IterablePropertyResolver;
@@ -107,48 +97,6 @@ public class PropsReader {
     this.propertyResolver = propertyResolver;
   }
 
-  public List<DependencySetter> read(AnnotatedElement annotated) {
-    Assert.notNull(annotated, "AnnotatedElement must not be null");
-
-    MergedAnnotation<Props> annotation = MergedAnnotations.from(annotated).get(Props.class);
-    if (!annotation.isPresent()) {
-      return Collections.emptyList();
-    }
-
-    Class<?> type = getBeanClass(annotated);
-    if (log.isDebugEnabled()) {
-      log.debug("Loading Properties For: [{}]", type.getName());
-    }
-
-    DefaultProps defaultProps = new DefaultProps(annotation);
-    PropertyResolver propertyResolver = getResolver(defaultProps);
-
-    ArrayList<DependencySetter> dependencySetters = new ArrayList<>();
-    for (BeanProperty property : BeanMetadata.ofClass(type)) {
-      if (!property.isReadOnly()) {
-        Object converted = read(property, defaultProps, propertyResolver);
-        if (converted != null) {
-          dependencySetters.add(new DefaultDependencySetter(converted, property));
-        }
-      }
-    }
-    dependencySetters.trimToSize();
-    return dependencySetters;
-  }
-
-  public static Class<?> getBeanClass(AnnotatedElement annotated) {
-    if (annotated instanceof Class) {
-      return (Class<?>) annotated;
-    }
-    if (annotated instanceof BeanDefinition) {
-      return ((BeanDefinition) annotated).getBeanClass();
-    }
-    if (annotated instanceof Method) {
-      return ((Method) annotated).getReturnType();
-    }
-    throw new UnsupportedOperationException("Not support annotated element: [" + annotated + "]");
-  }
-
   public Object read(Field declaredField, Props props) {
     return read(BeanProperty.valueOf(declaredField), props);
   }
@@ -156,34 +104,6 @@ public class PropsReader {
   public Object read(BeanProperty property, Props props) {
     PropertyResolver propertyResolver = getResolver(props);
     return read(property, props, propertyResolver);
-  }
-
-  public List<DependencySetter> read(Class<?> type) {
-    Assert.notNull(type, "Class must not be null");
-
-    MergedAnnotation<Props> annotation = MergedAnnotations.from(type).get(Props.class);
-    if (!annotation.isPresent()) {
-      return Collections.emptyList();
-    }
-
-    if (log.isDebugEnabled()) {
-      log.debug("Loading Properties For: [{}]", type.getName());
-    }
-
-    DefaultProps defaultProps = new DefaultProps(annotation);
-    PropertyResolver propertyResolver = getResolver(defaultProps);
-
-    ArrayList<DependencySetter> dependencySetters = new ArrayList<>();
-    for (BeanProperty property : BeanMetadata.ofClass(type)) {
-      if (!property.isReadOnly()) {
-        Object converted = read(property, defaultProps, propertyResolver);
-        if (converted != null) {
-          dependencySetters.add(new DefaultDependencySetter(converted, property));
-        }
-      }
-    }
-    dependencySetters.trimToSize();
-    return dependencySetters;
   }
 
   /**

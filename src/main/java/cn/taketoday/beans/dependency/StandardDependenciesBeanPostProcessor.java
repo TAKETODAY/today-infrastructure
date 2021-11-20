@@ -115,7 +115,7 @@ public class StandardDependenciesBeanPostProcessor
    * Create property value
    *
    * @param property Property
-   * @return A new {@link DependencySetter}
+   * @return A resolved dependency
    */
   @Nullable
   public Object resolveProperty(Field property) {

@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.dependency.AbstractDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.support.BeanMetadata;
@@ -39,8 +38,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author TODAY 2021/11/15 22:55
  * @since 4.0
  */
-public class PropsDependenciesBeanPostProcessor
-        extends AbstractDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor {
+public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(PropsDependenciesBeanPostProcessor.class);
 
   private final PropsReader propsReader;

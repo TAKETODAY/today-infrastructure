@@ -52,7 +52,6 @@ class ParameterHandlerTests {
     Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);
     try {
       Object[] resolve = argumentsResolver.resolve(test);
-
       fail("ArgumentsResolvingStrategy");
     }
     catch (DependencyResolvingFailedException ignored) {

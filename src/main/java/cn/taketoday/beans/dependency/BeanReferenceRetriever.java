@@ -69,9 +69,9 @@ public class BeanReferenceRetriever {
   }
 
   /**
-   * Resolve reference {@link DependencySetter}
+   * Resolve reference
    *
-   * @return A {@link DependencySetter} bean or a proxy
+   * @return A bean or a proxy
    * @see BeanFactory#isFullLifecycle()
    * @see BeanFactory#isFullPrototype()
    */

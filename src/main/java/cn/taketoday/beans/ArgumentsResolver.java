@@ -55,9 +55,11 @@ import cn.taketoday.util.ObjectUtils;
 public class ArgumentsResolver {
   public static volatile ArgumentsResolver shared;
 
+  private final StrategiesDetector strategiesDetector;
+
   @Nullable
   private BeanFactory beanFactory;
-  private final DependencyResolvingStrategies resolvingStrategies;
+  private DependencyResolvingStrategies resolvingStrategies;
 
   public ArgumentsResolver() {
     this(TodayStrategies.getDetector());
@@ -74,8 +76,7 @@ public class ArgumentsResolver {
   public ArgumentsResolver(
           StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.resolvingStrategies = new DependencyResolvingStrategies();
-    resolvingStrategies.initStrategies(strategiesDetector, beanFactory);
+    this.strategiesDetector = strategiesDetector;
   }
 
   /**
@@ -159,7 +160,7 @@ public class ArgumentsResolver {
       DependencyResolvingContext context =
               new DependencyResolvingContext(parameter.getDeclaringExecutable(), beanFactory);
       ParameterInjectionPoint injectionPoint = new ParameterInjectionPoint(parameter);
-      resolvingStrategies.resolveDependency(injectionPoint, context);
+      resolvingStrategies().resolveDependency(injectionPoint, context);
       provided = context.getDependency() == ParameterInjectionPoint.DO_NOT_SET
                  ? null : context.getDependency();
     }
@@ -173,6 +174,22 @@ public class ArgumentsResolver {
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  public void setStrategies(DependencyResolvingStrategies resolvingStrategies) {
+    this.resolvingStrategies = resolvingStrategies;
+  }
+
+  public DependencyResolvingStrategies resolvingStrategies() {
+    if (resolvingStrategies == null) {
+      this.resolvingStrategies = new DependencyResolvingStrategies();
+      resolvingStrategies.initStrategies(strategiesDetector, beanFactory);
+    }
+    return resolvingStrategies;
+  }
+
+  public DependencyResolvingStrategies getStrategies() {
+    return resolvingStrategies;
   }
 
   /**
