@@ -23,11 +23,6 @@ package cn.taketoday.context.autowire;
 import java.util.ArrayList;
 import java.util.List;
 
-<<<<<<< HEAD:src/main/java/cn/taketoday/context/autowire/AutowiredDependencyCollector.java
-import cn.taketoday.beans.dependency.DependencyCollectingContext;
-import cn.taketoday.beans.dependency.DependencyCollector;
-=======
->>>>>>> refactor-di:src/main/java/cn/taketoday/context/autowire/AutowiredDependenciesBeanPostProcessor.java
 import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.dependency.InjectableMethodDependencySetter;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -53,13 +48,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see DependencySetter
  * @since 4.0
  */
-<<<<<<< HEAD:src/main/java/cn/taketoday/context/autowire/AutowiredDependencyCollector.java
-public class AutowiredDependencyCollector implements DependencyCollector {
-  private static final Logger log = LoggerFactory.getLogger(AutowiredDependencyCollector.class);
-=======
 public class AutowiredDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(AutowiredDependenciesBeanPostProcessor.class);
->>>>>>> refactor-di:src/main/java/cn/taketoday/context/autowire/AutowiredDependenciesBeanPostProcessor.java
 
   private final ApplicationContext context;
 
@@ -72,11 +62,7 @@ public class AutowiredDependenciesBeanPostProcessor implements DependenciesBeanP
   @Nullable
   private PropertyValueResolverComposite resolvingStrategies;
 
-<<<<<<< HEAD:src/main/java/cn/taketoday/context/autowire/AutowiredDependencyCollector.java
-  public AutowiredDependencyCollector(ApplicationContext context) {
-=======
   public AutowiredDependenciesBeanPostProcessor(ApplicationContext context) {
->>>>>>> refactor-di:src/main/java/cn/taketoday/context/autowire/AutowiredDependenciesBeanPostProcessor.java
     this.context = context;
   }
 
@@ -85,40 +71,15 @@ public class AutowiredDependenciesBeanPostProcessor implements DependenciesBeanP
   //---------------------------------------------------------------------
 
   @Override
-<<<<<<< HEAD:src/main/java/cn/taketoday/context/autowire/AutowiredDependencyCollector.java
-  public void collectDependencies(DependencyCollectingContext collectingContext) {
-    Class<?> beanClass = collectingContext.getBeanClass();
-    resolvePropertyValues(collectingContext, beanClass);
-  }
-
-  //---------------------------------------------------------------------
-  // PropertyValue (PropertySetter) resolving @since 3.0
-  //---------------------------------------------------------------------
-
-  /**
-   * Process bean's property (field)
-   *
-   * @param resolvingContext resolving context
-   * @param beanClass Bean class
-   * @since 3.0
-   */
-  public void resolvePropertyValues(
-          DependencyCollectingContext resolvingContext, Class<?> beanClass) {
-=======
   public void postProcessDependencies(Object bean, BeanDefinition definition, ConfigurableBeanFactory beanFactory) {
     Class<?> beanClass = bean.getClass();
->>>>>>> refactor-di:src/main/java/cn/taketoday/context/autowire/AutowiredDependenciesBeanPostProcessor.java
     BeanMetadata beanMetadata = BeanMetadata.ofClass(beanClass);
     for (BeanProperty beanProperty : beanMetadata) {
       if (!beanProperty.isReadOnly()) {
         // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
         DependencySetter created = resolveProperty(beanProperty);
         if (created != null) {
-<<<<<<< HEAD:src/main/java/cn/taketoday/context/autowire/AutowiredDependencyCollector.java
-          resolvingContext.addDependency(created);
-=======
           created.applyTo(bean, beanFactory);
->>>>>>> refactor-di:src/main/java/cn/taketoday/context/autowire/AutowiredDependenciesBeanPostProcessor.java
         }
       }
     }
@@ -126,12 +87,8 @@ public class AutowiredDependenciesBeanPostProcessor implements DependenciesBeanP
     // process methods
     ReflectionUtils.doWithMethods(beanClass, method -> {
       if (AutowiredPropertyResolver.isInjectable(method)) {
-<<<<<<< HEAD:src/main/java/cn/taketoday/context/autowire/AutowiredDependencyCollector.java
-        resolvingContext.addDependency(new InjectableMethodDependencySetter(method));
-=======
         InjectableMethodDependencySetter created = new InjectableMethodDependencySetter(method);
         created.applyTo(bean, beanFactory);
->>>>>>> refactor-di:src/main/java/cn/taketoday/context/autowire/AutowiredDependenciesBeanPostProcessor.java
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
   }
