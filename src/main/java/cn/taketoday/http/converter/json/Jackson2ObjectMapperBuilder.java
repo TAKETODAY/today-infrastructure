@@ -831,11 +831,10 @@ public class Jackson2ObjectMapperBuilder {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private void registerWellKnownModulesIfAvailable(MultiValueMap<Object, Module> modulesToRegister) {
     try {
-      Class<? extends Module> jdk8ModuleClass = (Class<? extends Module>)
-              ClassUtils.forName("com.fasterxml.jackson.datatype.jdk8.Jdk8Module", this.moduleClassLoader);
+      Class<? extends Module> jdk8ModuleClass = ClassUtils.forName(
+              "com.fasterxml.jackson.datatype.jdk8.Jdk8Module", this.moduleClassLoader);
       Module jdk8Module = BeanUtils.newInstance(jdk8ModuleClass);
       modulesToRegister.set(jdk8Module.getTypeId(), jdk8Module);
     }
@@ -844,8 +843,8 @@ public class Jackson2ObjectMapperBuilder {
     }
 
     try {
-      Class<? extends Module> javaTimeModuleClass = (Class<? extends Module>)
-              ClassUtils.forName("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", this.moduleClassLoader);
+      Class<? extends Module> javaTimeModuleClass = ClassUtils.forName(
+              "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", this.moduleClassLoader);
       Module javaTimeModule = BeanUtils.newInstance(javaTimeModuleClass);
       modulesToRegister.set(javaTimeModule.getTypeId(), javaTimeModule);
     }

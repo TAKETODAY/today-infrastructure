@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -43,8 +44,10 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
-import cn.taketoday.context.autowire.AutowiredDependenciesBeanPostProcessor;
+import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
@@ -402,7 +405,7 @@ public abstract class AbstractApplicationContext
 
   @Override
   public boolean isRunning() {
-    return (this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning());
+    return this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning();
   }
 
   // lifecycleProcessor
@@ -447,8 +450,9 @@ public abstract class AbstractApplicationContext
    */
   LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
     if (this.lifecycleProcessor == null) {
-      throw new IllegalStateException("LifecycleProcessor not initialized - " +
-                                              "call 'refresh' before invoking lifecycle methods via the context: " + this);
+      throw new IllegalStateException(
+              "LifecycleProcessor not initialized - " +
+                      "call 'refresh' before invoking lifecycle methods via the context: " + this);
     }
     return this.lifecycleProcessor;
   }
@@ -475,7 +479,17 @@ public abstract class AbstractApplicationContext
 
     // register bean post processors
     beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-    beanFactory.addBeanPostProcessor(new AutowiredDependenciesBeanPostProcessor(this));
+    StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
+
+    DependencyResolvingStrategies resolvingStrategies = postProcessor.getResolvingStrategies();
+    ExpressionDependencyResolver expressionDependencyResolver = new ExpressionDependencyResolver();
+    expressionDependencyResolver.setExpressionEvaluator(getExpressionEvaluator());
+    resolvingStrategies.addStrategies(
+            expressionDependencyResolver,
+            new PropsDependencyResolvingStrategy(this)
+    );
+
+    beanFactory.addBeanPostProcessor(postProcessor);
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 
     beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);

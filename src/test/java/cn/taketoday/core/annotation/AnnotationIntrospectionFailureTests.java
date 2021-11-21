@@ -65,9 +65,9 @@ class AnnotationIntrospectionFailureTests {
 				getClass().getClassLoader());
 		Class<?> withExampleMetaAnnotation = ClassUtils.forName(
 				WithExampleMetaAnnotation.class.getName(), classLoader);
-		Class<Annotation> exampleAnnotationClass = (Class<Annotation>) ClassUtils.forName(
+		Class<Annotation> exampleAnnotationClass = ClassUtils.forName(
 				ExampleAnnotation.class.getName(), classLoader);
-		Class<Annotation> exampleMetaAnnotationClass = (Class<Annotation>) ClassUtils.forName(
+		Class<Annotation> exampleMetaAnnotationClass = ClassUtils.forName(
 				ExampleMetaAnnotation.class.getName(), classLoader);
 		assertThat(AnnotatedElementUtils.getMergedAnnotationAttributes(
 				withExampleMetaAnnotation, exampleAnnotationClass)).isNull();
@@ -86,9 +86,9 @@ class AnnotationIntrospectionFailureTests {
 				getClass().getClassLoader());
 		Class<?> withExampleMetaAnnotation = ClassUtils.forName(
 				WithExampleMetaAnnotation.class.getName(), classLoader);
-		Class<Annotation> exampleAnnotationClass = (Class<Annotation>) ClassUtils.forName(
+		Class<Annotation> exampleAnnotationClass = ClassUtils.forName(
 				ExampleAnnotation.class.getName(), classLoader);
-		Class<Annotation> exampleMetaAnnotationClass = (Class<Annotation>) ClassUtils.forName(
+		Class<Annotation> exampleMetaAnnotationClass = ClassUtils.forName(
 				ExampleMetaAnnotation.class.getName(), classLoader);
 		MergedAnnotations annotations = MergedAnnotations.from(withExampleMetaAnnotation);
 		assertThat(annotations.get(exampleAnnotationClass).isPresent()).isFalse();

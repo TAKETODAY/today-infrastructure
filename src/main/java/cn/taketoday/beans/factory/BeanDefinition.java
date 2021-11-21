@@ -31,7 +31,6 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.dependency.DependencySetter;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -473,9 +472,9 @@ public class BeanDefinition
   }
 
   /**
-   * Apply bean' {@link DependencySetter}s
+   * Apply bean' {@link PropertyValue}s
    *
-   * @param propertyValues The array of the bean's {@link DependencySetter}s
+   * @param propertyValues The array of the bean's PropertyValue s
    */
   public void setPropertyValues(PropertyValue... propertyValues) {
     if (this.propertyValues == null) {

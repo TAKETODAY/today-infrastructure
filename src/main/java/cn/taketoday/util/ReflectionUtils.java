@@ -55,13 +55,13 @@ public abstract class ReflectionUtils {
    * which are not declared on {@code java.lang.Object}.
    */
   public static final MethodFilter USER_DECLARED_METHODS
-          = (method -> !method.isBridge() && !method.isSynthetic());
+          = method -> !method.isBridge() && !method.isSynthetic();
 
   /**
    * Pre-built FieldFilter that matches all non-static, non-final fields.
    */
-  public static final FieldFilter COPYABLE_FIELDS = //
-          (field -> !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())));
+  public static final FieldFilter COPYABLE_FIELDS =
+          field -> !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()));
 
   /**
    * Naming prefix for CGLIB-renamed methods.

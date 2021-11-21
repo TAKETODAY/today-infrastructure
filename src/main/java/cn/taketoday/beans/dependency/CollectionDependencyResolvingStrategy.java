@@ -34,33 +34,36 @@ import cn.taketoday.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/17 20:00</a>
  * @since 4.0
  */
-public class CollectionDependencyResolvingStrategy implements DependencyResolvingStrategy {
+public class CollectionDependencyResolvingStrategy
+        extends InjectableDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(
+  protected boolean supportsInternal(
           DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
-    BeanFactory beanFactory = context.getBeanFactory();
-    if (beanFactory != null && !context.hasDependency()) {
-      if (Collection.class.isAssignableFrom(injectionPoint.getDependencyType())) {
-        ResolvableType resolvableType = injectionPoint.getResolvableType();
-        if (resolvableType.hasGenerics()) {
-          ResolvableType type = resolvableType.asCollection().getGeneric(0);
-          if (type == ResolvableType.NONE) {
-            throw new DependencyResolvingFailedException(
-                    "cannot determine a exactly bean type from injection-point: " + injectionPoint);
-          }
-          Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);
-          Collection<Object> objects = CollectionUtils.createCollection(
-                  injectionPoint.getDependencyType(), beans.size());
-          if (beans.isEmpty()) {
-            objects.addAll(beans.values());
-          }
-          if (objects instanceof List list) {
-            AnnotationAwareOrderComparator.sort(list);
-          }
-          context.setDependency(objects);
-        }
+    return Collection.class.isAssignableFrom(injectionPoint.getDependencyType());
+  }
+
+  @Override
+  protected void resolveInternal(
+          DependencyInjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
+    ResolvableType resolvableType = injectionPoint.getResolvableType();
+    if (resolvableType.hasGenerics()) {
+      ResolvableType type = resolvableType.asCollection().getGeneric(0);
+      if (type == ResolvableType.NONE) {
+        throw new DependencyResolvingFailedException(
+                "cannot determine a exactly bean type from injection-point: " + injectionPoint);
       }
+      Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);
+      Collection<Object> objects = CollectionUtils.createCollection(
+              injectionPoint.getDependencyType(), beans.size());
+      if (beans.isEmpty()) {
+        objects.addAll(beans.values());
+      }
+      if (objects instanceof List list) {
+        AnnotationAwareOrderComparator.sort(list);
+      }
+      context.setDependency(objects);
     }
   }
+
 }

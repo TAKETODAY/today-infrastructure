@@ -220,7 +220,7 @@ public class StrategiesDetector {
     Object instance = BeanUtils.newInstance(strategy, factory);
     if (factory instanceof AutowireCapableBeanFactory) {
       // autowire, don't apply bean post processor
-      ((AutowireCapableBeanFactory) factory).autowireBean(strategy);
+      ((AutowireCapableBeanFactory) factory).autowireBean(instance);
     }
     return instance;
   }

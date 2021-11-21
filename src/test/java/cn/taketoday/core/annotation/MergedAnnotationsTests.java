@@ -1987,7 +1987,7 @@ class MergedAnnotationsTests {
     Class<?> type = ClassUtils.forName(
             "cn.taketoday.core.annotation.subpackage.NonPublicAliasedAnnotatedClass",
             null);
-    Class<? extends Annotation> annotationType = (Class<? extends Annotation>) ClassUtils.forName(
+    Class<? extends Annotation> annotationType = ClassUtils.forName(
             "cn.taketoday.core.annotation.subpackage.NonPublicAliasedAnnotation",
             null);
     Annotation annotation = type.getAnnotation(annotationType);

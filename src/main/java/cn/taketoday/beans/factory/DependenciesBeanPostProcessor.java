@@ -26,5 +26,5 @@ package cn.taketoday.beans.factory;
  */
 public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
 
-  void postProcessDependencies(Object bean, BeanDefinition name, ConfigurableBeanFactory beanFactory);
+  void postProcessDependencies(Object bean, BeanDefinition name);
 }

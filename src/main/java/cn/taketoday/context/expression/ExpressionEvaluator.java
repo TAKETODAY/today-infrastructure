@@ -309,7 +309,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
         this.expressionProcessor = processor;
       }
       else {
-        return ExpressionProcessor.getSharedInstance();
+        this.expressionProcessor = ExpressionProcessor.getSharedInstance();
       }
     }
     return expressionProcessor;

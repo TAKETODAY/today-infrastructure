@@ -25,8 +25,10 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.beans.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.dependency.ParameterInjectionPoint;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.annotation.ArgumentsResolvingComposite;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
@@ -34,6 +36,7 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.lang.Value;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -45,15 +48,18 @@ import cn.taketoday.lang.Value;
  * @see BeanFactory
  * @see Value
  * @see Env
- * @see ArgumentsResolvingStrategy
+ * @see DependencyResolvingStrategies
+ * @see cn.taketoday.beans.dependency.DependencyResolvingStrategy
  * @since 4.0
  */
 public class ArgumentsResolver {
   public static volatile ArgumentsResolver shared;
 
+  private final StrategiesDetector strategiesDetector;
+
   @Nullable
   private BeanFactory beanFactory;
-  private final ArgumentsResolvingComposite argumentsResolvingComposite;
+  private DependencyResolvingStrategies resolvingStrategies;
 
   public ArgumentsResolver() {
     this(TodayStrategies.getDetector());
@@ -70,7 +76,7 @@ public class ArgumentsResolver {
   public ArgumentsResolver(
           StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.argumentsResolvingComposite = new ArgumentsResolvingComposite(strategiesDetector);
+    this.strategiesDetector = strategiesDetector;
   }
 
   /**
@@ -113,15 +119,26 @@ public class ArgumentsResolver {
     Assert.notNull(executable, "Executable must not be null");
     int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
-      ArgumentsResolvingContext resolvingContext
-              = new ArgumentsResolvingContext(executable, beanFactory, providedArgs);
       // parameter list
       Object[] args = new Object[parameterLength];
       int i = 0;
       for (Parameter parameter : executable.getParameters()) {
-        args[i++] = argumentsResolvingComposite.resolveArgument(parameter, resolvingContext);
+        args[i++] = resolve(parameter, beanFactory, providedArgs);
       }
       return args;
+    }
+    return null;
+  }
+
+  @Nullable
+  public static Object findProvided(Parameter parameter, @Nullable Object[] providedArgs) {
+    if (ObjectUtils.isNotEmpty(providedArgs)) {
+      Class<?> dependencyType = parameter.getType();
+      for (final Object providedArg : providedArgs) {
+        if (dependencyType.isInstance(providedArg)) {
+          return providedArg;
+        }
+      }
     }
     return null;
   }
@@ -129,23 +146,25 @@ public class ArgumentsResolver {
   /**
    * resolve just one Parameter
    */
-  public Object resolve(
-          Parameter parameter, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
-    ArgumentsResolvingContext resolvingContext
-            = new ArgumentsResolvingContext(parameter.getDeclaringExecutable(), beanFactory, providedArgs);
-    return resolve(parameter, resolvingContext);
+  public Object resolve(Parameter parameter, @Nullable Object[] providedArgs) {
+    return resolve(parameter, beanFactory, providedArgs);
   }
 
   /**
    * resolve just one Parameter
    */
-  public Object resolve(Parameter parameter, ArgumentsResolvingContext resolvingContext) {
-    return argumentsResolvingComposite.resolveArgument(parameter, resolvingContext);
-  }
-
-  @NonNull
-  public ArgumentsResolvingComposite getResolvingStrategies() {
-    return argumentsResolvingComposite;
+  public Object resolve(
+          Parameter parameter, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
+    Object provided = findProvided(parameter, providedArgs);
+    if (provided == null) {
+      DependencyResolvingContext context =
+              new DependencyResolvingContext(parameter.getDeclaringExecutable(), beanFactory);
+      ParameterInjectionPoint injectionPoint = new ParameterInjectionPoint(parameter);
+      resolvingStrategies().resolveDependency(injectionPoint, context);
+      provided = context.getDependency() == ParameterInjectionPoint.DO_NOT_SET
+                 ? null : context.getDependency();
+    }
+    return provided;
   }
 
   public void setBeanFactory(@Nullable BeanFactory beanFactory) {
@@ -155,6 +174,22 @@ public class ArgumentsResolver {
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  public void setStrategies(DependencyResolvingStrategies resolvingStrategies) {
+    this.resolvingStrategies = resolvingStrategies;
+  }
+
+  public DependencyResolvingStrategies resolvingStrategies() {
+    if (resolvingStrategies == null) {
+      this.resolvingStrategies = new DependencyResolvingStrategies();
+      resolvingStrategies.initStrategies(strategiesDetector, beanFactory);
+    }
+    return resolvingStrategies;
+  }
+
+  public DependencyResolvingStrategies getStrategies() {
+    return resolvingStrategies;
   }
 
   /**

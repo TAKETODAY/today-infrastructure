@@ -49,7 +49,7 @@ class BeanUtilsTests {
     assertThat(testNewInstanceBean).isNotNull();
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-
+      context.refresh();
       TestNewInstanceBeanProvidedArgs providedArgs =
               BeanUtils.newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
 

@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans.dependency;
 
-import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -44,6 +43,7 @@ public class BeanReferenceRetriever {
   /** record if property is prototype @since v2.1.6 */
   private boolean prototype = false;
   /** @since 3.0.2 */
+  @Nullable
   private BeanDefinition reference;
 
   public BeanReferenceRetriever(
@@ -69,9 +69,9 @@ public class BeanReferenceRetriever {
   }
 
   /**
-   * Resolve reference {@link DependencySetter}
+   * Resolve reference
    *
-   * @return A {@link DependencySetter} bean or a proxy
+   * @return A bean or a proxy
    * @see BeanFactory#isFullLifecycle()
    * @see BeanFactory#isFullPrototype()
    */
@@ -99,11 +99,15 @@ public class BeanReferenceRetriever {
   }
 
   /** @since 3.0.2 */
-  public void setReference(BeanDefinition reference, AbstractBeanFactory beanFactory) {
+  public void setReference(BeanDefinition reference, BeanFactory beanFactory) {
     this.reference = reference;
     if (beanFactory.isFullPrototype()) {
       setPrototype(reference.isPrototype());
     }
+  }
+
+  public void setReference(BeanDefinition reference) {
+    this.reference = reference;
   }
 
   /** @since 3.0.2 */

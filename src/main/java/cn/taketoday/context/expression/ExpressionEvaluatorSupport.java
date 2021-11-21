@@ -27,6 +27,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class ExpressionEvaluatorSupport {
+
   @Nullable
   private ExpressionEvaluator expressionEvaluator;
 
@@ -41,8 +42,13 @@ public class ExpressionEvaluatorSupport {
 
   protected ExpressionEvaluator evaluator() {
     if (expressionEvaluator == null) {
-      expressionEvaluator = ExpressionEvaluator.getSharedInstance();
+      expressionEvaluator = doGetExpressionEvaluator();
     }
     return expressionEvaluator;
   }
+
+  protected ExpressionEvaluator doGetExpressionEvaluator() {
+    return ExpressionEvaluator.getSharedInstance();
+  }
+
 }

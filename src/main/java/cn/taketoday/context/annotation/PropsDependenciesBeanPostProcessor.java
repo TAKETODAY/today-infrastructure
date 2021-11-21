@@ -20,9 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.dependency.DefaultDependencySetter;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
@@ -31,18 +29,18 @@ import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.env.PropertyResolver;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
+ * class level {@link Props}
+ *
  * @author TODAY 2021/11/15 22:55
  * @since 4.0
  */
 public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(PropsDependenciesBeanPostProcessor.class);
 
-  @Nullable
   private final PropsReader propsReader;
 
   public PropsDependenciesBeanPostProcessor(ApplicationContext context) {
@@ -50,7 +48,7 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
   }
 
   @Override
-  public void postProcessDependencies(Object bean, BeanDefinition name, ConfigurableBeanFactory beanFactory) {
+  public void postProcessDependencies(Object bean, BeanDefinition name) {
     Class<?> beanClass = bean.getClass();
 
     MergedAnnotation<Props> annotation = MergedAnnotations.from(beanClass).get(Props.class);
@@ -66,7 +64,7 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
         if (!property.isReadOnly()) {
           Object converted = propsReader.read(property, defaultProps, propertyResolver);
           if (converted != null) {
-            new DefaultDependencySetter(converted, property).applyTo(bean, beanFactory);
+            property.setValue(bean, converted);
           }
         }
       }

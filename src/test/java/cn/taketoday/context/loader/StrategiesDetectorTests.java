@@ -20,20 +20,17 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.dependency.DependencySetter;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.context.autowire.PropertyResolvingContext;
-import cn.taketoday.context.autowire.PropertyValueResolver;
+import cn.taketoday.beans.dependency.DependencyInjectionPoint;
+import cn.taketoday.beans.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.YamlStrategiesReader;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,16 +45,16 @@ class StrategiesDetectorTests {
 
     final StrategiesDetector loader = new StrategiesDetector();
     loader.setStrategiesLocation(TodayStrategies.STRATEGIES_LOCATION);
-    final List<PropertyValueResolver> strategy = loader.getStrategies(PropertyValueResolver.class);
+    final List<DependencyResolvingStrategy> strategy = loader.getStrategies(DependencyResolvingStrategy.class);
 
     assertThat(strategy)
             .hasSize(1);
 
     assertThat(loader.getStrategies())
-            .containsKey("cn.taketoday.context.autowire.PropertyValueResolver")
+            .containsKey("cn.taketoday.beans.dependency.DependencyResolvingStrategy")
             .hasSize(2);
 
-    final Collection<String> strategies = loader.getStrategies("cn.taketoday.context.autowire.PropertyValueResolver");
+    final Collection<String> strategies = loader.getStrategies("cn.taketoday.beans.dependency.DependencyResolvingStrategy");
 
     assertThat(strategies)
             .hasSize(4);
@@ -70,37 +67,35 @@ class StrategiesDetectorTests {
     loader.loadStrategies();
     final MultiValueMap<String, String> strategies = loader.getStrategies();
 
-    final List<PropertyValueResolver> strategy = loader.getStrategies(PropertyValueResolver.class);
+    final List<DependencyResolvingStrategy> strategy = loader.getStrategies(DependencyResolvingStrategy.class);
 
     assertThat(strategy)
             .hasSize(1);
 
     assertThat(strategies)
             .hasSize(1)
-            .containsKey("cn.taketoday.context.autowire.PropertyValueResolver");
+            .containsKey("cn.taketoday.beans.dependency.DependencyResolvingStrategy");
 
-    final List<String> strings = strategies.get("cn.taketoday.context.autowire.PropertyValueResolver");
+    final List<String> strings = strategies.get("cn.taketoday.beans.dependency.DependencyResolvingStrategy");
 
     assertThat(strings)
             .hasSize(4)
             .contains("cn.taketoday.context.loader.StrategiesDetectorTests$MyPropertyValueResolver");
   }
 
-  public static class MyPropertyValueResolver implements PropertyValueResolver {
+  public static class MyPropertyValueResolver implements DependencyResolvingStrategy {
 
-    @Nullable
     @Override
-    public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
-      return null;
+    public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+
     }
   }
 
-  public static class MyPropertyValueResolver1 implements PropertyValueResolver {
+  public static class MyPropertyValueResolver1 implements DependencyResolvingStrategy {
 
-    @Nullable
     @Override
-    public DependencySetter resolveProperty(PropertyResolvingContext context, BeanProperty property) throws PropertyException {
-      return null;
+    public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+
     }
   }
 

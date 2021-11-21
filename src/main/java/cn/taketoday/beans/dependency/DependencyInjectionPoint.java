@@ -37,6 +37,10 @@ import cn.taketoday.lang.Required;
  * @since 4.0
  */
 public abstract class DependencyInjectionPoint implements Serializable {
+  /**
+   * It shows that the value is not set
+   */
+  public static final Object DO_NOT_SET = new Object();
 
   protected Boolean required = null;
   protected MergedAnnotations annotations;
@@ -74,7 +78,7 @@ public abstract class DependencyInjectionPoint implements Serializable {
   protected abstract MergedAnnotations doGetAnnotations();
 
   public <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType) {
-    return annotations.isPresent(annotationType);
+    return getAnnotations().isPresent(annotationType);
   }
 
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {
@@ -129,5 +133,9 @@ public abstract class DependencyInjectionPoint implements Serializable {
   }
 
   public abstract Object getTarget();
+
+  public boolean isProperty() {
+    return false;
+  }
 
 }

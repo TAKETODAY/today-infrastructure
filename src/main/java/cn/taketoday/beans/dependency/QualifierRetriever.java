@@ -17,23 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.dependency;
 
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Bean property setter (applier)
- *
- * @author TODAY 2018-06-23 11:28:01
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/20 22:24</a>
+ * @since 4.0
  */
-@FunctionalInterface
-public interface DependencySetter {
+public interface QualifierRetriever {
 
   /**
-   * set value to property
+   * retrieve bean name
    *
-   * @param bean property's bean
-   * @param beanFactory current ConfigurableBeanFactory
+   * @param injectionPoint source
+   * @return bean name
    */
-  void applyTo(Object bean, ConfigurableBeanFactory beanFactory);
+  @Nullable
+  String retrieve(DependencyInjectionPoint injectionPoint);
+
 }

@@ -21,7 +21,6 @@
 package cn.taketoday.context.loader;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -221,13 +220,12 @@ public class ScanningBeanDefinitionReader {
    * <p>Also supports Java EE's {@link jakarta.annotation.ManagedBean} and
    * {@link jakarta.inject.Named} annotations, if available.
    */
-  @SuppressWarnings("unchecked")
   protected void registerDefaultFilters() {
     this.includeFilters.add(new AnnotationTypeFilter(Component.class));
     ClassLoader cl = getClass().getClassLoader();
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
-              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.annotation.ManagedBean", cl)), false));
+              ClassUtils.forName("jakarta.annotation.ManagedBean", cl), false));
       log.trace("'jakarta.annotation.ManagedBean' found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
@@ -235,7 +233,7 @@ public class ScanningBeanDefinitionReader {
     }
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
-              ((Class<? extends Annotation>) ClassUtils.forName("jakarta.inject.Named", cl)), false));
+              ClassUtils.forName("jakarta.inject.Named", cl), false));
       log.trace("'jakarta.inject.Named' annotation found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
