@@ -134,4 +134,8 @@ public abstract class DependencyInjectionPoint implements Serializable {
 
   public abstract Object getTarget();
 
+  public boolean isProperty() {
+    return false;
+  }
+
 }

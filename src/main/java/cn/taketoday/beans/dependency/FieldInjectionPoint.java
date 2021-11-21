@@ -69,4 +69,8 @@ public class FieldInjectionPoint extends DependencyInjectionPoint {
     return property;
   }
 
+  @Override
+  public boolean isProperty() {
+    return true;
+  }
 }
