@@ -26,12 +26,24 @@ import java.util.LinkedHashSet;
 
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.util.ClassUtils;
 
 /**
+ * Injectable annotations
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/20 22:10</a>
+ * @see jakarta.inject.Inject
+ * @see jakarta.annotation.Resource
+ * @see Autowired
  * @since 4.0
  */
 public class InjectableAnnotations {
+  public static final InjectableAnnotations shared = new InjectableAnnotations();
+
+  static {
+    shared.initDefaultAnnotations();
+  }
 
   private final LinkedHashSet<Class<? extends Annotation>> injectableAnnotations = new LinkedHashSet<>();
 
@@ -55,6 +67,19 @@ public class InjectableAnnotations {
       }
     }
     return false;
+  }
+
+  public void initDefaultAnnotations() {
+    try { // @formatter:off
+      addAnnotation(ClassUtils.forName("jakarta.inject.Inject"));
+    }
+    catch (Exception ignored) {}
+    try {
+      addAnnotation(ClassUtils.forName("jakarta.annotation.Resource"));
+    }
+    catch (Exception ignored) {}
+    // @formatter:on
+    addAnnotation(Autowired.class);
   }
 
 }

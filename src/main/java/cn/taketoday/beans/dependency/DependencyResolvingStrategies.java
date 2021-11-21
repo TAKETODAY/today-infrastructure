@@ -23,6 +23,7 @@ package cn.taketoday.beans.dependency;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -51,7 +52,11 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
         return;
       }
     }
+
     if (!resolvingContext.hasDependency()) {
+      if (injectionPoint.isRequired()) {
+        throw new DependencyResolvingFailedException("Dependency " + injectionPoint + "is required");
+      }
       resolvingContext.setDependency(DependencyInjectionPoint.DO_NOT_SET);
     }
   }
@@ -63,19 +68,6 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
     resolvingStrategies.add(new ArrayBeanDependencyResolver());
     resolvingStrategies.add(new ObjectSupplierDependencyResolvingStrategy());
     resolvingStrategies.add(new CollectionDependencyResolvingStrategy());
-    resolvingStrategies.add(new AutowiredDependencyResolvingStrategy());
-
-    try { // @formatter:off
-      resolvingStrategies.add(new JSR330InjectDependencyResolver());
-      log.debug("Add JSR-330 '@Inject,@Named' annotation supports");
-    }
-    catch (Exception ignored) {}
-    try {
-      resolvingStrategies.add(new JSR250ResourceDependencyResolvingStrategy());
-      log.debug("Add JSR-250 '@Resource' annotation supports");
-    }
-    catch (Exception ignored) {}
-    // @formatter:on
 
     if (strategiesDetector == null) {
       strategiesDetector = TodayStrategies.getDetector();
@@ -85,8 +77,11 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
     // un-ordered
     resolvingStrategies.addAll(strategies); // @since 4.0
-    resolvingStrategies.trimToSize();
     AnnotationAwareOrderComparator.sort(resolvingStrategies);
+
+    // last one
+    resolvingStrategies.add(new InjectableDependencyResolvingStrategy());
+    resolvingStrategies.trimToSize();
   }
 
   public ArrayList<DependencyResolvingStrategy> getStrategies() {

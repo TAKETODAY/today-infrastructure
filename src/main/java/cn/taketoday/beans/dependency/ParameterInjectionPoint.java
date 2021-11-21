@@ -68,4 +68,10 @@ public class ParameterInjectionPoint extends DependencyInjectionPoint {
     return parameter;
   }
 
+  @Override
+  public String toString() {
+    return "ParameterInjectionPoint{" +
+            "parameter=" + parameter +
+            '}';
+  }
 }

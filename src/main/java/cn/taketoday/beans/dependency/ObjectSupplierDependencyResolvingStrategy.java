@@ -31,30 +31,34 @@ import cn.taketoday.core.ResolvableType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/18 20:44</a>
  * @since 4.0
  */
-public class ObjectSupplierDependencyResolvingStrategy implements DependencyResolvingStrategy {
+public class ObjectSupplierDependencyResolvingStrategy
+        extends InjectableDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(
+  protected boolean supportsInternal(
           DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+    Class<?> dependencyType = injectionPoint.getDependencyType();
+    return dependencyType == ObjectSupplier.class || dependencyType == Supplier.class;
+  }
 
-    BeanFactory beanFactory = context.getBeanFactory();
-    if (beanFactory != null && !context.hasDependency()) {
-      Class<?> dependencyType = injectionPoint.getDependencyType();
-      if (dependencyType == ObjectSupplier.class || dependencyType == Supplier.class) {
-        ResolvableType parameterType = injectionPoint.getResolvableType();
-        if (parameterType.hasGenerics()) {
-          ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
-          if (generic == ResolvableType.NONE) {
-            throw new DependencyResolvingFailedException(
-                    "cannot determine a exactly bean type from injection-point: " + injectionPoint);
-          }
-          ObjectSupplier<Object> objectSupplier = beanFactory.getObjectSupplier(generic);
-          context.setDependency(objectSupplier); // terminate
-          context.setTerminate(true);
+  @Override
+  protected void resolveInternal(
+          DependencyInjectionPoint injectionPoint,
+          BeanFactory beanFactory, DependencyResolvingContext context) {
+    Class<?> dependencyType = injectionPoint.getDependencyType();
+    if (dependencyType == ObjectSupplier.class || dependencyType == Supplier.class) {
+      ResolvableType parameterType = injectionPoint.getResolvableType();
+      if (parameterType.hasGenerics()) {
+        ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
+        if (generic == ResolvableType.NONE) {
+          throw new DependencyResolvingFailedException(
+                  "cannot determine a exactly bean type from injection-point: " + injectionPoint);
         }
+        ObjectSupplier<Object> objectSupplier = beanFactory.getObjectSupplier(generic);
+        context.setDependency(objectSupplier); // terminate
+        context.setTerminate(true);
       }
     }
-
   }
 
 }

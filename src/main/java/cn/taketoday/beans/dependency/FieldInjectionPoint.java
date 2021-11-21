@@ -73,4 +73,11 @@ public class FieldInjectionPoint extends DependencyInjectionPoint {
   public boolean isProperty() {
     return true;
   }
+
+  @Override
+  public String toString() {
+    return "FieldInjectionPoint{" +
+            "property=" + property +
+            '}';
+  }
 }
