@@ -33,10 +33,13 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 
 /**
+ * Dependency InjectionPoint
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 21:29</a>
  * @since 4.0
  */
-public abstract class DependencyInjectionPoint implements Serializable {
+public abstract class InjectionPoint implements Serializable {
+
   /**
    * It shows that the value is not set
    */

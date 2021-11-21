@@ -30,7 +30,7 @@ public class OptionalDependencyResolver implements DependencyResolvingStrategy {
 
   @Override
   public void resolveDependency(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     if (injectionPoint.dependencyIs(Optional.class)) {
       if (context.hasDependency()) {
         context.setDependency(Optional.ofNullable(context.getDependency()));

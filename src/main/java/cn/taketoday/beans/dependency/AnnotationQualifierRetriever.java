@@ -47,7 +47,7 @@ public class AnnotationQualifierRetriever implements QualifierRetriever {
   }
 
   @Override
-  public String retrieve(DependencyInjectionPoint injectionPoint) {
+  public String retrieve(InjectionPoint injectionPoint) {
     MergedAnnotation<? extends Annotation> annotation = injectionPoint.getAnnotation(annotationType);
     return annotation.getValue(attributeName, String.class).orElse(null);
   }

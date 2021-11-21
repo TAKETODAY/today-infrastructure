@@ -21,7 +21,7 @@ package cn.taketoday.context.annotation;
 
 import java.util.Properties;
 
-import cn.taketoday.beans.dependency.DependencyInjectionPoint;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 import cn.taketoday.beans.dependency.MapBeanDependencyResolver;
@@ -47,7 +47,7 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
   }
 
   @Override
-  public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
+  public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
     if (injectionPoint.isAnnotationPresent(Props.class)) {
       Object dependency = resolvingContext.getDependency();

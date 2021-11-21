@@ -39,13 +39,13 @@ public class CollectionDependencyResolvingStrategy
 
   @Override
   protected boolean supportsInternal(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     return Collection.class.isAssignableFrom(injectionPoint.getDependencyType());
   }
 
   @Override
   protected void resolveInternal(
-          DependencyInjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
     ResolvableType resolvableType = injectionPoint.getResolvableType();
     if (resolvableType.hasGenerics()) {
       ResolvableType type = resolvableType.asCollection().getGeneric(0);

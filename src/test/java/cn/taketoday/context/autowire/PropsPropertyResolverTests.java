@@ -23,13 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.dependency.DependencyInjectionPoint;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.FieldInjectionPoint;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
@@ -59,7 +57,7 @@ class PropsPropertyResolverTests {
 
       BeanProperty property1 = BeanProperty.valueOf(getClass(), "properties");
 
-      DependencyInjectionPoint injectionPoint = new FieldInjectionPoint(property1.getField());
+      InjectionPoint injectionPoint = new FieldInjectionPoint(property1.getField());
 
       ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
 

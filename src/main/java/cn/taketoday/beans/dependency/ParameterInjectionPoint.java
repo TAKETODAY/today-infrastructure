@@ -31,7 +31,7 @@ import cn.taketoday.core.annotation.MergedAnnotations;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/20 16:11</a>
  * @since 4.0
  */
-public class ParameterInjectionPoint extends DependencyInjectionPoint {
+public class ParameterInjectionPoint extends InjectionPoint {
   private final Parameter parameter;
 
   public ParameterInjectionPoint(Parameter parameter) {

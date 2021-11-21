@@ -56,7 +56,7 @@ public class InjectableAnnotations {
     return isInjectable(MergedAnnotations.from(element));
   }
 
-  public boolean isInjectable(DependencyInjectionPoint injectionPoint) {
+  public boolean isInjectable(InjectionPoint injectionPoint) {
     return isInjectable(injectionPoint.getAnnotations());
   }
 

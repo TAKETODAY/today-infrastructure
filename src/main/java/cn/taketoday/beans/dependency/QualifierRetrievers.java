@@ -62,7 +62,7 @@ public class QualifierRetrievers implements QualifierRetriever {
 
   @Nullable
   @Override
-  public String retrieve(DependencyInjectionPoint injectionPoint) {
+  public String retrieve(InjectionPoint injectionPoint) {
     for (QualifierRetriever retriever : retrievers) {
       String qualifier = retriever.retrieve(injectionPoint);
       if (qualifier != null) {

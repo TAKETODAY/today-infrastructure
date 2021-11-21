@@ -14,7 +14,7 @@ import java.util.Map;
 public class MapBeanDependencyResolver implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+  public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
     BeanFactory beanFactory = context.getBeanFactory();
     if (beanFactory != null
             && !context.hasDependency()
@@ -27,7 +27,7 @@ public class MapBeanDependencyResolver implements DependencyResolvingStrategy {
     }
   }
 
-  protected Map getBeansOfType(DependencyInjectionPoint injectionPoint, BeanFactory beanFactory) {
+  protected Map getBeansOfType(InjectionPoint injectionPoint, BeanFactory beanFactory) {
     ResolvableType resolvableType = injectionPoint.getResolvableType();
     ResolvableType generic = resolvableType.asMap().getGeneric(1);
     Class<?> beanClass = generic.toClass();

@@ -63,20 +63,20 @@ public class InjectableDependencyResolvingStrategy
   private QualifierRetriever qualifierRetriever = QualifierRetrievers.shared;
 
   protected boolean supportsDependency(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     BeanFactory beanFactory = context.getBeanFactory();
     return beanFactory != null && !context.hasDependency()
             && supportsInternal(injectionPoint, context);
   }
 
   protected boolean supportsInternal(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     return true;
   }
 
   @Override
   public void resolveDependency(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     if (supportsDependency(injectionPoint, context)) {
       BeanFactory beanFactory = context.getBeanFactory();
       if (injectionPoint.isProperty()) {
@@ -91,18 +91,11 @@ public class InjectableDependencyResolvingStrategy
   }
 
   protected void resolveInternal(
-          DependencyInjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
     Assert.state(qualifierRetriever != null, "No QualifierRetriever");
     String beanName = qualifierRetriever.retrieve(injectionPoint);
     Class<?> dependencyType = injectionPoint.getDependencyType();
-    Object bean;
-    if (StringUtils.hasText(beanName)) {
-      // use name and bean type to get bean
-      bean = beanFactory.getBean(beanName, dependencyType);
-    }
-    else {
-      bean = beanFactory.getBean(dependencyType);
-    }
+    Object bean = getBean(beanFactory, beanName, dependencyType);
     if (bean == null) {
       if (injectionPoint.isRequired()) { // if it is required
         throw new NoSuchBeanDefinitionException(
@@ -110,6 +103,16 @@ public class InjectableDependencyResolvingStrategy
       }
     }
     context.setDependency(bean);
+  }
+
+  private Object getBean(BeanFactory beanFactory, String beanName, Class<?> dependencyType) {
+    if (StringUtils.hasText(beanName)) {
+      // use name and bean type to get bean
+      return beanFactory.getBean(beanName, dependencyType);
+    }
+    else {
+      return beanFactory.getBean(dependencyType);
+    }
   }
 
   public void setQualifierRetriever(QualifierRetriever qualifierRetriever) {

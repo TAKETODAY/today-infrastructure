@@ -45,7 +45,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   @Override
   public void resolveDependency(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
+          InjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
       resolvingStrategy.resolveDependency(injectionPoint, resolvingContext);
       if (resolvingContext.isTerminate()) {
@@ -54,10 +54,15 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
     }
 
     if (!resolvingContext.hasDependency()) {
-      if (injectionPoint.isRequired()) {
+      if (injectionPoint.isProperty()) {
+        resolvingContext.setDependency(InjectionPoint.DO_NOT_SET);
+      }
+      else if (injectionPoint.isRequired()) {
         throw new DependencyResolvingFailedException("Dependency " + injectionPoint + "is required");
       }
-      resolvingContext.setDependency(DependencyInjectionPoint.DO_NOT_SET);
+      else {
+        resolvingContext.setDependency(InjectionPoint.DO_NOT_SET);
+      }
     }
   }
 

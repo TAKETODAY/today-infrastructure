@@ -84,5 +84,5 @@ TODO
 
 == 实现细节
 
-全局抽象了 `DependencyInjectionPoint` 依赖注入点, 统一处理依赖
+全局抽象了 `InjectionPoint` 依赖注入点, 统一处理依赖
 

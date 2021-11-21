@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.dependency.DependencyInjectionPoint;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 import cn.taketoday.core.MultiValueMap;
@@ -86,7 +86,7 @@ class StrategiesDetectorTests {
   public static class MyPropertyValueResolver implements DependencyResolvingStrategy {
 
     @Override
-    public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+    public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
 
     }
   }
@@ -94,7 +94,7 @@ class StrategiesDetectorTests {
   public static class MyPropertyValueResolver1 implements DependencyResolvingStrategy {
 
     @Override
-    public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+    public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
 
     }
   }

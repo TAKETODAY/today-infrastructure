@@ -23,7 +23,7 @@ package cn.taketoday.context.annotation;
 import java.lang.reflect.Field;
 
 import cn.taketoday.beans.DependencyResolvingFailedException;
-import cn.taketoday.beans.dependency.DependencyInjectionPoint;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
 import cn.taketoday.context.expression.ExpressionEvaluatorSupport;
@@ -45,7 +45,7 @@ public class ExpressionDependencyResolver
         extends ExpressionEvaluatorSupport implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+  public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
     if (!context.hasDependency()) {
       MergedAnnotation<Env> env = injectionPoint.getAnnotation(Env.class);
       if (env.isPresent()) {
@@ -66,7 +66,7 @@ public class ExpressionDependencyResolver
     }
   }
 
-  private Object resolve(DependencyInjectionPoint injectionPoint, ExpressionInfo expr) {
+  private Object resolve(InjectionPoint injectionPoint, ExpressionInfo expr) {
     String expression = expr.getExpression();
     if (StringUtils.isEmpty(expression)) {
       if (injectionPoint.isProperty()

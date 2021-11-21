@@ -46,7 +46,7 @@ public class InjectableAnnotationsSupport {
     return injectableAnnotations.isInjectable(element);
   }
 
-  public boolean isInjectable(DependencyInjectionPoint injectionPoint) {
+  public boolean isInjectable(InjectionPoint injectionPoint) {
     return injectableAnnotations.isInjectable(injectionPoint);
   }
 

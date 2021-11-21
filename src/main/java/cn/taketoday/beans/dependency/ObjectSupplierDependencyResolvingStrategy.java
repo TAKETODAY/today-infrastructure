@@ -36,14 +36,14 @@ public class ObjectSupplierDependencyResolvingStrategy
 
   @Override
   protected boolean supportsInternal(
-          DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     Class<?> dependencyType = injectionPoint.getDependencyType();
     return dependencyType == ObjectSupplier.class || dependencyType == Supplier.class;
   }
 
   @Override
   protected void resolveInternal(
-          DependencyInjectionPoint injectionPoint,
+          InjectionPoint injectionPoint,
           BeanFactory beanFactory, DependencyResolvingContext context) {
     Class<?> dependencyType = injectionPoint.getDependencyType();
     if (dependencyType == ObjectSupplier.class || dependencyType == Supplier.class) {

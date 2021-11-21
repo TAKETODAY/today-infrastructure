@@ -31,7 +31,7 @@ import cn.taketoday.core.annotation.MergedAnnotations;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/20 15:27</a>
  * @since 4.0
  */
-public class FieldInjectionPoint extends DependencyInjectionPoint {
+public class FieldInjectionPoint extends InjectionPoint {
 
   private final Field property;
 

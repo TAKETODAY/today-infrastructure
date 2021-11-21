@@ -35,6 +35,6 @@ public interface QualifierRetriever {
    * @return bean name
    */
   @Nullable
-  String retrieve(DependencyInjectionPoint injectionPoint);
+  String retrieve(InjectionPoint injectionPoint);
 
 }

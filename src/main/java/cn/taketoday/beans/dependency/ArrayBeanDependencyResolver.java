@@ -33,7 +33,7 @@ import java.util.Map;
 public class ArrayBeanDependencyResolver implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(DependencyInjectionPoint injectionPoint, DependencyResolvingContext context) {
+  public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
     Class<?> type = injectionPoint.getDependencyType();
     Class<?> componentType = type.getComponentType();
     BeanFactory beanFactory = context.getBeanFactory();

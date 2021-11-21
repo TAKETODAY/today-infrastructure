@@ -76,7 +76,7 @@ public class StandardDependenciesBeanPostProcessor
 
     ReflectionUtils.doWithFields(beanClass, field -> {
       Object property = resolveProperty(field);
-      if (property != DependencyInjectionPoint.DO_NOT_SET) {
+      if (property != InjectionPoint.DO_NOT_SET) {
         Method writeMethod = ReflectionUtils.getWriteMethod(field);
         if (writeMethod != null) {
           ReflectionUtils.makeAccessible(writeMethod);
