@@ -22,11 +22,14 @@ package cn.taketoday.http.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
+import kotlin.Pair;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -71,10 +74,8 @@ class OkHttp3ClientHttpResponse extends AbstractClientHttpResponse {
     HttpHeaders headers = this.headers;
     if (headers == null) {
       headers = HttpHeaders.create();
-      for (String headerName : this.response.headers().names()) {
-        for (String headerValue : this.response.headers(headerName)) {
-          headers.add(headerName, headerValue);
-        }
+      for (Pair<? extends String, ? extends String> header : response.headers()) {
+        headers.add(header.getFirst(), header.getSecond());
       }
       this.headers = headers;
     }
