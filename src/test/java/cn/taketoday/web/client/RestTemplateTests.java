@@ -740,7 +740,7 @@ class RestTemplateTests {
       request.getHeaders().add("MyHeader", "MyInterceptorValue");
       return execution.execute(request, body);
     };
-    template.setClientHttpRequestInitializers(Collections.singletonList(initializer));
+    template.setHttpRequestInitializers(Collections.singletonList(initializer));
     template.setInterceptors(interceptor);
 
     MediaType contentType = MediaType.TEXT_PLAIN;

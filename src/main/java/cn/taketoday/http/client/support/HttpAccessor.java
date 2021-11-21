@@ -20,6 +20,11 @@
 
 package cn.taketoday.http.client.support;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
@@ -29,11 +34,6 @@ import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}
@@ -57,7 +57,7 @@ public abstract class HttpAccessor {
 
   private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
-  private final ArrayList<ClientHttpRequestInitializer> clientHttpRequestInitializers = new ArrayList<>();
+  private final ArrayList<ClientHttpRequestInitializer> httpRequestInitializers = new ArrayList<>();
 
   /**
    * Set the request factory that this accessor uses for obtaining client request handles.
@@ -87,13 +87,12 @@ public abstract class HttpAccessor {
    * <p>The initializers will get immediately sorted according to their
    * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
    */
-  public void setClientHttpRequestInitializers(
-          List<ClientHttpRequestInitializer> clientHttpRequestInitializers) {
+  public void setHttpRequestInitializers(List<ClientHttpRequestInitializer> requestInitializers) {
 
-    if (this.clientHttpRequestInitializers != clientHttpRequestInitializers) {
-      this.clientHttpRequestInitializers.clear();
-      this.clientHttpRequestInitializers.addAll(clientHttpRequestInitializers);
-      AnnotationAwareOrderComparator.sort(this.clientHttpRequestInitializers);
+    if (this.httpRequestInitializers != requestInitializers) {
+      this.httpRequestInitializers.clear();
+      this.httpRequestInitializers.addAll(requestInitializers);
+      AnnotationAwareOrderComparator.sort(this.httpRequestInitializers);
     }
   }
 
@@ -104,10 +103,10 @@ public abstract class HttpAccessor {
    * {@linkplain AnnotationAwareOrderComparator#sort(List) order} before the
    * {@link ClientHttpRequest} is initialized.
    *
-   * @see #setClientHttpRequestInitializers(List)
+   * @see #setHttpRequestInitializers(List)
    */
-  public List<ClientHttpRequestInitializer> getClientHttpRequestInitializers() {
-    return this.clientHttpRequestInitializers;
+  public List<ClientHttpRequestInitializer> getHttpRequestInitializers() {
+    return this.httpRequestInitializers;
   }
 
   /**
@@ -122,17 +121,15 @@ public abstract class HttpAccessor {
    */
   protected ClientHttpRequest createRequest(URI url, HttpMethod method) throws IOException {
     ClientHttpRequest request = getRequestFactory().createRequest(url, method);
-    initialize(request);
+
+    for (ClientHttpRequestInitializer initializer : httpRequestInitializers) {
+      initializer.initialize(request);
+    }
+
     if (logger.isDebugEnabled()) {
       logger.debug("HTTP {} {}", method.name(), url);
     }
     return request;
-  }
-
-  private void initialize(ClientHttpRequest request) {
-    for (ClientHttpRequestInitializer initializer : clientHttpRequestInitializers) {
-      initializer.initialize(request);
-    }
   }
 
 }

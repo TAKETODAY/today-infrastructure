@@ -34,7 +34,7 @@ import cn.taketoday.http.client.support.HttpAccessor;
  * customizations without needing to read the entire request body into memory.
  *
  * @author Phillip Webb
- * @see HttpAccessor#getClientHttpRequestInitializers()
+ * @see HttpAccessor#getHttpRequestInitializers()
  * @since 4.0
  */
 @FunctionalInterface
