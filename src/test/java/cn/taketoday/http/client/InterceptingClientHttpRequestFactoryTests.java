@@ -36,7 +36,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.client.support.HttpRequestWrapper;
+import cn.taketoday.http.client.support.HttpRequestDecorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -104,7 +104,7 @@ public class InterceptingClientHttpRequestFactoryTests {
       @Override
       public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
               throws IOException {
-        HttpRequestWrapper wrapper = new HttpRequestWrapper(request);
+        HttpRequestDecorator wrapper = new HttpRequestDecorator(request);
         wrapper.getHeaders().add(headerName, otherValue);
         return execution.execute(wrapper, body);
       }
@@ -137,7 +137,7 @@ public class InterceptingClientHttpRequestFactoryTests {
       @Override
       public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
               throws IOException {
-        return execution.execute(new HttpRequestWrapper(request) {
+        return execution.execute(new HttpRequestDecorator(request) {
           @Override
           public URI getURI() {
             return changedUri;
@@ -170,7 +170,7 @@ public class InterceptingClientHttpRequestFactoryTests {
       @Override
       public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
               throws IOException {
-        return execution.execute(new HttpRequestWrapper(request) {
+        return execution.execute(new HttpRequestDecorator(request) {
           @Override
           public HttpMethod getMethod() {
             return changedMethod;

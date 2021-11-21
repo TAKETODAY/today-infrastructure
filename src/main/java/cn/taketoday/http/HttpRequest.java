@@ -39,7 +39,7 @@ public interface HttpRequest extends HttpMessage {
    * @return the HTTP method as an HttpMethod enum value, or {@code null}
    * if not resolvable (e.g. in case of a non-standard HTTP method)
    * @see #getMethodValue()
-   * @see HttpMethod#valueOf(String)
+   * @see HttpMethod#from(String)
    */
   @Nullable
   default HttpMethod getMethod() {

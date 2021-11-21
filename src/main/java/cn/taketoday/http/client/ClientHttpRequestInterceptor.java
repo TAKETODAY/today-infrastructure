@@ -23,6 +23,7 @@ package cn.taketoday.http.client;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpRequest;
+import cn.taketoday.http.client.support.HttpRequestDecorator;
 
 /**
  * Intercepts client-side HTTP requests. Implementations of this interface can be
@@ -47,7 +48,7 @@ public interface ClientHttpRequestInterceptor {
    * <p>A typical implementation of this method would follow the following pattern:
    * <ol>
    * <li>Examine the {@linkplain HttpRequest request} and body.</li>
-   * <li>Optionally {@linkplain cn.taketoday.http.client.support.HttpRequestWrapper
+   * <li>Optionally {@linkplain HttpRequestDecorator
    * wrap} the request to filter HTTP attributes.</li>
    * <li>Optionally modify the body of the request.</li>
    * <ul>

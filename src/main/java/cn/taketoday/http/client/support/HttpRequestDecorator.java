@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  * @author Arjen Poutsma
  * @since 4.0
  */
-public class HttpRequestWrapper implements HttpRequest {
+public class HttpRequestDecorator implements HttpRequest {
 
   private final HttpRequest request;
 
@@ -46,7 +46,7 @@ public class HttpRequestWrapper implements HttpRequest {
    *
    * @param request the request object to be wrapped
    */
-  public HttpRequestWrapper(HttpRequest request) {
+  public HttpRequestDecorator(HttpRequest request) {
     Assert.notNull(request, "HttpRequest must not be null");
     this.request = request;
   }
