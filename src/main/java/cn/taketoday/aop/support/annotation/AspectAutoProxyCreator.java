@@ -22,6 +22,7 @@ package cn.taketoday.aop.support.annotation;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -59,6 +60,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 3.0
  */
 public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Override
