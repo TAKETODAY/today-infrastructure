@@ -97,14 +97,13 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
   static void addHeaders(HttpUriRequest httpRequest, HttpHeaders headers) {
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
       String headerName = entry.getKey();
-      List<String> headerValues = entry.getValue();
       if (HttpHeaders.COOKIE.equalsIgnoreCase(headerName)) {  // RFC 6265
-        String headerValue = StringUtils.collectionToString(headerValues, "; ");
+        String headerValue = StringUtils.collectionToString(entry.getValue(), "; ");
         httpRequest.addHeader(headerName, headerValue);
       }
       else if (!HTTP.CONTENT_LEN.equalsIgnoreCase(headerName)
               && !HTTP.TRANSFER_ENCODING.equalsIgnoreCase(headerName)) {
-        for (String headerValue : headerValues) {
+        for (String headerValue : entry.getValue()) {
           httpRequest.addHeader(headerName, headerValue);
         }
       }

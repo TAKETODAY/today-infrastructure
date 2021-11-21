@@ -33,7 +33,7 @@ import cn.taketoday.lang.Assert;
  * @author Arjen Poutsma
  * @since 4.0
  */
-public abstract class AbstractClientHttpRequestFactoryWrapper implements ClientHttpRequestFactory {
+public class ClientHttpRequestFactoryDecorator implements ClientHttpRequestFactory {
 
   private final ClientHttpRequestFactory requestFactory;
 
@@ -42,7 +42,7 @@ public abstract class AbstractClientHttpRequestFactoryWrapper implements ClientH
    *
    * @param requestFactory the request factory to be wrapped
    */
-  protected AbstractClientHttpRequestFactoryWrapper(ClientHttpRequestFactory requestFactory) {
+  protected ClientHttpRequestFactoryDecorator(ClientHttpRequestFactory requestFactory) {
     Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
     this.requestFactory = requestFactory;
   }
@@ -50,7 +50,7 @@ public abstract class AbstractClientHttpRequestFactoryWrapper implements ClientH
   /**
    * This implementation simply calls {@link #createRequest(URI, HttpMethod, ClientHttpRequestFactory)}
    * with the wrapped request factory provided to the
-   * {@linkplain #AbstractClientHttpRequestFactoryWrapper(ClientHttpRequestFactory) constructor}.
+   * {@linkplain #ClientHttpRequestFactoryDecorator(ClientHttpRequestFactory) constructor}.
    */
   @Override
   public final ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
@@ -68,7 +68,9 @@ public abstract class AbstractClientHttpRequestFactoryWrapper implements ClientH
    * @return the created request
    * @throws IOException in case of I/O errors
    */
-  protected abstract ClientHttpRequest createRequest(
-          URI uri, HttpMethod httpMethod, ClientHttpRequestFactory requestFactory) throws IOException;
+  protected ClientHttpRequest createRequest(
+          URI uri, HttpMethod httpMethod, ClientHttpRequestFactory requestFactory) throws IOException {
+    return requestFactory.createRequest(uri, httpMethod);
+  }
 
 }

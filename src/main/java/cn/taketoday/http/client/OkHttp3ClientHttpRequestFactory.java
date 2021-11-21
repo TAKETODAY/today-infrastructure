@@ -131,8 +131,7 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
 
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
       String headerName = entry.getKey();
-      List<String> headerValues = entry.getValue();
-      for (String headerValue : headerValues) {
+      for (String headerValue : entry.getValue()) {
         builder.addHeader(headerName, headerValue);
       }
     }

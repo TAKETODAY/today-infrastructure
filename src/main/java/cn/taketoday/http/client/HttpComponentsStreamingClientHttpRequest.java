@@ -90,8 +90,8 @@ final class HttpComponentsStreamingClientHttpRequest
   protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
     HttpComponentsClientHttpRequest.addHeaders(this.httpRequest, headers);
 
-    if (this.httpRequest instanceof HttpEntityEnclosingRequest && this.body != null) {
-      HttpEntityEnclosingRequest entityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+    if (this.body != null
+            && this.httpRequest instanceof HttpEntityEnclosingRequest entityEnclosingRequest) {
       HttpEntity requestEntity = new StreamingHttpEntity(getHeaders(), this.body);
       entityEnclosingRequest.setEntity(requestEntity);
     }
@@ -121,15 +121,18 @@ final class HttpComponentsStreamingClientHttpRequest
     @Nullable
     public Header getContentType() {
       MediaType contentType = this.headers.getContentType();
-      return (contentType != null ? new BasicHeader("Content-Type", contentType.toString()) : null);
+      return contentType != null
+             ? new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType.toString())
+             : null;
     }
 
     @Override
     @Nullable
     public Header getContentEncoding() {
-      String contentEncoding = this.headers.getFirst("Content-Encoding");
-      return (contentEncoding != null ? new BasicHeader("Content-Encoding", contentEncoding) : null);
-
+      String contentEncoding = this.headers.getFirst(HttpHeaders.CONTENT_ENCODING);
+      return contentEncoding != null
+             ? new BasicHeader(HttpHeaders.CONTENT_ENCODING, contentEncoding)
+             : null;
     }
 
     @Override

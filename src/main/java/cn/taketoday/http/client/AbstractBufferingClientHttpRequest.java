@@ -33,7 +33,7 @@ import cn.taketoday.http.HttpHeaders;
  * @author Arjen Poutsma
  * @since 4.0
  */
-abstract class AbstractBufferingClientHttpRequest extends AbstractClientHttpRequest {
+public abstract class AbstractBufferingClientHttpRequest extends AbstractClientHttpRequest {
 
   private ByteArrayOutputStream bufferedOutput = new ByteArrayOutputStream(1024);
 

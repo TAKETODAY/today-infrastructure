@@ -93,6 +93,7 @@ public abstract class HttpAccessor {
       this.httpRequestInitializers.clear();
       this.httpRequestInitializers.addAll(requestInitializers);
       AnnotationAwareOrderComparator.sort(this.httpRequestInitializers);
+      httpRequestInitializers.trimToSize();
     }
   }
 
