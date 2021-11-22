@@ -68,6 +68,23 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   Object getBean(String name) throws BeansException;
 
   /**
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>Allows for specifying explicit constructor arguments / factory method arguments,
+   * overriding the specified default arguments (if any) in the bean definition.
+   *
+   * @param name the name of the bean to retrieve
+   * @param args arguments to use when creating a bean instance using explicit arguments
+   * (only applied when creating a new instance as opposed to retrieving an existing one)
+   * @return an instance of the bean
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
+   * @throws BeanDefinitionStoreException if arguments have been given but
+   * the affected bean isn't a prototype
+   * @throws BeansException if the bean could not be created
+   * @since 4.0
+   */
+  Object getBean(String name, Object... args) throws BeansException;
+
+  /**
    * Find the bean with the given name and cast to required type.
    *
    * @param name Bean name
@@ -587,17 +604,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return Target {@link Object}
    * @since 2.1.7
    */
+  @Deprecated
   Object getBean(BeanDefinition def);
-
-  /**
-   * Get the bean with the given {@link BeanDefinition} and {@link Scope}
-   *
-   * @param def {@link BeanDefinition}
-   * @param scope {@link Scope}
-   * @return Target {@link Object}
-   * @since 3.0
-   */
-  Object getScopeBean(BeanDefinition def, Scope scope);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval

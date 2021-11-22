@@ -60,7 +60,7 @@ public interface SmartFactoryBean<T> extends FactoryBean<T> {
    * <p>The default implementation returns {@code false}.
    *
    * @return whether eager initialization applies
-   * @see AbstractBeanFactory#initializeSingletons()
+   * @see AbstractBeanFactory#preInstantiateSingletons()
    */
   default boolean isEagerInit() {
     return false;

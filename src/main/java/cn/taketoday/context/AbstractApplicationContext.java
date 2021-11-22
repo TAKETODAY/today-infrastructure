@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -39,15 +40,14 @@ import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
 import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
-import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
@@ -365,7 +365,7 @@ public abstract class AbstractApplicationContext
     beanFactory.setTempClassLoader(null);
 
     // Instantiate all remaining (non-lazy-init) singletons.
-    beanFactory.initializeSingletons();
+    beanFactory.preInstantiateSingletons();
   }
 
   /**
@@ -876,6 +876,12 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  public Object getBean(String name, Object... args) throws BeansException {
+    assertBeanFactoryActive();
+    return getBeanFactory().getBean(name, args);
+  }
+
+  @Override
   public Object getBean(BeanDefinition def) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(def);
@@ -903,12 +909,6 @@ public abstract class AbstractApplicationContext
   public <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def) {
     assertBeanFactoryActive();
     return getBeanFactory().getObjectSupplier(def);
-  }
-
-  @Override
-  public Object getScopeBean(BeanDefinition def, Scope scope) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getScopeBean(def, scope);
   }
 
   @Override

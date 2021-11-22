@@ -442,7 +442,7 @@ public class StandardBeanFactory
   @Nullable
   private <T> NamedBeanHolder<T> resolveNamedBean(
           String beanName, ResolvableType requiredType) throws BeansException {
-    Object bean = getBean(beanName, null);
+    Object bean = doGetBean(beanName, null, null);
     if (bean == null) {
       return null;
     }
