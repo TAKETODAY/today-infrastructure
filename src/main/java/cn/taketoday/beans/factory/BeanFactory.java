@@ -65,6 +65,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return Bet bean instance, returns null if it doesn't exist .
    * @throws BeansException Exception occurred when getting a named bean
    */
+  @Nullable
   Object getBean(String name) throws BeansException;
 
   /**
@@ -82,6 +83,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @throws BeansException if the bean could not be created
    * @since 4.0
    */
+  @Nullable
   Object getBean(String name, Object... args) throws BeansException;
 
   /**
@@ -91,6 +93,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param requiredType Cast to required type
    * @return get casted bean instance. returns null if it doesn't exist.
    */
+  @Nullable
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
   /**

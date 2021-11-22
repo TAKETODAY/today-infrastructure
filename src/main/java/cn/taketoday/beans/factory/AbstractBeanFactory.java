@@ -125,12 +125,17 @@ public abstract class AbstractBeanFactory
   }
 
   @SuppressWarnings("unchecked")
+  @Nullable
   protected <T> T doGetBean(String beanName, Class<?> requiredType, Object[] args) throws BeansException {
-    Object beanInstance = getSingleton(beanName);
-    if (!(beanInstance != null && args == null)) {
+    BeanDefinition definition = getBeanDefinition(beanName);
+    if (definition == null) {
+      Supplier<?> supplier = beanSupplier.get(beanName);
+      if (supplier != null && args == null) {
+        return (T) supplier.get();
+      }
       // Check if bean definition exists in this factory.
       BeanFactory parentBeanFactory = getParentBeanFactory();
-      if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+      if (parentBeanFactory != null) {
         // Not found -> check parent.
         if (parentBeanFactory instanceof AbstractBeanFactory) {
           return ((AbstractBeanFactory) parentBeanFactory).doGetBean(beanName, requiredType, args);
@@ -148,7 +153,12 @@ public abstract class AbstractBeanFactory
         }
       }
 
-      BeanDefinition definition = obtainBeanDefinition(beanName);
+      // don't throw exception
+      return null;
+    }
+
+    Object beanInstance = getSingleton(beanName);
+    if (beanInstance == null) {
       // Create bean instance.
       if (definition.isSingleton()) {
         beanInstance = getSingleton(beanName, () -> {
