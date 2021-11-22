@@ -775,15 +775,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
     public final boolean equals(@Nullable Object other) {
       if (this == other) {
         return true;
       }
-      if (!(other instanceof Map.Entry)) {
+      if (!(other instanceof Map.Entry otherEntry)) {
         return false;
       }
-      Map.Entry otherEntry = (Map.Entry) other;
       return ObjectUtils.nullSafeEquals(getKey(), otherEntry.getKey())
               && ObjectUtils.nullSafeEquals(getValue(), otherEntry.getValue());
     }
@@ -872,8 +870,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     @Override
     public boolean contains(@Nullable Object o) {
-      if (o instanceof Map.Entry<?, ?>) {
-        Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
+      if (o instanceof Map.Entry<?, ?> entry) {
         Reference<K, V> ref = ConcurrentReferenceHashMap.this.getReference(entry.getKey(), Restructure.NEVER);
         Entry<K, V> otherEntry = (ref != null ? ref.get() : null);
         if (otherEntry != null) {
@@ -885,8 +882,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     @Override
     public boolean remove(Object o) {
-      if (o instanceof Map.Entry<?, ?>) {
-        Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
+      if (o instanceof Map.Entry<?, ?> entry) {
         return ConcurrentReferenceHashMap.this.remove(entry.getKey(), entry.getValue());
       }
       return false;
