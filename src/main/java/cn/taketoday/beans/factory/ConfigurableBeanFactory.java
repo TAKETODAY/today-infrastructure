@@ -199,16 +199,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
 
   /**
-   * Ensure that all non-lazy-init singletons are instantiated, also considering
-   * {@link FactoryBean FactoryBeans}. Typically, invoked at the end of factory
-   * setup, if desired.
-   *
-   * @throws BeansException if one of the singleton beans could not be created.
-   * @since 4.0
-   */
-  void preInitialization() throws BeansException;
-
-  /**
    * Destroy all singleton beans in this factory, including inner beans that have
    * been registered as disposable. To be called on shutdown of a factory.
    * <p>Any exception that arises during destruction should be caught
