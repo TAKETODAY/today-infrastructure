@@ -96,7 +96,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Note: This may have left the factory with some beans already initialized!
    * @since 2.1.2
    */
-  void initializeSingletons();
+  void preInstantiateSingletons();
 
   /**
    * Remove a {@link BeanPostProcessor}

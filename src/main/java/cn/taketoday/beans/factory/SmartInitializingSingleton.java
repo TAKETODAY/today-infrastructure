@@ -38,7 +38,7 @@ import cn.taketoday.context.event.ApplicationListener;
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/3/9 12:03
- * @see AbstractBeanFactory#initializeSingletons()
+ * @see AbstractBeanFactory#preInstantiateSingletons()
  * @since 4.0
  */
 public interface SmartInitializingSingleton {
