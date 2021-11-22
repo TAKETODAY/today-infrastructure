@@ -52,7 +52,6 @@ import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
-import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.ContextStoppedEvent;
@@ -461,9 +460,7 @@ public abstract class AbstractApplicationContext
    * Initialization singletons that has already in context
    */
   protected void onRefresh() {
-    publishEvent(new ContextPreRefreshEvent(this));
-    // fix: #1 some singletons could not be initialized.
-    getBeanFactory().preInitialization();
+    // sub-classes Initialization
   }
 
   public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
