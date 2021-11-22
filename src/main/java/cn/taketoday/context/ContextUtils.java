@@ -76,7 +76,7 @@ public abstract class ContextUtils {
         while (resources.hasMoreElements()) {
           URL url = resources.nextElement();
           String className = null;
-          try (BufferedReader reader = //
+          try (BufferedReader reader =
                   new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
             while ((className = reader.readLine()) != null) {
