@@ -70,10 +70,9 @@ public final class MethodClassKey implements Comparable<MethodClassKey> {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof MethodClassKey)) {
+    if (!(other instanceof MethodClassKey otherKey)) {
       return false;
     }
-    MethodClassKey otherKey = (MethodClassKey) other;
     return (this.method.equals(otherKey.method) &&
             Objects.equals(this.targetClass, otherKey.targetClass));
   }
