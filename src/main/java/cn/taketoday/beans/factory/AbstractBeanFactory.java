@@ -956,27 +956,6 @@ public abstract class AbstractBeanFactory
     DisposableBeanAdapter.destroyBean(beanInstance, def, postProcessors().destruction);
   }
 
-  /**
-   * Initialization singletons that has already in context
-   */
-  public void preInitialization() {
-    boolean debugEnabled = log.isDebugEnabled();
-
-    // FIXME
-    for (Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
-
-      String name = entry.getKey();
-      BeanDefinition def = getBeanDefinition(name);
-      if (def == null || def.isInitialized()) {
-        continue;
-      }
-//      initializeSingleton(entry.getValue(), def); // FIXME
-      if (debugEnabled) {
-        log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
-      }
-    }
-  }
-
   @Override
   public void setFullPrototype(boolean fullPrototype) {
     this.fullPrototype = fullPrototype;
