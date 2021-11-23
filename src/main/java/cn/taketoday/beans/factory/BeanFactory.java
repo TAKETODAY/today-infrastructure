@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
@@ -359,7 +358,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class)
    * @since 2.1.6
    */
@@ -398,7 +397,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
@@ -429,7 +428,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getBeanClass
+   * @see FactoryBean#getObjectType
    * @since 3.0
    */
   <T> Map<String, T> getBeansOfType(
@@ -445,7 +444,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param requiredType the class or interface to match, or {@code null} for all bean names
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @since 3.0
    */
   default Set<String> getBeanNamesForType(Class<?> requiredType) {
@@ -465,7 +464,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * or just singletons (also applies to FactoryBeans)
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @since 3.0
    */
   Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons);
@@ -499,7 +498,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
@@ -523,7 +522,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @since 4.0
    */
   Set<String> getBeanNamesForType(

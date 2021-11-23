@@ -27,7 +27,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Autowired;
@@ -52,7 +52,7 @@ public class MybatisSessionFactoryBean implements FactoryBean<SqlSessionFactory>
   }
 
   @Override
-  public SqlSessionFactory getBean() {
+  public SqlSessionFactory getObject() {
     return sessionFactory;
   }
 
@@ -63,7 +63,7 @@ public class MybatisSessionFactoryBean implements FactoryBean<SqlSessionFactory>
   }
 
   @Override
-  public Class<SqlSessionFactory> getBeanClass() {
+  public Class<SqlSessionFactory> getObjectType() {
     return SqlSessionFactory.class;
   }
 

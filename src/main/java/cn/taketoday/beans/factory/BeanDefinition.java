@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -213,7 +212,7 @@ public class BeanDefinition
    * Return the specified class of the bean definition (assuming it is resolved already).
    * <p><b>NOTE:</b> This is an initial class reference as declared in the bean metadata
    * definition, potentially combined with a declared factory method or a
-   * {@link cn.taketoday.beans.FactoryBean} which may lead to a different
+   * {@link FactoryBean} which may lead to a different
    * runtime type of the bean, or not being set at all in case of an instance-level
    * factory method (which is resolved via {@link #getFactoryMethodName()} instead).
    * <b>Do not use this for runtime type introspection of arbitrary bean definitions.</b>
@@ -775,8 +774,7 @@ public class BeanDefinition
     if (obj == this) {
       return true;
     }
-    if (obj instanceof BeanDefinition) {
-      BeanDefinition other = (BeanDefinition) obj;
+    if (obj instanceof BeanDefinition other) {
       return Objects.equals(name, other.name)
               && role == other.role
               && lazyInit == other.lazyInit

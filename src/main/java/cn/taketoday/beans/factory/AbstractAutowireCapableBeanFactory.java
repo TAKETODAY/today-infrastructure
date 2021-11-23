@@ -29,10 +29,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
@@ -479,8 +477,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   public void populateBean(Object bean, BeanDefinition definition) {
-    // postProcess();
-
     // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
     // state of the bean before properties are set. This can be used, for example,
     // to support styles of field injection.
@@ -491,9 +487,9 @@ public abstract class AbstractAutowireCapableBeanFactory
           return;
         }
       }
-    }
 
-    applyPropertyValues(bean, definition);
+      applyPropertyValues(bean, definition);
+    }
   }
 
   /**

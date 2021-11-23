@@ -79,7 +79,7 @@ public class BeanDefinitionBuilder {
   private String destroyMethod;
 
   /**
-   * Mark as a {@link cn.taketoday.beans.FactoryBean}.
+   * Mark as a {@link FactoryBean}.
    *
    * @since 2.0.0
    */

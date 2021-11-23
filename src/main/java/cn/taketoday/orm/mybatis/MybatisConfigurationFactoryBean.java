@@ -25,7 +25,7 @@ import org.apache.ibatis.session.Configuration;
 import java.io.InputStream;
 import java.util.Properties;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
@@ -57,12 +57,12 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
   }
 
   @Override
-  public Configuration getBean() {
+  public Configuration getObject() {
     return getConfiguration();
   }
 
   @Override
-  public Class<Configuration> getBeanClass() {
+  public Class<Configuration> getObjectType() {
     return Configuration.class;
   }
 

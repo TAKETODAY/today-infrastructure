@@ -44,7 +44,7 @@ public class GsonFactoryBeanTests {
   public void serializeNulls() throws Exception {
     this.factory.setSerializeNulls(true);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     String result = gson.toJson(bean);
     assertThat(result).isEqualTo("{\"name\":null}");
@@ -54,7 +54,7 @@ public class GsonFactoryBeanTests {
   public void serializeNullsFalse() throws Exception {
     this.factory.setSerializeNulls(false);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     String result = gson.toJson(bean);
     assertThat(result).isEqualTo("{}");
@@ -64,7 +64,7 @@ public class GsonFactoryBeanTests {
   public void prettyPrinting() throws Exception {
     this.factory.setPrettyPrinting(true);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Jason");
     String result = gson.toJson(bean);
@@ -75,7 +75,7 @@ public class GsonFactoryBeanTests {
   public void prettyPrintingFalse() throws Exception {
     this.factory.setPrettyPrinting(false);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Jason");
     String result = gson.toJson(bean);
@@ -86,7 +86,7 @@ public class GsonFactoryBeanTests {
   public void disableHtmlEscaping() throws Exception {
     this.factory.setDisableHtmlEscaping(true);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Bob=Bob");
     String result = gson.toJson(bean);
@@ -97,7 +97,7 @@ public class GsonFactoryBeanTests {
   public void disableHtmlEscapingFalse() throws Exception {
     this.factory.setDisableHtmlEscaping(false);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Bob=Bob");
     String result = gson.toJson(bean);
@@ -108,7 +108,7 @@ public class GsonFactoryBeanTests {
   public void customizeDateFormatPattern() throws Exception {
     this.factory.setDateFormatPattern(DATE_FORMAT);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     DateBean bean = new DateBean();
     Calendar cal = Calendar.getInstance();
     cal.clear();
@@ -124,7 +124,7 @@ public class GsonFactoryBeanTests {
   @Test
   public void customizeDateFormatNone() throws Exception {
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     DateBean bean = new DateBean();
     Calendar cal = Calendar.getInstance();
     cal.clear();
@@ -142,7 +142,7 @@ public class GsonFactoryBeanTests {
   public void base64EncodeByteArrays() throws Exception {
     this.factory.setBase64EncodeByteArrays(true);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     ByteArrayBean bean = new ByteArrayBean();
     bean.setBytes(new byte[] { 0x1, 0x2 });
     String result = gson.toJson(bean);
@@ -154,7 +154,7 @@ public class GsonFactoryBeanTests {
     this.factory.setBase64EncodeByteArrays(true);
     this.factory.setDisableHtmlEscaping(true);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     ByteArrayBean bean = new ByteArrayBean();
     bean.setBytes(new byte[] { 0x1, 0x2 });
     String result = gson.toJson(bean);
@@ -165,7 +165,7 @@ public class GsonFactoryBeanTests {
   public void base64EncodeByteArraysFalse() throws Exception {
     this.factory.setBase64EncodeByteArrays(false);
     this.factory.afterPropertiesSet();
-    Gson gson = this.factory.getBean();
+    Gson gson = this.factory.getObject();
     ByteArrayBean bean = new ByteArrayBean();
     bean.setBytes(new byte[] { 0x1, 0x2 });
     String result = gson.toJson(bean);

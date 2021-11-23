@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import jakarta.annotation.PostConstruct;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Prototype;
@@ -59,7 +59,7 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
   private Properties pro;
 
   @Override
-  public Config getBean() {
+  public Config getObject() {
     Config bean = new Config();
 
     bean.setCdn(pro.getProperty("site.cdn"));
@@ -74,7 +74,7 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
   }
 
   @Override
-  public Class<Config> getBeanClass() {
+  public Class<Config> getObjectType() {
     return Config.class;
   }
 
