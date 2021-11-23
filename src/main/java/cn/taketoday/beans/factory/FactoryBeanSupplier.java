@@ -21,7 +21,6 @@ package cn.taketoday.beans.factory;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -40,7 +39,7 @@ public class FactoryBeanSupplier<T> implements Supplier<FactoryBean<T>> {
     Assert.notNull(beanFactory, "beanFactory must not be null");
     Assert.notNull(factoryDef, "factory BeanDefinition must not be null");
     Assert.isAssignable(FactoryBean.class, factoryDef.getBeanClass(),
-                        "Target bean class must be 'cn.taketoday.beans.FactoryBean'");
+                        "Target bean class must be 'cn.taketoday.beans.factory.FactoryBean'");
     this.beanFactory = beanFactory;
     this.factoryDef = factoryDef instanceof FactoryBeanDefinition
                       ? ((FactoryBeanDefinition<?>) factoryDef).getFactoryDefinition()

@@ -33,7 +33,6 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;
@@ -257,7 +256,7 @@ public abstract class AbstractBeanFactory
    * @param beanName the name of the bean
    * @return the object obtained from the FactoryBean
    * @throws BeanCreationException if FactoryBean object creation failed
-   * @see FactoryBean#getBean()
+   * @see FactoryBean#getObject()
    */
   protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName) {
     if (factory.isSingleton() && containsSingleton(beanName)) {
@@ -290,12 +289,12 @@ public abstract class AbstractBeanFactory
    * @param beanName the name of the bean
    * @return the object obtained from the FactoryBean
    * @throws BeanCreationException if FactoryBean object creation failed
-   * @see FactoryBean#getBean()
+   * @see FactoryBean#getObject()
    */
   private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, String beanName) throws BeanCreationException {
     Object object;
     try {
-      object = factory.getBean();
+      object = factory.getObject();
     }
     catch (Throwable ex) {
       throw new BeanCreationException(beanName, "FactoryBean threw exception on object creation", ex);
@@ -400,7 +399,7 @@ public abstract class AbstractBeanFactory
       // lookup start-with '$' , hasn't create its factory
       if (!definition.isLazyInit() || allowFactoryBeanInit) {
         FactoryBean<Object> factoryBean = getFactoryBean(definition);
-        Class<?> beanClass = factoryBean.getBeanClass();
+        Class<?> beanClass = factoryBean.getObjectType();
         return typeToMatch.isAssignableFrom(beanClass);
       }
     }
@@ -508,9 +507,6 @@ public abstract class AbstractBeanFactory
    */
   @SuppressWarnings("unchecked")
   protected <T> FactoryBean<T> getFactoryBeanInstance(BeanDefinition def) {
-    if (def instanceof FactoryBeanDefinition) {
-      return ((FactoryBeanDefinition<T>) def).getFactory();
-    }
     Object factory = getSingleton(getFactoryBeanName(def));
     if (factory instanceof FactoryBean) {
       // has already exits factory
@@ -781,7 +777,7 @@ public abstract class AbstractBeanFactory
   @Nullable
   protected Class<?> getTypeForFactoryBean(FactoryBean<?> factoryBean) {
     try {
-      return factoryBean.getBeanClass();
+      return factoryBean.getObjectType();
     }
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.

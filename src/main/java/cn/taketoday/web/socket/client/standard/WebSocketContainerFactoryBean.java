@@ -16,7 +16,7 @@
 
 package cn.taketoday.web.socket.client.standard;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.WebSocketContainer;
 
@@ -65,12 +65,12 @@ public class WebSocketContainerFactoryBean implements FactoryBean<WebSocketConta
   }
 
   @Override
-  public WebSocketContainer getBean() {
+  public WebSocketContainer getObject() {
     return this.webSocketContainer;
   }
 
   @Override
-  public Class<?> getBeanClass() {
+  public Class<?> getObjectType() {
     return WebSocketContainer.class;
   }
 

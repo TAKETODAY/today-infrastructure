@@ -20,8 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.FactoryBean;
-
 /**
  * Exception thrown when a bean is not a factory, but a user tries to get
  * at the factory for the given bean name. Whether a bean is a factory is

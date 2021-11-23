@@ -28,7 +28,7 @@ import cn.taketoday.aop.proxy.AopConfigException;
 import cn.taketoday.aop.proxy.ProxyCreatorSupport;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -86,7 +86,7 @@ public class ProxyFactoryBean
   }
 
   @Override
-  public Object getBean() {
+  public Object getObject() {
     final BeanFactory beanFactory = getBeanFactory();
 
     final ProxyFactory proxyFactory = new ProxyFactory();
@@ -114,7 +114,7 @@ public class ProxyFactoryBean
   }
 
   @Override
-  public Class<Object> getBeanClass() {
+  public Class<Object> getObjectType() {
     return null;
   }
 

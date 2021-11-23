@@ -72,7 +72,7 @@ public class ProxyFactoryBeanTests {
     factoryBean.setPort(port);
     factoryBean.afterPropertiesSet();
 
-    Proxy result = factoryBean.getBean();
+    Proxy result = factoryBean.getObject();
 
     assertThat(result.type()).isEqualTo(type);
     InetSocketAddress address = (InetSocketAddress) result.address();

@@ -114,7 +114,7 @@ class ProxyFactoryBeanTests {
       proxyFactoryBean.setInterceptorNames("myAspect", "myAfterReturning", "myBefore", "myThrows");
       proxyFactoryBean.setTargetName("targetBean");
 
-      Object bean = proxyFactoryBean.getBean();
+      Object bean = proxyFactoryBean.getObject();
       log.debug(bean.toString());
 
       String ret = ((TargetBean) bean).throwsTest();
