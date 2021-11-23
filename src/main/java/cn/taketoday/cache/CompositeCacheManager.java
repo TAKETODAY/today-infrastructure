@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.lang.Assert;
@@ -42,23 +41,26 @@ public class CompositeCacheManager implements CacheManager {
   public CompositeCacheManager(CacheManager... cacheManagers) {
     Assert.notNull(cacheManagers, "cacheManager s can't be null");
     Collections.addAll(this.cacheManagers, cacheManagers);
+    this.cacheManagers.trimToSize();
   }
 
   public void addCacheManagers(Collection<CacheManager> cacheManagers) {
     Assert.notNull(cacheManagers, "cacheManager s can't be null");
     this.cacheManagers.addAll(cacheManagers);
+    this.cacheManagers.trimToSize();
   }
 
   public void setCacheManagers(Collection<CacheManager> cacheManagers) {
     Assert.notNull(cacheManagers, "cacheManager s can't be null");
     this.cacheManagers.clear();
     this.cacheManagers.addAll(cacheManagers);
+    this.cacheManagers.trimToSize();
   }
 
   @Override
   public Cache getCache(String name, CacheConfig cacheConfig) {
-    for (final CacheManager cacheManager : this.cacheManagers) {
-      final Cache cache = cacheManager.getCache(name, cacheConfig);
+    for (CacheManager cacheManager : this.cacheManagers) {
+      Cache cache = cacheManager.getCache(name, cacheConfig);
       if (cache != null) {
         return cache;
       }
@@ -71,7 +73,7 @@ public class CompositeCacheManager implements CacheManager {
     if (CollectionUtils.isEmpty(cacheManagers)) {
       return Collections.emptySet();
     }
-    final Set<String> names = new LinkedHashSet<>();
+    LinkedHashSet<String> names = new LinkedHashSet<>();
     for (CacheManager manager : this.cacheManagers) {
       names.addAll(manager.getCacheNames());
     }
