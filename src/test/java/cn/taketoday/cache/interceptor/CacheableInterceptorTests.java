@@ -20,6 +20,11 @@
 
 package cn.taketoday.cache.interceptor;
 
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+import java.util.Date;
+
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
@@ -29,18 +34,12 @@ import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
-import cn.taketoday.cache.interceptor.AbstractCacheInterceptor.MethodKey;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
-import org.junit.jupiter.api.Test;
 import test.demo.config.User;
 
-import java.lang.reflect.Method;
-import java.util.Date;
-
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -114,10 +113,10 @@ class CacheableInterceptorTests {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(AppConfig.class);
       context.refresh();
-
+      CacheExpressionOperations operations = new CacheExpressionOperations();
       Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
       MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
-      CacheConfiguration cacheable = prepareAnnotation(methodKey);
+      CacheConfiguration cacheable = operations.getConfig(methodKey);
 
       CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
       Cache users = interceptor.getCache("users", cacheable);

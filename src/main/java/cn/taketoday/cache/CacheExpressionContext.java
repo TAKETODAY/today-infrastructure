@@ -27,7 +27,6 @@ import cn.taketoday.expression.CompositeExpressionResolver;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.FunctionMapper;
-import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.LocalBeanNameResolver;
 
@@ -39,13 +38,13 @@ public class CacheExpressionContext extends ExpressionContext {
 
   private ExpressionResolver elResolver;
   private final Map<String, Object> beans;
-  private final StandardExpressionContext parent;
+  private final ExpressionContext parent;
 
-  public CacheExpressionContext(StandardExpressionContext parent) {
+  public CacheExpressionContext(ExpressionContext parent) {
     this(parent, new HashMap<>(4));
   }
 
-  public CacheExpressionContext(StandardExpressionContext parent, Map<String, Object> beans) {
+  public CacheExpressionContext(ExpressionContext parent, Map<String, Object> beans) {
     this.beans = beans;
     this.parent = parent;
   }

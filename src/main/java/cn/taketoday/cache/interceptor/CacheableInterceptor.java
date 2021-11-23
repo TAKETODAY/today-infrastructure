@@ -31,12 +31,6 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.core.Ordered;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.allowPutCache;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.isConditionPassing;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
-
 /**
  * {@link org.aopalliance.intercept.MethodInterceptor} for {@link Cacheable}
  *
@@ -57,14 +51,14 @@ public class CacheableInterceptor extends AbstractCacheInterceptor {
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
 
-    final Method method = invocation.getMethod();
-    final MethodKey methodKey = new MethodKey(method, Cacheable.class);
-    final CacheConfiguration cacheable = prepareAnnotation(methodKey);
-    final CacheExpressionContext context = prepareELContext(methodKey, invocation);
+    Method method = invocation.getMethod();
+    MethodKey methodKey = new MethodKey(method, Cacheable.class);
+    CacheConfiguration cacheable = expressionOperations.getConfig(methodKey);
+    CacheExpressionContext context = expressionOperations.prepareContext(methodKey, invocation);
 
-    if (isConditionPassing(cacheable.condition(), context)) {// pass the condition
-      final Cache cache = obtainCache(method, cacheable);
-      final Object key = createKey(cacheable.key(), context, invocation);
+    if (expressionOperations.passCondition(cacheable.condition(), context)) {// pass the condition
+      Cache cache = obtainCache(method, cacheable);
+      Object key = expressionOperations.createKey(cacheable.key(), context, invocation);
       if (cacheable.sync()) { // for sync
         try {
           return cache.get(key, invocation::proceed);
@@ -77,7 +71,7 @@ public class CacheableInterceptor extends AbstractCacheInterceptor {
         Object value = get(cache, key);
         if (value == null) {
           value = invocation.proceed();
-          if (allowPutCache(cacheable.unless(), value, context)) {
+          if (expressionOperations.allowPutCache(cacheable.unless(), value, context)) {
             put(cache, key, value);
           }
         }

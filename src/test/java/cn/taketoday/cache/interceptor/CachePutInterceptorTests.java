@@ -38,7 +38,6 @@ import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -75,7 +74,7 @@ class CachePutInterceptorTests {
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
-      AbstractCacheInterceptor.MethodKey methodKey = new AbstractCacheInterceptor.MethodKey(save, CachePut.class);
+      MethodKey methodKey = new MethodKey(save, CachePut.class);
       CacheConfiguration cachePut = prepareAnnotation(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
 
@@ -114,7 +113,7 @@ class CachePutInterceptorTests {
 
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
-      AbstractCacheInterceptor.MethodKey methodKey = new AbstractCacheInterceptor.MethodKey(save, CachePut.class);
+      MethodKey methodKey = new MethodKey(save, CachePut.class);
       CacheConfiguration cachePut = prepareAnnotation(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
 

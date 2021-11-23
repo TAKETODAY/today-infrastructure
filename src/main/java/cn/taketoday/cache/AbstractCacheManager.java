@@ -78,9 +78,11 @@ public abstract class AbstractCacheManager implements CacheManager {
    */
   public void setCacheNames(Collection<String> cacheNames) {
     Assert.notEmpty(cacheNames, "cacheNames must not be empty");
-    setCacheConfig(cacheNames.stream()
-                           .map(CacheConfiguration::new)
-                           .collect(Collectors.toList()));
+    setCacheConfig(
+            cacheNames.stream()
+                    .map(CacheConfiguration::new)
+                    .collect(Collectors.toList())
+    );
   }
 
   /**
@@ -96,7 +98,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   public void setCacheConfig(Collection<CacheConfig> cacheConfigs) {
     Assert.notEmpty(cacheConfigs, "cacheConfigs must not be empty");
     this.configMap.clear();
-    for (final CacheConfig config : cacheConfigs) {
+    for (CacheConfig config : cacheConfigs) {
       this.configMap.put(config.cacheName(), config);
     }
     refreshCaches();
@@ -209,7 +211,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   protected abstract Cache doCreate(String name, CacheConfig cacheConfig);
 
   @Override
-  public Cache getCache(final String name) {
+  public Cache getCache(String name) {
     return getCache(name, getCacheConfig(name));
   }
 
@@ -284,8 +286,8 @@ public abstract class AbstractCacheManager implements CacheManager {
    * @return {@link CacheConfig}
    * @since 3.0
    */
-  public final CacheConfig getCacheConfig(final String name) {
-    final CacheConfig cacheConfig = configMap.get(name);
+  public final CacheConfig getCacheConfig(String name) {
+    CacheConfig cacheConfig = configMap.get(name);
     return cacheConfig == null ? CacheConfig.EMPTY_CACHE_CONFIG : cacheConfig;
   }
 
