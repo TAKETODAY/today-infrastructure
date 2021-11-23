@@ -31,10 +31,12 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyException;
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
@@ -487,9 +489,24 @@ public abstract class AbstractAutowireCapableBeanFactory
           return;
         }
       }
-
-      applyPropertyValues(bean, definition);
     }
+
+    // DisableDependencyInjection
+    if (definition instanceof AnnotatedBeanDefinition annotated) {
+      if (annotated.getMetadata().isAnnotated(DisableDependencyInjection.class.getName())) {
+        return;
+      }
+      String factoryBeanName = annotated.getFactoryBeanName();
+      if (factoryBeanName != null) {
+        // is factory
+        Class<?> factoryClass = getFactoryClass(annotated, factoryBeanName);
+        if (MergedAnnotations.from(factoryClass).isPresent(DisableDependencyInjection.class)) {
+          return;
+        }
+      }
+    }
+
+    applyPropertyValues(bean, definition);
   }
 
   /**
