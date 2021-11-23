@@ -36,6 +36,8 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
@@ -51,6 +53,9 @@ class CacheableInterceptorTests {
 
   @Test
   void cacheableAttributes() throws Exception {
+    CacheExpressionOperations operations = new CacheExpressionOperations();
+    operations.setExpressionContext(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
+
     CaffeineCacheManager cacheManager = new CaffeineCacheManager();
     CacheableInterceptor interceptor = new CacheableInterceptor(cacheManager);
     interceptor.setExceptionResolver(new DefaultCacheExceptionResolver());
@@ -58,7 +63,7 @@ class CacheableInterceptorTests {
     // cacheName
     Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
     MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
-    CacheConfiguration cacheable = prepareAnnotation(methodKey);
+    CacheConfiguration cacheable = operations.getConfig(methodKey);
     Cache users = interceptor.getCache("users", cacheable);
     assertThat(users)
             .isInstanceOf(CaffeineCache.class);

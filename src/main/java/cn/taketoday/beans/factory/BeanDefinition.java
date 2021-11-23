@@ -689,7 +689,7 @@ public class BeanDefinition
    * Return whether this bean definition is 'synthetic', that is,
    * not defined by the application itself.
    * <p>
-   * don't process autowire
+   * if synthetic==true don't process autowire
    * </p>
    *
    * @since 4.0
