@@ -19,40 +19,19 @@
  */
 package cn.taketoday.cache.interceptor;
 
-import cn.taketoday.lang.Autowired;
 import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
-import cn.taketoday.cache.DefaultCacheKey;
 import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfig;
-import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextHolder;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -60,10 +39,12 @@ import cn.taketoday.util.StringUtils;
  * 2019-02-27 19:03
  */
 public abstract class AbstractCacheInterceptor
-        extends CacheOperations implements MethodInterceptor, Ordered {
+        extends CacheOperations implements MethodInterceptor, Ordered, ApplicationContextAware {
 
   private CacheManager cacheManager;
   private final OrderedSupport ordered = new OrderedSupport();
+
+  protected CacheExpressionOperations expressionOperations;
 
   public AbstractCacheInterceptor() { }
 
@@ -127,8 +108,8 @@ public abstract class AbstractCacheInterceptor
   /**
    * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
-  @Autowired
-  public void initCacheInterceptor(ApplicationContext context) {
+  @Override
+  public void setApplicationContext(ApplicationContext context) {
     if (getCacheManager() == null) {
       setCacheManager(context.getBean(CacheManager.class));
     }
@@ -140,168 +121,12 @@ public abstract class AbstractCacheInterceptor
     Assert.state(getExceptionResolver() != null, "You must provide a 'CacheExceptionResolver'");
   }
 
-  // ExpressionOperations
-  //-----------------------------------------------------
-
-  abstract static class Operations { // FIXME  提取 一个单独的类
-    // @since 4.0
-    static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
-    static final StandardExpressionContext SHARED_EL_CONTEXT; // TODO
-    static final ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.getSharedInstance();
-    static final ConcurrentReferenceHashMap<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentReferenceHashMap<>(128);
-    static final ConcurrentReferenceHashMap<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentReferenceHashMap<>(128);
-    static final Function<MethodKey, String[]> ARGS_NAMES_FUNCTION =
-            target -> parameterNameDiscoverer.getParameterNames(target.targetMethod);
-
-    static final Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
-
-      Method method = target.targetMethod;
-      Class<? extends Annotation> annClass = target.annotationClass;
-
-      // Find target method [annClass] AnnotationAttributes
-      Class<?> declaringClass = method.getDeclaringClass();
-      MergedAnnotation<? extends Annotation> annotation = MergedAnnotations.from(method).get(annClass);
-      if (!annotation.isPresent()) {
-        annotation = MergedAnnotations.from(declaringClass).get(annClass);
-        if (!annotation.isPresent()) {
-          throw new IllegalStateException("Unexpected exception has occurred, may be it's a bug");
-        }
-      }
-
-      CacheConfiguration configuration =
-              AnnotationUtils.injectAttributes(annotation, annClass, new CacheConfiguration(annClass));
-
-      CacheConfig cacheConfig = AnnotationUtils.getAnnotation(declaringClass, CacheConfig.class);
-      if (cacheConfig != null) {
-        configuration.mergeCacheConfigAttributes(cacheConfig);
-      }
-      return configuration;
-    };
-
-    static {
-      ApplicationContext lastStartupContext = ApplicationContextHolder.getLastStartupContext();
-      if (lastStartupContext != null) {
-        StandardExpressionContext context = lastStartupContext.getBean(StandardExpressionContext.class);
-        Assert.state(context != null, "No shared ExpressionContext");
-        SHARED_EL_CONTEXT = context;
-      }
-      else {
-        SHARED_EL_CONTEXT = new StandardExpressionContext(EXPRESSION_FACTORY);
-      }
-    }
-
-    // methods
-    //------------------------------------------
-
-    /**
-     * Resolve {@link Annotation} from given {@link Annotation} {@link Class}
-     *
-     * @return {@link Annotation} instance
-     */
-    public static CacheConfiguration prepareAnnotation(MethodKey methodKey) {
-      return CACHE_OPERATION.computeIfAbsent(methodKey, CACHE_OPERATION_FUNCTION);
-    }
-
-    /**
-     * Create a key for the target method
-     *
-     * @param key Key expression
-     * @param ctx Cache el ctx
-     * @param invocation Target Method Invocation
-     * @return Cache key
-     */
-    static Object createKey(
-            String key, CacheExpressionContext ctx, MethodInvocation invocation) {
-      return key.isEmpty()
-             ? new DefaultCacheKey(invocation.getArguments())
-             : EXPRESSION_FACTORY.createValueExpression(ctx, key, Object.class).getValue(ctx);
-    }
-
-    /**
-     * Test condition Expression
-     *
-     * @param condition condition expression
-     * @param context Cache EL Context
-     * @return returns If pass the condition
-     */
-    static boolean isConditionPassing(String condition, CacheExpressionContext context) {
-      return StringUtils.isEmpty(condition) || //if its empty returns true
-              (Boolean) EXPRESSION_FACTORY.createValueExpression(context, condition, Boolean.class)
-                      .getValue(context);
-    }
-
-    /**
-     * Test unless Expression
-     *
-     * @param unless unless express
-     * @param result method return value
-     * @param context Cache el context
-     */
-    static boolean allowPutCache(String unless, Object result, CacheExpressionContext context) {
-
-      if (StringUtils.isNotEmpty(unless)) {
-        context.putBean(Constant.KEY_RESULT, result);
-        return !(Boolean) EXPRESSION_FACTORY.createValueExpression(context, unless, Boolean.class).getValue(context);
-      }
-      return true;
-    }
-
-    /**
-     * Prepare parameter names
-     *
-     * @param beans The mapping
-     * @param arguments Target {@link Method} parameters
-     */
-    static void prepareParameterNames(
-            MethodKey methodKey, Object[] arguments, Map<String, Object> beans) {
-      String[] names = ARGS_NAMES_CACHE.computeIfAbsent(methodKey, ARGS_NAMES_FUNCTION);
-      for (int i = 0; i < names.length; i++) {
-        beans.put(names[i], arguments[i]);
-      }
-    }
-
-    static CacheExpressionContext prepareELContext(
-            MethodKey methodKey, MethodInvocation invocation) {
-      HashMap<String, Object> beans = new HashMap<>();
-      prepareParameterNames(methodKey, invocation.getArguments(), beans);
-      beans.put(Constant.KEY_ROOT, invocation);// ${root.target} for target instance ${root.method}
-      return new CacheExpressionContext(SHARED_EL_CONTEXT, beans);
-    }
-
+  public void setExpressionOperations(CacheExpressionOperations expressionOperations) {
+    this.expressionOperations = expressionOperations;
   }
 
-  // MethodKey
-  // -----------------------------
-
-  static final class MethodKey implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final int hash;
-    private final transient Method targetMethod;
-    private final Class<? extends Annotation> annotationClass;
-
-    public MethodKey(Method targetMethod, Class<? extends Annotation> annotationClass) {
-      this.targetMethod = targetMethod;
-      this.hash = targetMethod.hashCode();
-      this.annotationClass = annotationClass;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (!(o instanceof MethodKey methodKey))
-        return false;
-      return hash == methodKey.hash
-              && Objects.equals(targetMethod, methodKey.targetMethod)
-              && Objects.equals(annotationClass, methodKey.annotationClass);
-    }
-
-    @Override
-    public int hashCode() {
-      return this.hash;
-    }
+  public CacheExpressionOperations getExpressionOperations() {
+    return expressionOperations;
   }
 
 }

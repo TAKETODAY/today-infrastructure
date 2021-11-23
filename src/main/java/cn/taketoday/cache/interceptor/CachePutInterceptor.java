@@ -30,11 +30,6 @@ import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Constant;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.isConditionPassing;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
-
 /**
  * {@link org.aopalliance.intercept.MethodInterceptor} for {@link CachePut}
  *
@@ -60,16 +55,16 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
     // process
-    final Object result = invocation.proceed();
+    Object result = invocation.proceed();
     // put cache
-    final Method method = invocation.getMethod();
-    final MethodKey methodKey = new MethodKey(method, CachePut.class);
-    final CacheConfiguration cachePut = prepareAnnotation(methodKey);
-    final CacheExpressionContext context = prepareELContext(methodKey, invocation);
+    Method method = invocation.getMethod();
+    MethodKey methodKey = new MethodKey(method, CachePut.class);
+    CacheConfiguration cachePut = expressionOperations.getConfig(methodKey);
+    CacheExpressionContext context = expressionOperations.prepareContext(methodKey, invocation);
     // use ${result.xxx}
     context.putBean(Constant.KEY_RESULT, result);
-    if (isConditionPassing(cachePut.condition(), context)) {
-      final Object key = createKey(cachePut.key(), context, invocation);
+    if (expressionOperations.passCondition(cachePut.condition(), context)) {
+      Object key = expressionOperations.createKey(cachePut.key(), context, invocation);
       put(obtainCache(method, cachePut), key, result);
     }
     return result;
