@@ -22,7 +22,6 @@ package cn.taketoday.web;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +30,10 @@ import cn.taketoday.web.annotation.EnableViewController;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.POST;
 import cn.taketoday.web.annotation.RestController;
+import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.utils.HttpUtils;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,18 +85,19 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
 
   @Test
   public void testRestController() throws IOException {
-    assertEquals(HttpUtils.get("http://localhost:81/index/123"), "123");
-    assertEquals(HttpUtils.get("http://localhost:81/index/query?q=123"), "123");
-    assertEquals(HttpUtils.get("http://localhost:81/view/controller/text"), "text");
-    assertEquals(HttpUtils.get("http://localhost:81/view/controller/buffer"), "text");
-    assertEquals(HttpUtils.get("http://localhost:81/view/controller/null"), "");
-    try {
-      HttpUtils.get("http://localhost:81/index");
-    }
-    catch (FileNotFoundException e) {
-      assert true;
-    }
+    assertEquals(httpGetText("http://localhost:81/index/123"), "123");
+    assertEquals(httpGetText("http://localhost:81/index/query?q=123"), "123");
+    assertEquals(httpGetText("http://localhost:81/view/controller/text"), "text");
+    assertEquals(httpGetText("http://localhost:81/view/controller/buffer"), "text");
+    assertEquals(httpGetText("http://localhost:81/view/controller/null"), "");
+//      httpGetText("http://localhost:81/index"); 404
     testViewController(context.getBean(ViewControllerHandlerRegistry.class));
+  }
+
+  RestTemplate restTemplate = new RestTemplate();
+
+  String httpGetText(String url) {
+    return restTemplate.getForObject(url, String.class);
   }
 
   //
@@ -130,7 +130,8 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
             "&array=arr&array=aaa&map%5Bkey%5D=value" +
             "&address.place=address";
 
-    UserForm expected = HttpUtils.post("http://localhost:81/test-bean", params, UserForm.class);
+    UserForm expected = restTemplate.postForObject("http://localhost:81/test-bean", params, UserForm.class);
+
     assertThat(expected.address.place).isEqualTo("address");
     assertThat(expected.age).isEqualTo(23);
     assertThat(expected.name).isEqualTo("TODAY");
