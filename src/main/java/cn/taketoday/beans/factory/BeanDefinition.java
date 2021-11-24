@@ -19,15 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -44,9 +35,16 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
+
 /**
- * Default implementation of {@link BeanDefinition}
- *
  * @author TODAY 2019-02-01 12:23
  */
 public class BeanDefinition
@@ -134,6 +132,9 @@ public class BeanDefinition
 
   private Object[] constructorArgs;
 
+  /** disable DI @since 4.0 */
+  private boolean enableDependencyInjection = true;
+
   // cache for fast access
   Executable executable;
   BeanInstantiator instantiator;
@@ -141,6 +142,8 @@ public class BeanDefinition
   ResolvableType factoryMethodReturnType;
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
   Boolean beforeInstantiationResolved;
+
+  Method[] initMethodArray;
 
   public BeanDefinition() { }
 
@@ -656,6 +659,7 @@ public class BeanDefinition
    *
    * @since 4.0
    */
+  @Nullable
   public String getFactoryMethodName() {
     return this.factoryMethodName;
   }
@@ -755,6 +759,16 @@ public class BeanDefinition
     return this.source;
   }
 
+  /** @since 4.0 */
+  public void setEnableDependencyInjection(boolean enableDependencyInjection) {
+    this.enableDependencyInjection = enableDependencyInjection;
+  }
+
+  /** @since 4.0 */
+  public boolean isEnableDependencyInjection() {
+    return enableDependencyInjection;
+  }
+
   /**
    * Validate bean definition
    *
@@ -780,6 +794,7 @@ public class BeanDefinition
               && lazyInit == other.lazyInit
               && beanClass == other.beanClass
               && synthetic == other.synthetic
+              && enableDependencyInjection == other.enableDependencyInjection
               && instanceSupplier == other.instanceSupplier
               && Objects.equals(scope, other.scope)
               && Objects.equals(factoryBeanName, other.factoryBeanName)
@@ -793,9 +808,9 @@ public class BeanDefinition
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, beanClass, lazyInit,
-                        scope, synthetic, role, primary,
-                        factoryMethodName, factoryBeanName);
+    return Objects.hash(
+            name, beanClass, lazyInit, scope, synthetic, role, primary,
+            enableDependencyInjection, factoryMethodName, factoryBeanName);
   }
 
   @Override

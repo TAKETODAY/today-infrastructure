@@ -450,7 +450,7 @@ public class BeanDefinitionBuilder {
       return BeanDefinition.EMPTY_METHOD;
     }
     AnnotationAwareOrderComparator.sort(methods);
-    return methods.toArray(new Method[methods.size()]);
+    return methods.toArray(BeanDefinition.EMPTY_METHOD);
   }
 
   public static BeanDefinition empty() {

@@ -20,23 +20,12 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
@@ -47,6 +36,14 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * AutowireCapableBeanFactory abstract implementation
@@ -89,7 +86,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     // apply properties
-    applyPropertyValues(existingBean, prototypeDef);
+    populateBean(existingBean, prototypeDef);
   }
 
   @Override
@@ -245,9 +242,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see jakarta.annotation.PostConstruct
    */
   protected void invokeInitMethods(Object bean, BeanDefinition def) {
-    String[] initMethods = def.getInitMethods();
-    Method[] methods = BeanDefinitionBuilder.computeInitMethod(initMethods, bean.getClass());
-
+    Method[] methods = initMethodArray(bean, def);
     if (ObjectUtils.isNotEmpty(methods)) {
       ArgumentsResolver resolver = getArgumentsResolver();
       // invoke @PostConstruct or initMethods defined in @Component
@@ -274,6 +269,15 @@ public abstract class AbstractAutowireCapableBeanFactory
                 "An Exception Occurred When [" + bean + "] apply after properties", e);
       }
     }
+  }
+
+  private Method[] initMethodArray(Object bean, BeanDefinition def) {
+    Method[] initMethodArray = def.initMethodArray;
+    if (def.initMethodArray == null) {
+      initMethodArray = BeanDefinitionBuilder.computeInitMethod(def.getInitMethods(), bean.getClass());
+      def.initMethodArray = initMethodArray;
+    }
+    return initMethodArray;
   }
 
   /**
@@ -459,7 +463,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
     Object existingBean = instantiate(prototypeDef, null);
-    applyPropertyValues(existingBean, prototypeDef);
+    populateBean(existingBean, prototypeDef);
     return existingBean;
   }
 
@@ -489,50 +493,20 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
 
-    // DisableDependencyInjection
-    if (definition instanceof AnnotatedBeanDefinition annotated) {
-      if (annotated.getMetadata().isAnnotated(DisableDependencyInjection.class.getName())) {
-        return;
-      }
-      String factoryBeanName = annotated.getFactoryBeanName();
-      if (factoryBeanName != null) {
-        // is factory
-        Class<?> factoryClass = getFactoryClass(annotated, factoryBeanName);
-        if (MergedAnnotations.from(factoryClass).isPresent(DisableDependencyInjection.class)) {
-          return;
-        }
-      }
-    }
-
-    applyPropertyValues(bean, definition);
-  }
-
-  /**
-   * Apply property values.
-   *
-   * @param bean Bean instance
-   * @param def use {@link BeanDefinition}
-   * @throws PropertyException If any {@link Exception} occurred when apply properties
-   * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
-   * this {@link BeanFactory}
-   */
-  protected void applyPropertyValues(Object bean, BeanDefinition def) {
-    // -----------------------------------------------
-    // apply dependency injection (DI)
-    // -----------------------------------------------
-
-    // 1. apply map of property-values from bean definition
-    Map<String, Object> propertyValues = def.getPropertyValues();
+    Map<String, Object> propertyValues = definition.getPropertyValues();
     if (CollectionUtils.isNotEmpty(propertyValues)) {
       PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
       initPropertyValuesBinder(dataBinder);
       dataBinder.bind(propertyValues);
     }
 
-    // 2. apply outside framework expanded
-    if (!def.isSynthetic()) {
+    if (definition.isEnableDependencyInjection()) {
+      // -----------------------------------------------
+      // apply dependency injection (DI)
+      // apply outside framework expanded
+      // -----------------------------------------------
       for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
-        processor.postProcessDependencies(bean, def);
+        processor.postProcessDependencies(bean, definition);
       }
     }
   }
