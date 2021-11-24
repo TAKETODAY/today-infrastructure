@@ -1,12 +1,14 @@
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -16,6 +18,9 @@ public class BeanDefinitionCustomizers {
 
   @Nullable
   protected List<BeanDefinitionCustomizer> customizers;
+
+  @Nullable
+  private StrategiesDetector strategiesDetector;
 
   @Nullable
   public List<BeanDefinitionCustomizer> getCustomizers() {
@@ -66,6 +71,27 @@ public class BeanDefinitionCustomizers {
       customizers = new ArrayList<>();
     }
     return customizers;
+  }
+
+  public void setStrategiesDetector(@Nullable StrategiesDetector strategiesDetector) {
+    this.strategiesDetector = strategiesDetector;
+  }
+
+  @Nullable
+  public StrategiesDetector getStrategiesDetector() {
+    return strategiesDetector;
+  }
+
+  public void loadDefaults() {
+    loadDefaults(null);
+  }
+
+  public void loadDefaults(@Nullable BeanFactory beanFactory) {
+    StrategiesDetector strategiesDetector = getStrategiesDetector();
+    if (strategiesDetector == null) {
+      strategiesDetector = TodayStrategies.getDetector();
+    }
+    addCustomizers(strategiesDetector.getStrategies(BeanDefinitionCustomizer.class, beanFactory));
   }
 
 }
