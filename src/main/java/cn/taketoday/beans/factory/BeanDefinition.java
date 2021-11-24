@@ -588,6 +588,7 @@ public class BeanDefinition
     this.factoryBeanName = from.factoryBeanName;
     this.factoryMethodName = from.factoryMethodName;
     this.instanceSupplier = from.instanceSupplier;
+    this.enableDependencyInjection = from.enableDependencyInjection;
 
     setBeanClassName(from.getBeanClassName());
     setInitMethods(from.getInitMethods());
