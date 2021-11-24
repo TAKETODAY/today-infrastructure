@@ -20,11 +20,6 @@
 
 package cn.taketoday.beans;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.dependency.ParameterInjectionPoint;
@@ -37,6 +32,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.lang.Value;
 import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -59,6 +59,8 @@ public class ArgumentsResolver {
 
   @Nullable
   private BeanFactory beanFactory;
+
+  @Nullable
   private DependencyResolvingStrategies resolvingStrategies;
 
   public ArgumentsResolver() {
@@ -162,7 +164,7 @@ public class ArgumentsResolver {
       ParameterInjectionPoint injectionPoint = new ParameterInjectionPoint(parameter);
       resolvingStrategies().resolveDependency(injectionPoint, context);
       provided = context.getDependency() == ParameterInjectionPoint.DO_NOT_SET
-                 ? null : context.getDependency();
+              ? null : context.getDependency();
     }
     return provided;
   }
@@ -176,18 +178,25 @@ public class ArgumentsResolver {
     return beanFactory;
   }
 
-  public void setStrategies(DependencyResolvingStrategies resolvingStrategies) {
-    this.resolvingStrategies = resolvingStrategies;
-  }
-
+  /**
+   * get DependencyResolvingStrategies never null
+   */
+  @NonNull
   public DependencyResolvingStrategies resolvingStrategies() {
+    DependencyResolvingStrategies resolvingStrategies = getStrategies();
     if (resolvingStrategies == null) {
-      this.resolvingStrategies = new DependencyResolvingStrategies();
+      resolvingStrategies = new DependencyResolvingStrategies();
       resolvingStrategies.initStrategies(strategiesDetector, beanFactory);
+      this.resolvingStrategies = resolvingStrategies;
     }
     return resolvingStrategies;
   }
 
+  public void setStrategies(@Nullable DependencyResolvingStrategies resolvingStrategies) {
+    this.resolvingStrategies = resolvingStrategies;
+  }
+
+  @Nullable
   public DependencyResolvingStrategies getStrategies() {
     return resolvingStrategies;
   }
