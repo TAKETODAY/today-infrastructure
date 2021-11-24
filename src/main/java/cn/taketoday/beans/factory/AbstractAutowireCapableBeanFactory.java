@@ -477,6 +477,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       definition = definition.cloneDefinition();
       definition.setScope(Scope.PROTOTYPE);
     }
+    populateBean(existingBean, definition);
     return initializeBean(existingBean, definition);
   }
 
