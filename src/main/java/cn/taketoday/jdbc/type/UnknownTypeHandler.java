@@ -19,15 +19,14 @@
  */
 package cn.taketoday.jdbc.type;
 
+import cn.taketoday.util.ClassUtils;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
-
-import cn.taketoday.util.ClassUtils;
 
 /**
  * @author Clinton Begin
@@ -48,6 +47,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   }
 
   @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void setNonNullParameter(PreparedStatement ps, int i, Object parameter) throws SQLException {
     TypeHandler handler = resolveTypeHandler(parameter);
     handler.setParameter(ps, i, parameter);
@@ -87,7 +87,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private TypeHandler<?> resolveTypeHandler(final ResultSet rs, final String column) {
     try {
-      Map<String, Integer> columnIndexLookup = new HashMap<>();
+      HashMap<String, Integer> columnIndexLookup = new HashMap<>();
       ResultSetMetaData rsmd = rs.getMetaData();
       int count = rsmd.getColumnCount();
       boolean useColumnLabel = isUseColumnLabel();
@@ -99,6 +99,29 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
       TypeHandler<?> handler = null;
       if (columnIndex != null) {
         handler = resolveTypeHandler(rsmd, columnIndex);
+      }
+      if (handler == null || handler instanceof UnknownTypeHandler) {
+        handler = ObjectTypeHandler.getSharedInstance();
+      }
+      return handler;
+    }
+    catch (SQLException e) {
+      throw new TypeException("Error determining JDBC type for column " + column + ".  Cause: " + e, e);
+    }
+  }
+
+  private TypeHandler<?> resolveTypeHandler0(final ResultSet rs, final String column) {
+    try {
+      ResultSetMetaData rsmd = rs.getMetaData();
+      int count = rsmd.getColumnCount();
+      boolean useColumnLabel = isUseColumnLabel();
+      TypeHandler<?> handler = null;
+      for (int columnIdx = 1; columnIdx <= count; columnIdx++) {
+        String name = useColumnLabel ? rsmd.getColumnLabel(columnIdx) : rsmd.getColumnName(columnIdx);
+        if (column.equals(name)) {
+          handler = resolveTypeHandler(rsmd, columnIdx);
+          break;
+        }
       }
       if (handler == null || handler instanceof UnknownTypeHandler) {
         handler = ObjectTypeHandler.getSharedInstance();
