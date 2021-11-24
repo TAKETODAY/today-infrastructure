@@ -205,8 +205,6 @@ public abstract class AbstractAutowireCapableBeanFactory
                 "An Exception Occurred When [" + bean + "] before properties set", e);
       }
     }
-    // apply properties
-    applyPropertyValues(ret, def);
     // invoke initialize methods
     invokeInitMethods(ret, def);
     // after properties
