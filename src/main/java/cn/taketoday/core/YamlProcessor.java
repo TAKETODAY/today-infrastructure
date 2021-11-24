@@ -61,7 +61,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class YamlProcessor {
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(YamlProcessor.class);
 
   private boolean matchDefault = true;
   private Resource[] resources = Resource.EMPTY_ARRAY;
