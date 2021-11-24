@@ -20,7 +20,9 @@
 
 package cn.taketoday.context.loader;
 
+import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
 import cn.taketoday.beans.dependency.DisableDependencyInjection;
+import cn.taketoday.beans.dependency.EnableDependencyInjection;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -161,7 +163,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private void loadConfigurationBeans(BeanDefinition config, AnnotationMetadata importMetadata) {
     // process local declared methods first
-
+    boolean disableDependencyInjectionAll = importMetadata.isAnnotated(DisableAllDependencyInjection.class.getName());
     Set<MethodMetadata> annotatedMissingBeanMethods = importMetadata.getAnnotatedMethods(MissingBean.class.getName());
     for (MethodMetadata missingBeanMethod : annotatedMissingBeanMethods) {
       context.detectMissingBean(missingBeanMethod, config);
@@ -171,8 +173,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     for (MethodMetadata beanMethod : annotatedMethods) {
       // pass the condition
       if (context.passCondition(beanMethod)) {
-        final boolean enableDependencyInjection = isEnableDependencyInjection(beanMethod, importMetadata);
-
+        final boolean enableDependencyInjection = isEnableDependencyInjection(beanMethod, disableDependencyInjectionAll);
         beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
           for (String name : BeanDefinitionBuilder.determineName(
                   beanMethod.getMethodName(), component.getStringArray(MergedAnnotation.VALUE))) {
@@ -192,9 +193,10 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  private boolean isEnableDependencyInjection(MethodMetadata beanMethod, AnnotationMetadata importMetadata) {
-    return !beanMethod.getAnnotations().isPresent(DisableDependencyInjection.class)
-            && !importMetadata.isAnnotated(DisableDependencyInjection.class.getName());
+  private boolean isEnableDependencyInjection(MethodMetadata beanMethod, boolean disableDependencyInjectionAll) {
+    MergedAnnotations annotations = beanMethod.getAnnotations();
+    return annotations.isPresent(EnableDependencyInjection.class)
+            || !(disableDependencyInjectionAll || annotations.isPresent(DisableDependencyInjection.class));
   }
 
   private AnnotationMetadata getAnnotationMetadata(BeanDefinition definition) {
