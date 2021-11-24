@@ -1,5 +1,7 @@
 package cn.taketoday.jdbc;
 
+import cn.taketoday.core.DataAccessException;
+
 import java.io.Serial;
 
 /**
