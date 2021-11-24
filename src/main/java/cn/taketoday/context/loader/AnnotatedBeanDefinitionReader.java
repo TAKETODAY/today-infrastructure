@@ -20,13 +20,9 @@
 
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
@@ -50,6 +46,11 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -311,6 +312,11 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
     MergedAnnotation<Role> roleMergedAnnotation = annotations.get(Role.class);
     if (roleMergedAnnotation.isPresent()) {
       definition.setRole(roleMergedAnnotation.getInt(MergedAnnotation.VALUE));
+    }
+
+    // DisableDependencyInjection
+    if (annotations.isPresent(DisableDependencyInjection.class)) {
+      definition.setEnableDependencyInjection(false);
     }
   }
 
