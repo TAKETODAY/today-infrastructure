@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -70,6 +71,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -91,6 +93,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private final HashSet<Class<?>> importedClass = new HashSet<>();
 
   private PropertySourceFactory propertySourceFactory;
+
+  private List<BeanDefinitionCustomizer> definitionCustomizers;
 
   public ConfigurationBeanReader(DefinitionLoadingContext context) {
     this.context = context;
@@ -208,6 +212,10 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   public void register(BeanDefinition definition, AnnotationMetadata importMetadata) {
     definition.setAttribute(ImportAware.ImportAnnotatedMetadata, importMetadata); // @since 3.0
+
+    for (BeanDefinitionCustomizer definitionCustomizer : definitionCustomizers) {
+      definitionCustomizer.customize(null, definition);
+    }
 
     context.registerBeanDefinition(definition);
 

@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.loader;
 
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.ConfigBeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
@@ -80,6 +81,11 @@ public class MissingBeanRegistry {
     definition.setFactoryMethodName(beanMethod.getMethodName());
     definition.setDestroyMethod(missingBean.getString(BeanDefinition.DESTROY_METHOD));
     definition.setInitMethods(missingBean.getStringArray(BeanDefinition.INIT_METHODS));
+
+    // DisableDependencyInjection
+    if (beanMethod.getAnnotations().isPresent(DisableDependencyInjection.class)) {
+      definition.setEnableDependencyInjection(false);
+    }
 
     registerMissing(missingBean, definition);
   }

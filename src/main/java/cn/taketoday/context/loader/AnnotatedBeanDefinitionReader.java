@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.Scope;
@@ -48,8 +49,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -58,7 +57,7 @@ import java.util.function.Supplier;
  * @author TODAY 2021/10/1 16:46
  * @since 4.0
  */
-public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
+public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers implements BeanDefinitionRegistrar {
 
   private BeanDefinitionRegistry registry;
 
@@ -66,9 +65,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
   private ConditionEvaluator conditionEvaluator;
 
   private ApplicationContext context;
-
-  @Nullable
-  private List<BeanDefinitionCustomizer> customizers;
 
   /**
    * enable
@@ -361,49 +357,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
     }
   }
 
-  @Nullable
-  public List<BeanDefinitionCustomizer> getCustomizers() {
-    return customizers;
-  }
-
-  public void addCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
-    if (ObjectUtils.isNotEmpty(customizers)) {
-      CollectionUtils.addAll(customizers(), customizers);
-    }
-  }
-
-  public void addCustomizers(@Nullable List<BeanDefinitionCustomizer> customizers) {
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      CollectionUtils.addAll(customizers(), customizers);
-    }
-  }
-
-  /**
-   * clear exist customizers and set
-   *
-   * @param customizers new customizers
-   */
-  public void setCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
-    if (ObjectUtils.isNotEmpty(customizers)) {
-      CollectionUtils.addAll(customizers(), customizers);
-    }
-    else {
-      // clear
-      if (this.customizers != null) {
-        this.customizers.clear();
-      }
-    }
-  }
-
-  /**
-   * set customizers
-   *
-   * @param customizers new customizers
-   */
-  public void setCustomizers(@Nullable List<BeanDefinitionCustomizer> customizers) {
-    this.customizers = customizers;
-  }
-
   public boolean isEnableConditionEvaluation() {
     return enableConditionEvaluation;
   }
@@ -452,14 +405,6 @@ public class AnnotatedBeanDefinitionReader implements BeanDefinitionRegistrar {
    */
   protected boolean shouldSkip(Class<?> annotated) {
     return enableConditionEvaluation && !conditionEvaluator().passCondition(annotated);
-  }
-
-  @NonNull
-  private List<BeanDefinitionCustomizer> customizers() {
-    if (customizers == null) {
-      customizers = new ArrayList<>();
-    }
-    return customizers;
   }
 
   @NonNull
