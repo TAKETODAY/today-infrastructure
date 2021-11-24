@@ -81,8 +81,36 @@ NOTE: 在使用 Spring 过程中发现，Spring 好像并不能更好的扩展�
 
 TODO
 
-
 == 实现细节
 
 全局抽象了 `InjectionPoint` 依赖注入点, 统一处理依赖
 
+== 关闭 依赖注入
+
+- 使用 DisableDependencyInjection 关闭当前 Bean 依赖注入
+- 使用 DisableAllDependencyInjection 关闭 该配置类下的所有Bean的依赖注入，在工厂方法中手动注入
+
+[source,java]
+----
+@Configuration
+@DisableDependencyInjection
+@DisableAllDependencyInjection
+class Config {
+
+ @Singleton
+ @EnableDependencyInjection // 开启 DI
+ Bean bean() {
+   return new Bean();
+ }
+
+ @Singleton
+ Bean bean() { // 由于 DisableAllDependencyInjection 关闭了 DI
+   return new Bean();
+ }
+
+ @Autowired
+ void bean(Bean bean) { // Autowired ignored
+  // all DependencyResolvingStrategy disabled
+ }
+}
+----
