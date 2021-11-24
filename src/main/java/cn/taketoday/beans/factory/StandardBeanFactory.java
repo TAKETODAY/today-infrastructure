@@ -220,7 +220,7 @@ public class StandardBeanFactory
 
   @Override
   public boolean containsBeanDefinition(Class<?> type) {
-    return !getBeanNamesForType(type, true, false).isEmpty();
+    return getBeanDefinition(type) != null;
   }
 
   @Override
@@ -711,30 +711,6 @@ public class StandardBeanFactory
   public <T> Map<String, T> getBeansOfType(
           Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeansOfType(ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
-  }
-
-  /**
-   * Return bean matching the given type (including subclasses), judging from bean definitions
-   *
-   * @param def the BeanDefinition to check
-   * @param requiredType the class or interface to match, or {@code null} for all bean names
-   * @param includeNonSingletons whether to include prototype or scoped beans too
-   * or just singletons (also applies to FactoryBeans)
-   * @return the bean matching the given object type (including subclasses)
-   */
-  protected boolean isEligibleBean(BeanDefinition def, Class<?> requiredType, boolean includeNonSingletons) {
-    if (!(includeNonSingletons || def.isSingleton())) {
-      return false;
-    }
-
-    if (requiredType != null) {
-      Class<?> type = getType(def.getName());
-      if (type != null) {
-        return requiredType.isAssignableFrom(type);
-      }
-      return false;
-    }
-    return true;
   }
 
   @Override
