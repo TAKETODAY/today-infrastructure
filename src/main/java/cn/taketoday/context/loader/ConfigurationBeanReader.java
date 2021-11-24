@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -60,6 +61,7 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -71,7 +73,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -85,7 +86,7 @@ import java.util.Set;
  * @see cn.taketoday.context.loader.BeanDefinitionImporter
  * @since 4.0
  */
-public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
+public class ConfigurationBeanReader extends BeanDefinitionCustomizers implements BeanFactoryPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanReader.class);
 
   private final DefinitionLoadingContext context;
@@ -94,7 +95,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
   private PropertySourceFactory propertySourceFactory;
 
-  private List<BeanDefinitionCustomizer> definitionCustomizers;
 
   public ConfigurationBeanReader(DefinitionLoadingContext context) {
     this.context = context;
@@ -112,52 +112,46 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     log.debug("Loading Configuration Beans");
     for (BeanDefinition definition : context.getRegistry()) {
       MetadataReader metadataReader = getMetadataReader(definition);
-
+      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
       // @Configuration
-      processConfiguration(metadataReader, definition);
+      processConfiguration(annotationMetadata, definition);
       // @Import
-      processImport(metadataReader, definition);
+      processImport(annotationMetadata, definition);
       // @ComponentScan
-      processComponentScan(metadataReader, definition);
-
-      processPropertySource(metadataReader, definition);
+      processComponentScan(annotationMetadata, definition);
+      // PropertySource
+      processPropertySource(annotationMetadata, definition);
     }
   }
 
-  private void processConfiguration(MetadataReader metadataReader, BeanDefinition definition) {
-    if (hasAnnotation(metadataReader, Configuration.class)) {
+  private void processConfiguration(AnnotationMetadata annotationMetadata, BeanDefinition definition) {
+    if (hasAnnotation(annotationMetadata, Configuration.class)) {
       // @Configuration bean
-      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
       loadConfigurationBeans(definition, annotationMetadata);
     }
   }
 
-  protected boolean hasAnnotation(MetadataReader metadataReader, Class<?> annType) {
-    return metadataReader.getAnnotationMetadata().isAnnotated(annType.getName());
+  protected boolean hasAnnotation(AnnotationMetadata annotationMetadata, Class<?> annType) {
+    return annotationMetadata.isAnnotated(annType.getName());
   }
 
-  private void processComponentScan(MetadataReader metadataReader, BeanDefinition definition) {
-    if (hasAnnotation(metadataReader, ComponentScan.class)) {
-      AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+  private void processComponentScan(AnnotationMetadata annotationMetadata, BeanDefinition definition) {
+    annotationMetadata.getAnnotations().stream(ComponentScan.class).forEach(componentScan -> {
+      ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
 
-      annotationMetadata.getAnnotations().stream(ComponentScan.class).forEach(componentScan -> {
-        ScanningBeanDefinitionReader scanningReader = new ScanningBeanDefinitionReader(context);
+      String[] basePackages = componentScan.getStringArray(MergedAnnotation.VALUE);
+      String[] patternLocations = componentScan.getStringArray("patternLocations");
+      Class<BeanDefinitionLoadingStrategy>[] strategies = componentScan.getClassArray("loadingStrategies");
 
-        String[] basePackages = componentScan.getStringArray(MergedAnnotation.VALUE);
-        String[] patternLocations = componentScan.getStringArray("patternLocations");
-        Class<BeanDefinitionLoadingStrategy>[] strategies = componentScan.getClassArray("loadingStrategies");
+      scanningReader.addLoadingStrategies(strategies);
+      if (ObjectUtils.isNotEmpty(basePackages)) {
+        scanningReader.scanPackages(basePackages);
+      }
 
-        scanningReader.addLoadingStrategies(strategies);
-        if (ObjectUtils.isNotEmpty(basePackages)) {
-          scanningReader.scanPackages(basePackages);
-        }
-
-        if (ObjectUtils.isNotEmpty(patternLocations)) {
-          scanningReader.scan(patternLocations);
-        }
-      });
-
-    }
+      if (ObjectUtils.isNotEmpty(patternLocations)) {
+        scanningReader.scan(patternLocations);
+      }
+    });
   }
 
   public void importing(Class<?> component) {
@@ -178,7 +172,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       // pass the condition
       if (context.passCondition(beanMethod)) {
         final boolean enableDependencyInjection = isEnableDependencyInjection(beanMethod, disableDependencyInjectionAll);
-        beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
+        MergedAnnotations annotations = beanMethod.getAnnotations();
+        annotations.stream(Component.class).forEach(component -> {
           for (String name : BeanDefinitionBuilder.determineName(
                   beanMethod.getMethodName(), component.getStringArray(MergedAnnotation.VALUE))) {
             AnnotationMetadata annotationMetadata = context.getAnnotationMetadata(beanMethod.getReturnTypeName());
@@ -190,7 +185,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
             definition.setDestroyMethod(component.getString(BeanDefinition.DESTROY_METHOD));
             definition.setInitMethods(component.getStringArray(BeanDefinition.INIT_METHODS));
             definition.setEnableDependencyInjection(enableDependencyInjection);
-            register(definition, importMetadata);
+            register(annotations, definition, importMetadata);
           }
         });
       }
@@ -211,10 +206,23 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   public void register(BeanDefinition definition, AnnotationMetadata importMetadata) {
+    if (definition instanceof AnnotatedBeanDefinition) {
+      AnnotationMetadata metadata = ((AnnotatedBeanDefinition) definition).getMetadata();
+      MergedAnnotations annotations = metadata.getAnnotations();
+      register(annotations, definition, importMetadata);
+    }
+    else {
+      register(null, definition, importMetadata);
+    }
+  }
+
+  public void register(@Nullable MergedAnnotations annotations, BeanDefinition definition, AnnotationMetadata importMetadata) {
     definition.setAttribute(ImportAware.ImportAnnotatedMetadata, importMetadata); // @since 3.0
 
-    for (BeanDefinitionCustomizer definitionCustomizer : definitionCustomizers) {
-      definitionCustomizer.customize(null, definition);
+    if (CollectionUtils.isNotEmpty(customizers)) {
+      for (BeanDefinitionCustomizer definitionCustomizer : customizers) {
+        definitionCustomizer.customize(annotations, definition);
+      }
     }
 
     context.registerBeanDefinition(definition);
@@ -245,17 +253,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     return importer;
   }
 
-  protected void processImport(MetadataReader metadataReader, BeanDefinition annotated) {
-    AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
-    processImport(annotationMetadata, annotated);
-  }
-
-  protected void processImport(AnnotationMetadata annotationMetadata, BeanDefinition annotated) {
+  protected void processImport(AnnotationMetadata annotationMetadata, BeanDefinition definition) {
     annotationMetadata.getAnnotations().stream(Import.class).forEach(importAnnotation -> {
       for (Class<?> importClass : importAnnotation.getClassArray(MergedAnnotation.VALUE)) {
-        if (!importedClass.contains(importClass)) {
-          doImport(annotated, annotationMetadata, importClass);
-          importedClass.add(importClass);
+        if (importedClass.add(importClass)) {
+          processImport(definition, annotationMetadata, importClass);
         }
       }
     });
@@ -289,11 +291,11 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
    * @param from Target {@link BeanDefinition}
    * @since 2.1.7
    */
-  protected void doImport(BeanDefinition from, AnnotationMetadata importMetadata, Class<?> importClass) {
+  protected void processImport(BeanDefinition from, AnnotationMetadata importMetadata, Class<?> importClass) {
     log.debug("Importing: [{}]", importClass);
 
     BeanDefinition importDef = BeanDefinitionBuilder.defaults(importClass);
-    register(importDef, importMetadata);
+    register(MergedAnnotations.from(importClass), importDef, importMetadata);
 
     // use import selector to select bean to register
     if (ImportSelector.class.isAssignableFrom(importClass)) {
@@ -319,21 +321,20 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
-  private void processPropertySource(MetadataReader metadataReader, BeanDefinition definition) {
+  private void processPropertySource(AnnotationMetadata annotationMetadata, BeanDefinition definition) {
     ApplicationContext applicationContext = context.getApplicationContext();
     Environment environment = applicationContext.getEnvironment();
     // Process any @PropertySource annotations
     for (MergedAnnotation<PropertySource> propertySource
-            : attributesForRepeatable(metadataReader.getAnnotationMetadata())) {
+            : attributesForRepeatable(annotationMetadata)) {
       if (environment instanceof ConfigurableEnvironment) {
         processPropertySource(propertySource);
       }
       else {
-        log.info("Ignoring @PropertySource annotation on [" + metadataReader.getClassMetadata().getClassName() +
+        log.info("Ignoring @PropertySource annotation on [" + annotationMetadata.getClassName() +
                 "]. Reason: Environment must implement ConfigurableEnvironment");
       }
     }
-
   }
 
   /**

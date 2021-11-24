@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Callback for customizing a given bean definition.
@@ -39,6 +40,6 @@ public interface BeanDefinitionCustomizer {
    * @param annotations MergedAnnotations
    * @param definition BeanDefinition to customize
    */
-  void customize(MergedAnnotations annotations, BeanDefinition definition);
+  void customize(@Nullable MergedAnnotations annotations, BeanDefinition definition);
 
 }
