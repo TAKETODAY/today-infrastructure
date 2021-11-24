@@ -19,6 +19,19 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -36,19 +49,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -150,8 +150,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                  "for bean '{}' with a framework-generated bean " +
-                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                           "for bean '{}' with a framework-generated bean " +
+                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -201,80 +201,40 @@ public class StandardBeanFactory
   }
 
   @Override
-  public BeanDefinition getBeanDefinition(Class<?> beanClass) {
-    BeanDefinition def = getBeanDefinition(createBeanName(beanClass));
-    if (def != null) {
-      if (isAssignableTo(def, beanClass)) {
-        return def;
-      }
+  public BeanDefinition getBeanDefinition(Class<?> requiredType) {
+    Set<String> candidateNames = getBeanNamesForType(requiredType, true, false);
+    int size = candidateNames.size();
+    if (size == 1) {
+      return getBeanDefinition(candidateNames.iterator().next());
     }
-
-    for (BeanDefinition definition : beanDefinitionMap.values()) {
-      if (isAssignableTo(definition, beanClass)) {
-        return definition;
+    else if (size > 1) {
+      String primaryCandidate = getPrimaryCandidate(candidateNames, requiredType);
+      if (primaryCandidate != null) {
+        return getBeanDefinition(primaryCandidate);
       }
+      // fall
+      throw new NoUniqueBeanException(requiredType, candidateNames);
     }
     return null;
   }
 
-  public boolean isAssignableTo(BeanDefinition definition, ResolvableType typeToMatch) {
-    if (definition.hasBeanClass()) {
-      return ResolvableType.fromClass(definition.getBeanClass())
-              .isAssignableFrom(typeToMatch);
-    }
-    else {
-      Class<?> candidateClass = resolveBeanClass(definition, true);
-      return candidateClass != null
-              && ResolvableType.fromClass(candidateClass).isAssignableFrom(typeToMatch);
-    }
-  }
-
-  protected boolean isAssignableTo(BeanDefinition definition, Class<?> beanClass) {
-    if (definition.hasBeanClass()) {
-      return beanClass.isAssignableFrom(definition.getBeanClass());
-    }
-    else {
-      Class<?> candidateClass = resolveBeanClass(definition, true);
-      return candidateClass != null && beanClass.isAssignableFrom(candidateClass);
-    }
-  }
-
   @Override
   public boolean containsBeanDefinition(Class<?> type) {
-    return containsBeanDefinition(type, false);
+    return !getBeanNamesForType(type, true, false).isEmpty();
   }
 
   @Override
   public boolean containsBeanDefinition(Class<?> type, boolean equals) {
-    // TODO optimise lookup performance
     if (equals) {
-      BeanDefinition def = getBeanDefinition(createBeanName(type));
-      if (def != null) {
-        if (isEqualsTo(def, type)) {
+      for (String name : getBeanNamesForType(type, true, false)) {
+        Class<?> type1 = getType(name);
+        if (type1 == type) {
           return true;
         }
       }
-      // iterate
-      for (BeanDefinition definition : beanDefinitionMap.values()) {
-        if (isEqualsTo(definition, type)) {
-          return true;
-        }
-      }
+      return false;
     }
-    else {
-      return getBeanDefinition(type) != null;
-    }
-    return false;
-  }
-
-  private boolean isEqualsTo(BeanDefinition definition, Class<?> beanClass) {
-    if (definition.hasBeanClass()) {
-      return definition.getBeanClass() == beanClass;
-    }
-    else {
-      Class<?> candidateClass = resolveBeanClass(definition, true);
-      return candidateClass != null && beanClass == candidateClass;
-    }
+    return getBeanDefinition(type) != null;
   }
 
   @Override
@@ -347,9 +307,17 @@ public class StandardBeanFactory
   }
 
   @Nullable
-  @SuppressWarnings("unchecked")
   private <T> T resolveBean(ResolvableType requiredType, boolean nonUniqueAsNull) {
-    NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, nonUniqueAsNull);
+    return resolveBean(requiredType, true, true, nonUniqueAsNull);
+  }
+
+  @Nullable
+  @SuppressWarnings("unchecked")
+  private <T> T resolveBean(
+          ResolvableType requiredType,
+          boolean includeNonSingletons, boolean allowEagerInit, boolean nonUniqueAsNull) {
+    NamedBeanHolder<T> namedBean = resolveNamedBean(
+            requiredType, includeNonSingletons, allowEagerInit, nonUniqueAsNull);
     if (namedBean != null) {
       return namedBean.getBeanInstance();
     }
@@ -372,9 +340,10 @@ public class StandardBeanFactory
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> NamedBeanHolder<T> resolveNamedBean(
-          ResolvableType requiredType, boolean nonUniqueAsNull) throws BeansException {
+          ResolvableType requiredType, boolean includeNonSingletons,
+          boolean allowEagerInit, boolean nonUniqueAsNull) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    Set<String> candidateNames = getBeanNamesForType(requiredType, true, true);
+    Set<String> candidateNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
 
     int size = candidateNames.size();
     if (size == 1) {
@@ -554,7 +523,7 @@ public class StandardBeanFactory
   @Override
   public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), false);
+    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), true, true, false);
     if (namedBean != null) {
       return namedBean;
     }
@@ -707,39 +676,9 @@ public class StandardBeanFactory
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected T getIfAvailable(
             ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-      ArrayList list = new ArrayList<>();
-
-      for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-        BeanDefinition def = entry.getValue();
-        if (includeNonSingletons || def.isSingleton()) {
-          if (requiredType == null || isAssignableTo(def, requiredType)) {
-            list.add(def);
-          }
-        }
-      }
-
-      if (list.isEmpty()) {
-        synchronized(getSingletons()) {
-          for (Map.Entry<String, Object> entry : getSingletons().entrySet()) {
-            Object bean = entry.getValue();
-            if (AbstractBeanFactory.isInstance(requiredType, bean)) {
-              list.add(bean);
-            }
-          }
-          if (list.isEmpty()) {
-            return null; // not found
-          }
-          AnnotationAwareOrderComparator.sort(list);
-          return (T) list.get(0);
-        }
-      }
-      else {
-        BeanDefinition primary = BeanFactoryUtils.getPrimaryBeanDefinition(list);
-        return (T) getBean(primary);
-      }
+      return resolveBean(requiredType, includeNonSingletons, allowEagerInit, true);
     }
 
     private Map<String, T> getBeansOfType0() {
