@@ -17,35 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc.type;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package cn.taketoday.cache.interceptor;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Clinton Begin
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 14:09</a>
+ * @since 4.0
  */
-public class ByteArrayTypeHandler extends BaseTypeHandler<byte[]> {
+class CacheExpressionOperationsTests {
 
-  @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, byte[] parameter) throws SQLException {
-    ps.setBytes(i, parameter);
-  }
-
-  @Override
-  public byte[] getResult(ResultSet rs, String columnName) throws SQLException {
-    return rs.getBytes(columnName);
-  }
-
-  @Override
-  public byte[] getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return rs.getBytes(columnIndex);
-  }
-
-  @Override
-  public byte[] getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return cs.getBytes(columnIndex);
-  }
 }

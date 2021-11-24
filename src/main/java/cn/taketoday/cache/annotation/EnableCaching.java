@@ -26,16 +26,22 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.cache.CacheManager;
+import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.DefaultCacheManager;
 import cn.taketoday.cache.interceptor.CacheEvictInterceptor;
 import cn.taketoday.cache.interceptor.CacheExceptionResolver;
+import cn.taketoday.cache.interceptor.CacheExpressionOperations;
 import cn.taketoday.cache.interceptor.CachePutInterceptor;
 import cn.taketoday.cache.interceptor.CacheableInterceptor;
 import cn.taketoday.cache.interceptor.DefaultCacheExceptionResolver;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.lang.Configuration;
+import cn.taketoday.lang.Singleton;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY <br>
@@ -52,34 +58,50 @@ public @interface EnableCaching {
 class ProxyCachingConfiguration {
 
   @MissingBean(type = CacheManager.class)
-  DefaultCacheManager cacheManager() {
+  CacheManager cacheManager() {
+    if (ClassUtils.isPresent("com.github.benmanes.caffeine.cache.Caffeine")) {
+      return new CaffeineCacheManager();
+    }
     return new DefaultCacheManager();
   }
 
   @Aspect
   @MissingBean
   @Advice(CachePut.class)
-  CachePutInterceptor cachePutInterceptor(CacheManager cacheManager) {
-    return new CachePutInterceptor(cacheManager);
+  CachePutInterceptor cachePutInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
+    CachePutInterceptor cachePutInterceptor = new CachePutInterceptor(cacheManager);
+    cachePutInterceptor.setExpressionOperations(operations);
+    return cachePutInterceptor;
   }
 
   @Aspect
   @MissingBean
   @Advice(Cacheable.class)
-  CacheableInterceptor cacheableInterceptor(CacheManager cacheManager) {
-    return new CacheableInterceptor(cacheManager);
+  CacheableInterceptor cacheableInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
+    CacheableInterceptor cacheableInterceptor = new CacheableInterceptor(cacheManager);
+    cacheableInterceptor.setExpressionOperations(operations);
+    return cacheableInterceptor;
   }
 
   @Aspect
   @MissingBean
   @Advice(CacheEvict.class)
-  CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager) {
-    return new CacheEvictInterceptor(cacheManager);
+  CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
+    CacheEvictInterceptor cacheEvictInterceptor = new CacheEvictInterceptor(cacheManager);
+    cacheEvictInterceptor.setExpressionOperations(operations);
+    return cacheEvictInterceptor;
   }
 
   @MissingBean(type = CacheExceptionResolver.class)
   DefaultCacheExceptionResolver cacheExceptionResolver() {
     return new DefaultCacheExceptionResolver();
+  }
+
+  @Singleton
+  CacheExpressionOperations cacheExpressionOperations(ExpressionContext context) {
+    CacheExpressionOperations operations = new CacheExpressionOperations();
+    operations.setExpressionContext(context);
+    return operations;
   }
 
 }

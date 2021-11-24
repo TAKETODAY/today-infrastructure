@@ -34,11 +34,12 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -67,6 +68,8 @@ class CachePutInterceptorTests {
 
   @Test
   void testInContext() throws Exception {
+    CacheExpressionOperations operations = new CacheExpressionOperations();
+    operations.setExpressionContext(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(CachePutConfig.class);
@@ -75,8 +78,8 @@ class CachePutInterceptorTests {
       CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
-      AbstractCacheInterceptor.MethodKey methodKey = new AbstractCacheInterceptor.MethodKey(save, CachePut.class);
-      CacheConfiguration cachePut = prepareAnnotation(methodKey);
+      MethodKey methodKey = new MethodKey(save, CachePut.class);
+      CacheConfiguration cachePut = operations.getConfig(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
@@ -105,6 +108,8 @@ class CachePutInterceptorTests {
 
   @Test
   void testContextConditional() throws Exception {
+    CacheExpressionOperations operations = new CacheExpressionOperations();
+    operations.setExpressionContext(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(CachePutConfig.class);
@@ -114,8 +119,8 @@ class CachePutInterceptorTests {
 
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
-      AbstractCacheInterceptor.MethodKey methodKey = new AbstractCacheInterceptor.MethodKey(save, CachePut.class);
-      CacheConfiguration cachePut = prepareAnnotation(methodKey);
+      MethodKey methodKey = new MethodKey(save, CachePut.class);
+      CacheConfiguration cachePut = operations.getConfig(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());

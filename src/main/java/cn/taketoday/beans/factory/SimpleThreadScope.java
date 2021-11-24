@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * A simple thread-backed {@link Scope} implementation.
@@ -53,13 +54,12 @@ public class SimpleThreadScope implements Scope {
   }
 
   @Override
-  public Object get(final BeanDefinition def, final ScopeObjectFactory objectFactory) {
+  public Object get(final String beanName, final Supplier<?> objectFactory) {
     Map<String, Object> scope = this.threadScope.get();
-    final String name = def.getName();
-    Object scopedObject = scope.get(name);
+    Object scopedObject = scope.get(beanName);
     if (scopedObject == null) {
-      scopedObject = objectFactory.getObject(def);
-      scope.put(name, scopedObject);
+      scopedObject = objectFactory.get();
+      scope.put(beanName, scopedObject);
     }
     return scopedObject;
   }

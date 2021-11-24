@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -214,14 +213,14 @@ class BeanFactoryTests {
     private DataSize testInt;
 
     @Override
-    public TEST getBean() {
+    public TEST getObject() {
       TEST test = new TEST();
       test.test = testInt;
       return test;
     }
 
     @Override
-    public Class<TEST> getBeanClass() {
+    public Class<TEST> getObjectType() {
       return TEST.class;
     }
 

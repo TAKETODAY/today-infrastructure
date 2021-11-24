@@ -49,7 +49,8 @@ import cn.taketoday.util.StringUtils;
  */
 public class BeanMetadata implements Iterable<BeanProperty> {
 
-  private static final Mappings<BeanMetadata, ?> metadataMappings = new Mappings<>(BeanMetadata::new);
+  private static final Mappings<BeanMetadata, ?> metadataMappings = new Mappings<>(
+          new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
   private final Class<?> beanClass;
 
@@ -114,7 +115,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   @Nullable
-  public BeanProperty getBeanProperty(final String propertyName) {
+  public BeanProperty getBeanProperty(String propertyName) {
     return getBeanProperties().get(propertyName);
   }
 
@@ -125,8 +126,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @return target {@link BeanProperty}
    * @throws NoSuchPropertyException If no such property
    */
-  public BeanProperty obtainBeanProperty(final String propertyName) {
-    final BeanProperty beanProperty = getBeanProperty(propertyName);
+  public BeanProperty obtainBeanProperty(String propertyName) {
+    BeanProperty beanProperty = getBeanProperty(propertyName);
     if (beanProperty == null) {
       throw new NoSuchPropertyException(beanClass, propertyName);
     }
@@ -143,7 +144,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
-  public void setProperty(final Object root, final String propertyName, final Object value) {
+  public void setProperty(Object root, String propertyName, Object value) {
     obtainBeanProperty(propertyName).setValue(root, value);
   }
 
@@ -155,7 +156,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
-  public Object getProperty(final Object root, final String propertyName) {
+  public Object getProperty(Object root, String propertyName) {
     return obtainBeanProperty(propertyName).getValue(root);
   }
 
@@ -166,7 +167,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
-  public Class<?> getPropertyClass(final String propertyName) {
+  public Class<?> getPropertyClass(String propertyName) {
     return obtainBeanProperty(propertyName).getType();
   }
 
@@ -244,7 +245,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof final BeanMetadata that))
+    if (!(o instanceof BeanMetadata that))
       return false;
     return Objects.equals(beanClass, that.beanClass);
   }
@@ -303,8 +304,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @since 4.0
    */
   static final class BeanPropertiesHolder {
-    final HashMap<String, BeanProperty> mapping;
-    final ArrayList<BeanProperty> beanProperties;
+    public final HashMap<String, BeanProperty> mapping;
+    public final ArrayList<BeanProperty> beanProperties;
 
     BeanPropertiesHolder(HashMap<String, BeanProperty> mapping) {
       this.mapping = mapping;

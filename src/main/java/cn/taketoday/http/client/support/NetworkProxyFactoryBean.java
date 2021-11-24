@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -85,12 +85,12 @@ public class NetworkProxyFactoryBean implements FactoryBean<Proxy>, Initializing
 
   @Override
   @Nullable
-  public Proxy getBean() {
+  public Proxy getObject() {
     return this.proxy;
   }
 
   @Override
-  public Class<?> getBeanClass() {
+  public Class<?> getObjectType() {
     return Proxy.class;
   }
 

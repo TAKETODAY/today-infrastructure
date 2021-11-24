@@ -19,7 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,11 +33,6 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.PropertyException;
-import cn.taketoday.beans.SmartFactoryBean;
-import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;
@@ -46,7 +40,6 @@ import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -107,30 +100,9 @@ public abstract class AbstractBeanFactory
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
+  @Override
   public Object getBean(String name) {
-    BeanDefinition def = getBeanDefinition(name);
-    if (def != null) {
-      return getBean(def);
-    }
-    // if not exits a bean definition return a bean may exits in singletons cache
-    Object singleton = getSingleton(name);
-    if (singleton != null) {
-      return singleton;
-    }
-    return handleBeanNotFound(name);
-  }
-
-  protected Object handleBeanNotFound(String name) {
-    // may exits in bean supplier @since 4.0
-    Supplier<?> supplier = beanSupplier.get(name);
-    if (supplier != null) {
-      return supplier.get();
-    }
-    BeanFactory parentBeanFactory = getParentBeanFactory();
-    if (parentBeanFactory != null) {
-      return parentBeanFactory.getBean(name);
-    }
-    return null;
+    return doGetBean(name, null, null);
   }
 
   /**
@@ -138,32 +110,199 @@ public abstract class AbstractBeanFactory
    */
   @Override
   public Object getBean(BeanDefinition def) {
-    if (isFactoryBean(def)) {
-      return getFactoryBean(def).getBean();
-    }
-    if (def.isInitialized()) { // fix #7
-      return getSingleton(def.getName());
-    }
-
-    if (def.isSingleton()) {
-      return createSingleton(def);
-    }
-    else if (def.isPrototype()) {
-      return createPrototype(def);
-    }
-    else {
-      Scope scope = scopes.get(def.getScope());
-      if (scope == null) {
-        throw new IllegalStateException("No such scope: [" + def.getScope() + "] in this " + this);
-      }
-      return getScopeBean(def, scope);
-    }
+    return doGetBean(def.getName(), def.getBeanClass(), null);
   }
 
   @Override
   public <T> T getBean(String name, Class<T> requiredType) {
-    Object bean = getBean(name);
-    return adaptBeanInstance(name, bean, requiredType);
+    return doGetBean(name, requiredType, null);
+  }
+
+  @Override
+  public Object getBean(String name, Object... args) throws BeansException {
+    return doGetBean(name, null, args);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nullable
+  protected <T> T doGetBean(String beanName, Class<?> requiredType, Object[] args) throws BeansException {
+    BeanDefinition definition = getBeanDefinition(beanName);
+    if (definition == null) {
+      Supplier<?> supplier = beanSupplier.get(beanName);
+      if (supplier != null && args == null) {
+        return (T) supplier.get();
+      }
+      // Check if bean definition exists in this factory.
+      BeanFactory parentBeanFactory = getParentBeanFactory();
+      if (parentBeanFactory != null) {
+        // Not found -> check parent.
+        if (parentBeanFactory instanceof AbstractBeanFactory) {
+          return ((AbstractBeanFactory) parentBeanFactory).doGetBean(beanName, requiredType, args);
+        }
+        else if (args != null) {
+          // Delegation to parent with explicit args.
+          return (T) parentBeanFactory.getBean(beanName, args);
+        }
+        else if (requiredType != null) {
+          // No args -> delegate to standard getBean method.
+          return (T) parentBeanFactory.getBean(beanName, requiredType);
+        }
+        else {
+          return (T) parentBeanFactory.getBean(beanName);
+        }
+      }
+
+      // don't throw exception
+      return null;
+    }
+
+    Object beanInstance = getSingleton(beanName);
+    if (beanInstance == null) {
+      // Create bean instance.
+      if (definition.isSingleton()) {
+        beanInstance = getSingleton(beanName, () -> {
+          try {
+            return createBean(definition, args);
+          }
+          catch (BeansException ex) {
+            // Explicitly remove instance from singleton cache: It might have been put there
+            // eagerly by the creation process, to allow for circular reference resolution.
+            // Also remove any beans that received a temporary reference to the bean.
+            destroySingleton(beanName);
+            throw ex;
+          }
+        });
+      }
+      else if (definition.isPrototype()) {
+        // It's a prototype -> create a new instance.
+        try {
+          beforePrototypeCreation(beanName);
+          beanInstance = createBean(definition, args);
+        }
+        finally {
+          afterPrototypeCreation(beanName);
+        }
+      }
+      else {
+        String scopeName = definition.getScope();
+        if (StringUtils.isEmpty(scopeName)) {
+          throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
+        }
+        Scope scope = this.scopes.get(scopeName);
+        if (scope == null) {
+          throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
+        }
+        beanInstance = scope.get(beanName, () -> {
+          beforePrototypeCreation(beanName);
+          try {
+            return createBean(definition, args);
+          }
+          finally {
+            afterPrototypeCreation(beanName);
+          }
+        });
+      }
+    }
+    beanInstance = getObjectForBeanInstance(beanName, beanInstance);
+    return adaptBeanInstance(beanName, beanInstance, requiredType);
+  }
+
+  protected void afterPrototypeCreation(String beanName) { }
+
+  protected void beforePrototypeCreation(String beanName) { }
+
+  /**
+   * Create a bean instance for the given merged bean definition (and arguments).
+   * The bean definition will already have been merged with the parent definition
+   * in case of a child definition.
+   * <p>All bean retrieval methods delegate to this method for actual bean creation.
+   *
+   * @param definition the bean definition for the bean
+   * @param args explicit arguments to use for constructor or factory method invocation
+   * @return a new instance of the bean
+   * @throws BeanCreationException if the bean could not be created
+   */
+  protected abstract Object createBean(
+          BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException;
+
+  protected Object getObjectForBeanInstance(
+          String beanName, Object beanInstance) throws BeansException {
+
+    // Don't let calling code try to dereference the factory if the bean isn't a factory.
+    if (BeanFactoryUtils.isFactoryDereference(beanName)) {
+      if (!(beanInstance instanceof FactoryBean)) {
+        throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
+      }
+      return beanInstance;
+    }
+
+    // Now we have the bean instance, which may be a normal bean or a FactoryBean.
+    // If it's a FactoryBean, we use it to create a bean instance, unless the
+    // caller actually wants a reference to the factory.
+    if (beanInstance instanceof FactoryBean<?> factory) {
+      if (log.isDebugEnabled()) {
+        log.debug("Bean with name '{}' is a factory bean", beanName);
+      }
+      // get bean from FactoryBean
+      beanInstance = getObjectFromFactoryBean(factory, beanName);
+    }
+    return beanInstance;
+  }
+
+  /**
+   * Obtain an object to expose from the given FactoryBean.
+   *
+   * @param factory the FactoryBean instance
+   * @param beanName the name of the bean
+   * @return the object obtained from the FactoryBean
+   * @throws BeanCreationException if FactoryBean object creation failed
+   * @see FactoryBean#getObject()
+   */
+  protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName) {
+    if (factory.isSingleton() && containsSingleton(beanName)) {
+      synchronized(getSingletons()) {
+        Object object = getSingleton(beanName);
+        if (object == null) {
+          object = doGetObjectFromFactoryBean(factory, beanName);
+          Object alreadyThere = getSingleton(beanName);
+          if (alreadyThere != null) {
+            object = alreadyThere;
+          }
+          else {
+            if (containsSingleton(beanName)) {
+              registerSingleton(beanName, object);
+            }
+          }
+        }
+        return object;
+      }
+    }
+    else {
+      return doGetObjectFromFactoryBean(factory, beanName);
+    }
+  }
+
+  /**
+   * Obtain an object to expose from the given FactoryBean.
+   *
+   * @param factory the FactoryBean instance
+   * @param beanName the name of the bean
+   * @return the object obtained from the FactoryBean
+   * @throws BeanCreationException if FactoryBean object creation failed
+   * @see FactoryBean#getObject()
+   */
+  private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, String beanName) throws BeanCreationException {
+    Object object;
+    try {
+      object = factory.getObject();
+    }
+    catch (Throwable ex) {
+      throw new BeanCreationException(beanName, "FactoryBean threw exception on object creation", ex);
+    }
+
+    // Do not accept a null value for a FactoryBean that's not fully
+    // initialized yet: Many FactoryBeans just return null then.
+    return object;
   }
 
   @SuppressWarnings("unchecked")
@@ -260,7 +399,7 @@ public abstract class AbstractBeanFactory
       // lookup start-with '$' , hasn't create its factory
       if (!definition.isLazyInit() || allowFactoryBeanInit) {
         FactoryBean<Object> factoryBean = getFactoryBean(definition);
-        Class<?> beanClass = factoryBean.getBeanClass();
+        Class<?> beanClass = factoryBean.getObjectType();
         return typeToMatch.isAssignableFrom(beanClass);
       }
     }
@@ -276,48 +415,6 @@ public abstract class AbstractBeanFactory
   static boolean isInstance(ResolvableType type, Object obj) {
     return obj != null && type.isAssignableFrom(ClassUtils.getUserClass(obj));
   }
-
-  /**
-   * Create bean instance if necessary
-   * <p>
-   * <b> Note </b> If target bean is {@link Scope#SINGLETON} will be register is
-   * to the singletons pool
-   * </p>
-   * <p>
-   * Other scope will create directly
-   * </p>
-   *
-   * @param def Bean definition
-   * @return Target bean instance
-   * @throws BeanInstantiationException When instantiation of a bean failed
-   */
-  protected Object createBeanIfNecessary(BeanDefinition def) {
-    if (def.isSingleton()) {
-      String name = def.getName();
-      Object bean = getSingleton(name);
-      if (bean == null) {
-        bean = createBeanInstance(def);
-        registerSingleton(name, bean);
-      }
-      return bean;
-    }
-    else {
-      return createBeanInstance(def);
-    }
-  }
-
-  /**
-   * Create new bean instance
-   * <p>
-   * Apply before-instantiation post-processors, resolving whether there is a
-   * before-instantiation shortcut for the specified bean.
-   * </p>
-   *
-   * @param def Target {@link BeanDefinition} descriptor
-   * @return A new bean object
-   * @throws BeanInstantiationException When instantiation of a bean failed
-   */
-  protected abstract Object createBeanInstance(BeanDefinition def);
 
   /**
    * Resolve the bean class for the specified bean definition,
@@ -374,75 +471,6 @@ public abstract class AbstractBeanFactory
   }
 
   /**
-   * Apply property values.
-   *
-   * @param bean Bean instance
-   * @param def use {@link BeanDefinition}
-   * @throws PropertyException If any {@link Exception} occurred when apply properties
-   * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
-   * this {@link BeanFactory}
-   */
-  protected abstract void applyPropertyValues(Object bean, BeanDefinition def);
-
-  /** @since 4.0 */
-  protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {
-    dataBinder.setConversionService(getConversionService());
-  }
-
-  /**
-   * Invoke initialize methods
-   *
-   * @param bean Bean instance
-   * @param def bean definition
-   * @throws BeanInitializingException when invoke init methods
-   * @see Component
-   * @see InitializingBean
-   * @see jakarta.annotation.PostConstruct
-   */
-  protected void invokeInitMethods(Object bean, BeanDefinition def) {
-    String[] initMethods = def.getInitMethods();
-    Method[] methods = BeanDefinitionBuilder.computeInitMethod(initMethods, bean.getClass());
-
-    if (ObjectUtils.isNotEmpty(methods)) {
-      ArgumentsResolver resolver = getArgumentsResolver();
-      // invoke @PostConstruct or initMethods defined in @Component
-      for (Method method : methods) {
-        try {
-          Object[] args = resolver.resolve(method, this);
-          method.invoke(bean, args);
-        }
-        catch (Exception e) {
-          throw new BeanInitializingException(
-                  "An Exception Occurred When [" + bean
-                          + "] invoke init method: [" + method + "]", e);
-        }
-      }
-    }
-
-    // InitializingBean#afterPropertiesSet
-    if (bean instanceof InitializingBean) {
-      try {
-        ((InitializingBean) bean).afterPropertiesSet();
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean + "] apply after properties", e);
-      }
-    }
-  }
-
-  /**
-   * Create prototype bean instance.
-   *
-   * @param def Bean definition
-   * @return A initialized Prototype bean instance
-   * @throws BeanInstantiationException If any {@link Exception} occurred when create prototype
-   */
-  protected Object createPrototype(BeanDefinition def) {
-    return initializeBean(createBeanInstance(def), def); // initialize
-  }
-
-  /**
    * Get initialized {@link FactoryBean}
    *
    * @param def Target {@link BeanDefinition}
@@ -479,15 +507,12 @@ public abstract class AbstractBeanFactory
    */
   @SuppressWarnings("unchecked")
   protected <T> FactoryBean<T> getFactoryBeanInstance(BeanDefinition def) {
-    if (def instanceof FactoryBeanDefinition) {
-      return ((FactoryBeanDefinition<T>) def).getFactory();
-    }
     Object factory = getSingleton(getFactoryBeanName(def));
     if (factory instanceof FactoryBean) {
       // has already exits factory
       return (FactoryBean<T>) factory;
     }
-    factory = createBeanInstance(def);
+    factory = createBean(def, null);
     if (factory instanceof FactoryBean) {
       return (FactoryBean<T>) factory;
     }
@@ -502,150 +527,6 @@ public abstract class AbstractBeanFactory
    */
   protected String getFactoryBeanName(BeanDefinition def) {
     return FACTORY_BEAN_PREFIX.concat(def.getName());
-  }
-
-  @Override
-  public Object getScopeBean(BeanDefinition def, Scope scope) {
-    return scope.get(def, this::createPrototype);
-  }
-
-  /**
-   * Initialize the given bean instance, applying factory callbacks
-   * as well as init methods and bean post processors.
-   * <p>Called from {@link #createBean} for traditionally defined beans,
-   * and from {@link #initializeBean} for existing bean instances.
-   *
-   * @param bean the new bean instance we may need to initialize
-   * @param def Bean definition
-   * @return the initialized bean instance
-   * @throws BeanInitializingException If any {@link Exception} occurred when initialize bean
-   * @see BeanNameAware
-   * @see BeanClassLoaderAware
-   * @see BeanFactoryAware
-   * @see #applyBeanPostProcessorsBeforeInitialization
-   * @see #invokeInitMethods
-   * @see #applyBeanPostProcessorsAfterInitialization
-   */
-  @Override
-  public Object initializeBean(Object bean, BeanDefinition def) {
-    if (log.isDebugEnabled()) {
-      log.debug("Initializing bean named: [{}].", def.getName());
-    }
-    invokeAwareMethods(bean, def);
-    Object ret = bean;
-    // before properties
-    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
-      try {
-        ret = processor.postProcessBeforeInitialization(ret, def.getName());
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean + "] before properties set", e);
-      }
-    }
-    // apply properties
-    applyPropertyValues(ret, def);
-    // invoke initialize methods
-    invokeInitMethods(ret, def);
-    // after properties
-    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
-      try {
-        ret = processor.postProcessAfterInitialization(ret, def.getName());
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean + "] after properties set", e);
-      }
-    }
-    return ret;
-  }
-
-  private void invokeAwareMethods(Object bean, BeanDefinition def) {
-    if (bean instanceof Aware) {
-      if (bean instanceof BeanNameAware) {
-        ((BeanNameAware) bean).setBeanName(def.getName());
-      }
-      if (bean instanceof BeanClassLoaderAware) {
-        ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
-      }
-      if (bean instanceof BeanFactoryAware) {
-        ((BeanFactoryAware) bean).setBeanFactory(this);
-      }
-    }
-  }
-
-  /**
-   * Initialize a singleton bean with given name and it's definition.
-   * <p>
-   * Bean definition must be a singleton
-   * </p>
-   * this method will apply {@link BeanDefinition}'s 'initialized' property and
-   * register is bean instance to the singleton pool
-   * <p>
-   * If the input bean is {@code null} then use
-   * {@link #createSingleton(BeanDefinition)} To initialize singleton
-   *
-   * @param bean Input old bean
-   * @param def Bean definition
-   * @return A initialized singleton bean
-   * @throws BeanInstantiationException When instantiation of a bean failed
-   * @see #createSingleton(BeanDefinition)
-   */
-  protected Object initializeSingleton(Object bean, BeanDefinition def) {
-    if (bean == null) {
-      return createSingleton(def);
-    }
-    Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
-    if (def.isInitialized()) { // fix #7
-      return bean;
-    }
-    Object afterInit = initializeBean(bean, def);
-    if (afterInit != bean) {
-      registerSingleton(def.getName(), afterInit);
-    }
-    // apply this bean definition's 'initialized' property
-    def.setInitialized(true);
-    return afterInit;
-  }
-
-  /**
-   * Initialize a singleton bean with given name and it's definition.
-   * <p>
-   * Bean definition must be a singleton
-   * </p>
-   * this method will apply {@link BeanDefinition}'s 'initialized' property and
-   * register is bean instance to the singleton pool
-   *
-   * @param def Bean definition
-   * @return A initialized singleton bean
-   * @throws BeanInstantiationException When instantiation of a bean failed
-   */
-  protected Object createSingleton(BeanDefinition def) {
-    Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
-
-    if (isFactoryBean(def)) {
-      Object bean = getFactoryBean(def).getBean();
-      if (!containsSingleton(def.getName())) {
-        registerSingleton(def.getName(), bean);
-        def.setInitialized(true);
-      }
-      return bean;
-    }
-
-    if (def.isInitialized()) { // fix #7
-      return getSingleton(def.getName());
-    }
-
-    Object bean = createBeanIfNecessary(def);
-    // After initialization
-    Object afterInit = initializeBean(bean, def);
-
-    if (afterInit != bean) {
-      registerSingleton(def.getName(), afterInit);
-    }
-    def.setInitialized(true);
-
-    return afterInit;
   }
 
   /**
@@ -896,7 +777,7 @@ public abstract class AbstractBeanFactory
   @Nullable
   protected Class<?> getTypeForFactoryBean(FactoryBean<?> factoryBean) {
     try {
-      return factoryBean.getBeanClass();
+      return factoryBean.getObjectType();
     }
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
@@ -1079,57 +960,6 @@ public abstract class AbstractBeanFactory
       return;
     }
     DisposableBeanAdapter.destroyBean(beanInstance, def, postProcessors().destruction);
-  }
-
-  @Override
-  public void initializeSingletons() {
-    log.debug("Initialization of singleton objects.");
-    for (BeanDefinition def : getBeanDefinitions().values()) {
-      // Trigger initialization of all non-lazy singleton beans...
-      if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
-        if (isFactoryBean(def)) {
-          FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
-          boolean isEagerInit = factoryBean instanceof SmartFactoryBean
-                  && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
-          if (isEagerInit) {
-            getBean(def);
-          }
-        }
-        else {
-          createSingleton(def);
-        }
-      }
-    }
-
-    // Trigger post-initialization callback for all applicable beans...
-    for (Object singleton : getSingletons().values()) {
-      // SmartInitializingSingleton
-      if (singleton instanceof SmartInitializingSingleton) {
-        ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
-      }
-    }
-
-    log.debug("The singleton objects are initialized.");
-  }
-
-  /**
-   * Initialization singletons that has already in context
-   */
-  public void preInitialization() {
-    boolean debugEnabled = log.isDebugEnabled();
-
-    for (Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
-
-      String name = entry.getKey();
-      BeanDefinition def = getBeanDefinition(name);
-      if (def == null || def.isInitialized()) {
-        continue;
-      }
-      initializeSingleton(entry.getValue(), def);
-      if (debugEnabled) {
-        log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
-      }
-    }
   }
 
   @Override

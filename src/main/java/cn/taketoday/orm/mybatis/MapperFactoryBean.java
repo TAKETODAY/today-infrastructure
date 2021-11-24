@@ -23,13 +23,12 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author TODAY <br>
@@ -56,28 +55,21 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
   }
 
   @Override
-  public T getBean() {
-    return obtainSqlSession().getMapper(getBeanClass());
+  public T getObject() {
+    Assert.state(sqlSession != null, "No SqlSession");
+    return sqlSession.getMapper(getObjectType());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public final Class<T> getBeanClass() {
-    if (className == null) {
-      Assert.state(mapperInterface != null, "Mapper interface must not be null");
-      return mapperInterface;
+  public final Class<T> getObjectType() {
+    if (mapperInterface == null) {
+      if (className != null) {
+        mapperInterface = ClassUtils.resolveClassName(className, null);
+        className = null;
+      }
+      Assert.state(mapperInterface != null, "Mapper interface is required");
     }
-    try {
-      return (Class<T>) ClassUtils.forName(className);
-    }
-    catch (ClassNotFoundException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
-  }
-
-  public SqlSession obtainSqlSession() {
-    Assert.state(sqlSession != null, "Sql Session must not be null");
-    return sqlSession;
+    return mapperInterface;
   }
 
   public SqlSession getSqlSession() {
@@ -93,14 +85,14 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
   }
 
   public Class<T> getMapperInterface() {
-    return getBeanClass();
+    return getObjectType();
   }
 
   // afterPropertiesSet
   public void applySqlSession(SqlSession sqlSession) {
     setSqlSession(sqlSession);
-    final Class<T> mapperInterface = getBeanClass();
-    final Configuration configuration = sqlSession.getConfiguration();
+    Class<T> mapperInterface = getObjectType();
+    Configuration configuration = sqlSession.getConfiguration();
 
     if (configuration.hasMapper(mapperInterface)) {
       return;
@@ -111,7 +103,7 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
       configuration.addMapper(mapperInterface);
     }
     catch (Exception e) {
-      log.error("Error while adding the mapper '" + mapperInterface + "' to configuration.", e);
+      log.error("Error while adding the mapper '{}' to configuration.", mapperInterface, e);
       throw e;
     }
     finally {

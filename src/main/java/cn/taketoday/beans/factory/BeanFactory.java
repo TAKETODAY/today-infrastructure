@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
@@ -65,7 +64,26 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return Bet bean instance, returns null if it doesn't exist .
    * @throws BeansException Exception occurred when getting a named bean
    */
+  @Nullable
   Object getBean(String name) throws BeansException;
+
+  /**
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>Allows for specifying explicit constructor arguments / factory method arguments,
+   * overriding the specified default arguments (if any) in the bean definition.
+   *
+   * @param name the name of the bean to retrieve
+   * @param args arguments to use when creating a bean instance using explicit arguments
+   * (only applied when creating a new instance as opposed to retrieving an existing one)
+   * @return an instance of the bean
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
+   * @throws BeanDefinitionStoreException if arguments have been given but
+   * the affected bean isn't a prototype
+   * @throws BeansException if the bean could not be created
+   * @since 4.0
+   */
+  @Nullable
+  Object getBean(String name, Object... args) throws BeansException;
 
   /**
    * Find the bean with the given name and cast to required type.
@@ -74,6 +92,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param requiredType Cast to required type
    * @return get casted bean instance. returns null if it doesn't exist.
    */
+  @Nullable
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
   /**
@@ -339,7 +358,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class)
    * @since 2.1.6
    */
@@ -378,7 +397,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
@@ -409,7 +428,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getBeanClass
+   * @see FactoryBean#getObjectType
    * @since 3.0
    */
   <T> Map<String, T> getBeansOfType(
@@ -425,7 +444,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param requiredType the class or interface to match, or {@code null} for all bean names
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @since 3.0
    */
   default Set<String> getBeanNamesForType(Class<?> requiredType) {
@@ -445,7 +464,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * or just singletons (also applies to FactoryBeans)
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @since 3.0
    */
   Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons);
@@ -479,7 +498,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
@@ -503,7 +522,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getBeanClass()
+   * @see FactoryBean#getObjectType()
    * @since 4.0
    */
   Set<String> getBeanNamesForType(
@@ -587,17 +606,8 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @return Target {@link Object}
    * @since 2.1.7
    */
+  @Deprecated
   Object getBean(BeanDefinition def);
-
-  /**
-   * Get the bean with the given {@link BeanDefinition} and {@link Scope}
-   *
-   * @param def {@link BeanDefinition}
-   * @param scope {@link Scope}
-   * @return Target {@link Object}
-   * @since 3.0
-   */
-  Object getScopeBean(BeanDefinition def, Scope scope);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval

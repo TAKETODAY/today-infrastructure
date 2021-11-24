@@ -45,7 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.context.ApplicationContext;
@@ -466,12 +466,12 @@ public class Jackson2ObjectMapperFactoryBean
    */
   @Override
   @Nullable
-  public ObjectMapper getBean() {
+  public ObjectMapper getObject() {
     return this.objectMapper;
   }
 
   @Override
-  public Class<?> getBeanClass() {
+  public Class<?> getObjectType() {
     return this.objectMapper != null ? this.objectMapper.getClass() : null;
   }
 

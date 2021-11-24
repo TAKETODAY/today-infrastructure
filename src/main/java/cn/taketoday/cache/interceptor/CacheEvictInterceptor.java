@@ -28,10 +28,6 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CacheEvict;
 import cn.taketoday.core.Ordered;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
-
 /**
  * {@link org.aopalliance.intercept.MethodInterceptor} for {@link CacheEvict}
  *
@@ -50,21 +46,19 @@ public class CacheEvictInterceptor extends AbstractCacheInterceptor {
   }
 
   @Override
-  public Object invoke(final MethodInvocation invocation) throws Throwable {
-    final Method method = invocation.getMethod();
-    final MethodKey methodKey = new MethodKey(method, CacheEvict.class);
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    Method method = invocation.getMethod();
+    MethodKey methodKey = new MethodKey(method, CacheEvict.class);
 
-    final CacheConfiguration cacheEvict = prepareAnnotation(methodKey);
-
+    CacheConfiguration cacheEvict = expressionOperations.getConfig(methodKey);
     // before
     if (cacheEvict.beforeInvocation()) {
       if (cacheEvict.allEntries()) {
         clear(obtainCache(method, cacheEvict));
       }
       else {
-        final Object key = createKey(cacheEvict.key(),
-                                     prepareELContext(methodKey, invocation),
-                                     invocation);
+        Object key = expressionOperations.createKey(
+                cacheEvict.key(), expressionOperations.prepareContext(methodKey, invocation), invocation);
         evict(obtainCache(method, cacheEvict), key);
       }
       return invocation.proceed();
@@ -72,15 +66,13 @@ public class CacheEvictInterceptor extends AbstractCacheInterceptor {
 
     // after
     // if any exception occurred in this operation will not do evict or clear
-    final Object proceed = invocation.proceed();
-
+    Object proceed = invocation.proceed();
     if (cacheEvict.allEntries()) {
       clear(obtainCache(method, cacheEvict));
     }
     else {
-      final Object key = createKey(cacheEvict.key(),
-                                   prepareELContext(methodKey, invocation),
-                                   invocation);
+      Object key = expressionOperations.createKey(
+              cacheEvict.key(), expressionOperations.prepareContext(methodKey, invocation), invocation);
       evict(obtainCache(method, cacheEvict), key);
     }
     return proceed;

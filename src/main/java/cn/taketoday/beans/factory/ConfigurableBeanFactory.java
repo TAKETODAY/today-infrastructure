@@ -19,7 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
@@ -96,7 +95,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Note: This may have left the factory with some beans already initialized!
    * @since 2.1.2
    */
-  void initializeSingletons();
+  void preInstantiateSingletons();
 
   /**
    * Remove a {@link BeanPostProcessor}
@@ -197,16 +196,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @since 4.0
    */
   void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
-
-  /**
-   * Ensure that all non-lazy-init singletons are instantiated, also considering
-   * {@link FactoryBean FactoryBeans}. Typically, invoked at the end of factory
-   * setup, if desired.
-   *
-   * @throws BeansException if one of the singleton beans could not be created.
-   * @since 4.0
-   */
-  void preInitialization() throws BeansException;
 
   /**
    * Destroy all singleton beans in this factory, including inner beans that have

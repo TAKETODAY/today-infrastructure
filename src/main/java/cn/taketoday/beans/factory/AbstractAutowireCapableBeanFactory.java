@@ -28,17 +28,24 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.PropertyException;
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -85,6 +92,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     applyPropertyValues(existingBean, prototypeDef);
   }
 
+  @Override
   protected Object createBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
     if (log.isTraceEnabled()) {
       log.trace("Creating instance of bean '{}'", definition.getName());
@@ -164,6 +172,113 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
+   * Initialize the given bean instance, applying factory callbacks
+   * as well as init methods and bean post processors.
+   * <p>Called from {@link #createBean} for traditionally defined beans,
+   * and from {@link #initializeBean} for existing bean instances.
+   *
+   * @param bean the new bean instance we may need to initialize
+   * @param def Bean definition
+   * @return the initialized bean instance
+   * @throws BeanInitializingException If any {@link Exception} occurred when initialize bean
+   * @see BeanNameAware
+   * @see BeanClassLoaderAware
+   * @see BeanFactoryAware
+   * @see #applyBeanPostProcessorsBeforeInitialization
+   * @see #invokeInitMethods
+   * @see #applyBeanPostProcessorsAfterInitialization
+   */
+  @Override
+  public Object initializeBean(Object bean, BeanDefinition def) {
+    if (log.isDebugEnabled()) {
+      log.debug("Initializing bean named: [{}].", def.getName());
+    }
+    invokeAwareMethods(bean, def);
+    Object ret = bean;
+    // before properties
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
+      try {
+        ret = processor.postProcessBeforeInitialization(ret, def.getName());
+      }
+      catch (Exception e) {
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" + bean + "] before properties set", e);
+      }
+    }
+    // apply properties
+    applyPropertyValues(ret, def);
+    // invoke initialize methods
+    invokeInitMethods(ret, def);
+    // after properties
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
+      try {
+        ret = processor.postProcessAfterInitialization(ret, def.getName());
+      }
+      catch (Exception e) {
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" + bean + "] after properties set", e);
+      }
+    }
+    return ret;
+  }
+
+  private void invokeAwareMethods(Object bean, BeanDefinition def) {
+    if (bean instanceof Aware) {
+      if (bean instanceof BeanNameAware) {
+        ((BeanNameAware) bean).setBeanName(def.getName());
+      }
+      if (bean instanceof BeanClassLoaderAware) {
+        ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+      }
+      if (bean instanceof BeanFactoryAware) {
+        ((BeanFactoryAware) bean).setBeanFactory(this);
+      }
+    }
+  }
+
+  /**
+   * Invoke initialize methods
+   *
+   * @param bean Bean instance
+   * @param def bean definition
+   * @throws BeanInitializingException when invoke init methods
+   * @see Component
+   * @see InitializingBean
+   * @see jakarta.annotation.PostConstruct
+   */
+  protected void invokeInitMethods(Object bean, BeanDefinition def) {
+    String[] initMethods = def.getInitMethods();
+    Method[] methods = BeanDefinitionBuilder.computeInitMethod(initMethods, bean.getClass());
+
+    if (ObjectUtils.isNotEmpty(methods)) {
+      ArgumentsResolver resolver = getArgumentsResolver();
+      // invoke @PostConstruct or initMethods defined in @Component
+      for (Method method : methods) {
+        try {
+          Object[] args = resolver.resolve(method, this);
+          method.invoke(bean, args);
+        }
+        catch (Exception e) {
+          throw new BeanInitializingException(
+                  "An Exception Occurred When [" + bean
+                          + "] invoke init method: [" + method + "]", e);
+        }
+      }
+    }
+
+    // InitializingBean#afterPropertiesSet
+    if (bean instanceof InitializingBean) {
+      try {
+        ((InitializingBean) bean).afterPropertiesSet();
+      }
+      catch (Exception e) {
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" + bean + "] apply after properties", e);
+      }
+    }
+  }
+
+  /**
    * Apply before-instantiation post-processors, resolving whether there is a
    * before-instantiation shortcut for the specified bean.
    *
@@ -218,7 +333,17 @@ public abstract class AbstractAutowireCapableBeanFactory
     return instantiate(mbd, args);
   }
 
-  @Override
+  /**
+   * Create new bean instance
+   * <p>
+   * Apply before-instantiation post-processors, resolving whether there is a
+   * before-instantiation shortcut for the specified bean.
+   * </p>
+   *
+   * @param def Target {@link BeanDefinition} descriptor
+   * @return A new bean object
+   * @throws BeanInstantiationException When instantiation of a bean failed
+   */
   protected Object createBeanInstance(BeanDefinition def) {
     return createBeanInstance(def, null);
   }
@@ -354,8 +479,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   public void populateBean(Object bean, BeanDefinition definition) {
-    // postProcess();
-
     // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
     // state of the bean before properties are set. This can be used, for example,
     // to support styles of field injection.
@@ -368,10 +491,33 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
 
+    // DisableDependencyInjection
+    if (definition instanceof AnnotatedBeanDefinition annotated) {
+      if (annotated.getMetadata().isAnnotated(DisableDependencyInjection.class.getName())) {
+        return;
+      }
+      String factoryBeanName = annotated.getFactoryBeanName();
+      if (factoryBeanName != null) {
+        // is factory
+        Class<?> factoryClass = getFactoryClass(annotated, factoryBeanName);
+        if (MergedAnnotations.from(factoryClass).isPresent(DisableDependencyInjection.class)) {
+          return;
+        }
+      }
+    }
+
     applyPropertyValues(bean, definition);
   }
 
-  @Override
+  /**
+   * Apply property values.
+   *
+   * @param bean Bean instance
+   * @param def use {@link BeanDefinition}
+   * @throws PropertyException If any {@link Exception} occurred when apply properties
+   * @throws NoSuchBeanDefinitionException If BeanReference is required and there isn't a bean in
+   * this {@link BeanFactory}
+   */
   protected void applyPropertyValues(Object bean, BeanDefinition def) {
     // -----------------------------------------------
     // apply dependency injection (DI)
@@ -391,6 +537,11 @@ public abstract class AbstractAutowireCapableBeanFactory
         processor.postProcessDependencies(bean, def);
       }
     }
+  }
+
+  /** @since 4.0 */
+  protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {
+    dataBinder.setConversionService(getConversionService());
   }
 
   @Override
@@ -509,6 +660,44 @@ public abstract class AbstractAutowireCapableBeanFactory
     // unique candidate, cache the full type declaration context of the target factory method.
     cachedReturnType = ResolvableType.forReturnType(factoryMethod);
     return cachedReturnType.resolve();
+  }
+
+  @Override
+  public void preInstantiateSingletons() {
+    log.debug("Initialization of singleton objects.");
+    // Iterate over a copy to allow for init methods which in turn register new bean definitions.
+    // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+
+    String[] beanNames = getBeanDefinitionNames();
+    // Trigger initialization of all non-lazy singleton beans...
+    for (String beanName : beanNames) {
+      BeanDefinition def = obtainBeanDefinition(beanName);
+      // Trigger initialization of all non-lazy singleton beans...
+      if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
+        if (isFactoryBean(def)) {
+          Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
+          if (bean instanceof FactoryBean<?> factory) {
+            if (factory instanceof SmartFactoryBean smartFactory
+                    && smartFactory.isEagerInit()) {
+              getBean(beanName);
+            }
+          }
+        }
+        else {
+          getBean(beanName);
+        }
+      }
+    }
+
+    // Trigger post-initialization callback for all applicable beans...
+    for (String beanName : beanNames) {
+      Object singletonInstance = getSingleton(beanName);
+      if (singletonInstance instanceof SmartInitializingSingleton smartSingleton) {
+        smartSingleton.afterSingletonsInstantiated();
+      }
+    }
+
+    log.debug("The singleton objects are initialized.");
   }
 
 }

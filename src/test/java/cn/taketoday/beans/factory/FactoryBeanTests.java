@@ -51,7 +51,7 @@ class FactoryBeanTests {
     }
 
     @Override
-    public Class<TEST> getBeanClass() {
+    public Class<TEST> getObjectType() {
       return TEST.class;
     }
   }

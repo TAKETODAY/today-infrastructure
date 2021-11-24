@@ -19,6 +19,8 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.util.function.Supplier;
+
 /**
  * Strategy interface used by a {@link ConfigurableBeanFactory},
  * representing a target scope to hold bean instances in.
@@ -67,19 +69,19 @@ public interface Scope {
 
   /**
    * Return the object with the given {@link BeanDefinition} from the underlying
-   * scope, {@link ScopeObjectFactory#getObject(BeanDefinition)) creating it} if
+   * scope, {@link Supplier#get()} creating it} if
    * not found in the underlying storage mechanism.
    * <p>
    * This is the central operation of a Scope, and the only operation that is
    * absolutely required.
    *
-   * @param def the name of the object to retrieve
-   * @param objectFactory the {@link ScopeObjectFactory} to use to create the scoped object
+   * @param beanName the name of the object to retrieve
+   * @param objectFactory the {@link Supplier} to use to create the scoped object
    * if it is not present in the underlying storage mechanism
    * @return the desired object (never {@code null})
    * @throws IllegalStateException if the underlying scope is not currently active
    */
-  Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
+  Object get(String beanName, Supplier<?> objectFactory);
 
   /**
    * Remove the object with the given {@code name} from the underlying scope.
@@ -131,8 +133,4 @@ public interface Scope {
    */
   void registerDestructionCallback(String name, Runnable callback);
 
-  interface ScopeObjectFactory {
-
-    Object getObject(BeanDefinition def);
-  }
 }

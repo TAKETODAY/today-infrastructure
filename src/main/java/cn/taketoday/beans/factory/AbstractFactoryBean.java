@@ -26,7 +26,6 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
@@ -38,10 +37,10 @@ import cn.taketoday.util.ClassUtils;
  * <p>
  * If the "singleton" flag is {@code true} (the default), this class will create
  * the object that it creates exactly once on initialization and subsequently
- * return said singleton instance on all calls to the {@link #getBean()} method.
+ * return said singleton instance on all calls to the {@link #getObject()} method.
  *
  * <p>
- * Else, this class will create a new instance every time the {@link #getBean()}
+ * Else, this class will create a new instance every time the {@link #getObject()}
  * method is invoked. Subclasses are responsible for implementing the abstract
  * {@link #createBeanInstance()} template method to actually create the
  * object(s) to expose.
@@ -113,7 +112,7 @@ public abstract class AbstractFactoryBean<T>
    * @see #getEarlySingletonInterfaces()
    */
   @Override
-  public final T getBean() {
+  public final T getObject() {
     if (isSingleton()) {
       return (this.initialized ? this.singletonInstance : getEarlySingletonInstance());
     }
@@ -128,8 +127,8 @@ public abstract class AbstractFactoryBean<T>
   private T getEarlySingletonInstance() {
     Class<?>[] ifcs = getEarlySingletonInterfaces();
     if (ifcs == null) {
-      throw new BeanInstantiationException(
-              getClass(), getClass().getName() + " does not support circular references");
+      throw new FactoryBeanNotInitializedException(
+              getClass().getName() + " does not support circular references");
     }
     if (this.earlySingletonInstance == null) {
       this.earlySingletonInstance = (T) Proxy.newProxyInstance(this.beanClassLoader, ifcs, new EarlySingletonInvocationHandler());
@@ -166,17 +165,17 @@ public abstract class AbstractFactoryBean<T>
    * interface, for a consistent offering of abstract template methods.
    */
   @Override
-  public abstract Class<T> getBeanClass();
+  public abstract Class<T> getObjectType();
 
   /**
    * Template method that subclasses must override to construct the object
    * returned by this factory.
    * <p>
    * Invoked on initialization of this FactoryBean in case of a singleton; else,
-   * on each {@link #getBean()} call.
+   * on each {@link #getObject()} call.
    *
    * @return the object returned by this factory
-   * @see #getBean()
+   * @see #getObject()
    */
   protected abstract T createBeanInstance();
 
@@ -195,7 +194,7 @@ public abstract class AbstractFactoryBean<T>
    * @see BeanInstantiationException
    */
   protected Class<?>[] getEarlySingletonInterfaces() {
-    Class<?> type = getBeanClass();
+    Class<?> type = getObjectType();
     return (type != null && type.isInterface() ? new Class<?>[] { type } : null);
   }
 

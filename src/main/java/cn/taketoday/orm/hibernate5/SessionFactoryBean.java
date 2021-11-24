@@ -28,7 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.CandidateComponentScanner;
@@ -101,13 +101,13 @@ public class SessionFactoryBean extends Configuration //
   }
 
   @Override
-  public SessionFactory getBean() {
+  public SessionFactory getObject() {
     log.debug("Obtian sessionFactory");
     return this.sessionFactory;
   }
 
   @Override
-  public Class<SessionFactory> getBeanClass() {
+  public Class<SessionFactory> getObjectType() {
     return SessionFactory.class;
   }
 

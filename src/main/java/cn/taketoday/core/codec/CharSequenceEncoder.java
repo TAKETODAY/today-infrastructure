@@ -55,8 +55,7 @@ public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
    */
   public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private final ConcurrentMap<Charset, Float> charsetToMaxBytesPerChar =
-          new ConcurrentHashMap<>(3);
+  private final ConcurrentMap<Charset, Float> charsetToMaxBytesPerChar = new ConcurrentHashMap<>(3);
 
   private CharSequenceEncoder(MimeType... mimeTypes) {
     super(mimeTypes);

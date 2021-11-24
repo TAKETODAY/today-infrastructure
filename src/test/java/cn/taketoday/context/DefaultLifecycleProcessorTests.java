@@ -1,6 +1,6 @@
 package cn.taketoday.context;
 
-import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.type.EnabledForTestGroups;
@@ -687,12 +687,12 @@ class DefaultLifecycleProcessorTests {
     DummySmartLifecycleBean bean = new DummySmartLifecycleBean();
 
     @Override
-    public Object getBean() {
+    public Object getObject() {
       return this.bean;
     }
 
     @Override
-    public Class<?> getBeanClass() {
+    public Class<?> getObjectType() {
       return DummySmartLifecycleBean.class;
     }
 

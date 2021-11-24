@@ -202,8 +202,7 @@ public class ApplicationPropertySourcesProcessor {
         try {
           loadProperties(builder.toString());
         }
-        catch (FileNotFoundException ignored) {
-        }
+        catch (FileNotFoundException ignored) { }
       }
     }
   }

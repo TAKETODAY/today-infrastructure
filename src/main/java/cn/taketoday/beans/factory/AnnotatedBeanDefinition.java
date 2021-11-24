@@ -128,7 +128,8 @@ public class AnnotatedBeanDefinition extends BeanDefinition {
     if (!super.equals(o))
       return false;
     AnnotatedBeanDefinition that = (AnnotatedBeanDefinition) o;
-    return Objects.equals(metadata, that.metadata) && Objects.equals(factoryMethodMetadata, that.factoryMethodMetadata);
+    return Objects.equals(metadata, that.metadata)
+            && Objects.equals(factoryMethodMetadata, that.factoryMethodMetadata);
   }
 
   @Override

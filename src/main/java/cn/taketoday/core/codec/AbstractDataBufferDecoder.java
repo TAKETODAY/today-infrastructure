@@ -81,15 +81,17 @@ public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
   }
 
   @Override
-  public Flux<T> decode(Publisher<DataBuffer> input, ResolvableType elementType,
-                        @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public Flux<T> decode(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     return Flux.from(input)
             .mapNotNull(buffer -> decode(buffer, elementType, mimeType, hints));
   }
 
   @Override
-  public Mono<T> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
-                              @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+  public Mono<T> decodeToMono(
+          Publisher<DataBuffer> input, ResolvableType elementType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return DataBufferUtils.join(input, this.maxInMemorySize)
             .mapNotNull(buffer -> decode(buffer, elementType, mimeType, hints));

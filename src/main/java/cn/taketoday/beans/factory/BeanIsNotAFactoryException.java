@@ -17,35 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc.type;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package cn.taketoday.beans.factory;
 
 /**
- * @author Clinton Begin
+ * Exception thrown when a bean is not a factory, but a user tries to get
+ * at the factory for the given bean name. Whether a bean is a factory is
+ * determined by whether it implements the FactoryBean interface.
+ *
+ * @author Rod Johnson
+ * @see FactoryBean
+ * @since 4.0
  */
-public class ByteArrayTypeHandler extends BaseTypeHandler<byte[]> {
+@SuppressWarnings("serial")
+public class BeanIsNotAFactoryException extends BeanNotOfRequiredTypeException {
 
-  @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, byte[] parameter) throws SQLException {
-    ps.setBytes(i, parameter);
+  /**
+   * Create a new BeanIsNotAFactoryException.
+   *
+   * @param name the name of the bean requested
+   * @param actualType the actual type returned, which did not match
+   * the expected type
+   */
+  public BeanIsNotAFactoryException(String name, Class<?> actualType) {
+    super(name, FactoryBean.class, actualType);
   }
 
-  @Override
-  public byte[] getResult(ResultSet rs, String columnName) throws SQLException {
-    return rs.getBytes(columnName);
-  }
-
-  @Override
-  public byte[] getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return rs.getBytes(columnIndex);
-  }
-
-  @Override
-  public byte[] getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return cs.getBytes(columnIndex);
-  }
 }

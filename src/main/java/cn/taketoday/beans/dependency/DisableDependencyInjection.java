@@ -17,19 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.event;
 
-import cn.taketoday.context.ApplicationContext;
+package cn.taketoday.beans.dependency;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author TODAY <br>
- * 2019-02-26 14:52
+ * Disable dependency-injection
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 22:06</a>
+ * @since 4.0
  */
-@SuppressWarnings("serial")
-public class ContextPreRefreshEvent extends ApplicationContextEvent {
-
-  public ContextPreRefreshEvent(ApplicationContext source) {
-    super(source);
-  }
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+public @interface DisableDependencyInjection {
 
 }
