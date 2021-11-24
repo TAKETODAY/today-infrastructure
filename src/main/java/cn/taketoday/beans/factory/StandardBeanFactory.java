@@ -19,19 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -49,6 +36,19 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -98,19 +98,17 @@ public class StandardBeanFactory
    * Preventing Cycle Dependency expected {@link Prototype} beans
    */
   @Override
-  public Object initializeBean(Object bean, BeanDefinition def) {
-    if (def.isPrototype()) {
-      return super.initializeBean(bean, def);
+  public void populateBean(Object bean, BeanDefinition definition) {
+    if (definition.isPrototype()) {
+      super.populateBean(bean, definition);
     }
-
-    String name = def.getName();
-    if (currentInitializingBeanName.contains(name)) {
-      return bean;
+    else {
+      String name = definition.getName();
+      if (currentInitializingBeanName.add(name)) {
+        super.populateBean(bean, definition);
+        currentInitializingBeanName.remove(name);
+      }
     }
-    currentInitializingBeanName.add(name);
-    Object initializingBean = super.initializeBean(bean, def);
-    currentInitializingBeanName.remove(name);
-    return initializingBean;
   }
 
   //---------------------------------------------------------------------
@@ -152,8 +150,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                           "for bean '{}' with a framework-generated bean " +
-                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                  "for bean '{}' with a framework-generated bean " +
+                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
