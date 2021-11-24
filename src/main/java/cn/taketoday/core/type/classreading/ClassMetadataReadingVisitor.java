@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  * @author Chris Beams
  * @since 4.0
  */
-class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata {
+abstract class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata {
 
   private String className = "";
 

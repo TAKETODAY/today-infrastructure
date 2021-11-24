@@ -161,9 +161,14 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
     return annotatedMethods != null ? annotatedMethods : Collections.emptySet();
   }
 
+  @Override
+  protected MethodMetadata mapMethod(Method method) {
+    return new StandardMethodMetadata(method, this.nestedAnnotationsAsMap);
+  }
+
   private static boolean isAnnotatedMethod(Method method, String annotationName) {
-    return !method.isBridge() && method.getAnnotations().length > 0 &&
-            AnnotatedElementUtils.isAnnotated(method, annotationName);
+    return !method.isBridge() && method.getAnnotations().length > 0
+            && AnnotatedElementUtils.isAnnotated(method, annotationName);
   }
 
   static AnnotationMetadata from(Class<?> introspectedClass) {

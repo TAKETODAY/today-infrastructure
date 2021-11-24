@@ -122,4 +122,6 @@ public interface ClassMetadata {
   String[] getMemberClassNames();
 
   int getModifiers();
+
+  MethodMetadata[] getMethods();
 }

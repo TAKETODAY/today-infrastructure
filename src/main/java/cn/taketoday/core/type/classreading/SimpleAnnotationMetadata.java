@@ -20,15 +20,15 @@
 
 package cn.taketoday.core.type.classreading;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
+
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * {@link AnnotationMetadata} created from a
@@ -159,6 +159,11 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
       }
     }
     return annotatedMethods != null ? annotatedMethods : Collections.emptySet();
+  }
+
+  @Override
+  public MethodMetadata[] getMethods() {
+    return annotatedMethods;
   }
 
   @Override
