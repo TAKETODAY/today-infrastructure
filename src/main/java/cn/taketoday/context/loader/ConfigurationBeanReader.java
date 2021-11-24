@@ -20,15 +20,7 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -68,6 +60,15 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author TODAY 2021/10/16 23:17
@@ -126,7 +127,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   protected boolean hasAnnotation(MetadataReader metadataReader, Class<?> annType) {
-    return metadataReader.getAnnotationMetadata().hasAnnotation(annType.getName());
+    return metadataReader.getAnnotationMetadata().isAnnotated(annType.getName());
   }
 
   private void processComponentScan(MetadataReader metadataReader, BeanDefinition definition) {
@@ -170,6 +171,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     for (MethodMetadata beanMethod : annotatedMethods) {
       // pass the condition
       if (context.passCondition(beanMethod)) {
+        final boolean enableDependencyInjection = isEnableDependencyInjection(beanMethod, importMetadata);
 
         beanMethod.getAnnotations().stream(Component.class).forEach(component -> {
           for (String name : BeanDefinitionBuilder.determineName(
@@ -182,7 +184,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
             definition.setFactoryMethodName(beanMethod.getMethodName());
             definition.setDestroyMethod(component.getString(BeanDefinition.DESTROY_METHOD));
             definition.setInitMethods(component.getStringArray(BeanDefinition.INIT_METHODS));
-
+            definition.setEnableDependencyInjection(enableDependencyInjection);
             register(definition, importMetadata);
           }
         });
@@ -190,6 +192,10 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     }
   }
 
+  private boolean isEnableDependencyInjection(MethodMetadata beanMethod, AnnotationMetadata importMetadata) {
+    return !beanMethod.getAnnotations().isPresent(DisableDependencyInjection.class)
+            && !importMetadata.isAnnotated(DisableDependencyInjection.class.getName());
+  }
 
   private AnnotationMetadata getAnnotationMetadata(BeanDefinition definition) {
     if (definition instanceof AnnotatedBeanDefinition) {
@@ -314,7 +320,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       }
       else {
         log.info("Ignoring @PropertySource annotation on [" + metadataReader.getClassMetadata().getClassName() +
-                         "]. Reason: Environment must implement ConfigurableEnvironment");
+                "]. Reason: Environment must implement ConfigurableEnvironment");
       }
     }
 
@@ -339,7 +345,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
 
     Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
     PropertySourceFactory factory = factoryClass == PropertySourceFactory.class
-                                    ? getPropertySourceFactory() : context.instantiate(factoryClass);
+            ? getPropertySourceFactory() : context.instantiate(factoryClass);
 
     for (String location : locations) {
       try {
@@ -376,8 +382,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
         cn.taketoday.core.env.PropertySource<?> newSource = propertySource instanceof ResourcePropertySource
-                                                            ? ((ResourcePropertySource) propertySource).withResourceName()
-                                                            : propertySource;
+                ? ((ResourcePropertySource) propertySource).withResourceName()
+                : propertySource;
 
         if (existing instanceof CompositePropertySource) {
           ((CompositePropertySource) existing).addFirstPropertySource(newSource);

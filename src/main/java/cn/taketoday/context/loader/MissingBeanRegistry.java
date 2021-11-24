@@ -20,9 +20,6 @@
 
 package cn.taketoday.context.loader;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.ConfigBeanDefinition;
 import cn.taketoday.context.annotation.MissingBean;
@@ -34,6 +31,9 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 /**
  * @author TODAY 2021/10/19 21:47
@@ -124,16 +124,8 @@ public class MissingBeanRegistry {
 
   }
 
-  static class MissingInfo {
-    final MethodMetadata metadata;
-    final BeanDefinition config;
-    final MergedAnnotation<MissingBean> missingBean;
+  record MissingInfo(MethodMetadata metadata, BeanDefinition config, MergedAnnotation<MissingBean> missingBean) {
 
-    MissingInfo(MethodMetadata metadata, BeanDefinition config, MergedAnnotation<MissingBean> missingBean) {
-      this.metadata = metadata;
-      this.config = config;
-      this.missingBean = missingBean;
-    }
   }
 
   public void detectMissingBean(MethodMetadata metadata, BeanDefinition config) {
@@ -151,12 +143,8 @@ public class MissingBeanRegistry {
     missingInfos.add(new ScannedMissingInfo(metadataReader));
   }
 
-  static class ScannedMissingInfo {
-    final MetadataReader metadata;
+  record ScannedMissingInfo(MetadataReader metadata) {
 
-    ScannedMissingInfo(MetadataReader metadata) {
-      this.metadata = metadata;
-    }
   }
 
   /**
