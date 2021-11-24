@@ -25,8 +25,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
@@ -62,32 +60,4 @@ public @interface MissingComponent {
   @AliasFor(annotation = MissingBean.class)
   boolean equals() default false;
 
-  /**
-   * The optional name of a method to call on the bean instance during
-   * initialization. Not commonly used, given that the method may be called
-   * programmatically directly within the body of a Bean-annotated method.
-   * <p>
-   * The default value is {@code ""}, indicating no init method to be called.
-   *
-   * @see InitializingBean
-   * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
-   */
-  @AliasFor(annotation = MissingBean.class)
-  String[] initMethods() default {};
-
-  /**
-   * The optional names of a method to call on the bean instance upon closing the
-   * application context, for example a {@code close()} method on a JDBC
-   * {@code DataSource} implementation, or a Hibernate {@code SessionFactory}
-   * object. The method must have no arguments but may throw any exception.
-   * <p>
-   * Note: Only invoked on beans whose lifecycle is under the full control of the
-   * factory, which is always the case for singletons but not guaranteed for any
-   * other scope.
-   *
-   * @see DisposableBean
-   * @see cn.taketoday.context.ConfigurableApplicationContext#close()
-   */
-  @AliasFor(annotation = MissingBean.class)
-  String destroyMethods() default "";
 }
