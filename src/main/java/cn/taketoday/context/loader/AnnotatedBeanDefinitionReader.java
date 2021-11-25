@@ -20,6 +20,9 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.AnnotatedElement;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.dependency.DisableDependencyInjection;
@@ -47,9 +50,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.AnnotatedElement;
-import java.util.function.Supplier;
 
 /**
  * read bean-definition
@@ -105,7 +105,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (a, bd) -> bd.setConstructorArgs(constructorArgs));
+                 (bd) -> bd.setConstructorArgs(constructorArgs));
   }
 
   @Override
@@ -324,14 +324,14 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
       for (BeanDefinitionCustomizer dynamicCustomizer : dynamicCustomizers) {
-        dynamicCustomizer.customize(annotations, definition);
+        dynamicCustomizer.customize(definition);
       }
     }
 
     // static customize
     if (CollectionUtils.isNotEmpty(customizers)) {
       for (BeanDefinitionCustomizer customizer : customizers) {
-        customizer.customize(annotations, definition);
+        customizer.customize(definition);
       }
     }
 

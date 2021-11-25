@@ -157,7 +157,9 @@ public class StandardApplicationContext
 
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    addFactoryPostProcessors(new ConfigurationBeanReader(loadingContext()));
+    DefinitionLoadingContext context = loadingContext();
+    context.loadDefaultCustomizers(beanFactory);
+    addFactoryPostProcessors(new ConfigurationBeanReader(context));
     super.postProcessBeanFactory(beanFactory);
   }
 

@@ -48,7 +48,7 @@ public @interface ConditionalOnClass {
    *
    * @return the classes that must be present
    */
-  String[] value() default { };
+  String[] value() default {};
 
 }
 
@@ -77,6 +77,5 @@ final class OnClassCondition implements Condition {
     }
     return true;
   }
-
 
 }

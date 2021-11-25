@@ -18,24 +18,30 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.context.condition;
 
 /**
- * Callback for customizing a given bean definition.
- * Designed for use with a lambda expression or method reference.
+ * Some named search strategies for beans in the bean factory hierarchy.
  *
- * @author Juergen Hoeller
- * @author TODAY 2021/10/4 21:46
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/25 21:35</a>
+ * @author Dave Syer
  * @since 4.0
  */
-@FunctionalInterface
-public interface BeanDefinitionCustomizer {
+public enum SearchStrategy {
 
   /**
-   * Customize the given bean definition.
-   *
-   * @param definition BeanDefinition to customize
+   * Search only the current context.
    */
-  void customize(BeanDefinition definition);
+  CURRENT,
+
+  /**
+   * Search all ancestors, but not the current context.
+   */
+  ANCESTORS,
+
+  /**
+   * Search the entire hierarchy.
+   */
+  ALL
 
 }

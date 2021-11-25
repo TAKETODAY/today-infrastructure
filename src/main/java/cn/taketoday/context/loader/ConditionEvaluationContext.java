@@ -21,6 +21,7 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
@@ -64,6 +65,14 @@ public class ConditionEvaluationContext {
 
   public <T> T evaluateExpression(String expression, Class<T> booleanClass) {
     return context.getExpressionEvaluator().evaluate(expression, booleanClass);
+  }
+
+  public ClassLoader getClassLoader() {
+    return resourceLoader.getClassLoader();
+  }
+
+  public ConfigurableBeanFactory getBeanFactory() {
+    return context.unwrapFactory(ConfigurableBeanFactory.class);
   }
 
 }
