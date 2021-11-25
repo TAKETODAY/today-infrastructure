@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.beans.dependency.DisableDependencyInjection;
+import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.DefaultCacheManager;
@@ -55,6 +55,7 @@ public @interface EnableCaching {
 }
 
 @Configuration
+@DisableAllDependencyInjection
 class ProxyCachingConfiguration {
 
   @MissingBean(type = CacheManager.class)
