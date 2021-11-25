@@ -131,7 +131,7 @@ public class BeanPropertiesTests {
     map.put("longProperty", "444");
     map.put("shortProperty", "555");
     map.put("stringProperty", "New String Property");
-    final TestBean bean = new TestBean();
+    final BeanMappingTestBean bean = new BeanMappingTestBean();
     try {
       BeanProperties.copy(map, bean);
     }
@@ -177,10 +177,10 @@ public class BeanPropertiesTests {
    */
   @Test
   public void testCopyPropertiesStandard() {
-    final TestBean bean = new TestBean();
+    final BeanMappingTestBean bean = new BeanMappingTestBean();
 
     // Set up an origin bean with customized properties
-    final TestBean orig = new TestBean();
+    final BeanMappingTestBean orig = new BeanMappingTestBean();
     orig.setBooleanProperty(false);
     orig.setByteProperty((byte) 111);
     orig.setDoubleProperty(333.33);
@@ -253,7 +253,7 @@ public class BeanPropertiesTests {
     map.put("intIndexed[0]", "100");
     map.put("intIndexed[2]", "120");
     map.put("intIndexed[4]", "140");
-    TestBean bean = new TestBean();
+    BeanMappingTestBean bean = new BeanMappingTestBean();
 
     BeanProperties.populate(bean, map);
 
@@ -292,7 +292,7 @@ public class BeanPropertiesTests {
    */
   @Test
   public void testPopulateArrayProperties() {
-    TestBean bean = new TestBean();
+    BeanMappingTestBean bean = new BeanMappingTestBean();
 
     final HashMap<String, Object> map = new HashMap<>();
     int[] intArray = new int[] { 123, 456, 789 };
@@ -323,7 +323,7 @@ public class BeanPropertiesTests {
    */
   @Test
   public void testPopulateMapped() {
-    TestBean bean = new TestBean();
+    BeanMappingTestBean bean = new BeanMappingTestBean();
 
     final HashMap<String, Object> map = new HashMap<>();
     map.put("mappedProperty[First Key])", "New First Value");
@@ -347,7 +347,7 @@ public class BeanPropertiesTests {
    */
   @Test
   public void testPopulateNested() {
-    TestBean bean = new TestBean();
+    BeanMappingTestBean bean = new BeanMappingTestBean();
 
     final HashMap<String, Object> map = new HashMap<>();
     map.put("nested.booleanProperty", "false");
@@ -393,7 +393,7 @@ public class BeanPropertiesTests {
    */
   @Test
   public void testPopulateScalar() {
-    TestBean bean = new TestBean();
+    BeanMappingTestBean bean = new BeanMappingTestBean();
 
     bean.setNullProperty("Non-null value");
 

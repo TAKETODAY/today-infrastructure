@@ -36,12 +36,12 @@ public class BeanMetadataTests {
 
   @Test
   public void beanMetadata() {
-    final BeanMetadata beanMetadata = BeanMetadata.ofClass(TestBean.class);
+    final BeanMetadata beanMetadata = BeanMetadata.ofClass(BeanMappingTestBean.class);
     final Object instance = beanMetadata.newInstance();
 
-    assertThat(instance).isInstanceOf(TestBean.class);
+    assertThat(instance).isInstanceOf(BeanMappingTestBean.class);
 
-    TestBean bean = (TestBean) instance;
+    BeanMappingTestBean bean = (BeanMappingTestBean) instance;
 
     bean.setAnotherNested(bean);
 
@@ -55,7 +55,7 @@ public class BeanMetadataTests {
 
     assertThatThrownBy(() -> {
       beanMetadata.obtainBeanProperty("1243");
-    }).hasMessageStartingWith(String.format("No such property: '%s' in class: %s", "1243", TestBean.class));
+    }).hasMessageStartingWith(String.format("No such property: '%s' in class: %s", "1243", BeanMappingTestBean.class));
 
   }
 }

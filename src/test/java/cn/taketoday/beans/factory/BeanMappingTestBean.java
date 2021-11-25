@@ -29,9 +29,9 @@ import java.util.Map;
 /**
  * @author TODAY 2021/5/28 21:59
  */
-public class TestBean implements Serializable {
+public class BeanMappingTestBean implements Serializable {
 
-  public TestBean() {
+  public BeanMappingTestBean() {
     listIndexed.add("String 0");
     listIndexed.add("String 1");
     listIndexed.add("String 2");
@@ -39,60 +39,60 @@ public class TestBean implements Serializable {
     listIndexed.add("String 4");
   }
 
-  public TestBean(final String stringProperty) {
+  public BeanMappingTestBean(final String stringProperty) {
     setStringProperty(stringProperty);
   }
 
-  public TestBean(final float floatProperty) {
+  public BeanMappingTestBean(final float floatProperty) {
     setFloatProperty(floatProperty);
   }
 
-  public TestBean(final boolean booleanProperty) {
+  public BeanMappingTestBean(final boolean booleanProperty) {
     setBooleanProperty(booleanProperty);
   }
 
-  public TestBean(final Boolean booleanSecond) {
+  public BeanMappingTestBean(final Boolean booleanSecond) {
     setBooleanSecond(booleanSecond.booleanValue());
   }
 
-  public TestBean(final float floatProperty, final String stringProperty) {
+  public BeanMappingTestBean(final float floatProperty, final String stringProperty) {
     setFloatProperty(floatProperty);
     setStringProperty(stringProperty);
   }
 
-  public TestBean(final boolean booleanProperty, final String stringProperty) {
+  public BeanMappingTestBean(final boolean booleanProperty, final String stringProperty) {
     setBooleanProperty(booleanProperty);
     setStringProperty(stringProperty);
   }
 
-  public TestBean(final Boolean booleanSecond, final String stringProperty) {
+  public BeanMappingTestBean(final Boolean booleanSecond, final String stringProperty) {
     setBooleanSecond(booleanSecond.booleanValue());
     setStringProperty(stringProperty);
   }
 
-  public TestBean(final Integer intProperty) {
+  public BeanMappingTestBean(final Integer intProperty) {
     setIntProperty(intProperty.intValue());
   }
 
-  public TestBean(final double doubleProperty) {
+  public BeanMappingTestBean(final double doubleProperty) {
     setDoubleProperty(doubleProperty);
   }
 
-  TestBean(final int intProperty) {
+  BeanMappingTestBean(final int intProperty) {
     setIntProperty(intProperty);
   }
 
-  protected TestBean(final boolean booleanProperty, final boolean booleanSecond, final String stringProperty) {
+  protected BeanMappingTestBean(final boolean booleanProperty, final boolean booleanSecond, final String stringProperty) {
     setBooleanProperty(booleanProperty);
     setBooleanSecond(booleanSecond);
     setStringProperty(stringProperty);
   }
 
-  public TestBean(final List<Object> listIndexed) {
+  public BeanMappingTestBean(final List<Object> listIndexed) {
     this.listIndexed = listIndexed;
   }
 
-  public TestBean(final String[][] string2dArray) {
+  public BeanMappingTestBean(final String[][] string2dArray) {
     this.string2dArray = string2dArray;
   }
 
@@ -369,11 +369,11 @@ public class TestBean implements Serializable {
   /**
    * A nested reference to another test bean (populated as needed).
    */
-  private TestBean nested = null;
+  private BeanMappingTestBean nested = null;
 
-  public TestBean getNested() {
+  public BeanMappingTestBean getNested() {
     if (nested == null) {
-      nested = new TestBean();
+      nested = new BeanMappingTestBean();
     }
     return nested;
   }
@@ -381,13 +381,13 @@ public class TestBean implements Serializable {
   /**
    * Another nested reference to another test bean,
    */
-  private TestBean anotherNested = null;
+  private BeanMappingTestBean anotherNested = null;
 
-  public TestBean getAnotherNested() {
+  public BeanMappingTestBean getAnotherNested() {
     return anotherNested;
   }
 
-  public void setAnotherNested(final TestBean anotherNested) {
+  public void setAnotherNested(final BeanMappingTestBean anotherNested) {
     this.anotherNested = anotherNested;
   }
 

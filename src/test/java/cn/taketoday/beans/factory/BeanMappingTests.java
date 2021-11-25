@@ -45,8 +45,8 @@ public class BeanMappingTests {
 
   @Test
   public void testBeanMapping() {
-    final TestBean testBean = new TestBean();
-    final BeanMapping<TestBean> beanMapping = BeanMapping.ofObject(testBean);
+    final BeanMappingTestBean testBean = new BeanMappingTestBean();
+    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.ofObject(testBean);
 
     final BeanMap beanMap = BeanMap.create(testBean);
 
@@ -61,8 +61,8 @@ public class BeanMappingTests {
 
   //  @Test
   public void benchmark() {
-    final TestBean testBean = new TestBean();
-    final BeanMapping<TestBean> beanMapping = BeanMapping.ofObject(testBean);
+    final BeanMappingTestBean testBean = new BeanMappingTestBean();
+    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.ofObject(testBean);
 
     System.out.println(beanMapping);
 

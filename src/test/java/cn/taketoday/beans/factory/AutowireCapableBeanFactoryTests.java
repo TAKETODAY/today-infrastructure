@@ -20,7 +20,9 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.aop.TestBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Conditional;
@@ -29,6 +31,8 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Value;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
@@ -283,4 +287,54 @@ class AutowireCapableBeanFactoryTests {
 
     }
   }
+
+  @Test
+  void configureBean() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    BeanDefinition bd = new BeanDefinition(TestBean.class);
+    bd.addPropertyValue("age", "99");
+    beanFactory.registerBeanDefinition("test", bd);
+    TestBean tb = new TestBean();
+    assertThat(tb.getAge()).isEqualTo(0);
+    beanFactory.configureBean(tb, "test");
+    assertThat(tb.getAge()).isEqualTo(99);
+    assertThat(tb.getBeanFactory()).isSameAs(beanFactory);
+    assertThat(tb.getSpouse()).isNull();
+  }
+
+  @Test
+  void configureBeanWithAutowiring() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
+    beanFactory.addBeanPostProcessor(postProcessor);
+
+    BeanDefinition bd = new BeanDefinition(TestBean.class);
+    beanFactory.registerBeanDefinition("spouse", bd);
+    bd.addPropertyValue("age", "99");
+
+    BeanDefinition tbd = new BeanDefinition(ConfigureBeanWithAutowiring.class);
+    beanFactory.registerBeanDefinition("test", tbd);
+    ConfigureBeanWithAutowiring tb = new ConfigureBeanWithAutowiring();
+    beanFactory.configureBean(tb, "test");
+    assertThat(tb.getBeanFactory()).isSameAs(beanFactory);
+    TestBean spouse = (TestBean) beanFactory.getBean("spouse");
+    assertThat(tb.getSpouse()).isEqualTo(spouse);
+  }
+
+  @Getter
+  @Setter
+  static class ConfigureBeanWithAutowiring implements BeanFactoryAware {
+    @Autowired
+    TestBean spouse;
+
+    private BeanFactory beanFactory;
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+      this.beanFactory = beanFactory;
+    }
+
+  }
+
+
 }
