@@ -76,7 +76,7 @@ class HtmlCharacterEntityDecoder {
 
 			boolean isPotentialReference = (this.nextPotentialReferencePosition != -1 &&
 					this.nextSemicolonPosition != -1 &&
-					this.nextPotentialReferencePosition - this.nextSemicolonPosition < MAX_REFERENCE_SIZE);
+					this.nextSemicolonPosition - this.nextPotentialReferencePosition < MAX_REFERENCE_SIZE);
 
 			if (isPotentialReference) {
 				break;
