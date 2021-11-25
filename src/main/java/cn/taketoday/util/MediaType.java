@@ -19,6 +19,10 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,10 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
 
 import static java.util.Collections.singletonMap;
 
@@ -558,8 +558,8 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static MediaType asMediaType(MimeType mimeType) {
     return mimeType instanceof MediaType
-           ? (MediaType) mimeType
-           : new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
+            ? (MediaType) mimeType
+            : new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
   }
 
   /**
@@ -574,6 +574,85 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static String toString(Collection<MediaType> mediaTypes) {
     return MimeTypeUtils.toString(mediaTypes);
+  }
+
+
+  /**
+   * Indicates whether this {@code MediaType} more specific than the given type.
+   * <ol>
+   * <li>if this media type has a {@linkplain #getQualityValue() quality factor} higher than the other,
+   * then this method returns {@code true}.</li>
+   * <li>if this media type has a {@linkplain #getQualityValue() quality factor} lower than the other,
+   * then this method returns {@code false}.</li>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code false}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code true}.</li>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code false}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code true}.</li>
+   * <li>if the two mime types have identical {@linkplain #getType() type} and
+   * {@linkplain #getSubtype() subtype}, then the mime type with the most
+   * parameters is more specific than the other.</li>
+   * <li>Otherwise, this method returns {@code false}.</li>
+   * </ol>
+   *
+   * @param other the {@code MimeType} to be compared
+   * @return the result of the comparison
+   * @see #isLessSpecific(MimeType)
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1: Semantics
+   * and Content, section 5.3.2</a>
+   * @since 4.0
+   */
+  @Override
+  public boolean isMoreSpecific(MimeType other) {
+    Assert.notNull(other, "Other must not be null");
+    if (other instanceof MediaType otherMediaType) {
+      double quality1 = getQualityValue();
+      double quality2 = otherMediaType.getQualityValue();
+      if (quality1 > quality2) {
+        return true;
+      }
+      else if (quality1 < quality2) {
+        return false;
+      }
+    }
+    return super.isMoreSpecific(other);
+  }
+
+  /**
+   * Indicates whether this {@code MediaType} more specific than the given type.
+   * <ol>
+   * <li>if this media type has a {@linkplain #getQualityValue() quality factor} higher than the other,
+   * then this method returns {@code false}.</li>
+   * <li>if this media type has a {@linkplain #getQualityValue() quality factor} lower than the other,
+   * then this method returns {@code true}.</li>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code true}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code false}.</li>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code true}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code false}.</li>
+   * <li>if the two mime types have identical {@linkplain #getType() type} and
+   * {@linkplain #getSubtype() subtype}, then the mime type with the least
+   * parameters is less specific than the other.</li>
+   * <li>Otherwise, this method returns {@code false}.</li>
+   * </ol>
+   *
+   * @param other the {@code MimeType} to be compared
+   * @return the result of the comparison
+   * @see #isMoreSpecific(MimeType)
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1: Semantics
+   * and Content, section 5.3.2</a>
+   * @since 4.0
+   */
+  @Override
+  public boolean isLessSpecific(MimeType other) {
+    Assert.notNull(other, "Other must not be null");
+    return other.isMoreSpecific(this);
   }
 
   /**
@@ -609,6 +688,7 @@ public class MediaType extends MimeType implements Serializable {
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1:
    * Semantics and Content, section 5.3.2</a>
    */
+  @Deprecated
   public static void sortBySpecificity(List<MediaType> mediaTypes) {
     Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
     if (mediaTypes.size() > 1) {
@@ -737,7 +817,7 @@ public class MediaType extends MimeType implements Serializable {
    */
   private static HashMap<String, MediaType> parseMimeTypes() {
     try (InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
+         BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
 
       HashMap<String, MediaType> result = new HashMap<>();
       String line;

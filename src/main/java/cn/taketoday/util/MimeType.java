@@ -19,6 +19,12 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -33,9 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 
 /**
  * Represents a MIME Type, as originally defined in RFC 2046 and subsequently
@@ -109,11 +112,13 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   private final String type;
   private final String subtype;
-  private volatile String toStringValue;
-
-  private Charset resolvedCharset;
-
   private final Map<String, String> parameters;
+
+	@Nullable
+	private transient Charset resolvedCharset;
+
+	@Nullable
+	private volatile String toStringValue;
 
   /**
    * Create a new {@code MimeType} for the given primary type.
@@ -175,7 +180,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param parameters the parameters (may be {@code null})
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    */
-  public MimeType(MimeType other, Map<String, String> parameters) {
+  public MimeType(MimeType other, @Nullable Map<String, String> parameters) {
     this(other.getType(), other.getSubtype(), parameters);
   }
 
@@ -187,7 +192,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param parameters the parameters (maybe {@code null})
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    */
-  public MimeType(String type, String subtype, Map<String, String> parameters) {
+  public MimeType(String type, String subtype, @Nullable Map<String, String> parameters) {
     Assert.hasLength(type, "'type' must not be empty");
     Assert.hasLength(subtype, "'subtype' must not be empty");
     checkToken(type);
@@ -314,20 +319,27 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   /**
+	 * Return the subtype suffix as defined in RFC 6839.
+	 * @since 4.0
+	 */
+	@Nullable
+	public String getSubtypeSuffix() {
+		int suffixIndex = this.subtype.lastIndexOf('+');
+		if (suffixIndex != -1 && this.subtype.length() > suffixIndex) {
+			return this.subtype.substring(suffixIndex + 1);
+		}
+		return null;
+	}
+
+  /**
    * Return the character set, as indicated by a {@code charset} parameter, if
    * any.
    *
    * @return the character set, or {@code null} if not available
    */
+  @Nullable
   public Charset getCharset() {
-    Charset ret = this.resolvedCharset;
-    if (ret == null) {
-      String charset = getParameter(PARAM_CHARSET);
-      return charset != null
-             ? (this.resolvedCharset = Charset.forName(unquote(charset)))
-             : null;
-    }
-    return ret;
+    return resolvedCharset;
   }
 
   /**
@@ -336,6 +348,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param name the parameter name
    * @return the parameter value, or {@code null} if not present
    */
+  @Nullable
   public String getParameter(String name) {
     return this.parameters.get(name);
   }
@@ -360,7 +373,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @return {@code true} if this MIME Type includes the given MIME Type;
    * {@code false} otherwise
    */
-  public boolean includes(MimeType other) {
+  public boolean includes(@Nullable MimeType other) {
     if (other == null) {
       return false;
     }
@@ -409,7 +422,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @return {@code true} if this MIME Type is compatible with the given MIME
    * Type; {@code false} otherwise
    */
-  public boolean isCompatibleWith(MimeType other) {
+  public boolean isCompatibleWith(@Nullable MimeType other) {
     if (other == null) {
       return false;
     }
@@ -453,7 +466,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param other the other mime type to compare to
    * @return whether the two mime types have the same type and subtype
    */
-  public boolean equalsTypeAndSubtype(MimeType other) {
+  public boolean equalsTypeAndSubtype(@Nullable MimeType other) {
     if (other == null) {
       return false;
     }
@@ -559,7 +572,6 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Compares this MIME Type to another alphabetically.
    *
    * @param other the MIME Type to compare to
-   * @see MimeTypeUtils#sortBySpecificity(List)
    */
   @Override
   public int compareTo(MimeType other) {
@@ -618,6 +630,104 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
     return 0;
   }
+
+  /**
+   * Indicates whether this {@code MimeType} is more specific than the given
+   * type.
+   * <ol>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code false}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code true}.</li>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code false}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code true}.</li>
+   * <li>if the two mime types have identical {@linkplain #getType() type} and
+   * {@linkplain #getSubtype() subtype}, then the mime type with the most
+   * parameters is more specific than the other.</li>
+   * <li>Otherwise, this method returns {@code false}.</li>
+   * </ol>
+   *
+   * @param other the {@code MimeType} to be compared
+   * @return the result of the comparison
+   * @see #isLessSpecific(MimeType)
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1: Semantics
+   * and Content, section 5.3.2</a>
+   * @since 4.0
+   */
+  public boolean isMoreSpecific(MimeType other) {
+    Assert.notNull(other, "Other must not be null");
+    boolean thisWildcard = isWildcardType();
+    boolean otherWildcard = other.isWildcardType();
+    if (thisWildcard && !otherWildcard) {  // */* > audio/*
+      return false;
+    }
+    else if (!thisWildcard && otherWildcard) {  // audio/* < */*
+      return true;
+    }
+    else {
+      boolean thisWildcardSubtype = isWildcardSubtype();
+      boolean otherWildcardSubtype = other.isWildcardSubtype();
+      if (thisWildcardSubtype && !otherWildcardSubtype) {  // audio/* > audio/basic
+        return false;
+      }
+      else if (!thisWildcardSubtype && otherWildcardSubtype) {  // audio/basic < audio/*
+        return true;
+      }
+      else if (getType().equals(other.getType()) && getSubtype().equals(other.getSubtype())) {
+        int paramsSize1 = getParameters().size();
+        int paramsSize2 = other.getParameters().size();
+        return paramsSize1 > paramsSize2;
+      }
+      else {
+        return false;
+      }
+    }
+  }
+
+  /**
+   * Indicates whether this {@code MimeType} is more less than the given type.
+   * <ol>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code true}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code false}.</li>
+   * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
+   * and the other does not, then this method returns {@code true}.</li>
+   * <li>if this mime type does not have a {@linkplain #isWildcardType() wildcard type},
+   * and the other does, then this method returns {@code false}.</li>
+   * <li>if the two mime types have identical {@linkplain #getType() type} and
+   * {@linkplain #getSubtype() subtype}, then the mime type with the least
+   * parameters is less specific than the other.</li>
+   * <li>Otherwise, this method returns {@code false}.</li>
+   * </ol>
+   *
+   * @param other the {@code MimeType} to be compared
+   * @return the result of the comparison
+   * @see #isMoreSpecific(MimeType)
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1: Semantics
+   * and Content, section 5.3.2</a>
+   * @since 4.0
+   */
+  public boolean isLessSpecific(MimeType other) {
+    Assert.notNull(other, "Other must not be null");
+    return other.isMoreSpecific(this);
+  }
+
+  @Serial
+  private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    // Rely on default serialization, just initialize state after deserialization.
+    ois.defaultReadObject();
+
+    // Initialize transient fields.
+    String charsetName = getParameter(PARAM_CHARSET);
+    if (charsetName != null) {
+      this.resolvedCharset = Charset.forName(unquote(charsetName));
+    }
+  }
+
+  // static
 
   /**
    * @see MimeTypeUtils#parseMimeType(String)

@@ -60,6 +60,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.util.AbstractUriTemplateHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
@@ -828,8 +829,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
                 .filter(converter -> canReadResponse(this.responseType, converter))
                 .flatMap((HttpMessageConverter<?> converter) -> getSupportedMediaTypes(this.responseType, converter))
                 .distinct()
-                .sorted(MediaType.SPECIFICITY_COMPARATOR)
                 .collect(Collectors.toList());
+        MimeTypeUtils.sortBySpecificity(allSupportedMediaTypes);
         if (logger.isDebugEnabled()) {
           logger.debug("Accept={}", allSupportedMediaTypes);
         }
