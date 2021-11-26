@@ -61,18 +61,9 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    *
    * @param beanName the name of the bean definition
    * @param beanInstance the bean instance to destroy
+   * @throws NoSuchBeanDefinitionException
    */
   void destroyBean(String beanName, Object beanInstance);
-
-  /**
-   * Destroy a bean with bean instance and bean definition
-   *
-   * @param beanInstance Bean instance
-   * @param def Bean definition
-   * @since 3.0
-   */
-  @Deprecated
-  void destroyBean(Object beanInstance, BeanDefinition def);
 
   /**
    * Initialize singletons

@@ -389,8 +389,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   public static void destroyBean(
           Object obj, BeanDefinition def, List<DestructionBeanPostProcessor> postProcessors) {
     Assert.notNull(obj, "bean instance must not be null");
-    ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = getFilteredPostProcessors(obj, postProcessors);
-    new DisposableBeanAdapter(true, obj, def, filteredPostProcessors)
+    new DisposableBeanAdapter(true, obj, def, postProcessors)
             .destroy();
   }
 

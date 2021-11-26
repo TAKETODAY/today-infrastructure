@@ -860,12 +860,6 @@ public abstract class AbstractBeanFactory
     return parentBeanFactory != null && parentBeanFactory.containsBean(beanName);
   }
 
-  // -----------------------------
-
-  public final List<BeanPostProcessor> getPostProcessors() {
-    return postProcessors;
-  }
-
   @Override
   public boolean isFullPrototype() {
     return fullPrototype;
@@ -924,44 +918,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyBean(String name, Object beanInstance) {
-    BeanDefinition def = getBeanDefinition(name);
-    if (def == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
-      // if it is a factory bean
-      String factoryBeanName = name.substring(1);
-      def = getBeanDefinition(factoryBeanName);
-      if (def != null) {
-        destroyBean(getSingleton(factoryBeanName), def);
-      }
-    }
-
-    if (def == null) {
-      def = getPrototypeBeanDefinition(ClassUtils.getUserClass(beanInstance));
-    }
-    destroyBean(beanInstance, def);
-  }
-
-  protected abstract BeanDefinition getPrototypeBeanDefinition(Class<?> userClass);
-
-  // beanSupplier
-
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    beanSupplier().put(name, supplier);
-  }
-
-  protected ConcurrentHashMap<String, Supplier<?>> beanSupplier() {
-    ConcurrentHashMap<String, Supplier<?>> suppliers = getBeanSupplier();
-    if (suppliers == null) {
-      suppliers = new ConcurrentHashMap<>();
-      this.beanSupplier = suppliers;
-    }
-    return suppliers;
-  }
-
-  @Nullable
-  public ConcurrentHashMap<String, Supplier<?>> getBeanSupplier() {
-    return beanSupplier;
+    destroyBean(beanInstance, obtainBeanDefinition(name));
   }
 
   /**
@@ -970,12 +927,9 @@ public abstract class AbstractBeanFactory
    * @param beanInstance Bean instance
    * @param def Bean definition
    */
-  @Override
   public void destroyBean(Object beanInstance, BeanDefinition def) {
-    if (beanInstance == null || def == null) {
-      return;
-    }
-    DisposableBeanAdapter.destroyBean(beanInstance, def, postProcessors().destruction);
+    new DisposableBeanAdapter(isAutoInferDestroyMethod(), beanInstance, def, postProcessors().destruction)
+            .destroy();
   }
 
   @Override
@@ -990,8 +944,8 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void registerScope(String scopeName, Scope scope) {
-    Assert.notNull(scopeName, "scope name must not be null");
     Assert.notNull(scope, "scope object must not be null");
+    Assert.notNull(scopeName, "scope name must not be null");
     if (Scope.SINGLETON.equals(scopeName) || Scope.PROTOTYPE.equals(scopeName)) {
       throw new IllegalArgumentException("Cannot replace existing scopes 'singleton' and 'prototype'");
     }
@@ -1114,6 +1068,28 @@ public abstract class AbstractBeanFactory
     }
   }
 
+  // beanSupplier
+
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    beanSupplier().put(name, supplier);
+  }
+
+  protected ConcurrentHashMap<String, Supplier<?>> beanSupplier() {
+    ConcurrentHashMap<String, Supplier<?>> suppliers = getBeanSupplier();
+    if (suppliers == null) {
+      suppliers = new ConcurrentHashMap<>();
+      this.beanSupplier = suppliers;
+    }
+    return suppliers;
+  }
+
+  @Nullable
+  public ConcurrentHashMap<String, Supplier<?>> getBeanSupplier() {
+    return beanSupplier;
+  }
+
   @Override
   public String toString() {
     // ObjectUtils.toHexString(this)
@@ -1134,6 +1110,10 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
   // BeanPostProcessor
   //---------------------------------------------------------------------
+
+  public final List<BeanPostProcessor> getBeanPostProcessors() {
+    return postProcessors;
+  }
 
   protected final BeanPostProcessors postProcessors() {
     BeanPostProcessors postProcessors = postProcessorCache;

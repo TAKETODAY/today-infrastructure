@@ -181,7 +181,7 @@ class BeanFactoryTests {
 
     BeanPostProcessor beanPostProcessor = new BeanPostProcessor() { };
 
-    List<BeanPostProcessor> postProcessors = beanFactory.getPostProcessors();
+    List<BeanPostProcessor> postProcessors = beanFactory.getBeanPostProcessors();
 
     int size = postProcessors.size();
     System.err.println(size);

@@ -548,19 +548,18 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public void destroyBean(Object existingBean) {
-    destroyBean(existingBean, getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)));
+    new DisposableBeanAdapter(existingBean, postProcessors().destruction).destroy();
   }
 
-  //---------------------------------------------------------------------
-  // Implementation of AbstractBeanFactory class
-  //---------------------------------------------------------------------
-
-  @Override
   protected BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
     BeanDefinition defaults = BeanDefinitionBuilder.defaults(beanClass);
     defaults.setScope(Scope.PROTOTYPE);
     return defaults;
   }
+
+  //---------------------------------------------------------------------
+  // Implementation of AbstractBeanFactory class
+  //---------------------------------------------------------------------
 
   @Override
   @Nullable
