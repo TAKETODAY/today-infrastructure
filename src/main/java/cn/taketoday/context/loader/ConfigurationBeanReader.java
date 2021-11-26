@@ -20,6 +20,15 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
 import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.dependency.EnableDependencyInjection;
@@ -27,15 +36,12 @@ import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.ConfigBeanDefinition;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.event.ApplicationListener;
@@ -61,19 +67,9 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/16 23:17
@@ -86,7 +82,7 @@ import java.util.Set;
  * @see cn.taketoday.context.loader.BeanDefinitionImporter
  * @since 4.0
  */
-public class ConfigurationBeanReader extends BeanDefinitionCustomizers implements BeanFactoryPostProcessor {
+public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanReader.class);
 
   private final DefinitionLoadingContext context;
@@ -94,7 +90,6 @@ public class ConfigurationBeanReader extends BeanDefinitionCustomizers implement
   private final HashSet<Class<?>> importedClass = new HashSet<>();
 
   private PropertySourceFactory propertySourceFactory;
-
 
   public ConfigurationBeanReader(DefinitionLoadingContext context) {
     this.context = context;
@@ -162,10 +157,6 @@ public class ConfigurationBeanReader extends BeanDefinitionCustomizers implement
   private void loadConfigurationBeans(BeanDefinition config, AnnotationMetadata importMetadata) {
     // process local declared methods first
     boolean disableDependencyInjectionAll = importMetadata.isAnnotated(DisableAllDependencyInjection.class.getName());
-    Set<MethodMetadata> annotatedMissingBeanMethods = importMetadata.getAnnotatedMethods(MissingBean.class.getName());
-    for (MethodMetadata missingBeanMethod : annotatedMissingBeanMethods) {
-      context.detectMissingBean(missingBeanMethod, config);
-    }
 
     Set<MethodMetadata> annotatedMethods = importMetadata.getAnnotatedMethods(Component.class.getName());
     for (MethodMetadata beanMethod : annotatedMethods) {
@@ -218,12 +209,6 @@ public class ConfigurationBeanReader extends BeanDefinitionCustomizers implement
 
   public void register(@Nullable MergedAnnotations annotations, BeanDefinition definition, AnnotationMetadata importMetadata) {
     definition.setAttribute(ImportAware.ImportAnnotatedMetadata, importMetadata); // @since 3.0
-
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      for (BeanDefinitionCustomizer definitionCustomizer : customizers) {
-        definitionCustomizer.customize(annotations, definition);
-      }
-    }
 
     context.registerBeanDefinition(definition);
 
@@ -332,7 +317,7 @@ public class ConfigurationBeanReader extends BeanDefinitionCustomizers implement
       }
       else {
         log.info("Ignoring @PropertySource annotation on [" + annotationMetadata.getClassName() +
-                "]. Reason: Environment must implement ConfigurableEnvironment");
+                         "]. Reason: Environment must implement ConfigurableEnvironment");
       }
     }
   }
@@ -356,7 +341,7 @@ public class ConfigurationBeanReader extends BeanDefinitionCustomizers implement
 
     Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
     PropertySourceFactory factory = factoryClass == PropertySourceFactory.class
-            ? getPropertySourceFactory() : context.instantiate(factoryClass);
+                                    ? getPropertySourceFactory() : context.instantiate(factoryClass);
 
     for (String location : locations) {
       try {
@@ -393,8 +378,8 @@ public class ConfigurationBeanReader extends BeanDefinitionCustomizers implement
       cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
         cn.taketoday.core.env.PropertySource<?> newSource = propertySource instanceof ResourcePropertySource
-                ? ((ResourcePropertySource) propertySource).withResourceName()
-                : propertySource;
+                                                            ? ((ResourcePropertySource) propertySource).withResourceName()
+                                                            : propertySource;
 
         if (existing instanceof CompositePropertySource) {
           ((CompositePropertySource) existing).addFirstPropertySource(newSource);

@@ -20,8 +20,15 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
@@ -34,7 +41,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
@@ -42,22 +48,17 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
-
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.Set;
 
 /**
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
  */
-public class DefinitionLoadingContext {
+public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   private final BeanDefinitionRegistry registry;
   private final ApplicationContext applicationContext;
-  private final MissingBeanRegistry missingBeanRegistry;
 
   private ConditionEvaluator conditionEvaluator;
   private BeanFactoryAwareBeanInstantiator instantiator;
@@ -72,7 +73,6 @@ public class DefinitionLoadingContext {
     this.registry = registry;
     this.resourceLoader = context;
     this.applicationContext = context;
-    this.missingBeanRegistry = new MissingBeanRegistry(this);
   }
 
   public DefinitionLoadingContext(
@@ -81,7 +81,6 @@ public class DefinitionLoadingContext {
     this.resourceLoader = context;
     this.applicationContext = context;
     this.conditionEvaluator = conditionEvaluator;
-    this.missingBeanRegistry = new MissingBeanRegistry(this);
   }
 
   public BeanDefinitionRegistry getRegistry() {
@@ -90,10 +89,6 @@ public class DefinitionLoadingContext {
 
   public ApplicationContext getApplicationContext() {
     return applicationContext;
-  }
-
-  public MissingBeanRegistry getMissingBeanRegistry() {
-    return missingBeanRegistry;
   }
 
   /**
@@ -143,8 +138,14 @@ public class DefinitionLoadingContext {
     return conditionEvaluator;
   }
 
-
   public void registerBeanDefinition(BeanDefinition definition) {
+
+    if (CollectionUtils.isNotEmpty(customizers)) {
+      for (BeanDefinitionCustomizer definitionCustomizer : customizers) {
+        definitionCustomizer.customize(definition);
+      }
+    }
+
     definition.setScope(resolveScopeName(definition));
     registry.registerBeanDefinition(definition);
   }
@@ -194,18 +195,6 @@ public class DefinitionLoadingContext {
 
   public <T> T instantiate(Class<T> beanClass) {
     return instantiator().instantiate(beanClass);
-  }
-
-  //---------------------------------------------------------------------
-  // detectMissingBean
-  //---------------------------------------------------------------------
-
-  public void detectMissingBean(MethodMetadata method, BeanDefinition config) {
-    missingBeanRegistry.detectMissingBean(method, config);
-  }
-
-  public void detectMissingBean(MetadataReader metadataReader) {
-    missingBeanRegistry.detectMissingBean(metadataReader);
   }
 
   //---------------------------------------------------------------------

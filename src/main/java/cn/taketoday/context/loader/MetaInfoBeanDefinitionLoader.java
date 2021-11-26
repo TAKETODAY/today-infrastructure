@@ -25,12 +25,10 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
@@ -70,8 +68,6 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
     Set<String> beans = ContextUtils.loadFromMetaInfoClass(Constant.META_INFO_beans);
-    // @since 4.0 load from StrategiesLoader strategy file
-    beans.addAll(TodayStrategies.getDetector().getStrategies(MissingBean.class.getName()));
 
     MetadataReaderFactory metadataReaderFactory = context.getMetadataReaderFactory();
     for (String beanClassName : beans) {
@@ -79,10 +75,8 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
       AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
       // pass the condition evaluation
       if (context.passCondition(annotationMetadata)) {
-        context.detectMissingBean(metadataReader);
 
         BeanDefinition definition = new BeanDefinition();
-
         definition.setBeanClassName(annotationMetadata.getClassName());
         definition.setSource(metadataReader.getResource());
         definition.setName(context.createBeanName(annotationMetadata.getClassName()));

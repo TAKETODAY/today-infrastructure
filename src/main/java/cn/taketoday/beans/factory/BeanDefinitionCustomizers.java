@@ -82,11 +82,11 @@ public class BeanDefinitionCustomizers {
     return strategiesDetector;
   }
 
-  public void loadDefaults() {
-    loadDefaults(null);
+  public void loadDefaultCustomizers() {
+    loadDefaultCustomizers(null);
   }
 
-  public void loadDefaults(@Nullable BeanFactory beanFactory) {
+  public void loadDefaultCustomizers(@Nullable BeanFactory beanFactory) {
     StrategiesDetector strategiesDetector = getStrategiesDetector();
     if (strategiesDetector == null) {
       strategiesDetector = TodayStrategies.getDetector();
