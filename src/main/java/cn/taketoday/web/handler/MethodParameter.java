@@ -132,7 +132,7 @@ public class MethodParameter
   protected void initRequestParam(AnnotatedElement element) {
     MergedAnnotation<RequestParam> requestParam = MergedAnnotations.from(element).get(RequestParam.class);
     if (requestParam.isPresent()) {
-      this.name = requestParam.getString(MergedAnnotation.VALUE);
+      this.name = requestParam.getStringValue();
       this.required = requestParam.getBoolean("required");
       this.defaultValue = requestParam.getString("defaultValue");
     }
