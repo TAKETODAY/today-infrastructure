@@ -26,7 +26,10 @@ import cn.taketoday.core.Ordered;
  * Factory hook that allows for custom modification of new bean instances
  * &mdash; for example, checking for marker interfaces or wrapping beans with
  * proxies.
- *
+ *<p>
+ *  <b>NOTE</b>: this mainly a marker interface for post processing a bean,
+ *  this is not like Spring's BeanPostProcessor
+ *</p>
  * <p>
  * Typically, post-processors that populate beans via marker interfaces or the
  * like will implement {@link InitializationBeanPostProcessor#postProcessBeforeInitialization(Object, String)},
