@@ -64,7 +64,7 @@ public class DefaultProps implements Props, Annotation {
     this.replace = props.getBoolean("replace");
     this.nested = props.getClassArray("nested");
     this.prefix = props.getStringArray("prefix");
-    this.value = props.getStringArray(MergedAnnotation.VALUE);
+    this.value = props.getStringValueArray();
   }
 
   @Override
