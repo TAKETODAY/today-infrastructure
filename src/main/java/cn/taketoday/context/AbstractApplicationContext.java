@@ -237,7 +237,7 @@ public abstract class AbstractApplicationContext
 
   @Override
   public AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException {
-    return getBeanFactory();
+    return unwrapFactory(AutowireCapableBeanFactory.class);
   }
 
   @Override
@@ -965,6 +965,13 @@ public abstract class AbstractApplicationContext
   public Class<?> getType(String name) {
     assertBeanFactoryActive();
     return getBeanFactory().getType(name);
+  }
+
+  @Nullable
+  @Override
+  public Class<?> getType(String name, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+    assertBeanFactoryActive();
+    return getBeanFactory().getType(name, allowFactoryBeanInit);
   }
 
   @Override
