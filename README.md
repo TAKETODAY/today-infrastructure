@@ -364,8 +364,8 @@ public class LoginController implements Constant, ServletContextAware {
 ```java
 public class AutowiredPropertyResolver implements PropertyValueResolver {
 
-  private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
-  private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
+  private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("jakarta.inject.Named");
+  private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("jakarta.inject.Inject");
 
   @Override
   public boolean supports(Field field) {
@@ -912,8 +912,8 @@ package test.context;
 
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;

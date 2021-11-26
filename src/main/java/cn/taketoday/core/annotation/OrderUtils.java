@@ -86,7 +86,7 @@ public abstract class OrderUtils {
   /**
    * Return the order on the specified {@code type}, or the specified
    * default value if none can be found.
-   * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
+   * <p>Takes care of {@link Order @Order} and {@code @jakarta.annotation.Priority}.
    *
    * @param type the type to handle
    * @return the priority value, or the specified default order if none can be found
@@ -100,7 +100,7 @@ public abstract class OrderUtils {
   /**
    * Return the order on the specified {@code type}, or the specified
    * default value if none can be found.
-   * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
+   * <p>Takes care of {@link Order @Order} and {@code @jakarta.annotation.Priority}.
    *
    * @param type the type to handle
    * @return the priority value, or the specified default order if none can be found
@@ -114,7 +114,7 @@ public abstract class OrderUtils {
 
   /**
    * Return the order on the specified {@code type}.
-   * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
+   * <p>Takes care of {@link Order @Order} and {@code @jakarta.annotation.Priority}.
    *
    * @param type the type to handle
    * @return the order value, or {@code null} if none can be found
@@ -127,7 +127,7 @@ public abstract class OrderUtils {
 
   /**
    * Return the order declared on the specified {@code element}.
-   * <p>Takes care of {@link Order @Order} and {@code @javax.annotation.Priority}.
+   * <p>Takes care of {@link Order @Order} and {@code @jakarta.annotation.Priority}.
    *
    * @param element the annotated element (e.g. type or method)
    * @return the order value, or {@code null} if none can be found
@@ -140,7 +140,7 @@ public abstract class OrderUtils {
   /**
    * Return the order from the specified annotation collection.
    * <p>Takes care of {@link Order @Order} and
-   * {@code @javax.annotation.Priority}.
+   * {@code @jakarta.annotation.Priority}.
    *
    * @param element the source element
    * @param annotations the annotation to consider
@@ -174,7 +174,7 @@ public abstract class OrderUtils {
   }
 
   /**
-   * Return the value of the {@code javax.annotation.Priority} annotation
+   * Return the value of the {@code jakarta.annotation.Priority} annotation
    * declared on the specified type, or {@code null} if none.
    *
    * @param type the type to handle

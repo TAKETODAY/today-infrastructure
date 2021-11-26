@@ -55,7 +55,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class BeanDefinitionBuilder {
   public static final Class<? extends Annotation>
-          PostConstruct = ClassUtils.load("javax.annotation.PostConstruct");
+          PostConstruct = ClassUtils.load("jakarta.annotation.PostConstruct");
 
   /** bean name. */
   private String name;
@@ -422,7 +422,7 @@ public class BeanDefinitionBuilder {
   }
 
   /**
-   * Add a method which annotated with {@link javax.annotation.PostConstruct}
+   * Add a method which annotated with {@link jakarta.annotation.PostConstruct}
    *
    * @param beanClass Bean class
    * @param initMethods Init Method name
