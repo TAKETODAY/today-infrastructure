@@ -20,6 +20,9 @@
 
 package cn.taketoday.core.annotation;
 
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -30,9 +33,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 
 /**
  * A single merged annotation returned from a {@link MergedAnnotations}
@@ -280,6 +280,17 @@ public interface MergedAnnotation<A extends Annotation> {
   int getInt(String attributeName) throws NoSuchElementException;
 
   /**
+   * Get a required int attribute value from the annotation.
+   *
+   * @return the value as an int
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default int getIntValue() throws NoSuchElementException {
+    return getInt(VALUE);
+  }
+
+  /**
    * Get a required int array attribute value from the annotation.
    *
    * @param attributeName the attribute name
@@ -298,6 +309,17 @@ public interface MergedAnnotation<A extends Annotation> {
   long getLong(String attributeName) throws NoSuchElementException;
 
   /**
+   * Get a required long attribute value from the annotation.
+   *
+   * @return the value as a long
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default long getLongValue() throws NoSuchElementException {
+    return getLong(VALUE);
+  }
+
+  /**
    * Get a required long array attribute value from the annotation.
    *
    * @param attributeName the attribute name
@@ -314,6 +336,17 @@ public interface MergedAnnotation<A extends Annotation> {
    * @throws NoSuchElementException if there is no matching attribute
    */
   double getDouble(String attributeName) throws NoSuchElementException;
+
+  /**
+   * Get a required double attribute value from the annotation.
+   *
+   * @return the value as a double
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default double getDoubleValue() throws NoSuchElementException {
+    return getDouble(VALUE);
+  }
 
   /**
    * Get a required double array attribute value from the annotation.
@@ -352,6 +385,17 @@ public interface MergedAnnotation<A extends Annotation> {
   String getString(String attributeName) throws NoSuchElementException;
 
   /**
+   * Get a required string attribute value from the annotation.
+   *
+   * @return the value as a string
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default String getStringValue() throws NoSuchElementException {
+    return getString(VALUE);
+  }
+
+  /**
    * Get a required string array attribute value from the annotation.
    *
    * @param attributeName the attribute name
@@ -359,6 +403,17 @@ public interface MergedAnnotation<A extends Annotation> {
    * @throws NoSuchElementException if there is no matching attribute
    */
   String[] getStringArray(String attributeName) throws NoSuchElementException;
+
+  /**
+   * Get a required string array attribute value from the annotation.
+   *
+   * @return the value as a string array
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default String[] getStringValueArray() throws NoSuchElementException {
+    return getStringArray(VALUE);
+  }
 
   /**
    * Get a required class attribute value from the annotation.
@@ -370,6 +425,17 @@ public interface MergedAnnotation<A extends Annotation> {
   <T> Class<T> getClass(String attributeName) throws NoSuchElementException;
 
   /**
+   * Get a required class attribute value from the annotation.
+   *
+   * @return the value as a class
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default <T> Class<T> getClassValue() throws NoSuchElementException {
+    return getClass(VALUE);
+  }
+
+  /**
    * Get a required class array attribute value from the annotation.
    *
    * @param attributeName the attribute name
@@ -377,6 +443,17 @@ public interface MergedAnnotation<A extends Annotation> {
    * @throws NoSuchElementException if there is no matching attribute
    */
   <T> Class<T>[] getClassArray(String attributeName) throws NoSuchElementException;
+
+  /**
+   * Get a required class array attribute value from the annotation.
+   *
+   * @return the value as a class array
+   * @throws NoSuchElementException if there is no matching attribute
+   * @see #VALUE
+   */
+  default <T> Class<T>[] getClassValueArray() throws NoSuchElementException {
+    return getClassArray(VALUE);
+  }
 
   /**
    * Get a required enum attribute value from the annotation.
@@ -428,6 +505,18 @@ public interface MergedAnnotation<A extends Annotation> {
    * matching attribute
    */
   Optional<Object> getValue(String attributeName);
+
+  /**
+   * Get an optional attribute value from the annotation.
+   *
+   * @param type the attribute type. Must be compatible with the underlying
+   * attribute type or {@code Object.class}.
+   * @return an optional value or {@link Optional#empty()} if there is no
+   * matching attribute
+   */
+  default <T> Optional<T> getValue(Class<T> type) {
+    return getValue(VALUE, type);
+  }
 
   /**
    * Get an optional attribute value from the annotation.
@@ -719,7 +808,7 @@ public interface MergedAnnotation<A extends Annotation> {
       return adapts;
     }
 
-    static final Adapt[] EMPTY = {};
+    static final Adapt[] EMPTY = { };
   }
 
 }
