@@ -54,8 +54,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class BeanDefinitionBuilder {
-  public static final Class<? extends Annotation>
-          PostConstruct = ClassUtils.load("jakarta.annotation.PostConstruct");
+  public static final String PostConstruct = "jakarta.annotation.PostConstruct";
 
   /** bean name. */
   private String name;
@@ -433,7 +432,7 @@ public class BeanDefinitionBuilder {
     boolean initMethodsNotEmpty = ObjectUtils.isNotEmpty(initMethods);
     // @since 4.0 use ReflectionUtils.doWithMethods
     ReflectionUtils.doWithMethods(beanClass, method -> {
-      if (AnnotationUtils.isPresent(method, PostConstruct)) {
+      if (AnnotatedElementUtils.isAnnotated(method, PostConstruct)) {
         methods.add(method);
       }
       else if (initMethodsNotEmpty) {
