@@ -23,6 +23,7 @@ package cn.taketoday.context.aware;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -65,7 +66,7 @@ public class ApplicationContextAwareProcessor implements InitializationBeanPostP
 
   @Nullable
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
+  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     if (bean instanceof Aware) {
       awareInternal(bean, beanName);
     }

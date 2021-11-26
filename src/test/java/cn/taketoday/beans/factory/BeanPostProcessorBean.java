@@ -40,7 +40,7 @@ public class BeanPostProcessorBean implements InitializationBeanPostProcessor {
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     log.debug("BeanPostProcessorBean After named :[{}]", beanName);
     return bean;
   }
