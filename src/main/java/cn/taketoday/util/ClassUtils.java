@@ -426,6 +426,7 @@ public abstract class ClassUtils {
    * @param name class full name
    * @return class if not found will returns null
    */
+  @Nullable
   public static <T> Class<T> load(String name) {
     return load(name, getDefaultClassLoader());
   }
@@ -434,16 +435,16 @@ public abstract class ClassUtils {
    * Load class with given class name and {@link ClassLoader}
    *
    * @param <T> return class type
-   * @param name class gull name
+   * @param name class full name
    * @param classLoader use this {@link ClassLoader} load the class
+   * @return null if cannot load
    */
-  @SuppressWarnings("unchecked")
+  @Nullable
   public static <T> Class<T> load(String name, ClassLoader classLoader) {
-    Assert.notNull(classLoader, "ClassLoader can't be null");
     try {
-      return (Class<T>) classLoader.loadClass(name);
+      return forName(name, classLoader);
     }
-    catch (ClassNotFoundException e) {
+    catch (ClassNotFoundException | LinkageError e) {
       return null;
     }
   }

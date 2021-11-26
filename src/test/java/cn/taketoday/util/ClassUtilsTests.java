@@ -20,6 +20,23 @@
 
 package cn.taketoday.util;
 
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.objects.DerivedTestObject;
+import cn.taketoday.context.objects.ITestInterface;
+import cn.taketoday.context.objects.ITestObject;
+import cn.taketoday.context.objects.TestObject;
+import cn.taketoday.core.bytecode.proxy.Enhancer;
+import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
+import cn.taketoday.core.bytecode.proxy.MethodProxy;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.lang.Singleton;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -44,24 +61,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.objects.DerivedTestObject;
-import cn.taketoday.context.objects.ITestInterface;
-import cn.taketoday.context.objects.ITestObject;
-import cn.taketoday.context.objects.TestObject;
-import cn.taketoday.core.bytecode.proxy.Enhancer;
-import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
-import cn.taketoday.core.bytecode.proxy.MethodProxy;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.lang.Singleton;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,12 +100,14 @@ class ClassUtilsTests {
     try {
       ClassUtils.forName("Float");
     }
-    catch (ClassNotFoundException ignored) { }
+    catch (ClassNotFoundException ignored) {
+    }
     assertForName("cn.taketoday.util.ClassUtilsTests.INNER", INNER.class);
     try {
       ClassUtils.forName("cn.taketoday.util.ClassUtilsTests.INNERs");//
     }
-    catch (ClassNotFoundException ignored) { }
+    catch (ClassNotFoundException ignored) {
+    }
     assertThat(ClassUtils.forName("java.lang.String", classLoader)).isEqualTo(String.class);
     assertThat(ClassUtils.forName("java.lang.String[]", classLoader)).isEqualTo(String[].class);
     assertThat(ClassUtils.forName(String[].class.getName(), classLoader)).isEqualTo(String[].class);
@@ -780,6 +781,22 @@ class ClassUtilsTests {
       public InnerAutowirableClass(@Autowired String firstParameter, String secondParameter) {
       }
     }
+  }
+
+
+  @Test
+  void getDescriptiveType() throws NoSuchMethodException {
+    assertThat(ClassUtils.getDescriptiveType(null)).isNull();
+    String stri = ClassUtils.getDescriptiveType("stri");
+    assertThat(stri).isNotNull().isEqualTo("java.lang.String");
+
+    Method getDescriptiveType = getClass().getDeclaredMethod("getDescriptiveType");
+
+    Test value = getDescriptiveType.getAnnotation(Test.class);
+    String annotation = ClassUtils.getDescriptiveType(value);
+
+    assertThat(annotation).isNotNull().endsWith("implementing org.junit.jupiter.api.Test");
+
   }
 
 }
