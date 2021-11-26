@@ -250,7 +250,7 @@ class MissingMergedAnnotationTests {
 
 	@Test
 	void getValueReturnsEmpty() {
-		assertThat(this.missing.getValue("value", Integer.class)).isEmpty();
+		assertThat(this.missing.getValue(Integer.class)).isEmpty();
 	}
 
 	@Test

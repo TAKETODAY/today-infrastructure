@@ -38,7 +38,7 @@ class AnnotationBackCompatibiltyTests {
 		Class<WithMetaMetaTestAnnotation1AndMetaTestAnnotation2> source = WithMetaMetaTestAnnotation1AndMetaTestAnnotation2.class;
 		// Merged annotation chooses lowest depth
 		MergedAnnotation<TestAnnotation> mergedAnnotation = MergedAnnotations.from(source).get(TestAnnotation.class);
-		assertThat(mergedAnnotation.getString("value")).isEqualTo("testAndMetaTest");
+		assertThat(mergedAnnotation.getStringValue()).isEqualTo("testAndMetaTest");
 		// AnnotatedElementUtils finds first
 		TestAnnotation previousVersion = AnnotatedElementUtils.getMergedAnnotation(source, TestAnnotation.class);
 		assertThat(previousVersion.value()).isEqualTo("metaTest");

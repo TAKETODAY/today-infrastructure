@@ -284,7 +284,7 @@ class MergedAnnotationsTests {
   void getWithInheritedAnnotationsFromClassWithLocalAnnotation() {
     MergedAnnotation<?> annotation = MergedAnnotations.from(TxConfig.class,
             SearchStrategy.INHERITED_ANNOTATIONS).get(Transactional.class);
-    assertThat(annotation.getString("value")).isEqualTo("TxConfig");
+    assertThat(annotation.getStringValue()).isEqualTo("TxConfig");
   }
 
   @Test
@@ -887,7 +887,7 @@ class MergedAnnotationsTests {
     MergedAnnotation<?> annotation = MergedAnnotations.from(
             ClassWithLocalMetaAnnotationAndMetaAnnotatedInterface.class,
             SearchStrategy.TYPE_HIERARCHY).get(Component.class);
-    assertThat(annotation.getString("value")).isEqualTo("meta2");
+    assertThat(annotation.getStringValue()).isEqualTo("meta2");
   }
 
   @Test
@@ -1297,7 +1297,7 @@ class MergedAnnotationsTests {
     assertThat(annotations.stream(TestConfiguration.class).map(
             annotation -> annotation.getString("location"))).containsExactly("A", "B");
     assertThat(annotations.stream(TestConfiguration.class).map(
-            annotation -> annotation.getString("value"))).containsExactly("A", "B");
+            MergedAnnotation::getStringValue)).containsExactly("A", "B");
   }
 
   @Test

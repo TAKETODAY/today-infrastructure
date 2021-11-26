@@ -100,8 +100,7 @@ class MergedAnnotationPredicatesTests {
 				WithMultipleTestAnnotation.class).stream(TestAnnotation.class).filter(
 						MergedAnnotationPredicates.firstRunOf(
 								this::firstCharOfValue)).collect(Collectors.toList());
-		assertThat(filtered.stream().map(
-				annotation -> annotation.getString("value"))).containsExactly("a1", "a2", "a3");
+		assertThat(filtered.stream().map(MergedAnnotation::getStringValue)).containsExactly("a1", "a2", "a3");
 	}
 
 	@Test
@@ -116,8 +115,7 @@ class MergedAnnotationPredicatesTests {
 				WithMultipleTestAnnotation.class).stream(TestAnnotation.class).filter(
 						MergedAnnotationPredicates.unique(
 								this::firstCharOfValue)).collect(Collectors.toList());
-		assertThat(filtered.stream().map(
-				annotation -> annotation.getString("value"))).containsExactly("a1", "b1", "c1");
+		assertThat(filtered.stream().map(MergedAnnotation::getStringValue)).containsExactly("a1", "b1", "c1");
 	}
 
 	@Test
