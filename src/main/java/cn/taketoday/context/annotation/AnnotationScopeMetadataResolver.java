@@ -54,7 +54,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
     if (definition instanceof AnnotatedBeanDefinition annDef) {
       MergedAnnotation<? extends Annotation> annotation = annDef.getMetadata().getAnnotations().get(scopeAnnotationType);
       if (annotation.isPresent()) {
-        metadata.setScopeName(annotation.getString("value"));
+        metadata.setScopeName(annotation.getStringValue());
       }
     }
     return metadata;
