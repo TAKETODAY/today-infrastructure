@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.target;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -56,6 +57,7 @@ import cn.taketoday.logging.LoggerFactory;
  */
 public abstract class AbstractBeanFactoryTargetSource
         implements TargetSource, BeanFactoryAware, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   protected final transient Logger logger = LoggerFactory.getLogger(getClass());

@@ -20,14 +20,17 @@
 
 package cn.taketoday.aop.target;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
-
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import java.io.Serial;
 
 /**
  * Base class for dynamic {@link cn.taketoday.aop.TargetSource} implementations
@@ -48,6 +51,18 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
  */
 public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryTargetSource {
 
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    super.setBeanFactory(beanFactory);
+
+    // Check whether the target bean is defined as prototype.
+    if (!beanFactory.isPrototype(getTargetBeanName())) {
+      throw new BeanDefinitionStoreException(
+              "Cannot use prototype-based TargetSource against non-prototype bean with name '" +
+                      getTargetBeanName() + "': instances would not be independent");
+    }
+  }
+
   /**
    * Subclasses should call this method to create a new prototype instance.
    */
@@ -55,7 +70,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
     if (logger.isDebugEnabled()) {
       logger.debug("Creating new instance of bean '{}'", getTargetBeanName());
     }
-    return getBeanFactory().getBean(getTargetBeanDefinition());
+    return getBeanFactory().getBean(getTargetBeanName());
   }
 
   /**
@@ -67,18 +82,15 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
     if (logger.isDebugEnabled()) {
       logger.debug("Destroying instance of bean '{}'", getTargetBeanName());
     }
-    final BeanFactory factory = getBeanFactory();
-    if (factory != null && factory.isFullLifecycle()) {
-      if (factory instanceof ConfigurableBeanFactory) {
-        ((ConfigurableBeanFactory) factory).destroyBean(target, getTargetBeanDefinition());
+    if (getBeanFactory() instanceof ConfigurableBeanFactory factory) {
+      factory.destroyBean(getTargetBeanName(), target);
+    }
+    else if (target instanceof DisposableBean) {
+      try {
+        ((DisposableBean) target).destroy();
       }
-      else if (target instanceof DisposableBean) {
-        try {
-          ((DisposableBean) target).destroy();
-        }
-        catch (Throwable ex) {
-          logger.warn("Destroy method on bean with name '{}' threw an exception", getTargetBeanName(), ex);
-        }
+      catch (Throwable ex) {
+        logger.warn("Destroy method on bean with name '{}' threw an exception", getTargetBeanName(), ex);
       }
     }
   }
@@ -87,6 +99,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
   // Serialization support
   //---------------------------------------------------------------------
 
+  @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     throw new NotSerializableException(
             "A prototype-based TargetSource itself is not deserializable - " +
@@ -101,6 +114,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
    * <p>With this implementation of this method, there is no need to mark
    * non-serializable fields in this class or subclasses as transient.
    */
+  @Serial
   protected Object writeReplace() throws ObjectStreamException {
     if (logger.isDebugEnabled()) {
       logger.debug("Disconnecting TargetSource [{}]", this);
@@ -109,8 +123,8 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
       // Create disconnected SingletonTargetSource/EmptyTargetSource.
       Object target = getTarget();
       return target != null
-             ? new SingletonTargetSource(target)
-             : EmptyTargetSource.forClass(getTargetClass());
+              ? new SingletonTargetSource(target)
+              : EmptyTargetSource.forClass(getTargetClass());
     }
     catch (Exception ex) {
       String msg = "Cannot get target for disconnecting TargetSource [" + this + "]";
