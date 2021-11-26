@@ -19,9 +19,6 @@
  */
 package cn.taketoday.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -29,6 +26,8 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * General utility for determining the order of an object based on its type declaration.
@@ -43,8 +42,7 @@ public abstract class OrderUtils {
   /** Cache marker for a non-annotated Class. */
   private static final Object NOT_ANNOTATED = new Object();
 
-  private static final Class<? extends Annotation>
-          JAVAX_PRIORITY_ANNOTATION = ClassUtils.load("jakarta.annotation.Priority");
+  private static final String PRIORITY_ANNOTATION = "jakarta.annotation.Priority";
 
   /** Cache for @Order value (or NOT_ANNOTATED marker) per Class. */
   private static final ConcurrentReferenceHashMap<AnnotatedElement, Object>
@@ -166,9 +164,9 @@ public abstract class OrderUtils {
     if (orderAnnotation.isPresent()) {
       return orderAnnotation.getInt(MergedAnnotation.VALUE);
     }
-    MergedAnnotation<?> priorityAnnotation = annotations.get(JAVAX_PRIORITY_ANNOTATION);
+    MergedAnnotation<?> priorityAnnotation = annotations.get(PRIORITY_ANNOTATION);
     if (priorityAnnotation.isPresent()) {
-      return priorityAnnotation.getInt(MergedAnnotation.VALUE);
+      return priorityAnnotation.getIntValue();
     }
     return null;
   }
@@ -182,8 +180,9 @@ public abstract class OrderUtils {
    */
   @Nullable
   public static Integer getPriority(Class<?> type) {
-    return MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).get(JAVAX_PRIORITY_ANNOTATION)
-            .getValue(MergedAnnotation.VALUE, Integer.class).orElse(null);
+    return MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY)
+            .get(PRIORITY_ANNOTATION)
+            .getValue(Integer.class).orElse(null);
   }
 
 }
