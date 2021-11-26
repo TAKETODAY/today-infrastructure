@@ -19,16 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -49,6 +39,16 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 /**
  * @author TODAY 2018-06-23 11:20:58
  */
@@ -66,7 +66,8 @@ public abstract class AbstractBeanFactory
   private boolean fullLifecycle = false;
 
   /** @since 4.0 */
-  private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
+  @Nullable // lazy load
+  private ConcurrentHashMap<String, Supplier<?>> beanSupplier;
 
   /** @since 4.0 */
   private ArgumentsResolver argumentsResolver;
@@ -94,12 +95,11 @@ public abstract class AbstractBeanFactory
   /** Bean Post Processors */
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
 
-  //
-
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
+  @Nullable
   @Override
   public Object getBean(String name) {
     return doGetBean(name, null, null);
@@ -108,16 +108,19 @@ public abstract class AbstractBeanFactory
   /**
    * @throws IllegalStateException bean definition scope not exist in this bean factory
    */
+  @Nullable
   @Override
   public Object getBean(BeanDefinition def) {
     return doGetBean(def.getName(), def.getBeanClass(), null);
   }
 
   @Override
+  @Nullable
   public <T> T getBean(String name, Class<T> requiredType) {
     return doGetBean(name, requiredType, null);
   }
 
+  @Nullable
   @Override
   public Object getBean(String name, Object... args) throws BeansException {
     return doGetBean(name, null, args);
@@ -128,9 +131,12 @@ public abstract class AbstractBeanFactory
   protected <T> T doGetBean(String beanName, Class<?> requiredType, Object[] args) throws BeansException {
     BeanDefinition definition = getBeanDefinition(beanName);
     if (definition == null) {
-      Supplier<?> supplier = beanSupplier.get(beanName);
-      if (supplier != null && args == null) {
-        return (T) supplier.get();
+      // definition not exist in this factory
+      if (beanSupplier != null) {
+        Supplier<?> supplier = beanSupplier.get(beanName);
+        if (supplier != null && args == null) {
+          return (T) supplier.get();
+        }
       }
       // Check if bean definition exists in this factory.
       BeanFactory parentBeanFactory = getParentBeanFactory();
@@ -225,8 +231,7 @@ public abstract class AbstractBeanFactory
   protected abstract Object createBean(
           BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException;
 
-  protected Object getObjectForBeanInstance(
-          String beanName, Object beanInstance) throws BeansException {
+  protected Object getObjectForBeanInstance(String beanName, Object beanInstance) throws BeansException {
 
     // Don't let calling code try to dereference the factory if the bean isn't a factory.
     if (BeanFactoryUtils.isFactoryDereference(beanName)) {
@@ -324,7 +329,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                    name, ClassUtils.getQualifiedName(requiredType), ex);
+                  name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -782,7 +787,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                       "that it should return null if the type of its object cannot be determined yet", ex);
+              "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }
@@ -918,11 +923,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void destroyBean(String name) {
-    destroyBean(name, getSingleton(name));
-  }
-
-  @Override
   public void destroyBean(String name, Object beanInstance) {
     BeanDefinition def = getBeanDefinition(name);
     if (def == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
@@ -942,10 +942,26 @@ public abstract class AbstractBeanFactory
 
   protected abstract BeanDefinition getPrototypeBeanDefinition(Class<?> userClass);
 
+  // beanSupplier
+
   public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    beanSupplier.put(name, supplier);
+    beanSupplier().put(name, supplier);
+  }
+
+  protected ConcurrentHashMap<String, Supplier<?>> beanSupplier() {
+    ConcurrentHashMap<String, Supplier<?>> suppliers = getBeanSupplier();
+    if (suppliers == null) {
+      suppliers = new ConcurrentHashMap<>();
+      this.beanSupplier = suppliers;
+    }
+    return suppliers;
+  }
+
+  @Nullable
+  public ConcurrentHashMap<String, Supplier<?>> getBeanSupplier() {
+    return beanSupplier;
   }
 
   /**
@@ -1080,13 +1096,15 @@ public abstract class AbstractBeanFactory
     if (otherFactory instanceof AbstractBeanFactory beanFactory) {
       setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
-      this.beanSupplier.putAll(beanFactory.beanSupplier);
-      this.postProcessors.addAll(beanFactory.postProcessors);
-
       this.fullLifecycle = beanFactory.fullLifecycle;
       this.fullPrototype = beanFactory.fullPrototype;
       this.objectFactories = beanFactory.objectFactories; // FIXME copy?
       this.argumentsResolver = beanFactory.argumentsResolver;
+      this.postProcessors.addAll(beanFactory.postProcessors);
+
+      if (beanFactory.beanSupplier != null) {
+        beanSupplier().putAll(beanFactory.beanSupplier);
+      }
     }
     else {
       String[] otherScopeNames = otherFactory.getRegisteredScopeNames();
@@ -1113,20 +1131,23 @@ public abstract class AbstractBeanFactory
     return sb.toString();
   }
 
-  //
+  //---------------------------------------------------------------------
+  // BeanPostProcessor
+  //---------------------------------------------------------------------
 
   protected final BeanPostProcessors postProcessors() {
     BeanPostProcessors postProcessors = postProcessorCache;
     if (postProcessors == null) {
-      postProcessors = new BeanPostProcessors(this.postProcessors);
-      this.postProcessorCache = postProcessors;
+      synchronized(this) {
+        postProcessors = postProcessorCache;
+        if (postProcessors == null) {
+          postProcessors = new BeanPostProcessors(this.postProcessors);
+          this.postProcessorCache = postProcessors;
+        }
+      }
     }
     return postProcessors;
   }
-
-  //---------------------------------------------------------------------
-  // BeanPostProcessor
-  //---------------------------------------------------------------------
 
   @Override
   public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
