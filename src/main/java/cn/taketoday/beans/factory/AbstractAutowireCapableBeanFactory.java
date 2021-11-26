@@ -169,7 +169,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object initializeBean(Object existingBean) throws BeanInitializingException {
+  public Object initializeBean(Object existingBean) throws BeanInitializationException {
     return initializeBean(existingBean, createBeanName(existingBean.getClass()));
   }
 
@@ -179,7 +179,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object initializeBean(Object bean, BeanDefinition def) throws BeanInitializingException {
+  public Object initializeBean(Object bean, BeanDefinition def) throws BeanInitializationException {
     return initializeBean(bean, def.getName(), def);
   }
 
@@ -195,7 +195,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param existingBean the existing bean instance
    * @param def the bean def of the bean
    * @return the bean instance to use, either the original or a wrapped one
-   * @throws BeanInitializingException if the initialization failed
+   * @throws BeanInitializationException if the initialization failed
    * @see BeanNameAware
    * @see BeanClassLoaderAware
    * @see BeanFactoryAware
@@ -203,7 +203,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #invokeInitMethods
    * @see #applyBeanPostProcessorsAfterInitialization
    */
-  public Object initializeBean(Object existingBean, String beanName, @Nullable BeanDefinition def) throws BeanInitializingException {
+  public Object initializeBean(Object existingBean, String beanName, @Nullable BeanDefinition def) throws BeanInitializationException {
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", beanName);
     }
@@ -236,7 +236,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    *
    * @param bean Bean instance
    * @param def bean definition
-   * @throws BeanInitializingException when invoke init methods
+   * @throws BeanInitializationException when invoke init methods
    * @see Component
    * @see InitializingBean
    * @see jakarta.annotation.PostConstruct
@@ -252,7 +252,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           method.invoke(bean, args);
         }
         catch (Exception e) {
-          throw new BeanInitializingException(
+          throw new BeanInitializationException(
                   "An Exception Occurred When [" + bean
                           + "] invoke init method: [" + method + "]", e);
         }
@@ -265,7 +265,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         ((InitializingBean) bean).afterPropertiesSet();
       }
       catch (Exception e) {
-        throw new BeanInitializingException(
+        throw new BeanInitializationException(
                 "An Exception Occurred When [" + bean + "] apply after properties", e);
       }
     }

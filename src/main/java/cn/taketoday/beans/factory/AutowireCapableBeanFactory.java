@@ -129,10 +129,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param existingBean the existing bean instance
    * @param beanName the name of the bean
    * @return the bean instance to use, either the original or a wrapped one
-   * @throws BeanInitializingException if the initialization failed
+   * @throws BeanInitializationException if the initialization failed
    */
   Object initializeBean(Object existingBean, String beanName)
-          throws BeanInitializingException;
+          throws BeanInitializationException;
 
   /**
    * Initialize the given raw bean, applying factory callbacks such as
@@ -142,10 +142,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @param existingBean the existing bean instance
    * @return the bean instance to use, either the original or a wrapped one
-   * @throws BeanInitializingException if the initialization failed
+   * @throws BeanInitializationException if the initialization failed
    * @see #initializeBean(Object, String)
    */
-  Object initializeBean(Object existingBean) throws BeanInitializingException;
+  Object initializeBean(Object existingBean) throws BeanInitializationException;
 
   /**
    * Fully initialize the given raw bean, applying factory callbacks such as
@@ -159,10 +159,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param existingBean the existing bean instance
    * @param def the bean def of the bean
    * @return the bean instance to use, either the original or a wrapped one
-   * @throws BeanInitializingException if the initialization failed
+   * @throws BeanInitializationException if the initialization failed
    */
   Object initializeBean(final Object existingBean, final BeanDefinition def)
-          throws BeanInitializingException;
+          throws BeanInitializationException;
 
   /**
    * Apply {@link BeanPostProcessor BeanPostProcessors} to the given existing bean

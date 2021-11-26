@@ -54,16 +54,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   void removeBean(Class<?> beanClass);
 
   /**
-   * Destroy bean with given name
-   * <p>Any exception that arises during destruction should be caught
-   * and logged instead of propagated to the caller of this method.
-   *
-   * @param name the bean name
-   * @since 2.1.0
-   */
-  void destroyBean(String name);
-
-  /**
    * Destroy the given bean instance (usually a prototype instance
    * obtained from this factory) according to its bean definition.
    * <p>Any exception that arises during destruction should be caught
@@ -81,6 +71,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @param def Bean definition
    * @since 3.0
    */
+  @Deprecated
   void destroyBean(Object beanInstance, BeanDefinition def);
 
   /**

@@ -19,24 +19,38 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.InitializingBean;
+
+import java.io.Serial;
+
 /**
- * @author TODAY <br>
- * 2020-02-18 19:10
+ * Exception that a bean implementation is suggested to throw if its own
+ * factory-aware initialization code fails. BeansExceptions thrown by
+ * bean factory methods themselves should simply be propagated as-is.
+ *
+ * <p>Note that {@code afterPropertiesSet()} or a custom "init-method"
+ * can throw any exception.
+ *
+ * @author Juergen Hoeller
+ * @author TODAY 2020-02-18 19:10
+ * @see BeanFactoryAware#setBeanFactory
+ * @see InitializingBean#afterPropertiesSet
  */
-public class BeanInitializingException extends BeansException {
+public class BeanInitializationException extends BeansException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  public BeanInitializingException() { }
+  public BeanInitializationException() { }
 
-  public BeanInitializingException(String message) {
+  public BeanInitializationException(String message) {
     super(message);
   }
 
-  public BeanInitializingException(Throwable cause) {
+  public BeanInitializationException(Throwable cause) {
     super(cause);
   }
 
-  public BeanInitializingException(String message, Throwable cause) {
+  public BeanInitializationException(String message, Throwable cause) {
     super(message, cause);
   }
 
