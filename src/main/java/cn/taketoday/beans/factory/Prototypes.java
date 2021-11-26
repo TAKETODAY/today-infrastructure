@@ -34,18 +34,8 @@ public final class Prototypes {
    * if a property is prototype bean this bean-factory
    * will inject a proxy instance to get prototype
    * instance from every single method call.
-   *
-   * @since 4.0
    */
-  public static Object newProxyInstance(BeanDefinition def, BeanFactory factory) {
-    return newProxyInstance(def.getBeanClass(), def, factory, false);
-  }
-
-  /**
-   * if a property is prototype bean this bean-factory
-   * will inject a proxy instance to get prototype
-   * instance from every single method call.
-   */
+  @Deprecated
   public static Object newProxyInstance(Class<?> refType, BeanDefinition def, BeanFactory factory) {
     return newProxyInstance(refType, def, factory, false);
   }
@@ -61,6 +51,7 @@ public final class Prototypes {
    * @param proxyTargetClass If true use cglib
    * @return Target prototype object
    */
+  @Deprecated
   public static Object newProxyInstance(
           Class<?> refType, BeanDefinition def, BeanFactory factory, boolean proxyTargetClass) {
     ProxyFactory proxyFactory = new ProxyFactory();
@@ -70,6 +61,50 @@ public final class Prototypes {
     prototypeTargetSource.setTargetBeanDefinition(def);
     prototypeTargetSource.setBeanFactory(factory);
     proxyFactory.setTargetSource(prototypeTargetSource);
+    return proxyFactory.getProxy(refType.getClassLoader());
+  }
+
+  /**
+   * if a property is prototype bean this bean-factory
+   * will inject a proxy instance to get prototype
+   * instance from every single method call.
+   *
+   * @since 4.0
+   */
+  public static Object newProxyInstance(String beanName, BeanFactory factory) {
+    return newProxyInstance(null, beanName, factory, false);
+  }
+
+  /**
+   * if a property is prototype bean this bean-factory
+   * will inject a proxy instance to get prototype
+   * instance from every single method call.
+   */
+  public static Object newProxyInstance(Class<?> refType, String beanName, BeanFactory factory) {
+    return newProxyInstance(refType, beanName, factory, false);
+  }
+
+  /**
+   * if a property is prototype bean this bean-factory
+   * will inject a proxy instance to get prototype
+   * instance from every single method call.
+   *
+   * @param refType Reference bean class
+   * @param beanName Target bean name
+   * @param factory {@link AbstractBeanFactory}
+   * @param proxyTargetClass If true use cglib
+   * @return Target prototype object
+   */
+  public static Object newProxyInstance(
+          Class<?> refType, String beanName, BeanFactory factory, boolean proxyTargetClass) {
+    ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setProxyTargetClass(proxyTargetClass);
+    proxyFactory.setTargetClass(refType);
+
+    PrototypeTargetSource source = new PrototypeTargetSource();
+    source.setTargetBeanName(beanName);
+    source.setBeanFactory(factory);
+    proxyFactory.setTargetSource(source);
     return proxyFactory.getProxy(refType.getClassLoader());
   }
 

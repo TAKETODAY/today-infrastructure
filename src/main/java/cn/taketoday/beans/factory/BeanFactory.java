@@ -19,6 +19,11 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.ArgumentsResolverProvider;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,11 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Bean factory
@@ -123,7 +123,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param name the name of the bean to query
    * @return the type of the bean, or {@code null} if not determinable
    * @throws NoSuchBeanDefinitionException if there is no bean with the given name
-   * @throws NoSuchBeanDefinitionException If a bean does not exist
    * @see #getBean
    * @see #isTypeMatch
    */
@@ -640,7 +639,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * default is false
    * </p>
    *
-   * @see Prototypes#newProxyInstance(Class, BeanDefinition, BeanFactory)
+   * @see Prototypes#newProxyInstance(Class, String, BeanFactory)
    * @since 3.0
    */
   boolean isFullPrototype();
@@ -651,10 +650,11 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * default is false
    * </p>
    *
-   * @see ConfigurableBeanFactory#destroyBean(Object, BeanDefinition)
+   * @see ConfigurableBeanFactory#destroyBean(String, Object)
    * @see #isFullPrototype()
    * @since 3.0
    */
+  @Deprecated
   boolean isFullLifecycle();
 
   //---------------------------------------------------------------------

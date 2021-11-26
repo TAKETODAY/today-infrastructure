@@ -53,7 +53,7 @@ import java.util.function.Supplier;
  * @author TODAY 2018-06-23 11:20:58
  */
 public abstract class AbstractBeanFactory
-        extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
+        extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
   /** object factories */
@@ -417,10 +417,6 @@ public abstract class AbstractBeanFactory
     return false;
   }
 
-  static boolean isInstance(ResolvableType type, Object obj) {
-    return obj != null && type.isAssignableFrom(ClassUtils.getUserClass(obj));
-  }
-
   /**
    * Resolve the bean class for the specified bean definition,
    * resolving a bean class name into a Class reference (if necessary)
@@ -488,16 +484,7 @@ public abstract class AbstractBeanFactory
     if (def.isInitialized()) {
       return factoryBean;
     }
-    if (factoryBean instanceof AbstractFactoryBean) {
-      ((AbstractFactoryBean<?>) factoryBean).setSingleton(def.isSingleton());
-    }
-    // Initialize Factory
-    // Factory is always a SINGLETON bean
-    // ----------------------------------------
-    if (log.isDebugEnabled()) {
-      log.debug("Initialize FactoryBean: [{}]", def.getName());
-    }
-    Object initBean = initializeBean(factoryBean, def);
+    Object initBean = createBean(def, null);
     def.setInitialized(true);
     registerSingleton(getFactoryBeanName(def), initBean); // Refresh bean to the mapping
     return (FactoryBean<T>) initBean;
@@ -754,6 +741,7 @@ public abstract class AbstractBeanFactory
     Object beanInstance = getSingleton(beanName);
     if (beanInstance != null) {
       if (beanInstance instanceof FactoryBean && !BeanFactoryUtils.isFactoryDereference(beanName)) {
+        // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
         return getTypeForFactoryBean((FactoryBean<?>) beanInstance);
       }
       else {
@@ -941,6 +929,8 @@ public abstract class AbstractBeanFactory
   public void setFullLifecycle(boolean fullLifecycle) {
     this.fullLifecycle = fullLifecycle;
   }
+
+  // Scope
 
   @Override
   public void registerScope(String scopeName, Scope scope) {
