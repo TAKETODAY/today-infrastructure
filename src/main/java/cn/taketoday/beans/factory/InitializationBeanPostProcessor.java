@@ -23,6 +23,13 @@ package cn.taketoday.beans.factory;
 import cn.taketoday.beans.InitializingBean;
 
 /**
+ * Factory hook that allows for custom modification of new bean instances
+ * &mdash; for example, checking for marker interfaces or wrapping beans with
+ * proxies.
+ * <p>
+ * post process when beans initialization
+ * </p>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/19 21:23</a>
  * @since 4.0
  */
@@ -44,7 +51,7 @@ public interface InitializationBeanPostProcessor extends BeanPostProcessor {
    * @throws Exception in case of errors
    * @see InitializingBean#afterPropertiesSet
    */
-  default Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
+  default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }
 
@@ -66,7 +73,7 @@ public interface InitializationBeanPostProcessor extends BeanPostProcessor {
    * @see InitializingBean#afterPropertiesSet
    * @see FactoryBean
    */
-  default Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+  default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }
 

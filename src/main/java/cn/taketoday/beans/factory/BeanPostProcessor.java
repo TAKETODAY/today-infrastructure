@@ -56,6 +56,7 @@ import cn.taketoday.core.Ordered;
  *
  * @author TODAY 2018-07-18 1:01:19
  * @see InitializationBeanPostProcessor
+ * @see ConfigurableBeanFactory#addBeanPostProcessor(BeanPostProcessor)
  */
 public interface BeanPostProcessor {
 
