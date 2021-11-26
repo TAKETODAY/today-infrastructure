@@ -230,10 +230,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
 
   protected String getAnnotatedPropertyName(Field propertyElement) {
     // just alias name, cannot override its getter,setter
-    MergedAnnotation<Property> annotation = MergedAnnotations.from(propertyElement)
-            .get(Property.class);
+    MergedAnnotation<Property> annotation = MergedAnnotations.from(propertyElement).get(Property.class);
     if (annotation.isPresent()) {
-      String name = annotation.getString(MergedAnnotation.VALUE);
+      String name = annotation.getStringValue();
       if (StringUtils.isNotEmpty(name)) {
         return name;
       }
