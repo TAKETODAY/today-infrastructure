@@ -20,10 +20,11 @@
 
 package cn.taketoday.aop.target;
 
+import cn.taketoday.aop.TargetSource;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-
-import cn.taketoday.aop.TargetSource;
 
 /**
  * Canonical {@code TargetSource} when there is no target
@@ -35,37 +36,8 @@ import cn.taketoday.aop.TargetSource;
  * @author TODAY 2021/2/1 20:25
  */
 public final class EmptyTargetSource implements TargetSource, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
-
-  //---------------------------------------------------------------------
-  // Static factory methods
-  //---------------------------------------------------------------------
-
-  /**
-   * The canonical (Singleton) instance of this {@link EmptyTargetSource}.
-   */
-  public static final EmptyTargetSource INSTANCE = new EmptyTargetSource(null, true);
-
-  /**
-   * Return an EmptyTargetSource for the given target Class.
-   *
-   * @param targetClass the target Class (may be {@code null})
-   * @see #getTargetClass()
-   */
-  public static EmptyTargetSource forClass(Class<?> targetClass) {
-    return forClass(targetClass, true);
-  }
-
-  /**
-   * Return an EmptyTargetSource for the given target Class.
-   *
-   * @param targetClass the target Class (may be {@code null})
-   * @param isStatic whether the TargetSource should be marked as static
-   * @see #getTargetClass()
-   */
-  public static EmptyTargetSource forClass(Class<?> targetClass, boolean isStatic) {
-    return (targetClass == null && isStatic ? INSTANCE : new EmptyTargetSource(targetClass, isStatic));
-  }
 
   //---------------------------------------------------------------------
   // Instance implementation
@@ -116,6 +88,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
    * Returns the canonical instance on deserialization in case
    * of no target class, thus protecting the Singleton pattern.
    */
+  @Serial
   private Object readResolve() {
     return (this.targetClass == null && this.isStatic ? INSTANCE : this);
   }
@@ -125,10 +98,9 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof EmptyTargetSource)) {
+    if (!(other instanceof EmptyTargetSource otherTs)) {
       return false;
     }
-    EmptyTargetSource otherTs = (EmptyTargetSource) other;
     return isStatic == otherTs.isStatic
             && Objects.equals(targetClass, otherTs.targetClass);
   }
@@ -143,6 +115,36 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
     return "EmptyTargetSource: " + (targetClass != null ? "target class [" +
             targetClass.getName() + "]" : "no target class") +
             ", " + (isStatic ? "static" : "dynamic");
+  }
+
+  //---------------------------------------------------------------------
+  // Static factory methods
+  //---------------------------------------------------------------------
+
+  /**
+   * The canonical (Singleton) instance of this {@link EmptyTargetSource}.
+   */
+  public static final EmptyTargetSource INSTANCE = new EmptyTargetSource(null, true);
+
+  /**
+   * Return an EmptyTargetSource for the given target Class.
+   *
+   * @param targetClass the target Class (may be {@code null})
+   * @see #getTargetClass()
+   */
+  public static EmptyTargetSource forClass(Class<?> targetClass) {
+    return forClass(targetClass, true);
+  }
+
+  /**
+   * Return an EmptyTargetSource for the given target Class.
+   *
+   * @param targetClass the target Class (may be {@code null})
+   * @param isStatic whether the TargetSource should be marked as static
+   * @see #getTargetClass()
+   */
+  public static EmptyTargetSource forClass(Class<?> targetClass, boolean isStatic) {
+    return (targetClass == null && isStatic ? INSTANCE : new EmptyTargetSource(targetClass, isStatic));
   }
 
 }
