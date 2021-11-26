@@ -168,16 +168,34 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   }
 
+  @Override
+  public Object initializeBean(Object existingBean) throws BeanInitializingException {
+    return initializeBean(existingBean, createBeanName(existingBean.getClass()));
+  }
+
+  @Override
+  public Object initializeBean(Object existingBean, String beanName) {
+    return initializeBean(existingBean, beanName, null);
+  }
+
+  @Override
+  public Object initializeBean(Object bean, BeanDefinition def) throws BeanInitializingException {
+    return initializeBean(bean, def.getName(), def);
+  }
+
   /**
-   * Initialize the given bean instance, applying factory callbacks
-   * as well as init methods and bean post processors.
-   * <p>Called from {@link #createBean} for traditionally defined beans,
-   * and from {@link #initializeBean} for existing bean instances.
+   * Fully initialize the given raw bean, applying factory callbacks such as
+   * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
+   * processors (including ones which might wrap the given raw bean).
+   * <p>
+   * Note that no bean definition of the given name has to exist in the bean
+   * factory. The passed-in bean name will simply be used for callbacks but not
+   * checked against the registered bean definitions.
    *
-   * @param bean the new bean instance we may need to initialize
-   * @param def Bean definition
-   * @return the initialized bean instance
-   * @throws BeanInitializingException If any {@link Exception} occurred when initialize bean
+   * @param existingBean the existing bean instance
+   * @param def the bean def of the bean
+   * @return the bean instance to use, either the original or a wrapped one
+   * @throws BeanInitializingException if the initialization failed
    * @see BeanNameAware
    * @see BeanClassLoaderAware
    * @see BeanFactoryAware
@@ -185,42 +203,24 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #invokeInitMethods
    * @see #applyBeanPostProcessorsAfterInitialization
    */
-  @Override
-  public Object initializeBean(Object bean, BeanDefinition def) {
+  public Object initializeBean(Object existingBean, String beanName, @Nullable BeanDefinition def) throws BeanInitializingException {
     if (log.isDebugEnabled()) {
-      log.debug("Initializing bean named: [{}].", def.getName());
+      log.debug("Initializing bean named: [{}].", beanName);
     }
-    invokeAwareMethods(bean, def);
-    Object ret = bean;
-    // before properties
-    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
-      try {
-        ret = processor.postProcessBeforeInitialization(ret, def.getName());
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean + "] before properties set", e);
-      }
-    }
+    invokeAwareMethods(existingBean, beanName);
+    existingBean = applyBeanPostProcessorsBeforeInitialization(existingBean, beanName);
     // invoke initialize methods
-    invokeInitMethods(ret, def);
+    invokeInitMethods(existingBean, def);
     // after properties
-    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
-      try {
-        ret = processor.postProcessAfterInitialization(ret, def.getName());
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean + "] after properties set", e);
-      }
-    }
-    return ret;
+    existingBean = applyBeanPostProcessorsAfterInitialization(existingBean, beanName);
+    return existingBean;
   }
 
-  private void invokeAwareMethods(Object bean, BeanDefinition def) {
+
+  private void invokeAwareMethods(Object bean, String beanName) {
     if (bean instanceof Aware) {
       if (bean instanceof BeanNameAware) {
-        ((BeanNameAware) bean).setBeanName(def.getName());
+        ((BeanNameAware) bean).setBeanName(beanName);
       }
       if (bean instanceof BeanClassLoaderAware) {
         ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
@@ -241,7 +241,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see InitializingBean
    * @see jakarta.annotation.PostConstruct
    */
-  protected void invokeInitMethods(Object bean, BeanDefinition def) {
+  protected void invokeInitMethods(Object bean, @Nullable BeanDefinition def) {
     Method[] methods = initMethodArray(bean, def);
     if (ObjectUtils.isNotEmpty(methods)) {
       ArgumentsResolver resolver = getArgumentsResolver();
@@ -271,13 +271,42 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
-  private Method[] initMethodArray(Object bean, BeanDefinition def) {
-    Method[] initMethodArray = def.initMethodArray;
-    if (def.initMethodArray == null) {
-      initMethodArray = BeanDefinitionBuilder.computeInitMethod(def.getInitMethods(), bean.getClass());
-      def.initMethodArray = initMethodArray;
+  private Method[] initMethodArray(Object bean, @Nullable BeanDefinition def) {
+    if (def != null) {
+      Method[] initMethodArray = def.initMethodArray;
+      if (def.initMethodArray == null) {
+        initMethodArray = BeanDefinitionBuilder.computeInitMethod(def.getInitMethods(), bean.getClass());
+        def.initMethodArray = initMethodArray;
+      }
+      return initMethodArray;
     }
-    return initMethodArray;
+    return BeanDefinitionBuilder.computeInitMethod(null, bean.getClass());
+  }
+
+  @Override
+  public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException {
+    Object result = existingBean;
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
+      Object current = processor.postProcessBeforeInitialization(result, beanName);
+      if (current == null) {
+        return result;
+      }
+      result = current;
+    }
+    return result;
+  }
+
+  @Override
+  public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException {
+    Object result = existingBean;
+    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
+      Object current = processor.postProcessAfterInitialization(result, beanName);
+      if (current == null) {
+        return result;
+      }
+      result = current;
+    }
+    return result;
   }
 
   /**
@@ -518,61 +547,8 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object initializeBean(Object existingBean) throws BeanInitializingException {
-    return initializeBean(existingBean, createBeanName(existingBean.getClass()));
-  }
-
-  @Override
-  public Object initializeBean(Object existingBean, String beanName) {
-    BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
-    return initializeBean(existingBean, prototypeDef);
-  }
-
-  @Override
-  public Object applyBeanPostProcessorsBeforeInitialization(
-          Object existingBean, String beanName
-  ) {
-    Object ret = existingBean;
-    // before properties
-    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
-      try {
-        ret = processor.postProcessBeforeInitialization(ret, beanName);
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + existingBean + "] before properties set", e);
-      }
-    }
-    return ret;
-  }
-
-  @Override
-  public Object applyBeanPostProcessorsAfterInitialization(
-          Object existingBean, String beanName
-  ) {
-    Object ret = existingBean;
-    // after properties
-    for (InitializationBeanPostProcessor processor : postProcessors().initialization) {
-      try {
-        ret = processor.postProcessAfterInitialization(ret, beanName);
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + existingBean + "] after properties set", e);
-      }
-    }
-    return ret;
-  }
-
-  @Override
   public void destroyBean(Object existingBean) {
     destroyBean(existingBean, getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)));
-  }
-
-  private BeanDefinition getPrototypeBeanDefinition(Object existingBean, String beanName) {
-    BeanDefinition def = getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean));
-    def.setName(beanName);
-    return def;
   }
 
   //---------------------------------------------------------------------

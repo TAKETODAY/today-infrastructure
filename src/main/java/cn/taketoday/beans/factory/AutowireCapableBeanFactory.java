@@ -171,11 +171,11 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @param existingBean the existing bean instance
    * @param beanName the name of the bean
-   * @throws BeanInitializingException if any post-processing failed
+   * @throws BeansException if any post-processing failed
    * @see InitializationBeanPostProcessor#postProcessBeforeInitialization
    */
   Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
-          throws BeanInitializingException;
+          throws BeansException;
 
   /**
    * Apply {@link BeanPostProcessor BeanPostProcessors} to the given existing bean
@@ -184,11 +184,11 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @param existingBean the existing bean instance
    * @param beanName the name of the bean
-   * @throws BeanInitializingException if any post-processing failed
+   * @throws BeansException if any post-processing failed
    * @see InitializationBeanPostProcessor#postProcessAfterInitialization
    */
   Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
-          throws BeanInitializingException;
+          throws BeansException;
 
   /**
    * Destroy the given bean instance (typically coming from {@link #createBean}),
