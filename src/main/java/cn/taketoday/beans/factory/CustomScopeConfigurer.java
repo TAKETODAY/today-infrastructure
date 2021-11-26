@@ -101,7 +101,7 @@ public class CustomScopeConfigurer
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
         else if (scope instanceof String) {
-          Class<Scope> scopeClass = ClassUtils.load((String) scope, this.beanClassLoader);
+          Class<Scope> scopeClass = ClassUtils.resolveClassName((String) scope, this.beanClassLoader);
           Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
