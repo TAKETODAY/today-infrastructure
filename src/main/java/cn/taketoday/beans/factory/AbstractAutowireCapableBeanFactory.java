@@ -438,56 +438,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
-  private Class<?> getFactoryClass(BeanDefinition definition, String factoryBeanName) {
-    Class<?> factoryClass;
-    if (factoryBeanName != null) {
-      // instance method
-      factoryClass = getType(factoryBeanName);
-    }
-    else {
-      // bean class is its factory-class
-      factoryClass = resolveBeanClass(definition);
-    }
-
-    if (factoryClass == null) {
-      throw new IllegalStateException(
-              "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
-                      factoryBeanName + "' not found in this factory: " + this);
-    }
-    return factoryClass;
-  }
-
-  @NonNull
-  protected Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
-    ArrayList<Method> candidates = new ArrayList<>();
-    ReflectionUtils.doWithMethods(factoryClass, method -> {
-      if (def.isFactoryMethod(method)) {
-        candidates.add(method);
-      }
-    }, ReflectionUtils.USER_DECLARED_METHODS);
-
-    if (candidates.isEmpty()) {
-      throw new IllegalStateException(
-              "factory method: '" + factoryMethodName + "' not found in class: " + factoryClass.getName());
-    }
-
-    if (candidates.size() > 1) {
-      candidates.sort((o1, o2) -> {
-        // static first, parameter
-        int result = Boolean.compare(Modifier.isPublic(o1.getModifiers()), Modifier.isPublic(o2.getModifiers()));
-        if (result == 0) {
-          result = Boolean.compare(Modifier.isStatic(o1.getModifiers()), Modifier.isStatic(o2.getModifiers()));
-          return result == 0 ? Integer.compare(o1.getParameterCount(), o2.getParameterCount()) : result;
-        }
-        return result;
-      });
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("bean-definition {} using factory-method {} to create bean instance", def, candidates.get(0));
-    }
-    return candidates.get(0);
-  }
-
   @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);

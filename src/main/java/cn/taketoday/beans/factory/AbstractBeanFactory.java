@@ -19,6 +19,18 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -37,17 +49,8 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -329,7 +332,7 @@ public abstract class AbstractBeanFactory
       catch (ConversionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
-                  name, ClassUtils.getQualifiedName(requiredType), ex);
+                    name, ClassUtils.getQualifiedName(requiredType), ex);
         }
         throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
       }
@@ -403,8 +406,7 @@ public abstract class AbstractBeanFactory
       BeanDefinition definition = obtainBeanDefinition(beanName);
       // lookup start-with '$' , hasn't create its factory
       if (!definition.isLazyInit() || allowFactoryBeanInit) {
-        FactoryBean<Object> factoryBean = getFactoryBean(definition);
-        Class<?> beanClass = factoryBean.getObjectType();
+        Class<?> beanClass = getTypeForFactoryBean(definition, null, allowFactoryBeanInit);
         return typeToMatch.isAssignableFrom(beanClass);
       }
     }
@@ -485,8 +487,10 @@ public abstract class AbstractBeanFactory
       return factoryBean;
     }
     Object initBean = createBean(def, null);
-    def.setInitialized(true);
-    registerSingleton(getFactoryBeanName(def), initBean); // Refresh bean to the mapping
+    if (factoryBean.isSingleton()) {
+      def.setInitialized(true);
+      registerSingleton(getFactoryBeanName(def), initBean); // Refresh bean to the mapping
+    }
     return (FactoryBean<T>) initBean;
   }
 
@@ -737,6 +741,12 @@ public abstract class AbstractBeanFactory
 
   @Override
   public Class<?> getType(String beanName) {
+    return getType(beanName, true);
+  }
+
+  @Nullable
+  @Override
+  public Class<?> getType(String beanName, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
     // Check manually registered singletons.
     Object beanInstance = getSingleton(beanName);
     if (beanInstance != null) {
@@ -756,8 +766,102 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.getType(beanName);
     }
 
+    // not init
     BeanDefinition definition = obtainBeanDefinition(beanName);
-    return predictBeanType(definition);
+    Class<?> beanType = predictBeanType(definition);
+    if (beanType != null && FactoryBean.class.isAssignableFrom(beanType)) {
+      if (BeanFactoryUtils.isFactoryDereference(beanName)) {
+        // just FactoryBean
+        return beanType;
+      }
+      // we want to look at what it creates, not at the factory class.
+      return getTypeForFactoryBean(definition, beanType, allowFactoryBeanInit);
+    }
+    return beanType;
+  }
+
+  // FactoryBean
+
+  private Class<?> getTypeForFactoryBean(
+          BeanDefinition definition, Class<?> factoryBean, boolean allowFactoryBeanInit) {
+    String factoryMethodName = definition.getFactoryMethodName();
+    if (factoryMethodName != null) {
+      // FactoryBean define in factory-method
+      // like: FactoryBean factoryBean(){ return new FactoryBean() }
+      String factoryBeanName = definition.getFactoryBeanName();
+      Class<?> factoryClass = getFactoryClass(definition, factoryBeanName);
+      Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
+      ResolvableType returnType = ResolvableType.forReturnType(factoryMethod);
+      Class<?> beanType = getFactoryBeanGeneric(returnType).resolve();
+      if (beanType != null) {
+        return beanType;
+      }
+    }
+
+    if (allowFactoryBeanInit) {
+      return getFactoryBean(definition).getObjectType();
+    }
+
+    // last we try to find from factoryBean class
+    ResolvableType returnType = ResolvableType.fromClass(factoryBean);
+    return getFactoryBeanGeneric(returnType).resolve();
+  }
+
+  private ResolvableType getFactoryBeanGeneric(@Nullable ResolvableType type) {
+    if (type == null) {
+      return ResolvableType.NONE;
+    }
+    return type.as(FactoryBean.class).getGeneric();
+  }
+
+  protected Class<?> getFactoryClass(BeanDefinition definition, @Nullable String factoryBeanName) {
+    Class<?> factoryClass;
+    if (factoryBeanName != null) {
+      // instance method
+      factoryClass = getType(factoryBeanName);
+    }
+    else {
+      // bean class is its factory-class
+      factoryClass = resolveBeanClass(definition);
+    }
+
+    if (factoryClass == null) {
+      throw new IllegalStateException(
+              "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
+                      factoryBeanName + "' not found in this factory: " + this);
+    }
+    return factoryClass;
+  }
+
+  @NonNull
+  protected Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
+    ArrayList<Method> candidates = new ArrayList<>();
+    ReflectionUtils.doWithMethods(factoryClass, method -> {
+      if (def.isFactoryMethod(method)) {
+        candidates.add(method);
+      }
+    }, ReflectionUtils.USER_DECLARED_METHODS);
+
+    if (candidates.isEmpty()) {
+      throw new IllegalStateException(
+              "factory method: '" + factoryMethodName + "' not found in class: " + factoryClass.getName());
+    }
+
+    if (candidates.size() > 1) {
+      candidates.sort((o1, o2) -> {
+        // static first, parameter
+        int result = Boolean.compare(Modifier.isPublic(o1.getModifiers()), Modifier.isPublic(o2.getModifiers()));
+        if (result == 0) {
+          result = Boolean.compare(Modifier.isStatic(o1.getModifiers()), Modifier.isStatic(o2.getModifiers()));
+          return result == 0 ? Integer.compare(o1.getParameterCount(), o2.getParameterCount()) : result;
+        }
+        return result;
+      });
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("bean-definition {} using factory-method {} to create bean instance", def, candidates.get(0));
+    }
+    return candidates.get(0);
   }
 
   /**
@@ -775,7 +879,7 @@ public abstract class AbstractBeanFactory
     catch (Throwable ex) {
       // Thrown from the FactoryBean's getObjectType implementation.
       log.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-              "that it should return null if the type of its object cannot be determined yet", ex);
+                       "that it should return null if the type of its object cannot be determined yet", ex);
       return null;
     }
   }

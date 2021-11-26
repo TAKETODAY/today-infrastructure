@@ -19,11 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,6 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import cn.taketoday.beans.ArgumentsResolverProvider;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Bean factory
@@ -118,6 +118,10 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   /**
    * Determine the type of the bean with the given name. More specifically,
    * determine the type of object that {@link #getBean} would return for the given name.
+   * <p>For a {@link FactoryBean}, return the type of object that the FactoryBean creates,
+   * as exposed by {@link FactoryBean#getObjectType()}. This may lead to the initialization
+   * of a previously uninitialized {@code FactoryBean} (see {@link #getType(String, boolean)}).
+   * <p>Translates aliases back to the corresponding canonical bean name.
    * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
    * @param name the name of the bean to query
@@ -128,6 +132,28 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    */
   @Nullable
   Class<?> getType(String name) throws NoSuchBeanDefinitionException;
+
+  /**
+   * Determine the type of the bean with the given name. More specifically,
+   * determine the type of object that {@link #getBean} would return for the given name.
+   * <p>For a {@link FactoryBean}, return the type of object that the FactoryBean creates,
+   * as exposed by {@link FactoryBean#getObjectType()}. Depending on the
+   * {@code allowFactoryBeanInit} flag, this may lead to the initialization of a previously
+   * uninitialized {@code FactoryBean} if no early type information is available.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   *
+   * @param name the name of the bean to query
+   * @param allowFactoryBeanInit whether a {@code FactoryBean} may get initialized
+   * just for the purpose of determining its object type
+   * @return the type of the bean, or {@code null} if not determinable
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @see #getBean
+   * @see #isTypeMatch
+   * @since 4.0
+   */
+  @Nullable
+  Class<?> getType(String name, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException;
 
   /**
    * Get the target class's name
