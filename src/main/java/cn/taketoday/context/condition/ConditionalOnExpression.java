@@ -58,7 +58,7 @@ final class OnExpressionCondition implements Condition {
   public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     String expression = metadata.getAnnotations()
             .get(ConditionalOnExpression.class)
-            .getString(MergedAnnotation.VALUE);
+            .getStringValue();
     return context.evaluateExpression(expression, boolean.class);
   }
 
