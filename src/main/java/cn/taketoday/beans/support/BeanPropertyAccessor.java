@@ -43,8 +43,10 @@ import cn.taketoday.util.CollectionUtils;
  * @since 3.0
  */
 public class BeanPropertyAccessor {
-
+  @Nullable
   protected Object rootObject;
+
+  @Nullable
   protected BeanMetadata metadata;
 
   /**
@@ -567,11 +569,11 @@ public class BeanPropertyAccessor {
 
   //
 
-  public void setRootObject(Object rootObject) {
+  public void setRootObject(@Nullable Object rootObject) {
     this.rootObject = rootObject;
   }
 
-  public void setMetadata(BeanMetadata metadata) {
+  public void setMetadata(@Nullable BeanMetadata metadata) {
     this.metadata = metadata;
   }
 
@@ -582,6 +584,7 @@ public class BeanPropertyAccessor {
     return rootObject;
   }
 
+  @Nullable
   public BeanMetadata getMetadata() {
     return metadata;
   }
