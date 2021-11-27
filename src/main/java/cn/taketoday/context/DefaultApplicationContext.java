@@ -20,6 +20,11 @@
 
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -34,11 +39,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * ApplicationContext default implementation
@@ -374,4 +374,28 @@ public class DefaultApplicationContext
     return beanDefinitionReader;
   }
 
+  /**
+   * Set whether it should be allowed to override bean definitions by registering
+   * a different definition with the same name, automatically replacing the former.
+   * If not, an exception will be thrown. This also applies to overriding aliases.
+   * <p>Default is "true".
+   *
+   * @see #registerBeanDefinition
+   * @since 4.0
+   */
+  public void setAllowBeanDefinitionOverriding(boolean allowBeanDefinitionOverriding) {
+    this.beanFactory.setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
+  }
+
+  /**
+   * Set whether to allow circular references between beans - and automatically
+   * try to resolve them.
+   * <p>Default is "true". Turn this off to throw an exception when encountering
+   * a circular reference, disallowing them completely.
+   *
+   * @since 4.0
+   */
+  public void setAllowCircularReferences(boolean allowCircularReferences) {
+    this.beanFactory.setAllowCircularReferences(allowCircularReferences);
+  }
 }

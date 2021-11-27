@@ -54,6 +54,9 @@ public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
   private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
 
+  /** Whether to automatically try to resolve circular references between beans. */
+  private boolean allowCircularReferences = true;
+
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
   //---------------------------------------------------------------------
@@ -654,6 +657,35 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     log.debug("The singleton objects are initialized.");
+  }
+
+  /**
+   * Set whether to allow circular references between beans - and automatically
+   * try to resolve them.
+   * <p>Note that circular reference resolution means that one of the involved beans
+   * will receive a reference to another bean that is not fully initialized yet.
+   * This can lead to subtle and not-so-subtle side effects on initialization;
+   * it does work fine for many scenarios, though.
+   * <p>Default is "true". Turn this off to throw an exception when encountering
+   * a circular reference, disallowing them completely.
+   * <p><b>NOTE:</b> It is generally recommended to not rely on circular references
+   * between your beans. Refactor your application logic to have the two beans
+   * involved delegate to a third bean that encapsulates their common logic.
+   *
+   * @since 4.0
+   */
+  public void setAllowCircularReferences(boolean allowCircularReferences) {
+    this.allowCircularReferences = allowCircularReferences;
+  }
+
+  /**
+   * Return whether to allow circular references between beans.
+   *
+   * @see #setAllowCircularReferences
+   * @since 4.0
+   */
+  public boolean isAllowCircularReferences() {
+    return this.allowCircularReferences;
   }
 
 }

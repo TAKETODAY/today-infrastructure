@@ -811,7 +811,7 @@ public abstract class AbstractBeanFactory
         if (type != null) {
           return type;
         }
-        // fall back to full creation of the FactoryBean instance.
+        // fall back to fully creation of the FactoryBean instance.
         if (definition.isSingleton()) {
           factoryBean = doGetBean(FACTORY_BEAN_PREFIX + definition.getName(), FactoryBean.class, null);
           return getTypeForFactoryBean(factoryBean);
