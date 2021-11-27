@@ -260,6 +260,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     if (requiredType.isInstance(value)) {
       return (T) value;
     }
+    ConversionService conversionService = getConversionService();
     if (conversionService == null) {
       conversionService = DefaultConversionService.getSharedInstance();
     }
