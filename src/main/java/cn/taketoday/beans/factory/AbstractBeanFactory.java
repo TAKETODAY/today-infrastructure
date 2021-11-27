@@ -42,6 +42,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -288,13 +289,13 @@ public abstract class AbstractBeanFactory
         Object object = objectFromFactoryBeanCache.get(beanName);
         if (object == null) {
           object = doGetObjectFromFactoryBean(factory, beanName);
-          Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
-          if (alreadyThere != null) {
-            object = alreadyThere;
+          if (object == null) {
+            object = NullValue.INSTANCE;
           }
-          else {
-            objectFromFactoryBeanCache.put(beanName, object);
-          }
+          objectFromFactoryBeanCache.put(beanName, object);
+        }
+        if (object == NullValue.INSTANCE) {
+          return null;
         }
         return object;
       }
