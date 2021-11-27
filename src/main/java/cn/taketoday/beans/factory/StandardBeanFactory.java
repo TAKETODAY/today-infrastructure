@@ -44,7 +44,6 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -786,8 +785,7 @@ public class StandardBeanFactory
       }
       catch (NoSuchBeanDefinitionException ex) {
         // Shouldn't happen - probably a result of circular reference resolution...
-        log.trace(LogMessage.format(
-                "Failed to check manually registered singleton with name '%s'", beanName), ex);
+        log.trace("Failed to check manually registered singleton with name '{}'", beanName, ex);
       }
     }
     return beanNames;
