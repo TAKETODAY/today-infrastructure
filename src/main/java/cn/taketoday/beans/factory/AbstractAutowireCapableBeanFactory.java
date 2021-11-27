@@ -20,9 +20,17 @@
 
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.ResolvableType;
@@ -35,15 +43,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * AutowireCapableBeanFactory abstract implementation
@@ -82,7 +81,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     Class<Object> userClass = ClassUtils.getUserClass(existingBean);
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
     if (log.isDebugEnabled()) {
-      log.debug("Autowiring bean named: [{}].", prototypeDef.getName());
+      log.debug("Autowiring bean '{}'", prototypeDef.getName());
     }
 
     // apply properties
@@ -91,8 +90,8 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   protected Object createBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
-    if (log.isTraceEnabled()) {
-      log.trace("Creating instance of bean '{}'", definition.getName());
+    if (log.isDebugEnabled()) {
+      log.debug("Creating instance of bean '{}'", definition.getName());
     }
 
     Class<?> resolvedClass = resolveBeanClass(definition);
@@ -111,8 +110,8 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     try {
       Object beanInstance = doCreateBean(definition, args);
-      if (log.isTraceEnabled()) {
-        log.trace("Finished creating instance of bean '{}'", definition.getName());
+      if (log.isDebugEnabled()) {
+        log.debug("Finished creating instance of bean '{}'", definition.getName());
       }
       return beanInstance;
     }
@@ -205,7 +204,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   public Object initializeBean(Object existingBean, String beanName, @Nullable BeanDefinition def) throws BeanInitializationException {
     if (log.isDebugEnabled()) {
-      log.debug("Initializing bean named: [{}].", beanName);
+      log.debug("Initializing bean named '{}'", beanName);
     }
     invokeAwareMethods(existingBean, beanName);
     existingBean = applyBeanPostProcessorsBeforeInitialization(existingBean, beanName);
@@ -215,7 +214,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     existingBean = applyBeanPostProcessorsAfterInitialization(existingBean, beanName);
     return existingBean;
   }
-
 
   private void invokeAwareMethods(Object bean, String beanName) {
     if (bean instanceof Aware) {
@@ -578,7 +576,49 @@ public abstract class AbstractAutowireCapableBeanFactory
     // Common return type found: all factory methods return same type. For a non-parameterized
     // unique candidate, cache the full type declaration context of the target factory method.
     cachedReturnType = ResolvableType.forReturnType(factoryMethod);
+    def.factoryMethodReturnType = cachedReturnType;
     return cachedReturnType.resolve();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected <T> FactoryBean<T> getFactoryBean(Class<?> factoryBean, BeanDefinition def) {
+    if (def.isSingleton()) {
+      Object singleton = getSingleton(def.getName());
+      if (singleton instanceof FactoryBean factory) {
+        return factory;
+      }
+      try {
+        // Mark this bean as currently in creation, even if just partially.
+        beforeSingletonCreation(def.getName());
+        // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+        singleton = resolveBeforeInstantiation(factoryBean, def);
+        if (singleton == null) {
+          singleton = createBeanInstance(def, null);
+        }
+        return (FactoryBean<T>) singleton;
+      }
+      finally {
+        // Finished partial creation of this bean.
+        afterSingletonCreation(def.getName());
+      }
+    }
+    else {
+      try {
+        // Mark this bean as currently in creation, even if just partially.
+        beforePrototypeCreation(def.getName());
+        // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+        Object instance = resolveBeforeInstantiation(factoryBean, def);
+        if (instance == null) {
+          instance = createBeanInstance(def, null);
+        }
+        return (FactoryBean<T>) instance;
+      }
+      finally {
+        // Finished partial creation of this bean.
+        afterPrototypeCreation(def.getName());
+      }
+    }
   }
 
   @Override
@@ -595,11 +635,8 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
         if (isFactoryBean(def)) {
           Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
-          if (bean instanceof FactoryBean<?> factory) {
-            if (factory instanceof SmartFactoryBean smartFactory
-                    && smartFactory.isEagerInit()) {
-              getBean(beanName);
-            }
+          if (bean instanceof SmartFactoryBean smartFactory && smartFactory.isEagerInit()) {
+            getBean(beanName);
           }
         }
         else {
