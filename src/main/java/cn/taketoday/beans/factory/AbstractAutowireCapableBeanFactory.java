@@ -475,9 +475,22 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     Map<String, Object> propertyValues = definition.getPropertyValues();
     if (CollectionUtils.isNotEmpty(propertyValues)) {
-      PropertyValuesBinder dataBinder = new PropertyValuesBinder(bean);
-      initPropertyValuesBinder(dataBinder);
-      dataBinder.bind(propertyValues);
+      BeanMetadata metadata = getMetadata(bean, definition);
+      PropertyValuesBinder binder = new PropertyValuesBinder(metadata, bean);
+      initPropertyValuesBinder(binder);
+
+      // property-path -> property-value (maybe PropertyValueRetriever)
+      for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
+        Object value = entry.getValue();
+        String propertyPath = entry.getKey();
+        if (value instanceof PropertyValueRetriever retriever) {
+          value = retriever.retrieve(propertyPath, binder, this);
+          if (value == PropertyValueRetriever.DO_NOT_SET) {
+            continue;
+          }
+        }
+        binder.setProperty(bean, metadata, propertyPath, value);
+      }
     }
 
     if (definition.isEnableDependencyInjection()) {
@@ -489,6 +502,14 @@ public abstract class AbstractAutowireCapableBeanFactory
         processor.postProcessDependencies(bean, definition);
       }
     }
+  }
+
+  @NonNull
+  private BeanMetadata getMetadata(Object bean, BeanDefinition definition) {
+    if (definition.isSingleton()) {
+      return new BeanMetadata(bean.getClass());
+    }
+    return BeanMetadata.ofObject(bean);
   }
 
   /** @since 4.0 */

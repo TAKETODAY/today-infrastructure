@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.PropertyValueRetriever;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -43,7 +44,7 @@ public abstract class InjectionPoint implements Serializable {
   /**
    * It shows that the value is not set
    */
-  public static final Object DO_NOT_SET = new Object();
+  public static final Object DO_NOT_SET = PropertyValueRetriever.DO_NOT_SET;
 
   protected Boolean required = null;
   protected MergedAnnotations annotations;
