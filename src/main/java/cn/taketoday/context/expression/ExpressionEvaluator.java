@@ -23,10 +23,11 @@ package cn.taketoday.context.expression;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -66,7 +67,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   private ExpressionProcessor expressionProcessor;
 
   @Nullable
-  private ApplicationContext context;
+  private BeanFactory beanFactory;
 
   private boolean throwIfPropertyNotFound = false;
 
@@ -85,19 +86,18 @@ public class ExpressionEvaluator implements PlaceholderResolver {
   }
 
   /**
-   * Create a ExpressionEvaluator with ApplicationContext
+   * Create a ExpressionEvaluator with EnvironmentCapable
    * use Environment as variablesResolver
    *
-   * @param context ApplicationContext must not be null
+   * @param environmentCapable environmentCapable
    */
-  public ExpressionEvaluator(@NonNull ApplicationContext context) {
-    Assert.notNull(context, "ApplicationContext must not be null");
-    this.context = context;
-    this.variablesResolver = context.getEnvironment();
+  public ExpressionEvaluator(@NonNull EnvironmentCapable environmentCapable) {
+    Assert.notNull(environmentCapable, "EnvironmentCapable must not be null");
+    this.variablesResolver = environmentCapable.getEnvironment();
   }
 
-  public ExpressionEvaluator(ApplicationContext context, ExpressionProcessor expressionProcessor) {
-    this(context);
+  public ExpressionEvaluator(EnvironmentCapable capable, ExpressionProcessor expressionProcessor) {
+    this(capable);
     this.expressionProcessor = expressionProcessor;
   }
 
@@ -288,30 +288,30 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     return expressionProcessor;
   }
 
-  public void setContext(@Nullable ApplicationContext context) {
-    this.context = context;
+  @Nullable
+  public BeanFactory getBeanFactory() {
+    return beanFactory;
   }
 
-  @Nullable
-  public ApplicationContext getContext() {
-    return context;
+  public void setBeanFactory(@Nullable BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
   }
 
   @NonNull
   public ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
-      if (context != null) {
-        ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
-        ExpressionProcessor processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
-        if (processor == null) {
-          register(beanFactory, variablesResolver);
-          processor = beanFactory.getSingleton(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+      ExpressionProcessor processor = null;
+      if (beanFactory != null) {
+        processor = beanFactory.getBean(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
+        if (processor == null && beanFactory instanceof ConfigurableBeanFactory configurable) {
+          register(configurable, variablesResolver);
+          processor = beanFactory.getBean(EXPRESSION_PROCESSOR_NAME, ExpressionProcessor.class);
         }
-        this.expressionProcessor = processor;
       }
-      else {
-        this.expressionProcessor = ExpressionProcessor.getSharedInstance();
+      if (processor == null) {
+        processor = ExpressionProcessor.getSharedInstance();
       }
+      this.expressionProcessor = processor;
     }
     return expressionProcessor;
   }
