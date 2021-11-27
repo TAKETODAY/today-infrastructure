@@ -83,6 +83,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     this.registry = registry;
   }
 
+  public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, boolean enableConditionEvaluation) {
+    this.registry = registry;
+    this.enableConditionEvaluation = enableConditionEvaluation;
+  }
+
   public AnnotatedBeanDefinitionReader(
           ApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
