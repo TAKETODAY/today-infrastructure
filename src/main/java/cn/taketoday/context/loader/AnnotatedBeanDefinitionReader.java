@@ -219,14 +219,23 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   public void registerBean(String name, Object obj) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(obj, "bean-instance must not be null");
-    SingletonBeanRegistry singletonRegistry = context.unwrapFactory(SingletonBeanRegistry.class);
 
     BeanDefinition definition = new BeanDefinition(name, obj.getClass());
     definition.setSynthetic(true);
     definition.setInitialized(true);
     register(definition);
 
-    singletonRegistry.registerSingleton(name, obj);
+    getSingletonRegistry().registerSingleton(name, obj);
+  }
+
+  private SingletonBeanRegistry getSingletonRegistry() {
+    if (context != null) {
+      return context.unwrapFactory(SingletonBeanRegistry.class);
+    }
+    if (registry instanceof SingletonBeanRegistry) {
+      return (SingletonBeanRegistry) registry;
+    }
+    throw new IllegalStateException("cannot determine a SingletonBeanRegistry");
   }
 
   //---------------------------------------------------------------------
