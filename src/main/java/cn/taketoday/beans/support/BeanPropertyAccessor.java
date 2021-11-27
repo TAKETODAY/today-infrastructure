@@ -518,7 +518,7 @@ public class BeanPropertyAccessor {
   /**
    * @throws InvalidPropertyValueException conversion failed
    */
-  protected Object convertIfNecessary(Object value, Class<?> requiredType) {
+  protected Object convertIfNecessary(@Nullable Object value, Class<?> requiredType) {
     if (value == null || requiredType.isInstance(value)) {
       return value;
     }
@@ -526,7 +526,11 @@ public class BeanPropertyAccessor {
   }
 
   protected Object doConvertInternal(Object value, TypeDescriptor requiredType) {
-    TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
+    ConversionService conversionService = getConversionService();
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+    }
+    TypeConverter typeConverter = conversionService.getConverter(value, requiredType);
     if (typeConverter == null) {
       return converterNotFound(value, requiredType);
     }
@@ -592,10 +596,8 @@ public class BeanPropertyAccessor {
     this.conversionService = conversionService;
   }
 
+  @Nullable
   public ConversionService getConversionService() {
-    if (conversionService == null) {
-      this.conversionService = DefaultConversionService.getSharedInstance();
-    }
     return conversionService;
   }
 
