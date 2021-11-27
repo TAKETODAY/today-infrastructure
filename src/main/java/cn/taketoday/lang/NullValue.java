@@ -20,6 +20,7 @@
 
 package cn.taketoday.lang;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -30,11 +31,13 @@ import java.io.Serializable;
  * @since 4.0
  */
 public final class NullValue implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
   public static final NullValue INSTANCE = new NullValue();
 
   private NullValue() { }
 
+  @Serial
   private Object readResolve() {
     return INSTANCE;
   }

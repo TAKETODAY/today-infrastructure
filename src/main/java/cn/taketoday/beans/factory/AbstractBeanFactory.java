@@ -270,6 +270,9 @@ public abstract class AbstractBeanFactory
         // get bean from FactoryBean
         beanInstance = getObjectFromFactoryBean(factory, beanName);
       }
+      else if (beanInstance == NullValue.INSTANCE) {
+        return null;
+      }
     }
     return beanInstance;
   }
