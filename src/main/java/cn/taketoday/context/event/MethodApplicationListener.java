@@ -79,8 +79,8 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
     this.context = context;
 
     this.argumentsResolver = targetMethod.getParameterCount() == 0
-            ? null
-            : beanFactory.getArgumentsResolver();
+                             ? null
+                             : beanFactory.getArgumentsResolver();
     if (StringUtils.hasText(condition)) {
       this.condition = condition;
     }
@@ -93,7 +93,7 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
   @Override
   public void onApplicationEvent(Object event) { // any event type
     Object[] parameter = resolveArguments(argumentsResolver, event);
-    if (shouldHandle(event, parameter)) {
+    if (shouldInvoke(event, parameter)) {
       Object result = methodInvoker.invoke(beanSupplier.get(), parameter);
       if (result != null) {
         handleResult(result);
@@ -104,27 +104,19 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
     }
   }
 
-  private boolean shouldHandle(Object event, @Nullable Object[] args) {
+  private boolean shouldInvoke(Object event, @Nullable Object[] args) {
     if (condition != null) {
       ExpressionContext parentExpressionContext = evaluator.getParentExpressionContext();
-      EventExpressionContext context = new EventExpressionContext(parentExpressionContext);
       HashMap<String, Object> beans = new HashMap<>();
       // TODO condition args name mapping
       beans.put(Constant.KEY_ROOT, new EventRootObject(event, args));
+      EventExpressionContext context = new EventExpressionContext(parentExpressionContext, beans);
       return evaluator.evaluate(condition, context, boolean.class);
     }
     return true;
   }
 
-
-  static class EventRootObject {
-    final Object event;
-    final Object[] args;
-
-    EventRootObject(Object event, Object[] args) {
-      this.event = event;
-      this.args = args;
-    }
+  record EventRootObject(Object event, Object[] args) {
 
     public Object getEvent() {
       return event;
@@ -133,7 +125,6 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
     public Object[] getArgs() {
       return args;
     }
-
   }
 
   @Nullable
@@ -149,11 +140,10 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
     return eventTypes;
   }
 
-
   protected void handleResult(Object result) {
-    if (reactiveStreamsPresent && new ReactiveResultHandler().subscribeToPublisher(result)) {
+    if (reactiveStreamsPresent && ReactiveDelegate.subscribeToPublisher(this, result)) {
       if (log.isTraceEnabled()) {
-        log.trace("Adapted to reactive result: " + result);
+        log.trace("Adapted to reactive result: {}", result);
       }
     }
     else if (result instanceof CompletionStage) {
@@ -181,8 +171,7 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
         publishEvent(event);
       }
     }
-    else if (result instanceof Collection<?>) {
-      Collection<?> events = (Collection<?>) result;
+    else if (result instanceof Collection<?> events) {
       for (Object event : events) {
         publishEvent(event);
       }
@@ -202,19 +191,20 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
     log.error("Unexpected error occurred in asynchronous listener", t);
   }
 
-  private class ReactiveResultHandler {
+  private static class ReactiveDelegate {
 
-    public boolean subscribeToPublisher(Object result) {
+    public static boolean subscribeToPublisher(MethodApplicationListener listener, Object result) {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(result.getClass());
       if (adapter != null) {
-        adapter.toPublisher(result).subscribe(new EventPublicationSubscriber());
+        adapter.toPublisher(result).subscribe(new EventPublicationSubscriber(listener));
         return true;
       }
       return false;
     }
   }
 
-  private class EventPublicationSubscriber implements Subscriber<Object> {
+  private static record EventPublicationSubscriber(MethodApplicationListener listener)
+          implements Subscriber<Object> {
 
     @Override
     public void onSubscribe(Subscription s) {
@@ -223,17 +213,16 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
 
     @Override
     public void onNext(Object o) {
-      publishEvents(o);
+      listener.publishEvents(o);
     }
 
     @Override
     public void onError(Throwable t) {
-      handleAsyncError(t);
+      listener.handleAsyncError(t);
     }
 
     @Override
-    public void onComplete() {
-    }
+    public void onComplete() { }
   }
 
 }
