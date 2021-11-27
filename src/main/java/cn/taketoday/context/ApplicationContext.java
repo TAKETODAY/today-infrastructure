@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -36,7 +37,8 @@ import cn.taketoday.lang.Nullable;
  * 2018-06-23 16:39:36
  */
 public interface ApplicationContext
-        extends Closeable, HierarchicalBeanFactory, ApplicationEventPublisher, PatternResourceLoader {
+        extends Closeable, HierarchicalBeanFactory,
+                ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
 
   /**
    * @see Environment
@@ -49,6 +51,7 @@ public interface ApplicationContext
    *
    * @return {@link Environment}
    */
+  @Override
   Environment getEnvironment();
 
   /**

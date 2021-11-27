@@ -320,7 +320,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
    * @since 4.0
    */
   public ExpressionContext getParentExpressionContext() {
-    return expressionProcessor.getManager().getContext();
+    return obtainProcessor().getManager().getContext();
   }
 
   // static
