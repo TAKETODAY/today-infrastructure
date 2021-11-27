@@ -20,9 +20,12 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.DisposableBean;
@@ -51,6 +54,10 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
   /** Flag that indicates whether we're currently within destroySingletons. @since 4.0 */
   private boolean singletonsCurrentlyInDestruction = false;
+
+  /** Names of beans that are currently in creation. */
+  private final Set<String> singletonsCurrentlyInCreation =
+          Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
   @Override
   public void registerSingleton(String name, Object singleton) {
@@ -117,7 +124,9 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         }
         singletonObject = singletons.get(beanName);
         if (singletonObject == null) {
-          log.debug("Creating shared instance of singleton bean '{}'", beanName);
+          if (log.isDebugEnabled()) {
+            log.debug("Creating shared instance of singleton bean '{}'", beanName);
+          }
           beforeSingletonCreation(beanName);
           try {
             singletonObject = singletonSupplier.get();
@@ -130,26 +139,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
       }
     }
     return (T) singletonObject;
-  }
-
-  /**
-   * Callback before singleton creation.
-   * <p>The default implementation register the singleton as currently in creation.
-   *
-   * @param beanName the name of the singleton about to be created
-   */
-  protected void beforeSingletonCreation(String beanName) {
-
-  }
-
-  /**
-   * Callback after singleton creation.
-   * <p>The default implementation marks the singleton as not in creation anymore.
-   *
-   * @param beanName the name of the singleton that has been created
-   */
-  protected void afterSingletonCreation(String beanName) {
-
   }
 
   @Override
@@ -288,6 +277,44 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
   public void registerDisposableBean(String beanName, DisposableBean bean) {
     synchronized(this.disposableBeans) {
       this.disposableBeans.put(beanName, bean);
+    }
+  }
+
+  //
+
+  /**
+   * Return whether the specified singleton bean is currently in creation
+   * (within the entire factory).
+   *
+   * @param beanName the name of the bean
+   */
+  public boolean isSingletonCurrentlyInCreation(String beanName) {
+    return this.singletonsCurrentlyInCreation.contains(beanName);
+  }
+
+  /**
+   * Callback before singleton creation.
+   * <p>The default implementation register the singleton as currently in creation.
+   *
+   * @param beanName the name of the singleton about to be created
+   * @see #isSingletonCurrentlyInCreation
+   */
+  protected void beforeSingletonCreation(String beanName) {
+    if (!this.singletonsCurrentlyInCreation.add(beanName)) {
+      throw new BeanCurrentlyInCreationException(beanName);
+    }
+  }
+
+  /**
+   * Callback after singleton creation.
+   * <p>The default implementation marks the singleton as not in creation anymore.
+   *
+   * @param beanName the name of the singleton that has been created
+   * @see #isSingletonCurrentlyInCreation
+   */
+  protected void afterSingletonCreation(String beanName) {
+    if (!this.singletonsCurrentlyInCreation.remove(beanName)) {
+      throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
     }
   }
 
