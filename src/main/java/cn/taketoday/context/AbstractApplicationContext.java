@@ -529,9 +529,9 @@ public abstract class AbstractApplicationContext
    */
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     log.info("Loading BeanFactoryPostProcessor.");
-    List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
-    if (!postProcessors.isEmpty()) {
-      getFactoryPostProcessors().addAll(postProcessors);
+    Map<String, BeanFactoryPostProcessor> beansOfType = getBeansOfType(BeanFactoryPostProcessor.class, true, false);
+    if (!beansOfType.isEmpty()) {
+      getFactoryPostProcessors().addAll(beansOfType.values());
       AnnotationAwareOrderComparator.sort(factoryPostProcessors);
     }
   }
@@ -561,12 +561,12 @@ public abstract class AbstractApplicationContext
    */
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
     log.info("Loading BeanPostProcessor.");
-    List<BeanPostProcessor> postProcessors = beanFactory.getBeans(BeanPostProcessor.class);
+    Map<String, BeanPostProcessor> postProcessors = beanFactory.getBeansOfType(BeanPostProcessor.class, true, false);
     if (beanFactory instanceof AbstractBeanFactory) {
-      ((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors);
+      ((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors.values());
     }
     else {
-      for (BeanPostProcessor postProcessor : postProcessors) {
+      for (BeanPostProcessor postProcessor : postProcessors.values()) {
         beanFactory.addBeanPostProcessor(postProcessor);
       }
     }
