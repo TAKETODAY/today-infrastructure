@@ -97,6 +97,7 @@ public abstract class AbstractBeanFactory
 
   /** Bean Post Processors */
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
+
   /** object from a factory-bean map @since 4.0 */
   private final HashMap<String, Object> objectFromFactoryBeanCache = new HashMap<>();
 
@@ -169,26 +170,16 @@ public abstract class AbstractBeanFactory
       return null;
     }
 
+    // check singleton cache
     Object beanInstance = getSingleton(beanName);
     if (beanInstance == null) {
       // Create bean instance.
       if (definition.isSingleton()) {
-        beanInstance = getSingleton(beanName, () -> {
-          try {
-            return createBean(definition, args);
-          }
-          catch (BeansException ex) {
-            // Explicitly remove instance from singleton cache: It might have been put there
-            // eagerly by the creation process, to allow for circular reference resolution.
-            // Also remove any beans that received a temporary reference to the bean.
-            destroySingleton(beanName);
-            throw ex;
-          }
-        });
+        beanInstance = getSingleton(beanName, () -> createBean(definition, args));
         definition.setInitialized(true);
       }
       else if (definition.isPrototype()) {
-        // It's a prototype -> create a new instance.
+        // It's a prototype -> just create a new instance.
         try {
           beforePrototypeCreation(beanName);
           beanInstance = createBean(definition, args);
@@ -217,7 +208,7 @@ public abstract class AbstractBeanFactory
         });
       }
     }
-    beanInstance = getObjectForBeanInstance(name, beanName, beanInstance);
+    beanInstance = handleFactoryBean(name, beanName, beanInstance);
     return adaptBeanInstance(beanName, beanInstance, requiredType);
   }
 
@@ -226,9 +217,7 @@ public abstract class AbstractBeanFactory
   protected void beforePrototypeCreation(String beanName) { }
 
   /**
-   * Create a bean instance for the given merged bean definition (and arguments).
-   * The bean definition will already have been merged with the parent definition
-   * in case of a child definition.
+   * Create a bean instance for the given bean definition (and arguments).
    * <p>All bean retrieval methods delegate to this method for actual bean creation.
    *
    * @param definition the bean definition for the bean
@@ -248,7 +237,8 @@ public abstract class AbstractBeanFactory
    * @param beanName the canonical bean name
    * @return the object to expose for the bean
    */
-  protected Object getObjectForBeanInstance(
+  @Nullable
+  protected Object handleFactoryBean(
           String name, String beanName, Object beanInstance) throws BeansException {
     // Don't let calling code try to dereference the factory if the bean isn't a factory.
     if (BeanFactoryUtils.isFactoryDereference(name)) {
