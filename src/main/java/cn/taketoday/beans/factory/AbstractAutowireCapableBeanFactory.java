@@ -46,9 +46,27 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * AutowireCapableBeanFactory abstract implementation
+ * Abstract bean factory superclass that implements default bean creation,
+ * with the full capabilities specified by the {@link BeanDefinition} class.
+ * Implements the {@link AutowireCapableBeanFactory} interface in addition
+ * to AbstractBeanFactory's {@link #createBean} method.
  *
+ * <p>Provides bean creation (with constructor resolution), property population,
+ * wiring (including autowiring), and initialization. Handles runtime bean
+ * references, resolves managed collections, calls initialization methods, etc.
+ * Supports autowiring constructors, properties by name, and properties by type.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author Mark Fisher
+ * @author Costin Leau
+ * @author Chris Beams
+ * @author Sam Brannen
+ * @author Phillip Webb
  * @author TODAY 2021/10/1 23:06
+ * @see BeanDefinition
+ * @see BeanDefinitionRegistry
  * @since 4.0
  */
 public abstract class AbstractAutowireCapableBeanFactory
@@ -57,6 +75,12 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   /** Whether to automatically try to resolve circular references between beans. */
   private boolean allowCircularReferences = true;
+
+  /**
+   * Whether to resort to injecting a raw bean instance in case of circular reference,
+   * even if the injected bean eventually got wrapped.
+   */
+  private boolean allowRawInjectionDespiteWrapping = false;
 
   /** Cache of unfinished FactoryBean instances: FactoryBean name to its instance. */
   private final ConcurrentHashMap<String, Object> factoryBeanInstanceCache = new ConcurrentHashMap<>();
@@ -80,8 +104,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     return (T) createBean(defToUse, null);
   }
-
-  protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
 
   @Override
   public void autowireBean(Object existingBean) {
@@ -146,15 +168,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @throws BeanCreationException if the bean could not be created
    */
   protected Object doCreateBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+    Object bean = getObject(definition, args);
     String beanName = definition.getName();
-    Object bean = null;
-    if (definition.isSingleton()) {
-      bean = this.factoryBeanInstanceCache.remove(beanName);
-    }
-
-    if (bean == null) {
-      bean = createBeanInstance(definition, args);
-    }
 
     // Eagerly cache singletons to be able to resolve circular references
     // even when triggered by lifecycle interfaces like BeanFactoryAware.
@@ -184,7 +199,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     if (earlySingletonExposure) {
-      Object earlySingletonReference = getSingleton(beanName);
+      Object earlySingletonReference = getSingleton(beanName, false);
       if (earlySingletonReference != null) {
         if (fullyInitializedBean == bean) {
           fullyInitializedBean = earlySingletonReference;
@@ -201,6 +216,18 @@ public abstract class AbstractAutowireCapableBeanFactory
               definition.getResourceDescription(), beanName, "Invalid destruction signature", ex);
     }
     return fullyInitializedBean;
+  }
+
+  private Object getObject(BeanDefinition definition, @Nullable Object[] args) {
+    Object bean = null;
+    if (definition.isSingleton()) {
+      bean = this.factoryBeanInstanceCache.remove(definition.getName());
+    }
+
+    if (bean == null) {
+      bean = createBeanInstance(definition, args);
+    }
+    return bean;
   }
 
   private boolean isEarlySingletonExposure(BeanDefinition definition, String beanName) {
@@ -625,35 +652,37 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected <T> FactoryBean<T> getFactoryBean(Class<?> factoryBean, BeanDefinition def) {
     String beanName = def.getName();
     if (def.isSingleton()) {
-      Object singleton = factoryBeanInstanceCache.get(beanName);
-      if (singleton instanceof FactoryBean factory) {
-        return factory;
-      }
-      singleton = getSingleton(beanName);
-      if (singleton instanceof FactoryBean factory) {
-        return factory;
-      }
-      if (isSingletonCurrentlyInCreation(beanName)
-              || (def.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(def.getFactoryBeanName()))) {
-        return null;
-      }
+      synchronized(getSingletonMutex()) {
+        Object singleton = factoryBeanInstanceCache.get(beanName);
+        if (singleton instanceof FactoryBean factory) {
+          return factory;
+        }
+        singleton = getSingleton(beanName, false);
+        if (singleton instanceof FactoryBean factory) {
+          return factory;
+        }
+        if (isSingletonCurrentlyInCreation(beanName)
+                || (def.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(def.getFactoryBeanName()))) {
+          return null;
+        }
 
-      try {
-        // Mark this bean as currently in creation, even if just partially.
-        beforeSingletonCreation(beanName);
-        // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-        singleton = resolveBeforeInstantiation(factoryBean, def);
-        if (singleton == null) {
-          singleton = createBeanInstance(def, null);
+        try {
+          // Mark this bean as currently in creation, even if just partially.
+          beforeSingletonCreation(beanName);
+          // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+          singleton = resolveBeforeInstantiation(factoryBean, def);
+          if (singleton == null) {
+            singleton = createBeanInstance(def, null);
+          }
+          if (singleton != null) {
+            factoryBeanInstanceCache.put(beanName, singleton);
+          }
+          return (FactoryBean<T>) singleton;
         }
-        if (singleton != null) {
-          factoryBeanInstanceCache.put(beanName, singleton);
+        finally {
+          // Finished partial creation of this bean.
+          afterSingletonCreation(beanName);
         }
-        return (FactoryBean<T>) singleton;
-      }
-      finally {
-        // Finished partial creation of this bean.
-        afterSingletonCreation(beanName);
       }
     }
     else {
@@ -709,6 +738,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     log.debug("The singleton objects are initialized.");
   }
 
+  protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
+
   /**
    * Set whether to allow circular references between beans - and automatically
    * try to resolve them.
@@ -736,6 +767,35 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   public boolean isAllowCircularReferences() {
     return this.allowCircularReferences;
+  }
+
+  /**
+   * Set whether to allow the raw injection of a bean instance into some other
+   * bean's property, despite the injected bean eventually getting wrapped
+   * (for example, through AOP auto-proxying).
+   * <p>This will only be used as a last resort in case of a circular reference
+   * that cannot be resolved otherwise: essentially, preferring a raw instance
+   * getting injected over a failure of the entire bean wiring process.
+   * <p>Default is "false". Turn this on to allow for non-wrapped
+   * raw beans injected into some of your references.
+   * <p><b>NOTE:</b> It is generally recommended to not rely on circular references
+   * between your beans, in particular with auto-proxying involved.
+   *
+   * @see #setAllowCircularReferences
+   * @since 4.0
+   */
+  public void setAllowRawInjectionDespiteWrapping(boolean allowRawInjectionDespiteWrapping) {
+    this.allowRawInjectionDespiteWrapping = allowRawInjectionDespiteWrapping;
+  }
+
+  /**
+   * Return whether to allow the raw injection of a bean instance.
+   *
+   * @see #setAllowRawInjectionDespiteWrapping
+   * @since 4.0
+   */
+  public boolean isAllowRawInjectionDespiteWrapping() {
+    return this.allowRawInjectionDespiteWrapping;
   }
 
 }
