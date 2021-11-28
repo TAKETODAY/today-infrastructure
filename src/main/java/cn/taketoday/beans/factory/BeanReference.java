@@ -67,6 +67,12 @@ public class BeanReference implements PropertyValueRetriever {
       }
       return beanFactory.getBean(beanType);
     }
+
+    if (usePropertyName) {
+      Class<?> propertyClass = binder.obtainMetadata().getPropertyClass(propertyPath);
+      return getObject(beanFactory, propertyPath, propertyClass);
+    }
+
     throw new IllegalStateException("beanName and beanType cannot be null at same time");
   }
 
@@ -159,6 +165,16 @@ public class BeanReference implements PropertyValueRetriever {
     BeanReference beanReference = new BeanReference();
     beanReference.setBeanType(beanType);
     beanReference.setRequired(true);
+    return beanReference;
+  }
+
+  /**
+   * by name
+   */
+  public static BeanReference required() {
+    BeanReference beanReference = new BeanReference();
+    beanReference.setRequired(true);
+    beanReference.setUsePropertyName(true);
     return beanReference;
   }
 
