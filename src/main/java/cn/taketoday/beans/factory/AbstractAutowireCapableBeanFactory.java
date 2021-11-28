@@ -25,6 +25,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
@@ -56,6 +57,9 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   /** Whether to automatically try to resolve circular references between beans. */
   private boolean allowCircularReferences = true;
+
+  /** Cache of unfinished FactoryBean instances: FactoryBean name to its instance. */
+  private final ConcurrentHashMap<String, Object> factoryBeanInstanceCache = new ConcurrentHashMap<>();
 
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
@@ -142,32 +146,65 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @throws BeanCreationException if the bean could not be created
    */
   protected Object doCreateBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
-    Object bean = createBeanInstance(definition, args);
+    String beanName = definition.getName();
+    Object bean = null;
+    if (definition.isSingleton()) {
+      bean = this.factoryBeanInstanceCache.remove(beanName);
+    }
+
+    if (bean == null) {
+      bean = createBeanInstance(definition, args);
+    }
+
+    // Eagerly cache singletons to be able to resolve circular references
+    // even when triggered by lifecycle interfaces like BeanFactoryAware.
+    boolean earlySingletonExposure = isEarlySingletonExposure(definition, beanName);
+    if (earlySingletonExposure) {
+      if (log.isTraceEnabled()) {
+        log.trace("Eagerly caching bean '{}' to allow for resolving potential circular references", beanName);
+      }
+      registerSingleton(beanName, bean);
+    }
+
+    Object fullyInitializedBean;
     try {
       // apply properties
       populateBean(bean, definition);
       // Initialize the bean instance.
-      bean = initializeBean(bean, definition);
-      // Register bean as disposable.
-      try {
-        registerDisposableBeanIfNecessary(definition.getName(), bean, definition);
-      }
-      catch (BeanDefinitionValidationException ex) {
-        throw new BeanCreationException(
-                definition.getResourceDescription(), definition.getName(), "Invalid destruction signature", ex);
-      }
-      return bean;
+      fullyInitializedBean = initializeBean(bean, definition);
     }
     catch (Throwable ex) {
-      if (ex instanceof BeanCreationException && definition.getName().equals(((BeanCreationException) ex).getBeanName())) {
+      if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
         throw (BeanCreationException) ex;
       }
       else {
         throw new BeanCreationException(
-                definition.getResourceDescription(), definition.getName(), "Initialization of bean failed", ex);
+                definition.getResourceDescription(), beanName, "Initialization of bean failed", ex);
       }
     }
 
+    if (earlySingletonExposure) {
+      Object earlySingletonReference = getSingleton(beanName);
+      if (earlySingletonReference != null) {
+        if (fullyInitializedBean == bean) {
+          fullyInitializedBean = earlySingletonReference;
+        }
+      }
+    }
+
+    // Register bean as disposable.
+    try {
+      registerDisposableBeanIfNecessary(beanName, bean, definition);
+    }
+    catch (BeanDefinitionValidationException ex) {
+      throw new BeanCreationException(
+              definition.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+    }
+    return fullyInitializedBean;
+  }
+
+  private boolean isEarlySingletonExposure(BeanDefinition definition, String beanName) {
+    return definition.isSingleton() && this.allowCircularReferences && isSingletonCurrentlyInCreation(beanName);
   }
 
   @Override
@@ -540,7 +577,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (factoryMethodName != null) {
       return getTypeForFactoryMethod(definition);
     }
-    return super.predictBeanType(definition);
+    return resolveBeanClass(definition, true);
   }
 
   /**
@@ -586,30 +623,43 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   @SuppressWarnings("unchecked")
   protected <T> FactoryBean<T> getFactoryBean(Class<?> factoryBean, BeanDefinition def) {
+    String beanName = def.getName();
     if (def.isSingleton()) {
-      Object singleton = getSingleton(def.getName());
+      Object singleton = factoryBeanInstanceCache.get(beanName);
       if (singleton instanceof FactoryBean factory) {
         return factory;
       }
+      singleton = getSingleton(beanName);
+      if (singleton instanceof FactoryBean factory) {
+        return factory;
+      }
+      if (isSingletonCurrentlyInCreation(beanName)
+              || (def.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(def.getFactoryBeanName()))) {
+        return null;
+      }
+
       try {
         // Mark this bean as currently in creation, even if just partially.
-        beforeSingletonCreation(def.getName());
+        beforeSingletonCreation(beanName);
         // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
         singleton = resolveBeforeInstantiation(factoryBean, def);
         if (singleton == null) {
           singleton = createBeanInstance(def, null);
         }
+        if (singleton != null) {
+          factoryBeanInstanceCache.put(beanName, singleton);
+        }
         return (FactoryBean<T>) singleton;
       }
       finally {
         // Finished partial creation of this bean.
-        afterSingletonCreation(def.getName());
+        afterSingletonCreation(beanName);
       }
     }
     else {
       try {
         // Mark this bean as currently in creation, even if just partially.
-        beforePrototypeCreation(def.getName());
+        beforePrototypeCreation(beanName);
         // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
         Object instance = resolveBeforeInstantiation(factoryBean, def);
         if (instance == null) {
@@ -619,7 +669,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       finally {
         // Finished partial creation of this bean.
-        afterPrototypeCreation(def.getName());
+        afterPrototypeCreation(beanName);
       }
     }
   }

@@ -359,8 +359,10 @@ public abstract class AbstractBeanFactory
   }
 
   protected boolean isTypeMatch(String name, ResolvableType typeToMatch, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+    String beanName = BeanFactoryUtils.transformedBeanName(name);
+
     // Check manually registered singletons.
-    Object beanInstance = getSingleton(name);
+    Object beanInstance = getSingleton(beanName);
     boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
 
     if (beanInstance != null) {
@@ -378,9 +380,9 @@ public abstract class AbstractBeanFactory
           // Direct match for exposed instance?
           return true;
         }
-        else if (typeToMatch.hasGenerics() && containsBeanDefinition(name)) {
+        else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
           // Generics potentially only match on the target class, not on the proxy...
-          BeanDefinition mbd = obtainBeanDefinition(name);
+          BeanDefinition mbd = obtainBeanDefinition(beanName);
           Class<?> targetType = null;
           if (mbd.hasBeanClass()) {
             targetType = mbd.getBeanClass();
@@ -397,21 +399,20 @@ public abstract class AbstractBeanFactory
       }
       return false;
     }
-    else if (containsSingleton(name) && !containsBeanDefinition(name)) {
+    else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
       // null instance registered
       return false;
     }
 
     // No singleton instance found -> check bean definition.
     BeanFactory parentBeanFactory = getParentBeanFactory();
-    if (parentBeanFactory != null && !containsBeanDefinition(name)) {
+    if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
       // No bean definition found in this factory -> delegate to parent.
       return parentBeanFactory.isTypeMatch(name, typeToMatch);
     }
 
     // Attempt to predict the bean type (not init)
     Class<?> predictedType = null;
-    String beanName = BeanFactoryUtils.transformedBeanName(name);
     BeanDefinition definition = obtainBeanDefinition(beanName);
 
     // We're looking for a regular reference but we're a factory bean that has
@@ -741,11 +742,12 @@ public abstract class AbstractBeanFactory
 
   @Nullable
   @Override
-  public Class<?> getType(String beanName, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+  public Class<?> getType(String name, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+    String beanName = BeanFactoryUtils.transformedBeanName(name);
     // Check manually registered singletons.
     Object beanInstance = getSingleton(beanName);
     if (beanInstance != null) {
-      if (beanInstance instanceof FactoryBean && !BeanFactoryUtils.isFactoryDereference(beanName)) {
+      if (beanInstance instanceof FactoryBean && !BeanFactoryUtils.isFactoryDereference(name)) {
         // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
         return getTypeForFactoryBean((FactoryBean<?>) beanInstance);
       }
@@ -758,14 +760,14 @@ public abstract class AbstractBeanFactory
     BeanFactory parentBeanFactory = getParentBeanFactory();
     if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
       // No bean definition found in this factory -> delegate to parent.
-      return parentBeanFactory.getType(beanName);
+      return parentBeanFactory.getType(name);
     }
 
     // not init
     BeanDefinition definition = obtainBeanDefinition(beanName);
     Class<?> beanType = predictBeanType(definition);
     if (beanType != null && FactoryBean.class.isAssignableFrom(beanType)) {
-      if (BeanFactoryUtils.isFactoryDereference(beanName)) {
+      if (BeanFactoryUtils.isFactoryDereference(name)) {
         // just FactoryBean
         return beanType;
       }
@@ -780,10 +782,10 @@ public abstract class AbstractBeanFactory
   private Class<?> getTypeForFactoryBean(
           BeanDefinition definition, Class<?> factoryBeanClass, boolean allowFactoryBeanInit) {
     String factoryMethodName = definition.getFactoryMethodName();
-    String factoryBeanName = definition.getFactoryBeanName();
-    if (factoryMethodName != null && factoryBeanName != null) {
+    if (factoryMethodName != null) {
       // FactoryBean define in factory-method
       // like: FactoryBean factoryBean(){ return new FactoryBean() }
+      String factoryBeanName = definition.getFactoryBeanName();
       Class<?> factoryClass = getFactoryClass(definition, factoryBeanName);
       Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
       ResolvableType returnType = ResolvableType.forReturnType(factoryMethod);
@@ -809,9 +811,10 @@ public abstract class AbstractBeanFactory
       }
     }
 
-    // last we try to find from factoryBean class
+    // last we try to find from factoryBean class like FactoryBean<Bean> -> Bean.class
     ResolvableType returnType = ResolvableType.fromClass(factoryBeanClass);
-    return getFactoryBeanGeneric(returnType).resolve();
+    Class<?> resolved = getFactoryBeanGeneric(returnType).resolve();
+    return resolved == Object.class ? null : resolved;
   }
 
   private ResolvableType getFactoryBeanGeneric(@Nullable ResolvableType type) {
@@ -913,6 +916,9 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Class<?> predictBeanType(BeanDefinition definition) {
+    if (definition.getFactoryMethodName() != null) {
+      return null;
+    }
     return resolveBeanClass(definition, true);
   }
 
