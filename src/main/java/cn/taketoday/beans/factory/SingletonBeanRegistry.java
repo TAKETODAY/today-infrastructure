@@ -112,17 +112,6 @@ public interface SingletonBeanRegistry {
   }
 
   /**
-   * Return the (raw) singleton object registered under the given name,
-   * creating and registering a new one if none registered yet.
-   *
-   * @param beanName the name of the bean
-   * @param singletonSupplier the ObjectFactory to lazily create the singleton
-   * with, if necessary
-   * @return the registered singleton object
-   */
-  <T> T getSingleton(String beanName, Supplier<T> singletonSupplier);
-
-  /**
    * Get singleton objects
    *
    * @param requiredType required type
@@ -177,5 +166,13 @@ public interface SingletonBeanRegistry {
    * @since 4.0
    */
   String[] getSingletonNames();
+
+  /**
+   * Return the singleton mutex used by this registry (for external collaborators).
+   *
+   * @return the mutex object (never {@code null})
+   * @since 4.0
+   */
+  Object getSingletonMutex();
 
 }

@@ -178,7 +178,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (log.isTraceEnabled()) {
         log.trace("Eagerly caching bean '{}' to allow for resolving potential circular references", beanName);
       }
-      registerSingleton(beanName, bean);
+      addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, definition, bean));
     }
 
     Object fullyInitializedBean;
@@ -232,6 +232,25 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   private boolean isEarlySingletonExposure(BeanDefinition definition, String beanName) {
     return definition.isSingleton() && this.allowCircularReferences && isSingletonCurrentlyInCreation(beanName);
+  }
+
+  /**
+   * Obtain a reference for early access to the specified bean,
+   * typically for the purpose of resolving a circular reference.
+   *
+   * @param beanName the name of the bean (for error handling purposes)
+   * @param mbd the merged bean definition for the bean
+   * @param bean the raw bean instance
+   * @return the object to expose as bean reference
+   */
+  protected Object getEarlyBeanReference(String beanName, BeanDefinition mbd, Object bean) {
+    Object exposedObject = bean;
+    if (!mbd.isSynthetic()) {
+      for (InstantiationAwareBeanPostProcessor bp : postProcessors().instantiation) {
+        exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);
+      }
+    }
+    return exposedObject;
   }
 
   @Override
