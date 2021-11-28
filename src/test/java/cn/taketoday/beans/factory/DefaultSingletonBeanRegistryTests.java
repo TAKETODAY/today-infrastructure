@@ -39,7 +39,7 @@ class DefaultSingletonBeanRegistryTests {
     beanRegistry.registerSingleton("tb", tb);
     assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
 
-    BeanMappingTestBean tb2 = beanRegistry.getSingleton("tb2", BeanMappingTestBean::new);
+    BeanMappingTestBean tb2 = (BeanMappingTestBean) beanRegistry.getSingleton("tb2", BeanMappingTestBean::new);
     assertThat(beanRegistry.getSingleton("tb2")).isSameAs(tb2);
 
     assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);

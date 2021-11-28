@@ -171,7 +171,6 @@ class FactoryBeanTests {
     StandardBeanFactory factory = new StandardBeanFactory();
     AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(factory, false);
 
-    Alpha alpha1 = new Alpha();
     Gamma gamma1 = new Gamma();
     // gammaFactory betaFactory getGamma
     BeanDefinition gammaFactoryDef = new BeanDefinition();
@@ -179,16 +178,21 @@ class FactoryBeanTests {
     gammaFactoryDef.setFactoryMethodName("getGamma");
     gammaFactoryDef.setFactoryBeanName("betaFactory"); // is FactoryBean so its real bean is Beta
 
-    reader.registerBean("alpha", alpha1);
+    reader.registerBean("gamma", gamma1);
     reader.register(gammaFactoryDef);
     reader.registerBean("betaFactory", BetaFactoryBean.class, definition -> {
-      definition.addPropertyValue("beta", BeanReference.from("beta"));
+      definition.addPropertyValue("beta", BeanReference.required());
     });
     reader.registerBean("beta", Beta.class, definition -> {
       definition.addPropertyValue("name", "yourName");
+      definition.addPropertyValue("gamma", BeanReference.required());
     });
 
-    assertThat(factory.getType("betaFactory")).isNull();
+    reader.registerBean("alpha", Alpha.class, definition -> {
+      definition.addPropertyValue("beta", BeanReference.required());
+    });
+
+    assertThat(factory.getType("betaFactory")).isNotNull();
 
     Alpha alpha = (Alpha) factory.getBean("alpha");
     Beta beta = (Beta) factory.getBean("beta");
@@ -295,7 +299,9 @@ class FactoryBeanTests {
   @Component
   public static class BetaFactoryBean implements FactoryBean<Object> {
 
-    public BetaFactoryBean(Alpha alpha) { }
+    public BetaFactoryBean(BeanFactory alpha) {
+
+    }
 
     private Beta beta;
 
@@ -304,7 +310,7 @@ class FactoryBeanTests {
     }
 
     @Override
-    public Object getObject() {
+    public Beta getObject() {
       return this.beta;
     }
 
