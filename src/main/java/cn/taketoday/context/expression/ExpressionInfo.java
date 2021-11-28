@@ -97,4 +97,14 @@ public class ExpressionInfo {
   public void setRequired(boolean required) {
     this.required = required;
   }
+
+  @Override
+  public String toString() {
+    return "ExpressionInfo{" +
+            "expression='" + expression + '\'' +
+            ", required=" + required +
+            ", defaultValue='" + defaultValue + '\'' +
+            ", placeholderOnly=" + placeholderOnly +
+            '}';
+  }
 }

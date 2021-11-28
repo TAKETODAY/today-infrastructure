@@ -32,7 +32,7 @@ class BeanReferenceTests {
 
   @Test
   void retrieve() {
-    assertThatThrownBy(() -> new BeanReference().retrieve(null, null, null))
+    assertThatThrownBy(() -> BeanReference.from(null, false).retrieve(null, null, null))
             .isInstanceOf(IllegalStateException.class);
   }
 

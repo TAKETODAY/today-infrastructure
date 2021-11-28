@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import org.junit.jupiter.api.Test;
+
 import cn.taketoday.aop.TestBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
@@ -31,11 +33,9 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Value;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
-import org.junit.jupiter.api.Test;
-
-import javax.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -189,10 +189,44 @@ class AutowireCapableBeanFactoryTests {
       beanFactory.addBeanPostProcessor(new PostProcessor());
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
-      beanFactory.initializeBean(autowireTestBean, beanName);
+      beanFactory.initializeBean(autowireTestBean, beanName); // no bean definition
 
       assertThat(autowireTestBean.name).isEqualTo(beanName);
 
+      assertThat(autowireTestBean.initMethod).isFalse();
+      assertThat(autowireTestBean.postConstruct).isTrue();
+      assertThat(autowireTestBean.afterPropertiesSet).isTrue();
+      assertThat(autowireTestBean.afterPostProcessor).isTrue();
+      assertThat(autowireTestBean.beforePostProcessor).isTrue();
+      assertThat(autowireTestBean.property).isEqualTo(0);
+      assertThat(autowireTestBean.bean).isNull();
+
+      // autowireBean
+      beanFactory.autowireBean(autowireTestBean);
+      assertThat(autowireTestBean.property).isEqualTo(2);
+      assertThat(autowireTestBean.bean).isNotEqualTo(cachedBeanDef);
+    }
+  }
+
+  @Test
+  void testInitializeBeanWithBeanDefinition() {
+    String beanName = "autowireCapableBeanFactoryTest.AutowireTestBean";
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      context.refresh();
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+
+      beanFactory.addBeanPostProcessor(new PostProcessor());
+
+      BeanDefinition defaults = BeanDefinitionBuilder.defaults(beanName, AutowireTestBean.class);
+
+      AutowireTestBean autowireTestBean = new AutowireTestBean();
+      defaults.setInitMethods("init");
+      beanFactory.initializeBean(autowireTestBean, defaults); // no bean definition
+
+      assertThat(autowireTestBean.name).isEqualTo(beanName);
 
       assertThat(autowireTestBean.initMethod).isTrue();
       assertThat(autowireTestBean.postConstruct).isTrue();
@@ -335,6 +369,5 @@ class AutowireCapableBeanFactoryTests {
     }
 
   }
-
 
 }
