@@ -18,15 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -52,16 +49,16 @@ public interface AnnotationProvider<A extends Annotation> {
   /**
    * @since 4.0
    */
-  default AnnotationAttributes getAttributes(AnnotatedElement annotated) {
-    return AnnotatedElementUtils.getMergedAnnotationAttributes(annotated, annotationType());
+  default MergedAnnotation<A> getMergedAnnotation(AnnotatedTypeMetadata metadata) {
+    Assert.notNull(metadata, "AnnotatedTypeMetadata is required");
+    return metadata.getAnnotations().get(annotationType());
   }
 
   /**
    * @since 4.0
    */
   default A getAnnotation(AnnotatedTypeMetadata metadata) {
-    Assert.notNull(metadata, "AnnotatedTypeMetadata is required");
-    return metadata.getAnnotations().get(annotationType()).synthesize();
+    return getMergedAnnotation(metadata).synthesize();
   }
 
   /**
