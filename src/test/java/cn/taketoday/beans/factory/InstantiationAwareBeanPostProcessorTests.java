@@ -80,8 +80,6 @@ class InstantiationAwareBeanPostProcessorTests {
   @Test
   void postProcessBeforeInstantiation() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.registerFrameworkComponents();
-
       ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
 
       context.register(InstantiationAwareBeanPostProcessorBean.class);
