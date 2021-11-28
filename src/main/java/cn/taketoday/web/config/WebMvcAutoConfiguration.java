@@ -21,9 +21,11 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DefaultExceptionHandler;
@@ -43,14 +45,16 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * </p>
  */
 @Configuration
+@DisableAllDependencyInjection
 public class WebMvcAutoConfiguration {
 
   /**
    * default {@link MultipartConfiguration} bean
    */
   @Lazy
-  @MissingBean
+  @Component
   @Props(prefix = "multipart.")
+  @ConditionalOnMissingBean(MultipartConfiguration.class)
   MultipartConfiguration multipartConfiguration() {
     return new MultipartConfiguration();
   }
@@ -58,7 +62,8 @@ public class WebMvcAutoConfiguration {
   /**
    * default {@link NotFoundRequestAdapter} to handle request-url not found
    */
-  @MissingBean(type = NotFoundRequestAdapter.class)
+  @Component
+  @ConditionalOnMissingBean(NotFoundRequestAdapter.class)
   NotFoundRequestAdapter notFoundRequestAdapter() {
     return new NotFoundRequestAdapter();
   }
@@ -66,7 +71,8 @@ public class WebMvcAutoConfiguration {
   /**
    * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
    */
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   HandlerMethodRegistry handlerMethodRegistry() {
     return new HandlerMethodRegistry();
   }
@@ -74,7 +80,8 @@ public class WebMvcAutoConfiguration {
   /**
    * default {@link ParameterResolvingStrategy} registry
    */
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   ParameterResolvingRegistry parameterResolvers(WebApplicationContext context) {
     final ParameterResolvingRegistry resolversRegistry = new ParameterResolvingRegistry();
     resolversRegistry.setApplicationContext(context);
@@ -83,7 +90,8 @@ public class WebMvcAutoConfiguration {
     return resolversRegistry;
   }
 
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
   JacksonConfiguration jacksonConfiguration() {
     return new JacksonConfiguration();
@@ -92,7 +100,8 @@ public class WebMvcAutoConfiguration {
   /**
    * default {@link ReturnValueHandler} registry
    */
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   ReturnValueHandlers resultHandlers(WebApplicationContext context) {
     ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     resultHandlers.setApplicationContext(context);
@@ -104,7 +113,8 @@ public class WebMvcAutoConfiguration {
   /**
    * default {@link HandlerExceptionHandler}
    */
-  @MissingBean(type = HandlerExceptionHandler.class)
+  @Component
+  @ConditionalOnMissingBean(HandlerExceptionHandler.class)
   DefaultExceptionHandler defaultExceptionHandler() {
     return new DefaultExceptionHandler();
   }
