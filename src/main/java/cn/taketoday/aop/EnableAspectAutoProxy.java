@@ -30,13 +30,14 @@ import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.loader.AnnotationProvider;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.AnnotationProvider;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.util.ObjectUtils;
 
@@ -71,7 +72,8 @@ class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvid
    *
    * @param sourceCreators Custom {@link TargetSourceCreator}s
    */
-  @MissingBean(type = ProxyCreator.class)
+  @Component
+  @ConditionalOnMissingBean(ProxyCreator.class)
   static AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
     AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
 
@@ -86,8 +88,11 @@ class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvid
     BeanDefinition proxyCreatorDef = context.getRegistry().getBeanDefinition(ProxyCreator.class);
     Assert.state(proxyCreatorDef != null, "No ProxyCreator bean definition.");
 
-    if (ProxyConfig.class.isAssignableFrom(proxyCreatorDef.getBeanClass())) {
-      AnnotationAttributes aspectAutoProxy = getAttributes(importMetadata);
+    // check is a ProxyConfig? don't use BeanDefinition#getBeanClass()
+    if (context.getBeanFactory().isTypeMatch(
+            proxyCreatorDef.getName(), ProxyConfig.class)) {
+
+      MergedAnnotation<EnableAspectAutoProxy> aspectAutoProxy = getMergedAnnotation(importMetadata);
       if (aspectAutoProxy != null) {
         proxyCreatorDef.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));
         proxyCreatorDef.addPropertyValue("proxyTargetClass", aspectAutoProxy.getBoolean("proxyTargetClass"));
