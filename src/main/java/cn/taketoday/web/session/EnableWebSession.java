@@ -23,9 +23,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Lazy;
+import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
@@ -45,12 +47,14 @@ public @interface EnableWebSession {
 }
 
 @Configuration
+@DisableAllDependencyInjection
 class WebSessionConfiguration {
 
   /**
    * default {@link WebSessionManager} bean
    */
-  @MissingBean(type = WebSessionManager.class)
+  @Component
+  @ConditionalOnMissingBean(WebSessionManager.class)
   @Import({ WebSessionParameterResolver.class, WebSessionAttributeParameterResolver.class })
   DefaultWebSessionManager webSessionManager(
           TokenResolver tokenResolver, WebSessionStorage sessionStorage) {
@@ -62,7 +66,8 @@ class WebSessionConfiguration {
    *
    * @since 3.0
    */
-  @MissingBean(type = WebSessionStorage.class)
+  @Component
+  @ConditionalOnMissingBean(WebSessionStorage.class)
   MemWebSessionStorage sessionStorage() {
     return new MemWebSessionStorage();
   }
@@ -73,14 +78,16 @@ class WebSessionConfiguration {
    * @since 3.0
    */
   @Lazy
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   @Props(prefix = "server.session.cookie.")
   SessionCookieConfiguration sessionCookieConfiguration() {
     return new SessionCookieConfiguration();
   }
 
   @Lazy
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   @Props(prefix = "server.session.")
   SessionConfiguration sessionConfiguration(SessionCookieConfiguration sessionCookieConfig) {
     return new SessionConfiguration(sessionCookieConfig);
@@ -91,12 +98,14 @@ class WebSessionConfiguration {
    *
    * @since 3.0
    */
-  @MissingBean(type = TokenResolver.class)
+  @Component
+  @ConditionalOnMissingBean(TokenResolver.class)
   CookieTokenResolver tokenResolver(SessionCookieConfiguration config) {
     return new CookieTokenResolver(config);
   }
 
-  @MissingBean(type = RedirectModelManager.class)
+  @Component
+  @ConditionalOnMissingBean(RedirectModelManager.class)
   SessionRedirectModelManager sessionRedirectModelManager(WebSessionManager sessionManager) {
     return new SessionRedirectModelManager(sessionManager);
   }
