@@ -22,6 +22,7 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 
+import cn.taketoday.core.annotation.AnnotationProvider;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 
