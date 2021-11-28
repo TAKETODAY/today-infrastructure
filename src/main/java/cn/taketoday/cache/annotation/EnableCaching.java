@@ -106,9 +106,7 @@ class ProxyCachingConfiguration {
 
   @Singleton
   CacheExpressionOperations cacheExpressionOperations(ExpressionContext context) {
-    CacheExpressionOperations operations = new CacheExpressionOperations();
-    operations.setExpressionContext(context);
-    return operations;
+    return new CacheExpressionOperations(context);
   }
 
 }

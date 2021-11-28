@@ -122,8 +122,8 @@ class CacheableInterceptorTests {
       Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
       MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
       CacheConfiguration cacheable = operations.getConfig(methodKey);
-
       CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
+      interceptor.setExpressionOperations(operations);
       Cache users = interceptor.getCache("users", cacheable);
 
       User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());

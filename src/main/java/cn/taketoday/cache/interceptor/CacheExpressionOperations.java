@@ -39,6 +39,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -52,15 +53,13 @@ import cn.taketoday.util.StringUtils;
 public class CacheExpressionOperations {
 
   // @since 4.0
-  static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   private ExpressionContext expressionContext;
   private ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
 
   static final ConcurrentReferenceHashMap<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentReferenceHashMap<>(128);
   static final ConcurrentReferenceHashMap<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentReferenceHashMap<>(128);
-  static final Function<MethodKey, String[]> ARGS_NAMES_FUNCTION =
-          target -> parameterNameDiscoverer.getParameterNames(target.targetMethod);
 
   static final Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 
@@ -86,6 +85,14 @@ public class CacheExpressionOperations {
     }
     return configuration;
   };
+
+  public CacheExpressionOperations() {
+    this(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
+  }
+
+  public CacheExpressionOperations(ExpressionContext expressionContext) {
+    this.expressionContext = expressionContext;
+  }
 
   /**
    * Resolve {@link Annotation} from given {@link Annotation} {@link Class}
@@ -146,10 +153,14 @@ public class CacheExpressionOperations {
    */
   public void prepareParameterNames(
           MethodKey methodKey, Object[] arguments, Map<String, Object> beans) {
-    String[] names = ARGS_NAMES_CACHE.computeIfAbsent(methodKey, ARGS_NAMES_FUNCTION);
+    String[] names = ARGS_NAMES_CACHE.computeIfAbsent(methodKey, this::getParameterNames);
     for (int i = 0; i < names.length; i++) {
       beans.put(names[i], arguments[i]);
     }
+  }
+
+  private String[] getParameterNames(MethodKey target) {
+    return parameterNameDiscoverer.getParameterNames(target.targetMethod);
   }
 
   public CacheExpressionContext prepareContext(
@@ -172,6 +183,7 @@ public class CacheExpressionOperations {
   }
 
   public void setExpressionContext(ExpressionContext expressionContext) {
+    Assert.notNull(expressionContext, "shared ExpressionContext is required");
     this.expressionContext = expressionContext;
   }
 
@@ -179,4 +191,12 @@ public class CacheExpressionOperations {
     return expressionContext;
   }
 
+  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
+    Assert.notNull(parameterNameDiscoverer, "ParameterNameDiscoverer is required");
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
+  public ParameterNameDiscoverer getParameterNameDiscoverer() {
+    return parameterNameDiscoverer;
+  }
 }
