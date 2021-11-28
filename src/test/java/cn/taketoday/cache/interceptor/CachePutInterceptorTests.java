@@ -34,8 +34,6 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
@@ -69,7 +67,6 @@ class CachePutInterceptorTests {
   @Test
   void testInContext() throws Exception {
     CacheExpressionOperations operations = new CacheExpressionOperations();
-    operations.setExpressionContext(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(CachePutConfig.class);
@@ -79,6 +76,7 @@ class CachePutInterceptorTests {
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
       MethodKey methodKey = new MethodKey(save, CachePut.class);
+      interceptor.setExpressionOperations(operations);
       CacheConfiguration cachePut = operations.getConfig(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
 
@@ -109,7 +107,6 @@ class CachePutInterceptorTests {
   @Test
   void testContextConditional() throws Exception {
     CacheExpressionOperations operations = new CacheExpressionOperations();
-    operations.setExpressionContext(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.register(CachePutConfig.class);
@@ -120,6 +117,7 @@ class CachePutInterceptorTests {
       Method save = CacheUserService.class.getDeclaredMethod("save", User.class);
       // CachePut
       MethodKey methodKey = new MethodKey(save, CachePut.class);
+      interceptor.setExpressionOperations(operations);
       CacheConfiguration cachePut = operations.getConfig(methodKey);
       Cache users = interceptor.getCache("users", cachePut);
 
