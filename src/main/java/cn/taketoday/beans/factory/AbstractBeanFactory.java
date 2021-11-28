@@ -138,43 +138,44 @@ public abstract class AbstractBeanFactory
   protected <T> T doGetBean(String name, Class<?> requiredType, Object[] args) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
-    BeanDefinition definition = getBeanDefinition(beanName);
-    if (definition == null) {
-      // definition not exist in this factory
-      if (beanSupplier != null) {
-        Supplier<?> supplier = beanSupplier.get(beanName);
-        if (supplier != null && args == null) {
-          return (T) supplier.get();
-        }
-      }
-      // Check if bean definition exists in this factory.
-      BeanFactory parentBeanFactory = getParentBeanFactory();
-      if (parentBeanFactory != null) {
-        // Not found -> check parent.
-        if (parentBeanFactory instanceof AbstractBeanFactory) {
-          return ((AbstractBeanFactory) parentBeanFactory).doGetBean(beanName, requiredType, args);
-        }
-        else if (args != null) {
-          // Delegation to parent with explicit args.
-          return (T) parentBeanFactory.getBean(beanName, args);
-        }
-        else if (requiredType != null) {
-          // No args -> delegate to standard getBean method.
-          return (T) parentBeanFactory.getBean(beanName, requiredType);
-        }
-        else {
-          return (T) parentBeanFactory.getBean(beanName);
-        }
-      }
-
-      // don't throw exception
-      return null;
-    }
-
-    // check singleton cache
+    // 1. check singleton cache
     Object beanInstance = getSingleton(beanName);
     if (beanInstance == null) {
-      // Create bean instance.
+
+      BeanDefinition definition = getBeanDefinition(beanName);
+      if (definition == null) {
+        // 2. definition not exist in this factory
+        if (beanSupplier != null) {
+          Supplier<?> supplier = beanSupplier.get(beanName);
+          if (supplier != null && args == null) {
+            return (T) supplier.get();
+          }
+        }
+        // 3. Check if bean definition exists in this factory.
+        BeanFactory parentBeanFactory = getParentBeanFactory();
+        if (parentBeanFactory != null) {
+          // Not found -> check parent.
+          if (parentBeanFactory instanceof AbstractBeanFactory) {
+            return ((AbstractBeanFactory) parentBeanFactory).doGetBean(beanName, requiredType, args);
+          }
+          else if (args != null) {
+            // Delegation to parent with explicit args.
+            return (T) parentBeanFactory.getBean(beanName, args);
+          }
+          else if (requiredType != null) {
+            // No args -> delegate to standard getBean method.
+            return (T) parentBeanFactory.getBean(beanName, requiredType);
+          }
+          else {
+            return (T) parentBeanFactory.getBean(beanName);
+          }
+        }
+
+        // don't throw exception
+        return null;
+      }
+
+      // 4. Create bean instance.
       if (definition.isSingleton()) {
         beanInstance = getSingleton(beanName, () -> createBean(definition, args));
         definition.setInitialized(true);
