@@ -22,7 +22,6 @@ package cn.taketoday.aop.proxy;
 
 import org.aopalliance.aop.Advice;
 
-import java.io.Closeable;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +33,6 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeansException;
@@ -49,7 +45,6 @@ import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -60,7 +55,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 3.0
  */
 public abstract class AbstractAutoProxyCreator
-        extends ProxyConfig
+        extends ProxyProcessorSupport
         implements InstantiationAwareBeanPostProcessor,
                    BeanFactoryAware, AopInfrastructureBean,
                    ProxyCreator, InitializationBeanPostProcessor {
@@ -79,7 +74,6 @@ public abstract class AbstractAutoProxyCreator
    */
   private boolean freezeProxy = false;
   private transient TargetSourceCreator[] targetSourceCreators;
-  private transient ClassLoader proxyClassLoader = ClassUtils.getDefaultClassLoader();
   private List<Advisor> candidateAdvisors;
 
   /**
@@ -126,14 +120,6 @@ public abstract class AbstractAutoProxyCreator
     return this.beanFactory;
   }
 
-  public void setProxyClassLoader(ClassLoader proxyClassLoader) {
-    this.proxyClassLoader = proxyClassLoader;
-  }
-
-  private ClassLoader getProxyClassLoader() {
-    return proxyClassLoader;
-  }
-
   @Override
   public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
     // Create proxy here if we have a custom TargetSource.
@@ -166,6 +152,11 @@ public abstract class AbstractAutoProxyCreator
     }
     // No custom TargetSource found.
     return null;
+  }
+
+  @Override
+  public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+    return InstantiationAwareBeanPostProcessor.super.getEarlyBeanReference(bean, beanName);
   }
 
   /**
@@ -341,52 +332,6 @@ public abstract class AbstractAutoProxyCreator
             || Advisor.class.isAssignableFrom(beanClass)
             || Pointcut.class.isAssignableFrom(beanClass)
             || AopInfrastructureBean.class.isAssignableFrom(beanClass);
-  }
-
-  /**
-   * Check the interfaces on the given bean class and apply them to the
-   * {@link ProxyFactory}, if appropriate.
-   * <p>Calls {@link #isConfigurationCallbackInterface} to filter for reasonable
-   * proxy interfaces, falling back to a target-class proxy otherwise.
-   *
-   * @param beanClass the class of the bean
-   * @param proxyFactory the ProxyFactory for the bean
-   */
-  protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
-    Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
-    boolean hasReasonableProxyInterface = false;
-    for (Class<?> ifc : targetInterfaces) {
-      if (!isConfigurationCallbackInterface(ifc) && ifc.getMethods().length > 0) {
-        hasReasonableProxyInterface = true;
-        break;
-      }
-    }
-    if (hasReasonableProxyInterface) {
-      // Must allow for introductions; can't just set interfaces to the target's interfaces only.
-      for (Class<?> ifc : targetInterfaces) {
-        proxyFactory.addInterface(ifc);
-      }
-    }
-    else {
-      proxyFactory.setProxyTargetClass(true);
-    }
-  }
-
-  /**
-   * Determine whether the given interface is just a container callback and
-   * therefore not to be considered as a reasonable proxy interface.
-   * <p>If no reasonable proxy interface is found for a given bean, it will get
-   * proxied with its full target class, assuming that as the user's intention.
-   *
-   * @param ifc the interface to check
-   * @return whether the given interface is just a container callback
-   */
-  protected boolean isConfigurationCallbackInterface(Class<?> ifc) {
-    return InitializingBean.class == ifc
-            || Closeable.class == ifc
-            || AutoCloseable.class == ifc
-            || DisposableBean.class == ifc
-            || ObjectUtils.containsElement(ifc.getInterfaces(), Aware.class);
   }
 
   /**
