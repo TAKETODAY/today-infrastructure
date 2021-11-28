@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -89,6 +90,10 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   public ApplicationContext getApplicationContext() {
     return applicationContext;
+  }
+
+  public BeanFactory getBeanFactory() {
+    return applicationContext.getBeanFactory();
   }
 
   /**

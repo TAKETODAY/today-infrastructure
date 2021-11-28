@@ -22,7 +22,7 @@ package cn.taketoday.context.aware;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.context.loader.AnnotationProvider;
+import cn.taketoday.core.annotation.AnnotationProvider;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
