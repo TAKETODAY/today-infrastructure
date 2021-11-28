@@ -1019,6 +1019,12 @@ public abstract class AbstractApplicationContext
     return getBeanFactory().getObjectSupplier(requiredType);
   }
 
+  @Override
+  public String[] getAliases(String name) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getAliases(name);
+  }
+
   // type lookup
 
   @Override
