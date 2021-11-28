@@ -77,6 +77,9 @@ public class StandardBeanFactory
   /** List of names of manually registered singletons, in registration order. */
   private final LinkedHashSet<String> manualSingletonNames = new LinkedHashSet<>(16);
 
+  /** Whether to allow eager class loading even for lazy-init beans. */
+  private boolean allowEagerClassLoading = true;
+
   //---------------------------------------------------------------------
   // Implementation of DefaultSingletonBeanRegistry
   //---------------------------------------------------------------------
@@ -745,24 +748,38 @@ public class StandardBeanFactory
           ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     LinkedHashSet<String> beanNames = new LinkedHashSet<>();
 
+    // 1. Check all bean definitions.
     for (String beanName : beanDefinitionNames) {
-      BeanDefinition definition = beanDefinitionMap.get(beanName);
-      boolean matchFound = false;
-      boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
-      if (includeNonSingletons || definition.isSingleton()) {
-        matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
-      }
-      if (!matchFound && isFactoryBean(definition)) {
-        // In case of FactoryBean, try to match FactoryBean instance itself next.
-        beanName = FACTORY_BEAN_PREFIX + beanName;
-        matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
-      }
-      if (matchFound) {
-        beanNames.add(beanName);
+      // Only consider bean as eligible if the bean name is not defined as alias for some other bean.
+      if (!isAlias(beanName)) {
+        BeanDefinition definition = beanDefinitionMap.get(beanName);
+        // Only check bean definition if it is complete.
+        if (allowEagerInit || allowCheck(definition)) {
+          boolean matchFound = false;
+          boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
+          if (isFactoryBean(definition)) {
+            if (includeNonSingletons || (allowFactoryBeanInit && isSingleton(beanName))) {
+              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+            }
+            if (!matchFound) {
+              // In case of FactoryBean, try to match FactoryBean instance itself next.
+              beanName = FACTORY_BEAN_PREFIX + beanName;
+              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+            }
+          }
+          else {
+            if (includeNonSingletons || isSingleton(beanName)) {
+              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+            }
+          }
+          if (matchFound) {
+            beanNames.add(beanName);
+          }
+        }
       }
     }
 
-    // Check manually registered singletons too.
+    // 2. Check manually registered singletons too.
     for (String beanName : this.manualSingletonNames) {
       if (beanNames.contains(beanName)) {
         continue;
@@ -789,6 +806,26 @@ public class StandardBeanFactory
       }
     }
     return beanNames;
+  }
+
+  private boolean allowCheck(BeanDefinition definition) {
+    return (
+            definition.hasBeanClass()
+                    || !definition.isLazyInit()
+                    || isAllowEagerClassLoading()
+    ) && !requiresEagerInitForType(definition.getFactoryBeanName());
+  }
+
+  /**
+   * Check whether the specified bean would need to be eagerly initialized
+   * in order to determine its type.
+   *
+   * @param factoryBeanName a factory-bean reference that the bean definition
+   * defines a factory method for
+   * @return whether eager initialization is necessary
+   */
+  private boolean requiresEagerInitForType(@Nullable String factoryBeanName) {
+    return factoryBeanName != null && isFactoryBean(factoryBeanName) && !containsSingleton(factoryBeanName);
   }
 
   @Override
@@ -900,6 +937,32 @@ public class StandardBeanFactory
   public void removeBean(String name) {
     removeBeanDefinition(name);
     super.removeBean(name);
+  }
+
+  /**
+   * Set whether the factory is allowed to eagerly load bean classes
+   * even for bean definitions that are marked as "lazy-init".
+   * <p>Default is "true". Turn this flag off to suppress class loading
+   * for lazy-init beans unless such a bean is explicitly requested.
+   * In particular, by-type lookups will then simply ignore bean definitions
+   * without resolved class name, instead of loading the bean classes on
+   * demand just to perform a type check.
+   *
+   * @see BeanDefinition#setLazyInit
+   * @since 4.0
+   */
+  public void setAllowEagerClassLoading(boolean allowEagerClassLoading) {
+    this.allowEagerClassLoading = allowEagerClassLoading;
+  }
+
+  /**
+   * Return whether the factory is allowed to eagerly load bean classes
+   * even for bean definitions that are marked as "lazy-init".
+   *
+   * @since 4.0
+   */
+  public boolean isAllowEagerClassLoading() {
+    return this.allowEagerClassLoading;
   }
 
 }
