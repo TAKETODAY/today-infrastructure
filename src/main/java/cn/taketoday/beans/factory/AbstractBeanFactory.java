@@ -41,6 +41,7 @@ import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
@@ -136,7 +137,7 @@ public abstract class AbstractBeanFactory
   @Nullable
   protected <T> T doGetBean(String name, Class<?> requiredType, Object[] args) throws BeansException {
     // delete $
-    String beanName = BeanFactoryUtils.transformedBeanName(name);
+    String beanName = transformedBeanName(name);
     BeanDefinition definition = getBeanDefinition(beanName);
     if (definition == null) {
       // definition not exist in this factory
@@ -359,10 +360,10 @@ public abstract class AbstractBeanFactory
   }
 
   protected boolean isTypeMatch(String name, ResolvableType typeToMatch, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
-    String beanName = BeanFactoryUtils.transformedBeanName(name);
+    String beanName = transformedBeanName(name);
 
     // Check manually registered singletons.
-    Object beanInstance = getSingleton(beanName);
+    Object beanInstance = getSingleton(beanName, false);
     boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
 
     if (beanInstance != null) {
@@ -495,12 +496,7 @@ public abstract class AbstractBeanFactory
       }
 
       ClassLoader beanClassLoader = getBeanClassLoader();
-      Class<?> beanClass = def.resolveBeanClass(beanClassLoader);
-      if (beanClass != null) {
-        return beanClass;
-      }
-
-      return ClassUtils.forName(beanClassName, beanClassLoader);
+      return def.resolveBeanClass(beanClassLoader);
     }
     catch (ClassNotFoundException ex) {
       throw new BeanClassLoadFailedException(def, ex);
@@ -693,19 +689,42 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
-    Object beanInstance = getSingleton(name);
+    String beanName = transformedBeanName(name);
+    Object beanInstance = getSingleton(beanName, false);
     if (beanInstance != null) {
-      return true;
+      if (beanInstance instanceof FactoryBean) {
+        return (BeanFactoryUtils.isFactoryDereference(name) || ((FactoryBean<?>) beanInstance).isSingleton());
+      }
+      else {
+        return !BeanFactoryUtils.isFactoryDereference(name);
+      }
     }
 
     // No singleton instance found -> check bean definition.
     BeanFactory parentBeanFactory = getParentBeanFactory();
-    if (parentBeanFactory != null && !containsBeanDefinition(name)) {
+    if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
       // No bean definition found in this factory -> delegate to parent.
-      return parentBeanFactory.isSingleton(name);
+      return parentBeanFactory.isSingleton(originalBeanName(name));
     }
 
-    return obtainBeanDefinition(name).isSingleton();
+    BeanDefinition definition = obtainBeanDefinition(beanName);
+    // In case of FactoryBean, return singleton status of created object if not a dereference.
+    if (definition.isSingleton()) {
+      if (isFactoryBean(definition)) {
+        if (BeanFactoryUtils.isFactoryDereference(name)) {
+          return true;
+        }
+        FactoryBean<?> factoryBean = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
+        Assert.state(factoryBean != null, "Never get here");
+        return factoryBean.isSingleton();
+      }
+      else {
+        return !BeanFactoryUtils.isFactoryDereference(name);
+      }
+    }
+    else {
+      return false;
+    }
   }
 
   /**
@@ -721,18 +740,35 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
-    Object beanInstance = getSingleton(name);
-    if (beanInstance != null) {
-      return false;
+    String beanName = transformedBeanName(name);
+
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+      // No bean definition found in this factory -> delegate to parent.
+      return parentBeanFactory.isPrototype(originalBeanName(name));
     }
 
-    // No singleton instance found -> check bean definition.
-    BeanFactory parentBeanFactory = getParentBeanFactory();
-    if (parentBeanFactory != null && !containsBeanDefinition(name)) {
-      // No bean definition found in this factory -> delegate to parent.
-      return parentBeanFactory.isPrototype(name);
+    BeanDefinition mbd = obtainBeanDefinition(beanName);
+    if (mbd.isPrototype()) {
+      // In case of FactoryBean, return singleton status of created object if not a dereference.
+      return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(mbd));
     }
-    return obtainBeanDefinition(name).isPrototype();
+
+    // Singleton or scoped - not a prototype.
+    // However, FactoryBean may still produce a prototype object...
+    if (BeanFactoryUtils.isFactoryDereference(name)) {
+      return false;
+    }
+    if (isFactoryBean(mbd)) {
+      FactoryBean<?> fb = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
+      if (fb instanceof SmartFactoryBean smart) {
+        return smart.isPrototype() || !fb.isSingleton();
+      }
+      return fb != null && !fb.isSingleton();
+    }
+    else {
+      return false;
+    }
   }
 
   @Override
@@ -743,9 +779,9 @@ public abstract class AbstractBeanFactory
   @Nullable
   @Override
   public Class<?> getType(String name, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
-    String beanName = BeanFactoryUtils.transformedBeanName(name);
+    String beanName = transformedBeanName(name);
     // Check manually registered singletons.
-    Object beanInstance = getSingleton(beanName);
+    Object beanInstance = getSingleton(beanName, false);
     if (beanInstance != null) {
       if (beanInstance instanceof FactoryBean && !BeanFactoryUtils.isFactoryDereference(name)) {
         // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
@@ -916,22 +952,21 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Class<?> predictBeanType(BeanDefinition definition) {
-    if (definition.getFactoryMethodName() != null) {
-      return null;
-    }
     return resolveBeanClass(definition, true);
   }
 
   @Override
-  public boolean isFactoryBean(String beanName) throws NoSuchBeanDefinitionException {
-    Object beanInstance = getSingleton(beanName);
+  public boolean isFactoryBean(String name) throws NoSuchBeanDefinitionException {
+    String beanName = transformedBeanName(name);
+    Object beanInstance = getSingleton(beanName, false);
     if (beanInstance != null) {
       return beanInstance instanceof FactoryBean;
     }
     // No singleton instance found -> check bean definition.
-    if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
+    if (!containsBeanDefinition(beanName)
+            && getParentBeanFactory() instanceof ConfigurableBeanFactory parent) {
       // No bean definition found in this factory -> delegate to parent.
-      return ((ConfigurableBeanFactory) getParentBeanFactory()).isFactoryBean(beanName);
+      return parent.isFactoryBean(name);
     }
     return isFactoryBean(obtainBeanDefinition(beanName));
   }
@@ -963,13 +998,14 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public boolean containsBean(String beanName) {
-    if (containsLocalBean(beanName)) {
-      return true;
+  public boolean containsBean(String name) {
+    String beanName = transformedBeanName(name);
+    if (containsSingleton(beanName) || containsBeanDefinition(beanName)) {
+      return !BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name);
     }
     // Not found -> check parent.
     BeanFactory parentBeanFactory = getParentBeanFactory();
-    return parentBeanFactory != null && parentBeanFactory.containsBean(beanName);
+    return parentBeanFactory != null && parentBeanFactory.containsBean(originalBeanName(beanName));
   }
 
   @Override
@@ -1061,8 +1097,10 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public boolean containsLocalBean(String beanName) {
-    return containsSingleton(beanName) || containsBeanDefinition(beanName);
+  public boolean containsLocalBean(String name) {
+    String beanName = transformedBeanName(name);
+    return (containsSingleton(beanName) || containsBeanDefinition(beanName))
+            && (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(beanName));
   }
 
   //---------------------------------------------------------------------
