@@ -982,6 +982,60 @@ public abstract class AbstractBeanFactory
     return fullLifecycle;
   }
 
+  @Override
+  public String[] getAliases(String name) {
+    String beanName = transformedBeanName(name);
+    ArrayList<String> aliases = new ArrayList<>();
+    boolean factoryPrefix = name.startsWith(FACTORY_BEAN_PREFIX);
+    String fullBeanName = beanName;
+    if (factoryPrefix) {
+      fullBeanName = FACTORY_BEAN_PREFIX + beanName;
+    }
+    if (!fullBeanName.equals(name)) {
+      aliases.add(fullBeanName);
+    }
+    String[] retrievedAliases = super.getAliases(beanName);
+    String prefix = factoryPrefix ? FACTORY_BEAN_PREFIX : Constant.BLANK;
+    for (String retrievedAlias : retrievedAliases) {
+      String alias = prefix + retrievedAlias;
+      if (!alias.equals(name)) {
+        aliases.add(alias);
+      }
+    }
+    if (!containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
+      BeanFactory parentBeanFactory = getParentBeanFactory();
+      if (parentBeanFactory != null) {
+        CollectionUtils.addAll(aliases, parentBeanFactory.getAliases(fullBeanName));
+      }
+    }
+    return StringUtils.toStringArray(aliases);
+  }
+
+  /**
+   * Return the bean name, stripping out the factory dereference prefix if necessary,
+   * and resolving aliases to canonical names.
+   *
+   * @param name the user-specified name
+   * @return the transformed bean name
+   */
+  protected String transformedBeanName(String name) {
+    return canonicalName(BeanFactoryUtils.transformedBeanName(name));
+  }
+
+  /**
+   * Determine the original bean name, resolving locally defined aliases to canonical names.
+   *
+   * @param name the user-specified name
+   * @return the original bean name
+   */
+  protected String originalBeanName(String name) {
+    String beanName = transformedBeanName(name);
+    if (name.startsWith(FACTORY_BEAN_PREFIX)) {
+      beanName = FACTORY_BEAN_PREFIX + beanName;
+    }
+    return beanName;
+  }
+
   //---------------------------------------------------------------------
   // Implementation of ArgumentsResolverProvider interface
   //---------------------------------------------------------------------

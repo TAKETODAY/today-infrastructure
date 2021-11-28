@@ -732,4 +732,19 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    */
   Map<String, BeanDefinition> getBeanDefinitions();
 
+  /**
+   * Return the aliases for the given bean name, if any.
+   * <p>All of those aliases point to the same bean when used in a {@link #getBean} call.
+   * <p>If the given name is an alias, the corresponding original bean name
+   * and other aliases (if any) will be returned, with the original bean name
+   * being the first element in the array.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   *
+   * @param name the bean name to check for aliases
+   * @return the aliases, or an empty array if none
+   * @see #getBean
+   * @since 4.0
+   */
+  String[] getAliases(String name);
+
 }
