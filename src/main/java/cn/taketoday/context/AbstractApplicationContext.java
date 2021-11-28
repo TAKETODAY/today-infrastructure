@@ -244,6 +244,7 @@ public abstract class AbstractApplicationContext
   public ExpressionEvaluator getExpressionEvaluator() {
     if (expressionEvaluator == null) {
       expressionEvaluator = new ExpressionEvaluator(this);
+      expressionEvaluator.setBeanFactory(getBeanFactory());
     }
     return expressionEvaluator;
   }
