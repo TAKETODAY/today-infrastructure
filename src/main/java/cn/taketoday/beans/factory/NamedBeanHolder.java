@@ -23,7 +23,12 @@ package cn.taketoday.beans.factory;
 import cn.taketoday.lang.Assert;
 
 /**
+ * A simple holder for a given bean name and bean instance.
+ *
+ * @param <T> the bean type
+ * @author Juergen Hoeller
  * @author TODAY 2021/10/26 21:49
+ * @see AutowireCapableBeanFactory#resolveNamedBean(Class)
  * @since 4.0
  */
 public class NamedBeanHolder<T> {
