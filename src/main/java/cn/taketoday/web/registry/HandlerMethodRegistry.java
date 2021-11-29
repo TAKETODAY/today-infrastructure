@@ -331,6 +331,7 @@ public class HandlerMethodRegistry
    * @return Returns a handler bean of target beanClass
    */
   protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
+
     BeanDefinition def = registry.getBeanDefinition(beanClass);
     return def.isSingleton()
            ? beanFactory.getBean(def)

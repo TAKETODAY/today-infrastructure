@@ -879,12 +879,6 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public Object getBean(BeanDefinition def) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getBean(def);
-  }
-
-  @Override
   public <T> T getBean(Class<T> requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType);

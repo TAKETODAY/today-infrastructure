@@ -19,11 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.context.StandardApplicationContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.PreDestroy;
+
+import cn.taketoday.context.StandardApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -57,13 +58,13 @@ class ScopeTests {
       context.registerBeanDefinition(def);
       def.setScope("thread");
 
-            context.refresh();
-      Object bean = context.getBean(def);
-      Object bean2 = context.getBean(def);
+      context.refresh();
+      Object bean = context.getBean("scopeBean");
+      Object bean2 = context.getBean("scopeBean");
       assertEquals(bean, bean2);
 
       new Thread(() -> {
-        Object bean21 = context.getBean(def);
+        Object bean21 = context.getBean("scopeBean");
         System.err.println(bean21);
         assertNotEquals(bean21, bean);
       }).start();
@@ -71,7 +72,7 @@ class ScopeTests {
       context.getBeanFactory()
               .destroyScopedBean("scopeBean");
       System.err.println(bean);
-      Assertions.assertNotEquals(bean, context.getBean(def));
+      Assertions.assertNotEquals(bean, context.getBean("scopeBean"));
     }
   }
 
@@ -89,7 +90,7 @@ class ScopeTests {
 
       def.setScope("thread");
       try {
-        context.getBean(def);
+        context.getBean("scopeBean");
       }
       catch (Exception e) {
         assertTrue(true);
@@ -98,19 +99,19 @@ class ScopeTests {
 
       context.refresh();
 
-      Object bean = context.getBean(def);
-      Object bean2 = context.getBean(def);
+      Object bean = context.getBean("scopeBean");
+      Object bean2 = context.getBean("scopeBean");
       Assertions.assertEquals(bean, bean2);
 
       new Thread(() -> {
-        Object bean21 = context.getBean(def);
+        Object bean21 = context.getBean("scopeBean");
         System.err.println(bean21);
         assertNotEquals(bean21, bean);
       }).start();
 
       context.getBeanFactory().destroyScopedBean("scopeBean");
       System.err.println(bean);
-      assertNotEquals(bean, context.getBean(def));
+      assertNotEquals(bean, context.getBean("scopeBean"));
     }
   }
 

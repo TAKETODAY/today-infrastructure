@@ -22,7 +22,6 @@ package cn.taketoday.aop.support.annotation;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
 
@@ -35,48 +34,27 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/29 21:13</a>
  * @since 4.0
  */
-public class BeanSupplier<T> implements Supplier<T> {
-  private final String beanName;
-  private final boolean singleton;
-  private final BeanFactory beanFactory;
+public abstract class BeanSupplier<T> implements Supplier<T> {
+
+  protected final String beanName;
 
   @Nullable
-  private final Class<T> targetClass;
+  protected final Class<T> targetClass;
 
-  private T instance;
+  protected final BeanFactory beanFactory;
 
-  public BeanSupplier(BeanFactory beanFactory, Class<T> targetClass, BeanDefinition definition) {
-    this(beanFactory, targetClass, definition.getName(), definition.isSingleton());
-  }
-
-  public BeanSupplier(BeanFactory beanFactory, Class<T> targetClass, String beanName, boolean singleton) {
+  protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
+    this.beanFactory = beanFactory;
     this.targetClass = targetClass;
     this.beanName = beanName;
-    this.singleton = singleton;
-    this.beanFactory = beanFactory;
-  }
-
-  @Override
-  public T get() {
-    if (singleton) {
-      if (instance == null) {
-        instance = beanFactory.getBean(beanName, targetClass);
-      }
-      return instance;
-    }
-    return beanFactory.getBean(beanName, targetClass);
-  }
-
-  public BeanFactory getBeanFactory() {
-    return beanFactory;
   }
 
   public String getBeanName() {
     return beanName;
   }
 
-  public boolean isSingleton() {
-    return singleton;
+  public BeanFactory getBeanFactory() {
+    return beanFactory;
   }
 
   @Nullable
@@ -84,15 +62,75 @@ public class BeanSupplier<T> implements Supplier<T> {
     return targetClass;
   }
 
-  // static
+  public abstract boolean isSingleton();
 
-  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, Class<E> targetClass, String beanName) {
-    boolean singleton = beanFactory.isSingleton(beanName);
-    return new BeanSupplier<>(beanFactory, targetClass, beanName, singleton);
+  private final static class PrototypeBeanSupplier<T>
+          extends BeanSupplier<T> implements Supplier<T> {
+
+    private PrototypeBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
+      super(beanFactory, beanName, targetClass);
+    }
+
+    @Override
+    public boolean isSingleton() {
+      return false;
+    }
+
+    @Override
+    public T get() {
+      return beanFactory.getBean(beanName, targetClass);
+    }
   }
+
+  private final static class SingletonBeanSupplier<T>
+          extends BeanSupplier<T> implements Supplier<T> {
+    private T instance;
+
+    private final String beanName;
+    private final BeanFactory beanFactory;
+
+    @Nullable
+    private final Class<T> targetClass;
+
+    SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
+      super(beanFactory, beanName, targetClass);
+      this.beanName = beanName;
+      this.beanFactory = beanFactory;
+      this.targetClass = targetClass;
+    }
+
+    @Override
+    public T get() {
+      if (instance == null) { // TODO DCL ?
+        instance = beanFactory.getBean(beanName, targetClass);
+      }
+      return instance;
+    }
+
+    @Override
+    public boolean isSingleton() {
+      return true;
+    }
+
+  }
+
+  // static
 
   public static <E> BeanSupplier<E> from(BeanFactory beanFactory, String beanName) {
     return from(beanFactory, null, beanName);
+  }
+
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, Class<E> targetClass, String beanName) {
+    boolean singleton = beanFactory.isSingleton(beanName);
+    return from(beanFactory, targetClass, beanName, singleton);
+  }
+
+  public static <E> BeanSupplier<E> from(
+          BeanFactory beanFactory, Class<E> targetClass, String beanName, boolean singleton) {
+    if (singleton) {
+      return new SingletonBeanSupplier<>(beanFactory, beanName, targetClass);
+    }
+    return new PrototypeBeanSupplier<>(beanFactory, beanName, targetClass);
   }
 
 }
