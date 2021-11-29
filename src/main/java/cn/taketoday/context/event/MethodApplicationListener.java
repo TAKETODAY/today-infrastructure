@@ -70,7 +70,9 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
 
   MethodApplicationListener(
           Supplier<Object> beanSupplier,
-          Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory, ApplicationContext context, @Nullable String condition) {
+          Method targetMethod, Class<?>[] eventTypes,
+          BeanFactory beanFactory, ApplicationContext context, @Nullable String condition
+  ) {
     this.beanSupplier = beanSupplier;
     this.eventTypes = eventTypes;
     this.beanFactory = beanFactory;

@@ -73,8 +73,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
     Assert.notNull(aspectBeanName, "aspect bean name must not be null");
 
     // TODO BeanSupplier outside inject
-    this.beanSupplier = new BeanSupplier<>(
-            beanFactory, null, aspectBeanName, beanFactory.isSingleton(aspectBeanName));
+    this.beanSupplier = BeanSupplier.from(beanFactory, aspectBeanName);
 
     this.adviceParameterLength = adviceMethod.getParameterCount();
     this.adviceParameters = new byte[adviceParameterLength];

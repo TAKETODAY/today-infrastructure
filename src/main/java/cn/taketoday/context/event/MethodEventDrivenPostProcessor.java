@@ -22,8 +22,8 @@ package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
 import java.util.EventObject;
-import java.util.function.Supplier;
 
+import cn.taketoday.aop.support.annotation.BeanSupplier;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -100,10 +100,12 @@ public class MethodEventDrivenPostProcessor implements InitializationBeanPostPro
   }
 
   protected void addListener(
-          String beanName, ConfigurableBeanFactory beanFactory, Method declaredMethod, String condition, Class<?>... eventTypes) {
-    Supplier<Object> beanSupplier = beanFactory.getObjectSupplier(beanName);
+          String beanName, ConfigurableBeanFactory beanFactory,
+          Method declaredMethod, String condition, Class<?>... eventTypes) {
+
     MethodApplicationListener listener = new MethodApplicationListener(
-            beanSupplier, declaredMethod, eventTypes, beanFactory, context, condition);
+            BeanSupplier.from(beanFactory, beanName),
+            declaredMethod, eventTypes, beanFactory, context, condition);
     context.addApplicationListener(listener);
   }
 
