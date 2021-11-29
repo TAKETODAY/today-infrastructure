@@ -285,8 +285,7 @@ public abstract class AopUtils {
     if (advisor instanceof IntroductionAdvisor) {
       return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
     }
-    else if (advisor instanceof PointcutAdvisor) {
-      PointcutAdvisor pca = (PointcutAdvisor) advisor;
+    else if (advisor instanceof PointcutAdvisor pca) {
       return canApply(pca.getPointcut(), targetClass, hasIntroductions);
     }
     else {
@@ -370,7 +369,7 @@ public abstract class AopUtils {
     if (interceptors.isEmpty()) {
       return EMPTY_INTERCEPTOR;
     }
-    return interceptors.toArray(new MethodInterceptor[interceptors.size()]);
+    return interceptors.toArray(new MethodInterceptor[0]);
   }
 
   /**
@@ -386,9 +385,8 @@ public abstract class AopUtils {
     Boolean hasIntroductions = null;
 
     for (Advisor advisor : advisors) {
-      if (advisor instanceof PointcutAdvisor) {
+      if (advisor instanceof PointcutAdvisor pointcutAdvisor) {
         // Add it conditionally.
-        PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
         if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
           MethodMatcher matcher = pointcutAdvisor.getPointcut().getMethodMatcher();
           boolean match;
@@ -416,8 +414,7 @@ public abstract class AopUtils {
           }
         }
       }
-      else if (advisor instanceof IntroductionAdvisor) {
-        IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
+      else if (advisor instanceof IntroductionAdvisor ia) {
         if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
           MethodInterceptor[] interceptors = getInterceptors(advisor);
           Collections.addAll(ret, interceptors);
@@ -436,8 +433,7 @@ public abstract class AopUtils {
     if (adviceObject instanceof Advisor) {
       return (Advisor) adviceObject;
     }
-    if (adviceObject instanceof Advice) {
-      Advice advice = (Advice) adviceObject;
+    if (adviceObject instanceof Advice advice) {
       if (advice instanceof MethodInterceptor) {
         // So well-known it doesn't even need an adapter.
         return new DefaultPointcutAdvisor(advice);
@@ -474,8 +470,7 @@ public abstract class AopUtils {
    */
   private static boolean hasMatchingIntroductions(Advisor[] advisors, Class<?> actualClass) {
     for (Advisor advisor : advisors) {
-      if (advisor instanceof IntroductionAdvisor) {
-        IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
+      if (advisor instanceof IntroductionAdvisor ia) {
         if (ia.getClassFilter().matches(actualClass)) {
           return true;
         }
