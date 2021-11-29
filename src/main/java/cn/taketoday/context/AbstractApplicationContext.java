@@ -892,6 +892,12 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
+    assertBeanFactoryActive();
+    return getBeanFactory().getBean(requiredType, args);
+  }
+
+  @Override
   public <T> T getBean(String name, Class<T> requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(name, requiredType);

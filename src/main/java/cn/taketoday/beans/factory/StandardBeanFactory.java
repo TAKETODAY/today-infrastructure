@@ -19,19 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
@@ -48,6 +35,19 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -336,22 +336,28 @@ public class StandardBeanFactory
 
   @Override
   public <T> T getBean(Class<T> requiredType) throws BeansException {
+    return getBean(requiredType, (Object[]) null);
+  }
+
+  @Override
+  public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    return resolveBean(ResolvableType.fromRawClass(requiredType), false);
+    return resolveBean(ResolvableType.fromRawClass(requiredType),
+            args, true, true, false);
   }
 
   @Nullable
   private <T> T resolveBean(ResolvableType requiredType, boolean nonUniqueAsNull) {
-    return resolveBean(requiredType, true, true, nonUniqueAsNull);
+    return resolveBean(requiredType, null, true, true, nonUniqueAsNull);
   }
 
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> T resolveBean(
-          ResolvableType requiredType,
+          ResolvableType requiredType, @Nullable Object[] args,
           boolean includeNonSingletons, boolean allowEagerInit, boolean nonUniqueAsNull) {
     NamedBeanHolder<T> namedBean = resolveNamedBean(
-            requiredType, includeNonSingletons, allowEagerInit, nonUniqueAsNull);
+            requiredType, args, includeNonSingletons, allowEagerInit, nonUniqueAsNull);
     if (namedBean != null) {
       return namedBean.getBeanInstance();
     }
@@ -374,21 +380,20 @@ public class StandardBeanFactory
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> NamedBeanHolder<T> resolveNamedBean(
-          ResolvableType requiredType, boolean includeNonSingletons,
+          ResolvableType requiredType, @Nullable Object[] args, boolean includeNonSingletons,
           boolean allowEagerInit, boolean nonUniqueAsNull) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
     Set<String> candidateNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
-
     int size = candidateNames.size();
     if (size == 1) {
-      return resolveNamedBean(candidateNames.iterator().next(), requiredType);
+      return resolveNamedBean(candidateNames.iterator().next(), requiredType, args);
     }
     else if (size > 1) {
       String primaryCandidate = determinePrimaryCandidate(candidateNames, requiredType.toClass());
       if (primaryCandidate == null) {
         Map<String, Object> candidates = CollectionUtils.newLinkedHashMap(size);
         for (String beanName : candidateNames) {
-          if (containsSingleton(beanName)) {
+          if (containsSingleton(beanName) && args == null) {
             Object beanInstance = getBean(beanName);
             candidates.put(beanName, beanInstance);
           }
@@ -403,13 +408,13 @@ public class StandardBeanFactory
             return null;
           }
           if (beanInstance instanceof Class) {
-            return resolveNamedBean(primaryCandidate, requiredType);
+            return resolveNamedBean(primaryCandidate, requiredType, args);
           }
           return new NamedBeanHolder<>(primaryCandidate, (T) beanInstance);
         }
       }
       if (primaryCandidate != null) {
-        return resolveNamedBean(primaryCandidate, requiredType);
+        return resolveNamedBean(primaryCandidate, requiredType, args);
       }
 
       // fall
@@ -442,8 +447,8 @@ public class StandardBeanFactory
 
   @Nullable
   private <T> NamedBeanHolder<T> resolveNamedBean(
-          String beanName, ResolvableType requiredType) throws BeansException {
-    Object bean = doGetBean(beanName, null, null);
+          String beanName, ResolvableType requiredType, Object[] args) throws BeansException {
+    Object bean = doGetBean(beanName, null, args);
     if (bean == null) {
       return null;
     }
@@ -557,7 +562,8 @@ public class StandardBeanFactory
   @Override
   public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), true, true, false);
+    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType),
+            null, true, true, false);
     if (namedBean != null) {
       return namedBean;
     }
@@ -712,7 +718,7 @@ public class StandardBeanFactory
     @Override
     protected T getIfAvailable(
             ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-      return resolveBean(requiredType, includeNonSingletons, allowEagerInit, true);
+      return resolveBean(requiredType, null, includeNonSingletons, allowEagerInit, true);
     }
 
     private Map<String, T> getBeansOfType0() {
