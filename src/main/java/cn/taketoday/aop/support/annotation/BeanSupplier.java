@@ -24,17 +24,18 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/29 21:13</a>
  * @since 4.0
  */
-public class BeanSupplier<T> extends TypeReference<T> implements Supplier<T> {
+public class BeanSupplier<T> implements Supplier<T> {
   private final String beanName;
   private final boolean singleton;
   private final BeanFactory beanFactory;
 
+  @Nullable
   private final Class<T> targetClass;
 
   private T instance;
@@ -71,6 +72,22 @@ public class BeanSupplier<T> extends TypeReference<T> implements Supplier<T> {
 
   public boolean isSingleton() {
     return singleton;
+  }
+
+  @Nullable
+  public Class<T> getTargetClass() {
+    return targetClass;
+  }
+
+  // static
+
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, Class<E> targetClass, String beanName) {
+    boolean singleton = beanFactory.isSingleton(beanName);
+    return new BeanSupplier<>(beanFactory, targetClass, beanName, singleton);
+  }
+
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, String beanName) {
+    return from(beanFactory, null, beanName);
   }
 
 }
