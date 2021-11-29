@@ -18,9 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
-
-import cn.taketoday.beans.PropertyException;
+package cn.taketoday.beans;
 
 /**
  * Invalid property value

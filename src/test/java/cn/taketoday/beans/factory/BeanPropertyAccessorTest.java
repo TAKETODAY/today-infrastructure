@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 
 
 
+import cn.taketoday.beans.InvalidPropertyValueException;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.ParameterizedType;
