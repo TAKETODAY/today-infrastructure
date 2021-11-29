@@ -19,6 +19,22 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
@@ -37,22 +53,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -150,7 +150,7 @@ public class StandardBeanFactory
     super.checkForAliasCircle(name, alias);
     if (!isAllowBeanDefinitionOverriding() && containsBeanDefinition(alias)) {
       throw new IllegalStateException("Cannot register alias '" + alias +
-              "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
+                                              "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
     }
   }
 
@@ -193,8 +193,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                  "for bean '{}' with a framework-generated bean " +
-                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                           "for bean '{}' with a framework-generated bean " +
+                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -846,7 +846,7 @@ public class StandardBeanFactory
       }
     }
 
-    for (String beanName : getSingletonNames()) {
+    for (String beanName : manualSingletonNames) {
       if (!names.contains(beanName) && getMergedAnnotationOnBean(beanName, annotationType).isPresent()) {
         names.add(beanName);
       }
@@ -870,6 +870,37 @@ public class StandardBeanFactory
   private <A extends Annotation> MergedAnnotation<A> findMergedAnnotationOnBean(
           String beanName, Class<A> annotationType) {
 
+    BeanDefinition definition = beanDefinitionMap.get(beanName);
+    if (definition instanceof AnnotatedBeanDefinition) {
+      // find on factory method
+      MethodMetadata methodMetadata = ((AnnotatedBeanDefinition) definition).getFactoryMethodMetadata();
+      if (methodMetadata != null) {
+        MergedAnnotation<A> annotation = methodMetadata.getAnnotations().get(annotationType);
+        if (annotation.isPresent()) {
+          return annotation;
+        }
+      }
+
+      AnnotationMetadata annotationMetadata = ((AnnotatedBeanDefinition) definition).getMetadata();
+      MergedAnnotation<A> annotation = annotationMetadata.getAnnotations().get(annotationType);
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+
+    // Check raw bean class, e.g. in case of a proxy.
+    if (definition != null && definition.hasBeanClass()) {
+      Class<?> beanClass = definition.getBeanClass();
+      Class<?> beanType = getType(beanName);
+      if (beanClass != beanType) {
+        MergedAnnotation<A> annotation =
+                MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+        if (annotation.isPresent()) {
+          return annotation;
+        }
+      }
+    }
+
     Class<?> beanType = getType(beanName);
     if (beanType != null) {
       MergedAnnotation<A> annotation =
@@ -879,37 +910,6 @@ public class StandardBeanFactory
       }
     }
 
-    if (containsBeanDefinition(beanName)) {
-      BeanDefinition definition = beanDefinitionMap.get(beanName);
-      if (definition instanceof AnnotatedBeanDefinition) {
-        MethodMetadata methodMetadata = ((AnnotatedBeanDefinition) definition).getFactoryMethodMetadata();
-
-        if (methodMetadata != null) {
-          MergedAnnotation<A> annotation = methodMetadata.getAnnotations().get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-        }
-
-        AnnotationMetadata annotationMetadata = ((AnnotatedBeanDefinition) definition).getMetadata();
-        MergedAnnotation<A> annotation = annotationMetadata.getAnnotations().get(annotationType);
-        if (annotation.isPresent()) {
-          return annotation;
-        }
-      }
-
-      // Check raw bean class, e.g. in case of a proxy.
-      if (definition.hasBeanClass()) {
-        Class<?> beanClass = definition.getBeanClass();
-        if (beanClass != beanType) {
-          MergedAnnotation<A> annotation =
-                  MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-        }
-      }
-    }
     return MergedAnnotation.missing();
   }
 
