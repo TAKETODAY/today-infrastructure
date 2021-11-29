@@ -34,7 +34,6 @@ import cn.taketoday.lang.Component;
 @Component
 @cn.taketoday.lang.Scope(Scope.PROTOTYPE)
 @ResponseBody
-@RootController
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface PrototypeRestController {

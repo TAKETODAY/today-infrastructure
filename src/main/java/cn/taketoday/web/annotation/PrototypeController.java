@@ -33,7 +33,6 @@ import cn.taketoday.lang.Scope;
  * 2019-09-01 16:14
  */
 @Component
-@RootController
 @Scope(Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

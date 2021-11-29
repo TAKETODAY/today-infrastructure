@@ -50,9 +50,9 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
@@ -120,7 +120,7 @@ public class HandlerMethodRegistry
 
       // ActionMapping on the class is ok
       MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotationOnBean(def.getName(), ActionMapping.class);
-      MergedAnnotation<RootController> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
+      MergedAnnotation<Controller> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
       MergedAnnotation<ActionMapping> controllerMapping = null;
       if (actionMapping.isPresent()) {
         controllerMapping = actionMapping;
@@ -331,6 +331,7 @@ public class HandlerMethodRegistry
    * @return Returns a handler bean of target beanClass
    */
   protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
+
 
     BeanDefinition def = registry.getBeanDefinition(beanClass);
     return def.isSingleton()

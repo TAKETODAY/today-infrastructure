@@ -33,7 +33,6 @@ import cn.taketoday.lang.Component;
  * 2018-08-23 11:16
  */
 @Component
-@RootController
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Controller {
