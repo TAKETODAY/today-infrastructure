@@ -864,6 +864,25 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Extension-Name>today.framework</Extension-Name>
+              <Implementation-Version>${project.version}</Implementation-Version>
+              <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+              <Implementation-Vendor-Id>cn.taketoday</Implementation-Vendor-Id>
+              <Export-Package>cn.taketoday.*</Export-Package>
+              <Automatic-Module-Name>today.framework</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
