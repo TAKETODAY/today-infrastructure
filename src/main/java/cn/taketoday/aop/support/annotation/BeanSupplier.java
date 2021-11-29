@@ -27,6 +27,11 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * Bean instance supplier
+ * <p>
+ * supports singleton or prototype
+ * </p>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/29 21:13</a>
  * @since 4.0
  */

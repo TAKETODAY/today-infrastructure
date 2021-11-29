@@ -156,9 +156,9 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
       }
     }
 
-    // dynamic parameters -> aspectMethod, def, beanFactory
+    // dynamic parameters -> aspectMethod, beanName, beanFactory
     MethodInterceptor ret = BeanUtils.newInstance(
-            interceptor, beanFactory, new Object[] { aspectMethod, aspectDef, beanFactory });
+            interceptor, beanFactory, new Object[] { aspectMethod, aspectDef.getName(), beanFactory });
 
     if (beanFactory instanceof AutowireCapableBeanFactory) {
       ((AutowireCapableBeanFactory) beanFactory).autowireBean(ret);
