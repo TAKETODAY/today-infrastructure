@@ -37,7 +37,7 @@ import cn.taketoday.core.annotation.AliasFor;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Before {
 
-  int DEFAULT_ORDER = 2;
+  int DEFAULT_ORDER = 4;
 
   /** Annotated with */
   @AliasFor(annotation = Advice.class)

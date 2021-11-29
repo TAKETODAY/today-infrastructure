@@ -36,7 +36,7 @@ import cn.taketoday.core.annotation.AliasFor;
 @Advice(interceptor = AfterReturningMethodInterceptor.class)
 public @interface AfterReturning {
 
-  int DEFAULT_ORDER = 4;
+  int DEFAULT_ORDER = 2;
 
   /** Annotated with */
   @AliasFor(annotation = Advice.class)

@@ -24,7 +24,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.AfterAdvice;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 
 /**
@@ -34,7 +33,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 class AfterMethodInterceptor
         extends AbstractAnnotationMethodInterceptor implements AfterAdvice {
 
-  public AfterMethodInterceptor(Method method, BeanFactory beanFactory, BeanDefinition aspectDef) {
+  public AfterMethodInterceptor(Method method, BeanFactory beanFactory, String aspectDef) {
     super(method, beanFactory, aspectDef);
   }
 

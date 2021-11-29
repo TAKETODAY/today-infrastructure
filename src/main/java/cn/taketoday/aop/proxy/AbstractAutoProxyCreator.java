@@ -20,6 +20,12 @@
 
 package cn.taketoday.aop.proxy;
 
+import org.aopalliance.aop.Advice;
+
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.Pointcut;
@@ -40,11 +46,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
-import org.aopalliance.aop.Advice;
-
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract Auto Proxy Creator use {@link cn.taketoday.beans.factory.BeanPostProcessor}
@@ -115,7 +116,7 @@ public abstract class AbstractAutoProxyCreator
     this.beanFactory = beanFactory;
   }
 
-  protected BeanFactory getBeanFactory() {
+  public BeanFactory getBeanFactory() {
     return this.beanFactory;
   }
 
@@ -143,7 +144,7 @@ public abstract class AbstractAutoProxyCreator
           // Found a matching TargetSource.
           if (log.isTraceEnabled()) {
             log.trace("TargetSourceCreator [{}] found custom TargetSource for bean with name '{}'",
-                    creator, beanName);
+                      creator, beanName);
           }
           return source;
         }

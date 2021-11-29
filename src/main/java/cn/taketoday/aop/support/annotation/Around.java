@@ -36,7 +36,7 @@ import cn.taketoday.core.annotation.AliasFor;
 @Advice(interceptor = AroundMethodInterceptor.class)
 public @interface Around {
 
-  int DEFAULT_ORDER = 1;
+  int DEFAULT_ORDER = 5;
 
   /** Annotated with */
   @AliasFor(annotation = Advice.class)

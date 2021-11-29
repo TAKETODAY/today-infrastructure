@@ -39,7 +39,6 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
@@ -120,9 +119,9 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
     BeanFactory beanFactory = getBeanFactory();
 
     if (aspectMethod == null) { // method interceptor
-      if (!(MethodInterceptor.class.isAssignableFrom(aspectDef.getBeanClass()))) {
+      if (!beanFactory.isTypeMatch(aspectDef.getName(), MethodInterceptor.class)) {
         throw new ConfigurationException(
-                '[' + aspectDef.getBeanClass().getName() +
+                '[' + aspectDef.getBeanClassName() +
                         "] must be implement: [" + MethodInterceptor.class.getName() + ']');
       }
       // aspect is a method interceptor
@@ -169,10 +168,10 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
 
   private MethodInterceptor getMethodInterceptor(BeanFactory beanFactory, BeanDefinition interceptorDef) {
     if (interceptorDef.isSingleton() && !interceptorDef.isLazyInit()) {
-      return (MethodInterceptor) beanFactory.getBean(interceptorDef.getName());
+      return beanFactory.getBean(interceptorDef.getName(), MethodInterceptor.class);
     }
     else {
-      return new SuppliedMethodInterceptor(beanFactory, interceptorDef.getName(), interceptorDef.isSingleton()); // lazy load or prototype
+      return new SuppliedMethodInterceptor(beanFactory, interceptorDef); // lazy load or prototype
     }
   }
 

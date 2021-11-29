@@ -23,16 +23,15 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 
 /**
  * @author TODAY 2018-10-13 11:23
  * @see AfterReturning
  */
-class AfterReturningMethodInterceptor extends AfterMethodInterceptor {
+final class AfterReturningMethodInterceptor extends AfterMethodInterceptor {
 
-  public AfterReturningMethodInterceptor(Method method, BeanFactory beanFactory, BeanDefinition aspectDef) {
+  public AfterReturningMethodInterceptor(Method method, BeanFactory beanFactory, String aspectDef) {
     super(method, beanFactory, aspectDef);
   }
 
