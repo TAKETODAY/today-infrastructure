@@ -20,28 +20,44 @@
 
 package cn.taketoday.aop.support;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
-import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.lang.Assert;
 
 /**
  * @author TODAY 2021/3/6 15:55
  * @since 3.0
  */
 public final class SuppliedMethodInterceptor implements MethodInterceptor {
-  final ObjectSupplier<MethodInterceptor> supplier;
+  private final String name;
+  private final BeanFactory beanFactory;
+  private final boolean singleton;
 
-  public SuppliedMethodInterceptor(ObjectSupplier<MethodInterceptor> interceptorSupplier) {
-    Assert.notNull(interceptorSupplier, "interceptorSupplier must not be null");
-    this.supplier = interceptorSupplier;
+  private MethodInterceptor interceptor;
+
+  public SuppliedMethodInterceptor(BeanFactory beanFactory, String name, boolean singleton) {
+    this.name = name;
+    this.singleton = singleton;
+    this.beanFactory = beanFactory;
   }
 
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-    final MethodInterceptor interceptor = supplier.getIfAvailable();
+    MethodInterceptor interceptor = getInterceptor();
     Assert.state(interceptor != null, "No MethodInterceptor");
     return interceptor.invoke(invocation);
+  }
+
+  @Nullable
+  private MethodInterceptor getInterceptor() {
+    if (singleton) {
+      if (interceptor == null) {
+        interceptor = beanFactory.getBean(name, MethodInterceptor.class);
+      }
+      return interceptor;
+    }
+    return beanFactory.getBean(name, MethodInterceptor.class);
   }
 }
