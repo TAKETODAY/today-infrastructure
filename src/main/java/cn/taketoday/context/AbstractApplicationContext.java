@@ -1074,6 +1074,12 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  public Set<String> getBeanNamesForType(ResolvableType requiredType) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getBeanNamesForType(requiredType);
+  }
+
+  @Override
   public Set<String> getBeanNamesForType(
           ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
