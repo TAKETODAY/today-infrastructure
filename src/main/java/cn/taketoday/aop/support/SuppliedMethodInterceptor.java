@@ -20,11 +20,13 @@
 
 package cn.taketoday.aop.support;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * @author TODAY 2021/3/6 15:55
@@ -32,15 +34,15 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public final class SuppliedMethodInterceptor implements MethodInterceptor {
   private final String name;
-  private final BeanFactory beanFactory;
   private final boolean singleton;
+  private final BeanFactory beanFactory;
 
   private MethodInterceptor interceptor;
 
-  public SuppliedMethodInterceptor(BeanFactory beanFactory, String name, boolean singleton) {
-    this.name = name;
-    this.singleton = singleton;
+  public SuppliedMethodInterceptor(BeanFactory beanFactory, BeanDefinition interceptorDef) {
     this.beanFactory = beanFactory;
+    this.name = interceptorDef.getName();
+    this.singleton = interceptorDef.isSingleton();
   }
 
   @Override
