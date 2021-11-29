@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Bean factory
@@ -650,26 +649,41 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
    * of instances, including availability and uniqueness options.
    *
+   * @param requiredType type the bean must match; can be an interface or superclass
+   * @param allowEagerInit whether stream-based access may initialize <i>lazy-init
+   * singletons</i> and <i>objects created by FactoryBeans</i> (or by factory methods
+   * with a "factory-bean" reference) for the type check
+   * @return a corresponding provider handle
+   * @see #getObjectSupplier(ResolvableType, boolean)
+   * @see #getObjectSupplier(Class)
+   * @see #getBeansOfType(Class, boolean, boolean)
+   * @see #getBeanNamesForType(Class, boolean, boolean)
+   * @since 4.0
+   */
+  <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit);
+
+  /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options.
+   *
    * @param requiredType type the bean must match; can be a generic type declaration.
    * Note that collection types are not supported here, in contrast to reflective
    * injection points. For programmatically retrieving a list of beans matching a
    * specific type, specify the actual bean type as an argument here and subsequently
    * use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
-   * @param includeNonSingletons whether to include prototype or scoped beans too
-   * or just singletons (also applies to FactoryBeans)
-   * @param allowEagerInit whether to initialize <i>lazy-init singletons</i> and
-   * <i>objects created by FactoryBeans</i> (or by factory methods with a
-   * "factory-bean" reference) for the type check. Note that FactoryBeans need to be
-   * eagerly initialized to determine their type: So be aware that passing in "true"
-   * for this flag will initialize FactoryBeans and "factory-bean" references.
+   * @param allowEagerInit whether stream-based access may initialize <i>lazy-init
+   * singletons</i> and <i>objects created by FactoryBeans</i> (or by factory methods
+   * with a "factory-bean" reference) for the type check
    * @return a corresponding provider handle
+   * @see #getObjectSupplier(ResolvableType)
    * @see ObjectSupplier#iterator()
    * @see ObjectSupplier#stream()
    * @see ObjectSupplier#orderedStream()
+   * @see #getBeanNamesForType(ResolvableType, boolean, boolean)
    * @since 4.0
    */
-  <T> ObjectSupplier<T> getObjectSupplier(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
+  <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit);
+
 
   //---------------------------------------------------------------------
   // Operations for BeanDefinition
@@ -684,24 +698,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    */
   @Deprecated
   Object getBean(BeanDefinition def);
-
-  /**
-   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
-   * of instances, including availability and uniqueness options.
-   *
-   * @param def BeanDefinition
-   * @see #getObjectSupplier(ResolvableType)
-   * @since 3.0
-   */
-  @Deprecated
-  <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def);
-
-  /**
-   * lazy load bean
-   *
-   * @since 4.0
-   */
-  <T> Supplier<T> getObjectSupplier(String beanName);
 
   //---------------------------------------------------------------------
   // bean-factory options

@@ -19,17 +19,6 @@
  */
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
@@ -80,6 +69,16 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -680,7 +679,7 @@ public abstract class AbstractApplicationContext
     // Check whether an actual close attempt is necessary...
     if (this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
         // Publish shutdown event.
@@ -904,24 +903,6 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public <T> Supplier<T> getObjectSupplier(String beanName) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(beanName);
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(def);
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType);
-  }
-
-  @Override
   public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
     assertBeanFactoryActive();
     return getBeanFactory().getAnnotationOnBean(beanName, annotationType);
@@ -1021,9 +1002,27 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getObjectSupplier(requiredType);
+  }
+
+  @Override
   public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getObjectSupplier(requiredType);
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getObjectSupplier(requiredType, allowEagerInit);
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getObjectSupplier(requiredType, allowEagerInit);
   }
 
   @Override
@@ -1084,13 +1083,6 @@ public abstract class AbstractApplicationContext
           ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
-  }
-
-  @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType, includeNonSingletons, allowEagerInit);
   }
 
   // ArgumentsResolverProvider

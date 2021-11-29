@@ -20,6 +20,8 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.OrderComparator;
+import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -36,17 +38,20 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -79,6 +84,10 @@ public class StandardBeanFactory
 
   /** Whether to allow eager class loading even for lazy-init beans. */
   private boolean allowEagerClassLoading = true;
+
+  /** Optional OrderComparator for dependency Lists and arrays. */
+  @Nullable
+  private Comparator<Object> dependencyComparator;
 
   //---------------------------------------------------------------------
   // Implementation of DefaultSingletonBeanRegistry
@@ -342,22 +351,14 @@ public class StandardBeanFactory
   @Override
   public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    return resolveBean(ResolvableType.fromRawClass(requiredType),
-            args, true, true, false);
-  }
-
-  @Nullable
-  private <T> T resolveBean(ResolvableType requiredType, boolean nonUniqueAsNull) {
-    return resolveBean(requiredType, null, true, true, nonUniqueAsNull);
+    return resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
   }
 
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> T resolveBean(
-          ResolvableType requiredType, @Nullable Object[] args,
-          boolean includeNonSingletons, boolean allowEagerInit, boolean nonUniqueAsNull) {
-    NamedBeanHolder<T> namedBean = resolveNamedBean(
-            requiredType, args, includeNonSingletons, allowEagerInit, nonUniqueAsNull);
+          ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) {
+    NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, args, nonUniqueAsNull);
     if (namedBean != null) {
       return namedBean.getBeanInstance();
     }
@@ -368,11 +369,17 @@ public class StandardBeanFactory
 
     BeanFactory parent = getParentBeanFactory();
     if (parent instanceof StandardBeanFactory) {
-      return ((StandardBeanFactory) parent).resolveBean(requiredType, nonUniqueAsNull);
+      return ((StandardBeanFactory) parent).resolveBean(requiredType, args, nonUniqueAsNull);
     }
     else if (parent != null) {
       ObjectSupplier<T> parentProvider = parent.getObjectSupplier(requiredType);
-      return parentProvider.get();
+      if (args != null) {
+        return parentProvider.get(args);
+      }
+      else {
+        return (nonUniqueAsNull ? parentProvider.getIfUnique() : parentProvider.getIfAvailable());
+      }
+
     }
     return null;
   }
@@ -380,10 +387,9 @@ public class StandardBeanFactory
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> NamedBeanHolder<T> resolveNamedBean(
-          ResolvableType requiredType, @Nullable Object[] args, boolean includeNonSingletons,
-          boolean allowEagerInit, boolean nonUniqueAsNull) throws BeansException {
+          ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    Set<String> candidateNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
+    Set<String> candidateNames = getBeanNamesForType(requiredType);
     int size = candidateNames.size();
     if (size == 1) {
       return resolveNamedBean(candidateNames.iterator().next(), requiredType, args);
@@ -562,8 +568,7 @@ public class StandardBeanFactory
   @Override
   public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType),
-            null, true, true, false);
+    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), null, false);
     if (namedBean != null) {
       return namedBean;
     }
@@ -579,172 +584,116 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public <T> Supplier<T> getObjectSupplier(String beanName) {
-    return getObjectSupplier(obtainBeanDefinition(beanName));
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def) {
-    Assert.notNull(def, "BeanDefinition must not be null");
-
-    if (def.isSingleton()) {
-      final class SingletonObjectSupplier implements ObjectSupplier<T> {
-        volatile T targetSingleton;
-
-        @Override
-        public T getIfAvailable() throws BeansException {
-          T ret = targetSingleton;
-          if (ret == null) {
-            synchronized(this) {
-              ret = targetSingleton;
-              if (ret == null) {
-                ret = targetSingleton = (T) getBean(def);
-              }
-            }
-          }
-          return ret;
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-          return CollectionUtils.singletonIterator(get());
-        }
-
-        @Override
-        public T get() { return getIfAvailable(); }
-
-        @Override
-        public Stream<T> orderedStream() { return stream(); }
-
-        @Override
-        public Stream<T> stream() { return Stream.of(targetSingleton); }
-      }
-      return new SingletonObjectSupplier();
-    }
-
-    return new DefaultObjectSupplier<>(def.getBeanClass(), this) {
-
-      @Override
-      public T getIfAvailable() throws BeansException {
-        return (T) getBean(def);
-      }
-    };
-  }
-
-  @Override
   public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
     Assert.notNull(requiredType, "requiredType must not be null");
-    return new DefaultObjectSupplier<>(requiredType, this);
+    return getObjectSupplier(requiredType, true);
   }
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
-    return getObjectSupplier(requiredType, true, true);
+    return getObjectSupplier(requiredType, true);
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public <T> ObjectSupplier<T> getObjectSupplier(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    if (requiredType.isArray()) {
-      // Bean[] beans
-      ResolvableType type = requiredType.getComponentType();
-      if (type == ResolvableType.NONE) {
-        throw new IllegalArgumentException("cannot determine bean type");
-      }
-      // not supports iteration, stream
-      return new AbstractResolvableTypeObjectSupplier(type, includeNonSingletons, allowEagerInit) {
-
-        @Override
-        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean allowEagerInit) {
-          Map<String, Object> beansOfType = getBeansOfType(requiredType, nonRegistered, allowEagerInit);
-          if (beansOfType.isEmpty()) {
-            return Array.newInstance(requiredType.resolve(), 0);
-          }
-          Object array = Array.newInstance(requiredType.resolve(), beansOfType.size());
-          return beansOfType.values().toArray((Object[]) array);
-        }
-      };
-    }
-
-    if (requiredType.isMap()) {
-      ResolvableType type = requiredType.asMap().getGeneric(1);
-      if (type == ResolvableType.NONE) {
-        throw new IllegalArgumentException("cannot determine bean type");
-      }
-      // not supports iteration, stream
-      return new AbstractResolvableTypeObjectSupplier(type, includeNonSingletons, allowEagerInit) {
-
-        @Override
-        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean allowEagerInit) {
-          return getBeansOfType(requiredType, nonRegistered, allowEagerInit);
-        }
-      };
-    }
-
-    if (requiredType.isCollection()) {
-      ResolvableType type = requiredType.asCollection().getGeneric(0);
-      if (type == ResolvableType.NONE) {
-        throw new IllegalArgumentException("cannot determine bean type");
-      }
-      // not supports iteration, stream
-      return new AbstractResolvableTypeObjectSupplier(type, includeNonSingletons, allowEagerInit) {
-
-        @Override
-        Object getIfAvailable(ResolvableType requiredType, boolean nonRegistered, boolean allowEagerInit) {
-          Map<String, Object> beansOfType = getBeansOfType(requiredType, nonRegistered, allowEagerInit);
-          Collection<Object> ret = CollectionUtils.createCollection(requiredType.resolve());
-          if (beansOfType.isEmpty()) {
-            return ret;
-          }
-
-          ret.addAll(beansOfType.values());
-          return ret;
-        }
-      };
-    }
-
-    // find like Bean<String>
-    return new ResolvableTypeObjectSupplier<>(requiredType, includeNonSingletons, allowEagerInit);
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
+    Assert.notNull(requiredType, "Required type must not be null");
+    return getObjectSupplier(ResolvableType.fromRawClass(requiredType), allowEagerInit);
   }
 
-  final class ResolvableTypeObjectSupplier<T> extends AbstractResolvableTypeObjectSupplier<T> {
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
+    return new BeanObjectSupplier<>() {
+      @Override
+      public T get() throws BeansException {
+        T resolved = resolveBean(requiredType, null, false);
+        if (resolved == null) {
+          throw new NoSuchBeanDefinitionException(requiredType);
+        }
+        return resolved;
+      }
 
-    ResolvableTypeObjectSupplier(ResolvableType requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
-      super(requiredType, includeNoneRegistered, includeNonSingletons);
+      @Override
+      public T get(Object... args) throws BeansException {
+        T resolved = resolveBean(requiredType, args, false);
+        if (resolved == null) {
+          throw new NoSuchBeanDefinitionException(requiredType);
+        }
+        return resolved;
+      }
+
+      @Override
+      @Nullable
+      public T getIfAvailable() throws BeansException {
+        return resolveBean(requiredType, null, false);
+      }
+
+      @Override
+      public void ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
+        T dependency = getIfAvailable();
+        if (dependency != null) {
+          dependencyConsumer.accept(dependency);
+        }
+      }
+
+      @Override
+      @Nullable
+      public T getIfUnique() throws BeansException {
+        return resolveBean(requiredType, null, true);
+      }
+
+      @Override
+      public void ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
+        T dependency = getIfUnique();
+        if (dependency != null) {
+          dependencyConsumer.accept(dependency);
+        }
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public Stream<T> stream() {
+        return getBeanNamesForTypedStream(requiredType, allowEagerInit)
+                .stream()
+                .map(name -> (T) getBean(name))
+                .filter(Objects::nonNull);
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public Stream<T> orderedStream() {
+        Set<String> beanNames = getBeanNamesForTypedStream(requiredType, allowEagerInit);
+        if (beanNames.isEmpty()) {
+          return Stream.empty();
+        }
+        Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
+        for (String beanName : beanNames) {
+          Object beanInstance = getBean(beanName);
+          if (beanInstance != null) {
+            matchingBeans.put(beanName, (T) beanInstance);
+          }
+        }
+        Stream<T> stream = matchingBeans.values().stream();
+        return stream.sorted(adaptOrderComparator(matchingBeans));
+      }
+    };
+  }
+
+  private Set<String> getBeanNamesForTypedStream(ResolvableType requiredType, boolean allowEagerInit) {
+    return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this, requiredType, true, allowEagerInit);
+  }
+
+  private Comparator<Object> adaptOrderComparator(Map<String, ?> matchingBeans) {
+    Comparator<Object> dependencyComparator = getDependencyComparator();
+    OrderComparator comparator = dependencyComparator instanceof OrderComparator ? (OrderComparator) dependencyComparator : OrderComparator.INSTANCE;
+    return comparator.withSourceProvider(createFactoryAwareOrderSourceProvider(matchingBeans));
+  }
+
+  private OrderSourceProvider createFactoryAwareOrderSourceProvider(Map<String, ?> beans) {
+    IdentityHashMap<Object, String> instancesToBeanNames = new IdentityHashMap<>();
+    for (Map.Entry<String, ?> entry : beans.entrySet()) {
+      instancesToBeanNames.put(entry.getValue(), entry.getKey());
     }
-
-    @Override
-    protected T getIfAvailable(
-            ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-      return resolveBean(requiredType, null, includeNonSingletons, allowEagerInit, true);
-    }
-
-    private Map<String, T> getBeansOfType0() {
-      return getBeansOfType(requiredType, includeNonSingletons, allowEagerInit);
-    }
-
-    @Override
-    public Stream<T> stream() {
-      Map<String, T> beansOfType = getBeansOfType0();
-      return beansOfType.values().stream();
-    }
-
-    @Override
-    public Stream<T> orderedStream() {
-      Map<String, T> beansOfType = getBeansOfType0();
-      ArrayList<T> beans = new ArrayList<>(beansOfType.values());
-      AnnotationAwareOrderComparator.sort(beans);
-      return beans.stream();
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-      Map<String, T> beansOfType = getBeansOfType0();
-      return beansOfType.values().iterator();
-    }
-
+    return new FactoryAwareOrderSourceProvider(instancesToBeanNames);
   }
 
   @Override
@@ -779,6 +728,11 @@ public class StandardBeanFactory
   public Set<String> getBeanNamesForType(
           Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeanNamesForType(ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+  }
+
+  @Override
+  public Set<String> getBeanNamesForType(ResolvableType type) {
+    return getBeanNamesForType(type, true, true);
   }
 
   @Override
@@ -1001,6 +955,64 @@ public class StandardBeanFactory
    */
   public boolean isAllowEagerClassLoading() {
     return this.allowEagerClassLoading;
+  }
+
+  /**
+   * Set a {@link java.util.Comparator} for dependency Lists and arrays.
+   *
+   * @see OrderComparator
+   * @see AnnotationAwareOrderComparator
+   * @since 4.0
+   */
+  public void setDependencyComparator(@Nullable Comparator<Object> dependencyComparator) {
+    this.dependencyComparator = dependencyComparator;
+  }
+
+  /**
+   * Return the dependency comparator for this BeanFactory (may be {@code null}.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public Comparator<Object> getDependencyComparator() {
+    return this.dependencyComparator;
+  }
+
+  private interface BeanObjectSupplier<T> extends ObjectSupplier<T>, Serializable { }
+
+  /**
+   * An {@link cn.taketoday.core.OrderSourceProvider} implementation
+   * that is aware of the bean metadata of the instances to sort.
+   * <p>Lookup for the method factory of an instance to sort, if any, and let the
+   * comparator retrieve the {@link cn.taketoday.core.Order}
+   * value defined on it. This essentially allows for the following construct:
+   */
+  private class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
+
+    private final Map<Object, String> instancesToBeanNames;
+
+    public FactoryAwareOrderSourceProvider(Map<Object, String> instancesToBeanNames) {
+      this.instancesToBeanNames = instancesToBeanNames;
+    }
+
+    @Override
+    @Nullable
+    public Object getOrderSource(Object obj) {
+      String beanName = this.instancesToBeanNames.get(obj);
+      if (beanName == null || !containsBeanDefinition(beanName)) {
+        return null;
+      }
+      BeanDefinition beanDefinition = obtainBeanDefinition(beanName);
+      ArrayList<Object> sources = new ArrayList<>(2);
+      if (beanDefinition.executable instanceof Method factoryMethod) {
+        sources.add(factoryMethod);
+      }
+      Class<?> targetType = beanDefinition.hasBeanClass() ? beanDefinition.getBeanClass() : null;
+      if (targetType != null && targetType != obj.getClass()) {
+        sources.add(targetType);
+      }
+      return sources.toArray();
+    }
   }
 
 }
