@@ -19,34 +19,149 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+
+import java.io.Serial;
+
 /**
  * @author TODAY <br>
  * 2018-07-3 20:24:18
  */
 public class NoSuchBeanDefinitionException extends BeansException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  public NoSuchBeanDefinitionException() { }
+  @Nullable
+  private final String beanName;
 
-  public NoSuchBeanDefinitionException(Throwable cause) {
-    super(cause);
+  @Nullable
+  private final ResolvableType resolvableType;
+
+  /**
+   * Create a new {@code NoSuchBeanDefinitionException}.
+   *
+   * @param name the name of the missing bean
+   */
+  public NoSuchBeanDefinitionException(@NonNull String name) {
+    super("No bean named '" + name + "' available");
+    this.beanName = name;
+    this.resolvableType = null;
   }
 
   public NoSuchBeanDefinitionException(String message, Throwable cause) {
     super(message, cause);
+    this.beanName = null;
+    this.resolvableType = null;
   }
 
-  public NoSuchBeanDefinitionException(String name) {
-    super("No such bean definition named: [" + name + "]");
+  public NoSuchBeanDefinitionException(@NonNull String name, Class<?> targetClass) {
+    super("No qualifying bean of type '" + targetClass + "' and named '" + name + "' available");
+    this.beanName = name;
+    this.resolvableType = ResolvableType.fromClass(targetClass);
   }
 
-  public NoSuchBeanDefinitionException(Class<?> targetClass) {
-    super("No such target class: [" + targetClass + "] bean definition");
+  /**
+   * Create a new {@code NoSuchBeanDefinitionException}.
+   *
+   * @param name the name of the missing bean
+   * @param message detailed message describing the problem
+   * @since 4.0
+   */
+  public NoSuchBeanDefinitionException(@NonNull String name, String message) {
+    super("No bean named '" + name + "' available: " + message);
+    this.beanName = name;
+    this.resolvableType = null;
   }
 
-  public NoSuchBeanDefinitionException(String name, Class<?> targetClass) {
-    super("No such bean definition named [" + name + "] target class: [" + targetClass + "]");
+  /**
+   * Create a new {@code NoSuchBeanDefinitionException}.
+   *
+   * @param type required type of the missing bean
+   * @since 4.0
+   */
+  public NoSuchBeanDefinitionException(Class<?> type) {
+    this(ResolvableType.fromClass(type));
+  }
+
+  /**
+   * Create a new {@code NoSuchBeanDefinitionException}.
+   *
+   * @param type required type of the missing bean
+   * @param message detailed message describing the problem
+   * @since 4.0
+   */
+  public NoSuchBeanDefinitionException(Class<?> type, String message) {
+    this(ResolvableType.fromClass(type), message);
+  }
+
+  /**
+   * Create a new {@code NoSuchBeanDefinitionException}.
+   *
+   * @param type full type declaration of the missing bean
+   * @since 4.0
+   */
+  public NoSuchBeanDefinitionException(@NonNull ResolvableType type) {
+    super("No qualifying bean of type '" + type + "' available");
+    this.beanName = null;
+    this.resolvableType = type;
+  }
+
+  /**
+   * Create a new {@code NoSuchBeanDefinitionException}.
+   *
+   * @param type full type declaration of the missing bean
+   * @param message detailed message describing the problem
+   * @since 4.0
+   */
+  public NoSuchBeanDefinitionException(@NonNull ResolvableType type, String message) {
+    super("No qualifying bean of type '" + type + "' available: " + message);
+    this.beanName = null;
+    this.resolvableType = type;
+  }
+
+  /**
+   * Return the name of the missing bean, if it was a lookup <em>by name</em> that failed.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getBeanName() {
+    return this.beanName;
+  }
+
+  /**
+   * Return the required type of the missing bean, if it was a lookup <em>by type</em>
+   * that failed.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public Class<?> getBeanType() {
+    return this.resolvableType != null ? this.resolvableType.resolve() : null;
+  }
+
+  /**
+   * Return the required {@link ResolvableType} of the missing bean, if it was a lookup
+   * <em>by type</em> that failed.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public ResolvableType getResolvableType() {
+    return this.resolvableType;
+  }
+
+  /**
+   * Return the number of beans found when only one matching bean was expected.
+   * For a regular NoSuchBeanDefinitionException, this will always be 0.
+   *
+   * @see NoUniqueBeanException
+   */
+  public int getNumberOfBeansFound() {
+    return 0;
   }
 
 }

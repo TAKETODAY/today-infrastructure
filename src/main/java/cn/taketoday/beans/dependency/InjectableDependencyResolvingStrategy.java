@@ -95,9 +95,7 @@ public class InjectableDependencyResolvingStrategy
     Object bean = getBean(beanFactory, injectionPoint);
     if (bean == null) {
       if (injectionPoint.isRequired()) { // if it is required
-        throw new NoSuchBeanDefinitionException(
-                "[" + injectionPoint + "] is required and there isn't a ["
-                        + injectionPoint.getDependencyType() + "] bean", (Throwable) null);
+        throw new NoSuchBeanDefinitionException(injectionPoint.getResolvableType());
       }
     }
     context.setDependency(bean);
