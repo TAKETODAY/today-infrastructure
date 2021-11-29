@@ -31,6 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -593,6 +598,52 @@ public abstract class BeanFactoryUtils {
       AnnotationAwareOrderComparator.sort(defs);
     }
     return defs.get(0);
+  }
+
+  public static <A extends Annotation> MergedAnnotation<A> getMergedAnnotation(
+          BeanFactory beanFactory, String beanName, Class<A> annotationType) {
+
+    BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+    if (definition instanceof AnnotatedBeanDefinition) {
+      // find on factory method
+      MethodMetadata methodMetadata = ((AnnotatedBeanDefinition) definition).getFactoryMethodMetadata();
+      if (methodMetadata != null) {
+        MergedAnnotation<A> annotation = methodMetadata.getAnnotations().get(annotationType);
+        if (annotation.isPresent()) {
+          return annotation;
+        }
+      }
+
+      AnnotationMetadata annotationMetadata = ((AnnotatedBeanDefinition) definition).getMetadata();
+      MergedAnnotation<A> annotation = annotationMetadata.getAnnotations().get(annotationType);
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+
+    // Check raw bean class, e.g. in case of a proxy.
+    if (definition != null && definition.hasBeanClass()) {
+      Class<?> beanClass = definition.getBeanClass();
+      Class<?> beanType = beanFactory.getType(beanName);
+      if (beanClass != beanType) {
+        MergedAnnotation<A> annotation =
+                MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+        if (annotation.isPresent()) {
+          return annotation;
+        }
+      }
+    }
+
+    Class<?> beanType = beanFactory.getType(beanName);
+    if (beanType != null) {
+      MergedAnnotation<A> annotation =
+              MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+
+    return MergedAnnotation.missing();
   }
 
 }

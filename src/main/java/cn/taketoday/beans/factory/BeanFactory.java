@@ -181,7 +181,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType)
           throws NoSuchBeanDefinitionException;
 
-  <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(String beanName, Class<A> annotationType)
+  <A extends Annotation> MergedAnnotation<A> getMergedAnnotation(String beanName, Class<A> annotationType)
           throws NoSuchBeanDefinitionException;
 
   /**

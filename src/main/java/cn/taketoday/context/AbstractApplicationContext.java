@@ -903,9 +903,9 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotationOnBean(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
+  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotation(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
     assertBeanFactoryActive();
-    return getBeanFactory().getMergedAnnotationOnBean(beanName, annotationType);
+    return getBeanFactory().getMergedAnnotation(beanName, annotationType);
   }
 
   @Override

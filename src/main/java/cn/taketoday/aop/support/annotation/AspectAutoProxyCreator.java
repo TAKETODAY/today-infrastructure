@@ -189,7 +189,7 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
     BeanFactory beanFactory = getBeanFactory();
 
     //stream
-    return Stream.of(beanFactory.getMergedAnnotationOnBean(definition.getName(), Advice.class));
+    return Stream.of(beanFactory.getMergedAnnotation(definition.getName(), Advice.class));
   }
 
 }

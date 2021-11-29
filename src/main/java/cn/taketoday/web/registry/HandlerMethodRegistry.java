@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -113,27 +112,20 @@ public class HandlerMethodRegistry
    * Start config
    */
   public void startConfiguration() {
-    ApplicationContext beanFactory = obtainApplicationContext();
     // @since 2.3.3
-    for (Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
-      BeanDefinition def = entry.getValue();
-
+    String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
+    for (String beanName : beanDefinitionNames) {
       // ActionMapping on the class is ok
-      MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotationOnBean(def.getName(), ActionMapping.class);
-      MergedAnnotation<Controller> rootController = beanFactory.getMergedAnnotationOnBean(def.getName(), RootController.class);
+      MergedAnnotation<Controller> rootController = beanFactory.getMergedAnnotation(beanName, Controller.class);
+      MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotation(beanName, ActionMapping.class);
       MergedAnnotation<ActionMapping> controllerMapping = null;
       if (actionMapping.isPresent()) {
         controllerMapping = actionMapping;
       }
       // build
       if (rootController.isPresent() || actionMapping.isPresent()) {
-        if (def.hasBeanClass()) {
-          buildHandlerMethod(def.getBeanClass(), controllerMapping);
-        }
-        else {
-          Class<?> type = beanFactory.getType(def.getName());
-          buildHandlerMethod(type, controllerMapping);
-        }
+        Class<?> type = beanFactory.getType(beanName);
+        buildHandlerMethod(type, controllerMapping);
       }
     }
   }
@@ -331,7 +323,6 @@ public class HandlerMethodRegistry
    * @return Returns a handler bean of target beanClass
    */
   protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
-
 
     BeanDefinition def = registry.getBeanDefinition(beanClass);
     return def.isSingleton()

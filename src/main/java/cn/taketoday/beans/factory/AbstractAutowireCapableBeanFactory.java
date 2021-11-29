@@ -156,6 +156,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
+  final ConcurrentHashMap<String, Object> singletonsCurrentlyInCreationCache = new ConcurrentHashMap<>();
+
   /**
    * Actually create the specified bean. Pre-creation processing has already happened
    * at this point, e.g. checking {@code postProcessBeforeInstantiation} callbacks.
@@ -168,8 +170,13 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @throws BeanCreationException if the bean could not be created
    */
   protected Object doCreateBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
-    Object bean = getObject(definition, args);
     String beanName = definition.getName();
+    Object currently = singletonsCurrentlyInCreationCache.get(beanName);
+    if (currently != null) {
+      return currently;
+    }
+    Object bean = createIfNecessary(definition, args);
+    singletonsCurrentlyInCreationCache.put(beanName, bean);
 
     // Eagerly cache singletons to be able to resolve circular references
     // even when triggered by lifecycle interfaces like BeanFactoryAware.
@@ -215,10 +222,12 @@ public abstract class AbstractAutowireCapableBeanFactory
       throw new BeanCreationException(
               definition.getResourceDescription(), beanName, "Invalid destruction signature", ex);
     }
+    definition.setInitialized(true);
+    singletonsCurrentlyInCreationCache.remove(beanName);
     return fullyInitializedBean;
   }
 
-  private Object getObject(BeanDefinition definition, @Nullable Object[] args) {
+  private Object createIfNecessary(BeanDefinition definition, @Nullable Object[] args) {
     Object bean = null;
     if (definition.isSingleton()) {
       bean = this.factoryBeanInstanceCache.remove(definition.getName());
