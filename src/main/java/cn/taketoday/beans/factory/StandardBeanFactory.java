@@ -96,6 +96,18 @@ public class StandardBeanFactory
     manualSingletonNames.remove(name);
   }
 
+  @Override
+  public void destroySingletons() {
+    super.destroySingletons();
+    manualSingletonNames.clear();
+  }
+
+  @Override
+  public void destroySingleton(String beanName) {
+    super.destroySingleton(beanName);
+    manualSingletonNames.remove(beanName);
+  }
+
   /**
    * Preventing Cycle Dependency expected {@link Prototype} beans
    */
@@ -110,6 +122,26 @@ public class StandardBeanFactory
         super.populateBean(bean, definition);
         currentInitializingBeanName.remove(name);
       }
+    }
+  }
+
+  /**
+   * Only allows alias overriding if bean definition overriding is allowed.
+   */
+  @Override
+  protected boolean allowAliasOverriding() {
+    return isAllowBeanDefinitionOverriding();
+  }
+
+  /**
+   * Also checks for an alias overriding a bean definition of the same name.
+   */
+  @Override
+  protected void checkForAliasCircle(String name, String alias) {
+    super.checkForAliasCircle(name, alias);
+    if (!isAllowBeanDefinitionOverriding() && containsBeanDefinition(alias)) {
+      throw new IllegalStateException("Cannot register alias '" + alias +
+              "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
     }
   }
 
@@ -152,8 +184,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                           "for bean '{}' with a framework-generated bean " +
-                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                  "for bean '{}' with a framework-generated bean " +
+                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
