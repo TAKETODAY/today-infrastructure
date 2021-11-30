@@ -53,7 +53,8 @@ public class BeanReference implements PropertyValueRetriever {
    * </p>
    */
   @Override
-  public Object retrieve(String propertyPath, PropertyValuesBinder binder, BeanFactory beanFactory) {
+  public Object retrieve(
+          String propertyPath, PropertyValuesBinder binder, AutowireCapableBeanFactory beanFactory) {
     if (beanName != null && beanType != null) {
       return getObject(beanFactory, beanName, beanType);
     }
