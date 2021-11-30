@@ -112,15 +112,6 @@ public abstract class AbstractBeanFactory
     return doGetBean(name, null, null);
   }
 
-  /**
-   * @throws IllegalStateException bean definition scope not exist in this bean factory
-   */
-  @Nullable
-  @Override
-  public Object getBean(BeanDefinition def) {
-    return doGetBean(def.getName(), def.getBeanClass(), null);
-  }
-
   @Override
   @Nullable
   public <T> T getBean(String name, Class<T> requiredType) {
