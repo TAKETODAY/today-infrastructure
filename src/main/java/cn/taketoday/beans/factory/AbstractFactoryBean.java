@@ -81,6 +81,10 @@ public abstract class AbstractFactoryBean<T>
     this.beanClassLoader = classLoader;
   }
 
+  public ClassLoader getBeanClassLoader() {
+    return beanClassLoader;
+  }
+
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
@@ -165,7 +169,7 @@ public abstract class AbstractFactoryBean<T>
    * interface, for a consistent offering of abstract template methods.
    */
   @Override
-  public abstract Class<T> getObjectType();
+  public abstract Class<?> getObjectType();
 
   /**
    * Template method that subclasses must override to construct the object
