@@ -1,7 +1,9 @@
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +18,10 @@ class PropertyPathFactoryBeanTests {
   private void load(StandardBeanFactory xbf) {
     BeanDefinition definition = new BeanDefinition("tb", TestBean.class);
     definition.addPropertyValue("age", 10);
-    definition.addPropertyValue("spouse", BeanDefinitionReference.from(TestBean.class));
+    definition.addPropertyValue("spouse", BeanDefinitionReference.from(new BeanDefinitionBuilder()
+            .beanClass(TestBean.class)
+    ));
+    definition.setScope(Scope.PROTOTYPE);
     xbf.registerBeanDefinition(definition);
 
   }

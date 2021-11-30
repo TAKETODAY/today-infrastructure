@@ -20,16 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -46,6 +36,19 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author TODAY 2021/10/2 22:45
@@ -101,6 +104,9 @@ public class BeanDefinitionBuilder {
   private String factoryBeanName;
 
   private AnnotationMetadata annotationMetadata;
+
+  @Nullable
+  private LinkedHashMap<String, Object> propertyValues;
 
   public BeanDefinitionBuilder name(String name) {
     this.name = name;
@@ -225,6 +231,103 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
+
+  /**
+   * Add PropertyValue to list.
+   *
+   * @param name supports property-path like 'user.name'
+   * @since 3.0
+   */
+  public void addPropertyValue(String name, Object value) {
+    Assert.notNull(name, "property name must not be null");
+    addPropertyValues(new PropertyValue(name, value));
+  }
+
+  /** @since 4.0 */
+  public void addPropertyValues(PropertyValue... propertyValues) {
+    if (ObjectUtils.isNotEmpty(propertyValues)) {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      for (PropertyValue property : propertyValues) {
+        this.propertyValues.put(property.getName(), property.getValue());
+      }
+    }
+  }
+
+  /** @since 4.0 */
+  public void addPropertyValues(Map<String, Object> propertyValues) {
+    if (CollectionUtils.isNotEmpty(propertyValues)) {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      this.propertyValues.putAll(propertyValues);
+    }
+  }
+
+  /**
+   * Apply bean' {@link PropertyValue}s
+   *
+   * @param propertyValues The array of the bean's PropertyValue s
+   */
+  public void setPropertyValues(PropertyValue... propertyValues) {
+    if (this.propertyValues == null) {
+      if (ObjectUtils.isNotEmpty(propertyValues)) {
+        this.propertyValues = new LinkedHashMap<>();
+        addPropertyValues(propertyValues);
+      }
+    }
+    else {
+      this.propertyValues.clear();
+      addPropertyValues(propertyValues);
+    }
+  }
+
+  public void setPropertyValues(Collection<PropertyValue> propertyValues) {
+    if (this.propertyValues == null) {
+      if (CollectionUtils.isNotEmpty(propertyValues)) {
+        this.propertyValues = new LinkedHashMap<>();
+        for (PropertyValue property : propertyValues) {
+          this.propertyValues.put(property.getName(), property.getValue());
+        }
+      }
+    }
+    else {
+      this.propertyValues.clear();
+      for (PropertyValue property : propertyValues) {
+        this.propertyValues.put(property.getName(), property.getValue());
+      }
+    }
+  }
+
+  /** @since 4.0 */
+  public void setPropertyValues(Map<String, Object> propertyValues) {
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      if (this.propertyValues != null) {
+        this.propertyValues.clear();
+      }
+    }
+    else {
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      else {
+        this.propertyValues.clear();
+      }
+      this.propertyValues.putAll(propertyValues);
+    }
+  }
+
+  /**
+   * get simple properties
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public Map<String, Object> getPropertyValues() {
+    return propertyValues;
+  }
+
   // reset
 
   public void reset() {
@@ -301,7 +404,7 @@ public class BeanDefinitionBuilder {
 
     definition.setFactoryMethodName(factoryMethod);
     definition.setFactoryBeanName(factoryBeanName);
-
+    definition.setPropertyValues(propertyValues);
     return definition;
   }
 

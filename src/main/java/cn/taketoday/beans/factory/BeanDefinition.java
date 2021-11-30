@@ -510,13 +510,20 @@ public class BeanDefinition
 
   /** @since 4.0 */
   public void setPropertyValues(Map<String, Object> propertyValues) {
-    if (this.propertyValues == null) {
-      this.propertyValues = new LinkedHashMap<>();
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      if (this.propertyValues != null) {
+        this.propertyValues.clear();
+      }
     }
     else {
-      this.propertyValues.clear();
+      if (this.propertyValues == null) {
+        this.propertyValues = new LinkedHashMap<>();
+      }
+      else {
+        this.propertyValues.clear();
+      }
+      this.propertyValues.putAll(propertyValues);
     }
-    this.propertyValues.putAll(propertyValues);
   }
 
   /**
