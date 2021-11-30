@@ -19,16 +19,20 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * Simple template superclass for {@link FactoryBean} implementations that
@@ -93,7 +97,7 @@ public abstract class AbstractFactoryBean<T>
   /**
    * Return the BeanFactory that this bean runs in.
    */
-  protected BeanFactory getBeanFactory() {
+  public BeanFactory getBeanFactory() {
     return this.beanFactory;
   }
 
@@ -116,7 +120,7 @@ public abstract class AbstractFactoryBean<T>
    * @see #getEarlySingletonInterfaces()
    */
   @Override
-  public final T getObject() {
+  public final T getObject() throws Exception {
     if (isSingleton()) {
       return (this.initialized ? this.singletonInstance : getEarlySingletonInstance());
     }
@@ -181,7 +185,7 @@ public abstract class AbstractFactoryBean<T>
    * @return the object returned by this factory
    * @see #getObject()
    */
-  protected abstract T createBeanInstance();
+  protected abstract T createBeanInstance() throws Exception;
 
   /**
    * Return an array of interfaces that a singleton object exposed by this
@@ -214,6 +218,51 @@ public abstract class AbstractFactoryBean<T>
    * @see #createBeanInstance()
    */
   protected void destroyInstance(T instance) throws Exception { }
+
+  /**
+   * Obtain a bean ConversionService from the BeanFactory that this bean
+   * runs in. This is typically a fresh instance for each call.
+   * <p>Falls back to a DefaultConversionService when not running in a BeanFactory.
+   *
+   * @see ConfigurableBeanFactory#getConversionService()
+   */
+  protected ConversionService getConversionService() {
+    BeanFactory beanFactory = getBeanFactory();
+    if (beanFactory instanceof ConfigurableBeanFactory) {
+      return ((ConfigurableBeanFactory) beanFactory).getConversionService();
+    }
+    else {
+      return DefaultConversionService.getSharedInstance();
+    }
+  }
+
+
+  /**
+   * Convert the value to the required type (if necessary from a String).
+   *
+   * @param value the value to convert
+   * @param requiredType the type we must convert to
+   * (or {@code null} if not known, for example in case of a collection element)
+   * @return the new value, possibly the result of type conversion
+   * @throws cn.taketoday.core.conversion.ConversionException if type conversion failed
+   * @see java.beans.PropertyEditor#setAsText(String)
+   * @see java.beans.PropertyEditor#getValue()
+   * @see ConversionService
+   * @see Converter
+   */
+  @Nullable
+  protected <E> E convertIfNecessary(@Nullable Object value, @Nullable Class<E> requiredType) {
+    return convertIfNecessary(getConversionService(), value, requiredType);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nullable
+  protected <E> E convertIfNecessary(ConversionService conversionService, @Nullable Object value, @Nullable Class<E> requiredType) {
+    if (value != null && requiredType != null && !requiredType.isInstance(value)) {
+      return conversionService.convert(value, requiredType);
+    }
+    return (E) value;
+  }
 
   /**
    * Reflective InvocationHandler for lazy access to the actual singleton object.
