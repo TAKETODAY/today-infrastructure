@@ -20,9 +20,9 @@
 
 package cn.taketoday.beans.factory;
 
-import java.util.function.Supplier;
-
 import cn.taketoday.lang.Nullable;
+
+import java.util.function.Supplier;
 
 /**
  * Bean instance supplier
@@ -30,8 +30,8 @@ import cn.taketoday.lang.Nullable;
  * supports singleton or prototype
  * </p>
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/29 21:13</a>
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/29 21:13
  */
 public abstract class BeanSupplier<T> implements Supplier<T> {
 
