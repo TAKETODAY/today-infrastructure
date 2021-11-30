@@ -581,7 +581,6 @@ public class StandardBeanFactory
 
   @Override
   public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    Assert.notNull(requiredType, "requiredType must not be null");
     return getObjectSupplier(requiredType, true);
   }
 
