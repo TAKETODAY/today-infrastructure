@@ -20,14 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -44,6 +36,14 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * Abstract bean factory superclass that implements default bean creation,
@@ -119,10 +119,13 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   protected Object createBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
-    if (log.isDebugEnabled()) {
-      log.debug("Creating instance of bean '{}'", definition.getName());
-    }
+    return createBean(definition.getName(), definition, args);
+  }
 
+  protected Object createBean(String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+    if (log.isDebugEnabled()) {
+      log.debug("Creating instance of bean '{}'", beanName);
+    }
     Class<?> resolvedClass = resolveBeanClass(definition);
     try {
       // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
@@ -133,14 +136,14 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              definition.getResourceDescription(), definition.getName(),
+              definition.getResourceDescription(), beanName,
               "BeanPostProcessor before instantiation of bean failed", ex);
     }
 
     try {
-      Object beanInstance = doCreateBean(definition, args);
+      Object beanInstance = doCreateBean(beanName, definition, args);
       if (log.isDebugEnabled()) {
-        log.debug("Finished creating instance of bean '{}'", definition.getName());
+        log.debug("Finished creating instance of bean '{}'", beanName);
       }
       return beanInstance;
     }
@@ -152,7 +155,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     catch (Throwable ex) {
       throw new BeanCreationException(
               definition.getResourceDescription(),
-              definition.getName(), "Unexpected exception during bean creation", ex);
+              beanName, "Unexpected exception during bean creation", ex);
     }
   }
 
@@ -169,8 +172,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @return a new instance of the bean
    * @throws BeanCreationException if the bean could not be created
    */
-  protected Object doCreateBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
-    String beanName = definition.getName();
+  protected Object doCreateBean(String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
     Object currently = singletonsCurrentlyInCreationCache.get(beanName);
     if (currently != null) {
       return currently;
