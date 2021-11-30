@@ -300,4 +300,52 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    */
   boolean isFactoryBean(String name) throws NoSuchBeanDefinitionException;
 
+  /**
+   * Explicitly control the current in-creation status of the specified bean.
+   * For container-internal use only.
+   *
+   * @param beanName the name of the bean
+   * @param inCreation whether the bean is currently in creation
+   * @since 4.0
+   */
+  void setCurrentlyInCreation(String beanName, boolean inCreation);
+
+  /**
+   * Determine whether the specified bean is currently in creation.
+   *
+   * @param beanName the name of the bean
+   * @return whether the bean is currently in creation
+   * @since 4.0
+   */
+  boolean isCurrentlyInCreation(String beanName);
+
+  /**
+   * Register a dependent bean for the given bean,
+   * to be destroyed before the given bean is destroyed.
+   *
+   * @param beanName the name of the bean
+   * @param dependentBeanName the name of the dependent bean
+   * @since 4.0
+   */
+  void registerDependentBean(String beanName, String dependentBeanName);
+
+  /**
+   * Return the names of all beans which depend on the specified bean, if any.
+   *
+   * @param beanName the name of the bean
+   * @return the array of dependent bean names, or an empty array if none
+   * @since 4.0
+   */
+  String[] getDependentBeans(String beanName);
+
+  /**
+   * Return the names of all beans that the specified bean depends on, if any.
+   *
+   * @param beanName the name of the bean
+   * @return the array of names of beans which the bean depends on,
+   * or an empty array if none
+   * @since 4.0
+   */
+  String[] getDependenciesForBean(String beanName);
+
 }
