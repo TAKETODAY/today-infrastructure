@@ -20,18 +20,16 @@
 
 package cn.taketoday.aop.target;
 
+import cn.taketoday.aop.TargetSource;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-
-import cn.taketoday.aop.TargetSource;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Base class for {@link cn.taketoday.aop.TargetSource} implementations that are
@@ -75,13 +73,6 @@ public abstract class AbstractBeanFactoryTargetSource
   private BeanFactory beanFactory;
 
   /**
-   * Definition of the target bean we will create on each invocation.
-   *
-   * @since 3.0.2
-   */
-  private BeanDefinition targetBeanDefinition;
-
-  /**
    * Set the name of the target bean in the factory.
    * <p>
    * The target bean should not be a singleton, else the same instance will always
@@ -120,14 +111,8 @@ public abstract class AbstractBeanFactoryTargetSource
    */
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
-    if (targetBeanDefinition == null && targetBeanName != null) {
-      if (beanFactory instanceof BeanDefinitionRegistry) {
-        this.targetBeanDefinition
-                = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(targetBeanName);
-      }
-      else {
-        this.targetBeanDefinition = beanFactory.getBeanDefinition(targetBeanName);
-      }
+    if (this.targetBeanName == null) {
+      throw new IllegalStateException("Property 'targetBeanName' is required");
     }
     this.beanFactory = beanFactory;
   }
@@ -139,43 +124,6 @@ public abstract class AbstractBeanFactoryTargetSource
     return this.beanFactory;
   }
 
-  /**
-   * Set the definition of the target bean in the factory.
-   * <p>
-   * The target bean should not be a singleton, else the same instance will always
-   * be obtained from the factory, resulting in the same behavior as provided by
-   * {@link SingletonTargetSource}.
-   *
-   * @param targetBeanDefinition name of the target bean in the BeanFactory that owns this
-   * interceptor
-   * @see SingletonTargetSource
-   */
-  public void setTargetBeanDefinition(BeanDefinition targetBeanDefinition) {
-    if (targetBeanName == null && targetBeanDefinition != null) {
-      this.targetBeanName = targetBeanDefinition.getName();
-    }
-    this.targetBeanDefinition = targetBeanDefinition;
-  }
-
-  /**
-   * Return the definition of the target bean in the factory.
-   */
-  public BeanDefinition getTargetBeanDefinition() {
-    BeanDefinition definition = this.targetBeanDefinition;
-    if (definition == null) {
-      Assert.state(targetBeanName != null, "Property 'targetBeanName' is required");
-      if (beanFactory instanceof BeanDefinitionRegistry) {
-        definition = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(targetBeanName);
-      }
-      else {
-        definition = beanFactory.getBeanDefinition(targetBeanName);
-      }
-      Assert.state(definition != null, "Property 'targetBeanDefinition' is required");
-      this.targetBeanDefinition = definition;
-    }
-    return definition;
-  }
-
   @Override
   public Class<?> getTargetClass() {
     Class<?> targetClass = this.targetClass;
@@ -185,8 +133,20 @@ public abstract class AbstractBeanFactoryTargetSource
     synchronized(this) {
       // Full check within synchronization, entering the BeanFactory interaction algorithm only once...
       targetClass = this.targetClass;
-      if (targetClass == null) {
-        targetClass = getTargetBeanDefinition().getBeanClass();
+      if (targetClass == null && beanFactory != null) {
+        // Determine type of the target bean.
+        targetClass = beanFactory.getType(targetBeanName);
+        if (targetClass == null) {
+          if (logger.isTraceEnabled()) {
+            logger.trace("Getting bean with name '{}' for type determination", targetBeanName);
+          }
+          Object beanInstance = this.beanFactory.getBean(targetBeanName);
+          if (beanInstance == null) {
+            throw new NoSuchBeanDefinitionException(targetBeanName);
+          }
+          targetClass = beanInstance.getClass();
+        }
+        this.targetClass = targetClass;
       }
       return targetClass;
     }
@@ -195,6 +155,11 @@ public abstract class AbstractBeanFactoryTargetSource
   @Override
   public boolean isStatic() {
     return false;
+  }
+
+  @Override
+  public void releaseTarget(Object target) throws Exception {
+    // Nothing to do here.
   }
 
   /**
@@ -207,7 +172,6 @@ public abstract class AbstractBeanFactoryTargetSource
     this.targetClass = other.targetClass;
     this.beanFactory = other.beanFactory;
     this.targetBeanName = other.targetBeanName;
-    this.targetBeanDefinition = other.targetBeanDefinition;
   }
 
   @Override

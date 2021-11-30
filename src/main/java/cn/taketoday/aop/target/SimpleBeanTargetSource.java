@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop.target;
 
+import java.io.Serial;
+
 /**
  * Simple {@link cn.taketoday.aop.TargetSource} implementation,
  * freshly obtaining the specified target bean from its containing
@@ -33,6 +35,7 @@ package cn.taketoday.aop.target;
  * @since 3.0
  */
 public class SimpleBeanTargetSource extends AbstractBeanFactoryTargetSource {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Override
