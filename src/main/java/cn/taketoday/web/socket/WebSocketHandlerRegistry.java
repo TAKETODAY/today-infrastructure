@@ -84,8 +84,8 @@ public class WebSocketHandlerRegistry
    */
   protected Object createHandler(BeanDefinition def, BeanFactory beanFactory) {
     return def.isSingleton()
-           ? beanFactory.getBean(def)
-           : Prototypes.newProxyInstance(def.getBeanClass(), def, beanFactory);
+           ? beanFactory.getBean(def.getName())
+           : Prototypes.newProxyInstance(def.getBeanClass(), def.getName(), beanFactory);
   }
 
   protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {

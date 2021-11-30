@@ -684,21 +684,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    */
   <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit);
 
-
-  //---------------------------------------------------------------------
-  // Operations for BeanDefinition
-  //---------------------------------------------------------------------
-
-  /**
-   * Get the bean with the given {@link BeanDefinition}
-   *
-   * @param def {@link BeanDefinition}
-   * @return Target {@link Object}
-   * @since 2.1.7
-   */
-  @Deprecated
-  Object getBean(BeanDefinition def);
-
   //---------------------------------------------------------------------
   // bean-factory options
   //---------------------------------------------------------------------
