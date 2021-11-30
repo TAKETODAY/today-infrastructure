@@ -40,7 +40,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * @author TODAY 2021/5/1 13:53
  * @since 3.0
  */
-public class HandlerMethodBuilder<T extends HandlerMethod> {
+public class HandlerMethodBuilder<T extends AnnotationHandlerMethod> {
 
   private ParameterResolvingRegistry resolverRegistry;
   private ReturnValueHandlers returnValueHandlers;
@@ -79,7 +79,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
 
   public void setHandlerMethodClass(Class<?> handlerMethodClass) {
     try {
-      final Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Object.class, Method.class);
+      Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Object.class, Method.class);
       this.constructor = BeanInstantiator.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {
@@ -96,57 +96,55 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   }
 
   /**
-   * @see HandlerMethod#HandlerMethod(Object, Method)
+   * @see AnnotationHandlerMethod#AnnotationHandlerMethod(HandlerMethod)
    */
   @SuppressWarnings("unchecked")
   public T build(Object handlerBean, Method method) {
     Assert.state(returnValueHandlers != null, "No ResultHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
 
-    final T handlerMethod = (T) getConstructor().instantiate(new Object[] { handlerBean, method });
-    final MethodParameter[] parameters = parametersBuilder.build(method);
-    handlerMethod.setParameters(parameters);
-    handlerMethod.setResultHandlers(returnValueHandlers);
+    T handler = (T) getConstructor().instantiate(new Object[] { method });
+    MethodParameter[] parameters = parametersBuilder.build(method);
+    HandlerMethod handlerMethod = handler.getMethod();
 
+    handlerMethod.setParameters(parameters);
+    handler.setResultHandlers(returnValueHandlers);
     if (ObjectUtils.isNotEmpty(parameters)) {
       for (MethodParameter parameter : parameters) {
         parameter.setHandlerMethod(handlerMethod);
       }
     }
-    return handlerMethod;
+    return handler;
   }
 
   /**
-   * @see HandlerMethod#HandlerMethod(Object, Method)
+   * @see AnnotationHandlerMethod#AnnotationHandlerMethod(HandlerMethod)
    */
   public T build(Object handlerBean, Method method, List<HandlerInterceptor> interceptors) {
-    final T handlerMethod = build(handlerBean, method);
+    T handlerMethod = build(handlerBean, method);
     handlerMethod.setInterceptors(interceptors);
     return handlerMethod;
   }
 
-  /**
-   * @param handlerBean
-   * @param method
-   * @param interceptors
-   * @return
-   * @since 4.0
-   */
+  @SuppressWarnings("unchecked")
   public T build(BeanSupplier<Object> handlerBean, Method method, List<HandlerInterceptor> interceptors) {
     Assert.state(returnValueHandlers != null, "No ResultHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
-    final T handlerMethod = (T) getConstructor().instantiate(new Object[] { handlerBean, method });
-    final MethodParameter[] parameters = parametersBuilder.build(method);
+    T handler = (T) getConstructor().instantiate(new Object[] { method });
+    MethodParameter[] parameters = parametersBuilder.build(method);
+
+    HandlerMethod handlerMethod = HandlerMethod.from(method);
     handlerMethod.setParameters(parameters);
-    handlerMethod.setResultHandlers(returnValueHandlers);
+
+    handler.setInterceptors(interceptors);
+    handler.setResultHandlers(returnValueHandlers);
 
     if (ObjectUtils.isNotEmpty(parameters)) {
       for (MethodParameter parameter : parameters) {
         parameter.setHandlerMethod(handlerMethod);
       }
     }
-    handlerMethod.setInterceptors(interceptors);
-    return handlerMethod;
+    return handler;
   }
 
   public void setResolverRegistry(ParameterResolvingRegistry resolverRegistry) {

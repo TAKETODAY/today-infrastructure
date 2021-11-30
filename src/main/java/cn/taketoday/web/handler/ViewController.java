@@ -22,6 +22,7 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.style.ToStringBuilder;
 
 /**
  * Views request mapping
@@ -50,8 +51,8 @@ public class ViewController extends OrderedSupport {
     this.handlerMethod = null;
   }
 
-  public ViewController(Object bean, Method method) {
-    this.handlerMethod = (method == null) ? null : new HandlerMethod(bean, method);
+  public ViewController(Object bean, Method method) { // FIXME
+    this.handlerMethod = (method == null) ? null : HandlerMethod.from(method);
   }
 
   public boolean hasAction() {
@@ -87,15 +88,11 @@ public class ViewController extends OrderedSupport {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ViewController [resource=");
-    builder.append(resource);
-    builder.append(", contentType=");
-    builder.append(contentType);
-    builder.append(", status=");
-    builder.append(status);
-    builder.append("]");
-    return builder.toString();
+    return new ToStringBuilder(this)
+            .append("status", status)
+            .append("resource", resource)
+            .append("contentType", contentType)
+            .toString();
   }
 
   public HandlerMethod getHandlerMethod() {

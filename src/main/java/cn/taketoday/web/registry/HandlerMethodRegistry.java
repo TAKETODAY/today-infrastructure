@@ -27,9 +27,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
@@ -52,6 +52,7 @@ import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.handler.AnnotationHandlerMethod;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParameter;
@@ -70,7 +71,7 @@ public class HandlerMethodRegistry
   private ConfigurableBeanFactory beanFactory;
 
   /** @since 3.0 */
-  private HandlerMethodBuilder<HandlerMethod> handlerBuilder;
+  private HandlerMethodBuilder<AnnotationHandlerMethod> handlerBuilder;
 
   // @since 4.0
   private AnnotatedBeanDefinitionReader definitionReader;
@@ -152,7 +153,7 @@ public class HandlerMethodRegistry
     MergedAnnotation<ActionMapping> annotation = MergedAnnotations.from(method).get(ActionMapping.class);
     if (annotation.isPresent()) {
       // build HandlerMethod
-      HandlerMethod handler = createHandlerMethod(beanName, beanClass, method);
+      AnnotationHandlerMethod handler = createHandlerMethod(beanName, beanClass, method);
       // do mapping url
       mappingHandlerMethod(handler, controllerMapping, annotation);
     }
@@ -166,7 +167,7 @@ public class HandlerMethodRegistry
    * @param method Action or Handler
    * @return A new {@link HandlerMethod}
    */
-  protected HandlerMethod createHandlerMethod(String beanName, Class<?> beanClass, Method method) {
+  protected AnnotationHandlerMethod createHandlerMethod(String beanName, Class<?> beanClass, Method method) {
     List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
     BeanSupplier<Object> beanSupplier = BeanSupplier.from(beanFactory, beanName);
     return handlerBuilder.build(beanSupplier, method, interceptors);
@@ -179,7 +180,7 @@ public class HandlerMethodRegistry
    * methods on class
    */
   protected void mappingHandlerMethod(
-          HandlerMethod handler,
+          AnnotationHandlerMethod handler,
           @Nullable MergedAnnotation<ActionMapping> controllerMapping,
           MergedAnnotation<ActionMapping> handlerMethodMapping) {
     boolean emptyNamespaces = true;
@@ -224,15 +225,15 @@ public class HandlerMethodRegistry
   /**
    * Mapping to {@link HandlerMethodRegistry}
    *
-   * @param handlerMethod {@link HandlerMethod}
+   * @param handler {@link AnnotationHandlerMethod}
    * @param path Request path
    * @param requestMethod HTTP request method
    * @see HttpMethod
    */
-  private void mappingHandlerMethod(String path, HttpMethod requestMethod, HandlerMethod handlerMethod) {
+  private void mappingHandlerMethod(String path, HttpMethod requestMethod, AnnotationHandlerMethod handler) {
     // GET/blog/users/1 GET/blog/#{key}/1
     String pathPattern = getRequestPathPattern(path);
-    HandlerMethod transformed = transformHandlerMethod(pathPattern, handlerMethod);
+    AnnotationHandlerMethod transformed = transformHandlerMethod(pathPattern, handler);
     super.registerHandler(requestMethod.name().concat(pathPattern), transformed);
   }
 
@@ -271,9 +272,9 @@ public class HandlerMethodRegistry
    * @param handler Target {@link HandlerMethod}
    * @return Transformed {@link HandlerMethod}
    */
-  protected HandlerMethod transformHandlerMethod(String pathPattern, HandlerMethod handler) {
+  protected AnnotationHandlerMethod transformHandlerMethod(String pathPattern, AnnotationHandlerMethod handler) {
     if (containsPathVariable(pathPattern)) {
-      HandlerMethod transformed = new HandlerMethod(handler);
+      AnnotationHandlerMethod transformed = AnnotationHandlerMethod.copy(handler);
       mappingPathVariable(pathPattern, transformed);
       return transformed;
     }
@@ -293,9 +294,10 @@ public class HandlerMethodRegistry
   /**
    * Mapping path variable.
    */
-  protected void mappingPathVariable(String pathPattern, HandlerMethod handler) {
+  protected void mappingPathVariable(String pathPattern, AnnotationHandlerMethod handler) {
     HashMap<String, MethodParameter> parameterMapping = new HashMap<>();
-    MethodParameter[] methodParameters = handler.getParameters();
+    HandlerMethod method = handler.getMethod();
+    MethodParameter[] methodParameters = method.getParameters();
     for (MethodParameter methodParameter : methodParameters) {
       parameterMapping.put(methodParameter.getName(), methodParameter);
     }
@@ -309,8 +311,8 @@ public class HandlerMethodRegistry
                 "There isn't a variable named: [" + variable +
                         "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
-      methodParameters[parameter.getParameterIndex()] = //
-              new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);
+      methodParameters[parameter.getParameterIndex()] =
+              new PathVariableMethodParameter(i++, pathPattern, method, parameter, pathMatcher);
     }
   }
 
@@ -392,11 +394,11 @@ public class HandlerMethodRegistry
     return beanFactory;
   }
 
-  public void setHandlerBuilder(HandlerMethodBuilder<HandlerMethod> handlerBuilder) {
+  public void setHandlerBuilder(HandlerMethodBuilder<AnnotationHandlerMethod> handlerBuilder) {
     this.handlerBuilder = handlerBuilder;
   }
 
-  public HandlerMethodBuilder<HandlerMethod> getHandlerBuilder() {
+  public HandlerMethodBuilder<AnnotationHandlerMethod> getHandlerBuilder() {
     return handlerBuilder;
   }
 

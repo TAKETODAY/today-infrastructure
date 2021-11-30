@@ -22,7 +22,6 @@ package cn.taketoday.web.handler;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -31,10 +30,8 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebUtils;
-import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.view.ReturnValueHandler;
 
 /**
@@ -43,7 +40,6 @@ import cn.taketoday.web.view.ReturnValueHandler;
  * @author TODAY 2018-06-25 20:03:11
  */
 public class HandlerMethod {
-  private final Object bean; // controller bean
   /** action **/
   private final Method method;
   /** @since 2.3.7 */
@@ -62,16 +58,9 @@ public class HandlerMethod {
   /** @since 4.0 */
   private Boolean responseBody;
 
-  public HandlerMethod(Object bean, Method method) {
-    this(bean, method, null);
-  }
-
-  public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors) {
-    Assert.notNull(bean, "No bean");
+  public HandlerMethod(Method method) {
     Assert.notNull(method, "No method");
-    this.bean = bean;
     this.method = method;
-
     this.returnType = method.getReturnType();
     // @since 3.0
     Produce produce = getMethodAnnotation(Produce.class);
@@ -86,7 +75,6 @@ public class HandlerMethod {
    * Copy Constructor
    */
   public HandlerMethod(HandlerMethod other) {
-    this.bean = other.bean;
     this.method = other.method;
     this.returnType = other.returnType;
     this.contentType = other.contentType; // @since 3.0
@@ -165,13 +153,6 @@ public class HandlerMethod {
     return returnType;
   }
 
-  /**
-   * Get The {@link Controller} object
-   */
-  public Object getBean() {
-    return bean;
-  }
-
   public ResponseStatus getResponseStatus() {
     return responseStatus;
   }
@@ -211,8 +192,7 @@ public class HandlerMethod {
       return true;
     if (!(o instanceof HandlerMethod that))
       return false;
-    return Objects.equals(bean, that.bean)
-            && Objects.equals(method, that.method)
+    return Objects.equals(method, that.method)
             && Objects.equals(contentType, that.contentType)
             && Objects.equals(returnValueHandler, that.returnValueHandler)
             && Objects.equals(responseStatus, that.responseStatus);
@@ -220,7 +200,7 @@ public class HandlerMethod {
 
   @Override
   public int hashCode() {
-    return Objects.hash(bean, method, returnValueHandler, responseStatus, contentType);
+    return Objects.hash(method, returnValueHandler, responseStatus, contentType);
   }
 
   @Override
@@ -244,12 +224,8 @@ public class HandlerMethod {
 
   // static
 
-  public static HandlerMethod from(Object bean, Method method) {
-    return new HandlerMethod(bean, method);
-  }
-
-  public static HandlerMethod from(Object bean, Method method, List<HandlerInterceptor> interceptors) {
-    return new HandlerMethod(bean, method, interceptors);
+  public static HandlerMethod from(Method method) {
+    return new HandlerMethod(method);
   }
 
 }

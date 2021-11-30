@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.logging.Logger;
@@ -195,13 +196,18 @@ public class DefaultExceptionHandler
 
   protected static class ThrowableHandlerMethod extends AnnotationHandlerMethod {
 
-    public ThrowableHandlerMethod(Object handler, Method method) {
-      super(handler, method, null);
+    public ThrowableHandlerMethod(HandlerMethod method) {
+      super(method);
+    }
+
+    @Override
+    protected Object invokeHandler(MethodInvoker handlerInvoker, Object[] args) {
+      return null;
     }
 
     @Override
     protected void applyResponseStatus(RequestContext context) {
-      ResponseStatus status = getHandlerMethod().getResponseStatus();
+      ResponseStatus status = getMethod().getResponseStatus();
       if (status == null) {
         Object attribute = context.getAttribute(KEY_THROWABLE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
@@ -217,6 +223,11 @@ public class DefaultExceptionHandler
         // Annotated with @ResponseStatus
         super.applyResponseStatus(context, status);
       }
+    }
+
+    @Override
+    public AnnotationHandlerMethod cloneHandler() {
+      return null;
     }
   }
 

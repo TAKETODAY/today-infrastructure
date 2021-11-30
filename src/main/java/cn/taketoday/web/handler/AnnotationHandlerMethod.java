@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -33,15 +34,14 @@ import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/29 22:48</a>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.annotation.RequestMapping
  * @see cn.taketoday.web.annotation.Controller
- * @since 4.0
+ * @since 4.0 2021/11/29 22:48
  */
-public class AnnotationHandlerMethod
+public abstract class AnnotationHandlerMethod
         extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {
   private final HandlerMethod handlerMethod;
-  private final BeanSupplier<Object> beanSupplier;
 
   // handler fast invoker
   private volatile MethodInvoker handlerInvoker;
@@ -52,12 +52,18 @@ public class AnnotationHandlerMethod
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
 
-  public AnnotationHandlerMethod(BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod) {
-    this.beanSupplier = beanSupplier;
+  public AnnotationHandlerMethod(HandlerMethod handlerMethod) {
     this.handlerMethod = handlerMethod;
   }
 
-  public HandlerMethod getHandlerMethod() {
+  public AnnotationHandlerMethod(AnnotationHandlerMethod handler) {
+    this.handlerMethod = handler.handlerMethod;
+    this.handlerInvoker = handler.handlerInvoker;
+    this.resultHandlers = handler.resultHandlers;
+    this.returnValueHandler = handler.returnValueHandler;
+  }
+
+  public HandlerMethod getMethod() {
     return handlerMethod;
   }
 
@@ -86,15 +92,17 @@ public class AnnotationHandlerMethod
 
     MethodParameter[] parameters = handlerMethod.getParameters();
     if (ObjectUtils.isEmpty(parameters)) {
-      return handlerInvoker.invoke(beanSupplier.get(), null);
+      return invokeHandler(handlerInvoker, null);
     }
     Object[] args = new Object[parameters.length];
     int i = 0;
     for (MethodParameter parameter : parameters) {
       args[i++] = parameter.resolveParameter(context);
     }
-    return handlerInvoker.invoke(beanSupplier.get(), args);
+    return invokeHandler(handlerInvoker, args);
   }
+
+  protected abstract Object invokeHandler(MethodInvoker handlerInvoker, Object[] args);
 
   // HandlerAdapter
 
@@ -154,11 +162,50 @@ public class AnnotationHandlerMethod
     return handleInternal(request);
   }
 
+  //---------------------------------------------------------------------
+  // Static methods
+  //---------------------------------------------------------------------
+
+  public static AnnotationHandlerMethod copy(AnnotationHandlerMethod handler) {
+    Class<? extends AnnotationHandlerMethod> handlerClass = handler.getClass();
+    return ReflectionUtils.invokeConstructor(
+            ReflectionUtils.getConstructor(handlerClass, handlerClass), new Object[] { handler });
+  }
+
   static class SingletonAnnotationHandlerMethod extends AnnotationHandlerMethod {
 
-    public SingletonAnnotationHandlerMethod(BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod) {
-      super(beanSupplier, handlerMethod);
+    private final Object handlerBean;
+
+    public SingletonAnnotationHandlerMethod(Object handlerBean, HandlerMethod handlerMethod) {
+      super(handlerMethod);
+      this.handlerBean = handlerBean;
     }
+
+    public SingletonAnnotationHandlerMethod(SingletonAnnotationHandlerMethod handler) {
+      super(handler);
+      this.handlerBean = handler.handlerBean;
+    }
+
+    @Override
+    protected Object invokeHandler(MethodInvoker handlerInvoker, Object[] args) {
+      return handlerInvoker.invoke(handlerBean, args);
+    }
+
+  }
+
+  private static class SuppliedAnnotationHandlerMethod extends AnnotationHandlerMethod {
+    private final BeanSupplier<Object> beanSupplier;
+
+    public SuppliedAnnotationHandlerMethod(BeanSupplier<Object> beanSupplier, HandlerMethod method) {
+      super(method);
+      this.beanSupplier = beanSupplier;
+    }
+
+    @Override
+    protected Object invokeHandler(MethodInvoker handlerInvoker, Object[] args) {
+      return handlerInvoker.invoke(beanSupplier.get(), args);
+    }
+
   }
 
 }
