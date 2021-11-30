@@ -27,11 +27,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.aop.support.annotation.BeanSupplier;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
@@ -125,35 +124,52 @@ public class HandlerMethodRegistry
       // build
       if (rootController.isPresent() || actionMapping.isPresent()) {
         Class<?> type = beanFactory.getType(beanName);
-        buildHandlerMethod(type, controllerMapping);
+        buildHandlerMethod(beanName, type, controllerMapping);
       }
     }
   }
 
   private void buildHandlerMethod(
-          Class<?> beanClass, @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
-    for (Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-      buildHandlerMethod(method, beanClass, controllerMapping);
-    }
+          String beanName, Class<?> beanClass,
+          @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
+
+    ReflectionUtils.doWithMethods(beanClass, method -> {
+      buildHandlerMethod(beanName, method, beanClass, controllerMapping);
+    });
   }
 
   /**
    * Set Action Mapping
    *
-   * @param beanClass Controller
+   * @param beanName bean name
    * @param method Action or Handler
+   * @param beanClass Controller
    * @param controllerMapping find mapping on class
    */
   protected void buildHandlerMethod(
-          Method method, Class<?> beanClass,
+          String beanName, Method method, Class<?> beanClass,
           @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
     MergedAnnotation<ActionMapping> annotation = MergedAnnotations.from(method).get(ActionMapping.class);
     if (annotation.isPresent()) {
       // build HandlerMethod
-      HandlerMethod handler = createHandlerMethod(beanClass, method);
+      HandlerMethod handler = createHandlerMethod(beanName, beanClass, method);
       // do mapping url
       mappingHandlerMethod(handler, controllerMapping, annotation);
     }
+  }
+
+  /**
+   * Create {@link HandlerMethod}.
+   *
+   * @param beanName bean name
+   * @param beanClass Controller class
+   * @param method Action or Handler
+   * @return A new {@link HandlerMethod}
+   */
+  protected HandlerMethod createHandlerMethod(String beanName, Class<?> beanClass, Method method) {
+    List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
+    BeanSupplier<Object> beanSupplier = BeanSupplier.from(beanFactory, beanName);
+    return handlerBuilder.build(beanSupplier, method, interceptors);
   }
 
   /**
@@ -299,38 +315,6 @@ public class HandlerMethodRegistry
   }
 
   /**
-   * Create {@link HandlerMethod}.
-   *
-   * @param beanClass Controller class
-   * @param method Action or Handler
-   * @return A new {@link HandlerMethod}
-   */
-  protected HandlerMethod createHandlerMethod(Class<?> beanClass, Method method) {
-    Object handlerBean = createHandler(beanClass, this.beanFactory);
-    if (handlerBean == null) {
-      throw new ConfigurationException(
-              "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]");
-    }
-    List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
-    return handlerBuilder.build(handlerBean, method, interceptors);
-  }
-
-  /**
-   * Create a handler bean instance
-   *
-   * @param beanClass Target bean class
-   * @param beanFactory {@link ConfigurableBeanFactory}
-   * @return Returns a handler bean of target beanClass
-   */
-  protected Object createHandler(Class<?> beanClass, ConfigurableBeanFactory beanFactory) {
-
-    BeanDefinition def = registry.getBeanDefinition(beanClass);
-    return def.isSingleton()
-           ? beanFactory.getBean(def)
-           : Prototypes.newProxyInstance(beanClass, def, beanFactory);
-  }
-
-  /**
    * Get list of intercepters.
    *
    * @param controllerClass controller class
@@ -339,9 +323,7 @@ public class HandlerMethodRegistry
    */
   protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {
     ArrayList<HandlerInterceptor> ret = new ArrayList<>();
-
     Set<Interceptor> controllerInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(controllerClass, Interceptor.class);
-
     // get interceptor on class
     if (CollectionUtils.isNotEmpty(controllerInterceptors)) {
       for (Interceptor controllerInterceptor : controllerInterceptors) {

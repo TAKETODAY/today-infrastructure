@@ -193,7 +193,7 @@ public class DefaultExceptionHandler
 
   // exception handler
 
-  protected static class ThrowableHandlerMethod extends HandlerMethod {
+  protected static class ThrowableHandlerMethod extends AnnotationHandlerMethod {
 
     public ThrowableHandlerMethod(Object handler, Method method) {
       super(handler, method, null);
@@ -201,7 +201,7 @@ public class DefaultExceptionHandler
 
     @Override
     protected void applyResponseStatus(RequestContext context) {
-      ResponseStatus status = getResponseStatus();
+      ResponseStatus status = getHandlerMethod().getResponseStatus();
       if (status == null) {
         Object attribute = context.getAttribute(KEY_THROWABLE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1

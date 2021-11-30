@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -27,36 +26,30 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.OrderUtils;
-import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.view.ReturnValueHandler;
-import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
- * Annotation handler
+ * Annotation handler metadata
  *
  * @author TODAY 2018-06-25 20:03:11
  */
-public class HandlerMethod
-        extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {
+public class HandlerMethod {
   private final Object bean; // controller bean
   /** action **/
   private final Method method;
   /** @since 2.3.7 */
   private final Class<?> returnType;
   private ReturnValueHandler returnValueHandler;
-  private final MethodInvoker handlerInvoker;
+
   /** parameter list **/
   private MethodParameter[] parameters;
 
@@ -66,8 +59,6 @@ public class HandlerMethod
   /** @since 3.0 @Produce */
   private String contentType;
 
-  /** @since 3.0 */
-  private ReturnValueHandlers resultHandlers;
   /** @since 4.0 */
   private Boolean responseBody;
 
@@ -80,11 +71,8 @@ public class HandlerMethod
     Assert.notNull(method, "No method");
     this.bean = bean;
     this.method = method;
-    setInterceptors(interceptors);
 
     this.returnType = method.getReturnType();
-    this.handlerInvoker = MethodInvoker.fromMethod(method);
-    setOrder(OrderUtils.getOrderOrLowest(method) + OrderUtils.getOrderOrLowest(bean));
     // @since 3.0
     Produce produce = getMethodAnnotation(Produce.class);
     if (produce != null) {
@@ -99,16 +87,12 @@ public class HandlerMethod
    */
   public HandlerMethod(HandlerMethod other) {
     this.bean = other.bean;
-    setOrder(other.getOrder()); // fix update order
     this.method = other.method;
     this.returnType = other.returnType;
     this.contentType = other.contentType; // @since 3.0
     this.returnValueHandler = other.returnValueHandler;
-    this.resultHandlers = other.resultHandlers; // @since 3.0
-    this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
     this.responseBody = other.responseBody; // since 4.0
-    setInterceptors(other.getInterceptors());
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }
 
@@ -162,25 +146,8 @@ public class HandlerMethod
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  protected void applyResponseStatus(RequestContext context) {
-    applyResponseStatus(context, getResponseStatus());
-  }
-
-  protected void applyResponseStatus(RequestContext context, ResponseStatus status) {
-    if (status != null) {
-      String reason = status.reason();
-      HttpStatus httpStatus = status.value();
-      if (StringUtils.hasText(reason)) {
-        context.setStatus(httpStatus.value(), reason);
-      }
-      else {
-        context.setStatus(httpStatus);
-      }
-    }
-  }
 
   //Getter Setter
-
   @NonNull
   public Method getMethod() {
     return method;
@@ -213,16 +180,8 @@ public class HandlerMethod
     this.responseStatus = responseStatus;
   }
 
-  public MethodInvoker getHandlerInvoker() {
-    return handlerInvoker;
-  }
-
   // handleRequest
   // -----------------------------------------
-
-  public void setResultHandlers(ReturnValueHandlers resultHandlers) {
-    this.resultHandlers = resultHandlers;
-  }
 
   public void setContentType(String contentType) {
     this.contentType = contentType;
@@ -230,55 +189,6 @@ public class HandlerMethod
 
   public String getContentType() {
     return contentType;
-  }
-
-  @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
-    applyResponseStatus(context);
-    if (returnValueHandler == null) {
-      returnValueHandler = resultHandlers.obtainHandler(this);
-    }
-    returnValueHandler.handleReturnValue(context, handler, returnValue);
-    // @since 3.0
-    String contentType = getContentType();
-    if (contentType != null) {
-      context.setContentType(contentType);
-    }
-  }
-
-  public Object invokeHandler(RequestContext request) throws Throwable {
-    return handleInternal(request);
-  }
-
-  @Override
-  protected Object handleInternal(RequestContext context) throws Throwable {
-    if (ObjectUtils.isEmpty(parameters)) {
-      return handlerInvoker.invoke(bean, null);
-    }
-    Object[] args = new Object[parameters.length];
-    int i = 0;
-    for (MethodParameter parameter : parameters) {
-      args[i++] = parameter.resolveParameter(context);
-    }
-    return handlerInvoker.invoke(bean, args);
-  }
-
-  @Override
-  public boolean supportsHandler(Object handler) {
-    return handler == this;
-  }
-
-  // HandlerAdapter
-
-  @Override
-  public boolean supports(Object handler) {
-    return handler == this;
-  }
-
-  @Override
-  public Object handle(RequestContext context, Object handler) throws Throwable {
-    return handleRequest(context);
   }
 
   // helper
@@ -299,9 +209,8 @@ public class HandlerMethod
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof HandlerMethod))
+    if (!(o instanceof HandlerMethod that))
       return false;
-    HandlerMethod that = (HandlerMethod) o;
     return Objects.equals(bean, that.bean)
             && Objects.equals(method, that.method)
             && Objects.equals(contentType, that.contentType)
