@@ -19,6 +19,7 @@
  */
 package cn.taketoday.aop.support.annotation;
 
+import cn.taketoday.beans.factory.BeanSupplier;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;

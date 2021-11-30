@@ -23,7 +23,7 @@ package cn.taketoday.aop.support;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.aop.support.annotation.BeanSupplier;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Assert;

@@ -18,11 +18,10 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.support.annotation;
+package cn.taketoday.beans.factory;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
 
 /**

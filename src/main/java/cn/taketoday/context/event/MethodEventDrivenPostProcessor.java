@@ -23,7 +23,7 @@ package cn.taketoday.context.event;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
-import cn.taketoday.aop.support.annotation.BeanSupplier;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;

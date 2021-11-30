@@ -22,7 +22,7 @@ package cn.taketoday.web.handler;
 
 import java.io.IOException;
 
-import cn.taketoday.aop.support.annotation.BeanSupplier;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.util.ObjectUtils;

@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import cn.taketoday.aop.support.annotation.BeanSupplier;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ConfigurationException;
