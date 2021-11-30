@@ -20,13 +20,15 @@
 
 package cn.taketoday.http.server.reactive.bootstrap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.client.HttpServerErrorException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import reactor.core.publisher.Flux;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,11 +36,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.stream.Stream;
-
-import cn.taketoday.http.server.reactive.HttpHandler;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.client.HttpServerErrorException;
-import reactor.core.publisher.Flux;
 
 public abstract class AbstractHttpHandlerIntegrationTests {
 
@@ -69,8 +66,6 @@ public abstract class AbstractHttpHandlerIntegrationTests {
     // Else throw as-is in order to comply with the contract of TestExecutionExceptionHandler.
     throw throwable;
   };
-
-  protected final Log logger = LogFactory.getLog(getClass());
 
   protected HttpServer server;
 
