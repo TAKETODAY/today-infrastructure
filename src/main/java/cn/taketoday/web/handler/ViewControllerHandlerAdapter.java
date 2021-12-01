@@ -54,7 +54,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
 
   protected Object invokeHandlerMethod(final RequestContext context, final ViewController view) throws Throwable {
     final HandlerMethod handlerMethod = view.getHandlerMethod();
-    final Object result = handlerMethod.invokeHandler(context);
+    final Object result = handlerMethod.getMethod().invoke(context, context);
 
     // If return type is void or result is null use xml configuration's resource
     if (result == null || handlerMethod.isReturn(void.class)) {

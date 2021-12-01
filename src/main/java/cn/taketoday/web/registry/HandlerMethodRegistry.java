@@ -134,6 +134,10 @@ public class HandlerMethodRegistry
           String beanName, Class<?> beanClass,
           @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
 
+
+
+
+
     ReflectionUtils.doWithMethods(beanClass, method -> {
       buildHandlerMethod(beanName, method, beanClass, controllerMapping);
     });
@@ -170,6 +174,9 @@ public class HandlerMethodRegistry
   protected AnnotationHandlerMethod createHandlerMethod(String beanName, Class<?> beanClass, Method method) {
     List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
     BeanSupplier<Object> beanSupplier = BeanSupplier.from(beanFactory, beanName);
+
+
+
     return handlerBuilder.build(beanSupplier, method, interceptors);
   }
 

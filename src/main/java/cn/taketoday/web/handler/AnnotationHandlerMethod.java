@@ -21,6 +21,7 @@
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -170,6 +171,16 @@ public abstract class AnnotationHandlerMethod
     Class<? extends AnnotationHandlerMethod> handlerClass = handler.getClass();
     return ReflectionUtils.invokeConstructor(
             ReflectionUtils.getConstructor(handlerClass, handlerClass), new Object[] { handler });
+  }
+
+  public static AnnotationHandlerMethod from(Object handlerBean, Method method) {
+    HandlerMethod handlerMethod = HandlerMethod.from(method);
+    return new SingletonAnnotationHandlerMethod(handlerBean, handlerMethod);
+  }
+
+  public static AnnotationHandlerMethod from(BeanSupplier<Object> beanSupplier, Method method) {
+    HandlerMethod handlerMethod = HandlerMethod.from(method);
+    return new SuppliedAnnotationHandlerMethod(beanSupplier, handlerMethod);
   }
 
   static class SingletonAnnotationHandlerMethod extends AnnotationHandlerMethod {
