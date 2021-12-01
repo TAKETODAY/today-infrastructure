@@ -20,12 +20,15 @@
 
 package cn.taketoday.beans.factory;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
+ * Object to hold information and value for an individual bean property.
+ *
  * @author TODAY 2021/3/21 15:49
  */
-public class PropertyValue {
+public class PropertyValue implements Serializable {
 
   private String name;
   private Object value;
@@ -35,6 +38,11 @@ public class PropertyValue {
   public PropertyValue(String name, Object value) {
     this.name = name;
     this.value = value;
+  }
+
+  public PropertyValue(PropertyValue pv) {
+    this.name = pv.name;
+    this.value = pv.value;
   }
 
   public String getName() {
@@ -57,9 +65,8 @@ public class PropertyValue {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof PropertyValue))
+    if (!(o instanceof PropertyValue that))
       return false;
-    PropertyValue that = (PropertyValue) o;
     return Objects.equals(name, that.name) && Objects.equals(value, that.value);
   }
 
