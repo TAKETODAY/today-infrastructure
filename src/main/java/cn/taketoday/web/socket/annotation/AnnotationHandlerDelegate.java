@@ -20,8 +20,9 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.AnnotationHandlerMethod;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.socket.WebSocketHandler;
 
@@ -34,31 +35,35 @@ import cn.taketoday.web.socket.WebSocketHandler;
 public class AnnotationHandlerDelegate {
 
   protected final String pathPattern;
-  protected final HandlerMethod afterHandshake;
+  @Nullable
   protected final WebSocketHandlerMethod onOpen;
+  @Nullable
   protected final WebSocketHandlerMethod onClose;
+  @Nullable
   protected final WebSocketHandlerMethod onError;
+  @Nullable
   protected final WebSocketHandlerMethod onMessage;
+  @Nullable
+  protected final AnnotationHandlerMethod afterHandshake;
 
   protected final boolean containsPathVariable;
 
   public AnnotationHandlerDelegate(String pathPattern,
-                                   WebSocketHandlerMethod onOpen,
-                                   WebSocketHandlerMethod onClose,
-                                   WebSocketHandlerMethod onError,
-                                   WebSocketHandlerMethod onMessage,
-                                   HandlerMethod afterHandshake) {
-    this.pathPattern = pathPattern;
+                                   @Nullable WebSocketHandlerMethod onOpen,
+                                   @Nullable WebSocketHandlerMethod onClose,
+                                   @Nullable WebSocketHandlerMethod onError,
+                                   @Nullable WebSocketHandlerMethod onMessage,
+                                   @Nullable AnnotationHandlerMethod afterHandshake) {
     this.onOpen = onOpen;
     this.onClose = onClose;
     this.onError = onError;
     this.onMessage = onMessage;
+    this.pathPattern = pathPattern;
     this.afterHandshake = afterHandshake;
     this.containsPathVariable = HandlerMethodRegistry.containsPathVariable(pathPattern);
   }
 
   public void afterHandshake(RequestContext context) throws Throwable {
-    final HandlerMethod afterHandshake = this.afterHandshake;
     if (afterHandshake != null) {
       afterHandshake.handleRequest(context);
     }
