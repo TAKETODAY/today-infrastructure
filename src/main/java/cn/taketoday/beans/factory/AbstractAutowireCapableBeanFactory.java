@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanUtils;
@@ -34,7 +35,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 import java.lang.reflect.Constructor;
@@ -568,23 +568,26 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
 
-    Map<String, Object> propertyValues = definition.getPropertyValues();
-    if (CollectionUtils.isNotEmpty(propertyValues)) {
-      BeanMetadata metadata = getMetadata(bean, definition);
-      PropertyValuesBinder binder = new PropertyValuesBinder(metadata, bean);
-      initPropertyValuesBinder(binder);
+    PropertyValues propertyValues = definition.getPropertyValues();
+    if (propertyValues != null) {
+      Map<String, Object> map = propertyValues.asMap();
+      if (ObjectUtils.isNotEmpty(map)) {
+        BeanMetadata metadata = getMetadata(bean, definition);
+        PropertyValuesBinder binder = new PropertyValuesBinder(metadata, bean);
+        initPropertyValuesBinder(binder);
 
-      // property-path -> property-value (maybe PropertyValueRetriever)
-      for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
-        Object value = entry.getValue();
-        String propertyPath = entry.getKey();
-        if (value instanceof PropertyValueRetriever retriever) {
-          value = retriever.retrieve(propertyPath, binder, this);
-          if (value == PropertyValueRetriever.DO_NOT_SET) {
-            continue;
+        // property-path -> property-value (maybe PropertyValueRetriever)
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+          Object value = entry.getValue();
+          String propertyPath = entry.getKey();
+          if (value instanceof PropertyValueRetriever retriever) {
+            value = retriever.retrieve(propertyPath, binder, this);
+            if (value == PropertyValueRetriever.DO_NOT_SET) {
+              continue;
+            }
           }
+          binder.setProperty(bean, metadata, propertyPath, value);
         }
-        binder.setProperty(bean, metadata, propertyPath, value);
       }
     }
 

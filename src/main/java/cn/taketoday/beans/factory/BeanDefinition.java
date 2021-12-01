@@ -21,25 +21,22 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -122,7 +119,7 @@ public class BeanDefinition
   private Object source;
 
   @Nullable
-  private LinkedHashMap<String, Object> propertyValues;
+  private PropertyValues propertyValues;
 
   @Nullable
   private String factoryBeanName;
@@ -170,23 +167,6 @@ public class BeanDefinition
   public BeanDefinition(String beanName, BeanDefinition childDef) {
     copyFrom(childDef);
     setName(beanName);
-  }
-
-  /**
-   * Get a property
-   *
-   * @param name The name of property
-   * @return Property value object
-   * @throws NoSuchPropertyException If there is no property with given name
-   */
-  public Object getPropertyValue(String name) {
-    if (propertyValues != null) {
-      Object value = propertyValues.get(name);
-      if (value != null) {
-        return value;
-      }
-    }
-    throw new NoSuchPropertyException("No such property named: [" + name + "]");
   }
 
   /**
@@ -447,30 +427,17 @@ public class BeanDefinition
    * @since 3.0
    */
   public void addPropertyValue(String name, Object value) {
-    Assert.notNull(name, "property name must not be null");
-    addPropertyValues(new PropertyValue(name, value));
+    propertyValues().add(name, value);
   }
 
   /** @since 4.0 */
   public void addPropertyValues(PropertyValue... propertyValues) {
-    if (ObjectUtils.isNotEmpty(propertyValues)) {
-      if (this.propertyValues == null) {
-        this.propertyValues = new LinkedHashMap<>();
-      }
-      for (PropertyValue property : propertyValues) {
-        this.propertyValues.put(property.getName(), property.getValue());
-      }
-    }
+    propertyValues().set(propertyValues);
   }
 
   /** @since 4.0 */
   public void addPropertyValues(Map<String, Object> propertyValues) {
-    if (CollectionUtils.isNotEmpty(propertyValues)) {
-      if (this.propertyValues == null) {
-        this.propertyValues = new LinkedHashMap<>();
-      }
-      this.propertyValues.putAll(propertyValues);
-    }
+    propertyValues().set(propertyValues);
   }
 
   /**
@@ -479,51 +446,38 @@ public class BeanDefinition
    * @param propertyValues The array of the bean's PropertyValue s
    */
   public void setPropertyValues(PropertyValue... propertyValues) {
-    if (this.propertyValues == null) {
-      if (ObjectUtils.isNotEmpty(propertyValues)) {
-        this.propertyValues = new LinkedHashMap<>();
-        addPropertyValues(propertyValues);
-      }
-    }
-    else {
-      this.propertyValues.clear();
-      addPropertyValues(propertyValues);
-    }
+    propertyValues().set(propertyValues);
   }
 
   public void setPropertyValues(Collection<PropertyValue> propertyValues) {
-    if (this.propertyValues == null) {
-      if (CollectionUtils.isNotEmpty(propertyValues)) {
-        this.propertyValues = new LinkedHashMap<>();
-        for (PropertyValue property : propertyValues) {
-          this.propertyValues.put(property.getName(), property.getValue());
-        }
-      }
+    propertyValues().set(propertyValues);
+  }
+
+  public void setPropertyValues(PropertyValues propertyValues) {
+    this.propertyValues = propertyValues;
+  }
+
+  public PropertyValues propertyValues() {
+    if (propertyValues == null) {
+      propertyValues = new PropertyValues();
     }
-    else {
-      this.propertyValues.clear();
-      for (PropertyValue property : propertyValues) {
-        this.propertyValues.put(property.getName(), property.getValue());
-      }
-    }
+    return propertyValues;
   }
 
   /** @since 4.0 */
   public void setPropertyValues(Map<String, Object> propertyValues) {
-    if (CollectionUtils.isEmpty(propertyValues)) {
-      if (this.propertyValues != null) {
-        this.propertyValues.clear();
-      }
-    }
-    else {
-      if (this.propertyValues == null) {
-        this.propertyValues = new LinkedHashMap<>();
-      }
-      else {
-        this.propertyValues.clear();
-      }
-      this.propertyValues.putAll(propertyValues);
-    }
+    propertyValues().set(propertyValues);
+  }
+
+  /**
+   * Get a property
+   *
+   * @param name The name of property
+   * @return Property value object
+   * @throws NoSuchPropertyException If there is no property with given name
+   */
+  public Object getRequiredPropertyValue(String name) {
+    return propertyValues().getRequiredPropertyValue(name);
   }
 
   /**
@@ -532,7 +486,7 @@ public class BeanDefinition
    * @since 4.0
    */
   @Nullable
-  public Map<String, Object> getPropertyValues() {
+  public PropertyValues getPropertyValues() {
     return propertyValues;
   }
 
@@ -580,7 +534,6 @@ public class BeanDefinition
     setFactoryBean(from.isFactoryBean());
     setDestroyMethod(from.getDestroyMethod());
     // copy
-    addPropertyValues(from.getPropertyValues());
 
     setLazyInit(from.isLazyInit());
     setInitialized(from.isInitialized());
@@ -596,6 +549,16 @@ public class BeanDefinition
     this.factoryMethodName = from.factoryMethodName;
     this.instanceSupplier = from.instanceSupplier;
     this.enableDependencyInjection = from.enableDependencyInjection;
+
+    this.executable = from.executable;
+    this.instantiator = from.instantiator;
+    this.initMethodArray = from.initMethodArray;
+    this.factoryMethodReturnType = from.factoryMethodReturnType;
+    this.beforeInstantiationResolved = from.beforeInstantiationResolved;
+
+    if (from.getPropertyValues() != null) {
+      propertyValues().add(from.getPropertyValues());
+    }
 
     setBeanClassName(from.getBeanClassName());
     setInitMethods(from.getInitMethods());

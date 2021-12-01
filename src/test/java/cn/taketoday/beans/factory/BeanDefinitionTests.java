@@ -66,7 +66,7 @@ class BeanDefinitionTests {
       assert beanDefinition.isSingleton();
 
       try {
-        beanDefinition.getPropertyValue("test1");
+        beanDefinition.getRequiredPropertyValue("test1");
         fail("getPropertyValue failed");
       }
       catch (Exception e) {
