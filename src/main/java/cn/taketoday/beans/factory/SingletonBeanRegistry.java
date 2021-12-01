@@ -20,7 +20,6 @@
 package cn.taketoday.beans.factory;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 import cn.taketoday.lang.Nullable;
 

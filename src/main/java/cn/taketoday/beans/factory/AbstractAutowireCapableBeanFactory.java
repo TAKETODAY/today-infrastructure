@@ -122,7 +122,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     return createBean(definition.getName(), definition, args);
   }
 
-  protected Object createBean(String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+  protected Object createBean(
+          String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
     if (log.isDebugEnabled()) {
       log.debug("Creating instance of bean '{}'", beanName);
     }
