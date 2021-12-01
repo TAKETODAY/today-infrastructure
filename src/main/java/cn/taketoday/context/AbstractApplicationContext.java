@@ -331,10 +331,6 @@ public abstract class AbstractApplicationContext
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    // @since 2.1.6
-    if (environment.getFlag(ENABLE_FULL_PROTOTYPE)) {
-      beanFactory.setFullPrototype(true);
-    }
     // @since 4.0
     String appName = environment.getProperty(APPLICATION_NAME);
     if (StringUtils.hasText(appName)) {

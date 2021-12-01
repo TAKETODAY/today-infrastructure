@@ -42,8 +42,6 @@ import java.util.Set;
  */
 public interface BeanFactory extends ArgumentsResolverProvider {
 
-  String ENABLE_FULL_PROTOTYPE = "enable.full.prototype";
-
   /**
    * If a bean name start with this its a {@link FactoryBean}
    */
