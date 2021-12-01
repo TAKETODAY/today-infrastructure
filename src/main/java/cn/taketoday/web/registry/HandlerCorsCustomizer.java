@@ -29,7 +29,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.AnnotationHandlerMethod;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -37,7 +37,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
  * @author TODAY 2020/12/10 23:37
  * @since 3.0
  */
-public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
+public class HandlerCorsCustomizer implements AnnotationHandlerMethodCustomizer {
   private CorsProcessor processor;
 
   @Nullable
@@ -52,7 +52,7 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
   }
 
   @Override
-  public Object customize(HandlerMethod handler) {
+  public Object customize(AnnotationHandlerMethod handler) {
 
     // 预防已经设置
     HandlerInterceptor[] interceptors = handler.getInterceptors();
@@ -64,8 +64,8 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
       }
     }
 
-    CrossOrigin methodCrossOrigin = handler.getMethodAnnotation(CrossOrigin.class);
-    CrossOrigin classCrossOrigin = handler.getDeclaringClassAnnotation(CrossOrigin.class);
+    CrossOrigin methodCrossOrigin = handler.getMethod().getMethodAnnotation(CrossOrigin.class);
+    CrossOrigin classCrossOrigin = handler.getMethod().getDeclaringClassAnnotation(CrossOrigin.class);
 
     if (classCrossOrigin == null && methodCrossOrigin == null) {
       // 没有 @CrossOrigin 配置
