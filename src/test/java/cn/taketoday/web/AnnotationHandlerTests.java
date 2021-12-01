@@ -76,7 +76,7 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
     assertNull(viewController.getStatus());
     assertNull(viewController.getResource());
     assertNull(viewController.getContentType());
-    assertNull(viewController.getHandlerMethod());
+    assertNull(viewController.getHandler());
 
     assertNotNull(registry.getViewController("/view/controller/text"));
     assertEquals(registry.getViewController("/view/controller/text").getResource(), "body:text");

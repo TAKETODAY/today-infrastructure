@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.handler;
 
-import java.lang.reflect.Method;
-
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.style.ToStringBuilder;
+
+import java.lang.reflect.Method;
 
 /**
  * Views request mapping
@@ -40,7 +40,7 @@ public class ViewController extends OrderedSupport {
   /** The request status @since 2.3.7 */
   private Integer status;
 
-  private final HandlerMethod handlerMethod;
+  private final AnnotationHandlerMethod handlerMethod;
 
   public ViewController() {
     this(null, null);
@@ -52,11 +52,11 @@ public class ViewController extends OrderedSupport {
   }
 
   public ViewController(Object bean, Method method) { // FIXME
-    this.handlerMethod = (method == null) ? null : HandlerMethod.from(method);
+    this.handlerMethod = (method == null) ? null : AnnotationHandlerMethod.from(bean, method);
   }
 
   public boolean hasAction() {
-    return getHandlerMethod() != null;
+    return getHandler() != null;
   }
 
   public Integer getStatus() {
@@ -95,7 +95,7 @@ public class ViewController extends OrderedSupport {
             .toString();
   }
 
-  public HandlerMethod getHandlerMethod() {
+  public AnnotationHandlerMethod getHandler() {
     return handlerMethod;
   }
 }
