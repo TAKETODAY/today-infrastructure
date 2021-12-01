@@ -77,9 +77,7 @@ public class PropertyValue implements Serializable {
 
   @Override
   public String toString() {
-    return "PropertyValue{" +
-            "name='" + name + '\'' +
-            ", value=" + value +
-            '}';
+    return "bean property '" + this.name + "'";
   }
+
 }

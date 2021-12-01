@@ -15,14 +15,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PropertyPathFactoryBeanTests {
 
-  private void load(StandardBeanFactory xbf) {
+  private void load(StandardBeanFactory factory) {
     BeanDefinition definition = new BeanDefinition("tb", TestBean.class);
     definition.addPropertyValue("age", 10);
     definition.addPropertyValue("spouse", BeanDefinitionReference.from(new BeanDefinitionBuilder()
             .beanClass(TestBean.class)
     ));
     definition.setScope(Scope.PROTOTYPE);
-    xbf.registerBeanDefinition(definition);
+    factory.registerBeanDefinition(definition);
 
   }
 
