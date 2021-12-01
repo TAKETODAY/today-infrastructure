@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.registry;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -36,6 +31,11 @@ import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
+
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * @author TODAY 2021/4/21 23:57
@@ -158,9 +158,9 @@ final class AnnotationMappingInfo implements Ordered {
   // order
 
   @Override
-  public int getOrder() {
-    final Method method = handler.getMethod();
-    final int handlerOrder = OrderUtils.getOrder(method);
+  public int getOrder() { // FIXME
+    final HandlerMethod method = handler.getMethod();
+    final int handlerOrder = OrderUtils.getOrder(method.getMethod());
     final int paramsOrder = params == null ? 0 : params.length;
     final int consumesOrder = consumes == null ? 0 : consumes.length;
     return handlerOrder + consumesOrder + paramsOrder;
