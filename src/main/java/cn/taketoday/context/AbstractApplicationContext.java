@@ -335,9 +335,6 @@ public abstract class AbstractApplicationContext
     if (environment.getFlag(ENABLE_FULL_PROTOTYPE)) {
       beanFactory.setFullPrototype(true);
     }
-    if (environment.getFlag(ENABLE_FULL_LIFECYCLE)) {
-      beanFactory.setFullLifecycle(true);
-    }
     // @since 4.0
     String appName = environment.getProperty(APPLICATION_NAME);
     if (StringUtils.hasText(appName)) {
@@ -960,16 +957,6 @@ public abstract class AbstractApplicationContext
   public String getBeanName(Class<?> targetClass) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanName(targetClass);
-  }
-
-  @Override
-  public boolean isFullLifecycle() {
-    return getBeanFactory().isFullLifecycle();
-  }
-
-  @Override
-  public boolean isFullPrototype() {
-    return getBeanFactory().isFullPrototype();
   }
 
   @Override

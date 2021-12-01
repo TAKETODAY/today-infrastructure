@@ -43,7 +43,6 @@ import java.util.Set;
 public interface BeanFactory extends ArgumentsResolverProvider {
 
   String ENABLE_FULL_PROTOTYPE = "enable.full.prototype";
-  String ENABLE_FULL_LIFECYCLE = "enable.full.lifecycle";
 
   /**
    * If a bean name start with this its a {@link FactoryBean}
@@ -683,37 +682,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 4.0
    */
   <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit);
-
-  //---------------------------------------------------------------------
-  // bean-factory options
-  //---------------------------------------------------------------------
-
-  /**
-   * if this feature is enabled and if a property is prototype bean
-   * this bean-factory will inject a proxy instance to get prototype
-   * instance from every single method call.
-   *
-   * <p>
-   * default is false
-   * </p>
-   *
-   * @see Prototypes#newProxyInstance(Class, String, BeanFactory)
-   * @since 3.0
-   */
-  boolean isFullPrototype();
-
-  /**
-   * invoke prototype's destroyBean after every call
-   * <p>
-   * default is false
-   * </p>
-   *
-   * @see ConfigurableBeanFactory#destroyBean(String, Object)
-   * @see #isFullPrototype()
-   * @since 3.0
-   */
-  @Deprecated
-  boolean isFullLifecycle();
 
   //---------------------------------------------------------------------
   // bean-factory stat

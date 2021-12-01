@@ -367,7 +367,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
     return propertyValues;
   }
 
-  public PropertyValue[] asArray() {
+  public PropertyValue[] toArray() {
     return asList().toArray(new PropertyValue[0]);
   }
 
