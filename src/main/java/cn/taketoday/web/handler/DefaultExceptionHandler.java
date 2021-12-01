@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
@@ -107,10 +106,8 @@ public class DefaultExceptionHandler
     if (ret == null) {
       if (inheritable) {
         Class<? extends Throwable> runtimeEx = ex.getClass();
-        for (Map.Entry<Class<? extends Throwable>, ThrowableHandlerMethod> entry
-                : exceptionHandlers.entrySet()) {
+        for (var entry : exceptionHandlers.entrySet()) {
           Class<? extends Throwable> entryKey = entry.getKey();
-
           if (entryKey != Throwable.class && entryKey.isAssignableFrom(runtimeEx)) {
             return entry.getValue();
           }
@@ -149,8 +146,7 @@ public class DefaultExceptionHandler
     for (Object errorHandler : errorHandlers) {
       for (Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
-          Class<? extends Throwable>[] catchExClasses = getCatchThrowableClasses(method);
-          for (Class<? extends Throwable> exceptionClass : catchExClasses) {
+          for (var exceptionClass : getCatchThrowableClasses(method)) {
             // @since 3.0
             ThrowableHandlerMethod handlerMethod = handlerBuilder.build(errorHandler, method);
             exceptionHandlers.put(exceptionClass, handlerMethod);
