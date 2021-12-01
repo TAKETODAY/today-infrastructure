@@ -225,10 +225,6 @@ public class DefaultExceptionHandler
       }
     }
 
-    @Override
-    public AnnotationHandlerMethod cloneHandler() {
-      return null;
-    }
   }
 
 }

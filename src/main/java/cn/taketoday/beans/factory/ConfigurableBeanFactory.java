@@ -88,14 +88,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
   /**
-   * Enable full {@link Prototype Prototype}
-   *
-   * @see Prototypes
-   * @since 3.0
-   */
-  void setFullPrototype(boolean fullPrototype);
-
-  /**
    * Register the given scope, backed by the given Scope implementation.
    *
    * @param name scope name
