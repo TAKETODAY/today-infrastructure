@@ -20,7 +20,9 @@
 
 package cn.taketoday.beans.support;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +33,13 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.Mappings;
@@ -48,6 +51,8 @@ import cn.taketoday.util.StringUtils;
  * @since 3.0
  */
 public class BeanMetadata implements Iterable<BeanProperty> {
+  private static final boolean defaultCollectPropertiesFromMethod = // @since 4.0
+          TodayStrategies.getFlag("collect.properties.methods", true);
 
   private static final Mappings<BeanMetadata, ?> metadataMappings = new Mappings<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
@@ -60,12 +65,20 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    */
   private BeanPropertiesHolder propertyHolder;
 
+  // @since 4.0
+  private final boolean collectPropertiesFromMethods;
+
   private BeanMetadata(Object key) {
     this((Class<?>) key);
   }
 
   public BeanMetadata(Class<?> beanClass) {
+    this(beanClass, defaultCollectPropertiesFromMethod);
+  }
+
+  public BeanMetadata(Class<?> beanClass, boolean collectPropertiesFromMethods) {
     this.beanClass = beanClass;
+    this.collectPropertiesFromMethods = collectPropertiesFromMethods;
   }
 
   public Class<?> getType() {
@@ -206,6 +219,14 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   public HashMap<String, BeanProperty> createBeanProperties() {
+    return createBeanProperties(collectPropertiesFromMethods);
+  }
+
+  /**
+   * @param collectPropertiesFromMethods can collect properties from methods
+   * @since 4.0
+   */
+  public HashMap<String, BeanProperty> createBeanProperties(boolean collectPropertiesFromMethods) {
     HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
     ReflectionUtils.doWithFields(beanClass, declaredField -> {
       if (!shouldSkip(declaredField)) {
@@ -213,6 +234,41 @@ public class BeanMetadata implements Iterable<BeanProperty> {
         beanPropertyMap.put(propertyName, new BeanProperty(propertyName, declaredField));
       }
     });
+
+    if (collectPropertiesFromMethods) {
+      ReflectionUtils.doWithMethods(beanClass, method -> {
+        String methodName = method.getName();
+
+        BeanProperty property = null;
+        if (methodName.startsWith("get") || methodName.startsWith("is")) {
+          // find property on a getter
+          String propertyName = ReflectionUtils.getPropertyName(method, null);
+          if (!beanPropertyMap.containsKey(propertyName)) {
+            Method writeMethod = ReflectionUtils.getWriteMethod(beanClass, method.getReturnType(), propertyName);
+            property = new BeanProperty(propertyName, method, writeMethod, beanClass);
+          }
+        }
+        else if (methodName.startsWith("set")) {
+          // find property on a setter
+          String propertyName = ReflectionUtils.getPropertyName(null, method);
+          if (!beanPropertyMap.containsKey(propertyName)) {
+            Class<?>[] parameterTypes = method.getParameterTypes(); // none null
+            if (parameterTypes.length == 1) {
+              Method readMethod = ReflectionUtils.getReadMethod(beanClass, parameterTypes[0], propertyName);
+              property = new BeanProperty(propertyName, readMethod, method, beanClass);
+            }
+          }
+        }
+
+        if (property != null) {
+          String alias = getAnnotatedPropertyName(method);
+          if (alias != null) {
+            property.setPropertyName(alias);
+          }
+          beanPropertyMap.put(property.getPropertyName(), property);
+        }
+      });
+    }
     return beanPropertyMap;
   }
 
@@ -220,6 +276,11 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     return Modifier.isStatic(declaredField.getModifiers());
   }
 
+  /**
+   * get alias property-name
+   *
+   * @param declaredField {@link Field}
+   */
   protected String getPropertyName(Field declaredField) {
     String propertyName = getAnnotatedPropertyName(declaredField);
     if (propertyName == null) {
@@ -228,7 +289,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     return propertyName;
   }
 
-  protected String getAnnotatedPropertyName(Field propertyElement) {
+  @Nullable
+  protected String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
     // just alias name, cannot override its getter,setter
     MergedAnnotation<Property> annotation = MergedAnnotations.from(propertyElement).get(Property.class);
     if (annotation.isPresent()) {
