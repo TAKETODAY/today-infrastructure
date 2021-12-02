@@ -519,18 +519,16 @@ public abstract class DataBufferUtils {
    * @return {@code true} if the buffer was released; {@code false} otherwise.
    */
   public static boolean release(@Nullable DataBuffer dataBuffer) {
-    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer) {
-      if (pooledDataBuffer.isAllocated()) {
-        try {
-          return pooledDataBuffer.release();
+    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer && pooledDataBuffer.isAllocated()) {
+      try {
+        return pooledDataBuffer.release();
+      }
+      catch (IllegalStateException ex) {
+        // Avoid dependency on Netty: IllegalReferenceCountException
+        if (logger.isDebugEnabled()) {
+          logger.debug("Failed to release PooledDataBuffer: " + dataBuffer, ex);
         }
-        catch (IllegalStateException ex) {
-          // Avoid dependency on Netty: IllegalReferenceCountException
-          if (logger.isDebugEnabled()) {
-            logger.debug("Failed to release PooledDataBuffer: " + dataBuffer, ex);
-          }
-          return false;
-        }
+        return false;
       }
     }
     return false;
