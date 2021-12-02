@@ -39,6 +39,8 @@
  */
 package cn.taketoday.expression;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * <p>
  * An <code>ELResolver</code> for resolving user or container managed beans.
@@ -136,7 +138,8 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    * cause property of this exception, if available.
    */
   @Override
-  public void setValue(ExpressionContext context, Object base, Object property, Object value) {
+  public void setValue(
+          ExpressionContext context, @Nullable Object base, Object property, Object value) {
     if (base == null && property instanceof String beanName) {
       if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
         beanNameResolver.setBeanValue(beanName, value);

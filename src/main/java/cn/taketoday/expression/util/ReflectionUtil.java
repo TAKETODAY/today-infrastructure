@@ -56,6 +56,8 @@ import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodNotFoundException;
 import cn.taketoday.expression.lang.ExpressionUtils;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Utilities for Managing Serialization and Reflection
@@ -123,6 +125,7 @@ public abstract class ReflectionUtil {
    * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
+  @Nullable
   public static Method findMethod(
           Class<?> clazz, String methodName, Class<?>[] paramTypes, Object[] paramValues) {
 
@@ -151,12 +154,13 @@ public abstract class ReflectionUtil {
     return m;
   }
 
-  private static Wrapper findWrapper(Class<?> clazz,
-                                     List<Wrapper> wrappers,
-                                     String name,
-                                     Class<?>[] paramTypes,
-                                     Object[] paramValues) //
-  {
+  private static Wrapper findWrapper(
+          Class<?> clazz,
+          List<Wrapper> wrappers,
+          String name,
+          Class<?>[] paramTypes,
+          Object[] paramValues
+  ) {
     ArrayList<Wrapper> varArgsCandidates = new ArrayList<>();
     ArrayList<Wrapper> coercibleCandidates = new ArrayList<>();
     ArrayList<Wrapper> assignableCandidates = new ArrayList<>();
@@ -257,7 +261,7 @@ public abstract class ReflectionUtil {
 
   }
 
-  final static Supplier<String> errorMsg(Class<?> clazz, String name, Class<?>[] paramTypes) {
+  static Supplier<String> errorMsg(Class<?> clazz, String name, Class<?>[] paramTypes) {
     return () -> "Unable to find unambiguous method: " + clazz + "." + name + "(" + paramString(paramTypes) + ")";
   }
 
@@ -265,11 +269,12 @@ public abstract class ReflectionUtil {
    * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
    * code in sync.
    */
-  private static Wrapper findMostSpecificWrapper(List<Wrapper> candidates,
-                                                 Class<?>[] matchingTypes,
-                                                 boolean elSpecific,
-                                                 Supplier<String> errorMsg) //
-  {
+  private static Wrapper findMostSpecificWrapper(
+          List<Wrapper> candidates,
+          Class<?>[] matchingTypes,
+          boolean elSpecific,
+          Supplier<String> errorMsg
+  ) {
     ArrayList<Wrapper> ambiguouses = new ArrayList<>();
     for (Wrapper candidate : candidates) {
       boolean lessSpecific = false;
@@ -357,8 +362,8 @@ public abstract class ReflectionUtil {
    * code in sync.
    */
   private static int isMoreSpecific(Class<?> type1, Class<?> type2, Class<?> matchingType, boolean elSpecific) {
-    type1 = getBoxingTypeIfPrimitive(type1);
-    type2 = getBoxingTypeIfPrimitive(type2);
+    type1 = ClassUtils.resolvePrimitiveIfNecessary(type1);
+    type2 = ClassUtils.resolvePrimitiveIfNecessary(type2);
     if (type2.isAssignableFrom(type1)) {
       return 1;
     }
@@ -367,7 +372,7 @@ public abstract class ReflectionUtil {
     }
     else {
       if (elSpecific) {
-        /**
+        /*
          * Number will be treated as more specific ASTInteger only return Long or
          * BigInteger, no Byte / Short / Integer. ASTFloatingPoint also.
          */
@@ -384,47 +389,12 @@ public abstract class ReflectionUtil {
             return 0;
           }
         }
-
         return 0;
       }
       else {
         return 0;
       }
     }
-  }
-
-  /*
-   * This method duplicates code in jakarta.el.ELUtil. When making changes keep the
-   * code in sync.
-   */
-  private static Class<?> getBoxingTypeIfPrimitive(Class<?> clazz) {
-    if (clazz.isPrimitive()) {
-      if (clazz == boolean.class) {
-        return Boolean.class;
-      }
-      else if (clazz == char.class) {
-        return Character.class;
-      }
-      else if (clazz == byte.class) {
-        return Byte.class;
-      }
-      else if (clazz == short.class) {
-        return Short.class;
-      }
-      else if (clazz == int.class) {
-        return Integer.class;
-      }
-      else if (clazz == long.class) {
-        return Long.class;
-      }
-      else if (clazz == float.class) {
-        return Float.class;
-      }
-      else {
-        return Double.class;
-      }
-    }
-    return clazz;
   }
 
   /*
@@ -476,7 +446,7 @@ public abstract class ReflectionUtil {
       return true;
     }
 
-    target = getBoxingTypeIfPrimitive(target);
+    target = ClassUtils.resolvePrimitiveIfNecessary(target);
 
     return target.isAssignableFrom(src);
   }

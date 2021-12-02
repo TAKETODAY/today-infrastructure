@@ -287,14 +287,7 @@ public final class AstValue extends SimpleNode {
     return getArguments(this.children[this.jjtGetNumChildren() - 1]) != null;
   }
 
-  static class Target {
-    public final Object base;
-    public final Node suffixNode;
-
-    Target(Object base, Node suffixNode) {
-      this.base = base;
-      this.suffixNode = suffixNode;
-    }
+  record Target(Object base, Node suffixNode) {
 
     boolean isMethodCall() {
       return getArguments(suffixNode) != null;
