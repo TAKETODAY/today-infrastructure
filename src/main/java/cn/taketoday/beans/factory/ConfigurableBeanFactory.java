@@ -21,7 +21,6 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Prototype;
 
 /**
  * Configuration interface to be implemented by most bean factories. Provides
