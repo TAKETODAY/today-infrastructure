@@ -1,10 +1,12 @@
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionReference;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.lang.NonNull;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,10 +22,35 @@ class PropertyPathFactoryBeanTests {
     definition.addPropertyValue("age", 10);
     definition.addPropertyValue("spouse", BeanDefinitionReference.from(new BeanDefinitionBuilder()
             .beanClass(TestBean.class)
+            .propertyValues(new PropertyValues().add("age", 11))
     ));
     definition.setScope(Scope.PROTOTYPE);
     factory.registerBeanDefinition(definition);
 
+    //
+    BeanDefinition otb = new BeanDefinition("otb", TestBean.class);
+    otb.addPropertyValue("age", 98);
+    otb.addPropertyValue("spouse", BeanDefinitionReference.from(new BeanDefinitionBuilder()
+            .beanClass(TestBean.class)
+            .propertyValues(new PropertyValues().add("age", 99))
+    ));
+    factory.registerBeanDefinition(otb);
+
+    BeanDefinition propertyPath1 = new BeanDefinition("propertyPath1", PropertyPathFactoryBean.class);
+    otb.addPropertyValue("propertyPath", "age");
+    otb.addPropertyValue("targetObject", getDefinitionReference());
+    factory.registerBeanDefinition(otb);
+
+
+
+  }
+
+  @NonNull
+  private BeanDefinitionReference getDefinitionReference() {
+    return BeanDefinitionReference.from(new BeanDefinitionBuilder()
+            .beanClass(TestBean.class)
+            .propertyValues(new PropertyValues().add("age", 12))
+    );
   }
 
   @Test
