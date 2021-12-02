@@ -1,13 +1,14 @@
 package cn.taketoday.beans.factory.support;
 
+import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionReference;
+import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.lang.NonNull;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,9 +21,10 @@ class PropertyPathFactoryBeanTests {
   private void load(StandardBeanFactory factory) {
     BeanDefinition definition = new BeanDefinition("tb", TestBean.class);
     definition.addPropertyValue("age", 10);
-    definition.addPropertyValue("spouse", BeanDefinitionReference.from(new BeanDefinitionBuilder()
-            .beanClass(TestBean.class)
-            .propertyValues(new PropertyValues().add("age", 11))
+    definition.addPropertyValue("spouse", BeanDefinitionReference.from(
+            new BeanDefinitionBuilder()
+                    .beanClass(TestBean.class)
+                    .propertyValues(new PropertyValues().add("age", 11))
     ));
     definition.setScope(Scope.PROTOTYPE);
     factory.registerBeanDefinition(definition);
@@ -30,27 +32,89 @@ class PropertyPathFactoryBeanTests {
     //
     BeanDefinition otb = new BeanDefinition("otb", TestBean.class);
     otb.addPropertyValue("age", 98);
-    otb.addPropertyValue("spouse", BeanDefinitionReference.from(new BeanDefinitionBuilder()
-            .beanClass(TestBean.class)
-            .propertyValues(new PropertyValues().add("age", 99))
+    otb.addPropertyValue("spouse", BeanDefinitionReference.from(
+            new BeanDefinitionBuilder()
+                    .beanClass(TestBean.class)
+                    .propertyValues(new PropertyValues().add("age", 99))
     ));
     factory.registerBeanDefinition(otb);
 
     BeanDefinition propertyPath1 = new BeanDefinition("propertyPath1", PropertyPathFactoryBean.class);
-    otb.addPropertyValue("propertyPath", "age");
-    otb.addPropertyValue("targetObject", getDefinitionReference());
-    factory.registerBeanDefinition(otb);
+    propertyPath1.addPropertyValue("propertyPath", "age");
+    propertyPath1.addPropertyValue("targetObject", BeanDefinitionReference.from(
+            new BeanDefinitionBuilder()
+                    .beanClass(TestBean.class)
+                    .propertyValues(new PropertyValues().add("age", 12))
+    ));
+    factory.registerBeanDefinition(propertyPath1);
 
+    BeanDefinition propertyPath2 = new BeanDefinition("propertyPath2", PropertyPathFactoryBean.class);
+    propertyPath2.addPropertyValue("propertyPath", "spouse.age");
+    propertyPath2.addPropertyValue("targetBeanName", "tb");
+    factory.registerBeanDefinition(propertyPath2);
 
+    // <bean id="tb.age" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    factory.registerBeanDefinition(new BeanDefinition("tb.age", PropertyPathFactoryBean.class));
 
-  }
+    // <bean id="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    factory.registerBeanDefinition(new BeanDefinition("otb.spouse", PropertyPathFactoryBean.class));
 
-  @NonNull
-  private BeanDefinitionReference getDefinitionReference() {
-    return BeanDefinitionReference.from(new BeanDefinitionBuilder()
-            .beanClass(TestBean.class)
-            .propertyValues(new PropertyValues().add("age", 12))
-    );
+    // <bean id="tb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    factory.registerBeanDefinition(new BeanDefinition("tb.spouse", PropertyPathFactoryBean.class));
+
+    // <bean id="tb.spouse.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    factory.registerBeanDefinition(new BeanDefinition("tb.spouse.spouse", PropertyPathFactoryBean.class));
+
+    //	<bean id="propertyPath3" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean">
+    //		<property name="targetBeanName"><value>tb</value></property>
+    //		<property name="propertyPath"><value>spouse</value></property>
+    //		<property name="resultType"><value>cn.taketoday.beans.factory.support.TestBean</value></property>
+    //	</bean>
+
+    BeanDefinition propertyPath3 = new BeanDefinition("propertyPath3", PropertyPathFactoryBean.class);
+    propertyPath3.addPropertyValue("propertyPath", "spouse");
+    propertyPath3.addPropertyValue("targetBeanName", "tb");
+    propertyPath3.addPropertyValue("resultType", TestBean.class);
+
+    factory.registerBeanDefinition(propertyPath3);
+
+    // <bean id="tbWithInner" class="TestBean">
+    //		<property name="age" value="10"/>
+    //		<property name="spouse">
+    //			<bean name="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    //		</property>
+    //		<property name="friends">
+    //			<bean name="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    //		</property>
+    //	</bean>
+
+    BeanDefinition tbWithInner = new BeanDefinition("tbWithInner", TestBean.class);
+    tbWithInner.addPropertyValue("age", "10");
+    tbWithInner.addPropertyValue("spouse", BeanDefinitionReference.from(
+            "otb.spouse", PropertyPathFactoryBean.class
+    ));
+    tbWithInner.addPropertyValue("friends", BeanDefinitionReference.from("otb.spouse", PropertyPathFactoryBean.class));
+    factory.registerBeanDefinition(tbWithInner);
+
+    //
+    //	<bean id="tbWithNullReference" class="beans.TestBean">
+    //		<property name="spouse" ref="tb.spouse.spouse"/>
+    //	</bean>
+
+    BeanDefinition tbWithNullReference = new BeanDefinition("tbWithNullReference", TestBean.class);
+    tbWithNullReference.addPropertyValue("spouse", BeanReference.from("tb.spouse.spouse"));
+    factory.registerBeanDefinition(tbWithNullReference);
+
+    //	<bean id="tbWithInnerNull" class="TestBean">
+    //		<property name="spouse">
+    //			<bean name="tb.spouse.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    //		</property>
+    //	</bean>
+
+    BeanDefinition tbWithInnerNull = new BeanDefinition("tbWithInnerNull", TestBean.class);
+    tbWithInnerNull.addPropertyValue("spouse", BeanDefinitionReference.from("tb.spouse.spouse", PropertyPathFactoryBean.class));
+    factory.registerBeanDefinition(tbWithInnerNull);
+
   }
 
   @Test
