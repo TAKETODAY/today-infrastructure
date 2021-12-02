@@ -20,6 +20,14 @@
 
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyValues;
@@ -36,14 +44,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 /**
  * Abstract bean factory superclass that implements default bean creation,
@@ -178,7 +178,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (currently != null) {
       return currently;
     }
-    Object bean = createIfNecessary(definition, args);
+    Object bean = createIfNecessary(beanName, definition, args);
     singletonsCurrentlyInCreationCache.put(beanName, bean);
 
     // Eagerly cache singletons to be able to resolve circular references
@@ -230,10 +230,10 @@ public abstract class AbstractAutowireCapableBeanFactory
     return fullyInitializedBean;
   }
 
-  private Object createIfNecessary(BeanDefinition definition, @Nullable Object[] args) {
+  private Object createIfNecessary(String beanName, BeanDefinition definition, @Nullable Object[] args) {
     Object bean = null;
     if (definition.isSingleton()) {
-      bean = this.factoryBeanInstanceCache.remove(definition.getName());
+      bean = this.factoryBeanInstanceCache.remove(beanName);
     }
 
     if (bean == null) {
@@ -614,6 +614,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   /** @since 4.0 */
   protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {
     dataBinder.setConversionService(getConversionService());
+    dataBinder.setIgnoreUnknownProperty(false);
   }
 
   @Override

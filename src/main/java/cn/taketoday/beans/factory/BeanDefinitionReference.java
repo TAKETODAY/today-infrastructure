@@ -59,6 +59,7 @@ public class BeanDefinitionReference implements PropertyValueRetriever {
   private String getBeanName(BeanDefinition definition) {
     String name = definition.getName();
     if (name == null) {
+      definition.setName(definition.getBeanClassName());
       return definition.getBeanClassName();
     }
     return name;
