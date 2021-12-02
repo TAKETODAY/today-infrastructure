@@ -876,7 +876,7 @@ public abstract class ClassUtils {
 
     // Fallback for ClassLoaders without parent/child relationship:
     // safe if same Class can be loaded from given ClassLoader
-    return (classLoader != null && isLoadable(clazz, classLoader));
+    return classLoader != null && isLoadable(clazz, classLoader);
   }
 
   /**
@@ -987,7 +987,7 @@ public abstract class ClassUtils {
   public static String getPackageName(String fqClassName) {
     Assert.notNull(fqClassName, "Class name must not be null");
     int lastDotIndex = fqClassName.lastIndexOf(Constant.PACKAGE_SEPARATOR);
-    return (lastDotIndex != -1 ? fqClassName.substring(0, lastDotIndex) : Constant.BLANK);
+    return lastDotIndex != -1 ? fqClassName.substring(0, lastDotIndex) : Constant.BLANK;
   }
 
   /**
@@ -1245,7 +1245,7 @@ public abstract class ClassUtils {
    */
   public static boolean isPrimitiveOrWrapper(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
-    return (clazz.isPrimitive() || isPrimitiveWrapper(clazz));
+    return clazz.isPrimitive() || isPrimitiveWrapper(clazz);
   }
 
   /**
@@ -1258,7 +1258,7 @@ public abstract class ClassUtils {
    */
   public static boolean isPrimitiveArray(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
-    return (clazz.isArray() && clazz.getComponentType().isPrimitive());
+    return clazz.isArray() && clazz.getComponentType().isPrimitive();
   }
 
   /**
@@ -1271,7 +1271,7 @@ public abstract class ClassUtils {
    */
   public static boolean isPrimitiveWrapperArray(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
-    return (clazz.isArray() && isPrimitiveWrapper(clazz.getComponentType()));
+    return clazz.isArray() && isPrimitiveWrapper(clazz.getComponentType());
   }
 
   /**
@@ -1284,7 +1284,9 @@ public abstract class ClassUtils {
    */
   public static Class<?> resolvePrimitiveIfNecessary(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
-    return (clazz.isPrimitive() && clazz != void.class ? primitiveTypeToWrapperMap.get(clazz) : clazz);
+    return clazz.isPrimitive() && clazz != void.class
+           ? primitiveTypeToWrapperMap.get(clazz)
+           : clazz;
   }
 
   /**
@@ -1306,11 +1308,11 @@ public abstract class ClassUtils {
     }
     if (lhsType.isPrimitive()) {
       Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
-      return (lhsType == resolvedPrimitive);
+      return lhsType == resolvedPrimitive;
     }
     else {
       Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
-      return (resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper));
+      return resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper);
     }
   }
 
@@ -1326,7 +1328,7 @@ public abstract class ClassUtils {
    */
   public static boolean isAssignableValue(Class<?> type, @Nullable Object value) {
     Assert.notNull(type, "Type must not be null");
-    return (value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive());
+    return value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive();
   }
 
 }
