@@ -20,21 +20,6 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.AnnotatedElementDecorator;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.AnnotatedElement;
@@ -48,6 +33,21 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.AnnotatedElementDecorator;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Field is first considered then readMethod
@@ -83,6 +83,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   private String alias;
 
   /** @since 4.0 */
+  @Nullable
   private final Method readMethod;
 
   /** @since 4.0 */
@@ -93,6 +94,8 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   private Class<?> propertyType;
   /** @since 4.0 */
   private Class<?> declaringClass;
+  /** @since 4.0 */
+  private boolean fieldIsNull;
 
   BeanProperty(String alias, @NonNull Field field) {
     super(field);
@@ -107,14 +110,12 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     this(field.getName(), field);
   }
 
-  BeanProperty(Method readMethod, @Nullable Method writeMethod) {
+  BeanProperty(@Nullable String alias,
+               @Nullable Method readMethod,
+               @Nullable Method writeMethod,
+               @Nullable Class<?> declaringClass) {
     super(readMethod);
-    this.readMethod = readMethod;
-    this.writeMethod = writeMethod;
-  }
-
-  BeanProperty(Method readMethod, @Nullable Method writeMethod, Class<?> declaringClass) {
-    super(readMethod);
+    this.alias = alias;
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
     this.declaringClass = declaringClass;
@@ -226,10 +227,11 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    if (field != null) {
-      return PropertyAccessor.fromField(field);
+    // method first
+    if (readMethod != null || writeMethod != null) {
+      return PropertyAccessor.fromMethod(readMethod, writeMethod);
     }
-    return PropertyAccessor.fromMethod(readMethod, writeMethod);
+    return PropertyAccessor.fromField(field);
   }
 
   /**
@@ -252,8 +254,8 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     if (componentConstructor == null) {
       Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-              ? NullInstantiator.INSTANCE
-              : BeanInstantiator.fromConstructor(componentClass);
+                             ? NullInstantiator.INSTANCE
+                             : BeanInstantiator.fromConstructor(componentClass);
     }
     return componentConstructor.instantiate(args);
   }
@@ -375,6 +377,9 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
       else if (readMethod != null) {
         propertyType = readMethod.getReturnType();
       }
+      else if (writeMethod != null) {
+        propertyType = writeMethod.getParameterTypes()[0];
+      }
       else {
         throw new IllegalStateException("should never get here");
       }
@@ -390,7 +395,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   @Nullable
   public Field getField() {
     if (field == null && !fieldIsNull) {
-      String name = getPropertyName();
+      String name = getName();
       if (StringUtils.isEmpty(name)) {
         return null;
       }
@@ -409,8 +414,6 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     return field;
   }
 
-  private boolean fieldIsNull;
-
   /**
    * original property name
    */
@@ -427,7 +430,13 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     if (field != null) {
       return field.getModifiers();
     }
-    return readMethod.getModifiers();
+    if (readMethod != null) {
+      return readMethod.getModifiers();
+    }
+    else if (writeMethod != null) {
+      return writeMethod.getModifiers();
+    }
+    return Modifier.PRIVATE;
   }
 
   @Override
@@ -445,10 +454,17 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @since 3.0.2
    */
   public boolean isReadOnly() {
-    if (field != null) {
+    if (writeMethod == null) {
+      // search field and apply
+      Field field = getField();
+      if (field == null) {
+        return true;
+      }
       return Modifier.isFinal(field.getModifiers());
     }
-    return writeMethod == null;
+    else {
+      return false;
+    }
   }
 
   /**
@@ -459,9 +475,14 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    */
   public String getPropertyName() {
     if (alias == null) {
-      alias = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+      alias = ReflectionUtils.getPropertyName(readMethod, writeMethod); // never be null
     }
     return alias;
+  }
+
+  // since 4.0
+  public void setPropertyName(String alias) {
+    this.alias = alias;
   }
 
   /**
@@ -474,7 +495,12 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
       if (field == null) {
-        declaringClass = readMethod.getDeclaringClass();
+        if (readMethod != null) {
+          declaringClass = readMethod.getDeclaringClass();
+        }
+        else if (writeMethod != null) {
+          declaringClass = writeMethod.getDeclaringClass();
+        }
       }
       else {
         declaringClass = field.getDeclaringClass();
@@ -550,12 +576,33 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   }
 
   /**
+   * construct with read-method and write-method
+   *
    * @param writeMethod can be null (read only)
    * @param declaringClass the implementation class
    */
-  public static BeanProperty valueOf(Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
-    Assert.notNull(readMethod, "readMethod is required");
-    return new BeanProperty(readMethod, writeMethod, declaringClass);
+  public static BeanProperty valueOf(
+          @Nullable Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
+    return valueOf(null, readMethod, writeMethod, declaringClass);
+  }
+
+  /**
+   * construct with read-method and write-method and property-name
+   * <p>
+   * <b>NOTE:</b> read-write method cannot be null at the same time
+   * </p>
+   *
+   * @param propertyName user specified property name
+   * @param writeMethod can be null (read only)
+   * @param declaringClass the implementation class
+   */
+  public static BeanProperty valueOf(
+          String propertyName, @Nullable Method readMethod,
+          @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
+    if (readMethod == null && writeMethod == null) {
+      throw new IllegalStateException("Property is neither readable nor writeable");
+    }
+    return new BeanProperty(propertyName, readMethod, writeMethod, declaringClass);
   }
 
 }
