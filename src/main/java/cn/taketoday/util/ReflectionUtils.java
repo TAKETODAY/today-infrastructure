@@ -519,7 +519,7 @@ public abstract class ReflectionUtils {
   public static Method findFunctionalInterfaceMethod(Class clazz) {
     if (clazz.isInterface()) {
       Method found = null;
-      for (final Method method : clazz.getDeclaredMethods()) {
+      for (Method method : clazz.getDeclaredMethods()) {
         if (!method.isDefault()) {
           if (found != null) {
             throw new IllegalArgumentException("expecting exactly 1 method in " + clazz);
@@ -680,7 +680,7 @@ public abstract class ReflectionUtils {
    * @throws IllegalStateException if introspection fails
    */
   public static Method[] getAllDeclaredMethods(Class<?> leafClass) {
-    final ArrayList<Method> methods = new ArrayList<>(32);
+    ArrayList<Method> methods = new ArrayList<>(32);
     doWithMethods(leafClass, methods::add);
     return toMethodArray(methods);
   }
@@ -771,7 +771,7 @@ public abstract class ReflectionUtils {
    * @throws IllegalStateException if introspection fails
    */
   public static Method[] getUniqueDeclaredMethods(Class<?> leafClass, MethodFilter mf) {
-    final ArrayList<Method> methods = new ArrayList<>(32);
+    ArrayList<Method> methods = new ArrayList<>(32);
     doWithMethods(leafClass, method -> {
       boolean knownSignature = false;
       Method methodBeingOverriddenWithCovariantReturnType = null;
@@ -1098,7 +1098,7 @@ public abstract class ReflectionUtils {
    *
    * @throws IllegalStateException if introspection fails
    */
-  public static void shallowCopyFieldState(final Object src, final Object dest) {
+  public static void shallowCopyFieldState(Object src, Object dest) {
     Assert.notNull(src, "Source for field copy cannot be null");
     Assert.notNull(dest, "Destination for field copy cannot be null");
     if (!src.getClass().isAssignableFrom(dest.getClass())) {
@@ -1115,7 +1115,7 @@ public abstract class ReflectionUtils {
    *
    * @param field target field property
    */
-  public static void copyField(final Field field, final Object src, final Object dest) {
+  public static void copyField(Field field, Object src, Object dest) {
     makeAccessible(field);
     setField(field, dest, getField(field, src));
   }
@@ -1163,7 +1163,7 @@ public abstract class ReflectionUtils {
   // Constructor handling
 
   public static <T> Constructor<T> accessibleConstructor(
-          final Class<T> targetClass, final Class<?>... parameterTypes) {
+          Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
 
@@ -1254,7 +1254,7 @@ public abstract class ReflectionUtils {
   }
 
   public static Field obtainField(Class<?> clazz, String name) {
-    final Field field = findField(clazz, name);
+    Field field = findField(clazz, name);
     if (field == null) {
       throw new ReflectionException(
               "No such field named: " + name + " in class: " + clazz.getName());
@@ -1263,8 +1263,8 @@ public abstract class ReflectionUtils {
   }
 
   public static Method obtainMethod(
-          final Class<?> targetClass, final String methodName, final Class<?>... parameterTypes) {
-    final Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
+          Class<?> targetClass, String methodName, Class<?>... parameterTypes) {
+    Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
     if (declaredMethod == null) {
       throw new ReflectionException(
               "No such method named: " + methodName + " in class: " + targetClass.getName());
@@ -1280,10 +1280,11 @@ public abstract class ReflectionUtils {
    *
    * @since 3.0.2
    */
+  @Nullable
   public static Method getReadMethod(Field field) {
     Assert.notNull(field, "field must not be null");
-    final Class<?> type = field.getType();
-    final String propertyName = field.getName();
+    Class<?> type = field.getType();
+    String propertyName = field.getName();
     return getReadMethod(field.getDeclaringClass(), type, propertyName);
   }
 
@@ -1292,15 +1293,10 @@ public abstract class ReflectionUtils {
    *
    * @since 3.0.2
    */
+  @Nullable
   public static Method getReadMethod(Class<?> declaredClass, Class<?> type, String name) {
-    final String getterName = getterPropertyName(name, type);
-    for (final Method declaredMethod : declaredClass.getDeclaredMethods()) {
-      if (declaredMethod.getName().equals(getterName)
-              && declaredMethod.getParameterCount() == 0 && declaredMethod.getReturnType() == type) {
-        return declaredMethod;
-      }
-    }
-    return null;
+    String getterName = getterPropertyName(name, type);
+    return findMethod(declaredClass, getterName);
   }
 
   /**
@@ -1308,10 +1304,11 @@ public abstract class ReflectionUtils {
    *
    * @since 3.0.2
    */
+  @Nullable
   public static Method getWriteMethod(Field field) {
     Assert.notNull(field, "field must not be null");
-    final Class<?> type = field.getType();
-    final String propertyName = field.getName();
+    Class<?> type = field.getType();
+    String propertyName = field.getName();
     return getWriteMethod(field.getDeclaringClass(), type, propertyName);
   }
 
@@ -1320,17 +1317,10 @@ public abstract class ReflectionUtils {
    *
    * @since 3.0.2
    */
+  @Nullable
   public static Method getWriteMethod(Class<?> declaredClass, Class<?> type, String name) {
-    final String setterName = setterPropertyName(name, type);
-    for (final Method declaredMethod : declaredClass.getDeclaredMethods()) {
-      if (declaredMethod.getName().equals(setterName)) {
-        final Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
-        if (parameterTypes.length == 1 && parameterTypes[0] == type) {
-          return declaredMethod;
-        }
-      }
-    }
-    return null;
+    String setterName = setterPropertyName(name, type);
+    return findMethod(declaredClass, setterName, type);
   }
 
   /**
@@ -1339,7 +1329,7 @@ public abstract class ReflectionUtils {
    *   setterPropertyName("isName", String.class); -> setIsName
    * </pre>
    */
-  static String setterPropertyName(String name, final Class<?> type) {
+  static String setterPropertyName(String name, Class<?> type) {
     if (type == boolean.class && name.startsWith("is")) {
       name = name.substring(2);
     }
@@ -1352,7 +1342,7 @@ public abstract class ReflectionUtils {
    * getterPropertyName("isName", String.class); -> getIsName
    * </pre>
    */
-  static String getterPropertyName(final String name, final Class<?> type) {
+  static String getterPropertyName(String name, Class<?> type) {
     if (type == boolean.class) {
       if (name.startsWith("is")) {
         return name;
@@ -1369,6 +1359,7 @@ public abstract class ReflectionUtils {
    * @param writeMethod set method
    * @return property name
    */
+  @Nullable
   public static String getPropertyName(@Nullable Method readMethod, @Nullable Method writeMethod) {
     if (readMethod != null) {
       int index = readMethod.getName().indexOf("get");
@@ -1389,15 +1380,12 @@ public abstract class ReflectionUtils {
     }
     else if (writeMethod != null) {
       int index = writeMethod.getName().indexOf("set");
-      if (index == -1) {
-        throw new IllegalArgumentException("Not a setter method");
+      if (index != -1) {
+        index += 3;
+        return StringUtils.uncapitalize(writeMethod.getName().substring(index));
       }
-      index += 3;
-      return StringUtils.uncapitalize(writeMethod.getName().substring(index));
     }
-    else {
-      throw new IllegalStateException("Property is neither readable nor writeable");
-    }
+    return null;
   }
 
   /**
@@ -1495,7 +1483,7 @@ public abstract class ReflectionUtils {
    * @param parameter {@link Parameter}
    * @since 3.0
    */
-  public static int getParameterIndex(final Parameter parameter) {
+  public static int getParameterIndex(Parameter parameter) {
     Executable executable = parameter.getDeclaringExecutable();
     Parameter[] allParams = executable.getParameters();
     // Try first with identity checks for greater performance.
@@ -1522,9 +1510,9 @@ public abstract class ReflectionUtils {
    * @throws IllegalArgumentException parameter index is illegal
    * @since 3.0
    */
-  public static Parameter getParameter(final Executable executable, final int parameterIndex) {
+  public static Parameter getParameter(Executable executable, int parameterIndex) {
     Assert.notNull(executable, "Executable must not be null");
-    final Parameter[] parameters = executable.getParameters();
+    Parameter[] parameters = executable.getParameters();
     if (parameterIndex < 0 || parameterIndex >= parameters.length) {
       throw new IllegalArgumentException("parameter index is illegal");
     }
@@ -1563,7 +1551,7 @@ public abstract class ReflectionUtils {
   /**
    * @since 4.0
    */
-  public static ProtectionDomain getProtectionDomain(final Class<?> source) {
+  public static ProtectionDomain getProtectionDomain(Class<?> source) {
     if (source == null) {
       return null;
     }

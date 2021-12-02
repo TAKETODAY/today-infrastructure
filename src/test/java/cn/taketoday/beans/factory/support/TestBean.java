@@ -1,15 +1,5 @@
 package cn.taketoday.beans.factory.support;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/11/30 15:31
- */
-
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.util.ObjectUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,13 +11,19 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanNameAware;
+import cn.taketoday.util.ObjectUtils;
+
 /**
  * Simple test bean used for testing bean factories, the AOP framework etc.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Stephane Nicoll
- * @since 15 April 2001
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/30 15:31
  */
 public class TestBean implements BeanNameAware, BeanFactoryAware, ITestBean, IOther, Comparable<Object> {
 
@@ -93,7 +89,6 @@ public class TestBean implements BeanNameAware, BeanFactoryAware, ITestBean, IOt
 
   private List<?> pets;
 
-
   public TestBean() {
   }
 
@@ -130,7 +125,6 @@ public class TestBean implements BeanNameAware, BeanFactoryAware, ITestBean, IOt
   public TestBean(Properties someProperties) {
     this.someProperties = someProperties;
   }
-
 
   @Override
   public void setBeanName(String beanName) {
@@ -407,7 +401,6 @@ public class TestBean implements BeanNameAware, BeanFactoryAware, ITestBean, IOt
     this.pets = pets;
   }
 
-
   @Override
   public void exceptional(Throwable t) throws Throwable {
     if (t != null) {
@@ -433,7 +426,6 @@ public class TestBean implements BeanNameAware, BeanFactoryAware, ITestBean, IOt
   public int haveBirthday() {
     return age++;
   }
-
 
   public void destroy() {
     this.destroyed = true;

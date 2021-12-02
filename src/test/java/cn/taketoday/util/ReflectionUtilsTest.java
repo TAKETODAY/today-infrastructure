@@ -33,9 +33,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.reflect.GetterMethod;
 import cn.taketoday.core.reflect.PropertyAccessor;
