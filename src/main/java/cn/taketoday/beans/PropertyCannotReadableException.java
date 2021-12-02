@@ -17,33 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans;
 
 import java.io.Serial;
 
-import cn.taketoday.core.NestedRuntimeException;
-
 /**
- * for java property
+ * Property Cannot Readable
  *
- * @author TODAY <br>
- * 2020-02-18 19:03
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/12/2 23:54
  */
-public class PropertyException extends NestedRuntimeException {
+public class PropertyCannotReadableException extends PropertyException {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public PropertyException() { }
+  public PropertyCannotReadableException() { }
 
-  public PropertyException(Throwable cause) {
-    super(cause);
-  }
-
-  public PropertyException(String message) {
+  public PropertyCannotReadableException(String message) {
     super(message);
   }
 
-  public PropertyException(String message, Throwable cause) {
+  public PropertyCannotReadableException(Throwable cause) {
+    super(cause);
+  }
+
+  public PropertyCannotReadableException(String message, Throwable cause) {
     super(message, cause);
   }
 

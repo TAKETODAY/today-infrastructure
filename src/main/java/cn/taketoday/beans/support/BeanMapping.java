@@ -21,7 +21,7 @@
 package cn.taketoday.beans.support;
 
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;

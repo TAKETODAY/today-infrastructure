@@ -29,7 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.InvalidPropertyValueException;
-import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;

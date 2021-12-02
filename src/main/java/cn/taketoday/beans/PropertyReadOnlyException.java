@@ -18,15 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans;
 
-import cn.taketoday.beans.PropertyException;
+import java.io.Serial;
 
 /**
  * @author TODAY 2021/5/28 22:46
  * @since 3.0.2
  */
 public class PropertyReadOnlyException extends PropertyException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public PropertyReadOnlyException() { }
