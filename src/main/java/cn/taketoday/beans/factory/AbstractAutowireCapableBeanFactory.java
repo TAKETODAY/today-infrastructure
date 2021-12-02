@@ -576,7 +576,6 @@ public abstract class AbstractAutowireCapableBeanFactory
         BeanMetadata metadata = getMetadata(bean, definition);
         PropertyValuesBinder binder = new PropertyValuesBinder(metadata, bean);
         initPropertyValuesBinder(binder);
-
         // property-path -> property-value (maybe PropertyValueRetriever)
         for (Map.Entry<String, Object> entry : map.entrySet()) {
           Object value = entry.getValue();
@@ -608,6 +607,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (definition.isSingleton()) {
       return new BeanMetadata(bean.getClass());
     }
+    // fast access
     return BeanMetadata.ofObject(bean);
   }
 
