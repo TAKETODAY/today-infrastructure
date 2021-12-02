@@ -132,13 +132,32 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @param readMethod getter method
    * @return PropertyAccessor
    */
-  public static PropertyAccessor fromMethod(Method readMethod, @Nullable Method writeMethod) {
-    MethodInvoker readInvoker = MethodInvoker.fromMethod(readMethod);
-    if (writeMethod == null) {
-      return new ReadOnlyMethodAccessorPropertyAccessor(readInvoker);
+  public static PropertyAccessor fromMethod(@Nullable Method readMethod, @Nullable Method writeMethod) {
+    if (readMethod != null) {
+      MethodInvoker readInvoker = MethodInvoker.fromMethod(readMethod);
+      if (writeMethod == null) {
+        return new ReadOnlyMethodAccessorPropertyAccessor(readInvoker);
+      }
+      else {
+        return new MethodAccessorPropertyAccessor(readInvoker, MethodInvoker.fromMethod(writeMethod));
+      }
     }
-    MethodInvoker writeInvoker = MethodInvoker.fromMethod(writeMethod);
-    return new MethodAccessorPropertyAccessor(readInvoker, writeInvoker);
+    if (writeMethod != null) {
+      MethodInvoker writeInvoker = MethodInvoker.fromMethod(writeMethod);
+      return new WriteOnlyPropertyAccessor() {
+
+        @Override
+        public Method getWriteMethod() {
+          return writeMethod;
+        }
+
+        @Override
+        public void set(Object obj, Object value) {
+          writeInvoker.invoke(obj, new Object[] { value });
+        }
+      };
+    }
+    throw new IllegalArgumentException("read-write cannot be null at the same time");
   }
 
   /**
