@@ -523,7 +523,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   /**
    * Clear all cached singleton instances in this registry.
    *
-   * @since 4.3.15
+   * @since 4.0
    */
   protected void clearSingletonCache() {
     synchronized(this.singletons) {
@@ -622,53 +622,11 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * should <i>not</i> have their own mutexes involved in singleton creation,
    * to avoid the potential for deadlocks in lazy-init situations.
    */
+  @Override
   public final Object getSingletonMutex() {
     return this.singletons;
   }
 
-  //
-
-  /*
-    @Override
-    public void registerSingleton(String name, Object singleton) {
-      Assert.notNull(name, "Bean name must not be null");
-      Assert.notNull(singleton, "Singleton object must not be null");
-      synchronized(singletons) {
-        Object oldBean = singletons.put(name, singleton);
-        if (oldBean == null) {
-          singletonRegistered(name, singleton);
-        }
-        else if (oldBean != singleton) {
-          singletonAlreadyExist(name, singleton, oldBean);
-        }
-      }
-    }
-
-
-    protected void singletonRegistered(String name, Object singleton) {
-      if (log.isDebugEnabled()) {
-        log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.toHexString(singleton));
-      }
-    }
-
-    protected void singletonAlreadyExist(String name, Object singleton, Object existBean) {
-      log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-               name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(existBean));
-    }
-
-
-    @Override
-    public Map<String, Object> getSingletons() {
-      return singletons;
-    }
-   */
-/*
-
-  @Override
-  public Object getSingleton(String name) {
-    return singletons.get(name);
-  }
-*/
   @Override
   public void registerSingleton(Object bean) {
     registerSingleton(createBeanName(bean.getClass()), bean);
@@ -677,47 +635,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   @Override
   public Map<String, Object> getSingletons() {
     return singletons;
-  }
-
-  /**
-   * Return the (raw) singleton object registered under the given name,
-   * creating and registering a new one if none registered yet.
-   *
-   * @param beanName the name of the bean
-   * @param singletonSupplier the ObjectFactory to lazily create the singleton
-   * with, if necessary
-   * @return the registered singleton object
-   */
-  @SuppressWarnings("unchecked")
-  public <T> T getSingleton0(String beanName, Supplier<T> singletonSupplier) {
-    Assert.notNull(beanName, "Bean name must not be null");
-    Object singletonObject = singletons.get(beanName);
-    if (singletonObject == null) {
-      synchronized(singletons) {
-        if (this.singletonsCurrentlyInDestruction) {
-          throw new BeanCreationNotAllowedException(
-                  beanName,
-                  "Singleton bean creation not allowed while singletons of this factory" +
-                          " are in destruction (Do not request a bean from a BeanFactory " +
-                          "in a destroy method implementation!)");
-        }
-        singletonObject = singletons.get(beanName);
-        if (singletonObject == null) {
-          if (log.isDebugEnabled()) {
-            log.debug("Creating shared instance of singleton bean '{}'", beanName);
-          }
-          beforeSingletonCreation(beanName);
-          try {
-            singletonObject = singletonSupplier.get();
-          }
-          finally {
-            afterSingletonCreation(beanName);
-          }
-          registerSingleton(beanName, singletonObject);
-        }
-      }
-    }
-    return (T) singletonObject;
   }
 
   @Override
@@ -750,26 +667,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    */
   protected String createBeanName(Class<?> type) {
     return BeanDefinitionBuilder.defaultBeanName(type);
-  }
-
-  //  @Override
-  public void destroySingletons0() {
-    if (log.isTraceEnabled()) {
-      log.trace("Destroying singletons in {}", this);
-    }
-    synchronized(this.singletons) {
-      this.singletonsCurrentlyInDestruction = true;
-    }
-
-    String[] disposableBeanNames;
-    synchronized(this.disposableBeans) {
-      disposableBeanNames = StringUtils.toStringArray(this.disposableBeans.keySet());
-    }
-    for (int i = disposableBeanNames.length - 1; i >= 0; i--) {
-      destroySingleton(disposableBeanNames[i]);
-    }
-
-    clearSingletonCache();
   }
 
 }

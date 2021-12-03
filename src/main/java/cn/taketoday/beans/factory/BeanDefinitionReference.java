@@ -44,7 +44,7 @@ public class BeanDefinitionReference implements PropertyValueRetriever {
     BeanDefinition definition = getDefinition();
     if (beanFactory instanceof AbstractAutowireCapableBeanFactory factory) {
       Object bean = factory.createBean(getBeanName(definition), definition, null);
-      bean = factory.handleFactoryBean(definition.getName(), definition.getName(), bean);
+      bean = factory.handleFactoryBean(definition.getName(), definition.getName(), definition, bean);
       return bean;
     }
     Class<?> beanClass = definition.getBeanClass();

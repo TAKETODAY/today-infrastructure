@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -44,6 +45,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Abstract bean factory superclass that implements default bean creation,
@@ -227,6 +229,24 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (earlySingletonReference != null) {
         if (fullyInitializedBean == bean) {
           fullyInitializedBean = earlySingletonReference;
+        }
+        else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+          String[] dependentBeans = getDependentBeans(beanName);
+          LinkedHashSet<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
+          for (String dependentBean : dependentBeans) {
+            if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
+              actualDependentBeans.add(dependentBean);
+            }
+          }
+          if (!actualDependentBeans.isEmpty()) {
+            throw new BeanCurrentlyInCreationException(beanName,
+                    "Bean with name '" + beanName + "' has been injected into other beans [" +
+                            StringUtils.collectionToString(actualDependentBeans) +
+                            "] in its raw version as part of a circular reference, but has eventually been " +
+                            "wrapped. This means that said other beans do not use the final version of the " +
+                            "bean. This is often the result of over-eager type matching - consider using " +
+                            "'getBeanNamesForType' with the 'allowEagerInit' flag turned off, for example.");
+          }
         }
       }
     }
@@ -572,6 +592,8 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public Object configureBean(Object existingBean, String beanName) throws BeansException {
+    markBeanAsCreated(beanName);
+
     BeanDefinition definition = getBeanDefinition(beanName);
     if (definition == null) {
       definition = getPrototypeBeanDefinition(existingBean.getClass());
@@ -659,6 +681,40 @@ public abstract class AbstractAutowireCapableBeanFactory
   //---------------------------------------------------------------------
   // Implementation of AbstractBeanFactory class
   //---------------------------------------------------------------------
+
+  /**
+   * Applies the {@code postProcessAfterInitialization} callback of all
+   * registered BeanPostProcessors, giving them a chance to post-process the
+   * object obtained from FactoryBeans (for example, to auto-proxy them).
+   *
+   * @see #applyBeanPostProcessorsAfterInitialization
+   */
+  @Override
+  protected Object postProcessObjectFromFactoryBean(Object object, String beanName) {
+    return applyBeanPostProcessorsAfterInitialization(object, beanName);
+  }
+
+  /**
+   * Overridden to clear FactoryBean instance cache as well.
+   */
+  @Override
+  public void removeSingleton(String beanName) {
+    synchronized(getSingletonMutex()) {
+      super.removeSingleton(beanName);
+      this.factoryBeanInstanceCache.remove(beanName);
+    }
+  }
+
+  /**
+   * Overridden to clear FactoryBean instance cache as well.
+   */
+  @Override
+  protected void clearSingletonCache() {
+    synchronized(getSingletonMutex()) {
+      super.clearSingletonCache();
+      this.factoryBeanInstanceCache.clear();
+    }
+  }
 
   @Override
   @Nullable
