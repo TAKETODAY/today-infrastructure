@@ -20,6 +20,16 @@
 
 package cn.taketoday.core;
 
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -38,16 +48,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
-
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Encapsulates a Java {@link Type}, providing access to
@@ -1063,8 +1063,8 @@ public class ResolvableType implements Serializable {
     Assert.notNull(method, "Method must not be null");
     Class<?> declaringClass = method.getDeclaringClass();
     ResolvableType owner = implementationClass == null
-                           ? fromType(declaringClass)
-                           : fromType(implementationClass).as(declaringClass);
+            ? fromType(declaringClass)
+            : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new TypeProvider() {
 
       @Override
@@ -1095,8 +1095,8 @@ public class ResolvableType implements Serializable {
     Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     Class<?> declaringClass = executable.getDeclaringClass();
     ResolvableType owner = implementationClass == null
-                           ? fromType(declaringClass)
-                           : fromType(implementationClass).as(declaringClass);
+            ? fromType(declaringClass)
+            : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter, parameterIndex), owner.asVariableResolver());
   }
 
@@ -1127,8 +1127,8 @@ public class ResolvableType implements Serializable {
     Class<?> declaringClass = executable.getDeclaringClass();
 
     ResolvableType owner = implementationType != null
-                           ? implementationType.as(declaringClass)
-                           : fromType(declaringClass);
+            ? implementationType.as(declaringClass)
+            : fromType(declaringClass);
 
     return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
@@ -1373,10 +1373,17 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType fromProperty(BeanProperty property) {
     Assert.notNull(property, "property must not be null");
-    if (property.getField() != null) {
-      return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(property.getField()), null);
+    Method readMethod = property.getReadMethod();
+    Method writeMethod = property.getWriteMethod();
+    if (readMethod != null) {
+      return forReturnType(readMethod, property.getDeclaringClass());
     }
-    return forReturnType(property.getReadMethod(), property.getDeclaringClass());
+    if (writeMethod != null) {
+      return forParameter(writeMethod, 0, property.getDeclaringClass());
+    }
+    Field propertyField = property.getField();
+    Assert.state(propertyField != null, "BeanProperty is not valid");
+    return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(propertyField), null);
   }
 
   /**
