@@ -74,18 +74,19 @@ public class ReactorClientHttpConnector implements ClientHttpConnector {
    * @param mapper a mapper for further initialization of the created client
    */
   public ReactorClientHttpConnector(ReactorResourceFactory factory, Function<HttpClient, HttpClient> mapper) {
-    this.httpClient = defaultInitializer.andThen(mapper).apply(initHttpClient(factory));
-  }
+    ConnectionProvider provider = factory.getConnectionProvider();
+		Assert.notNull(provider, "No ConnectionProvider: is ReactorResourceFactory not initialized yet?");
+		this.httpClient = defaultInitializer.andThen(mapper).andThen(applyLoopResources(factory))
+				.apply(HttpClient.create(provider));
+	}
 
-  @SuppressWarnings("deprecation")
-  private static HttpClient initHttpClient(ReactorResourceFactory resourceFactory) {
-    ConnectionProvider provider = resourceFactory.getConnectionProvider();
-    LoopResources resources = resourceFactory.getLoopResources();
-    Assert.notNull(provider, "No ConnectionProvider: is ReactorResourceFactory not initialized yet?");
-    Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
-    return HttpClient.create(provider)
-            .tcpConfiguration(tcpClient -> tcpClient.runOn(resources));
-  }
+	private static Function<HttpClient, HttpClient> applyLoopResources(ReactorResourceFactory factory) {
+		return httpClient -> {
+			LoopResources resources = factory.getLoopResources();
+			Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
+			return httpClient.runOn(resources);
+		};
+	}
 
   /**
    * Constructor with a pre-configured {@code HttpClient} instance.
