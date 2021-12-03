@@ -294,8 +294,7 @@ public class DefaultApplicationContext
    * @see #getBeanFactory
    */
   public void registerSingleton(String name, Class<?> clazz) throws BeansException {
-    BeanDefinition bd = new BeanDefinition();
-    bd.setBeanClass(clazz);
+    BeanDefinition bd = new BeanDefinition(name, clazz);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
 
@@ -306,8 +305,7 @@ public class DefaultApplicationContext
    * @see #getBeanFactory()
    */
   public void registerSingleton(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
-    BeanDefinition bd = new BeanDefinition();
-    bd.setBeanClass(clazz);
+    BeanDefinition bd = new BeanDefinition(name, clazz);
     bd.setPropertyValues(pvs);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
@@ -319,9 +317,8 @@ public class DefaultApplicationContext
    * @see #getBeanFactory
    */
   public void registerPrototype(String name, Class<?> clazz) throws BeansException {
-    BeanDefinition bd = new BeanDefinition();
+    BeanDefinition bd = new BeanDefinition(name, clazz);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bd.setBeanClass(clazz);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
 
@@ -332,9 +329,8 @@ public class DefaultApplicationContext
    * @see #getBeanFactory
    */
   public void registerPrototype(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
-    BeanDefinition bd = new BeanDefinition();
+    BeanDefinition bd = new BeanDefinition(name, clazz);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bd.setBeanClass(clazz);
     bd.setPropertyValues(pvs);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
