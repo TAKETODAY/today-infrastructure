@@ -1,7 +1,7 @@
 package cn.taketoday.context;
 
-import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.type.EnabledForTestGroups;
 import org.junit.jupiter.api.Test;
@@ -108,6 +108,8 @@ class DefaultLifecycleProcessorTests {
     DefaultApplicationContext context = new DefaultApplicationContext();
     context.getBeanFactory().registerSingleton("bean", bean);
     context.getBeanFactory().registerSingleton("dependency", dependency);
+    context.getBeanFactory().registerDependentBean("dependency", "bean");
+
     assertThat(bean.isRunning()).isFalse();
     assertThat(dependency.isRunning()).isFalse();
     context.refresh();
@@ -349,6 +351,8 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean99", bean99);
     context.getBeanFactory().registerSingleton("beanMax", beanMax);
+    context.getBeanFactory().registerDependentBean("bean99", "bean2");
+
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean2.isRunning()).isTrue();
@@ -381,6 +385,8 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("bean99", bean99);
     context.getBeanFactory().registerSingleton("beanMax", beanMax);
+    context.getBeanFactory().registerDependentBean("bean99", "bean2");
+
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean1.isRunning()).isTrue();
@@ -418,6 +424,8 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("bean99", bean99);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
+    context.getBeanFactory().registerDependentBean("bean7", "simpleBean");
+
     context.refresh();
     context.stop();
     startedBeans.clear();
@@ -452,6 +460,8 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
+    context.getBeanFactory().registerDependentBean("simpleBean", "beanNegative");
+
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(beanNegative.isRunning()).isTrue();
@@ -486,6 +496,8 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
+    context.getBeanFactory().registerDependentBean("simpleBean", "beanMin");
+
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean7.isRunning()).isTrue();
@@ -512,6 +524,8 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
+    context.getBeanFactory().registerDependentBean("bean2", "simpleBean");
+
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean1.isRunning()).isTrue();
