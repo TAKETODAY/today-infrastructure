@@ -19,21 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.OrderComparator;
-import cn.taketoday.core.OrderSourceProvider;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -49,6 +34,21 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.OrderComparator;
+import cn.taketoday.core.OrderSourceProvider;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -232,6 +232,8 @@ public class StandardBeanFactory
   public void removeBeanDefinition(String beanName) {
     beanDefinitionMap.remove(beanName);
     beanDefinitionNames.remove(beanName);
+
+    resetBeanDefinition(beanName);
   }
 
   @Override
@@ -874,13 +876,6 @@ public class StandardBeanFactory
     }
   }
 
-  @Override
-  public void removeBean(String name) {
-    removeBeanDefinition(name);
-    super.removeBean(name);
-  }
-
-
   /**
    * Reset all bean definition caches for the given bean,
    * including the caches of beans that are derived from it.
@@ -901,7 +896,6 @@ public class StandardBeanFactory
     for (BeanDefinitionPostProcessor processor : postProcessors().definitions) {
       processor.resetBeanDefinition(beanName);
     }
-
   }
 
   /**

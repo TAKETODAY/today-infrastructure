@@ -1,6 +1,5 @@
 package cn.taketoday.beans.factory;
 
-
 /**
  * Post-processor callback interface for <i>merged</i> bean definitions at runtime.
  * {@link BeanPostProcessor} implementations may implement this sub-interface in order
@@ -24,11 +23,11 @@ public interface BeanDefinitionPostProcessor extends BeanPostProcessor {
    * Post-process the given merged bean definition for the specified bean.
    *
    * @param beanDefinition the merged bean definition for the bean
-   * @param beanType the actual type of the managed bean instance
+   * @param bean the actual type of the managed bean instance
    * @param beanName the name of the bean
    * @see AbstractAutowireCapableBeanFactory#applyBeanDefinitionPostProcessors
    */
-  void postProcessBeanDefinition(BeanDefinition beanDefinition, Class<?> beanType, String beanName);
+  void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName);
 
   /**
    * A notification that the bean definition for the specified name has been reset,
@@ -38,7 +37,6 @@ public interface BeanDefinitionPostProcessor extends BeanPostProcessor {
    * @param beanName the name of the bean
    * @see StandardBeanFactory#resetBeanDefinition
    */
-  default void resetBeanDefinition(String beanName) {
-  }
+  default void resetBeanDefinition(String beanName) { }
 
 }

@@ -38,21 +38,6 @@ import cn.taketoday.lang.Nullable;
 public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, SingletonBeanRegistry {
 
   /**
-   * Remove bean with the given name
-   *
-   * @param name bean name
-   */
-  void removeBean(String name);
-
-  /**
-   * Remove bean with the given bean class
-   *
-   * @param beanClass bean type
-   * @since 4.0
-   */
-  void removeBean(Class<?> beanClass);
-
-  /**
    * Destroy the given bean instance (usually a prototype instance
    * obtained from this factory) according to its bean definition.
    * <p>Any exception that arises during destruction should be caught

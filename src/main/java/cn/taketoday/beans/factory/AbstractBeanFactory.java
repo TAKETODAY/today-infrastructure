@@ -19,6 +19,17 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
@@ -40,18 +51,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 /**
  * @author TODAY 2018-06-23 11:20:58
@@ -1083,19 +1082,6 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
   // Implementation of ConfigurableBeanFactory interface
   //---------------------------------------------------------------------
-
-  @Override
-  public void removeBean(String name) {
-    removeSingleton(name);
-  }
-
-  @Override
-  public void removeBean(Class<?> beanClass) {
-    Set<String> beanNamesOfType = getBeanNamesForType(beanClass, true, true);
-    for (String name : beanNamesOfType) {
-      removeBean(name);
-    }
-  }
 
   @Override
   public void destroyBean(String name, Object beanInstance) {

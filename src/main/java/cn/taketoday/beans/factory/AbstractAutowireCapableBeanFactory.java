@@ -185,11 +185,11 @@ public abstract class AbstractAutowireCapableBeanFactory
     synchronized(definition) {
       if (!definition.postProcessed) {
         try {
-          applyBeanDefinitionPostProcessors(mbd, beanType, beanName);
+          applyBeanDefinitionPostProcessors(definition, bean, beanName);
         }
         catch (Throwable ex) {
           throw new BeanCreationException(definition.getResourceDescription(), beanName,
-                  "Post-processing of merged bean definition failed", ex);
+                  "Post-processing of bean definition failed", ex);
         }
         definition.postProcessed = true;
       }
@@ -468,16 +468,16 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Apply MergedBeanDefinitionPostProcessors to the specified bean definition,
-   * invoking their {@code postProcessMergedBeanDefinition} methods.
+   * Apply BeanDefinitionPostProcessors to the specified bean definition,
+   * invoking their {@code postProcessBeanDefinition} methods.
    *
    * @param mbd the merged bean definition for the bean
-   * @param beanType the actual type of the managed bean instance
+   * @param bean the actual bean instance
    * @param beanName the name of the bean
    */
-  protected void applyBeanDefinitionPostProcessors(BeanDefinition mbd, Class<?> beanType, String beanName) {
+  protected void applyBeanDefinitionPostProcessors(BeanDefinition mbd, Object bean, String beanName) {
     for (BeanDefinitionPostProcessor processor : postProcessors().definitions) {
-      processor.postProcessBeanDefinition(mbd, beanType, beanName);
+      processor.postProcessBeanDefinition(mbd, bean, beanName);
     }
   }
 
