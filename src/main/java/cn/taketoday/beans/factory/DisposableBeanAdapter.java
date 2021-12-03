@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -57,9 +55,6 @@ import cn.taketoday.util.ReflectionUtils;
  */
 final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
   private static final Logger log = LoggerFactory.getLogger(DisposableBeanAdapter.class);
-
-  public static final Class<? extends Annotation>
-          PreDestroy = ClassUtils.load("jakarta.annotation.PreDestroy");
 
   private static final String CLOSE_METHOD_NAME = "close";
   private static final String DESTROY_METHOD_NAME = "destroy";
@@ -240,11 +235,11 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     }
     catch (InvocationTargetException ex) {
       log.warn("Custom destroy method '{}' on bean with name '{}' threw an exception: {}",
-               this.destroyMethodName, this.beanName, ex.getTargetException(), ex);
+              this.destroyMethodName, this.beanName, ex.getTargetException(), ex);
     }
     catch (Throwable ex) {
       log.warn("Failed to invoke custom destroy method '{}' on bean with name '{}'",
-               this.destroyMethodName, this.beanName, ex);
+              this.destroyMethodName, this.beanName, ex);
     }
   }
 
