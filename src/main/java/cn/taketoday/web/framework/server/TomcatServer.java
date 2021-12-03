@@ -58,10 +58,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.naming.NamingException;
 
+import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
@@ -78,7 +78,6 @@ import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.session.SessionConfiguration;
 import cn.taketoday.web.session.SessionCookieConfiguration;
-import jakarta.annotation.PreDestroy;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContainerInitializer;
 import lombok.Getter;
@@ -91,7 +90,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class TomcatServer extends AbstractServletWebServer {
+public class TomcatServer extends AbstractServletWebServer implements DisposableBean {
 
   // connector
   private String protocol = "HTTP/1.1";
@@ -225,12 +224,14 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   @Override
-  @PreDestroy
+  public void destroy() throws Exception {
+    stop();
+  }
+
+  @Override
   public synchronized void stop() throws WebServerException {
     try {
-      AtomicBoolean started = getStarted();
-      if (started.get()) {
-        started.set(false);
+      if (getStarted().compareAndSet(true, false)) {
         stopSilently();
       }
     }
@@ -287,8 +288,8 @@ public class TomcatServer extends AbstractServletWebServer {
       // Start the server to trigger initialization listeners
       this.tomcat.start();
       try {
-        ContextBindings.bindClassLoader(context, context.getNamingToken(),
-                                        getClass().getClassLoader());
+        ContextBindings.bindClassLoader(
+                context, context.getNamingToken(), getClass().getClassLoader());
       }
       catch (NamingException ex) {
         // Naming is not enabled. Continue
@@ -399,7 +400,7 @@ public class TomcatServer extends AbstractServletWebServer {
     JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
     if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
       // org.apache.jasper.servlet.JasperInitializer
-      Class<ServletContainerInitializer> jasperInitializer = //
+      Class<ServletContainerInitializer> jasperInitializer =
               ClassUtils.load("org.apache.jasper.servlet.JasperInitializer");
       if (jasperInitializer != null) {
         context.addServletContainerInitializer(
