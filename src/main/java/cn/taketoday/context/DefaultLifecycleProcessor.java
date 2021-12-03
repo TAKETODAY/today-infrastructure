@@ -127,7 +127,6 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     return this.running;
   }
 
-
   // Internal helpers
 
   private void startBeans(boolean autoStartupOnly) {
@@ -136,11 +135,10 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     for (Map.Entry<String, Lifecycle> entry : lifecycleBeans.entrySet()) {
       String beanName = entry.getKey();
       Lifecycle bean = entry.getValue();
-      if (!autoStartupOnly || (bean instanceof SmartLifecycle && ((SmartLifecycle) bean).isAutoStartup())) {
+      if (!autoStartupOnly || (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup())) {
         int phase = getPhase(bean);
-        phases.computeIfAbsent(
-                phase, p -> new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly)
-        ).add(beanName, bean);
+        phases.computeIfAbsent(phase, p -> new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly))
+                .add(beanName, bean);
       }
     }
 
@@ -159,8 +157,13 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private void doStart(Map<String, ? extends Lifecycle> lifecycleBeans, String beanName, boolean autoStartupOnly) {
     Lifecycle bean = lifecycleBeans.remove(beanName);
     if (bean != null && bean != this) {
-      if (!bean.isRunning() &&
-              (!autoStartupOnly || !(bean instanceof SmartLifecycle) || ((SmartLifecycle) bean).isAutoStartup())) {
+      String[] dependenciesForBean = getBeanFactory().getDependenciesForBean(beanName);
+      for (String dependency : dependenciesForBean) {
+        doStart(lifecycleBeans, dependency, autoStartupOnly);
+      }
+
+      if (!bean.isRunning()
+              && (!autoStartupOnly || !(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup())) {
         if (logger.isTraceEnabled()) {
           logger.trace("Starting bean '{}' of type [{}]", beanName, bean.getClass().getName());
         }
@@ -210,14 +213,19 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
           String beanName, CountDownLatch latch, Set<String> countDownBeanNames) {
     Lifecycle bean = lifecycleBeans.remove(beanName);
     if (bean != null) {
+      String[] dependentBeans = getBeanFactory().getDependentBeans(beanName);
+      for (String dependentBean : dependentBeans) {
+        doStop(lifecycleBeans, dependentBean, latch, countDownBeanNames);
+      }
+
       try {
         if (bean.isRunning()) {
-          if (bean instanceof SmartLifecycle) {
+          if (bean instanceof SmartLifecycle smartLifecycle) {
             if (logger.isTraceEnabled()) {
               logger.trace("Asking bean '{}' of type [{}] to stop", beanName, bean.getClass().getName());
             }
             countDownBeanNames.add(beanName);
-            ((SmartLifecycle) bean).stop(() -> {
+            smartLifecycle.stop(() -> {
               latch.countDown();
               countDownBeanNames.remove(beanName);
               logger.debug("Bean '{}' completed its stop procedure", beanName);
@@ -361,7 +369,6 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       }
     }
   }
-
 
   /**
    * Adapts the Comparable interface onto the lifecycle phase model.
