@@ -20,6 +20,16 @@
 
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -38,22 +48,11 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 /**
  * @author TODAY 2021/10/2 22:45
  * @since 4.0
  */
 public class BeanDefinitionBuilder {
-  public static final String PostConstruct = "jakarta.annotation.PostConstruct";
 
   /** bean name. */
   private String name;
@@ -435,22 +434,17 @@ public class BeanDefinitionBuilder {
    */
   public static Method[] computeInitMethod(@Nullable String[] initMethods, Class<?> beanClass) {
     ArrayList<Method> methods = new ArrayList<>(2);
-    boolean initMethodsNotEmpty = ObjectUtils.isNotEmpty(initMethods);
-    // @since 4.0 use ReflectionUtils.doWithMethods
-    ReflectionUtils.doWithMethods(beanClass, method -> {
-      if (AnnotatedElementUtils.isAnnotated(method, PostConstruct)) {
-        methods.add(method);
-      }
-      else if (initMethodsNotEmpty) {
+    if (ObjectUtils.isNotEmpty(initMethods)) {
+      // @since 4.0 use ReflectionUtils.doWithMethods
+      ReflectionUtils.doWithMethods(beanClass, method -> {
         String name = method.getName();
         for (String initMethod : initMethods) {
           if (initMethod.equals(name)) { // equals
             methods.add(method);
           }
         }
-      }
-    });
-
+      });
+    }
     if (methods.isEmpty()) {
       return BeanDefinition.EMPTY_METHOD;
     }

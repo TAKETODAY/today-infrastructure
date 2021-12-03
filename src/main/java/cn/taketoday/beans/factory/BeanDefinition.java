@@ -19,6 +19,14 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyValues;
@@ -32,14 +40,6 @@ import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author TODAY 2019-02-01 12:23
@@ -94,11 +94,13 @@ public class BeanDefinition
    *
    * @since 2.3.3
    */
+  @Nullable
   private String[] initMethods;
 
   /**
    * @since 2.3.3
    */
+  @Nullable
   private String destroyMethod;
 
   /**
@@ -117,9 +119,11 @@ public class BeanDefinition
    *
    * @since 2.0.0
    */
+  @Nullable
   private Boolean factoryBean;
 
   /** lazy init flag @since 3.0 */
+  @Nullable
   private Boolean lazyInit;
   /** @since 3.0 bean instance supplier */
   private Supplier<?> instanceSupplier;
@@ -146,6 +150,7 @@ public class BeanDefinition
   @Nullable
   private String factoryMethodName;
 
+  @Nullable
   private Object[] constructorArgs;
 
   /** disable DI @since 4.0 */
@@ -328,8 +333,9 @@ public class BeanDefinition
   /**
    * Get init methods
    *
-   * @return Get all the init methods, never be null
+   * @return Get all the init methods
    */
+  @Nullable
   public String[] getInitMethods() {
     return initMethods;
   }
@@ -368,6 +374,7 @@ public class BeanDefinition
    *
    * @return If Bean is a {@link FactoryBean}
    */
+  @Nullable
   public Boolean isFactoryBean() {
     return factoryBean;
   }
@@ -400,7 +407,7 @@ public class BeanDefinition
    *
    * @param factoryBean If its a {@link FactoryBean}
    */
-  public void setFactoryBean(Boolean factoryBean) {
+  public void setFactoryBean(@Nullable Boolean factoryBean) {
     this.factoryBean = factoryBean;
   }
 
@@ -436,9 +443,9 @@ public class BeanDefinition
   /**
    * Apply bean' destroy {@link Method}s
    *
-   * @param destroyMethod The array of the bean's destroy {@link Method}s
+   * @param destroyMethod The bean's destroy {@link Method} names
    */
-  public void setDestroyMethod(String destroyMethod) {
+  public void setDestroyMethod(@Nullable String destroyMethod) {
     this.destroyMethod = destroyMethod;
   }
 
@@ -541,6 +548,7 @@ public class BeanDefinition
    * @return the lazy-init flag if explicitly set, or {@code null} otherwise
    * @since 3.0
    */
+  @Nullable
   public Boolean getLazyInit() {
     return this.lazyInit;
   }
@@ -658,11 +666,12 @@ public class BeanDefinition
   }
 
   /** @since 4.0 */
-  public void setConstructorArgs(Object... constructorArgs) {
+  public void setConstructorArgs(@Nullable Object... constructorArgs) {
     this.constructorArgs = constructorArgs;
   }
 
   /** @since 4.0 */
+  @Nullable
   public Object[] getConstructorArgs() {
     return constructorArgs;
   }
