@@ -78,7 +78,9 @@ import cn.taketoday.util.ReflectionUtils;
  */
 @SuppressWarnings("serial")
 public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
-        implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor, InitializationBeanPostProcessor, PriorityOrdered, Serializable {
+        implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor,
+                   InitializationBeanPostProcessor, PriorityOrdered, Serializable {
+
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
 
   private final transient LifecycleMetadata emptyLifecycleMetadata =

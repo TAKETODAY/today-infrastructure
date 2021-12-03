@@ -51,9 +51,9 @@ class BeanFactoryTests {
 
   private StandardApplicationContext context;
 
-  private ConfigurableBeanFactory beanFactory;
+  private StandardBeanFactory beanFactory;
 
-  public ConfigurableBeanFactory getBeanFactory() {
+  public StandardBeanFactory getBeanFactory() {
     return beanFactory;
   }
 
@@ -150,7 +150,6 @@ class BeanFactoryTests {
     log.debug("type: {}", type);
     assert Implements1.class == type;
   }
-
 
   @Test
   void isPrototype() throws NoSuchBeanDefinitionException {
@@ -261,7 +260,7 @@ class BeanFactoryTests {
 
   @Test
   void registerBean() {
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    StandardBeanFactory beanFactory = getBeanFactory();
     // System.err.println(beanFactory);
 
     RegisterBean obj = new RegisterBean();
@@ -273,7 +272,7 @@ class BeanFactoryTests {
             .isEqualTo(obj)
             .isNotNull();
 
-    beanFactory.removeBean("registerBean");
+    beanFactory.removeBeanDefinition("registerBean");
 
     // @since 4.0
 
@@ -309,7 +308,7 @@ class BeanFactoryTests {
             .isNotNull()
             .isEqualTo(beanFactory.getBean(RegisterBeanSupplier.class));
 
-    beanFactory.removeBean("AnnotationBean");
+    beanFactory.removeBeanDefinition("AnnotationBean");
     // Annotation
     context.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, true);
 
@@ -317,7 +316,8 @@ class BeanFactoryTests {
             .isNotNull()
             .isEqualTo(beanFactory.getBean("annotationRegisterBeanSupplier"));
 
-    beanFactory.removeBean(AnnotationRegisterBeanSupplier.class);
+    beanFactory.getBeanNamesForType(AnnotationRegisterBeanSupplier.class, true, false)
+            .forEach(beanFactory::removeBeanDefinition);
 
     context.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, false);
 

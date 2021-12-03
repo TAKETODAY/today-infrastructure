@@ -20,13 +20,14 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.beans.DependencyResolvingFailedException;
-import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.context.StandardApplicationContext;
-import lombok.Data;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+
+import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.DependencyResolvingFailedException;
+import cn.taketoday.context.StandardApplicationContext;
+import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -54,8 +55,7 @@ class ParameterHandlerTests {
       Object[] resolve = argumentsResolver.resolve(test);
       fail("ArgumentsResolvingStrategy");
     }
-    catch (DependencyResolvingFailedException ignored) {
-    }
+    catch (DependencyResolvingFailedException ignored) { }
   }
 
   @Test
