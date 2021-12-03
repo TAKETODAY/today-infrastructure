@@ -20,15 +20,12 @@
 
 package cn.taketoday.context;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Supplier;
-
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
@@ -39,6 +36,11 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * ApplicationContext default implementation
@@ -283,6 +285,58 @@ public class DefaultApplicationContext
   @Override
   public void registerSingleton(String name, Object obj) {
     getBeanDefinitionReader().registerSingleton(name, obj);
+  }
+
+  /**
+   * Register a singleton bean with the underlying bean factory.
+   * <p>For more advanced needs, register with the underlying BeanFactory directly.
+   *
+   * @see #getBeanFactory
+   */
+  public void registerSingleton(String name, Class<?> clazz) throws BeansException {
+    BeanDefinition bd = new BeanDefinition();
+    bd.setBeanClass(clazz);
+    getBeanFactory().registerBeanDefinition(name, bd);
+  }
+
+  /**
+   * Register a singleton bean with the underlying bean factory.
+   * <p>For more advanced needs, register with the underlying BeanFactory directly.
+   *
+   * @see #getBeanFactory()
+   */
+  public void registerSingleton(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
+    BeanDefinition bd = new BeanDefinition();
+    bd.setBeanClass(clazz);
+    bd.setPropertyValues(pvs);
+    getBeanFactory().registerBeanDefinition(name, bd);
+  }
+
+  /**
+   * Register a prototype bean with the underlying bean factory.
+   * <p>For more advanced needs, register with the underlying BeanFactory directly.
+   *
+   * @see #getBeanFactory
+   */
+  public void registerPrototype(String name, Class<?> clazz) throws BeansException {
+    BeanDefinition bd = new BeanDefinition();
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bd.setBeanClass(clazz);
+    getBeanFactory().registerBeanDefinition(name, bd);
+  }
+
+  /**
+   * Register a prototype bean with the underlying bean factory.
+   * <p>For more advanced needs, register with the underlying BeanFactory directly.
+   *
+   * @see #getBeanFactory
+   */
+  public void registerPrototype(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
+    BeanDefinition bd = new BeanDefinition();
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bd.setBeanClass(clazz);
+    bd.setPropertyValues(pvs);
+    getBeanFactory().registerBeanDefinition(name, bd);
   }
 
   @Override
