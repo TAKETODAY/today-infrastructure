@@ -1,27 +1,23 @@
-package cn.taketoday.beans.factory.support;
-
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/12/3 16:46
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
-import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
-import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
-import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.PriorityOrdered;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
+package cn.taketoday.beans.factory.support;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -40,6 +36,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.PriorityOrdered;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+
 /**
  * {@link BeanPostProcessor} implementation that invokes annotated init and destroy
  * methods. Allows for an annotation alternative to {@link InitializingBean} and
@@ -56,19 +70,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * may be annotated, but it is recommended to only annotate one single
  * init method and destroy method, respectively.
  *
- * <p>{@link CommonAnnotationBeanPostProcessor}
- * supports the {@link jakarta.annotation.PostConstruct} and {@link jakarta.annotation.PreDestroy}
- * annotations out of the box, as init annotation and destroy annotation, respectively.
- * Furthermore, it also supports the {@link jakarta.annotation.Resource} annotation
- * for annotation-driven injection of named beans.
- *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setInitAnnotationType
  * @see #setDestroyAnnotationType
- * @since 4.0
+ * @since 4.0 2021/12/3 16:46
  */
 @SuppressWarnings("serial")
-public class InitDestroyAnnotationBeanPostProcessor
+public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
         implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor, InitializationBeanPostProcessor, PriorityOrdered, Serializable {
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
 
@@ -89,14 +98,11 @@ public class InitDestroyAnnotationBeanPostProcessor
             }
           };
 
-
   @Nullable
   private Class<? extends Annotation> initAnnotationType;
 
   @Nullable
   private Class<? extends Annotation> destroyAnnotationType;
-
-  private int order = Ordered.LOWEST_PRECEDENCE;
 
   @Nullable
   private final transient ConcurrentHashMap<Class<?>, LifecycleMetadata> lifecycleMetadataCache = new ConcurrentHashMap<>(256);
@@ -123,18 +129,9 @@ public class InitDestroyAnnotationBeanPostProcessor
     this.destroyAnnotationType = destroyAnnotationType;
   }
 
-  public void setOrder(int order) {
-    this.order = order;
-  }
-
   @Override
-  public int getOrder() {
-    return this.order;
-  }
-
-  @Override
-  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Class<?> beanType, String beanName) {
-    LifecycleMetadata metadata = findLifecycleMetadata(beanType);
+  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName) {
+    LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
     metadata.checkConfigMembers(beanDefinition);
   }
 
@@ -242,7 +239,6 @@ public class InitDestroyAnnotationBeanPostProcessor
             new LifecycleMetadata(clazz, initMethods, destroyMethods));
   }
 
-
   //---------------------------------------------------------------------
   // Serialization support
   //---------------------------------------------------------------------
@@ -252,7 +248,6 @@ public class InitDestroyAnnotationBeanPostProcessor
     // Rely on default serialization; just initialize state after deserialization.
     ois.defaultReadObject();
   }
-
 
   /**
    * Class representing information about annotated init and destroy methods.
@@ -348,7 +343,7 @@ public class InitDestroyAnnotationBeanPostProcessor
       }
       this.method = method;
       this.identifier = (Modifier.isPrivate(method.getModifiers()) ?
-              ClassUtils.getQualifiedMethodName(method) : method.getName());
+                         ClassUtils.getQualifiedMethodName(method) : method.getName());
     }
 
     public Method getMethod() {
