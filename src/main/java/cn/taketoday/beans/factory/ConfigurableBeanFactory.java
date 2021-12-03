@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 
@@ -314,5 +315,30 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @since 4.0
    */
   String[] getDependenciesForBean(String beanName);
+
+  /**
+   * Given a bean name, create an alias. We typically use this method to
+   * support names that are illegal within XML ids (used for bean names).
+   * <p>Typically invoked during factory configuration, but can also be
+   * used for runtime registration of aliases. Therefore, a factory
+   * implementation should synchronize alias access.
+   *
+   * @param beanName the canonical name of the target bean
+   * @param alias the alias to be registered for the bean
+   * @throws BeanDefinitionStoreException if the alias is already in use
+   * @since 4.0
+   */
+  void registerAlias(String beanName, String alias) throws BeanDefinitionStoreException;
+
+  /**
+   * Resolve all alias target names and aliases registered in this
+   * factory, applying the given StringValueResolver to them.
+   * <p>The value resolver may for example resolve placeholders
+   * in target bean names and even in alias names.
+   *
+   * @param valueResolver the StringValueResolver to apply
+   * @since 4.0
+   */
+  void resolveAliases(StringValueResolver valueResolver);
 
 }
