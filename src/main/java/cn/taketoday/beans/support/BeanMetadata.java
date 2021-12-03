@@ -308,7 +308,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
       return true;
     if (!(o instanceof BeanMetadata that))
       return false;
-    return Objects.equals(beanClass, that.beanClass);
+    return collectPropertiesFromMethods == that.collectPropertiesFromMethods
+            && beanClass.equals(that.beanClass);
   }
 
   @Override
