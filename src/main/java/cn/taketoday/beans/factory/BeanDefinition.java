@@ -161,6 +161,9 @@ public class BeanDefinition
 
   Method[] initMethodArray;
 
+  /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
+  boolean postProcessed = false;
+
   public BeanDefinition() { }
 
   public BeanDefinition(Class<?> beanClass) {

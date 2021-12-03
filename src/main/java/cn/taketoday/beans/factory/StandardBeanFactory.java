@@ -19,6 +19,21 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.core.OrderComparator;
+import cn.taketoday.core.OrderSourceProvider;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Prototype;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -34,21 +49,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.OrderComparator;
-import cn.taketoday.core.OrderSourceProvider;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -146,7 +146,7 @@ public class StandardBeanFactory
     super.checkForAliasCircle(name, alias);
     if (!isAllowBeanDefinitionOverriding() && containsBeanDefinition(alias)) {
       throw new IllegalStateException("Cannot register alias '" + alias +
-                                              "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
+              "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
     }
   }
 
@@ -189,8 +189,8 @@ public class StandardBeanFactory
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
           log.info("Overriding user-defined bean definition " +
-                           "for bean '{}' with a framework-generated bean " +
-                           "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+                  "for bean '{}' with a framework-generated bean " +
+                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
     }
@@ -878,6 +878,30 @@ public class StandardBeanFactory
   public void removeBean(String name) {
     removeBeanDefinition(name);
     super.removeBean(name);
+  }
+
+
+  /**
+   * Reset all bean definition caches for the given bean,
+   * including the caches of beans that are derived from it.
+   * <p>Called after an existing bean definition has been replaced or removed,
+   * triggering {@link #destroySingleton} and {@link BeanDefinitionPostProcessor#resetBeanDefinition}
+   * on the given bean.
+   *
+   * @param beanName the name of the bean to reset
+   * @see #registerBeanDefinition
+   * @see #removeBeanDefinition
+   */
+  protected void resetBeanDefinition(String beanName) {
+    // Remove corresponding bean from singleton cache, if any. Shouldn't usually
+    // be necessary, rather just meant for overriding a context's default beans
+    destroySingleton(beanName);
+
+    // Notify all post-processors that the specified bean definition has been reset.
+    for (BeanDefinitionPostProcessor processor : postProcessors().definitions) {
+      processor.resetBeanDefinition(beanName);
+    }
+
   }
 
   /**

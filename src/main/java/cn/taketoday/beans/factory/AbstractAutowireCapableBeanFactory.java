@@ -20,14 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyValues;
@@ -44,6 +36,14 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * Abstract bean factory superclass that implements default bean creation,
@@ -180,6 +180,21 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     Object bean = createIfNecessary(beanName, definition, args);
     singletonsCurrentlyInCreationCache.put(beanName, bean);
+
+    // Allow post-processors to modify the merged bean definition.
+    synchronized(definition) {
+      if (!definition.postProcessed) {
+        try {
+          applyBeanDefinitionPostProcessors(mbd, beanType, beanName);
+        }
+        catch (Throwable ex) {
+          throw new BeanCreationException(definition.getResourceDescription(), beanName,
+                  "Post-processing of merged bean definition failed", ex);
+        }
+        definition.postProcessed = true;
+      }
+    }
+
 
     // Eagerly cache singletons to be able to resolve circular references
     // even when triggered by lifecycle interfaces like BeanFactoryAware.
@@ -450,6 +465,20 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
     return null;
+  }
+
+  /**
+   * Apply MergedBeanDefinitionPostProcessors to the specified bean definition,
+   * invoking their {@code postProcessMergedBeanDefinition} methods.
+   *
+   * @param mbd the merged bean definition for the bean
+   * @param beanType the actual type of the managed bean instance
+   * @param beanName the name of the bean
+   */
+  protected void applyBeanDefinitionPostProcessors(BeanDefinition mbd, Class<?> beanType, String beanName) {
+    for (BeanDefinitionPostProcessor processor : postProcessors().definitions) {
+      processor.postProcessBeanDefinition(mbd, beanType, beanName);
+    }
   }
 
   protected Object createBeanInstance(BeanDefinition mbd, @Nullable Object[] args) {

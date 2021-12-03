@@ -1342,6 +1342,7 @@ public abstract class AbstractBeanFactory
   }
 
   protected final static class BeanPostProcessors {
+    public final ArrayList<BeanDefinitionPostProcessor> definitions = new ArrayList<>();
     public final ArrayList<DestructionBeanPostProcessor> destruction = new ArrayList<>();
     public final ArrayList<DependenciesBeanPostProcessor> dependencies = new ArrayList<>();
     public final ArrayList<InitializationBeanPostProcessor> initialization = new ArrayList<>();
@@ -1361,8 +1362,12 @@ public abstract class AbstractBeanFactory
         if (postProcessor instanceof InstantiationAwareBeanPostProcessor instantiation) {
           this.instantiation.add(instantiation);
         }
+        if (postProcessor instanceof BeanDefinitionPostProcessor definition) {
+          this.definitions.add(definition);
+        }
       }
 
+      this.definitions.trimToSize();
       this.destruction.trimToSize();
       this.dependencies.trimToSize();
       this.instantiation.trimToSize();
