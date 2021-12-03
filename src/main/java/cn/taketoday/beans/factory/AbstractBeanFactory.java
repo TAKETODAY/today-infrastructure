@@ -160,6 +160,25 @@ public abstract class AbstractBeanFactory
         return null;
       }
 
+      // Guarantee initialization of beans that the current bean depends on.
+      String[] dependsOn = definition.getDependsOn();
+      if (dependsOn != null) {
+        for (String dep : dependsOn) {
+          if (isDependent(beanName, dep)) {
+            throw new BeanCreationException(definition.getResourceDescription(), beanName,
+                    "Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
+          }
+          registerDependentBean(dep, beanName);
+          try {
+            getBean(dep);
+          }
+          catch (NoSuchBeanDefinitionException ex) {
+            throw new BeanCreationException(definition.getResourceDescription(), beanName,
+                    "'" + beanName + "' depends on missing bean '" + dep + "'", ex);
+          }
+        }
+      }
+
       // 4. Create bean instance.
       if (definition.isSingleton()) {
         beanInstance = getSingleton(beanName, () -> createBean(definition, args));

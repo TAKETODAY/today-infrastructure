@@ -38,6 +38,7 @@ import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -110,7 +111,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-                 (bd) -> bd.setConstructorArgs(constructorArgs));
+            (bd) -> bd.setConstructorArgs(constructorArgs));
   }
 
   @Override
@@ -324,6 +325,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       definition.setRole(roleMergedAnnotation.getInt(MergedAnnotation.VALUE));
     }
 
+    MergedAnnotation<DependsOn> dependsOn = annotations.get(DependsOn.class);
+    if (dependsOn != null) {
+      definition.setDependsOn(dependsOn.getStringValueArray());
+    }
+
     // DisableDependencyInjection
     if (annotations.isPresent(DisableDependencyInjection.class)) {
       definition.setEnableDependencyInjection(false);
@@ -331,7 +337,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   }
 
   private void doRegisterWithAnnotationMetadata(
-          AnnotationMetadata metadata, BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
+          AnnotationMetadata metadata, BeanDefinition definition,
+          @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
     MergedAnnotations annotations = metadata.getAnnotations();
     applyAnnotationMetadata(annotations, definition);
 

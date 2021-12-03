@@ -193,11 +193,30 @@ public class StandardBeanFactory
                   "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
+      else if (!def.equals(existBeanDef)) {
+        if (log.isDebugEnabled()) {
+          log.debug("Overriding bean definition for bean '" + beanName +
+                  "' with a different definition: replacing [" + existBeanDef +
+                  "] with [" + def + "]");
+        }
+      }
+      else {
+        if (log.isTraceEnabled()) {
+          log.trace("Overriding bean definition for bean '" + beanName +
+                  "' with an equivalent definition: replacing [" + existBeanDef +
+                  "] with [" + def + "]");
+        }
+      }
+      this.beanDefinitionMap.put(beanName, def);
+    }
+    else {
+      beanDefinitionMap.put(beanName, def);
+      beanDefinitionNames.add(beanName);
     }
 
-    beanDefinitionMap.put(beanName, def);
-    beanDefinitionNames.add(beanName);
-    postProcessRegisterBeanDefinition(def);
+    if (existBeanDef != null || containsSingleton(beanName)) {
+      resetBeanDefinition(beanName);
+    }
   }
 
   /**
@@ -219,20 +238,14 @@ public class StandardBeanFactory
     return def;
   }
 
-  /**
-   * Process after register {@link BeanDefinition}
-   *
-   * @param targetDef Target {@link BeanDefinition}
-   */
-  protected void postProcessRegisterBeanDefinition(BeanDefinition targetDef) {
-
-  }
-
   @Override
   public void removeBeanDefinition(String beanName) {
-    beanDefinitionMap.remove(beanName);
+    Assert.hasText(beanName, "'beanName' must not be empty");
+    BeanDefinition removed = beanDefinitionMap.remove(beanName);
+    if (removed == null) {
+      log.trace("No bean named '{}' found in {}", beanName, this);
+    }
     beanDefinitionNames.remove(beanName);
-
     resetBeanDefinition(beanName);
   }
 

@@ -169,6 +169,9 @@ public class BeanDefinition
   /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
 
+  @Nullable
+  private String[] dependsOn;
+
   public BeanDefinition() { }
 
   public BeanDefinition(Class<?> beanClass) {
@@ -569,8 +572,9 @@ public class BeanDefinition
     setInitialized(from.isInitialized());
 
     setRole(from.getRole());
-    setSynthetic(from.isSynthetic());
     setPrimary(from.isPrimary());
+    setSynthetic(from.isSynthetic());
+    setDependsOn(from.getDependsOn());
 
     this.source = from.source;
     this.beanClass = from.beanClass;
@@ -594,6 +598,7 @@ public class BeanDefinition
     setInitMethods(from.getInitMethods());
 
     copyAttributesFrom(from);
+
   }
 
   /** @since 4.0 */
@@ -759,6 +764,29 @@ public class BeanDefinition
   @Nullable
   public Object getSource() {
     return this.source;
+  }
+
+  /**
+   * Set the names of the beans that this bean depends on being initialized.
+   * The bean factory will guarantee that these beans get initialized first.
+   * <p>Note that dependencies are normally expressed through bean properties or
+   * constructor arguments. This property should just be necessary for other kinds
+   * of dependencies like statics (*ugh*) or database preparation on startup.
+   *
+   * @since 4.0
+   */
+  public void setDependsOn(@Nullable String... dependsOn) {
+    this.dependsOn = dependsOn;
+  }
+
+  /**
+   * Return the bean names that this bean depends on.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String[] getDependsOn() {
+    return this.dependsOn;
   }
 
   /** @since 4.0 */
