@@ -23,10 +23,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -34,6 +37,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionException;
@@ -96,6 +100,13 @@ public abstract class AbstractBeanFactory
   /** object from a factory-bean map @since 4.0 */
   private final HashMap<String, Object> objectFromFactoryBeanCache = new HashMap<>();
 
+  /** Names of beans that have already been created at least once. */
+  private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
+
+  /** Names of beans that are currently in creation. */
+  private final ThreadLocal<Object> prototypesCurrentlyInCreation =
+          new NamedThreadLocal<>("Prototype beans currently in creation");
+
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
@@ -118,14 +129,24 @@ public abstract class AbstractBeanFactory
     return doGetBean(name, null, args);
   }
 
-  @SuppressWarnings("unchecked")
   @Nullable
   protected <T> T doGetBean(String name, Class<?> requiredType, Object[] args) throws BeansException {
+    return doGetBean(name, requiredType, args, false);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T doGetBean(
+          String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
     // 1. check singleton cache
     Object beanInstance = getSingleton(beanName);
     if (beanInstance == null) {
+      // Fail if we're already creating this bean instance:
+      // We're assumably within a circular reference.
+      if (isPrototypeCurrentlyInCreation(beanName)) {
+        throw new BeanCurrentlyInCreationException(beanName);
+      }
 
       BeanDefinition definition = getBeanDefinition(beanName);
       if (definition == null) {
@@ -160,6 +181,10 @@ public abstract class AbstractBeanFactory
         return null;
       }
 
+      if (!typeCheckOnly) {
+        markBeanAsCreated(beanName);
+      }
+
       // Guarantee initialization of beans that the current bean depends on.
       String[] dependsOn = definition.getDependsOn();
       if (dependsOn != null) {
@@ -178,49 +203,53 @@ public abstract class AbstractBeanFactory
           }
         }
       }
-
-      // 4. Create bean instance.
-      if (definition.isSingleton()) {
-        beanInstance = getSingleton(beanName, () -> createBean(definition, args));
-        definition.setInitialized(true);
-      }
-      else if (definition.isPrototype()) {
-        // It's a prototype -> just create a new instance.
-        try {
-          beforePrototypeCreation(beanName);
-          beanInstance = createBean(definition, args);
+      try {
+        // 4. Create bean instance.
+        if (definition.isSingleton()) {
+          beanInstance = getSingleton(beanName, () -> createBean(definition, args));
+          definition.setInitialized(true);
         }
-        finally {
-          afterPrototypeCreation(beanName);
-        }
-      }
-      else {
-        String scopeName = definition.getScope();
-        if (StringUtils.isEmpty(scopeName)) {
-          throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
-        }
-        Scope scope = this.scopes.get(scopeName);
-        if (scope == null) {
-          throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
-        }
-        beanInstance = scope.get(beanName, () -> {
-          beforePrototypeCreation(beanName);
+        else if (definition.isPrototype()) {
+          // It's a prototype -> just create a new instance.
           try {
-            return createBean(definition, args);
+            beforePrototypeCreation(beanName);
+            beanInstance = createBean(definition, args);
           }
           finally {
             afterPrototypeCreation(beanName);
           }
-        });
+        }
+        else {
+          String scopeName = definition.getScope();
+          if (StringUtils.isEmpty(scopeName)) {
+            throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
+          }
+          Scope scope = this.scopes.get(scopeName);
+          if (scope == null) {
+            throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
+          }
+          beanInstance = scope.get(beanName, () -> {
+            beforePrototypeCreation(beanName);
+            try {
+              return createBean(definition, args);
+            }
+            finally {
+              afterPrototypeCreation(beanName);
+            }
+          });
+        }
+        beanInstance = handleFactoryBean(name, beanName, definition, beanInstance);
+      }
+      catch (BeansException e) {
+        cleanupAfterBeanCreationFailure(beanName);
+        throw e;
       }
     }
-    beanInstance = handleFactoryBean(name, beanName, beanInstance);
+    else {
+      beanInstance = handleFactoryBean(name, beanName, null, beanInstance);
+    }
     return adaptBeanInstance(beanName, beanInstance, requiredType);
   }
-
-  protected void afterPrototypeCreation(String beanName) { }
-
-  protected void beforePrototypeCreation(String beanName) { }
 
   /**
    * Create a bean instance for the given bean definition (and arguments).
@@ -233,99 +262,6 @@ public abstract class AbstractBeanFactory
    */
   protected abstract Object createBean(
           BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException;
-
-  /**
-   * Get the object for the given bean instance, either the bean
-   * instance itself or its created object in case of a FactoryBean.
-   *
-   * @param beanInstance the shared bean instance
-   * @param name the name that may include factory dereference prefix
-   * @param beanName the canonical bean name
-   * @return the object to expose for the bean
-   */
-  @Nullable
-  protected Object handleFactoryBean(
-          String name, String beanName, Object beanInstance) throws BeansException {
-    // Don't let calling code try to dereference the factory if the bean isn't a factory.
-    if (BeanFactoryUtils.isFactoryDereference(name)) {
-      if (!(beanInstance instanceof FactoryBean)) {
-        throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
-      }
-      return beanInstance;
-    }
-
-    // Now we have the bean instance, which may be a normal bean or a FactoryBean.
-    // If it's a FactoryBean, we use it to create a bean instance, unless the
-    // caller actually wants a reference to the factory.
-    if (beanInstance instanceof FactoryBean<?> factory) {
-      if (log.isDebugEnabled()) {
-        log.debug("Bean with name '{}' is a factory bean", beanName);
-      }
-      beanInstance = objectFromFactoryBeanCache.get(beanName);
-      if (beanInstance == null) {
-        // get bean from FactoryBean
-        beanInstance = getObjectFromFactoryBean(factory, beanName);
-      }
-      else if (beanInstance == NullValue.INSTANCE) {
-        return null;
-      }
-    }
-    return beanInstance;
-  }
-
-  /**
-   * Obtain an object to expose from the given FactoryBean.
-   *
-   * @param factory the FactoryBean instance
-   * @param beanName the name of the bean
-   * @return the object obtained from the FactoryBean
-   * @throws BeanCreationException if FactoryBean object creation failed
-   * @see FactoryBean#getObject()
-   */
-  protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName) {
-    if (factory.isSingleton() && containsSingleton(beanName)) {
-      synchronized(getSingletons()) {
-        Object object = objectFromFactoryBeanCache.get(beanName);
-        if (object == null) {
-          object = doGetObjectFromFactoryBean(factory, beanName);
-          if (object == null) {
-            object = NullValue.INSTANCE;
-          }
-          objectFromFactoryBeanCache.put(beanName, object);
-        }
-        if (object == NullValue.INSTANCE) {
-          return null;
-        }
-        return object;
-      }
-    }
-    else {
-      return doGetObjectFromFactoryBean(factory, beanName);
-    }
-  }
-
-  /**
-   * Obtain an object to expose from the given FactoryBean.
-   *
-   * @param factory the FactoryBean instance
-   * @param beanName the name of the bean
-   * @return the object obtained from the FactoryBean
-   * @throws BeanCreationException if FactoryBean object creation failed
-   * @see FactoryBean#getObject()
-   */
-  private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, String beanName) throws BeanCreationException {
-    Object object;
-    try {
-      object = factory.getObject();
-    }
-    catch (Throwable ex) {
-      throw new BeanCreationException(beanName, "FactoryBean threw exception on object creation", ex);
-    }
-
-    // Do not accept a null value for a FactoryBean that's not fully
-    // initialized yet: Many FactoryBeans just return null then.
-    return object;
-  }
 
   @SuppressWarnings("unchecked")
   @Nullable
@@ -846,7 +782,7 @@ public abstract class AbstractBeanFactory
         }
         // fall back to fully creation of the FactoryBean instance.
         if (definition.isSingleton()) {
-          factoryBean = doGetBean(FACTORY_BEAN_PREFIX + definition.getName(), FactoryBean.class, null);
+          factoryBean = doGetBean(FACTORY_BEAN_PREFIX + definition.getName(), FactoryBean.class, null, true);
           return getTypeForFactoryBean(factoryBean);
         }
       }
@@ -1344,6 +1280,294 @@ public abstract class AbstractBeanFactory
   // @since 4.0
   private void invalidatePostProcessorsCache() {
     postProcessorCache = null;
+  }
+
+  //---------------------------------------------------------------------
+  // alreadyCreated
+  //---------------------------------------------------------------------
+
+  /**
+   * Mark the specified bean as already created (or about to be created).
+   * <p>This allows the bean factory to optimize its caching for repeated
+   * creation of the specified bean.
+   *
+   * @param beanName the name of the bean
+   * @since 4.0
+   */
+  protected void markBeanAsCreated(String beanName) {
+    this.alreadyCreated.add(beanName);
+  }
+
+  /**
+   * Perform appropriate cleanup of cached metadata after bean creation failed.
+   *
+   * @param beanName the name of the bean
+   * @since 4.0
+   */
+  protected void cleanupAfterBeanCreationFailure(String beanName) {
+    this.alreadyCreated.remove(beanName);
+  }
+
+  /**
+   * Remove the singleton instance (if any) for the given bean name,
+   * but only if it hasn't been used for other purposes than type checking.
+   *
+   * @param beanName the name of the bean
+   * @return {@code true} if actually removed, {@code false} otherwise
+   * @since 4.0
+   */
+  protected boolean removeSingletonIfCreatedForTypeCheckOnly(String beanName) {
+    if (!this.alreadyCreated.contains(beanName)) {
+      removeSingleton(beanName);
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Check whether this factory's bean creation phase already started,
+   * i.e. whether any bean has been marked as created in the meantime.
+   *
+   * @see #markBeanAsCreated
+   * @since 4.0
+   */
+  protected boolean hasBeanCreationStarted() {
+    return !this.alreadyCreated.isEmpty();
+  }
+
+  @Override
+  public boolean isActuallyInCreation(String beanName) {
+    return isSingletonCurrentlyInCreation(beanName) || isPrototypeCurrentlyInCreation(beanName);
+  }
+
+  /**
+   * Return whether the specified prototype bean is currently in creation
+   * (within the current thread).
+   *
+   * @param beanName the name of the bean
+   * @since 4.0
+   */
+  protected boolean isPrototypeCurrentlyInCreation(String beanName) {
+    Object curVal = this.prototypesCurrentlyInCreation.get();
+    return (curVal != null &&
+            (curVal.equals(beanName) || (curVal instanceof Set && ((Set<?>) curVal).contains(beanName))));
+  }
+
+  /**
+   * Callback before prototype creation.
+   * <p>The default implementation register the prototype as currently in creation.
+   *
+   * @param beanName the name of the prototype about to be created
+   * @see #isPrototypeCurrentlyInCreation
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  protected void beforePrototypeCreation(String beanName) {
+    Object curVal = this.prototypesCurrentlyInCreation.get();
+    if (curVal == null) {
+      this.prototypesCurrentlyInCreation.set(beanName);
+    }
+    else if (curVal instanceof String) {
+      Set<String> beanNameSet = new HashSet<>(2);
+      beanNameSet.add((String) curVal);
+      beanNameSet.add(beanName);
+      this.prototypesCurrentlyInCreation.set(beanNameSet);
+    }
+    else {
+      Set<String> beanNameSet = (Set<String>) curVal;
+      beanNameSet.add(beanName);
+    }
+  }
+
+  /**
+   * Callback after prototype creation.
+   * <p>The default implementation marks the prototype as not in creation anymore.
+   *
+   * @param beanName the name of the prototype that has been created
+   * @see #isPrototypeCurrentlyInCreation
+   */
+  @SuppressWarnings("unchecked")
+  protected void afterPrototypeCreation(String beanName) {
+    Object curVal = this.prototypesCurrentlyInCreation.get();
+    if (curVal instanceof String) {
+      this.prototypesCurrentlyInCreation.remove();
+    }
+    else if (curVal instanceof Set) {
+      Set<String> beanNameSet = (Set<String>) curVal;
+      beanNameSet.remove(beanName);
+      if (beanNameSet.isEmpty()) {
+        this.prototypesCurrentlyInCreation.remove();
+      }
+    }
+  }
+
+  //---------------------------------------------------------------------
+  // FactoryBean
+  //---------------------------------------------------------------------
+
+  /**
+   * Get the object for the given bean instance, either the bean
+   * instance itself or its created object in case of a FactoryBean.
+   *
+   * @param name the name that may include factory dereference prefix
+   * @param beanName the canonical bean name
+   * @param definition bean def
+   * @param beanInstance the shared bean instance
+   * @return the object to expose for the bean
+   */
+  @Nullable
+  protected Object handleFactoryBean(
+          String name, String beanName, BeanDefinition definition, Object beanInstance) throws BeansException {
+    // Don't let calling code try to dereference the factory if the bean isn't a factory.
+    if (BeanFactoryUtils.isFactoryDereference(name)) {
+      if (!(beanInstance instanceof FactoryBean)) {
+        throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
+      }
+      return beanInstance;
+    }
+
+    // Now we have the bean instance, which may be a normal bean or a FactoryBean.
+    // If it's a FactoryBean, we use it to create a bean instance, unless the
+    // caller actually wants a reference to the factory.
+    if (beanInstance instanceof FactoryBean<?> factory) {
+      if (log.isDebugEnabled()) {
+        log.debug("Bean with name '{}' is a factory bean", beanName);
+      }
+      beanInstance = objectFromFactoryBeanCache.get(beanName);
+      if (beanInstance == null) {
+        // get bean from FactoryBean
+        boolean synthetic = (definition != null && definition.isSynthetic());
+        beanInstance = getObjectFromFactoryBean(factory, beanName, synthetic);
+      }
+      else if (beanInstance == NullValue.INSTANCE) {
+        return null;
+      }
+    }
+    return beanInstance;
+  }
+
+  /**
+   * Obtain an object to expose from the given FactoryBean.
+   *
+   * @param factory the FactoryBean instance
+   * @param beanName the name of the bean
+   * @param shouldPostProcess whether the bean is subject to post-processing
+   * @return the object obtained from the FactoryBean
+   * @throws BeanCreationException if FactoryBean object creation failed
+   * @see FactoryBean#getObject()
+   */
+  protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+    if (factory.isSingleton() && containsSingleton(beanName)) {
+      synchronized(getSingletonMutex()) {
+        Object object = this.objectFromFactoryBeanCache.get(beanName);
+        if (object == null) {
+          object = doGetObjectFromFactoryBean(factory, beanName);
+          // Only post-process and store if not put there already during getObject() call above
+          // (e.g. because of circular reference processing triggered by custom getBean calls)
+          Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
+          if (alreadyThere != null) {
+            object = alreadyThere;
+          }
+          else {
+            if (shouldPostProcess) {
+              if (isSingletonCurrentlyInCreation(beanName)) {
+                // Temporarily return non-post-processed object, not storing it yet..
+                return object;
+              }
+              beforeSingletonCreation(beanName);
+              try {
+                object = postProcessObjectFromFactoryBean(object, beanName);
+              }
+              catch (Throwable ex) {
+                throw new BeanCreationException(beanName,
+                        "Post-processing of FactoryBean's singleton object failed", ex);
+              }
+              finally {
+                afterSingletonCreation(beanName);
+              }
+            }
+            if (containsSingleton(beanName)) {
+              objectFromFactoryBeanCache.put(beanName, object);
+            }
+          }
+        }
+        return object;
+      }
+    }
+    else {
+      Object object = doGetObjectFromFactoryBean(factory, beanName);
+      if (shouldPostProcess) {
+        try {
+          object = postProcessObjectFromFactoryBean(object, beanName);
+        }
+        catch (Throwable ex) {
+          throw new BeanCreationException(beanName, "Post-processing of FactoryBean's object failed", ex);
+        }
+      }
+      return object;
+    }
+  }
+
+  /**
+   * Obtain an object to expose from the given FactoryBean.
+   *
+   * @param factory the FactoryBean instance
+   * @param beanName the name of the bean
+   * @return the object obtained from the FactoryBean
+   * @throws BeanCreationException if FactoryBean object creation failed
+   * @see FactoryBean#getObject()
+   */
+  private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, String beanName) throws BeanCreationException {
+    Object object;
+    try {
+      object = factory.getObject();
+    }
+    catch (Throwable ex) {
+      throw new BeanCreationException(beanName, "FactoryBean threw exception on object creation", ex);
+    }
+
+    // Do not accept a null value for a FactoryBean that's not fully
+    // initialized yet: Many FactoryBeans just return null then.
+    return object;
+  }
+
+  /**
+   * Post-process the given object that has been obtained from the FactoryBean.
+   * The resulting object will get exposed for bean references.
+   * <p>The default implementation simply returns the given object as-is.
+   * Subclasses may override this, for example, to apply post-processors.
+   *
+   * @param object the object obtained from the FactoryBean.
+   * @param beanName the name of the bean
+   * @return the object to expose
+   * @throws BeansException if any post-processing failed
+   */
+  protected Object postProcessObjectFromFactoryBean(Object object, String beanName) throws BeansException {
+    return object;
+  }
+
+  /**
+   * Overridden to clear the FactoryBean object cache as well.
+   */
+  @Override
+  public void removeSingleton(String beanName) {
+    synchronized(getSingletonMutex()) {
+      super.removeSingleton(beanName);
+      this.objectFromFactoryBeanCache.remove(beanName);
+    }
+  }
+
+  /**
+   * Overridden to clear the FactoryBean object cache as well.
+   */
+  @Override
+  protected void clearSingletonCache() {
+    synchronized(getSingletonMutex()) {
+      super.clearSingletonCache();
+      this.objectFromFactoryBeanCache.clear();
+    }
   }
 
   protected final static class BeanPostProcessors {
