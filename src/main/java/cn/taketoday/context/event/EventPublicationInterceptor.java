@@ -29,6 +29,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.function.Supplier;
 
 /**
@@ -71,6 +72,9 @@ public class EventPublicationInterceptor
    * if it does not expose a constructor that takes a single {@code Object} argument
    */
   public void setApplicationEventClass(Class<?> applicationEventClass) {
+    if (Modifier.isAbstract(applicationEventClass.getModifiers())) {
+      throw new IllegalArgumentException("'applicationEventClass' cannot be abstract");
+    }
     try {
       this.applicationEventConstructor = applicationEventClass.getConstructor(Object.class);
     }
