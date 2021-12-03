@@ -50,6 +50,25 @@ public class BeanDefinition
   public static final String INIT_METHODS = "initMethods";
   public static final String DESTROY_METHOD = "destroyMethod";
   public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
+
+  /**
+   * Scope identifier for the standard singleton scope: {@value}.
+   * <p>Note that extended bean factories might support further scopes.
+   *
+   * @see #setScope
+   * @see Scope#SINGLETON
+   */
+  public static final String SCOPE_SINGLETON = Scope.SINGLETON;
+
+  /**
+   * Scope identifier for the standard prototype scope: {@value}.
+   * <p>Note that extended bean factories might support further scopes.
+   *
+   * @see #setScope
+   * @see Scope#PROTOTYPE
+   */
+  public static final String SCOPE_PROTOTYPE = Scope.PROTOTYPE;
+
   /**
    * Role hint indicating that a {@code BeanDefinition} is a major part
    * of the application. Typically， corresponds to a user-defined bean.
