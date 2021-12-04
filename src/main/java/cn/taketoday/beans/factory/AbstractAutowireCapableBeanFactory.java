@@ -658,7 +658,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       return new BeanMetadata(bean.getClass());
     }
     // fast access
-    return BeanMetadata.ofObject(bean);
+    return BeanMetadata.from(bean);
   }
 
   /** @since 4.0 */

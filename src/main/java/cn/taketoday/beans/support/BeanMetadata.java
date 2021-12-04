@@ -357,8 +357,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @return {@link BeanMetadata}
    * @see ClassUtils#isSimpleType(Class)
    */
-  public static BeanMetadata ofClass(Class<?> beanClass) {
-    return ofClass(beanClass, defaultCollectPropertiesFromMethod);
+  public static BeanMetadata from(Class<?> beanClass) {
+    return from(beanClass, defaultCollectPropertiesFromMethod);
   }
 
   /**
@@ -368,7 +368,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @param collectPropertiesFromMethods collect properties from methods
    * @return {@link BeanMetadata}
    */
-  public static BeanMetadata ofClass(Class<?> beanClass, boolean collectPropertiesFromMethods) {
+  public static BeanMetadata from(Class<?> beanClass, boolean collectPropertiesFromMethods) {
     return metadataMappings.get(new BeanMetadataKey(beanClass, collectPropertiesFromMethods));
   }
 
@@ -379,8 +379,20 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @return {@link BeanMetadata}
    * @see ClassUtils#isSimpleType(Class)
    */
-  public static BeanMetadata ofObject(Object object) {
-    return ofClass(object.getClass());
+  public static BeanMetadata from(Object object) {
+    return from(object.getClass());
+  }
+
+  /**
+   * Create a {@link BeanMetadata} with given bean class
+   *
+   * @param object target bean cannot be simple object
+   * @param collectPropertiesFromMethods collect properties from methods
+   * @return {@link BeanMetadata}
+   * @since 4.0
+   */
+  public static BeanMetadata from(Object object, boolean collectPropertiesFromMethods) {
+    return from(object.getClass(), collectPropertiesFromMethods);
   }
 
   /**

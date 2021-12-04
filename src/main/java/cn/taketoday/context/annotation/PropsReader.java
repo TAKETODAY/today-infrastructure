@@ -251,7 +251,7 @@ public class PropsReader {
   }
 
   public <T> T read(Props props, T bean, PropertyResolver propertyResolver) {
-    for (BeanProperty property : BeanMetadata.ofObject(bean)) {
+    for (BeanProperty property : BeanMetadata.from(bean)) {
       if (!property.isReadOnly()) {
         Object converted = read(property, props, propertyResolver);
         if (converted != null) {

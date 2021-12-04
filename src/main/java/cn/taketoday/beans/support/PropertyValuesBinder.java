@@ -51,7 +51,7 @@ public class PropertyValuesBinder extends BeanPropertyAccessor {
   }
 
   public PropertyValuesBinder(Object object) {
-    super(BeanMetadata.ofObject(object), object);
+    super(BeanMetadata.from(object), object);
   }
 
   public PropertyValuesBinder(BeanMetadata metadata, Object object) {

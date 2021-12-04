@@ -345,7 +345,7 @@ public final class Query implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public Query bind(final Object pojo) {
-    for (BeanProperty property : BeanMetadata.ofObject(pojo)) {
+    for (BeanProperty property : BeanMetadata.from(pojo)) {
       final String name = property.getName();
       try {
         if (queryParameters.containsKey(name)) {

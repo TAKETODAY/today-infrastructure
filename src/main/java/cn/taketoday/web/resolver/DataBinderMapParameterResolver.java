@@ -61,7 +61,7 @@ public class DataBinderMapParameterResolver
 
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
     final Class<?> parameterClass = (Class<?>) parameter.getGeneric(1);
-    final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
+    final BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
     for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       final Object rootObject = parameterMetadata.newInstance();
       final List<PropertyValue> propertyValueList = entry.getValue();

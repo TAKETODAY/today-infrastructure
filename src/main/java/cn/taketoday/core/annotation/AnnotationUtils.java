@@ -76,7 +76,7 @@ public abstract class AnnotationUtils {
   public static <A> A injectAttributes(
           AnnotationAttributes source, Class<?> annotationClass, A instance) {
     Class<?> implClass = instance.getClass();
-    BeanMetadata metadata = BeanMetadata.ofClass(implClass);
+    BeanMetadata metadata = BeanMetadata.from(implClass);
     for (Method method : annotationClass.getDeclaredMethods()) {
       // method name must == field name
       String name = method.getName();
@@ -93,7 +93,7 @@ public abstract class AnnotationUtils {
   public static <A> A injectAttributes(
           MergedAnnotation<?> source, Class<?> annotationClass, A instance) {
     Class<?> implClass = instance.getClass();
-    BeanMetadata metadata = BeanMetadata.ofClass(implClass);
+    BeanMetadata metadata = BeanMetadata.from(implClass);
     for (Method method : annotationClass.getDeclaredMethods()) {
       // method name must == field name
       String name = method.getName();

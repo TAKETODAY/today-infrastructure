@@ -46,7 +46,7 @@ public class BeanMappingTests {
   @Test
   public void testBeanMapping() {
     final BeanMappingTestBean testBean = new BeanMappingTestBean();
-    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.ofObject(testBean);
+    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
 
     final BeanMap beanMap = BeanMap.create(testBean);
 
@@ -62,7 +62,7 @@ public class BeanMappingTests {
   //  @Test
   public void benchmark() {
     final BeanMappingTestBean testBean = new BeanMappingTestBean();
-    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.ofObject(testBean);
+    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
 
     System.out.println(beanMapping);
 
@@ -140,10 +140,10 @@ public class BeanMappingTests {
   @Test
   public void testBeanMap() {
     TestBeanMapBean bean = new TestBeanMapBean();
-    BeanMapping<TestBeanMapBean> map = BeanMapping.ofObject(bean);
-    BeanMapping<TestBeanMapBean> map2 = BeanMapping.ofObject(bean);
-    assertEquals(map.getClass(),
-                 map2.getClass(), "BeanMap.create should use exactly the same bean class when called multiple times");
+    BeanMapping<TestBeanMapBean> map = BeanMapping.from(bean);
+    BeanMapping<TestBeanMapBean> map2 = BeanMapping.from(bean);
+    assertEquals(map.getClass(), map2.getClass(),
+            "BeanMap.create should use exactly the same bean class when called multiple times");
 
     assertEquals(6, map.size());
     assertNull(map.get("foo"));
@@ -163,13 +163,13 @@ public class BeanMappingTests {
   @Test
   public void testEntrySet() {
     TestBeanMapBean bean = new TestBeanMapBean();
-    BeanMapping<TestBeanMapBean> map = BeanMapping.ofObject(bean);
+    BeanMapping<TestBeanMapBean> map = BeanMapping.from(bean);
     assertEquals(map.entrySet().size(), map.size());
   }
 
   @Test
   public void testNoUnderlyingBean() {
-    BeanMapping<TestBeanMapBean> map = BeanMapping.ofClass(TestBeanMapBean.class);
+    BeanMapping<TestBeanMapBean> map = BeanMapping.from(TestBeanMapBean.class);
 
     TestBeanMapBean bean = new TestBeanMapBean();
     assertNull(bean.getFoo());
@@ -203,7 +203,7 @@ public class BeanMappingTests {
   @Test
   public void testContainsValue() {
     TestBeanFullGetters bean = new TestBeanFullGetters();
-    BeanMapping<TestBeanFullGetters> map = BeanMapping.ofObject(bean);
+    BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
     assertTrue(map.containsValue(null));
     bean.setFoo("foo");
     bean.setBaz("baz");
@@ -217,7 +217,7 @@ public class BeanMappingTests {
 
     TestBeanFullGetters bean = new TestBeanFullGetters();
     TestBeanFullGetters bean1 = new TestBeanFullGetters();
-    BeanMapping<TestBeanFullGetters> map = BeanMapping.ofObject(bean);
+    BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
     assertEquals(map.size(), 6);
 
     BeanMap map1 = BeanMap.create(bean1);
@@ -236,7 +236,7 @@ public class BeanMappingTests {
     Enhancer e = new Enhancer();
     e.setSuperclass(bean.getClass());
     e.setInterfaces(Map.class);
-    final Map map = BeanMapping.ofObject(bean);
+    final Map map = BeanMapping.from(bean);
     e.setCallbackFilter(new CallbackFilter() {
       public int accept(Method method) {
         return method.getDeclaringClass().equals(Map.class) ? 1 : 0;

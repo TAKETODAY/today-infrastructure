@@ -468,6 +468,15 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   }
 
   /**
+   * just write cannot read
+   *
+   * @since 4.0
+   */
+  public boolean isWriteOnly() {
+    return writeMethod != null && readMethod == null;
+  }
+
+  /**
    * Mapping name
    *
    * @see cn.taketoday.beans.Property

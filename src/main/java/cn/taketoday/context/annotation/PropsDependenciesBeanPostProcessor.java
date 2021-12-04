@@ -60,7 +60,7 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
       DefaultProps defaultProps = new DefaultProps(annotation);
       PropertyResolver propertyResolver = propsReader.getResolver(defaultProps);
 
-      for (BeanProperty property : BeanMetadata.ofClass(beanClass)) {
+      for (BeanProperty property : BeanMetadata.from(beanClass)) {
         if (!property.isReadOnly()) {
           Object converted = propsReader.read(property, defaultProps, propertyResolver);
           if (converted != null) {

@@ -71,14 +71,14 @@ public class BeanPropertyAccessor {
   }
 
   public BeanPropertyAccessor(Class<?> beanClass, @Nullable ConversionService conversionService) {
-    BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
+    BeanMetadata metadata = BeanMetadata.from(beanClass);
     this.rootObject = metadata.newInstance();
     this.metadata = metadata;
     this.conversionService = conversionService;
   }
 
   public BeanPropertyAccessor(Object rootObject) {
-    this(BeanMetadata.ofObject(rootObject), rootObject);
+    this(BeanMetadata.from(rootObject), rootObject);
   }
 
   public BeanPropertyAccessor(BeanMetadata metadata, Object rootObject) {
@@ -139,7 +139,7 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public static Object getProperty(Object root, String propertyPath) {
-    return getProperty(root, BeanMetadata.ofObject(root), propertyPath);
+    return getProperty(root, BeanMetadata.from(root), propertyPath);
   }
 
   /**
@@ -176,9 +176,9 @@ public class BeanPropertyAccessor {
   private static BeanMetadata getSubBeanMetadata(
           BeanMetadata root, String property, Object propertyValue) {
     if (property.indexOf('[') != -1) {
-      return BeanMetadata.ofObject(propertyValue);
+      return BeanMetadata.from(propertyValue);
     }
-    return BeanMetadata.ofClass(root.obtainBeanProperty(property).getType());
+    return BeanMetadata.from(root.obtainBeanProperty(property).getType());
   }
 
   static Object getPropertyValue(Object root, BeanMetadata metadata, String propertyPath) {
@@ -292,7 +292,7 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException Invalid property value
    */
   public void setProperty(Object root, String propertyPath, Object value) {
-    setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
+    setProperty(root, BeanMetadata.from(root), propertyPath, value);
   }
 
   /**
@@ -352,7 +352,7 @@ public class BeanPropertyAccessor {
         subValue = getSubValue(root, beanProperty);
       }
       // next
-      BeanMetadata subMetadata = BeanMetadata.ofClass(propertyType);
+      BeanMetadata subMetadata = BeanMetadata.from(propertyType);
       String newPath = propertyPath.substring(index + 1);
       setProperty(subValue, subMetadata, newPath, value);
     }

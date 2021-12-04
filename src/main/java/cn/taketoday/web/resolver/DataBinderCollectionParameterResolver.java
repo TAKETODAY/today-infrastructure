@@ -86,7 +86,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     final int maxValueIndex = getMaxValueIndex();
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
     final Class<?> parameterClass = getComponentType(parameter);
-    final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
+    final BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
 
     for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       final Object rootObject = parameterMetadata.newInstance();

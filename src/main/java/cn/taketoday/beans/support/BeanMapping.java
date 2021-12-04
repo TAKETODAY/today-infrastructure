@@ -20,18 +20,18 @@
 
 package cn.taketoday.beans.support;
 
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.PropertyReadOnlyException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.util.ObjectUtils;
-
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -54,7 +54,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   public BeanMapping(T target) {
     this.target = target;
-    this.metadata = BeanMetadata.ofObject(target);
+    this.metadata = BeanMetadata.from(target);
   }
 
   public BeanMapping(BeanMetadata metadata) {
@@ -248,7 +248,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   /**
    * Create a new <code>BeanMapping</code> instance using the specified bean. This is
-   * faster than using the {@link #ofObject(Object)} static method.
+   * faster than using the {@link #from(Object)} static method.
    *
    * @param bean the JavaBean underlying the map
    * @return a new <code>BeanMapping</code> instance
@@ -274,13 +274,22 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   // static
 
-  public static <T> BeanMapping<T> ofObject(T bean) {
+  public static <T> BeanMapping<T> from(T bean) {
     return new BeanMapping<>(bean);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> BeanMapping<T> ofClass(Class<T> beanClass) {
-    BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
+  public static <T> BeanMapping<T> from(Class<T> beanClass) {
+    BeanMetadata metadata = BeanMetadata.from(beanClass, false);
+    return new BeanMapping<>((T) metadata.newInstance(), metadata);
+  }
+
+  /**
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> BeanMapping<T> from(Class<T> beanClass, boolean collectPropertiesFromMethods) {
+    BeanMetadata metadata = BeanMetadata.from(beanClass, collectPropertiesFromMethods);
     return new BeanMapping<>((T) metadata.newInstance(), metadata);
   }
 

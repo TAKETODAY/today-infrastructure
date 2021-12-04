@@ -36,7 +36,7 @@ public class BeanMetadataTests {
 
   @Test
   public void beanMetadata() {
-    final BeanMetadata beanMetadata = BeanMetadata.ofClass(BeanMappingTestBean.class);
+    final BeanMetadata beanMetadata = BeanMetadata.from(BeanMappingTestBean.class);
     final Object instance = beanMetadata.newInstance();
 
     assertThat(instance).isInstanceOf(BeanMappingTestBean.class);

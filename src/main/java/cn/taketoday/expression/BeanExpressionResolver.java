@@ -367,7 +367,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
   }
 
   private BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
-    BeanProperty beanProperty = BeanMetadata.ofObject(base).getBeanProperty(prop.toString());
+    BeanProperty beanProperty = BeanMetadata.from(base).getBeanProperty(prop.toString());
     if (beanProperty == null) {
       throw new PropertyNotFoundException(
               "The class '" + base.getClass().getName() + "' does not have the property '" + prop + "'.");
