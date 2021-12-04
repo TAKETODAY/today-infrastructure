@@ -192,7 +192,7 @@ class FactoryBeanTests {
       definition.addPropertyValue("beta", BeanReference.required());
     });
 
-    assertThat(factory.getType("betaFactory")).isNotNull();
+    assertThat(factory.getType("betaFactory")).isNull();
 
     Alpha alpha = (Alpha) factory.getBean("alpha");
     Beta beta = (Beta) factory.getBean("beta");
@@ -299,7 +299,7 @@ class FactoryBeanTests {
   @Component
   public static class BetaFactoryBean implements FactoryBean<Object> {
 
-    public BetaFactoryBean(BeanFactory alpha) {
+    public BetaFactoryBean(Alpha alpha) {
 
     }
 

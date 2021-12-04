@@ -759,17 +759,16 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  protected <T> FactoryBean<T> getFactoryBean(Class<?> factoryBean, BeanDefinition def) {
+  protected FactoryBean<?> getFactoryBeanForTypeCheck(Class<?> factoryBean, BeanDefinition def) {
     String beanName = def.getName();
     if (def.isSingleton()) {
       synchronized(getSingletonMutex()) {
-        Object singleton = factoryBeanInstanceCache.get(beanName);
-        if (singleton instanceof FactoryBean factory) {
+        Object instance = factoryBeanInstanceCache.get(beanName);
+        if (instance instanceof FactoryBean factory) {
           return factory;
         }
-        singleton = getSingleton(beanName, false);
-        if (singleton instanceof FactoryBean factory) {
+        instance = getSingleton(beanName, false);
+        if (instance instanceof FactoryBean factory) {
           return factory;
         }
         if (isSingletonCurrentlyInCreation(beanName)
@@ -781,36 +780,64 @@ public abstract class AbstractAutowireCapableBeanFactory
           // Mark this bean as currently in creation, even if just partially.
           beforeSingletonCreation(beanName);
           // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-          singleton = resolveBeforeInstantiation(factoryBean, def);
-          if (singleton == null) {
-            singleton = createBeanInstance(def, null);
+          instance = resolveBeforeInstantiation(factoryBean, def);
+          if (instance == null) {
+            instance = createBeanInstance(def, null);
           }
-          if (singleton != null) {
-            factoryBeanInstanceCache.put(beanName, singleton);
+        }
+        catch (BeanCreationException ex) {
+          // Don't swallow a linkage error since it contains a full stacktrace on
+          // first occurrence... and just a plain NoClassDefFoundError afterwards.
+          if (ex.contains(LinkageError.class)) {
+            throw ex;
           }
-          return (FactoryBean<T>) singleton;
+          // Instantiation failure, maybe too early...
+          if (log.isDebugEnabled()) {
+            log.debug("Bean creation exception on singleton FactoryBean type check: {}", ex.toString());
+          }
+          onSuppressedException(ex);
+          return null;
         }
         finally {
           // Finished partial creation of this bean.
           afterSingletonCreation(beanName);
         }
+        // put to factoryBeanInstanceCache
+        FactoryBean<?> factory = getFactoryBean(beanName, instance);
+        if (factory != null) {
+          factoryBeanInstanceCache.put(beanName, factory);
+        }
+        return factory;
       }
     }
     else {
+      if (isPrototypeCurrentlyInCreation(beanName)) {
+        return null;
+      }
+      // Prototype
+      Object instance;
       try {
         // Mark this bean as currently in creation, even if just partially.
         beforePrototypeCreation(beanName);
         // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-        Object instance = resolveBeforeInstantiation(factoryBean, def);
+        instance = resolveBeforeInstantiation(factoryBean, def);
         if (instance == null) {
           instance = createBeanInstance(def, null);
         }
-        return (FactoryBean<T>) instance;
+      }
+      catch (BeanCreationException ex) {
+        // Instantiation failure, maybe too early...
+        if (log.isDebugEnabled()) {
+          log.debug("Bean creation exception on non-singleton FactoryBean type check: {}", ex.toString());
+        }
+        onSuppressedException(ex);
+        return null;
       }
       finally {
         // Finished partial creation of this bean.
         afterPrototypeCreation(beanName);
       }
+      return getFactoryBean(beanName, instance);
     }
   }
 

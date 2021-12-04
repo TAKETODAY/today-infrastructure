@@ -43,6 +43,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -694,9 +695,28 @@ public class StandardBeanFactory
     Set<String> beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
     Map<String, T> beans = CollectionUtils.newLinkedHashMap(beanNames.size());
     for (String beanName : beanNames) {
-      Object beanInstance = getBean(beanName);
-      if (beanInstance != null) {
-        beans.put(beanName, (T) beanInstance);
+      try {
+        Object beanInstance = getBean(beanName);
+        if (beanInstance != null) {
+          beans.put(beanName, (T) beanInstance);
+        }
+      }
+      catch (BeanCreationException ex) {
+        Throwable rootCause = ex.getMostSpecificCause();
+        if (rootCause instanceof BeanCurrentlyInCreationException bce) {
+          String exBeanName = bce.getBeanName();
+          if (exBeanName != null && isCurrentlyInCreation(exBeanName)) {
+            if (log.isTraceEnabled()) {
+              log.trace("Ignoring match to currently created bean '{}': ",
+                      exBeanName, ex.getMessage());
+            }
+            onSuppressedException(ex);
+            // Ignore: indicates a circular reference when autowiring constructors.
+            // We want to find matches other than the currently created bean itself.
+            continue;
+          }
+        }
+        throw ex;
       }
     }
     return beans;
@@ -729,29 +749,47 @@ public class StandardBeanFactory
     for (String beanName : beanDefinitionNames) {
       // Only consider bean as eligible if the bean name is not defined as alias for some other bean.
       if (!isAlias(beanName)) {
-        BeanDefinition definition = beanDefinitionMap.get(beanName);
-        // Only check bean definition if it is complete.
-        if (allowEagerInit || allowCheck(definition)) {
-          boolean matchFound = false;
-          boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
-          if (isFactoryBean(definition)) {
-            if (includeNonSingletons || (allowFactoryBeanInit && isSingleton(beanName))) {
-              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+        try {
+          BeanDefinition definition = beanDefinitionMap.get(beanName);
+          // Only check bean definition if it is complete.
+          if (allowEagerInit || allowCheck(definition)) {
+            boolean matchFound = false;
+            boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
+            if (isFactoryBean(definition)) {
+              if (includeNonSingletons || (allowFactoryBeanInit && isSingleton(beanName))) {
+                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+              }
+              if (!matchFound) {
+                // In case of FactoryBean, try to match FactoryBean instance itself next.
+                beanName = FACTORY_BEAN_PREFIX + beanName;
+                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+              }
             }
-            if (!matchFound) {
-              // In case of FactoryBean, try to match FactoryBean instance itself next.
-              beanName = FACTORY_BEAN_PREFIX + beanName;
-              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+            else {
+              if (includeNonSingletons || isSingleton(beanName)) {
+                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+              }
+            }
+            if (matchFound) {
+              beanNames.add(beanName);
             }
           }
-          else {
-            if (includeNonSingletons || isSingleton(beanName)) {
-              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
-            }
+        }
+        catch (BeanClassLoadFailedException | BeanDefinitionStoreException ex) {
+          if (allowEagerInit) {
+            throw ex;
           }
-          if (matchFound) {
-            beanNames.add(beanName);
-          }
+          // Probably a placeholder: let's ignore it for type matching purposes.
+          LogMessage message =
+                  (ex instanceof BeanClassLoadFailedException
+                   ? LogMessage.format("Ignoring bean class loading failure for bean '%s'", beanName)
+                   : LogMessage.format("Ignoring unresolvable metadata in bean definition '%s'", beanName));
+          log.trace(message, ex);
+          // Register exception, in case the bean was accidentally unresolvable.
+          onSuppressedException(ex);
+        }
+        catch (NoSuchBeanDefinitionException ex) {
+          // Bean definition got removed while we were iterating -> ignore.
         }
       }
     }

@@ -87,7 +87,7 @@ public class BeanDefinition
   /** bean class. */
   private Object beanClass;
   /** bean scope. */
-  private String scope;
+  private String scope = SCOPE_SINGLETON;
 
   /**
    * Invoke before {@link InitializingBean#afterPropertiesSet}
