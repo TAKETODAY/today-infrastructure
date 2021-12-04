@@ -19,28 +19,124 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.io.Serial;
+
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author TODAY 2018-07-08 19:54:46
  */
 public class BeanDefinitionStoreException extends BeansException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  public BeanDefinitionStoreException() { }
+  @Nullable
+  private final String resourceDescription;
 
-  public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
-    super("Can't store: [" + beanClass.getName() + "]", cause);
+  @Nullable
+  private final String beanName;
+
+  /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param msg the detail message (used as exception message as-is)
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(String msg) {
+    super(msg);
+    this.resourceDescription = null;
+    this.beanName = null;
   }
 
-  public BeanDefinitionStoreException(Throwable cause) {
-    super(cause);
+  /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param msg the detail message (used as exception message as-is)
+   * @param cause the root cause (may be {@code null})
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(String msg, @Nullable Throwable cause) {
+    super(msg, cause);
+    this.resourceDescription = null;
+    this.beanName = null;
   }
 
-  public BeanDefinitionStoreException(String message, Throwable cause) {
-    super(message, cause);
+  /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param resourceDescription description of the resource that the bean definition came from
+   * @param msg the detail message (used as exception message as-is)
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(@Nullable String resourceDescription, String msg) {
+    super(msg);
+    this.resourceDescription = resourceDescription;
+    this.beanName = null;
   }
 
-  public BeanDefinitionStoreException(String message) {
-    super(message);
+  /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param resourceDescription description of the resource that the bean definition came from
+   * @param msg the detail message (used as exception message as-is)
+   * @param cause the root cause (may be {@code null})
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(@Nullable String resourceDescription, String msg, @Nullable Throwable cause) {
+    super(msg, cause);
+    this.resourceDescription = resourceDescription;
+    this.beanName = null;
+  }
+
+  /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param resourceDescription description of the resource that the bean definition came from
+   * @param beanName the name of the bean
+   * @param msg the detail message (appended to an introductory message that indicates
+   * the resource and the name of the bean)
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(@Nullable String resourceDescription, String beanName, String msg) {
+    this(resourceDescription, beanName, msg, null);
+  }
+
+  /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param resourceDescription description of the resource that the bean definition came from
+   * @param beanName the name of the bean
+   * @param msg the detail message (appended to an introductory message that indicates
+   * the resource and the name of the bean)
+   * @param cause the root cause (may be {@code null})
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(
+          @Nullable String resourceDescription, String beanName, String msg, @Nullable Throwable cause) {
+    super("Invalid bean definition with name '" + beanName + "' defined in " + resourceDescription + ": " + msg,
+            cause);
+    this.resourceDescription = resourceDescription;
+    this.beanName = beanName;
+  }
+
+  /**
+   * Return the description of the resource that the bean definition came from, if available.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getResourceDescription() {
+    return this.resourceDescription;
+  }
+
+  /**
+   * Return the name of the bean, if available.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getBeanName() {
+    return this.beanName;
   }
 
 }
