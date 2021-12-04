@@ -19,6 +19,10 @@
  */
 package cn.taketoday.core.reflect;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
+
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -32,12 +36,8 @@ import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DefineClassHelper;
-import cn.taketoday.util.Mappings;
+import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
@@ -57,7 +57,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
   protected ClassLoader classLoader;
   protected final Class<?> targetClass;
 
-  protected static final Mappings<Accessor, GeneratorSupport<?>> mappings = new Mappings<>() {
+  protected static final MapCache<Object, Accessor, GeneratorSupport<?>> mappings = new MapCache<>() {
     @Override
     protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
       try {
