@@ -275,7 +275,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   // static
 
   public static <T> BeanMapping<T> from(T bean) {
-    return new BeanMapping<>(bean);
+    return new BeanMapping<>(bean, BeanMetadata.from(bean, false));
   }
 
   @SuppressWarnings("unchecked")

@@ -22,8 +22,8 @@ package cn.taketoday.beans.support;
 
 import java.util.Map;
 
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.InvalidPropertyValueException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -49,7 +49,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
-    BeanMetadata destinationMetadata = BeanMetadata.from(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.from(destination, false);
     copy(source, destinationMetadata, destination, null);
   }
 
@@ -66,7 +66,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
-    BeanMetadata destinationMetadata = BeanMetadata.from(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.from(destination, false);
     copy(source, destinationMetadata, destination, ignoreProperties);
   }
 
@@ -128,7 +128,7 @@ public class BeanProperties {
       }
     }
     else {
-      BeanMetadata sourceMetadata = BeanMetadata.from(source);
+      BeanMetadata sourceMetadata = BeanMetadata.from(source, false);
       for (BeanProperty property : sourceMetadata) {
         String propertyName = property.getPropertyName();
         if (allowCopy(ignoreProperties, propertyName)) {
@@ -213,7 +213,7 @@ public class BeanProperties {
           Object bean, Map<String, Object> properties, boolean ignoreUnknownProperty) {
     Assert.notNull(bean, "target bean must not be null");
     Assert.notNull(properties, "properties must not be null");
-    BeanMetadata metadata = BeanMetadata.from(bean);
+    BeanMetadata metadata = BeanMetadata.from(bean, false);
     BeanPropertyAccessor accessor = BeanPropertyAccessor.from(metadata, bean);
     accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
     accessor.setThrowsWhenReadOnly(false);

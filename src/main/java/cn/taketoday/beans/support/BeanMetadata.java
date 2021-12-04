@@ -380,7 +380,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata from(Object object) {
-    return from(object.getClass());
+    return from(object.getClass(), false);
   }
 
   /**
