@@ -150,7 +150,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       return beanInstance;
     }
-    catch (BeanCreationException ex) {
+    catch (BeanCreationException | ImplicitlyAppearedSingletonException ex) {
       // A previously detected exception with proper bean creation context already,
       // or illegal singleton state to be communicated up to DefaultSingletonBeanRegistry.
       throw ex;
@@ -743,7 +743,23 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     else {
       String factoryBeanName = def.getFactoryBeanName();
-      Class<?> factoryClass = getFactoryClass(def, factoryBeanName);
+      Class<?> factoryClass;
+      if (factoryBeanName != null) {
+        if (factoryBeanName.equals(def.getName())) {
+          throw new BeanDefinitionStoreException(def.getResourceDescription(), def.getName(),
+                  "factory-bean reference points back to the same bean definition");
+        }
+        // Check declared factory method return type on factory class.
+        factoryClass = getType(factoryBeanName);
+      }
+      else {
+        // Check declared factory method return type on bean class.
+        factoryClass = resolveBeanClass(def, true);
+      }
+
+      if (factoryClass == null) {
+        return null;
+      }
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
       factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());

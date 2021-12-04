@@ -861,8 +861,21 @@ public abstract class AbstractBeanFactory
   protected Class<?> getFactoryClass(BeanDefinition definition, @Nullable String factoryBeanName) {
     Class<?> factoryClass;
     if (factoryBeanName != null) {
+      String beanName = definition.getName();
+      if (factoryBeanName.equals(beanName)) {
+        throw new BeanDefinitionStoreException(definition.getResourceDescription(), beanName,
+                "factory-bean reference points back to the same bean definition");
+      }
       // instance method
-      factoryClass = getType(factoryBeanName);
+      Object factoryBean = getBean(factoryBeanName);
+      if (factoryBean == null) {
+        throw new NoSuchBeanDefinitionException(factoryBeanName);
+      }
+      if (definition.isSingleton() && containsSingleton(beanName)) {
+        throw new ImplicitlyAppearedSingletonException();
+      }
+      registerDependentBean(factoryBeanName, beanName);
+      factoryClass = factoryBean.getClass();
     }
     else {
       // bean class is its factory-class
