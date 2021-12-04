@@ -148,22 +148,16 @@ public class BeanReference implements PropertyValueRetriever {
   // static
 
   public static BeanReference required(String beanName) {
-    BeanReference beanReference = new BeanReference();
-    beanReference.setBeanName(beanName);
-    beanReference.setRequired(true);
-    return beanReference;
+    return required(beanName, null);
+  }
+
+  public static BeanReference required(Class<?> beanType) {
+    return required(null, beanType);
   }
 
   public static BeanReference required(String beanName, Class<?> beanType) {
     BeanReference beanReference = new BeanReference();
     beanReference.setBeanName(beanName);
-    beanReference.setBeanType(beanType);
-    beanReference.setRequired(true);
-    return beanReference;
-  }
-
-  public static BeanReference required(Class<?> beanType) {
-    BeanReference beanReference = new BeanReference();
     beanReference.setBeanType(beanType);
     beanReference.setRequired(true);
     return beanReference;
@@ -180,13 +174,10 @@ public class BeanReference implements PropertyValueRetriever {
   }
 
   public static BeanReference from(String beanName) {
-    BeanReference beanReference = new BeanReference();
-    beanReference.setBeanName(beanName);
-    beanReference.setRequired(false);
-    return beanReference;
+    return from(beanName, null);
   }
 
-  public static BeanReference from(String beanName, Class<?> beanType) {
+  public static BeanReference from(String beanName, @Nullable Class<?> beanType) {
     BeanReference beanReference = new BeanReference();
     beanReference.setBeanName(beanName);
     beanReference.setBeanType(beanType);
@@ -195,10 +186,7 @@ public class BeanReference implements PropertyValueRetriever {
   }
 
   public static BeanReference from(Class<?> beanType) {
-    BeanReference beanReference = new BeanReference();
-    beanReference.setBeanType(beanType);
-    beanReference.setRequired(false);
-    return beanReference;
+    return from(beanType, true);
   }
 
   public static BeanReference from(Class<?> beanType, boolean usePropertyName) {
