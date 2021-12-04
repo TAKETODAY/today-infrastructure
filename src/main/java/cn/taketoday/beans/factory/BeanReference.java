@@ -176,10 +176,7 @@ public class BeanReference implements PropertyValueRetriever {
    * by name
    */
   public static BeanReference required() {
-    BeanReference beanReference = new BeanReference();
-    beanReference.setRequired(true);
-    beanReference.setUsePropertyName(true);
-    return beanReference;
+    return required(null, null, true);
   }
 
   public static BeanReference from(String beanName) {
