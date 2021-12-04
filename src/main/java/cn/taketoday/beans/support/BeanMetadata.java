@@ -42,7 +42,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.Mappings;
+import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -54,7 +54,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   private static final boolean defaultCollectPropertiesFromMethod = // @since 4.0
           TodayStrategies.getFlag("collect.properties.methods", true);
 
-  private static final Mappings<BeanMetadata, ?> metadataMappings = new Mappings<>(
+  private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
   private final Class<?> beanClass;
@@ -213,7 +213,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    */
   private BeanPropertiesHolder propertyHolder() {
     if (propertyHolder == null) {
-      propertyHolder = BeanPropertiesMappings.computeProperties(beanClass, this);
+      propertyHolder = BeanPropertiesMapCache.computeProperties(beanClass, this);
     }
     return propertyHolder;
   }
@@ -378,10 +378,10 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   /**
    * Mapping cache
    */
-  static class BeanPropertiesMappings extends Mappings<BeanPropertiesHolder, BeanMetadata> {
-    private static final BeanPropertiesMappings beanPropertiesMappings = new BeanPropertiesMappings();
+  static class BeanPropertiesMapCache extends MapCache<Class<?>, BeanPropertiesHolder, BeanMetadata> {
+    private static final BeanPropertiesMapCache beanPropertiesMappings = new BeanPropertiesMapCache();
 
-    BeanPropertiesMappings() {
+    BeanPropertiesMapCache() {
       super(new ConcurrentReferenceHashMap<>());
     }
 
@@ -390,7 +390,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     }
 
     @Override
-    protected BeanPropertiesHolder createValue(Object key, BeanMetadata param) {
+    protected BeanPropertiesHolder createValue(Class<?> key, BeanMetadata param) {
       HashMap<String, BeanProperty> propertyMap = param.createBeanProperties();
       return new BeanPropertiesHolder(propertyMap);
     }

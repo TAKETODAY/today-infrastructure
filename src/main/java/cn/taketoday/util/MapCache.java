@@ -22,39 +22,47 @@ package cn.taketoday.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
+import cn.taketoday.lang.Nullable;
 
 /**
+ * Map cache
+ *
+ * @param <K> key type
+ * @param <T> param type
+ * @param <V> value type
  * @author TODAY 2021/1/27 23:02
  * @since 3.0
  */
-public class Mappings<V, T> {
-  private final Map<Object, V> mapping;
+public class MapCache<K, V, T> {
+  private final Map<K, V> mapping;
   /** default mapping function */
-  private volatile Function<V> mappingFunction;
+  private volatile Function<K, V> mappingFunction;
 
-  public Mappings() {
+  public MapCache() {
     this(new HashMap<>());
   }
 
-  public Mappings(int initialCapacity) {
+  public MapCache(int initialCapacity) {
     this(new HashMap<>(initialCapacity));
   }
 
   /**
    * @param mapping allows to define your own map implementation
    */
-  public Mappings(Map<Object, V> mapping) {
+  public MapCache(Map<K, V> mapping) {
     this.mapping = mapping;
   }
 
-  public Mappings(Function<V> mappingFunction) {
+  public MapCache(Function<K, V> mappingFunction) {
     this(new HashMap<>(), mappingFunction);
   }
 
   /**
    * @param mapping allows to define your own map implementation
    */
-  public Mappings(Map<Object, V> mapping, Function<V> mappingFunction) {
+  public MapCache(Map<K, V> mapping, Function<K, V> mappingFunction) {
     this.mapping = mapping;
     this.mappingFunction = mappingFunction;
   }
@@ -73,7 +81,7 @@ public class Mappings<V, T> {
    * the specified key, or null if the computed value is null
    * @see #createValue(Object, T)
    */
-  public final V get(Object key, T param) {
+  public final V get(K key, T param) {
     V value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
@@ -96,8 +104,8 @@ public class Mappings<V, T> {
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  public final V get(Object key) {
-    return get(key, (Function<V>) null);
+  public final V get(K key) {
+    return get(key, (Function<K, V>) null);
   }
 
   /**
@@ -110,7 +118,7 @@ public class Mappings<V, T> {
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  public final V get(Object key, Function<V> mappingFunction) {
+  public final V get(K key, @Nullable Function<K, V> mappingFunction) {
     V value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
@@ -129,16 +137,16 @@ public class Mappings<V, T> {
     return value;
   }
 
-  protected V createValue(Object key, T param) {
+  protected V createValue(K key, T param) {
     return null;
   }
 
   synchronized
-  public void setMappingFunction(Function<V> mappingFunction) {
+  public void setMappingFunction(Function<K, V> mappingFunction) {
     this.mappingFunction = mappingFunction;
   }
 
-  public V put(Object key, V value) {
+  public V put(K key, V value) {
     synchronized(mapping) {
       return mapping.put(key, value);
     }
@@ -150,22 +158,10 @@ public class Mappings<V, T> {
     }
   }
 
-  public V remove(Object key) {
+  public V remove(K key) {
     synchronized(mapping) {
       return mapping.remove(key);
     }
-  }
-
-  @FunctionalInterface
-  public interface Function<R> {
-
-    /**
-     * Applies this function to the given argument.
-     *
-     * @param t the function argument
-     * @return the function result
-     */
-    R apply(Object t);
   }
 
 }

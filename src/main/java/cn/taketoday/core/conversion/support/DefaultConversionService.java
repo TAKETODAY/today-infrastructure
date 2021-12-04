@@ -50,7 +50,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.Mappings;
+import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -74,7 +74,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   private final ArrayList<TypeConverter> converters = new ArrayList<>();
-  private final ConverterMappings converterMappings = new ConverterMappings();
+  private final ConverterMapCache converterMappings = new ConverterMapCache();
   /** @since 3.0.4 */
   private final HashMap<Class<?>, Object> nullMappings = new HashMap<>();
 
@@ -164,11 +164,11 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     return null;
   }
 
-  class ConverterMappings extends Mappings<TypeConverter, TypeDescriptor> {
+  class ConverterMapCache extends MapCache<ConverterKey, TypeConverter, TypeDescriptor> {
 
     @Override
-    protected TypeConverter createValue(Object key, TypeDescriptor targetType) {
-      Class<?> sourceType = ((ConverterKey) key).sourceType;
+    protected TypeConverter createValue(ConverterKey key, TypeDescriptor targetType) {
+      Class<?> sourceType = key.sourceType;
 
       for (TypeConverter converter : converters) {
         if (converter.supports(targetType, sourceType)) {
@@ -359,8 +359,8 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     addCollectionConverters(registry);
 
     registry.addConverters(new StringToTimeZoneConverter(),
-                           new ZoneIdToTimeZoneConverter(),
-                           new ZonedDateTimeToCalendarConverter());
+            new ZoneIdToTimeZoneConverter(),
+            new ZonedDateTimeToCalendarConverter());
 
     registry.addConverters(
             new StringToResourceConverter(),
@@ -387,25 +387,25 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     ConversionService conversionService = (ConversionService) registry;
 
     registry.addConverters(new ArrayToCollectionConverter(conversionService),
-                           new CollectionToArrayConverter(conversionService),
+            new CollectionToArrayConverter(conversionService),
 
-                           new ArrayToArrayConverter(conversionService),
-                           new CollectionToCollectionConverter(conversionService),
-                           new MapToMapConverter(conversionService),
+            new ArrayToArrayConverter(conversionService),
+            new CollectionToCollectionConverter(conversionService),
+            new MapToMapConverter(conversionService),
 
-                           new ArrayToStringConverter(conversionService),
-                           new StringToArrayConverter(conversionService),
+            new ArrayToStringConverter(conversionService),
+            new StringToArrayConverter(conversionService),
 
-                           new ArrayToObjectConverter(conversionService),
-                           new ObjectToArrayConverter(conversionService),
+            new ArrayToObjectConverter(conversionService),
+            new ObjectToArrayConverter(conversionService),
 
-                           new CollectionToStringConverter(conversionService),
-                           new StringToCollectionConverter(conversionService),
+            new CollectionToStringConverter(conversionService),
+            new StringToCollectionConverter(conversionService),
 
-                           new CollectionToObjectConverter(conversionService),
-                           new ObjectToCollectionConverter(conversionService),
+            new CollectionToObjectConverter(conversionService),
+            new ObjectToCollectionConverter(conversionService),
 
-                           new StreamConverter(conversionService));
+            new StreamConverter(conversionService));
 
   }
 
