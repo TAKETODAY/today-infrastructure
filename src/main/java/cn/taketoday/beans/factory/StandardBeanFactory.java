@@ -24,7 +24,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -44,7 +43,6 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -59,12 +57,6 @@ public class StandardBeanFactory
         extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
-
-  /**
-   * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
-   * initialization) , Prevent Cycle Dependency
-   */
-  private final HashSet<String> currentInitializingBeanName = new HashSet<>();
 
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;
@@ -111,23 +103,6 @@ public class StandardBeanFactory
   public void destroySingleton(String beanName) {
     super.destroySingleton(beanName);
     manualSingletonNames.remove(beanName);
-  }
-
-  /**
-   * Preventing Cycle Dependency expected {@link Prototype} beans
-   */
-  @Override
-  public void populateBean(Object bean, BeanDefinition definition) {
-    if (definition.isPrototype()) {
-      super.populateBean(bean, definition);
-    }
-    else {
-      String name = definition.getName();
-      if (currentInitializingBeanName.add(name)) {
-        super.populateBean(bean, definition);
-        currentInitializingBeanName.remove(name);
-      }
-    }
   }
 
   /**
