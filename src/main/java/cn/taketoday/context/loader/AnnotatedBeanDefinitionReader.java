@@ -326,7 +326,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     }
 
     MergedAnnotation<DependsOn> dependsOn = annotations.get(DependsOn.class);
-    if (dependsOn != null) {
+    if (dependsOn.isPresent()) {
       definition.setDependsOn(dependsOn.getStringValueArray());
     }
 
