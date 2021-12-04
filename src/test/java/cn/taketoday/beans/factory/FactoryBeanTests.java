@@ -210,12 +210,12 @@ class FactoryBeanTests {
     StandardBeanFactory factory = new StandardBeanFactory();
     AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(factory, false);
 
-    reader.registerBean(BeanImpl2.class, definition -> {
-      definition.addPropertyValue("impl1", BeanReference.from(BeanImpl2.class, false));
+    reader.registerBean("bean2", BeanImpl2.class, definition -> {
+      definition.addPropertyValue("impl1", BeanReference.required(BeanImpl1.class));
     });
 
-    reader.registerBean(BeanImpl1.class, definition -> {
-      definition.addPropertyValue("impl2", BeanReference.from(BeanImpl2.class, false));
+    reader.registerBean("bean1", BeanImpl1.class, definition -> {
+      definition.addPropertyValue("impl2", BeanReference.required(BeanImpl2.class));
     });
 
     CountingPostProcessor counter = new CountingPostProcessor();
