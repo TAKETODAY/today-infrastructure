@@ -131,13 +131,18 @@ public class MapCache<K, V, T> {
             value = mappingFunction.apply(key);
             mapping.put(key, value);
           }
+          else {
+            // fallback to #createValue()
+            value = createValue(key, null);
+            mapping.put(key, value);
+          }
         }
       }
     }
     return value;
   }
 
-  protected V createValue(K key, T param) {
+  protected V createValue(K key, @Nullable T param) {
     return null;
   }
 

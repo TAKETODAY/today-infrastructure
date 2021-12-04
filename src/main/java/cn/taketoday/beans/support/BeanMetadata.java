@@ -54,7 +54,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   private static final boolean defaultCollectPropertiesFromMethod = // @since 4.0
           TodayStrategies.getFlag("collect.properties.methods", true);
 
-  private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
+  private static final MapCache<BeanMetadataKey, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
   private final Class<?> beanClass;
@@ -68,8 +68,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   // @since 4.0
   private final boolean collectPropertiesFromMethods;
 
-  private BeanMetadata(Object key) {
-    this((Class<?>) key);
+  private BeanMetadata(BeanMetadataKey key) {
+    this.beanClass = key.beanClass;
+    this.collectPropertiesFromMethods = key.collectPropertiesFromMethods;
   }
 
   public BeanMetadata(Class<?> beanClass) {
@@ -213,13 +214,18 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    */
   private BeanPropertiesHolder propertyHolder() {
     if (propertyHolder == null) {
-      propertyHolder = BeanPropertiesMapCache.computeProperties(beanClass, this);
+      propertyHolder = BeanPropertiesMapCache.computeProperties(this);
     }
     return propertyHolder;
   }
 
   public HashMap<String, BeanProperty> createBeanProperties() {
     return createBeanProperties(collectPropertiesFromMethods);
+  }
+
+  // @since 4.0
+  public boolean isCollectPropertiesFromMethods() {
+    return collectPropertiesFromMethods;
   }
 
   /**
@@ -237,6 +243,10 @@ public class BeanMetadata implements Iterable<BeanProperty> {
 
     if (collectPropertiesFromMethods) {
       ReflectionUtils.doWithMethods(beanClass, method -> {
+        if (Modifier.isStatic(method.getModifiers())) {
+          return;
+        }
+
         String methodName = method.getName();
 
         BeanProperty property = null;
@@ -348,7 +358,18 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata ofClass(Class<?> beanClass) {
-    return metadataMappings.get(beanClass);
+    return ofClass(beanClass, defaultCollectPropertiesFromMethod);
+  }
+
+  /**
+   * Create a {@link BeanMetadata} with given bean class
+   *
+   * @param beanClass target bean class cannot be simple class
+   * @param collectPropertiesFromMethods collect properties from methods
+   * @return {@link BeanMetadata}
+   */
+  public static BeanMetadata ofClass(Class<?> beanClass, boolean collectPropertiesFromMethods) {
+    return metadataMappings.get(new BeanMetadataKey(beanClass, collectPropertiesFromMethods));
   }
 
   /**
@@ -375,23 +396,44 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     }
   }
 
+  record BeanMetadataKey(Class<?> beanClass, boolean collectPropertiesFromMethods) {
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o instanceof BeanMetadataKey that) {
+        return collectPropertiesFromMethods == that.collectPropertiesFromMethods
+                && Objects.equals(beanClass, that.beanClass);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(beanClass, collectPropertiesFromMethods);
+    }
+
+  }
+
   /**
    * Mapping cache
    */
-  static class BeanPropertiesMapCache extends MapCache<Class<?>, BeanPropertiesHolder, BeanMetadata> {
+  static class BeanPropertiesMapCache extends MapCache<BeanMetadata, BeanPropertiesHolder, BeanMetadata> {
     private static final BeanPropertiesMapCache beanPropertiesMappings = new BeanPropertiesMapCache();
 
     BeanPropertiesMapCache() {
       super(new ConcurrentReferenceHashMap<>());
     }
 
-    static BeanPropertiesHolder computeProperties(Class<?> beanClass, BeanMetadata metadata) {
-      return beanPropertiesMappings.get(beanClass, metadata);
+    static BeanPropertiesHolder computeProperties(BeanMetadata metadata) {
+      return beanPropertiesMappings.get(metadata);
     }
 
     @Override
-    protected BeanPropertiesHolder createValue(Class<?> key, BeanMetadata param) {
-      HashMap<String, BeanProperty> propertyMap = param.createBeanProperties();
+    protected BeanPropertiesHolder createValue(BeanMetadata key, BeanMetadata param) {
+      HashMap<String, BeanProperty> propertyMap = key.createBeanProperties();
       return new BeanPropertiesHolder(propertyMap);
     }
 
