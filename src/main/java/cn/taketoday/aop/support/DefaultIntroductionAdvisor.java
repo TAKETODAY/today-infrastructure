@@ -133,6 +133,11 @@ public class DefaultIntroductionAdvisor
   }
 
   @Override
+  public boolean isPerInstance() {
+    return true;
+  }
+
+  @Override
   public ClassFilter getClassFilter() {
     return this;
   }

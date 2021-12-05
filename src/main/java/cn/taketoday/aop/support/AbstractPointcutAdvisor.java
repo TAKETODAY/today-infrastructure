@@ -22,6 +22,7 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.aop.Advice;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -41,6 +42,7 @@ import cn.taketoday.core.OrderedSupport;
  */
 public abstract class AbstractPointcutAdvisor
         extends OrderedSupport implements PointcutAdvisor, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Advice advice = EMPTY_ADVICE;
@@ -70,14 +72,18 @@ public abstract class AbstractPointcutAdvisor
   }
 
   @Override
+  public boolean isPerInstance() {
+    return true;
+  }
+
+  @Override
   public boolean equals(Object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof PointcutAdvisor)) {
+    if (!(other instanceof PointcutAdvisor otherAdvisor)) {
       return false;
     }
-    PointcutAdvisor otherAdvisor = (PointcutAdvisor) other;
     return Objects.equals(getAdvice(), otherAdvisor.getAdvice())
             && Objects.equals(getPointcut(), otherAdvisor.getPointcut());
   }
