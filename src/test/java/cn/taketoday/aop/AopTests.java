@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.aop.proxy.Advised;
-import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
+import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AfterReturning;
@@ -312,7 +312,7 @@ class AopTests {
       };
 
       StandardBeanFactory beanFactory = context.getBeanFactory();
-      DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
+      DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       beanFactory.addBeanPostProcessor(autoProxyCreator);
       autoProxyCreator.setBeanFactory(beanFactory);
       autoProxyCreator.setFrozen(true);
