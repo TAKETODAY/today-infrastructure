@@ -70,11 +70,10 @@ class LazyInitTargetSourceTests {
     factory.registerBeanDefinition(target);
 
     BeanDefinition proxy = new BeanDefinition("proxy", ProxyFactoryBean.class);
-    proxy.setLazyInit(true);
     proxy.addPropertyValue("targetSource", BeanDefinitionReference.from(
             BeanDefinitionBuilder.from(LazyInitTargetSource.class)
                     .propertyValues(
-                            new PropertyValues().add("targetBeanName", BeanReference.required("target"))
+                            new PropertyValues().add("targetBeanName", "target")
                     )
     ));
     factory.registerBeanDefinition(proxy);
@@ -110,11 +109,10 @@ class LazyInitTargetSourceTests {
     factory.registerBeanDefinition(target);
 
     BeanDefinition proxy = new BeanDefinition("proxy", ProxyFactoryBean.class);
-    proxy.setLazyInit(true);
     proxy.addPropertyValue("targetSource", BeanDefinitionReference.from(
             BeanDefinitionBuilder.from(CustomLazyInitTargetSource.class)
-                    .propertyValues(
-                            new PropertyValues().add("targetBeanName", BeanReference.required("target"))
+                    .propertyValues(new PropertyValues()
+                            .add("targetBeanName", "target")
                     )
     ));
     factory.registerBeanDefinition(proxy);
@@ -141,7 +139,7 @@ class LazyInitTargetSourceTests {
 */
     BeanDefinition target1 = new BeanDefinition("target1", SetFactoryBean.class);
     target1.setLazyInit(true);
-    target1.addPropertyValue("sourceSet", Set.of(10));
+    target1.addPropertyValue("sourceSet", Set.of("10"));
     factory.registerBeanDefinition(target1);
 /*
 	<!--
@@ -177,9 +175,9 @@ class LazyInitTargetSourceTests {
 	</bean>
 */
     BeanDefinition target2 = new BeanDefinition("target2", SetFactoryBean.class);
-    target1.setLazyInit(true);
-    target1.addPropertyValue("sourceSet", Set.of(20));
-    factory.registerBeanDefinition(target1);
+    target2.setLazyInit(true);
+    target2.addPropertyValue("sourceSet", Set.of("20"));
+    factory.registerBeanDefinition(target2);
 /*
 	<!--
 		This will create a proxy that lazily fetches its target bean (with name "target").

@@ -130,11 +130,12 @@ import cn.taketoday.lang.Nullable;
 public interface BeanFactory extends ArgumentsResolverProvider {
 
   /**
-   * If a bean name start with this its a {@link FactoryBean}
+   * Used to dereference a {@link FactoryBean} instance and distinguish it from
+   * beans <i>created</i> by the FactoryBean. For example, if the bean named
+   * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
+   * will return the factory, not the instance returned by the factory.
    */
-  String FACTORY_BEAN_PREFIX = "$";
-
-  char FACTORY_BEAN_PREFIX_CHAR = '$';
+  String FACTORY_BEAN_PREFIX = "&";
 
   //---------------------------------------------------------------------
   // Get operations for name-lookup

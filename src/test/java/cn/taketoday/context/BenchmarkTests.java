@@ -573,7 +573,7 @@ class BenchmarkTests {
 
     long t = System.nanoTime();
     for (long i = 0; i < 90_0000_0000L; i++) {
-      result = StringUtils.matchesFirst(text, BeanFactory.FACTORY_BEAN_PREFIX_CHAR);
+      result = StringUtils.matchesFirst(text, '&');
     }
     t = (System.nanoTime() - t) / 1_000_000;
     System.out.format(" matchesFirst %s , result %s %dms\n", text, result, t);
