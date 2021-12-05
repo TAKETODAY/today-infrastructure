@@ -85,6 +85,11 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   }
 
   @Override
+  public Object getProxy() {
+    return getProxy(null);
+  }
+
+  @Override
   public Object getProxy(ClassLoader classLoader) {
     try {
       Class<?> rootClass = config.getTargetClass();
@@ -132,9 +137,8 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
     if (log.isWarnEnabled()) {
       synchronized(validatedClasses) {
         if (!validatedClasses.containsKey(proxySuperClass)) {
-          doValidateClass(proxySuperClass,
-                          proxyClassLoader,
-                          ClassUtils.getAllInterfacesForClassAsSet(proxySuperClass));
+          doValidateClass(proxySuperClass, proxyClassLoader,
+                  ClassUtils.getAllInterfacesForClassAsSet(proxySuperClass));
           validatedClasses.put(proxySuperClass, Boolean.TRUE);
         }
       }
@@ -155,19 +159,19 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
           if (Modifier.isFinal(mod)) {
             if (log.isInfoEnabled() && implementsInterface(method, ifcs)) {
               log.info("Unable to proxy interface-implementing method [{}] because " +
-                               "it is marked as final: Consider using interface-based JDK proxies instead!", method);
+                      "it is marked as final: Consider using interface-based JDK proxies instead!", method);
             }
             if (log.isDebugEnabled()) {
               log.debug("Final method [{}] cannot get proxied via CGLIB: " +
-                                "Calls to this method will NOT be routed to the target instance and " +
-                                "might lead to NPEs against uninitialized fields in the proxy instance.", method);
+                      "Calls to this method will NOT be routed to the target instance and " +
+                      "might lead to NPEs against uninitialized fields in the proxy instance.", method);
             }
           }
           else if (log.isDebugEnabled() && !Modifier.isPublic(mod) && !Modifier.isProtected(mod)
                   && proxyClassLoader != null && proxySuperClass.getClassLoader() != proxyClassLoader) {
             log.debug("Method [{}] is package-visible across different ClassLoaders " +
-                              "and cannot get proxied via CGLIB: Declare this method as public or protected " +
-                              "if you need to support invocations through the proxy.", method);
+                    "and cannot get proxied via CGLIB: Declare this method as public or protected " +
+                    "if you need to support invocations through the proxy.", method);
           }
         }
       }

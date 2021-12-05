@@ -25,6 +25,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,11 +34,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.DefaultInterceptorChainFactory;
 import cn.taketoday.aop.DynamicIntroductionAdvice;
+import cn.taketoday.aop.InterceptorChainFactory;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInfo;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.target.EmptyTargetSource;
@@ -66,6 +68,7 @@ import cn.taketoday.util.CollectionUtils;
  * @since 3.0
  */
 public class AdvisedSupport extends ProxyConfig implements Advised {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**
@@ -94,6 +97,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * in an Advisor before being added to this List.
    */
   private ArrayList<Advisor> advisors = new ArrayList<>();
+
+  /** The AdvisorChainFactory to use. */
+  InterceptorChainFactory interceptorChainFactory = new DefaultInterceptorChainFactory();
 
   /**
    * No-arg constructor for use as a JavaBean.
@@ -131,6 +137,26 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   @Override
   public TargetSource getTargetSource() {
     return this.targetSource;
+  }
+
+  /**
+   * Set the advisor chain factory to use.
+   * <p>Default is a {@link DefaultInterceptorChainFactory}.
+   *
+   * @since 4.0
+   */
+  public void setInterceptorChainFactory(InterceptorChainFactory interceptorChainFactory) {
+    Assert.notNull(interceptorChainFactory, "AdvisorChainFactory must not be null");
+    this.interceptorChainFactory = interceptorChainFactory;
+  }
+
+  /**
+   * Return the advisor chain factory to use (never {@code null}).
+   *
+   * @since 4.0
+   */
+  public InterceptorChainFactory getInterceptorChainFactory() {
+    return this.interceptorChainFactory;
   }
 
   /**
@@ -268,8 +294,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     }
 
     Advisor advisor = this.advisors.remove(index);
-    if (advisor instanceof IntroductionAdvisor) {
-      IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
+    if (advisor instanceof IntroductionAdvisor ia) {
       // We need to remove introduction interfaces.
       for (Class<?> ifc : ia.getInterfaces()) {
         removeInterface(ifc);
@@ -461,7 +486,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     MethodCacheKey cacheKey = new MethodCacheKey(method);
     MethodInterceptor[] cached = this.methodCache.get(cacheKey);
     if (cached == null) {
-      cached = AopUtils.getInterceptorsArray(this, method, targetClass);
+      cached = interceptorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(this, method, targetClass);
       AnnotationAwareOrderComparator.sort(cached);
       this.methodCache.put(cacheKey, cached);
     }
@@ -496,6 +521,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   protected void copyConfigurationFrom(AdvisedSupport other, TargetSource targetSource, List<Advisor> advisors) {
     copyFrom(other);
     this.targetSource = targetSource;
+    this.interceptorChainFactory = other.interceptorChainFactory;
     this.interfaces = new ArrayList<>(other.interfaces);
     for (Advisor advisor : advisors) {
       Assert.notNull(advisor, "Advisor must not be null");
@@ -524,6 +550,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   // Serialization support
   //---------------------------------------------------------------------
 
+  @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     // Rely on default serialization; just initialize state after deserialization.
     ois.defaultReadObject();
