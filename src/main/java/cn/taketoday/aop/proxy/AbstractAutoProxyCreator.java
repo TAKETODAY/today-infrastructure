@@ -24,7 +24,11 @@ import org.aopalliance.aop.Advice;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInfrastructureBean;
@@ -36,6 +40,7 @@ import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.Order;
@@ -46,6 +51,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Abstract Auto Proxy Creator use {@link cn.taketoday.beans.factory.BeanPostProcessor}
@@ -75,6 +81,12 @@ public abstract class AbstractAutoProxyCreator
   private boolean freezeProxy = false;
   private transient TargetSourceCreator[] targetSourceCreators;
   private List<Advisor> candidateAdvisors;
+
+  private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+
+  private final Map<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
+
+  private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
   /**
    * Set custom {@code TargetSourceCreators} to be applied in this order.
@@ -116,22 +128,43 @@ public abstract class AbstractAutoProxyCreator
     this.beanFactory = beanFactory;
   }
 
+  /**
+   * Return the owning {@link BeanFactory}.
+   * May be {@code null}, as this post-processor doesn't need to belong to a bean factory.
+   */
+  @Nullable
   public BeanFactory getBeanFactory() {
     return this.beanFactory;
   }
 
   @Override
   public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
+    Object cacheKey = getCacheKey(beanClass, beanName);
+
+    if (StringUtils.isEmpty(beanName) || !this.targetSourcedBeans.contains(beanName)) {
+      if (this.advisedBeans.containsKey(cacheKey)) {
+        return null;
+      }
+      if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
+        this.advisedBeans.put(cacheKey, Boolean.FALSE);
+        return null;
+      }
+    }
+
     // Create proxy here if we have a custom TargetSource.
     // Suppresses unnecessary default instantiation of the target bean:
     // The TargetSource will handle target instances in a custom fashion.
     TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
     if (targetSource != null) {
-      Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
-      if (ObjectUtils.isNotEmpty(specificInterceptors)) {
-        return createProxy(beanClass, beanName, specificInterceptors, targetSource);
+      if (StringUtils.isNotEmpty(beanName)) {
+        this.targetSourcedBeans.add(beanName);
       }
+      Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+      Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
+      this.proxyTypes.put(cacheKey, proxy.getClass());
+      return proxy;
     }
+
     return null;
   }
 
@@ -144,7 +177,7 @@ public abstract class AbstractAutoProxyCreator
           // Found a matching TargetSource.
           if (log.isTraceEnabled()) {
             log.trace("TargetSourceCreator [{}] found custom TargetSource for bean with name '{}'",
-                      creator, beanName);
+                    creator, beanName);
           }
           return source;
         }
@@ -155,8 +188,10 @@ public abstract class AbstractAutoProxyCreator
   }
 
   @Override
-  public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
-    return wrapIfNecessary(bean, beanName);
+  public Object getEarlyBeanReference(Object bean, String beanName) {
+    Object cacheKey = getCacheKey(bean.getClass(), beanName);
+    this.earlyProxyReferences.put(cacheKey, bean);
+    return wrapIfNecessary(bean, beanName, cacheKey);
   }
 
   /**
@@ -168,6 +203,29 @@ public abstract class AbstractAutoProxyCreator
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) {
     return wrapIfNecessary(bean, beanName);
+  }
+
+  /**
+   * Build a cache key for the given bean class and bean name.
+   * <p>Note: this implementation does not return a concatenated
+   * class/name String anymore but rather the most efficient cache key possible:
+   * a plain bean name, prepended with {@link BeanFactory#FACTORY_BEAN_PREFIX}
+   * in case of a {@code FactoryBean}; or if no bean name specified, then the
+   * given bean {@code Class} as-is.
+   *
+   * @param beanClass the bean class
+   * @param beanName the bean name
+   * @return the cache key for the given class and name
+   * @since 4.0
+   */
+  protected Object getCacheKey(Class<?> beanClass, @Nullable String beanName) {
+    if (StringUtils.isNotEmpty(beanName)) {
+      return FactoryBean.class.isAssignableFrom(beanClass)
+             ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName;
+    }
+    else {
+      return beanClass;
+    }
   }
 
   protected boolean advisorsPreFiltered() {
