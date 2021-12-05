@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.ThrowsAdvice;
+import cn.taketoday.aop.proxy.ProxyFactoryBean;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.logging.Logger;
