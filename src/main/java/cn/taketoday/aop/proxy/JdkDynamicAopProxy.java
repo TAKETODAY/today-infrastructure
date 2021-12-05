@@ -22,6 +22,7 @@ package cn.taketoday.aop.proxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -67,6 +68,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 3.0
  */
 public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /*
