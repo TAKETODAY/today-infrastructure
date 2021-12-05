@@ -28,9 +28,11 @@ import java.util.Map;
 
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -57,6 +59,7 @@ import cn.taketoday.util.StringUtils;
 @Aspect
 @Advice(Transactional.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class TransactionInterceptor implements MethodInterceptor {
 
   private static final Logger log = LoggerFactory.getLogger(TransactionInterceptor.class);

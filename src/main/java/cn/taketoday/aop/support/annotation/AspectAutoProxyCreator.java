@@ -25,12 +25,13 @@ import org.aopalliance.intercept.MethodInterceptor;
 import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import cn.taketoday.aop.Advisor;
-import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
+import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.SuppliedMethodInterceptor;
@@ -47,6 +48,7 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -54,19 +56,30 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * Aspect annotated aspect or MethodInterceptor ProxyCreator
  *
- * @author TODAY 2021/2/19 23:55
+ * @author TODAY
  * @see Aspect
- * @since 3.0
+ * @since 3.0 2021/2/19 23:55
  */
-public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
+public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Override
-  protected void addCandidateAdvisors(List<Advisor> candidateAdvisors) {
-    super.addCandidateAdvisors(candidateAdvisors);
+  private List<Advisor> annotationAdvisors;
 
-    BeanFactory beanFactory = getBeanFactory();
+  @Override
+  protected List<Advisor> findCandidateAdvisors() {
+    List<Advisor> candidateAdvisors = super.findCandidateAdvisors();
+    if (annotationAdvisors == null) {
+      annotationAdvisors = new ArrayList<>();
+      addCandidateAdvisors();
+    }
+    candidateAdvisors.addAll(annotationAdvisors);
+    return candidateAdvisors;
+  }
+
+  protected void addCandidateAdvisors() {
+    BeanFactory beanFactory = getFactory();
     Set<String> aspectBeanNames = beanFactory.getBeanNamesForAnnotation(Aspect.class);
     for (String name : aspectBeanNames) {
       log.info("Found Aspect: [{}]", name);
@@ -77,22 +90,27 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
       // around
       if (MethodInterceptor.class.isAssignableFrom(aspectClass)) {
         Stream<MergedAnnotation<Advice>> adviceAttributes = getAdviceAttributes(aspectDef);
-        addCandidateAdvisors(candidateAdvisors, aspectDef, null, adviceAttributes);
+        addCandidateAdvisors(aspectDef, null, adviceAttributes);
       }
       // annotations: @AfterReturning @Around @Before @After @AfterThrowing
       Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(aspectClass);
       for (Method aspectMethod : declaredMethods) {
         Stream<MergedAnnotation<Advice>> adviceAttributes = getAdviceAttributes(aspectMethod);
-        addCandidateAdvisors(candidateAdvisors, aspectDef, aspectMethod, adviceAttributes);
+        addCandidateAdvisors(aspectDef, aspectMethod, adviceAttributes);
       }
     }
   }
 
-  private void addCandidateAdvisors(
-          List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
-          @Nullable Method aspectMethod, Stream<MergedAnnotation<Advice>> adviceAttributes) {
-    // fix Standard Bean def
+  @NonNull
+  private BeanFactory getFactory() {
+    BeanFactory beanFactory = getBeanFactory();
+    Assert.state(beanFactory != null, "No BeanFactory available");
+    return beanFactory;
+  }
 
+  private void addCandidateAdvisors(
+          BeanDefinition aspectDef, @Nullable Method aspectMethod,
+          Stream<MergedAnnotation<Advice>> adviceAttributes) {
     adviceAttributes.forEach(advice -> {
       MethodInterceptor interceptor = getInterceptor(aspectDef, aspectMethod, advice);
       if (log.isTraceEnabled()) {
@@ -107,17 +125,15 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
                   = AnnotationMatchingPointcut.forMethodAnnotation(annotation);
 
           DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
-          candidateAdvisors.add(pointcutAdvisor);
+          annotationAdvisors.add(pointcutAdvisor);
         }
       }
     });
-
   }
 
   private MethodInterceptor getInterceptor(
           BeanDefinition aspectDef, @Nullable Method aspectMethod, MergedAnnotation<Advice> advice) {
-    BeanFactory beanFactory = getBeanFactory();
-
+    BeanFactory beanFactory = getFactory();
     if (aspectMethod == null) { // method interceptor
       if (!beanFactory.isTypeMatch(aspectDef.getName(), MethodInterceptor.class)) {
         throw new ConfigurationException(
@@ -186,8 +202,7 @@ public class AspectAutoProxyCreator extends DefaultAutoProxyCreator {
       return metadata.getAnnotations().stream(Advice.class);
     }
 
-    BeanFactory beanFactory = getBeanFactory();
-
+    BeanFactory beanFactory = getFactory();
     //stream
     return Stream.of(beanFactory.getMergedAnnotation(definition.getName(), Advice.class));
   }

@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.DefaultCacheManager;
@@ -37,6 +38,7 @@ import cn.taketoday.cache.interceptor.CachePutInterceptor;
 import cn.taketoday.cache.interceptor.CacheableInterceptor;
 import cn.taketoday.cache.interceptor.DefaultCacheExceptionResolver;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.lang.Component;
@@ -60,6 +62,7 @@ public @interface EnableCaching {
 class ProxyCachingConfiguration {
 
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(CacheManager.class)
   CacheManager cacheManager() {
     if (ClassUtils.isPresent("com.github.benmanes.caffeine.cache.Caffeine")) {
@@ -72,6 +75,7 @@ class ProxyCachingConfiguration {
   @Component
   @Advice(CachePut.class)
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   CachePutInterceptor cachePutInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
     CachePutInterceptor cachePutInterceptor = new CachePutInterceptor(cacheManager);
     cachePutInterceptor.setExpressionOperations(operations);
@@ -82,6 +86,7 @@ class ProxyCachingConfiguration {
   @Component
   @Advice(Cacheable.class)
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   CacheableInterceptor cacheableInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
     CacheableInterceptor cacheableInterceptor = new CacheableInterceptor(cacheManager);
     cacheableInterceptor.setExpressionOperations(operations);
@@ -92,6 +97,7 @@ class ProxyCachingConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Advice(CacheEvict.class)
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
     CacheEvictInterceptor cacheEvictInterceptor = new CacheEvictInterceptor(cacheManager);
     cacheEvictInterceptor.setExpressionOperations(operations);
@@ -99,12 +105,14 @@ class ProxyCachingConfiguration {
   }
 
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(CacheExceptionResolver.class)
   DefaultCacheExceptionResolver cacheExceptionResolver() {
     return new DefaultCacheExceptionResolver();
   }
 
   @Singleton
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   CacheExpressionOperations cacheExpressionOperations(ExpressionContext context) {
     return new CacheExpressionOperations(context);
   }
