@@ -20,51 +20,29 @@
 
 package cn.taketoday.aop.support;
 
-import org.aopalliance.aop.Advice;
-import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import cn.taketoday.aop.Advisor;
-import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionAwareMethodMatcher;
-import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetClassAware;
-import cn.taketoday.aop.ThrowsAdvice;
-import cn.taketoday.aop.proxy.Advised;
-import cn.taketoday.aop.proxy.AdvisedSupport;
-import cn.taketoday.aop.proxy.AdvisorAdapter;
-import cn.taketoday.aop.proxy.AopConfigException;
-import cn.taketoday.aop.proxy.AopProxy;
 import cn.taketoday.aop.proxy.AopProxyUtils;
-import cn.taketoday.aop.proxy.CglibAopProxy;
-import cn.taketoday.aop.proxy.JdkDynamicAopProxy;
-import cn.taketoday.aop.proxy.StandardAopProxy;
 import cn.taketoday.aop.proxy.StandardProxy;
-import cn.taketoday.aop.proxy.UnknownAdviceTypeException;
-import cn.taketoday.aop.support.annotation.AfterReturning;
-import cn.taketoday.aop.support.annotation.AfterThrowing;
-import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -80,16 +58,6 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 3.0
  */
 public abstract class AopUtils {
-
-  public static final MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
-
-  private static final ArrayList<AdvisorAdapter> advisorAdapters = new ArrayList<>(3);
-
-  static {
-    addAdvisorAdapters(new BeforeAdvisorAdapter(),
-                       new ThrowsAdviceAdvisorAdapter(),
-                       new AfterReturningAdvisorAdapter());
-  }
 
   /**
    * Check whether the given object is a JDK dynamic proxy or a CGLIB proxy.
@@ -356,273 +324,6 @@ public abstract class AopUtils {
     }
     catch (IllegalAccessException ex) {
       throw new AopInvocationException("Could not access method [" + method + "]", ex);
-    }
-  }
-
-  //
-
-  /**
-   * get un-ordered {@link MethodInterceptor} array
-   */
-  public static MethodInterceptor[] getInterceptorsArray(Advised config, Method method, Class<?> targetClass) {
-    final List<MethodInterceptor> interceptors = getInterceptors(config, method, targetClass);
-    if (interceptors.isEmpty()) {
-      return EMPTY_INTERCEPTOR;
-    }
-    return interceptors.toArray(new MethodInterceptor[0]);
-  }
-
-  /**
-   * get un-ordered {@link MethodInterceptor} list
-   */
-  public static List<MethodInterceptor> getInterceptors(Advised config, Method method, Class<?> targetClass) {
-
-    // This is somewhat tricky... We have to process introductions first,
-    // but we need to preserve order in the ultimate list.
-    Advisor[] advisors = config.getAdvisors();
-    ArrayList<MethodInterceptor> ret = new ArrayList<>(advisors.length);
-    Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
-    Boolean hasIntroductions = null;
-
-    for (Advisor advisor : advisors) {
-      if (advisor instanceof PointcutAdvisor pointcutAdvisor) {
-        // Add it conditionally.
-        if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
-          MethodMatcher matcher = pointcutAdvisor.getPointcut().getMethodMatcher();
-          boolean match;
-          if (matcher instanceof IntroductionAwareMethodMatcher) {
-            if (hasIntroductions == null) {
-              hasIntroductions = hasMatchingIntroductions(advisors, actualClass);
-            }
-            match = ((IntroductionAwareMethodMatcher) matcher).matches(method, actualClass, hasIntroductions);
-          }
-          else {
-            match = matcher.matches(method, actualClass);
-          }
-          if (match) {
-            MethodInterceptor[] interceptors = getInterceptors(advisor);
-            if (matcher.isRuntime()) {
-              // Creating a new object instance in the getInterceptors() method
-              // isn't a problem as we normally cache created chains.
-              for (MethodInterceptor interceptor : interceptors) {
-                ret.add(new RuntimeMethodInterceptor(interceptor, matcher));
-              }
-            }
-            else {
-              Collections.addAll(ret, interceptors);
-            }
-          }
-        }
-      }
-      else if (advisor instanceof IntroductionAdvisor ia) {
-        if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
-          MethodInterceptor[] interceptors = getInterceptors(advisor);
-          Collections.addAll(ret, interceptors);
-        }
-      }
-      else {
-        MethodInterceptor[] interceptors = getInterceptors(advisor);
-        Collections.addAll(ret, interceptors);
-      }
-    }
-
-    return ret;
-  }
-
-  public static Advisor wrap(Object adviceObject) throws UnknownAdviceTypeException {
-    if (adviceObject instanceof Advisor) {
-      return (Advisor) adviceObject;
-    }
-    if (adviceObject instanceof Advice advice) {
-      if (advice instanceof MethodInterceptor) {
-        // So well-known it doesn't even need an adapter.
-        return new DefaultPointcutAdvisor(advice);
-      }
-      for (AdvisorAdapter adapter : advisorAdapters) {
-        // Check that it is supported.
-        if (adapter.supportsAdvice(advice)) {
-          return new DefaultPointcutAdvisor(advice);
-        }
-      }
-    }
-    throw new UnknownAdviceTypeException(adviceObject);
-  }
-
-  public static MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
-    ArrayList<MethodInterceptor> interceptors = new ArrayList<>(3);
-    Advice advice = advisor.getAdvice();
-    if (advice instanceof MethodInterceptor) {
-      interceptors.add((MethodInterceptor) advice);
-    }
-    for (AdvisorAdapter adapter : advisorAdapters) {
-      if (adapter.supportsAdvice(advice)) {
-        interceptors.add(adapter.getInterceptor(advisor));
-      }
-    }
-    if (interceptors.isEmpty()) {
-      throw new UnknownAdviceTypeException(advisor.getAdvice());
-    }
-    return interceptors.toArray(EMPTY_INTERCEPTOR);
-  }
-
-  /**
-   * Determine whether the Advisors contain matching introductions.
-   */
-  private static boolean hasMatchingIntroductions(Advisor[] advisors, Class<?> actualClass) {
-    for (Advisor advisor : advisors) {
-      if (advisor instanceof IntroductionAdvisor ia) {
-        if (ia.getClassFilter().matches(actualClass)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // AopProxy
-
-  /**
-   * Create an {@link AopProxy} for the given AOP configuration.
-   *
-   * @param config the AOP configuration in the form of an
-   * AdvisedSupport object
-   * @return the corresponding AOP proxy
-   * @throws AopConfigException if the configuration is invalid
-   */
-  public static AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
-    if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
-      Class<?> targetClass = config.getTargetClass();
-      if (targetClass == null) {
-        throw new AopConfigException(
-                "TargetSource cannot determine target class: " +
-                        "Either an interface or a target is required for proxy creation.");
-      }
-      if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
-        return new JdkDynamicAopProxy(config);
-      }
-
-      if (config.isUsingCglib()) {
-        return new CglibAopProxy(config);
-      }
-      return new StandardAopProxy(config);
-    }
-    else {
-      return new JdkDynamicAopProxy(config);
-    }
-  }
-
-  /**
-   * Determine whether the supplied {@link AdvisedSupport} has only the
-   * {@link cn.taketoday.aop.proxy.StandardProxy} interface specified
-   * (or no proxy interfaces specified at all).
-   */
-  private static boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
-    Class<?>[] ifcs = config.getProxiedInterfaces();
-    return (ifcs.length == 0 || (ifcs.length == 1 && StandardProxy.class.isAssignableFrom(ifcs[0])));
-  }
-
-  // AdvisorAdapter
-
-  /**
-   * Add {@link AdvisorAdapter} to {@link #advisorAdapters} and sort them
-   *
-   * @param adapters new AdvisorAdapters
-   */
-  public static void addAdvisorAdapters(@Nullable AdvisorAdapter... adapters) {
-    if (ObjectUtils.isNotEmpty(adapters)) {
-      CollectionUtils.addAll(advisorAdapters, adapters);
-      CollectionUtils.trimToSize(advisorAdapters);
-
-      AnnotationAwareOrderComparator.sort(advisorAdapters);
-    }
-  }
-
-  static final class BeforeAdvisorAdapter implements AdvisorAdapter {
-
-    @Override
-    public boolean supportsAdvice(Advice advice) {
-      return advice instanceof MethodBeforeAdvice;
-    }
-
-    @Override
-    public MethodInterceptor getInterceptor(Advisor advisor) {
-      final MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();
-      final class Interceptor implements MethodInterceptor, Ordered {
-
-        @Override
-        public Object invoke(MethodInvocation invocation) throws Throwable {
-          advice.before(invocation);
-          return invocation.proceed();
-        }
-
-        @Override
-        public int getOrder() {
-          return Before.DEFAULT_ORDER;
-        }
-      }
-      return new Interceptor();
-    }
-  }
-
-  static final class AfterReturningAdvisorAdapter implements AdvisorAdapter {
-
-    @Override
-    public boolean supportsAdvice(Advice advice) {
-      return advice instanceof AfterReturningAdvice;
-    }
-
-    @Override
-    public MethodInterceptor getInterceptor(Advisor advisor) {
-      final AfterReturningAdvice advice = (AfterReturningAdvice) advisor.getAdvice();
-      final class Interceptor implements MethodInterceptor, Ordered {
-
-        @Override
-        public Object invoke(MethodInvocation invocation) throws Throwable {
-          final Object returnValue = invocation.proceed();
-          advice.afterReturning(returnValue, invocation);
-          return returnValue;
-        }
-
-        @Override
-        public int getOrder() {
-          return AfterReturning.DEFAULT_ORDER;
-        }
-      }
-      return new Interceptor();
-    }
-  }
-
-  /**
-   * {@link ThrowsAdvice} Adapter
-   */
-  static final class ThrowsAdviceAdvisorAdapter implements AdvisorAdapter {
-
-    @Override
-    public boolean supportsAdvice(Advice advice) {
-      return advice instanceof ThrowsAdvice;
-    }
-
-    @Override
-    public MethodInterceptor getInterceptor(Advisor advisor) {
-      final ThrowsAdvice advice = (ThrowsAdvice) advisor.getAdvice();
-      final class Interceptor implements MethodInterceptor, Ordered {
-        @Override
-        public Object invoke(MethodInvocation invocation) throws Throwable {
-          try {
-            return invocation.proceed();
-          }
-          catch (Throwable ex) {
-            return advice.afterThrowing(ex, invocation);
-          }
-        }
-
-        @Override
-        public int getOrder() {
-          return AfterThrowing.DEFAULT_ORDER;
-        }
-      }
-
-      return new Interceptor();
     }
   }
 
