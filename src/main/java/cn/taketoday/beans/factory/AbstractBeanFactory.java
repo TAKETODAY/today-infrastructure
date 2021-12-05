@@ -116,24 +116,19 @@ public abstract class AbstractBeanFactory
   @Nullable
   @Override
   public Object getBean(String name) {
-    return doGetBean(name, null, null);
+    return doGetBean(name, null, null, false);
   }
 
   @Override
   @Nullable
   public <T> T getBean(String name, Class<T> requiredType) {
-    return doGetBean(name, requiredType, null);
+    return doGetBean(name, requiredType, null, false);
   }
 
   @Nullable
   @Override
   public Object getBean(String name, Object... args) throws BeansException {
-    return doGetBean(name, null, args);
-  }
-
-  @Nullable
-  protected <T> T doGetBean(String name, Class<?> requiredType, Object[] args) throws BeansException {
-    return doGetBean(name, requiredType, args, false);
+    return doGetBean(name, null, args, false);
   }
 
   @SuppressWarnings("unchecked")
@@ -164,7 +159,8 @@ public abstract class AbstractBeanFactory
         if (parentBeanFactory != null) {
           // Not found -> check parent.
           if (parentBeanFactory instanceof AbstractBeanFactory) {
-            return ((AbstractBeanFactory) parentBeanFactory).doGetBean(beanName, requiredType, args);
+            return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
+                    beanName, requiredType, args, typeCheckOnly);
           }
           else if (args != null) {
             // Delegation to parent with explicit args.
@@ -1531,7 +1527,7 @@ public abstract class AbstractBeanFactory
       if (beanInstance == null) {
         // get bean from FactoryBean
         boolean synthetic = (definition != null && definition.isSynthetic());
-        beanInstance = getObjectFromFactoryBean(factory, beanName, synthetic);
+        beanInstance = getObjectFromFactoryBean(factory, beanName, !synthetic);
       }
       else if (beanInstance == NullValue.INSTANCE) {
         return null;

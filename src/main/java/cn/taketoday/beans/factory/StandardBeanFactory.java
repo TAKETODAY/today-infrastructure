@@ -441,7 +441,7 @@ public class StandardBeanFactory
   @Nullable
   private <T> NamedBeanHolder<T> resolveNamedBean(
           String beanName, ResolvableType requiredType, Object[] args) throws BeansException {
-    Object bean = doGetBean(beanName, null, args);
+    Object bean = doGetBean(beanName, null, args, false);
     if (bean == null) {
       return null;
     }

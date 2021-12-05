@@ -40,6 +40,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.DummyFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
@@ -70,8 +71,8 @@ class AutoProxyCreatorTests {
     sac.getBeanFactory().registerBeanDefinition("beanNameAutoProxyCreator", proxyCreator);
 
     BeanDefinition bd = new BeanDefinition(TestBean.class);
-    BeanDefinition innerBean = new BeanDefinition("innerBean", TestBean.class);
-    bd.addPropertyValue("spouse", BeanDefinitionReference.from(innerBean));
+    bd.addPropertyValue("spouse", BeanDefinitionReference.from("innerBean", TestBean.class));
+    bd.addPropertyValue("nestedIndexedBean", BeanReference.from("autowiredIndexedTestBean"));
     sac.getBeanFactory().registerBeanDefinition("singletonToBeProxied", bd);
 
     sac.registerSingleton("singletonFactoryToBeProxied", DummyFactory.class);
@@ -84,7 +85,8 @@ class AutoProxyCreatorTests {
     assertThat(Proxy.isProxyClass(singletonToBeProxied.getSpouse().getClass())).isTrue();
 
     // test whether autowiring succeeded with auto proxy creation
-    assertThat(singletonToBeProxied.getNestedIndexedBean()).isEqualTo(sac.getBean("autowiredIndexedTestBean"));
+    assertThat(singletonToBeProxied.getNestedIndexedBean())
+            .isEqualTo(sac.getBean("autowiredIndexedTestBean"));
 
     TestInterceptor ti = (TestInterceptor) sac.getBean("testInterceptor");
     // already 2: getSpouse + getNestedIndexedBean calls above
