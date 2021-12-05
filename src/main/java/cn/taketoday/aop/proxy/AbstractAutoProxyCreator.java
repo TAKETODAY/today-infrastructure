@@ -99,7 +99,7 @@ public abstract class AbstractAutoProxyCreator
   @Serial
   private static final long serialVersionUID = 1L;
 
-  protected final transient Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(AbstractAutoProxyCreator.class);
 
   /**
    * Convenience constant for subclasses: Return value for "do not proxy".

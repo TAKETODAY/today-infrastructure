@@ -92,8 +92,8 @@ public abstract class AopUtils {
    * @param object the object to check
    */
   public static boolean isCglibProxy(Object object) {
-    return (object instanceof StandardProxy &&
-            object.getClass().getName().contains("$$"));
+    return object instanceof StandardProxy
+            && object.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR);
   }
 
   /**

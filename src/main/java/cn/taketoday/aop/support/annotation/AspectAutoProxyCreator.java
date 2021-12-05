@@ -50,6 +50,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -61,6 +63,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 3.0 2021/2/19 23:55
  */
 public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
+  private static final Logger log = LoggerFactory.getLogger(AspectAutoProxyCreator.class);
 
   @Serial
   private static final long serialVersionUID = 1L;
