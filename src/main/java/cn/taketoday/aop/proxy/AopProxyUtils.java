@@ -21,7 +21,9 @@
 package cn.taketoday.aop.proxy;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.TargetSource;
@@ -29,6 +31,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Utility methods for AOP proxy factories.
@@ -134,32 +137,23 @@ public abstract class AopProxyUtils {
         specifiedInterfaces = advised.getProxiedInterfaces();
       }
     }
-    boolean addProxy = !advised.isInterfaceProxied(StandardProxy.class);
-    boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
-    boolean addDecoratingProxy = decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class);
-    int nonUserIfcCount = 0;
-    if (addProxy) {
-      nonUserIfcCount++;
+    List<Class<?>> proxiedInterfaces = new ArrayList<>(specifiedInterfaces.length + 3);
+    for (Class<?> ifc : specifiedInterfaces) {
+      // Only non-sealed interfaces are actually eligible for JDK proxying (on JDK 17)
+      if (!ifc.isSealed()) {
+        proxiedInterfaces.add(ifc);
+      }
     }
-    if (addAdvised) {
-      nonUserIfcCount++;
+    if (!advised.isInterfaceProxied(StandardProxy.class)) {
+      proxiedInterfaces.add(StandardProxy.class);
     }
-    if (addDecoratingProxy) {
-      nonUserIfcCount++;
+    if (!advised.isOpaque() && !advised.isInterfaceProxied(Advised.class)) {
+      proxiedInterfaces.add(Advised.class);
     }
-    Class<?>[] proxiedInterfaces = new Class<?>[specifiedInterfaces.length + nonUserIfcCount];
-    System.arraycopy(specifiedInterfaces, 0, proxiedInterfaces, 0, specifiedInterfaces.length);
-    int index = specifiedInterfaces.length;
-    if (addProxy) {
-      proxiedInterfaces[index++] = StandardProxy.class;
+    if (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class)) {
+      proxiedInterfaces.add(DecoratingProxy.class);
     }
-    if (addDecoratingProxy) {
-      proxiedInterfaces[index++] = DecoratingProxy.class;
-    }
-    if (addAdvised) {
-      proxiedInterfaces[index] = Advised.class;
-    }
-    return proxiedInterfaces;
+    return ClassUtils.toClassArray(proxiedInterfaces);
   }
 
   /**
