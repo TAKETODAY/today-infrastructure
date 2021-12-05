@@ -51,6 +51,8 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * Field is first considered then readMethod
+ * <p>
+ * AnnotatedElement -> Field -> readMethod -> writeMethod
  *
  * @author TODAY 2021/1/27 22:28
  * @since 3.0
@@ -114,7 +116,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
                @Nullable Method readMethod,
                @Nullable Method writeMethod,
                @Nullable Class<?> declaringClass) {
-    super(readMethod);
+    super(readMethod != null ? readMethod : writeMethod);
     this.alias = alias;
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
