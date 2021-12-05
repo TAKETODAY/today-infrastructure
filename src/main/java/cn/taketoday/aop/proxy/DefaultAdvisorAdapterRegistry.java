@@ -155,7 +155,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
   // Implementations of AdvisorAdapter
   //---------------------------------------------------------------------
 
-  static final class BeforeAdvisorAdapter implements AdvisorAdapter {
+  static final class BeforeAdvisorAdapter implements AdvisorAdapter, Serializable {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
@@ -182,7 +182,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
     }
   }
 
-  static final class AfterReturningAdvisorAdapter implements AdvisorAdapter {
+  static final class AfterReturningAdvisorAdapter implements AdvisorAdapter, Serializable {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
@@ -213,7 +213,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
   /**
    * {@link ThrowsAdvice} Adapter
    */
-  static final class ThrowsAdviceAdvisorAdapter implements AdvisorAdapter {
+  static final class ThrowsAdviceAdvisorAdapter implements AdvisorAdapter, Serializable {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
