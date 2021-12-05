@@ -20,10 +20,10 @@
 
 package cn.taketoday.aop.proxy;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 import cn.taketoday.aop.AdvisedSupportListener;
-import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -36,10 +36,48 @@ import cn.taketoday.lang.Assert;
  * @since 3.0
  */
 public class ProxyCreatorSupport extends AdvisedSupport {
+  @Serial
   private static final long serialVersionUID = 1L;
   /** Set to true when the first AOP proxy has been created. */
   private boolean active = false;
+
+  private AopProxyFactory aopProxyFactory;
   private final ArrayList<AdvisedSupportListener> listeners = new ArrayList<>();
+
+  /**
+   * Create a new ProxyCreatorSupport instance.
+   */
+  public ProxyCreatorSupport() {
+    this.aopProxyFactory = new DefaultAopProxyFactory();
+  }
+
+  /**
+   * Create a new ProxyCreatorSupport instance.
+   *
+   * @param aopProxyFactory the AopProxyFactory to use
+   */
+  public ProxyCreatorSupport(AopProxyFactory aopProxyFactory) {
+    Assert.notNull(aopProxyFactory, "AopProxyFactory must not be null");
+    this.aopProxyFactory = aopProxyFactory;
+  }
+
+  /**
+   * Customize the AopProxyFactory, allowing different strategies
+   * to be dropped in without changing the core framework.
+   * <p>Default is {@link DefaultAopProxyFactory}, using dynamic JDK
+   * proxies or CGLIB proxies based on the requirements.
+   */
+  public void setAopProxyFactory(AopProxyFactory aopProxyFactory) {
+    Assert.notNull(aopProxyFactory, "AopProxyFactory must not be null");
+    this.aopProxyFactory = aopProxyFactory;
+  }
+
+  /**
+   * Return the AopProxyFactory that this ProxyConfig uses.
+   */
+  public AopProxyFactory getAopProxyFactory() {
+    return this.aopProxyFactory;
+  }
 
   /**
    * Subclasses should call this to get a new AOP proxy. They should <b>not</b>
@@ -49,7 +87,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
     if (!this.active) {
       activate();
     }
-    return AopUtils.createAopProxy(this);
+    return aopProxyFactory.createAopProxy(this);
   }
 
   /**

@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.proxy;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -27,12 +28,12 @@ import cn.taketoday.util.ClassUtils;
  * of actual proxy objects.
  *
  * <p>Out-of-the-box implementations are available for JDK dynamic proxies
- * and for CGLIB proxies, as applied by {@link cn.taketoday.aop.support.AopUtils#createAopProxy(AdvisedSupport)}.
+ * and for CGLIB proxies, as applied by {@link DefaultAopProxyFactory}.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author TODAY 2021/2/1 20:24
- * @see cn.taketoday.aop.support.AopUtils#createAopProxy(AdvisedSupport)
+ * @see DefaultAopProxyFactory
  * @since 3.0
  */
 public interface AopProxy {
@@ -60,6 +61,6 @@ public interface AopProxy {
    * (or {@code null} for the low-level proxy facility's default)
    * @return the new proxy object (never {@code null})
    */
-  Object getProxy(ClassLoader classLoader);
+  Object getProxy(@Nullable ClassLoader classLoader);
 
 }
