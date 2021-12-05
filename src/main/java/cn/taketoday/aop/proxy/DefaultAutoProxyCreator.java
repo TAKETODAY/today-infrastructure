@@ -20,15 +20,14 @@
 
 package cn.taketoday.aop.proxy;
 
+import java.io.Serial;
+
 /**
  * @author TODAY 2021/2/2 17:54
  * @since 3.0
  */
-public class DefaultAutoProxyCreator extends AbstractAutoProxyCreator {
+public class DefaultAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  @Override
-  protected boolean advisorsPreFiltered() {
-    return true;
-  }
 }

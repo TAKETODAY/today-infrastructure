@@ -95,8 +95,8 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
    * @return the empty List, not {@code null},
    * if there are no pointcuts or interceptors
    * @see #findCandidateAdvisors
-   * @see #sortAdvisors
-   * @see #extendAdvisors
+   * @see #sortAdvisors(List)
+   * @see #extendAdvisors(List)
    */
   protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
     List<Advisor> candidateAdvisors = findCandidateAdvisors();
@@ -115,7 +115,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
    */
   protected List<Advisor> findCandidateAdvisors() {
     Assert.state(this.advisorRetriever != null, "No BeanFactoryAdvisorRetriever available");
-    return this.advisorRetriever.findAdvisorBeans();
+    return this.advisorRetriever.retrieveAdvisorBeans();
   }
 
   /**
