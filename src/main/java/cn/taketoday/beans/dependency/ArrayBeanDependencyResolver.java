@@ -19,33 +19,41 @@
  */
 package cn.taketoday.beans.dependency;
 
+import java.lang.reflect.Array;
+import java.util.List;
+
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-
-import java.lang.reflect.Array;
-import java.util.Map;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/17 16:03
  */
-public class ArrayBeanDependencyResolver implements DependencyResolvingStrategy {
+public class ArrayBeanDependencyResolver
+        extends InjectableDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   @Override
-  public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
+  protected boolean supportsInternal(
+          InjectionPoint injectionPoint, DependencyResolvingContext context) {
     Class<?> type = injectionPoint.getDependencyType();
     Class<?> componentType = type.getComponentType();
-    BeanFactory beanFactory = context.getBeanFactory();
+    return componentType != null && !ClassUtils.isSimpleType(componentType);
+  }
 
-    if (beanFactory != null && type.isArray() && !ClassUtils.isSimpleType(componentType)) {
-      Map<String, ?> beans = beanFactory.getBeansOfType(componentType);
-      if (CollectionUtils.isEmpty(beans)) {
-        context.setDependency(Array.newInstance(componentType, 0));
-      }
-      else {
-        context.setDependency(beans.values().toArray());
-      }
+  @Override
+  protected void resolveInternal(
+          InjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
+    Class<?> componentType = injectionPoint.getDependencyType().getComponentType();
+    List<?> beans = beanFactory.getBeans(componentType);
+    if (CollectionUtils.isEmpty(beans)) {
+      context.setDependency(Array.newInstance(componentType, 0));
+    }
+    else {
+      Object array = Array.newInstance(componentType, beans.size());
+      AnnotationAwareOrderComparator.sort(beans);
+      context.setDependency(beans.toArray((Object[]) array));
     }
   }
 
