@@ -68,7 +68,7 @@ public class BeanFactoryAdvisorRetriever {
    * @return the list of {@link Advisor} beans
    * @see #isEligibleBean
    */
-  public List<Advisor> findAdvisorBeans() {
+  public List<Advisor> retrieveAdvisorBeans() {
     // Determine list of advisor bean names, if not cached already.
     Set<String> advisorNames = this.cachedAdvisorBeanNames;
     if (advisorNames == null) {
