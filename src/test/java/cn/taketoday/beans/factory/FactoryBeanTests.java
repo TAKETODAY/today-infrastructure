@@ -101,7 +101,7 @@ class FactoryBeanTests {
 
       Assertions.assertEquals(bean, testFactoryBean);
       Assertions.assertSame(testFactoryBean, bean);
-      Assertions.assertNotNull(applicationContext.getBean("$testFactoryBean"));
+      Assertions.assertNotNull(applicationContext.getBean("&testFactoryBean"));
     }
   }
 
@@ -151,8 +151,8 @@ class FactoryBeanTests {
       Assertions.assertNotNull(testFactoryBean);
       Assertions.assertTrue(testFactoryBean instanceof TEST);
 
-      Assertions.assertNotNull(applicationContext.getBean("$testFactoryBean"));
-      Assertions.assertTrue(applicationContext.getBean("$testFactoryBean") instanceof TESTFactoryBean);
+      Assertions.assertNotNull(applicationContext.getBean("&testFactoryBean"));
+      Assertions.assertTrue(applicationContext.getBean("&testFactoryBean") instanceof TESTFactoryBean);
     }
   }
 

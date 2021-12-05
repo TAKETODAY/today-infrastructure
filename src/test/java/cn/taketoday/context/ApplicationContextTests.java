@@ -88,7 +88,7 @@ class ApplicationContextTests {
       BeanDefinition beanDefinition = applicationContext.getBeanDefinition("FactoryBean-Config");
       assertThat(beanDefinition).isNotNull();
 
-      ConfigFactoryBean bean = applicationContext.getBean("$FactoryBean-Config", ConfigFactoryBean.class);
+      ConfigFactoryBean bean = applicationContext.getBean("&FactoryBean-Config", ConfigFactoryBean.class);
 
       assertNotNull(bean); // @Prototype 
       assertNotEquals(config, config_);

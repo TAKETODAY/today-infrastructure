@@ -75,7 +75,7 @@ class DefaultLifecycleProcessorTests {
     bd.setLazyInit(true);
     context.registerBeanDefinition("bean", bd);
     context.refresh();
-    DummySmartLifecycleFactoryBean bean = context.getBean("$bean", DummySmartLifecycleFactoryBean.class);
+    DummySmartLifecycleFactoryBean bean = context.getBean("&bean", DummySmartLifecycleFactoryBean.class);
     assertThat(bean.isRunning()).isTrue();
     context.stop();
     assertThat(bean.isRunning()).isFalse();

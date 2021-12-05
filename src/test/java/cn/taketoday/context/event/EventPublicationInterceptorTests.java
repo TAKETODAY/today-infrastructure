@@ -111,7 +111,7 @@ class EventPublicationInterceptorTests {
 
 		// two events: ContextRefreshedEvent and TestEvent
 		assertThat(listener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
-		TestApplicationListener otherListener = (TestApplicationListener) ctx.getBean("$otherListener");
+		TestApplicationListener otherListener = (TestApplicationListener) ctx.getBean("&otherListener");
 		assertThat(otherListener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
 	}
 
