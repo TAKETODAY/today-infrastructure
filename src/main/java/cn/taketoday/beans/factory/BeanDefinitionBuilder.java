@@ -23,9 +23,7 @@ package cn.taketoday.beans.factory;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -483,31 +481,6 @@ public class BeanDefinitionBuilder {
     return definition;
   }
 
-  public static List<BeanDefinition> from(Class<?> candidate) {
-    Assert.notNull(candidate, "bean-class must not be null");
-    String defaultBeanName = defaultBeanName(candidate);
-
-    AnnotationAttributes[] annotationAttributes =
-            AnnotatedElementUtils.getMergedAttributesArray(candidate, Component.class);
-    // has Component
-    if (ObjectUtils.isNotEmpty(annotationAttributes)) {
-      ArrayList<BeanDefinition> definitions = new ArrayList<>(2);
-      for (AnnotationAttributes attributes : annotationAttributes) {
-        String[] determineName = BeanDefinitionBuilder.determineName(
-                defaultBeanName, attributes.getStringArray(Constant.VALUE));
-        for (String beanName : determineName) {
-          BeanDefinition defaults = defaults(beanName, candidate, attributes);
-          definitions.add(defaults);
-        }
-      }
-      return definitions;
-    }
-    else {
-      BeanDefinition defaults = defaults(defaultBeanName, candidate, null);
-      return Collections.singletonList(defaults);
-    }
-  }
-
   public static String defaultBeanName(String className) {
     return StringUtils.uncapitalize(ClassUtils.getSimpleName(className));
   }
@@ -515,6 +488,16 @@ public class BeanDefinitionBuilder {
   public static String defaultBeanName(Class<?> clazz) {
     String simpleName = clazz.getSimpleName();
     return StringUtils.uncapitalize(simpleName);
+  }
+
+  public static BeanDefinitionBuilder from(Class<?> beanClass) {
+    return new BeanDefinitionBuilder().beanClass(beanClass);
+  }
+
+  public static BeanDefinitionBuilder from(String name, Class<?> beanClass) {
+    return new BeanDefinitionBuilder()
+            .name(name)
+            .beanClass(beanClass);
   }
 
 }

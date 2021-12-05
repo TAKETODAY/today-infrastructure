@@ -72,6 +72,11 @@ public abstract class StaticMethodMatcherPointcutAdvisor
   }
 
   @Override
+  public boolean isPerInstance() {
+    return true;
+  }
+
+  @Override
   public Pointcut getPointcut() {
     return this;
   }
