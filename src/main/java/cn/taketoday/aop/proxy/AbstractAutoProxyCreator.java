@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,10 +52,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Abstract Auto Proxy Creator use {@link cn.taketoday.beans.factory.BeanPostProcessor}
- * mechanism to replace original bean
- *
- * {@link BeanPostProcessor} implementation
+ * {@link cn.taketoday.beans.factory.BeanPostProcessor} implementation
  * that wraps each eligible bean with an AOP proxy, delegating to specified interceptors
  * before invoking the bean itself.
  *
@@ -138,10 +134,8 @@ public abstract class AbstractAutoProxyCreator
   private AdvisorAdapterRegistry advisorAdapterRegistry = DefaultAdvisorAdapterRegistry.getInstance();
 
   private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
-
-  private final Map<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
-
-  private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
+  private final ConcurrentHashMap<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
   /**
    * Set custom {@code TargetSourceCreators} to be applied in this order.
