@@ -634,7 +634,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
 
-    if (definition.isEnableDependencyInjection()) {
+    if (!definition.isSynthetic() && definition.isEnableDependencyInjection()) {
       // -----------------------------------------------
       // apply dependency injection (DI)
       // apply outside framework expanded
