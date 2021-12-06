@@ -35,11 +35,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
@@ -78,7 +81,7 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings("serial")
 public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
         implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor,
-                   InitializationBeanPostProcessor, PriorityOrdered, Serializable {
+                   BeanFactoryAware, InitializationBeanPostProcessor, PriorityOrdered, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
 
@@ -108,6 +111,21 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   @Nullable
   private final transient ConcurrentHashMap<Class<?>, LifecycleMetadata>
           lifecycleMetadataCache = new ConcurrentHashMap<>(256);
+
+  private ArgumentsResolver argumentsResolver;
+
+  public ArgumentsResolver getArgumentsResolver() {
+    return argumentsResolver;
+  }
+
+  public void setArgumentsResolver(ArgumentsResolver argumentsResolver) {
+    this.argumentsResolver = argumentsResolver;
+  }
+
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    this.argumentsResolver = beanFactory.getArgumentsResolver();
+  }
 
   /**
    * Specify the init annotation to check for, indicating initialization
@@ -255,7 +273,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   /**
    * Class representing information about annotated init and destroy methods.
    */
-  private static class LifecycleMetadata {
+  private class LifecycleMetadata {
 
     private final Class<?> targetClass;
     private final Collection<LifecycleElement> initMethods;
@@ -304,7 +322,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           if (log.isTraceEnabled()) {
             log.trace("Invoking init method on bean '{}': {}", beanName, element.getMethod());
           }
-          element.invoke(target);
+          element.invoke(target, argumentsResolver);
         }
       }
     }
@@ -318,7 +336,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           if (log.isTraceEnabled()) {
             log.trace("Invoking destroy method on bean '{}': {}", beanName, element.getMethod());
           }
-          element.invoke(target);
+          element.invoke(target, argumentsResolver);
         }
       }
     }
@@ -340,9 +358,6 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     private final String identifier;
 
     public LifecycleElement(Method method) {
-      if (method.getParameterCount() != 0) {
-        throw new IllegalStateException("Lifecycle method annotation requires a no-arg method: " + method);
-      }
       this.method = method;
       this.identifier = Modifier.isPrivate(method.getModifiers())
                         ? ClassUtils.getQualifiedMethodName(method)
@@ -357,9 +372,10 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       return this.identifier;
     }
 
-    public void invoke(Object target) throws Throwable {
-      ReflectionUtils.makeAccessible(this.method);
-      this.method.invoke(target, (Object[]) null);
+    public void invoke(Object target, ArgumentsResolver resolver) throws Throwable {
+      ReflectionUtils.makeAccessible(method);
+      Object[] args = resolver.resolve(method);
+      method.invoke(target, args);
     }
 
     @Override
