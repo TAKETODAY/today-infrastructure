@@ -379,11 +379,10 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
             else {
               publisher.readingPaused();
               if (publisher.changeState(READING, NO_DEMAND)
-                      && !publisher.handlePendingCompletionOrError()) {
-                // Demand may have arrived since readAndPublish returned
-                if (publisher.demand > 0) {
-                  publisher.changeToDemandState(NO_DEMAND);
-                }
+                      && !publisher.handlePendingCompletionOrError()
+                      // Demand may have arrived since readAndPublish returned
+                      && publisher.demand > 0) {
+                publisher.changeToDemandState(NO_DEMAND);
               }
             }
           }
