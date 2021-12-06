@@ -168,7 +168,7 @@ public class StandardApplicationContext
     super.initPropertySources(environment);
     try {
       ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
-      if (StringUtils.isNotEmpty(propertiesLocation)) {
+      if (StringUtils.hasText(propertiesLocation)) {
         processor.setPropertiesLocation(propertiesLocation);
       }
       processor.postProcessEnvironment();

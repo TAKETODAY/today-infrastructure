@@ -255,7 +255,8 @@ public class ScanningBeanDefinitionReader {
     return ClassUtils.convertClassNameToResourcePath(basePackage);
   }
 
-  public void addLoadingStrategies(Class<? extends BeanDefinitionLoadingStrategy>... loadingStrategies) {
+  @SafeVarargs
+  public final void addLoadingStrategies(Class<? extends BeanDefinitionLoadingStrategy>... loadingStrategies) {
     for (Class<? extends BeanDefinitionLoadingStrategy> loadingStrategy : loadingStrategies) {
       BeanDefinitionLoadingStrategy strategy = loadingContext.instantiate(loadingStrategy);
       scanningStrategies.addStrategies(strategy);
