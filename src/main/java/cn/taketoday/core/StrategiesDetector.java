@@ -217,12 +217,13 @@ public class StrategiesDetector {
   }
 
   private static Object createInstance(Class<?> strategy, BeanFactory factory) {
-    Object instance = BeanUtils.newInstance(strategy, factory);
     if (factory instanceof AutowireCapableBeanFactory) {
-      // autowire, don't apply bean post processor
-      ((AutowireCapableBeanFactory) factory).initializeBean(instance);
+      // autowire, don't apply InitializationBeanPostProcessors
+      return ((AutowireCapableBeanFactory) factory).autowire(strategy);
     }
-    return instance;
+    else {
+      return BeanUtils.newInstance(strategy, factory);
+    }
   }
 
   public void consumeTypes(Class<?> strategyClass, Consumer<Class<?>> consumer) {

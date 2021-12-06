@@ -291,24 +291,22 @@ class AopTests {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      TargetSourceCreator targetSourceCreator = new TargetSourceCreator() {
-
-        @Override
-        public TargetSource getTargetSource(Class<?> beanClass, String beanName) {
-
-          return new PrototypeTargetSource() {
-
-            @Override
-            public Class<?> getTargetClass() {
-              return PrinterBean.class;
-            }
-
-            @Override
-            protected Object newPrototypeInstance() {
-              return new PrinterBean(null);
-            }
-          };
+      TargetSourceCreator targetSourceCreator = (beanClass, beanName) -> {
+        if (beanClass != PrinterBean.class) {
+          return null;
         }
+        return new PrototypeTargetSource() {
+
+          @Override
+          public Class<?> getTargetClass() {
+            return PrinterBean.class;
+          }
+
+          @Override
+          protected Object newPrototypeInstance() {
+            return new PrinterBean(null);
+          }
+        };
       };
 
       StandardBeanFactory beanFactory = context.getBeanFactory();
