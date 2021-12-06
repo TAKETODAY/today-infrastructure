@@ -94,7 +94,7 @@ public abstract class BeanUtils {
     if (constructor.getParameterCount() == 0) {
       return newInstance(constructor, null);
     }
-    ArgumentsResolver argumentsResolver = ArgumentsResolver.getOrShared(beanFactory);
+    ArgumentsResolver argumentsResolver = ArgumentsResolver.from(beanFactory);
     Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
     return newInstance(constructor, parameter);
   }

@@ -207,7 +207,7 @@ public class ArgumentsResolver {
    * @since 4.0
    */
   @NonNull
-  public static ArgumentsResolver getOrShared(@Nullable BeanFactory beanFactory) {
+  public static ArgumentsResolver from(@Nullable BeanFactory beanFactory) {
     if (beanFactory != null) {
       return beanFactory.getArgumentsResolver();
     }

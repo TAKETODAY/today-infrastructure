@@ -43,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author TODAY <br>
  * 2019-12-12 09:50
  */
-@Disabled("依赖循环还没重构")
 class CycleDependencyTests {
 
   @Test

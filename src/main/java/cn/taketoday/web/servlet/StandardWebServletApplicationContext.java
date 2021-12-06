@@ -95,7 +95,6 @@ public class StandardWebServletApplicationContext
   @Override
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     super.registerFrameworkComponents(beanFactory);
-    beanFactory.registerSingleton(this);
 
     // @since 3.0
     final class HttpSessionFactory implements Supplier<HttpSession> {

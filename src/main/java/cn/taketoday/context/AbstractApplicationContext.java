@@ -469,6 +469,7 @@ public abstract class AbstractApplicationContext
 
     if (ClassUtils.isPresent("jakarta.annotation.PostConstruct", getClass().getClassLoader())) {
       InitDestroyAnnotationBeanPostProcessor processor = new InitDestroyAnnotationBeanPostProcessor();
+      processor.setBeanFactory(beanFactory);
       processor.setDestroyAnnotationType(PreDestroy.class);
       processor.setInitAnnotationType(PostConstruct.class);
       beanFactory.addBeanPostProcessor(processor);
