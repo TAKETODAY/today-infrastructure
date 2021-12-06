@@ -34,6 +34,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY <br>
  * 2018-11-08 15:09
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractCallbackFilter implements CallbackFilter {
 
   private final ArrayList<Object> callbacks = new ArrayList<>();
@@ -84,6 +85,7 @@ public abstract class AbstractCallbackFilter implements CallbackFilter {
     throw new IllegalStateException("getCallback returned classes, not callbacks; call getCallbackTypes instead");
   }
 
+  @SuppressWarnings("rawtypes")
   public Class<?>[] getCallbackTypes() {
     final List callbacks = this.callbacks;
     if (CollectionUtils.isEmpty(callbacks)) {

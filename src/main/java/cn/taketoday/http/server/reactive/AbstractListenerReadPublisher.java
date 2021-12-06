@@ -214,13 +214,12 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
   }
 
   private void changeToDemandState(State oldState) {
-    if (changeState(oldState, State.DEMAND)) {
-      // Protect from infinite recursion in Undertow, where we can't check if data
-      // is available, so all we can do is to try to read.
-      // Generally, no need to check if we just came out of readAndPublish()...
-      if (oldState != State.READING) {
-        checkOnDataAvailable();
-      }
+    if (changeState(oldState, State.DEMAND)
+            // Protect from infinite recursion in Undertow, where we can't check if data
+            // is available, so all we can do is to try to read.
+            // Generally, no need to check if we just came out of readAndPublish()...
+            && oldState != State.READING) {
+      checkOnDataAvailable();
     }
   }
 
@@ -379,13 +378,11 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
             }
             else {
               publisher.readingPaused();
-              if (publisher.changeState(READING, NO_DEMAND)) {
-                if (!publisher.handlePendingCompletionOrError()) {
-                  // Demand may have arrived since readAndPublish returned
-                  long r = publisher.demand;
-                  if (r > 0) {
-                    publisher.changeToDemandState(NO_DEMAND);
-                  }
+              if (publisher.changeState(READING, NO_DEMAND)
+                      && !publisher.handlePendingCompletionOrError()) {
+                // Demand may have arrived since readAndPublish returned
+                if (publisher.demand > 0) {
+                  publisher.changeToDemandState(NO_DEMAND);
                 }
               }
             }

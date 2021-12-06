@@ -742,8 +742,7 @@ public class ASMifier extends Printer {
 
     stringBuilder.setLength(0);
     switch (type) {
-      case Opcodes.F_NEW:
-      case Opcodes.F_FULL:
+      case Opcodes.F_NEW, Opcodes.F_FULL -> {
         declareFrameTypes(numLocal, local);
         declareFrameTypes(numStack, stack);
         if (type == Opcodes.F_NEW) {
@@ -757,8 +756,8 @@ public class ASMifier extends Printer {
         stringBuilder.append("}, ").append(numStack).append(NEW_OBJECT_ARRAY);
         appendFrameTypes(numStack, stack);
         stringBuilder.append('}');
-        break;
-      case Opcodes.F_APPEND:
+      }
+      case Opcodes.F_APPEND -> {
         declareFrameTypes(numLocal, local);
         stringBuilder
                 .append(name)
@@ -767,27 +766,22 @@ public class ASMifier extends Printer {
                 .append(NEW_OBJECT_ARRAY);
         appendFrameTypes(numLocal, local);
         stringBuilder.append("}, 0, null");
-        break;
-      case Opcodes.F_CHOP:
-        stringBuilder
-                .append(name)
-                .append(".visitFrame(Opcodes.F_CHOP,")
-                .append(numLocal)
-                .append(", null, 0, null");
-        break;
-      case Opcodes.F_SAME:
-        stringBuilder.append(name).append(".visitFrame(Opcodes.F_SAME, 0, null, 0, null");
-        break;
-      case Opcodes.F_SAME1:
+      }
+      case Opcodes.F_CHOP -> stringBuilder
+              .append(name)
+              .append(".visitFrame(Opcodes.F_CHOP,")
+              .append(numLocal)
+              .append(", null, 0, null");
+      case Opcodes.F_SAME -> stringBuilder.append(name).append(".visitFrame(Opcodes.F_SAME, 0, null, 0, null");
+      case Opcodes.F_SAME1 -> {
         declareFrameTypes(1, stack);
         stringBuilder
                 .append(name)
                 .append(".visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {");
         appendFrameTypes(1, stack);
         stringBuilder.append('}');
-        break;
-      default:
-        throw new IllegalArgumentException();
+      }
+      default -> throw new IllegalArgumentException();
     }
     stringBuilder.append(");\n");
     text.add(stringBuilder.toString());

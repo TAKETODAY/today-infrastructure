@@ -20,16 +20,16 @@
 
 package cn.taketoday.aop.target;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
+
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * Base class for {@link cn.taketoday.aop.TargetSource} implementations that are
@@ -70,7 +70,7 @@ public abstract class AbstractBeanFactoryTargetSource
    * BeanFactory that owns this TargetSource. We need to hold onto this reference
    * so that we can create new prototype instances as necessary.
    */
-  private BeanFactory beanFactory;
+  private transient BeanFactory beanFactory;
 
   /**
    * Set the name of the target bean in the factory.

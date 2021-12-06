@@ -22,6 +22,7 @@ package cn.taketoday.web.multipart;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * @author TODAY 2021/4/18 20:38
@@ -42,8 +43,8 @@ public abstract class AbstractMultipartFile implements MultipartFile {
      * in a temporary location so move it to the
      * desired file.
      */
-    if (dest.exists() && !dest.delete()) {
-      throw new IOException("Cannot write uploaded file to disk!");
+    if (dest.exists()) {
+      Files.delete(dest.toPath());
     }
     saveInternal(dest);
   }

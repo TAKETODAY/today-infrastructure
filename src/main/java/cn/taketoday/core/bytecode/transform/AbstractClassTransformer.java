@@ -21,7 +21,7 @@ package cn.taketoday.core.bytecode.transform;
 
 import cn.taketoday.core.bytecode.ClassVisitor;
 
-abstract public class AbstractClassTransformer extends ClassTransformer {
+public abstract class AbstractClassTransformer extends ClassTransformer {
 
   protected AbstractClassTransformer() {
 //		super(Constant.ASM_API);1

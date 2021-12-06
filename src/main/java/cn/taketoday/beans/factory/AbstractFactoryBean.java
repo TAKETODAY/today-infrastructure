@@ -19,6 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.conversion.ConversionService;
@@ -27,12 +33,6 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
 
 /**
  * Simple template superclass for {@link FactoryBean} implementations that
@@ -76,6 +76,7 @@ public abstract class AbstractFactoryBean<T>
     this.singleton = singleton;
   }
 
+  @Override
   public boolean isSingleton() {
     return this.singleton;
   }
@@ -142,18 +143,6 @@ public abstract class AbstractFactoryBean<T>
       this.earlySingletonInstance = (T) Proxy.newProxyInstance(this.beanClassLoader, ifcs, new EarlySingletonInvocationHandler());
     }
     return this.earlySingletonInstance;
-  }
-
-  /**
-   * Expose the singleton instance (for access through the 'early singleton'
-   * proxy).
-   *
-   * @return the singleton instance that this FactoryBean holds
-   * @throws IllegalStateException if the singleton instance is not initialized
-   */
-  private T getSingletonInstance() {
-    Assert.state(this.initialized, "Singleton instance not initialized yet");
-    return this.singletonInstance;
   }
 
   /**
@@ -236,7 +225,6 @@ public abstract class AbstractFactoryBean<T>
     }
   }
 
-
   /**
    * Convert the value to the required type (if necessary from a String).
    *
@@ -268,6 +256,18 @@ public abstract class AbstractFactoryBean<T>
    * Reflective InvocationHandler for lazy access to the actual singleton object.
    */
   private class EarlySingletonInvocationHandler implements InvocationHandler {
+
+    /**
+     * Expose the singleton instance (for access through the 'early singleton'
+     * proxy).
+     *
+     * @return the singleton instance that this FactoryBean holds
+     * @throws IllegalStateException if the singleton instance is not initialized
+     */
+    private T getSingletonInstance() {
+      Assert.state(initialized, "Singleton instance not initialized yet");
+      return singletonInstance;
+    }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
