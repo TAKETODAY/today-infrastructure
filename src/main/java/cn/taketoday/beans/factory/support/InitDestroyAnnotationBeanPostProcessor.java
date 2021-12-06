@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,8 +48,10 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.PriorityOrdered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -276,8 +279,8 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   private class LifecycleMetadata {
 
     private final Class<?> targetClass;
-    private final Collection<LifecycleElement> initMethods;
-    private final Collection<LifecycleElement> destroyMethods;
+    private final List<LifecycleElement> initMethods;
+    private final List<LifecycleElement> destroyMethods;
 
     @Nullable
     private volatile Set<LifecycleElement> checkedInitMethods;
@@ -285,16 +288,16 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     @Nullable
     private volatile Set<LifecycleElement> checkedDestroyMethods;
 
-    public LifecycleMetadata(Class<?> targetClass,
-                             Collection<LifecycleElement> initMethods,
-                             Collection<LifecycleElement> destroyMethods) {
-
+    public LifecycleMetadata(Class<?> targetClass, List<LifecycleElement> initMethods, List<LifecycleElement> destroyMethods) {
       this.targetClass = targetClass;
       this.initMethods = initMethods;
       this.destroyMethods = destroyMethods;
     }
 
     public void checkConfigMembers(BeanDefinition beanDefinition) {
+      AnnotationAwareOrderComparator.sort(initMethods);
+      AnnotationAwareOrderComparator.sort(destroyMethods);
+
       LinkedHashSet<LifecycleElement> checkedInitMethods = new LinkedHashSet<>(initMethods.size());
       for (LifecycleElement element : initMethods) {
         checkedInitMethods.add(element);
@@ -309,6 +312,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           log.trace("Registered destroy method on class [{}]: {}", this.targetClass.getName(), element);
         }
       }
+
       this.checkedInitMethods = checkedInitMethods;
       this.checkedDestroyMethods = checkedDestroyMethods;
     }
@@ -352,7 +356,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   /**
    * Class representing injection information about an annotated method.
    */
-  private static class LifecycleElement {
+  private static class LifecycleElement implements OrderSourceProvider {
 
     private final Method method;
     private final String identifier;
@@ -393,6 +397,13 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     public int hashCode() {
       return this.identifier.hashCode();
     }
+
+    @Nullable
+    @Override
+    public Object getOrderSource(Object obj) {
+      return method;
+    }
+
   }
 
 }

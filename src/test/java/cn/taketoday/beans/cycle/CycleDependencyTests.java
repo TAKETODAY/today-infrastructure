@@ -20,7 +20,6 @@
 package cn.taketoday.beans.cycle;
 
 import org.aopalliance.intercept.Joinpoint;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
@@ -38,6 +37,7 @@ import cn.taketoday.lang.Singleton;
 import jakarta.annotation.PostConstruct;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author TODAY <br>
@@ -148,7 +148,8 @@ class CycleDependencyTests {
 
       LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
       LoggingBeanB beanB = applicationContext.getBean(LoggingBeanB.class);
-      applicationContext.getBean(LoggingBeanC.class);
+
+      applicationContext.getBean(LoggingBeanC.class).doSomething();
 
       System.out.println(beanA.getClass());
       System.out.println(beanB.getClass());
@@ -195,12 +196,14 @@ class CycleDependencyTests {
     int order;
     LoggingBeanA beanA;
     LoggingBeanB beanB;
+    LoggingBeanC beanC;
 
     @Order(1)
     @PostConstruct
-    public void init(LoggingBeanA beanA, LoggingBeanB beanB) {
+    public void init(LoggingBeanA beanA, LoggingBeanB beanB, LoggingBeanC beanC) {
       this.beanA = beanA;
       this.beanB = beanB;
+      this.beanC = beanC;
       order = 2;
     }
 
@@ -216,9 +219,15 @@ class CycleDependencyTests {
     @Order(3)
     @PostConstruct
     public void init3(LoggingBeanC beanC) {
-      assertEquals(this, beanC);
+      assertSame(this.beanC, beanC);
       assertEquals(order, 3);
     }
+
+    @Logger
+    void doSomething() {
+
+    }
+
   }
 
   @Aspect
