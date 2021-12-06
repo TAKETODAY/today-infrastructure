@@ -309,12 +309,7 @@ public abstract class AbstractApplicationContext
   public void registerShutdownHook() {
     if (this.shutdownHook == null) {
       // No shutdown hook registered yet.
-      this.shutdownHook = new Thread(SHUTDOWN_HOOK_THREAD_NAME) {
-        @Override
-        public void run() {
-          doClose();
-        }
-      };
+      this.shutdownHook = new Thread(this::onClose, SHUTDOWN_HOOK_THREAD_NAME);
       Runtime.getRuntime().addShutdownHook(this.shutdownHook);
     }
   }
@@ -496,13 +491,6 @@ public abstract class AbstractApplicationContext
 
     beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
     beanFactory.registerResolvableDependency(ApplicationContext.class, this);
-  }
-
-  /**
-   * register Framework Beans
-   */
-  public void registerFrameworkComponents() {
-    registerFrameworkComponents(getBeanFactory());
   }
 
   /**
