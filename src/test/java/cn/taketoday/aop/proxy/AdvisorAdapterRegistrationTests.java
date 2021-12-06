@@ -29,9 +29,9 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.BeforeAdvice;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.DefaultApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,8 +53,7 @@ public class AdvisorAdapterRegistrationTests {
 
   @Test
   public void testAdvisorAdapterRegistrationManagerNotPresentInContext() {
-    StandardBeanFactory beanFactory = new StandardBeanFactory();
-
+    DefaultApplicationContext beanFactory = new DefaultApplicationContext();
     load(beanFactory);
 
     ITestBean tb = (ITestBean) beanFactory.getBean("testBean");
@@ -64,7 +63,7 @@ public class AdvisorAdapterRegistrationTests {
     assertThat(getAdviceImpl(tb).getInvocationCounter()).isZero();
   }
 
-  private void load(StandardBeanFactory beanFactory) {
+  private void load(DefaultApplicationContext beanFactory) {
     beanFactory.registerBeanDefinition(new BeanDefinition("testBeanTarget", TestBean.class));
     beanFactory.registerBeanDefinition(new BeanDefinition("simpleBeforeAdvice", SimpleBeforeAdviceImpl.class));
     beanFactory.registerBeanDefinition(new BeanDefinition("simpleBeforeAdviceAdvisor", DefaultPointcutAdvisor.class));
@@ -75,11 +74,12 @@ public class AdvisorAdapterRegistrationTests {
     testBean.addPropertyValue("proxyInterfaces", ITestBean.class);
     testBean.addPropertyValue("interceptorNames", "simpleBeforeAdviceAdvisor,testBeanTarget");
     beanFactory.registerBeanDefinition(testBean);
+    beanFactory.refresh();
   }
 
   @Test
   public void testAdvisorAdapterRegistrationManagerPresentInContext() {
-    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    DefaultApplicationContext beanFactory = new DefaultApplicationContext();
     load(beanFactory);
 
     ITestBean tb = (ITestBean) beanFactory.getBean("testBean");

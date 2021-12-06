@@ -292,7 +292,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object initializeBean(Object existingBean) throws BeanInitializationException {
+  public Object initializeBean(Object existingBean) throws BeansException {
     return initializeBean(existingBean, createBeanName(existingBean.getClass()));
   }
 
@@ -302,7 +302,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Object initializeBean(Object bean, BeanDefinition def) throws BeanInitializationException {
+  public Object initializeBean(Object bean, BeanDefinition def) throws BeansException {
     return initializeBean(bean, def.getName(), def);
   }
 
@@ -315,7 +315,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * factory. The passed-in bean name will simply be used for callbacks but not
    * checked against the registered bean definitions.
    *
-   * @param existingBean the existing bean instance
+   * @param bean the new bean instance we may need to initialize
    * @param def the bean def of the bean
    * @return the bean instance to use, either the original or a wrapped one
    * @throws BeanInitializationException if the initialization failed
@@ -326,17 +326,27 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #invokeInitMethods
    * @see #applyBeanPostProcessorsAfterInitialization
    */
-  public Object initializeBean(Object existingBean, String beanName, @Nullable BeanDefinition def) throws BeanInitializationException {
+  public Object initializeBean(Object bean, String beanName, @Nullable BeanDefinition def) throws BeansException {
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named '{}'", beanName);
     }
-    invokeAwareMethods(existingBean, beanName);
-    existingBean = applyBeanPostProcessorsBeforeInitialization(existingBean, beanName);
-    // invoke initialize methods
-    invokeInitMethods(existingBean, def);
-    // after properties
-    existingBean = applyBeanPostProcessorsAfterInitialization(existingBean, beanName);
-    return existingBean;
+    invokeAwareMethods(bean, beanName);
+    if (def == null || !def.isSynthetic()) {
+      bean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
+    }
+
+    try {
+      invokeInitMethods(bean, def);
+    }
+    catch (Throwable ex) {
+      throw new BeanCreationException((def != null ? def.getResourceDescription() : null),
+              beanName, "Invocation of init method failed", ex);
+    }
+    if (def == null || !def.isSynthetic()) {
+      bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+    }
+
+    return bean;
   }
 
   private void invokeAwareMethods(Object bean, String beanName) {
@@ -354,41 +364,32 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Invoke initialize methods
+   * Give a bean a chance to react now all its properties are set,
+   * and a chance to know about its owning bean factory (this object).
+   * This means checking whether the bean implements InitializingBean or defines
+   * a custom init method, and invoking the necessary callback(s) if it does.
    *
-   * @param bean Bean instance
-   * @param def bean definition
-   * @throws BeanInitializationException when invoke init methods
+   * @param bean the new bean instance we may need to initialize
+   * @param def bean definition that the bean was created with
+   * * (can also be {@code null}, if given an existing bean instance)
+   * @throws Exception if thrown by init methods or by the invocation process
    * @see Component
    * @see InitializingBean
    * @see jakarta.annotation.PostConstruct
    */
-  protected void invokeInitMethods(Object bean, @Nullable BeanDefinition def) {
+  protected void invokeInitMethods(Object bean, @Nullable BeanDefinition def) throws Exception {
+    // InitializingBean#afterPropertiesSet
+    if (bean instanceof InitializingBean) {
+      ((InitializingBean) bean).afterPropertiesSet();
+    }
+
     Method[] methods = initMethodArray(bean, def);
     if (ObjectUtils.isNotEmpty(methods)) {
       ArgumentsResolver resolver = getArgumentsResolver();
-      // invoke @PostConstruct or initMethods defined in @Component
+      // invoke or initMethods defined in @Component
       for (Method method : methods) {
-        try {
-          Object[] args = resolver.resolve(method, this);
-          method.invoke(bean, args);
-        }
-        catch (Exception e) {
-          throw new BeanInitializationException(
-                  "An Exception Occurred When [" + bean
-                          + "] invoke init method: [" + method + "]", e);
-        }
-      }
-    }
-
-    // InitializingBean#afterPropertiesSet
-    if (bean instanceof InitializingBean) {
-      try {
-        ((InitializingBean) bean).afterPropertiesSet();
-      }
-      catch (Exception e) {
-        throw new BeanInitializationException(
-                "An Exception Occurred When [" + bean + "] apply after properties", e);
+        Object[] args = resolver.resolve(method, this);
+        method.invoke(bean, args);
       }
     }
   }

@@ -132,7 +132,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws BeanInitializationException if the initialization failed
    */
   Object initializeBean(Object existingBean, String beanName)
-          throws BeanInitializationException;
+          throws BeansException;
 
   /**
    * Initialize the given raw bean, applying factory callbacks such as
@@ -145,7 +145,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws BeanInitializationException if the initialization failed
    * @see #initializeBean(Object, String)
    */
-  Object initializeBean(Object existingBean) throws BeanInitializationException;
+  Object initializeBean(Object existingBean) throws BeansException;
 
   /**
    * Fully initialize the given raw bean, applying factory callbacks such as
@@ -162,7 +162,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws BeanInitializationException if the initialization failed
    */
   Object initializeBean(final Object existingBean, final BeanDefinition def)
-          throws BeanInitializationException;
+          throws BeansException;
 
   /**
    * Apply {@link BeanPostProcessor BeanPostProcessors} to the given existing bean
