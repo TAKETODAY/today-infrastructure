@@ -16,6 +16,16 @@
 
 package cn.taketoday.web.socket.client.jetty;
 
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
+
+import java.net.URI;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
@@ -33,15 +43,6 @@ import cn.taketoday.web.socket.jetty.JettyWebSocketSession;
 import cn.taketoday.web.socket.jetty.WebSocketToJettyExtensionConfigAdapter;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
-import org.eclipse.jetty.websocket.client.WebSocketClient;
-
-import java.net.URI;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Initiates WebSocket requests to a WebSocket server programmatically
@@ -58,22 +59,22 @@ import java.util.concurrent.TimeUnit;
  */
 public class JettyWebSocketClient extends AbstractWebSocketClient implements Lifecycle {
 
-  private final org.eclipse.jetty.websocket.client.WebSocketClient client;
+  private final WebSocketClient client;
 
   @Nullable
   private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 
   /**
    * Default constructor that creates an instance of
-   * {@link org.eclipse.jetty.websocket.client.WebSocketClient}.
+   * {@link WebSocketClient}.
    */
   public JettyWebSocketClient() {
-    this.client = new org.eclipse.jetty.websocket.client.WebSocketClient();
+    this.client = new WebSocketClient();
   }
 
   /**
    * Constructor that accepts an existing
-   * {@link org.eclipse.jetty.websocket.client.WebSocketClient} instance.
+   * {@link WebSocketClient} instance.
    */
   public JettyWebSocketClient(WebSocketClient client) {
     this.client = client;
@@ -121,7 +122,6 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
   public boolean isRunning() {
     return this.client.isStarted();
   }
-
 
   @Override
   public ListenableFuture<WebSocketSession> doHandshake(
