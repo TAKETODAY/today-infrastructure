@@ -101,7 +101,7 @@ class OnBeanCondition implements Condition, Ordered {
 
   protected final void logOutcome(String classOrMethodName, ConditionOutcome outcome) {
     if (log.isDebugEnabled()) {
-      log.trace(getLogMessage(classOrMethodName, outcome));
+      log.debug(getLogMessage(classOrMethodName, outcome));
     }
   }
 
