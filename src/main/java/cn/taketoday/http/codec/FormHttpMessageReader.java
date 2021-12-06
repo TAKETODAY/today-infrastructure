@@ -20,7 +20,6 @@
 
 package cn.taketoday.http.codec;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -29,7 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
@@ -91,7 +89,6 @@ public class FormHttpMessageReader extends LoggingCodecSupport
    * <p>By default this is set to 256K.
    *
    * @param byteCount the max number of bytes to buffer, or -1 for unlimited
-   * @since 4.0
    */
   public void setMaxInMemorySize(int byteCount) {
     this.maxInMemorySize = byteCount;
@@ -99,8 +96,6 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
   /**
    * Return the {@link #setMaxInMemorySize configured} byte count limit.
-   *
-   * @since 4.0
    */
   public int getMaxInMemorySize() {
     return this.maxInMemorySize;
@@ -112,8 +107,8 @@ public class FormHttpMessageReader extends LoggingCodecSupport
             elementType.hasUnresolvableGenerics() &&
                     MultiValueMap.class.isAssignableFrom(elementType.toClass());
 
-    return ((MULTIVALUE_STRINGS_TYPE.isAssignableFrom(elementType) || multiValueUnresolved) &&
-            (mediaType == null || MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(mediaType)));
+    return (MULTIVALUE_STRINGS_TYPE.isAssignableFrom(elementType) || multiValueUnresolved)
+            && (mediaType == null || MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(mediaType));
   }
 
   @Override
@@ -160,21 +155,16 @@ public class FormHttpMessageReader extends LoggingCodecSupport
   private MultiValueMap<String, String> parseFormData(Charset charset, String body) {
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
     MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(pairs.length);
-    try {
-      for (String pair : pairs) {
-        int idx = pair.indexOf('=');
-        if (idx == -1) {
-          result.add(URLDecoder.decode(pair, charset.name()), null);
-        }
-        else {
-          String name = URLDecoder.decode(pair.substring(0, idx), charset.name());
-          String value = URLDecoder.decode(pair.substring(idx + 1), charset.name());
-          result.add(name, value);
-        }
+    for (String pair : pairs) {
+      int idx = pair.indexOf('=');
+      if (idx == -1) {
+        result.add(URLDecoder.decode(pair, charset), null);
       }
-    }
-    catch (UnsupportedEncodingException ex) {
-      throw new IllegalStateException(ex);
+      else {
+        String name = URLDecoder.decode(pair.substring(0, idx), charset);
+        String value = URLDecoder.decode(pair.substring(idx + 1), charset);
+        result.add(name, value);
+      }
     }
     return result;
   }

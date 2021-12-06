@@ -30,7 +30,6 @@ import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.ClassEmitter;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.lang.Constant;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PRIVATE;

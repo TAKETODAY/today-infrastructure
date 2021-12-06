@@ -22,8 +22,6 @@ package cn.taketoday.http.client;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;

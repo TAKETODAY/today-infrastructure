@@ -21,12 +21,10 @@ package cn.taketoday.http;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -118,12 +116,16 @@ public class CorsConfiguration {
    * {@code @CrossOrigin}, via {@link #applyPermitDefaultValues()}.
    */
   public void setAllowedOrigins(@Nullable List<String> origins) {
-    this.allowedOrigins = (origins == null ? null :
-                           origins.stream().filter(Objects::nonNull).map(this::trimTrailingSlash).collect(Collectors.toList()));
+    this.allowedOrigins = origins == null
+                          ? null
+                          : origins.stream()
+                                  .filter(Objects::nonNull)
+                                  .map(this::trimTrailingSlash)
+                                  .collect(Collectors.toList());
   }
 
   private String trimTrailingSlash(String origin) {
-    return (origin.endsWith("/") ? origin.substring(0, origin.length() - 1) : origin);
+    return origin.endsWith("/") ? origin.substring(0, origin.length() - 1) : origin;
   }
 
   /**
@@ -235,7 +237,7 @@ public class CorsConfiguration {
    * central place whether to extract and use, or to discard such headers.
    */
   public void setAllowedMethods(@Nullable List<String> allowedMethods) {
-    this.allowedMethods = (allowedMethods != null ? new ArrayList<>(allowedMethods) : null);
+    this.allowedMethods = allowedMethods != null ? new ArrayList<>(allowedMethods) : null;
     if (CollectionUtils.isNotEmpty(allowedMethods)) {
       this.resolvedMethods = new ArrayList<>(allowedMethods.size());
       for (String method : allowedMethods) {
@@ -305,7 +307,7 @@ public class CorsConfiguration {
    * By default this is not set.
    */
   public void setAllowedHeaders(List<String> allowedHeaders) {
-    this.allowedHeaders = (allowedHeaders != null ? new ArrayList<>(allowedHeaders) : null);
+    this.allowedHeaders = allowedHeaders != null ? new ArrayList<>(allowedHeaders) : null;
   }
 
   /**
@@ -342,7 +344,7 @@ public class CorsConfiguration {
    * By default this is not set.
    */
   public void setExposedHeaders(List<String> exposedHeaders) {
-    this.exposedHeaders = (exposedHeaders != null ? new ArrayList<>(exposedHeaders) : null);
+    this.exposedHeaders = exposedHeaders != null ? new ArrayList<>(exposedHeaders) : null;
   }
 
   /**
@@ -497,7 +499,7 @@ public class CorsConfiguration {
 
   private List<String> combine(List<String> source, List<String> other) {
     if (other == null) {
-      return (source != null ? source : Collections.emptyList());
+      return source != null ? source : Collections.emptyList();
     }
     if (source == null) {
       return other;
@@ -520,7 +522,7 @@ public class CorsConfiguration {
           @Nullable List<OriginPattern> source, @Nullable List<OriginPattern> other) {
 
     if (other == null) {
-      return (source != null ? source : Collections.emptyList());
+      return source != null ? source : Collections.emptyList();
     }
     if (source == null) {
       return other;
@@ -528,7 +530,7 @@ public class CorsConfiguration {
     if (source.contains(ALL_PATTERN) || other.contains(ALL_PATTERN)) {
       return ALL_PATTERN_LIST;
     }
-    Set<OriginPattern> combined = new LinkedHashSet<>(source.size() + other.size());
+    LinkedHashSet<OriginPattern> combined = new LinkedHashSet<>(source.size() + other.size());
     combined.addAll(source);
     combined.addAll(other);
     return new ArrayList<>(combined);
@@ -546,7 +548,6 @@ public class CorsConfiguration {
     if (StringUtils.isEmpty(requestOrigin)) {
       return null;
     }
-    List<String> allowedOrigins = this.allowedOrigins;
     String originToCheck = trimTrailingSlash(requestOrigin);
 
     if (CollectionUtils.isNotEmpty(allowedOrigins)) {
@@ -563,7 +564,8 @@ public class CorsConfiguration {
 
     if (CollectionUtils.isNotEmpty(this.allowedOriginPatterns)) {
       for (OriginPattern p : this.allowedOriginPatterns) {
-        if (p.getDeclaredPattern().equals(ALL) || p.getPattern().matcher(originToCheck).matches()) {
+        if (p.getDeclaredPattern().equals(ALL)
+                || p.getPattern().matcher(originToCheck).matches()) {
           return requestOrigin;
         }
       }
@@ -582,8 +584,8 @@ public class CorsConfiguration {
    * @since 3.0
    */
   public void validateAllowCredentials() {
-    if (this.allowCredentials == Boolean.TRUE &&
-            this.allowedOrigins != null && this.allowedOrigins.contains(ALL)) {
+    if (this.allowCredentials == Boolean.TRUE
+            && this.allowedOrigins != null && this.allowedOrigins.contains(ALL)) {
 
       throw new IllegalArgumentException(
               "When allowCredentials is true, allowedOrigins cannot contain the special value \"*\" " +
@@ -653,7 +655,7 @@ public class CorsConfiguration {
     if (this.resolvedMethods == null) {
       return Collections.singletonList(method);
     }
-    return (this.resolvedMethods.contains(method) ? this.resolvedMethods : null);
+    return this.resolvedMethods.contains(method) ? this.resolvedMethods : null;
   }
 
   /**
