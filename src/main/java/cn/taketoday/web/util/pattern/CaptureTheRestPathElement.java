@@ -22,7 +22,6 @@ package cn.taketoday.web.util.pattern;
 
 import java.util.List;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.PathSegment;
@@ -80,7 +79,7 @@ class CaptureTheRestPathElement extends PathElement {
         }
       }
       matchingContext.set(this.variableName, pathToString(pathIndex, matchingContext.pathElements),
-                          parametersCollector == null ? NO_PARAMETERS : parametersCollector);
+              parametersCollector == null ? NO_PARAMETERS : parametersCollector);
     }
     return true;
   }

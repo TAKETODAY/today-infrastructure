@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
@@ -250,9 +249,10 @@ public abstract class WebUtils {
     String key = (param != null ? param : DEFAULT_WEB_APP_ROOT_KEY);
     String oldValue = System.getProperty(key);
     if (oldValue != null && !StringUtils.pathEquals(oldValue, root)) {
-      throw new IllegalStateException("Web app root system property already set to different value: '" +
-                                              key + "' = [" + oldValue + "] instead of [" + root + "] - " +
-                                              "Choose unique values for the 'webAppRootKey' context-param in your web.xml files!");
+      throw new IllegalStateException(
+              "Web app root system property already set to different value: '" +
+                      key + "' = [" + oldValue + "] instead of [" + root + "] - " +
+                      "Choose unique values for the 'webAppRootKey' context-param in your web.xml files!");
     }
     System.setProperty(key, root);
     servletContext.log("Set web app root system property: '" + key + "' = [" + root + "]");
@@ -290,7 +290,7 @@ public abstract class WebUtils {
       return null;
     }
     String param = servletContext.getInitParameter(HTML_ESCAPE_CONTEXT_PARAM);
-    return (StringUtils.hasText(param) ? Boolean.valueOf(param) : null);
+    return StringUtils.hasText(param) ? Boolean.valueOf(param) : null;
   }
 
   /**
@@ -314,7 +314,7 @@ public abstract class WebUtils {
       return null;
     }
     String param = servletContext.getInitParameter(RESPONSE_ENCODED_HTML_ESCAPE_CONTEXT_PARAM);
-    return (StringUtils.hasText(param) ? Boolean.valueOf(param) : null);
+    return StringUtils.hasText(param) ? Boolean.valueOf(param) : null;
   }
 
   /**
@@ -384,7 +384,7 @@ public abstract class WebUtils {
   public static Object getSessionAttribute(HttpServletRequest request, String name) {
     Assert.notNull(request, "Request must not be null");
     HttpSession session = request.getSession(false);
-    return (session != null ? session.getAttribute(name) : null);
+    return session != null ? session.getAttribute(name) : null;
   }
 
   /**
@@ -397,9 +397,7 @@ public abstract class WebUtils {
    * @return the value of the session attribute, or {@code null} if not found
    * @throws IllegalStateException if the session attribute could not be found
    */
-  public static Object getRequiredSessionAttribute(HttpServletRequest request, String name)
-          throws IllegalStateException {
-
+  public static Object getRequiredSessionAttribute(HttpServletRequest request, String name) {
     Object attr = getSessionAttribute(request, name);
     if (attr == null) {
       throw new IllegalStateException("No session attribute '" + name + "' found");

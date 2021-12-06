@@ -20,19 +20,19 @@
 
 package cn.taketoday.web.util.pattern;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.http.server.PathContainer.Element;
-import cn.taketoday.http.server.PathContainer.Separator;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.http.server.PathContainer.Element;
+import cn.taketoday.http.server.PathContainer.Separator;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Representation of a parsed path pattern. Includes a chain of path elements
@@ -185,8 +185,6 @@ public class PathPattern implements Comparable<PathPattern> {
    * Whether the pattern string contains pattern syntax that would require
    * use of {@link #matches(PathContainer)}, or if it is a regular String that
    * could be compared directly to others.
-   *
-   * @since 4.0
    */
   public boolean hasPatternSyntax() {
     return (this.score > 0 || this.catchAll || this.patternString.indexOf('?') != -1);
@@ -226,7 +224,7 @@ public class PathPattern implements Comparable<PathPattern> {
   public PathMatchInfo matchAndExtract(PathContainer pathContainer) {
     if (this.head == null) {
       return hasLength(pathContainer) && !(this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer))
-              ? null : PathMatchInfo.EMPTY;
+             ? null : PathMatchInfo.EMPTY;
     }
     else if (!hasLength(pathContainer)) {
       if (this.head instanceof WildcardTheRestPathElement || this.head instanceof CaptureTheRestPathElement) {
@@ -563,7 +561,7 @@ public class PathPattern implements Comparable<PathPattern> {
     PathMatchInfo(Map<String, String> uriVars, @Nullable Map<String, MultiValueMap<String, String>> matrixVars) {
       this.uriVariables = Collections.unmodifiableMap(uriVars);
       this.matrixVariables = matrixVars != null
-              ? Collections.unmodifiableMap(matrixVars) : Collections.emptyMap();
+                             ? Collections.unmodifiableMap(matrixVars) : Collections.emptyMap();
     }
 
     /**
