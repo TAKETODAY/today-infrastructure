@@ -950,12 +950,6 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public String getBeanName(Class<?> targetClass) {
-    assertBeanFactoryActive();
-    return getBeanFactory().getBeanName(targetClass);
-  }
-
-  @Override
   public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForAnnotation(annotationType);

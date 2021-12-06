@@ -187,13 +187,13 @@ public class ParameterResolvingRegistry
     }
 
     strategies.add(new RequestAttributeParameterResolver(),
-                   new EnvParameterResolver(expressionEvaluator),
-                   new ValueParameterResolver(expressionEvaluator),
-                   new PropsParameterResolver(context),
-                   new AutowiredParameterResolver(context),
-
-                   // HandlerMethod
-                   new HandlerMethodParameterResolver());
+            new EnvParameterResolver(expressionEvaluator),
+            new ValueParameterResolver(expressionEvaluator),
+            new PropsParameterResolver(context),
+            new AutowiredParameterResolver(context),
+            // HandlerMethod
+            new HandlerMethodParameterResolver()
+    );
 
     // For cookies
     // ------------------------------------------

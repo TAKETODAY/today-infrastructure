@@ -29,19 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContainerInitializer;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletSecurityElement;
-import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.ServletSecurity;
-import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.annotation.WebInitParam;
-import jakarta.servlet.annotation.WebListener;
-import jakarta.servlet.annotation.WebServlet;
-
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
@@ -63,6 +51,18 @@ import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
+import jakarta.servlet.Filter;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletSecurityElement;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.ServletSecurity;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebListener;
+import jakarta.servlet.annotation.WebServlet;
 
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
@@ -291,7 +291,7 @@ public class WebServletApplicationLoader
       if (StringUtils.isEmpty(name)) {
         String displayName = webFilter.displayName();
         if (StringUtils.isEmpty(displayName)) {
-          name = applicationContext.getBeanName(beanClass);
+          name = BeanDefinitionBuilder.defaultBeanName(beanClass);
         }
         else {
           name = displayName;
@@ -321,7 +321,7 @@ public class WebServletApplicationLoader
       WebServlet webServlet = beanClass.getAnnotation(WebServlet.class);
       String[] urlPatterns = webServlet.urlPatterns();
       if (ObjectUtils.isEmpty(urlPatterns)) {
-        urlPatterns = new String[] { applicationContext.getBeanName(beanClass) };
+        urlPatterns = new String[] { BeanDefinitionBuilder.defaultBeanName(beanClass) };
       }
       webServletInitializer.addUrlMappings(urlPatterns);
       webServletInitializer.setLoadOnStartup(webServlet.loadOnStartup());
@@ -344,7 +344,7 @@ public class WebServletApplicationLoader
       if (StringUtils.isEmpty(name)) {
         String displayName = webServlet.displayName();
         if (StringUtils.isEmpty(displayName)) {
-          name = applicationContext.getBeanName(beanClass);
+          name = BeanDefinitionBuilder.defaultBeanName(beanClass);
         }
         else {
           name = displayName;
