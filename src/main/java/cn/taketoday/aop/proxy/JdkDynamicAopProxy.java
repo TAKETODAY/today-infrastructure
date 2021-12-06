@@ -33,6 +33,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -157,11 +158,11 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
    * unless a hook method throws an exception.
    */
   @Override
+  @Nullable
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     Object oldProxy = null;
     boolean setProxyContext = false;
 
-    final AdvisedSupport advised = this.advised;
     TargetSource targetSource = advised.getTargetSource();
     Object target = null;
 
@@ -211,7 +212,8 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       }
       else {
         // Proceed to the join-point through the interceptor chain.
-        retVal = new DefaultMethodInvocation(target, method, targetClass, args, chain).proceed();
+        retVal = new DefaultMethodInvocation(target, method, targetClass, args, chain)
+                .proceed();
       }
       return processReturnValue(proxy, target, method, retVal);
     }
