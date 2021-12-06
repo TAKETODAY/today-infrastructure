@@ -19,6 +19,12 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Properties;
+
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -31,12 +37,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Properties;
 
 /**
  * A {@link FactoryBean} implementation that takes an interface which must have one or more
@@ -372,7 +372,8 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
         Assert.state(beanFactory != null, "No BeanFactory available");
         if (StringUtils.isNotEmpty(beanName)) {
           // Service locator for a specific bean name
-          return beanFactory.getBean(beanName, serviceLocatorMethodReturnType);
+          Object bean = beanFactory.getBean(beanName, serviceLocatorMethodReturnType);
+          return bean;
         }
         else {
           // Service locator for a bean type

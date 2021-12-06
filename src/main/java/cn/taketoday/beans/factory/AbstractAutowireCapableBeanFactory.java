@@ -104,7 +104,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     else {
       defToUse = getPrototypeBeanDefinition(beanClass);
     }
-    return (T) createBean(defToUse, null);
+    return (T) createBean(defToUse.getName(), defToUse, null);
   }
 
   @Override
@@ -117,11 +117,6 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // apply properties
     populateBean(existingBean, prototypeDef);
-  }
-
-  @Override
-  protected Object createBean(BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
-    return createBean(definition.getName(), definition, args);
   }
 
   protected Object createBean(

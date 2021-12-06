@@ -96,7 +96,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
       return false;
     }
     else {
-      this.statusCode = (status != null ? status.value() : null);
+      this.statusCode = status != null ? status.value() : null;
       return true;
     }
   }

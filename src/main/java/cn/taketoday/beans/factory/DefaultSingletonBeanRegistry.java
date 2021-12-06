@@ -41,9 +41,33 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Default SingletonBeanRegistry implementation
+ * Generic registry for shared bean instances, implementing the
+ * {@link SingletonBeanRegistry}.
+ * Allows for registering singleton instances that should be shared
+ * for all callers of the registry, to be obtained via bean name.
  *
+ * <p>Also supports registration of {@link DisposableBean} instances,
+ * (which might or might not correspond to registered singletons),
+ * to be destroyed on shutdown of the registry. Dependencies between
+ * beans can be registered to enforce an appropriate shutdown order.
+ *
+ * <p>This class mainly serves as base class for {@link BeanFactory}
+ * implementations, factoring out the common management of singleton
+ * bean instances. Note that the {@link ConfigurableBeanFactory}
+ * interface extends the {@link SingletonBeanRegistry} interface.
+ *
+ * <p>Note that this class assumes neither a bean definition concept
+ * nor a specific creation process for bean instances, in contrast to
+ * {@link AbstractBeanFactory} and {@link StandardBeanFactory}
+ * (which inherit from it). Can alternatively also be used as a nested
+ * helper to delegate to.
+ *
+ * @author Juergen Hoeller
  * @author TODAY 2021/10/1 22:47
+ * @see #registerSingleton
+ * @see #registerDisposableBean
+ * @see DisposableBean
+ * @see ConfigurableBeanFactory
  * @since 4.0
  */
 public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implements SingletonBeanRegistry {

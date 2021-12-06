@@ -285,7 +285,12 @@ public class SLF4JBridgeHandler extends Handler {
    * reach SLF4JBridgeHandler and cannot be redirected.
    */
   public static void install() {
-    LogManager.getLogManager().getLogger("").addHandler(new SLF4JBridgeHandler());
+    java.util.logging.Logger rootLogger = getRootLogger();
+    Handler[] handlers = rootLogger.getHandlers();
+    for (Handler handler : handlers) {
+      rootLogger.removeHandler(handler);
+    }
+    rootLogger.addHandler(new SLF4JBridgeHandler());
   }
 
   private static java.util.logging.Logger getRootLogger() {

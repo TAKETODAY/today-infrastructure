@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.lang.Assert;
@@ -91,7 +90,7 @@ class HtmlCharacterEntityReferences {
       String key = (String) keys.nextElement();
       int referredChar = Integer.parseInt(key);
       Assert.isTrue((referredChar < 1000 || (referredChar >= 8000 && referredChar < 10000)),
-                    () -> "Invalid reference to special HTML entity: " + referredChar);
+              () -> "Invalid reference to special HTML entity: " + referredChar);
       int index = (referredChar < 1000 ? referredChar : referredChar - 7000);
       String reference = entityReferences.getProperty(key);
       this.characterToEntityReferenceMap[index] = REFERENCE_START + reference + REFERENCE_END;
@@ -149,7 +148,7 @@ class HtmlCharacterEntityReferences {
     }
     else if (character < 1000 || (character >= 8000 && character < 10000)) {
       int index = (character < 1000 ? character : character - 7000);
-			return this.characterToEntityReferenceMap[index];
+      return this.characterToEntityReferenceMap[index];
     }
     return null;
   }

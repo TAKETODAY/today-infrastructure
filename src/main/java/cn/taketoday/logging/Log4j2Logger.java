@@ -141,7 +141,7 @@ final class Log4j2Logger extends cn.taketoday.logging.Logger {
 final class Log4j2LoggerFactory extends LoggerFactory {
 
   @Override
-  protected cn.taketoday.logging.Logger createLogger(String name) {
+  protected Logger createLogger(String name) {
     return new Log4j2Logger(name);
   }
 }

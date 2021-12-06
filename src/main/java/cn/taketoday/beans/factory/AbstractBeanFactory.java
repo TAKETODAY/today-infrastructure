@@ -59,7 +59,35 @@ import cn.taketoday.util.ReflectionUtils.MethodCallback;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Abstract base class for {@link BeanFactory} implementations,
+ * providing the full capabilities of the {@link ConfigurableBeanFactory} SPI.
+ * Does <i>not</i> assume a listable bean factory: can therefore also be used
+ * as base class for bean factory implementations which obtain bean definitions
+ * from some backend resource (where bean definition access is an expensive operation).
+ *
+ * <p>This class provides a singleton cache (through its base class
+ * {@link DefaultSingletonBeanRegistry}, singleton/prototype determination,
+ * {@link FactoryBean} handling, aliases, and bean destruction ({@link DisposableBean}
+ * interface, custom destroy methods). Furthermore, it can manage a bean factory
+ * hierarchy (delegating to the parent in case of an unknown bean), through implementing
+ * the {@link HierarchicalBeanFactory} interface.
+ *
+ * <p>The main template methods to be implemented by subclasses are
+ * {@link #getBeanDefinition} and {@link #createBean}, retrieving a bean definition
+ * for a given bean name and creating a bean instance for a given bean definition,
+ * respectively. Default implementations of those operations can be found in
+ * {@link StandardBeanFactory} and {@link AbstractAutowireCapableBeanFactory}.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Costin Leau
+ * @author Chris Beams
+ * @author Phillip Webb
  * @author TODAY 2018-06-23 11:20:58
+ * @see #getBeanDefinition
+ * @see #createBean
+ * @see AbstractAutowireCapableBeanFactory#createBean
+ * @see StandardBeanFactory#getBeanDefinition
  */
 public abstract class AbstractBeanFactory
         extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
@@ -204,14 +232,25 @@ public abstract class AbstractBeanFactory
       try {
         // 4. Create bean instance.
         if (definition.isSingleton()) {
-          beanInstance = getSingleton(beanName, () -> createBean(definition, args));
+          beanInstance = getSingleton(beanName, () -> {
+            try {
+              return createBean(beanName, definition, args);
+            }
+            catch (BeansException ex) {
+              // Explicitly remove instance from singleton cache: It might have been put there
+              // eagerly by the creation process, to allow for circular reference resolution.
+              // Also remove any beans that received a temporary reference to the bean.
+              destroySingleton(beanName);
+              throw ex;
+            }
+          });
           definition.setInitialized(true);
         }
         else if (definition.isPrototype()) {
           // It's a prototype -> just create a new instance.
           try {
             beforePrototypeCreation(beanName);
-            beanInstance = createBean(definition, args);
+            beanInstance = createBean(beanName, definition, args);
           }
           finally {
             afterPrototypeCreation(beanName);
@@ -229,7 +268,7 @@ public abstract class AbstractBeanFactory
           beanInstance = scope.get(beanName, () -> {
             beforePrototypeCreation(beanName);
             try {
-              return createBean(definition, args);
+              return createBean(beanName, definition, args);
             }
             finally {
               afterPrototypeCreation(beanName);
@@ -259,7 +298,7 @@ public abstract class AbstractBeanFactory
    * @throws BeanCreationException if the bean could not be created
    */
   protected abstract Object createBean(
-          BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException;
+          String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException;
 
   @SuppressWarnings("unchecked")
   @Nullable
