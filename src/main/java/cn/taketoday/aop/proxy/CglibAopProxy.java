@@ -183,7 +183,6 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
   Callback[] getCallbacks(Class<?> rootClass) throws Exception {
     // Parameters used for optimization choices...
-    AdvisedSupport config = this.config;
     boolean exposeProxy = config.isExposeProxy();
     boolean isFrozen = config.isFrozen();
     boolean isStatic = config.getTargetSource().isStatic();

@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.proxy;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.lang.Assert;
@@ -35,6 +36,7 @@ import cn.taketoday.lang.Assert;
  * @since 3.0
  */
 public class ProxyConfig implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   boolean opaque = false;
@@ -74,11 +76,9 @@ public class ProxyConfig implements Serializable {
    * The exact meaning of "aggressive optimizations" will differ
    * between proxies, but there is usually some tradeoff.
    * Default is "false".
-   * <p>For example, optimization will usually mean that advice changes won't
-   * take effect after a proxy has been created. For this reason, optimization
-   * is disabled by default. An optimize value of "true" may be ignored
-   * if other settings preclude optimization: for example, if "exposeProxy"
-   * is set to "true" and that's not compatible with the optimization.
+   * <p>With current proxy options, this flag effectively
+   * enforces CGLIB proxies (similar to {@link #setProxyTargetClass})
+   * but without any class validation checks (for final methods etc).
    */
   public void setOptimize(boolean optimize) {
     this.optimize = optimize;

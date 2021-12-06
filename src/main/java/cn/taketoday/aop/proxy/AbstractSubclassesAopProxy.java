@@ -134,7 +134,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    * and validates it if not.
    */
   void validateClassIfNecessary(Class<?> proxySuperClass, ClassLoader proxyClassLoader) {
-    if (log.isWarnEnabled()) {
+    if (!this.config.isOptimize() && log.isInfoEnabled()) {
       synchronized(validatedClasses) {
         if (!validatedClasses.containsKey(proxySuperClass)) {
           doValidateClass(proxySuperClass, proxyClassLoader,
