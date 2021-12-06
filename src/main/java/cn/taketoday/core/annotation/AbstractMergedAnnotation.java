@@ -210,8 +210,13 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
     }
     A synthesized = this.synthesizedAnnotation;
     if (synthesized == null) {
-      synthesized = createSynthesized();
-      this.synthesizedAnnotation = synthesized;
+      synchronized(this) {
+        synthesized = this.synthesizedAnnotation;
+        if (synthesized == null) {
+          synthesized = createSynthesized();
+          this.synthesizedAnnotation = synthesized;
+        }
+      }
     }
     return synthesized;
   }

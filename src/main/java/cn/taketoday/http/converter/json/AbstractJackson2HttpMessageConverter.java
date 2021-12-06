@@ -93,13 +93,6 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     ENCODINGS.put("US-ASCII", JsonEncoding.UTF8);
   }
 
-  /**
-   * The default charset used by the converter.
-   */
-  @Nullable
-  @Deprecated
-  public static final Charset DEFAULT_CHARSET = null;
-
   protected ObjectMapper defaultObjectMapper;
 
   @Nullable

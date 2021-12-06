@@ -28,16 +28,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.validation.ParameterNameProvider;
-
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
+import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.lang.Assert;
+import jakarta.validation.ParameterNameProvider;
 
 /**
  * @author TODAY 2019-07-21 20:26
  * @since 3.0
  */
 public class ContextParameterNameProvider implements ParameterNameProvider {
-  DefaultParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   @Override
   public List<String> getParameterNames(Constructor<?> constructor) {
@@ -54,11 +55,12 @@ public class ContextParameterNameProvider implements ParameterNameProvider {
     return Arrays.asList(parameterNameDiscoverer.getParameterNames(method));
   }
 
-  public void setParameterNameDiscoverer(DefaultParameterNameDiscoverer parameterNameDiscoverer) {
+  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
+    Assert.notNull(parameterNameDiscoverer, "No ParameterNameDiscoverer");
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
-  public DefaultParameterNameDiscoverer getParameterNameDiscoverer() {
+  public ParameterNameDiscoverer getParameterNameDiscoverer() {
     return parameterNameDiscoverer;
   }
 

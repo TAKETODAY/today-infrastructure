@@ -436,8 +436,7 @@ public abstract class AbstractListenerWriteFlushProcessor<T> implements Processo
       }
 
       @Override
-      public void onNext(Void aVoid) {
-      }
+      public void onNext(Void aVoid) { }
 
       @Override
       public void onError(Throwable ex) {

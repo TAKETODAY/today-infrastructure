@@ -78,7 +78,7 @@ public class BeanFactoryAdvisorRetriever {
               beanFactory, Advisor.class, true, false);
       this.cachedAdvisorBeanNames = advisorNames;
     }
-    if (advisorNames.size() == 0) {
+    if (advisorNames.isEmpty()) {
       return new ArrayList<>();
     }
 
