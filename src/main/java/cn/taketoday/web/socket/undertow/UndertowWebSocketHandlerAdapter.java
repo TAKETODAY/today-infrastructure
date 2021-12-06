@@ -189,7 +189,6 @@ public class UndertowWebSocketHandlerAdapter
   }
 
   private ServerWebSocketContainer obtainContainer() {
-    ServerWebSocketContainer serverContainer = this.serverContainer;
     Assert.state(serverContainer != null, "serverContainer has not been initialized");
     return serverContainer;
   }

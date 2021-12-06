@@ -126,10 +126,9 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   @Override
   protected void touchDataBuffer(DataBuffer buffer) {
     if (logger.isDebugEnabled()) {
-      if (ReactorServerHttpRequest.reactorNettyRequestChannelOperationsIdPresent) {
-        if (ChannelOperationsIdHelper.touch(buffer, this.response)) {
-          return;
-        }
+      if (ReactorServerHttpRequest.reactorNettyRequestChannelOperationsIdPresent
+              && ChannelOperationsIdHelper.touch(buffer, this.response)) {
+        return;
       }
       this.response.withConnection(connection -> {
         ChannelId id = connection.channel().id();

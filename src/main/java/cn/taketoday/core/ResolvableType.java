@@ -20,16 +20,6 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -48,6 +38,16 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Encapsulates a Java {@link Type}, providing access to
@@ -313,14 +313,12 @@ public class ResolvableType implements Serializable {
           ourResolved = resolved.resolve();
         }
       }
-      if (ourResolved == null) {
+      if (ourResolved == null && other.variableResolver != null) {
         // Try variable resolution against target type
-        if (other.variableResolver != null) {
-          ResolvableType resolved = other.variableResolver.resolveVariable(variable);
-          if (resolved != null) {
-            ourResolved = resolved.resolve();
-            checkGenerics = false;
-          }
+        ResolvableType resolved = other.variableResolver.resolveVariable(variable);
+        if (resolved != null) {
+          ourResolved = resolved.resolve();
+          checkGenerics = false;
         }
       }
       if (ourResolved == null) {
@@ -1063,8 +1061,8 @@ public class ResolvableType implements Serializable {
     Assert.notNull(method, "Method must not be null");
     Class<?> declaringClass = method.getDeclaringClass();
     ResolvableType owner = implementationClass == null
-            ? fromType(declaringClass)
-            : fromType(implementationClass).as(declaringClass);
+                           ? fromType(declaringClass)
+                           : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new TypeProvider() {
 
       @Override
@@ -1095,8 +1093,8 @@ public class ResolvableType implements Serializable {
     Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     Class<?> declaringClass = executable.getDeclaringClass();
     ResolvableType owner = implementationClass == null
-            ? fromType(declaringClass)
-            : fromType(implementationClass).as(declaringClass);
+                           ? fromType(declaringClass)
+                           : fromType(implementationClass).as(declaringClass);
     return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter, parameterIndex), owner.asVariableResolver());
   }
 
@@ -1127,8 +1125,8 @@ public class ResolvableType implements Serializable {
     Class<?> declaringClass = executable.getDeclaringClass();
 
     ResolvableType owner = implementationType != null
-            ? implementationType.as(declaringClass)
-            : fromType(declaringClass);
+                           ? implementationType.as(declaringClass)
+                           : fromType(declaringClass);
 
     return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter), owner.asVariableResolver());
   }

@@ -93,7 +93,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
       if (portIndex != -1) {
         try {
           return new URI(scheme, null, header.substring(0, portIndex),
-                         Integer.parseInt(header.substring(portIndex + 1)), null, null, null);
+                  Integer.parseInt(header.substring(portIndex + 1)), null, null, null);
         }
         catch (NumberFormatException ex) {
           throw new URISyntaxException(header, "Unable to parse port", portIndex);
@@ -107,7 +107,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
       InetSocketAddress localAddress = request.hostAddress();
       Assert.state(localAddress != null, "No host address available");
       return new URI(scheme, null, localAddress.getHostString(),
-                     localAddress.getPort(), null, null, null);
+              localAddress.getPort(), null, null, null);
     }
   }
 

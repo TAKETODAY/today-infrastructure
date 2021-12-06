@@ -249,10 +249,9 @@ public final class ResponseCookie extends HttpCookie {
       private String initDomain(String domain) {
         if (lenient && StringUtils.isNotEmpty(domain)) {
           String str = domain.trim();
-          if (str.startsWith("\"") && str.endsWith("\"")) {
-            if (str.substring(1, str.length() - 1).trim().isEmpty()) {
-              return null;
-            }
+          if (str.startsWith("\"") && str.endsWith("\"")
+                  && str.substring(1, str.length() - 1).trim().isEmpty()) {
+            return null;
           }
         }
         return domain;
@@ -288,7 +287,9 @@ public final class ResponseCookie extends HttpCookie {
                 name, value, this.maxAge, this.domain, this.path,
                 this.secure, this.httpOnly, this.sameSite);
       }
-    };
+    }
+
+            ;
   }
 
   /**

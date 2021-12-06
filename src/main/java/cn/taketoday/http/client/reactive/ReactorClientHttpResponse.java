@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
@@ -144,14 +143,14 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
       Set<Cookie> cookies = entry.getValue();
       for (Cookie cookie : cookies) {
         result.add(cookie.name(),
-                   ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
-                           .domain(cookie.domain())
-                           .path(cookie.path())
-                           .maxAge(cookie.maxAge())
-                           .secure(cookie.isSecure())
-                           .httpOnly(cookie.isHttpOnly())
-                           .sameSite(getSameSite(cookie))
-                           .build());
+                ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
+                        .domain(cookie.domain())
+                        .path(cookie.path())
+                        .maxAge(cookie.maxAge())
+                        .secure(cookie.isSecure())
+                        .httpOnly(cookie.isHttpOnly())
+                        .sameSite(getSameSite(cookie))
+                        .build());
       }
     }
     return MultiValueMap.unmodifiable(result);

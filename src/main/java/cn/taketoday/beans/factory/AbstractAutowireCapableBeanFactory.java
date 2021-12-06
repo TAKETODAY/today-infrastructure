@@ -173,7 +173,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @return a new instance of the bean
    * @throws BeanCreationException if the bean could not be created
    */
-  protected Object doCreateBean(String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+  protected Object doCreateBean(
+          String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
     Object bean = createIfNecessary(beanName, definition, args);
 
     // Allow post-processors to modify the merged bean definition.

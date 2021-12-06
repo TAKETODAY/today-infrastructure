@@ -386,18 +386,17 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
   private void checkInterceptorNames() {
     if (ObjectUtils.isNotEmpty(interceptorNames)) {
       String finalName = interceptorNames[interceptorNames.length - 1];
-      if (targetName == null && targetSource == EMPTY_TARGET_SOURCE) {
-        // The last name in the chain may be an Advisor/Advice or a target/TargetSource.
-        // Unfortunately we don't know; we must look at type of the bean.
-        if (!finalName.endsWith(GLOBAL_SUFFIX) && !isNamedBeanAnAdvisorOrAdvice(finalName)) {
-          // The target isn't an interceptor.
-          this.targetName = finalName;
-          if (logger.isDebugEnabled()) {
-            logger.debug("Bean with name '{}' concluding interceptor chain " +
-                    "is not an advisor class: treating it as a target or TargetSource", finalName);
-          }
-          this.interceptorNames = Arrays.copyOf(interceptorNames, interceptorNames.length - 1);
+      if (targetName == null && targetSource == EMPTY_TARGET_SOURCE
+              // The last name in the chain may be an Advisor/Advice or a target/TargetSource.
+              // Unfortunately we don't know; we must look at type of the bean.
+              && !finalName.endsWith(GLOBAL_SUFFIX) && !isNamedBeanAnAdvisorOrAdvice(finalName)) {
+        // The target isn't an interceptor.
+        this.targetName = finalName;
+        if (logger.isDebugEnabled()) {
+          logger.debug("Bean with name '{}' concluding interceptor chain " +
+                  "is not an advisor class: treating it as a target or TargetSource", finalName);
         }
+        this.interceptorNames = Arrays.copyOf(interceptorNames, interceptorNames.length - 1);
       }
     }
   }
