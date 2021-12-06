@@ -158,10 +158,8 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
 
   @Nullable
   private static String getSameSite(Cookie cookie) {
-    if (cookie instanceof DefaultCookie defaultCookie) {
-      if (defaultCookie.sameSite() != null) {
-        return defaultCookie.sameSite().name();
-      }
+    if (cookie instanceof DefaultCookie defaultCookie && defaultCookie.sameSite() != null) {
+      return defaultCookie.sameSite().name();
     }
     return null;
   }
@@ -208,7 +206,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     @Nullable
     public static String getId(HttpClientResponse response) {
       if (response instanceof reactor.netty.ChannelOperationsId id) {
-        return (logger.isDebugEnabled() ? id.asLongText() : id.asShortText());
+        return logger.isDebugEnabled() ? id.asLongText() : id.asShortText();
       }
       return null;
     }

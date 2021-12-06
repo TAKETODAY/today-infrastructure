@@ -406,11 +406,12 @@ public final class ResponseCookie extends HttpCookie {
         return;
       }
       int char1 = domain.charAt(0);
-      int charN = domain.charAt(domain.length() - 1);
+      int length = domain.length();
+      int charN = domain.charAt(length - 1);
       if (char1 == '-' || charN == '.' || charN == '-') {
         throw new IllegalArgumentException("Invalid first/last char in cookie domain: " + domain);
       }
-      for (int i = 0, c = -1; i < domain.length(); i++) {
+      for (int i = 0, c = -1; i < length; i++) {
         int p = c;
         c = domain.charAt(i);
         if (DOMAIN_CHARS.indexOf(c) == -1 || (p == '.' && (c == '.' || c == '-')) || (p == '-' && c == '.')) {

@@ -122,7 +122,7 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
 
   static Request buildRequest(
           HttpHeaders headers, byte[] content, URI uri, HttpMethod method) throws MalformedURLException {
-    okhttp3.MediaType contentType = getContentType(headers);
+    MediaType contentType = getContentType(headers);
     RequestBody body = getRequestBody(content, method, contentType);
 
     Request.Builder builder = new Request.Builder()
@@ -149,7 +149,7 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
   @Nullable
   private static okhttp3.MediaType getContentType(HttpHeaders headers) {
     String rawContentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
-    return StringUtils.hasText(rawContentType) ? okhttp3.MediaType.parse(rawContentType) : null;
+    return StringUtils.hasText(rawContentType) ? MediaType.parse(rawContentType) : null;
   }
 
 }
