@@ -20,9 +20,9 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.lang.Nullable;
-
 import java.util.function.Supplier;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Bean instance supplier
@@ -85,17 +85,8 @@ public abstract class BeanSupplier<T> implements Supplier<T> {
           extends BeanSupplier<T> implements Supplier<T> {
     private T instance;
 
-    private final String beanName;
-    private final BeanFactory beanFactory;
-
-    @Nullable
-    private final Class<T> targetClass;
-
     SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
       super(beanFactory, beanName, targetClass);
-      this.beanName = beanName;
-      this.beanFactory = beanFactory;
-      this.targetClass = targetClass;
     }
 
     @Override
