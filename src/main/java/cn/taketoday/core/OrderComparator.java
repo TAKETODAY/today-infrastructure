@@ -118,6 +118,11 @@ public class OrderComparator implements Comparator<Object> {
         }
       }
     }
+    // @since 4.0
+    else if (obj instanceof OrderSourceProvider provider) {
+      Object orderSource = provider.getOrderSource(obj);
+      order = findOrder(orderSource);
+    }
     return (order != null ? order : getOrder(obj));
   }
 
