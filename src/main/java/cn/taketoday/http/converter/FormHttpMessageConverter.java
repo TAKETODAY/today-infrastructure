@@ -387,8 +387,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     return false;
   }
 
-  private void writeForm(MultiValueMap<String, Object> formData, @Nullable MediaType contentType,
-                         HttpOutputMessage outputMessage) throws IOException {
+  private void writeForm(
+          MultiValueMap<String, Object> formData,
+          @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     contentType = getFormContentType(contentType);
     outputMessage.getHeaders().setContentType(contentType);
@@ -443,18 +444,13 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
         continue;
       }
       for (Object value : values) {
-        try {
-          if (builder.length() != 0) {
-            builder.append('&');
-          }
-          builder.append(URLEncoder.encode(name, charset.name()));
-          if (value != null) {
-            builder.append('=');
-            builder.append(URLEncoder.encode(String.valueOf(value), charset.name()));
-          }
+        if (builder.length() != 0) {
+          builder.append('&');
         }
-        catch (UnsupportedEncodingException ex) {
-          throw new IllegalStateException(ex);
+        builder.append(URLEncoder.encode(name, charset));
+        if (value != null) {
+          builder.append('=');
+          builder.append(URLEncoder.encode(String.valueOf(value), charset));
         }
       }
     }
@@ -462,9 +458,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     return builder.toString();
   }
 
-  private void writeMultipart(MultiValueMap<String, Object> parts,
-                              @Nullable MediaType contentType,
-                              HttpOutputMessage outputMessage) throws IOException {
+  private void writeMultipart(
+          MultiValueMap<String, Object> parts,
+          @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     // If the supplied content type is null, fall back to multipart/form-data.
     // Otherwise rely on the fact that isMultipart() already verified the
@@ -473,7 +469,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       contentType = MediaType.MULTIPART_FORM_DATA;
     }
 
-    Map<String, String> parameters = new LinkedHashMap<>(contentType.getParameters().size() + 2);
+    LinkedHashMap<String, String> parameters = new LinkedHashMap<>(contentType.getParameters().size() + 2);
     parameters.putAll(contentType.getParameters());
 
     byte[] boundary = generateMultipartBoundary();
@@ -566,7 +562,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * or a newly built {@link HttpEntity} wrapper for that part
    */
   protected HttpEntity<?> getHttpEntity(Object part) {
-    return (part instanceof HttpEntity<?> httpEntity ? httpEntity : new HttpEntity<>(part));
+    return part instanceof HttpEntity<?> httpEntity ? httpEntity : new HttpEntity<>(part);
   }
 
   /**
@@ -619,10 +615,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    */
   private static class MultipartHttpOutputMessage implements HttpOutputMessage {
 
-    private final OutputStream outputStream;
-
     private final Charset charset;
-
+    private final OutputStream outputStream;
     private final HttpHeaders headers = HttpHeaders.create();
 
     private boolean headersWritten = false;
@@ -634,7 +628,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     @Override
     public HttpHeaders getHeaders() {
-      return (this.headersWritten ? HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers);
+      return this.headersWritten ? HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers;
     }
 
     @Override
