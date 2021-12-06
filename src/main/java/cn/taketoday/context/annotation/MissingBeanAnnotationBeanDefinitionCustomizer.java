@@ -48,7 +48,7 @@ public class MissingBeanAnnotationBeanDefinitionCustomizer implements BeanDefini
       MergedAnnotations annotations = metadata.getAnnotations();
       MergedAnnotation<MissingBean> missingBean = annotations.get(MissingBean.class);
       if (missingBean.isPresent()) {
-        // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
+        // Missing BeanMetadata a flag to determine its missed bean @since 3.0
         definition.setAttribute(MissingBean.MissingBeanMetadata, missingBean);
         Class<?> type = missingBean.getClass("type");
         if (type != void.class) {

@@ -42,7 +42,6 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -56,11 +55,11 @@ import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -76,8 +75,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
  */
-@Order(Ordered.LOWEST_PRECEDENCE)
-class OnBeanCondition implements Condition {
+class OnBeanCondition implements Condition, Ordered {
   private static final Logger log = LoggerFactory.getLogger(OnBeanCondition.class);
 
   @Override
@@ -404,15 +402,6 @@ class OnBeanCondition implements Condition {
     return result;
   }
 
-  private static Set<String> addAll(Set<String> result, String[] additional) {
-    if (ObjectUtils.isEmpty(additional)) {
-      return result;
-    }
-    result = (result != null) ? result : new LinkedHashSet<>();
-    Collections.addAll(result, additional);
-    return result;
-  }
-
   /**
    * Slightly faster variant of {@link ClassUtils#forName(String, ClassLoader)} that
    * doesn't deal with primitives, arrays or inner types.
@@ -429,6 +418,11 @@ class OnBeanCondition implements Condition {
     return Class.forName(className);
   }
 
+  @Override
+  public int getOrder() {
+    return LOWEST_PRECEDENCE;
+  }
+
   /**
    * A search specification extracted from the underlying annotation.
    */
@@ -441,6 +435,7 @@ class OnBeanCondition implements Condition {
     private final Set<String> types;
     private final Set<String> annotations;
     private final Set<String> ignoredTypes;
+    @Nullable
     private final SearchStrategy strategy;
     private final Set<Class<?>> parameterizedContainers;
 
@@ -682,8 +677,8 @@ class OnBeanCondition implements Condition {
     @Override
     protected void validate(BeanTypeDeductionException ex) {
       Assert.isTrue(getTypes().size() == 1,
-                    () -> getAnnotationName() + " annotations must specify only one type (got "
-                            + StringUtils.collectionToString(getTypes()) + ")");
+              () -> getAnnotationName() + " annotations must specify only one type (got "
+                      + StringUtils.collectionToString(getTypes()) + ")");
     }
 
   }

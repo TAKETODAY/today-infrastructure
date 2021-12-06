@@ -310,14 +310,13 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     ApplicationContext applicationContext = context.getApplicationContext();
     Environment environment = applicationContext.getEnvironment();
     // Process any @PropertySource annotations
-    for (MergedAnnotation<PropertySource> propertySource
-            : attributesForRepeatable(annotationMetadata)) {
+    for (MergedAnnotation<PropertySource> propertySource : attributesForRepeatable(annotationMetadata)) {
       if (environment instanceof ConfigurableEnvironment) {
         processPropertySource(propertySource);
       }
       else {
         log.info("Ignoring @PropertySource annotation on [" + annotationMetadata.getClassName() +
-                         "]. Reason: Environment must implement ConfigurableEnvironment");
+                "]. Reason: Environment must implement ConfigurableEnvironment");
       }
     }
   }
