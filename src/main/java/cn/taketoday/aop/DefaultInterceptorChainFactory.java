@@ -25,7 +25,6 @@ import org.aopalliance.intercept.MethodInterceptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import cn.taketoday.aop.proxy.Advised;
@@ -34,6 +33,7 @@ import cn.taketoday.aop.proxy.DefaultAdvisorAdapterRegistry;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * A simple but definitive way of working out an advice chain for a Method,
@@ -85,7 +85,7 @@ public class DefaultInterceptorChainFactory implements InterceptorChainFactory, 
               }
             }
             else {
-              interceptorList.addAll(Arrays.asList(interceptors));
+              CollectionUtils.addAll(interceptorList, interceptors);
             }
           }
         }
@@ -101,7 +101,9 @@ public class DefaultInterceptorChainFactory implements InterceptorChainFactory, 
         Collections.addAll(interceptorList, interceptors);
       }
     }
-
+    if (interceptorList.isEmpty()) {
+      return AdvisorAdapterRegistry.EMPTY_INTERCEPTOR;
+    }
     return interceptorList.toArray(AdvisorAdapterRegistry.EMPTY_INTERCEPTOR);
   }
 
