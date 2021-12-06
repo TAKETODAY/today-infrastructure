@@ -141,19 +141,16 @@ public abstract class AbstractBeanFactory
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
-  @Nullable
   @Override
   public Object getBean(String name) {
     return doGetBean(name, null, null, false);
   }
 
   @Override
-  @Nullable
   public <T> T getBean(String name, Class<T> requiredType) {
     return doGetBean(name, requiredType, null, false);
   }
 
-  @Nullable
   @Override
   public Object getBean(String name, Object... args) throws BeansException {
     return doGetBean(name, null, args, false);
@@ -186,20 +183,21 @@ public abstract class AbstractBeanFactory
         BeanFactory parentBeanFactory = getParentBeanFactory();
         if (parentBeanFactory != null) {
           // Not found -> check parent.
+          String nameToLookup = originalBeanName(name);
           if (parentBeanFactory instanceof AbstractBeanFactory) {
             return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
-                    beanName, requiredType, args, typeCheckOnly);
+                    nameToLookup, requiredType, args, typeCheckOnly);
           }
           else if (args != null) {
             // Delegation to parent with explicit args.
-            return (T) parentBeanFactory.getBean(beanName, args);
+            return (T) parentBeanFactory.getBean(nameToLookup, args);
           }
           else if (requiredType != null) {
             // No args -> delegate to standard getBean method.
-            return (T) parentBeanFactory.getBean(beanName, requiredType);
+            return (T) parentBeanFactory.getBean(nameToLookup, requiredType);
           }
           else {
-            return (T) parentBeanFactory.getBean(beanName);
+            return (T) parentBeanFactory.getBean(nameToLookup);
           }
         }
 
@@ -774,7 +772,7 @@ public abstract class AbstractBeanFactory
     BeanFactory parentBeanFactory = getParentBeanFactory();
     if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
       // No bean definition found in this factory -> delegate to parent.
-      return parentBeanFactory.getType(name);
+      return parentBeanFactory.getType(originalBeanName(name), allowFactoryBeanInit);
     }
 
     // not init
@@ -1023,17 +1021,6 @@ public abstract class AbstractBeanFactory
       def.setFactoryBean(result);
     }
     return result;
-  }
-
-  @Override
-  public String getBeanName(Class<?> targetClass) {
-    String[] beanNames = getBeanDefinitionNames();
-    for (String beanName : beanNames) {
-      if (isTypeMatch(beanName, targetClass)) {
-        return beanName;
-      }
-    }
-    throw new NoSuchBeanDefinitionException(targetClass);
   }
 
   @Override

@@ -338,7 +338,11 @@ public class StandardBeanFactory
   @Override
   public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    return resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
+    T resolved = resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
+    if (resolved == null) {
+      throw new NoSuchBeanDefinitionException(requiredType);
+    }
+    return resolved;
   }
 
   @Nullable

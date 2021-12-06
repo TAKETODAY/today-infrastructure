@@ -160,7 +160,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param args arguments to use when creating a bean instance using explicit arguments
    * (only applied when creating a new instance as opposed to retrieving an existing one)
    * @return an instance of the bean
-   * @throws NoSuchBeanDefinitionException if there is no such bean definition
    * @throws BeanDefinitionStoreException if arguments have been given but
    * the affected bean isn't a prototype
    * @throws BeansException if the bean could not be created
@@ -238,16 +237,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    */
   @Nullable
   Class<?> getType(String name, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException;
-
-  /**
-   * Get the target class's name
-   *
-   * @param beanType bean type
-   * @return Get bane name
-   * @since 2.1.2
-   */
-  @Deprecated
-  String getBeanName(Class<?> beanType) throws NoSuchBeanDefinitionException;
 
   /**
    * Find an {@link Annotation} of {@code annotationType} on the specified bean,
