@@ -326,9 +326,8 @@ public abstract class AbstractApplicationContext
 
     // Initialize any placeholder property sources in the context environment.
     initPropertySources(environment);
-    environment.validateRequiredProperties();
 
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    environment.validateRequiredProperties();
 
     // @since 4.0
     String appName = environment.getProperty(APPLICATION_NAME);
@@ -644,7 +643,7 @@ public abstract class AbstractApplicationContext
    * @param environment ConfigurableEnvironment
    */
   protected void initPropertySources(ConfigurableEnvironment environment) throws ApplicationContextException {
-    // for sub-class loading properties or prepare property-source
+    // for subclasses loading properties or prepare property-source
   }
 
   @Override

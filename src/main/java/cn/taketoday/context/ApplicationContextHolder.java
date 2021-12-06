@@ -32,14 +32,23 @@ import cn.taketoday.lang.Nullable;
 public final class ApplicationContextHolder {
   private static final LinkedHashMap<String, ApplicationContext> contextMap = new LinkedHashMap<>();
 
+  @Nullable
   public static ApplicationContext get(String applicationName) {
     return contextMap.get(applicationName);
   }
 
+  /**
+   * @return Returns: the previous ApplicationContext associated with name,
+   * or null if there was no application for name.
+   */
   public static ApplicationContext register(String applicationName, ApplicationContext context) {
     return contextMap.put(applicationName, context);
   }
 
+  /**
+   * @return Returns: the previous ApplicationContext associated with name,
+   * or null if there was no application for name.
+   */
   public static ApplicationContext register(ApplicationContext context) {
     return contextMap.put(context.getApplicationName(), context);
   }
@@ -62,7 +71,12 @@ public final class ApplicationContextHolder {
     return contextMap.values().iterator().next();
   }
 
-  public static HashMap<String, ApplicationContext> getContextMap() {
+  /**
+   * Get all ApplicationContexts in this JVM
+   *
+   * @return all ApplicationContexts in this JVM
+   */
+  public static HashMap<String, ApplicationContext> getAll() {
     return contextMap;
   }
 }
