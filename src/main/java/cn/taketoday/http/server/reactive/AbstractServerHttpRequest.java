@@ -149,7 +149,12 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
         String name = decodeQueryParam(matcher.group(1));
         String eq = matcher.group(2);
         String value = matcher.group(3);
-        value = (value != null ? decodeQueryParam(value) : (StringUtils.isNotEmpty(eq) ? "" : null));
+        if (value != null) {
+          value = decodeQueryParam(value);
+        }
+        else if (StringUtils.isNotEmpty(eq)) {
+          value = "";
+        }
         queryParams.add(name, value);
       }
     }

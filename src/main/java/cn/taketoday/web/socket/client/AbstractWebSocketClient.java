@@ -16,6 +16,11 @@
 
 package cn.taketoday.web.socket.client;
 
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -27,12 +32,6 @@ import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Abstract base class for {@link WebSocketClient} implementations.

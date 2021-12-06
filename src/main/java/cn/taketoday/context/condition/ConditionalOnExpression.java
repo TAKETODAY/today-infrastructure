@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**

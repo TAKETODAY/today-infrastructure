@@ -53,6 +53,7 @@ public final class AstEqual extends BooleanNode {
     super(id);
   }
 
+  @Override
   public Object getValue(EvaluationContext ctx) throws ExpressionException {
     return ExpressionUtils.equals(this.children[0].getValue(ctx), this.children[1].getValue(ctx));
   }

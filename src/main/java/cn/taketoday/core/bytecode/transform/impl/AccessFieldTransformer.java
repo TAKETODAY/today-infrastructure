@@ -24,7 +24,6 @@ import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.transform.ClassEmitterTransformer;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -43,6 +42,7 @@ public class AccessFieldTransformer extends ClassEmitterTransformer {
     String getPropertyName(Type owner, String fieldName);
   }
 
+  @Override
   public void declare_field(int access, final String name, Type type, Object value) {
     super.declare_field(access, name, type, value);
 
