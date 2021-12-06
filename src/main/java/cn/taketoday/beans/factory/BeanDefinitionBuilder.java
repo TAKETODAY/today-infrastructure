@@ -468,12 +468,8 @@ public class BeanDefinitionBuilder {
           String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(beanClass, "bean-class must not be null");
-
-    BeanDefinition definition = new BeanDefinitionBuilder()
-            .beanClass(beanClass)
-            .name(name)
-            .build();
-
+    AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
+    definition.setName(name);
     if (attributes != null) {
       definition.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHOD));
       definition.setInitMethods(attributes.getStringArray(BeanDefinition.INIT_METHODS));
