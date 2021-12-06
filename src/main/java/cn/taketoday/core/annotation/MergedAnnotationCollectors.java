@@ -44,7 +44,7 @@ import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
  * @since 4.0
  */
 public abstract class MergedAnnotationCollectors {
-  private static final Characteristics[] NO_CHARACTERISTICS = { };
+  private static final Characteristics[] NO_CHARACTERISTICS = {};
   private static final Characteristics[] IDENTITY_FINISH_CHARACTERISTICS = { Characteristics.IDENTITY_FINISH };
 
   /**
@@ -131,8 +131,7 @@ public abstract class MergedAnnotationCollectors {
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
           UnaryOperator<MultiValueMap<String, Object>> finisher, Adapt... adaptations) {
 
-    Characteristics[] characteristics = (isSameInstance(finisher, Function.identity()) ?
-            IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS);
+    Characteristics[] characteristics = isSameInstance(finisher, Function.identity()) ? IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
     return Collector.of(DefaultMultiValueMap::new,
             (map, annotation) -> annotation.asMap(adaptations).forEach(map::add),
             MergedAnnotationCollectors::combiner, finisher, characteristics);

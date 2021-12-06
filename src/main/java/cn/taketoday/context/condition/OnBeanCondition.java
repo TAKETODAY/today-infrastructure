@@ -439,19 +439,17 @@ class OnBeanCondition implements Condition, Ordered {
     private final SearchStrategy strategy;
     private final Set<Class<?>> parameterizedContainers;
 
-    Spec(ConditionEvaluationContext context,
-         AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
+    Spec(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
       MultiValueMap<String, Object> attributes = annotations.stream(annotationType)
               .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
               .collect(MergedAnnotationCollectors.toMultiValueMap(Adapt.CLASS_TO_STRING));
-      MergedAnnotation<A> annotation = annotations.get(annotationType);
-      this.classLoader = context.getClassLoader();
       this.annotationType = annotationType;
+      this.classLoader = context.getClassLoader();
       this.names = extract(attributes, "name");
       this.annotations = extract(attributes, "annotation");
       this.ignoredTypes = extract(attributes, "ignored", "ignoredType");
       this.parameterizedContainers = resolveWhenPossible(extract(attributes, "parameterizedContainer"));
-      this.strategy = annotation.getValue("search", SearchStrategy.class).orElse(null);
+      this.strategy = annotations.get(annotationType).getValue("search", SearchStrategy.class).orElse(null);
       Set<String> types = extractTypes(attributes);
       BeanTypeDeductionException deductionException = null;
       if (types.isEmpty() && this.names.isEmpty()) {
