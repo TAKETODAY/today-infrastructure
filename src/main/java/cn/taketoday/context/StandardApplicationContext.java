@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ConfigurationBeanReader;
@@ -154,6 +155,7 @@ public class StandardApplicationContext
     for (BeanDefinitionLoader loader : strategies) {
       loader.loadBeanDefinitions(loadingContext);
     }
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(loadingContext.getRegistry());
   }
 
   @Override

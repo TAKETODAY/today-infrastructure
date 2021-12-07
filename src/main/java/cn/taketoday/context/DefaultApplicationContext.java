@@ -20,6 +20,12 @@
 
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
@@ -36,11 +42,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * ApplicationContext default implementation
@@ -424,6 +425,30 @@ public class DefaultApplicationContext
     return beanDefinitionReader;
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of AliasRegistry Interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public void registerAlias(String name, String alias) {
+    beanFactory.registerAlias(name, alias);
+  }
+
+  @Override
+  public void removeAlias(String alias) {
+    beanFactory.removeAlias(alias);
+  }
+
+  @Override
+  public boolean isAlias(String name) {
+    return beanFactory.isAlias(name);
+  }
+
+  @Override
+  public List<String> getAliasList(String name) {
+    return beanFactory.getAliasList(name);
+  }
+
   /**
    * Set whether it should be allowed to override bean definitions by registering
    * a different definition with the same name, automatically replacing the former.
@@ -448,4 +473,5 @@ public class DefaultApplicationContext
   public void setAllowCircularReferences(boolean allowCircularReferences) {
     this.beanFactory.setAllowCircularReferences(allowCircularReferences);
   }
+
 }

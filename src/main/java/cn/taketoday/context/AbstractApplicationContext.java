@@ -43,7 +43,6 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
@@ -76,13 +75,10 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 
 /**
  * Abstract implementation of the {@link ApplicationContext}
@@ -466,14 +462,6 @@ public abstract class AbstractApplicationContext
     }
 
     // register bean post processors
-
-    if (ClassUtils.isPresent("jakarta.annotation.PostConstruct", getClass().getClassLoader())) {
-      InitDestroyAnnotationBeanPostProcessor processor = new InitDestroyAnnotationBeanPostProcessor();
-      processor.setBeanFactory(beanFactory);
-      processor.setDestroyAnnotationType(PreDestroy.class);
-      processor.setInitAnnotationType(PostConstruct.class);
-      beanFactory.addBeanPostProcessor(processor);
-    }
 
     beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
     StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);

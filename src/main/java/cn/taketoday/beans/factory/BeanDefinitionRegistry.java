@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.Map;
 
+import cn.taketoday.core.AliasRegistry;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  *
  * 2018-07-08 19:56:53 2018-08-06 11:07
  */
-public interface BeanDefinitionRegistry extends Iterable<BeanDefinition> {
+public interface BeanDefinitionRegistry extends Iterable<BeanDefinition>, AliasRegistry {
 
   /**
    * Get {@link BeanDefinition}s map
