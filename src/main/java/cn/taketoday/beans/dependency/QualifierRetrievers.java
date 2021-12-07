@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Qualifier;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
@@ -49,6 +50,7 @@ public class QualifierRetrievers implements QualifierRetriever {
     catch (Exception ignored) {}
     // @formatter:on
     shared.addRetriever(new AnnotationQualifierRetriever(Autowired.class));
+    shared.addRetriever(new AnnotationQualifierRetriever(Qualifier.class));
     shared.retrievers.trimToSize();
   }
 
