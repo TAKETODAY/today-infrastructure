@@ -23,8 +23,8 @@ package cn.taketoday.aop.proxy;
 import java.io.Closeable;
 
 import cn.taketoday.aop.AopInfrastructureBean;
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
