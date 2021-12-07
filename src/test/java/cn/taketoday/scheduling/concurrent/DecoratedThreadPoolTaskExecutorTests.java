@@ -18,22 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.http.server.reactive.bootstrap;
+package cn.taketoday.scheduling.concurrent;
 
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
+import cn.taketoday.scheduling.support.TaskUtils;
 
 /**
- * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
+ * @since 4.0
  */
-public interface HttpServer extends InitializingBean, Lifecycle {
+class DecoratedThreadPoolTaskExecutorTests extends AbstractSchedulingTaskExecutorTests {
 
-  void setHost(String host);
-
-  void setPort(int port);
-
-  int getPort();
-
-  void setHandler(HttpHandler handler);
+	@Override
+	protected AsyncListenableTaskExecutor buildExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setTaskDecorator(runnable ->
+				new DelegatingErrorHandlingRunnable(runnable, TaskUtils.LOG_AND_PROPAGATE_ERROR_HANDLER));
+		executor.setThreadNamePrefix(this.threadNamePrefix);
+		executor.setMaxPoolSize(1);
+		executor.afterPropertiesSet();
+		return executor;
+	}
 
 }

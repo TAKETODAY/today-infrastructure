@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;

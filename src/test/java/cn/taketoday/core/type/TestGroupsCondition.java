@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
- * {@link ExecutionCondition} for Spring's {@link TestGroup} support.
+ * {@link ExecutionCondition} for  {@link TestGroup} support.
  *
  * @author Sam Brannen
  * @see EnabledForTestGroups @EnabledForTestGroups

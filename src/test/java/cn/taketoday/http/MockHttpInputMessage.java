@@ -30,7 +30,7 @@ import cn.taketoday.lang.Assert;
  * Mock implementation of {@link HttpInputMessage}.
  *
  * @author Rossen Stoyanchev
- * @since 3.2
+ * @since 4.0
  */
 public class MockHttpInputMessage implements HttpInputMessage {
 

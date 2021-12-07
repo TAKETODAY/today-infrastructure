@@ -230,7 +230,7 @@ class AnnotationUtilsTests {
 		assertThat(component.value()).contains("meta2");
 	}
 
-	// @since 4.0.3
+	// @since 4.0
 	@Test
 	void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedAnnotations() {
 		Transactional transactional = findAnnotation(SubSubClassWithInheritedAnnotation.class, Transactional.class);
@@ -238,7 +238,7 @@ class AnnotationUtilsTests {
 		assertThat(transactional.readOnly()).as("readOnly flag for SubSubClassWithInheritedAnnotation").isTrue();
 	}
 
-	// @since 4.0.3
+	// @since 4.0
 	@Test
 	void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedComposedAnnotations() {
 		Component component = findAnnotation(SubSubClassWithInheritedMetaAnnotation.class, Component.class);

@@ -26,8 +26,8 @@ import java.util.Map;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;

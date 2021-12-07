@@ -24,7 +24,7 @@ import java.util.Properties;
 import jakarta.annotation.PostConstruct;
 
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.core.Order;

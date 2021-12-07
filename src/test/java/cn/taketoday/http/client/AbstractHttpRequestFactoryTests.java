@@ -29,8 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.StreamingHttpOutputMessage;

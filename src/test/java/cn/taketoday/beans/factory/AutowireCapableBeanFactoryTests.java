@@ -23,7 +23,6 @@ package cn.taketoday.beans.factory;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.TestBean;
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;

@@ -20,8 +20,8 @@
 
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
