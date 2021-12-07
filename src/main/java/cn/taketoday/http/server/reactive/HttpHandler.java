@@ -30,8 +30,6 @@ import reactor.core.publisher.Mono;
  * {@code WebFilter}, {@code WebSession}, {@code ServerWebExchange}, and others
  * are available in the {@code cn.taketoday.web.server} package.
  *
- * <p>Application level programming models such as annotated controllers and
- * functional handlers are available in the {@code spring-webflux} module.
  *
  * <p>Typically an {@link HttpHandler} represents an entire application with
  * higher-level programming models bridged via

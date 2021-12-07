@@ -50,7 +50,7 @@ public class ConcurrentReferenceCachingMetadataReaderFactory extends SimpleMetad
    * Create a new {@link ConcurrentReferenceCachingMetadataReaderFactory} instance for
    * the given resource loader.
    *
-   * @param resourceLoader the Spring ResourceLoader to use (also determines the
+   * @param resourceLoader the ResourceLoader to use (also determines the
    * ClassLoader to use)
    */
   public ConcurrentReferenceCachingMetadataReaderFactory(ResourceLoader resourceLoader) {

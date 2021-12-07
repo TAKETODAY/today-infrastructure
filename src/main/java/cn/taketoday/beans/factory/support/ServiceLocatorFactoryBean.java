@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Properties;
 
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeansException;
@@ -222,7 +222,7 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
    * lookup failed. The specified exception class must have a constructor
    * with one of the following parameter types: {@code (String, Throwable)}
    * or {@code (Throwable)} or {@code (String)}.
-   * <p>If not specified, subclasses of Spring's BeansException will be thrown,
+   * <p>If not specified, subclasses of  BeansException will be thrown,
    * for example NoSuchBeanDefinitionException. As those are unchecked, the
    * caller does not need to handle them, so it might be acceptable that
    * Spring exceptions get thrown as long as they are just handled generically.
@@ -373,6 +373,9 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
         if (StringUtils.isNotEmpty(beanName)) {
           // Service locator for a specific bean name
           Object bean = beanFactory.getBean(beanName, serviceLocatorMethodReturnType);
+          if (bean == null) {
+            throw new NoSuchBeanDefinitionException(beanName, serviceLocatorMethodReturnType);
+          }
           return bean;
         }
         else {

@@ -131,7 +131,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
   /**
    * Set the directory used to store parts larger than
    * {@link #setMaxInMemorySize(int) maxInMemorySize}. By default, a directory
-   * named {@code spring-webflux-multipart} is created under the system
+   * named {@code multipart} is created under the system
    * temporary directory.
    * <p>Note that this property is ignored when
    * {@linkplain #setStreaming(boolean) streaming} is enabled, or when

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.InitializingBean;
-
 import java.io.Serial;
 
 /**

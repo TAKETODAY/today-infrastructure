@@ -26,7 +26,7 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;

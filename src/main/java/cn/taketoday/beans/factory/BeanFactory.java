@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.ArgumentsResolverProvider;
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
@@ -46,8 +44,8 @@ import cn.taketoday.lang.Nullable;
  * (the Prototype design pattern), or a single shared instance (a superior
  * alternative to the Singleton design pattern, in which the instance is a
  * singleton in the scope of the factory). Which type of instance will be returned
- * depends on the bean factory configuration: the API is the same. Since Spring
- * 2.0, further scopes are available depending on the concrete application
+ * depends on the bean factory configuration: the API is the same.
+ * further scopes are available depending on the concrete application
  * context (e.g. "request" and "session" scopes in a web environment).
  *
  * <p>The point of this approach is that the BeanFactory is a central registry
@@ -59,7 +57,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Note that it is generally better to rely on Dependency Injection
  * ("push" configuration) to configure application objects through setters
  * or constructors, rather than use any form of "pull" configuration like a
- * BeanFactory lookup. Spring's Dependency Injection functionality is
+ * BeanFactory lookup.  Dependency Injection functionality is
  * implemented using this BeanFactory interface and its subinterfaces.
  *
  * <p>Normally a BeanFactory will load bean definitions stored in a configuration
@@ -70,9 +68,9 @@ import cn.taketoday.lang.Nullable;
  * properties file, etc. Implementations are encouraged to support references
  * amongst beans (Dependency Injection).
  * <p>
- * this interface includes operations like Spring's {@code ListableBeanFactory}
+ * this interface includes operations like  {@code ListableBeanFactory}
  *
- * <p>In contrast to the methods in Spring's {@code ListableBeanFactory}, all of the
+ * <p>In contrast to the methods in  {@code ListableBeanFactory}, all of the
  * operations in this interface will also check parent factories if this is a
  * {@link HierarchicalBeanFactory}. If a bean is not found in this factory instance,
  * the immediate parent factory will be asked. Beans in this factory instance

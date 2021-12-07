@@ -19,8 +19,8 @@
  */
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Nullable;
 

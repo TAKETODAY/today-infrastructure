@@ -36,7 +36,6 @@ import java.util.function.Supplier;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -179,7 +178,7 @@ public abstract class AbstractBeanFactory
             return (T) supplier.get();
           }
         }
-        // 3. Check if bean definition exists in this factory.
+        // 3. Check if bean definition not exists in this factory.
         BeanFactory parentBeanFactory = getParentBeanFactory();
         if (parentBeanFactory != null) {
           // Not found -> check parent.

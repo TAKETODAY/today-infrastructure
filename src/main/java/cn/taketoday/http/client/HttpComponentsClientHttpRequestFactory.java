@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.function.BiFunction;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

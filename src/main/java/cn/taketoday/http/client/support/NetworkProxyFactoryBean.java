@@ -25,7 +25,7 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 

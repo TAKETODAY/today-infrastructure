@@ -21,8 +21,6 @@ package cn.taketoday.beans.factory;
 
 import java.util.Set;
 
-import cn.taketoday.beans.DisposableBean;
-
 /**
  * Extension of the {@link BeanFactory} interface to be implemented
  * by bean factories that are capable of autowiring, provided that

@@ -49,7 +49,7 @@ public class BeanReference implements PropertyValueRetriever {
    * {@inheritDoc}
    *
    * <p>
-   * retrieve a bean reference like Spring's ref='bean'
+   * retrieve a bean reference like  ref='bean'
    * </p>
    */
   @Override

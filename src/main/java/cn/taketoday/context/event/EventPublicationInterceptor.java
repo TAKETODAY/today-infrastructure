@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.event;
 
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;

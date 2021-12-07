@@ -26,7 +26,7 @@ import com.google.gson.GsonBuilder;
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Nullable;
 
 /**

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.DisposableBean;
-
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-destruction
  * callback.

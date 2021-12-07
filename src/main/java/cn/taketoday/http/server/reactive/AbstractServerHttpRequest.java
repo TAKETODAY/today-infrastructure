@@ -203,8 +203,6 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
 
   /**
    * Return the underlying server response.
-   * <p><strong>Note:</strong> This is exposed mainly for internal framework
-   * use such as WebSocket upgrades in the spring-webflux module.
    */
   public abstract <T> T getNativeRequest();
 

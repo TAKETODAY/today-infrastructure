@@ -62,7 +62,7 @@ public class BeanDefinitionBuilder {
   private String scope;
 
   /**
-   * Invoke before {@link cn.taketoday.beans.InitializingBean#afterPropertiesSet}
+   * Invoke before {@link InitializingBean#afterPropertiesSet}
    *
    * @since 2.3.3
    */

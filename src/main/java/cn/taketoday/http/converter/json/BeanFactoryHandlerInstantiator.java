@@ -44,7 +44,7 @@ import cn.taketoday.lang.Assert;
 /**
  * Allows for creating Jackson ({@link JsonSerializer}, {@link JsonDeserializer},
  * {@link KeyDeserializer}, {@link TypeResolverBuilder}, {@link TypeIdResolver})
- * beans with autowiring against a Spring {@link ApplicationContext}.
+ * beans with autowiring against a {@link ApplicationContext}.
  *
  * <p>This overrides all factory methods in {@link HandlerInstantiator},
  * including non-abstract ones and recently introduced ones from Jackson 2.4 and 2.5:
@@ -63,7 +63,7 @@ public class BeanFactoryHandlerInstantiator extends HandlerInstantiator {
   private final AutowireCapableBeanFactory beanFactory;
 
   /**
-   * Create a new SpringHandlerInstantiator for the given BeanFactory.
+   * Create a new HandlerInstantiator for the given BeanFactory.
    *
    * @param beanFactory the target BeanFactory
    */

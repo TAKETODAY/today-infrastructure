@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.event.ApplicationListener;
 
 /**

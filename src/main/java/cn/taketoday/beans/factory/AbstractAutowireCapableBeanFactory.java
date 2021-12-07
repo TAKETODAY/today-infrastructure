@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;

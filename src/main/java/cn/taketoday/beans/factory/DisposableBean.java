@@ -17,21 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans;
+package cn.taketoday.beans.factory;
 
 /**
- * Invoke after all the properties has been set
+ * Release resources
  *
  * @author TODAY <br>
- * 2018-7-17 22:24:03
+ * 2018-7-18 1:07:15
  */
-public interface InitializingBean {
+public interface DisposableBean {
 
   /**
-   * After bean instance properties set.
+   * Invoked by a ApplicationContext on destruction of a singleton.
    *
    * @throws Exception in case of errors
    */
-  void afterPropertiesSet() throws Exception;
-
+  void destroy() throws Exception;
 }

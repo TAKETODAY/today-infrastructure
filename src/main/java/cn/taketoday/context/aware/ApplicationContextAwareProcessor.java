@@ -27,6 +27,8 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.expression.EmbeddedValueResolver;
+import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -56,12 +58,14 @@ import cn.taketoday.lang.Nullable;
  */
 public class ApplicationContextAwareProcessor implements InitializationBeanPostProcessor {
   private final ConfigurableApplicationContext context;
+  private final EmbeddedValueResolver embeddedValueResolver;
 
   /**
    * Create a new ApplicationContextAwareProcessor for the given context.
    */
   public ApplicationContextAwareProcessor(ConfigurableApplicationContext applicationContext) {
     this.context = applicationContext;
+    this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext);
   }
 
   @Nullable
@@ -85,6 +89,9 @@ public class ApplicationContextAwareProcessor implements InitializationBeanPostP
     }
     if (bean instanceof ApplicationContextAware) {
       ((ApplicationContextAware) bean).setApplicationContext(context);
+    }
+    if (bean instanceof EmbeddedValueResolverAware) {
+      ((EmbeddedValueResolverAware) bean).setEmbeddedValueResolver(this.embeddedValueResolver);
     }
 
     if (bean instanceof ImportAware) { // @since 3.0

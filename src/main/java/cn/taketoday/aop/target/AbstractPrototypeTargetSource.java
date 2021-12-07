@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.target;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeansException;

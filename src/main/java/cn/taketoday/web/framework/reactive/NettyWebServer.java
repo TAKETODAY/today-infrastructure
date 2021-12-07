@@ -21,7 +21,7 @@ package cn.taketoday.web.framework.reactive;
 
 import java.util.Objects;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;

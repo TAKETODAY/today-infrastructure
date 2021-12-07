@@ -27,9 +27,9 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.lang.Autowired;

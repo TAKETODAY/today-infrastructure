@@ -60,7 +60,7 @@ public interface SmartClassLoader {
    * commonly deals with unaffected classes from a base application class loader,
    * this should get implemented to return the original ClassLoader that the
    * present loader got derived from (e.g. through {@code return getParent();}).
-   * <p>This gets specifically used in Spring's AOP framework to determine the
+   * <p>This gets specifically used in  AOP framework to determine the
    * class loader for a specific proxy in case the target class has not been
    * defined in the present class loader. In case of a reloadable class loader,
    * we prefer the base application class loader for proxying general classes

@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -326,7 +325,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    */
   public static boolean hasApplicableProcessors(
           Object bean, List<DestructionBeanPostProcessor> postProcessors) {
-    if (!CollectionUtils.isEmpty(postProcessors)) {
+    if (CollectionUtils.isNotEmpty(postProcessors)) {
       for (DestructionBeanPostProcessor processor : postProcessors) {
         if (processor.requiresDestruction(bean)) {
           return true;

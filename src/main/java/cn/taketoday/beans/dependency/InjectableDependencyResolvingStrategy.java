@@ -92,13 +92,18 @@ public class InjectableDependencyResolvingStrategy
 
   protected void resolveInternal(
           InjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
-    Object bean = getBean(beanFactory, injectionPoint);
-    if (bean == null) {
+    try {
+      Object bean = getBean(beanFactory, injectionPoint);
+      context.setDependency(bean);
+    }
+    catch (NoSuchBeanDefinitionException e) {
       if (injectionPoint.isRequired()) { // if it is required
-        throw new NoSuchBeanDefinitionException(injectionPoint.getResolvableType());
+        throw e;
+      }
+      else {
+        context.setDependency(InjectionPoint.DO_NOT_SET);
       }
     }
-    context.setDependency(bean);
   }
 
   protected Object getBean(BeanFactory beanFactory, InjectionPoint injectionPoint) {

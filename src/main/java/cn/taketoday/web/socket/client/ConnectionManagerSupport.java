@@ -30,7 +30,7 @@ import java.net.URI;
 /**
  * A base class for WebSocket connection managers. Provides a declarative style of
  * connecting to a WebSocket server given a URI to connect to. The connection occurs when
- * the Spring ApplicationContext is refreshed, if the {@link #autoStartup} property is set
+ * the ApplicationContext is refreshed, if the {@link #autoStartup} property is set
  * to {@code true}, or if set to {@code false}, the {@link #start()} and #stop methods can
  * be invoked manually.
  *
@@ -59,7 +59,7 @@ public abstract class ConnectionManagerSupport implements SmartLifecycle {
 
   /**
    * Set whether to auto-connect to the remote endpoint after this connection manager
-   * has been initialized and the Spring context has been refreshed.
+   * has been initialized and the context has been refreshed.
    * <p>Default is "false".
    */
   public void setAutoStartup(boolean autoStartup) {

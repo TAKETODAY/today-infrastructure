@@ -184,7 +184,7 @@ public abstract class AbstractAutoProxyCreator
 
   /**
    * Set the common interceptors. These must be bean names in the current factory.
-   * They can be of any advice or advisor type Spring supports.
+   * They can be of any advice or advisor type supports.
    * <p>If this property isn't set, there will be zero common interceptors.
    * This is perfectly valid, if "specific" interceptors such as matching
    * Advisors are all we want.

@@ -35,7 +35,7 @@ import java.io.Serializable;
  * JSR-330 {@link jakarta.inject.Provider} that in turn returns a bean
  * sourced from a {@link BeanFactory}.
  *
- * <p>This is basically a JSR-330 compliant variant of Spring's good old
+ * <p>This is basically a JSR-330 compliant variant of  good old
  * {@link SupplierFactoryCreatingFactoryBean}. It can be used for traditional
  * external dependency injection configuration that targets a property or
  * constructor argument of type {@code jakarta.inject.Provider}, as an

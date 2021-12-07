@@ -23,7 +23,7 @@ package cn.taketoday.aop.target;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.core.NamedThreadLocal;
 
 /**

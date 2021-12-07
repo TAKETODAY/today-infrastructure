@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -384,7 +383,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * <p>Disposable beans usually correspond to registered singletons,
    * matching the bean name but potentially being a different instance
    * (for example, a DisposableBean adapter for a singleton that does not
-   * naturally implement Spring's DisposableBean interface).
+   * naturally implement  DisposableBean interface).
    *
    * @param beanName the name of the bean
    * @param bean the bean instance

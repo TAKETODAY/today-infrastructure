@@ -51,8 +51,8 @@ public interface SingletonBeanRegistry {
    *
    * @param name the name of the bean
    * @param singletonObject the existing singleton object
-   * @see cn.taketoday.beans.InitializingBean#afterPropertiesSet
-   * @see cn.taketoday.beans.DisposableBean#destroy
+   * @see InitializingBean#afterPropertiesSet
+   * @see DisposableBean#destroy
    * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#registerBeanDefinition
    */
   void registerSingleton(String name, Object singletonObject);

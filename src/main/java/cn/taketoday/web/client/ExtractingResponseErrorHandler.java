@@ -100,7 +100,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * response into the mapped subclass of {@link RestClientException}.
    */
   public void setStatusMapping(Map<HttpStatus, Class<? extends RestClientException>> statusMapping) {
-    if (!CollectionUtils.isEmpty(statusMapping)) {
+    if (CollectionUtils.isNotEmpty(statusMapping)) {
       this.statusMapping.putAll(statusMapping);
     }
   }
@@ -115,7 +115,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * response into the mapped subclass of {@link RestClientException}.
    */
   public void setSeriesMapping(Map<HttpStatus.Series, Class<? extends RestClientException>> seriesMapping) {
-    if (!CollectionUtils.isEmpty(seriesMapping)) {
+    if (CollectionUtils.isNotEmpty(seriesMapping)) {
       this.seriesMapping.putAll(seriesMapping);
     }
   }

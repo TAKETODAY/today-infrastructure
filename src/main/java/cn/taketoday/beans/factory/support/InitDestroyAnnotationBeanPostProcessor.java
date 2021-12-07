@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;

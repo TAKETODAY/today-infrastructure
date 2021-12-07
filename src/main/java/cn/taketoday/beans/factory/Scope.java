@@ -128,7 +128,7 @@ public interface Scope {
    * Furthermore, the Runnable will usually be serializable, provided
    * that its target object is serializable as well.
    * @throws IllegalStateException if the underlying scope is not currently active
-   * @see cn.taketoday.beans.DisposableBean
+   * @see DisposableBean
    * @see DestructionBeanPostProcessor
    */
   void registerDestructionCallback(String name, Runnable callback);

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.InitializingBean;
-
 /**
  * Callback that allows a bean to be aware of the bean {@link ClassLoader class
  * loader}; that is, the class loader used by the present bean factory to load

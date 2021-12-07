@@ -525,7 +525,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Multiple invocations are not additive, the last one defines the modules to
    * register.
    * <p>Note: If this is set, no finding of modules is going to happen - not by
-   * Jackson, and not by Spring either (see {@link #findModulesViaServiceLoader}).
+   * Jackson, and not by today either (see {@link #findModulesViaServiceLoader}).
    * As a consequence, specifying an empty list here will suppress any kind of
    * module detection.
    * <p>Specify either this or {@link #modulesToInstall}, not both.
@@ -542,7 +542,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Multiple invocations are not additive, the last one defines the modules to
    * register.
    * <p>Note: If this is set, no finding of modules is going to happen - not by
-   * Jackson, and not by Spring either (see {@link #findModulesViaServiceLoader}).
+   * Jackson, and not by this project either (see {@link #findModulesViaServiceLoader}).
    * As a consequence, specifying an empty list here will suppress any kind of
    * module detection.
    * <p>Specify either this or {@link #modulesToInstall}, not both.
@@ -562,7 +562,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Multiple invocations are not additive, the last one defines the modules
    * to register.
    * <p>Modules specified here will be registered after
-   * Spring's autodetection of JSR-310 and Joda-Time, or Jackson's
+   *  autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #findModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #modules(Module...)}, not both.
@@ -582,7 +582,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Multiple invocations are not additive, the last one defines the modules
    * to register.
    * <p>Modules specified here will be registered after
-   * Spring's autodetection of JSR-310 and Joda-Time, or Jackson's
+   *  autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #findModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #modules(Module...)}, not both.
@@ -601,7 +601,7 @@ public class Jackson2ObjectMapperBuilder {
   /**
    * Set whether to let Jackson find available modules via the JDK ServiceLoader,
    * based on META-INF metadata in the classpath.
-   * <p>If this mode is not set, Spring's Jackson2ObjectMapperBuilder itself
+   * <p>If this mode is not set,  Jackson2ObjectMapperBuilder itself
    * will try to find the JSR-310 and Joda-Time support modules on the classpath -
    * provided that Java 8 and Joda-Time themselves are available, respectively.
    *
@@ -632,7 +632,7 @@ public class Jackson2ObjectMapperBuilder {
   }
 
   /**
-   * Set the Spring {@link ApplicationContext} in order to autowire Jackson handlers ({@link JsonSerializer},
+   * Set the {@link ApplicationContext} in order to autowire Jackson handlers ({@link JsonSerializer},
    * {@link JsonDeserializer}, {@link KeyDeserializer}, {@code TypeResolverBuilder} and {@code TypeIdResolver}).
    *
    * @see BeanFactoryHandlerInstantiator
@@ -914,7 +914,7 @@ public class Jackson2ObjectMapperBuilder {
     }
 
     /**
-     * Create an {@link XMLInputFactory} with Spring's defensive setup,
+     * Create an {@link XMLInputFactory} with  defensive setup,
      * i.e. no support for the resolution of DTDs and external entities.
      *
      * @return a new defensively initialized input factory instance to use

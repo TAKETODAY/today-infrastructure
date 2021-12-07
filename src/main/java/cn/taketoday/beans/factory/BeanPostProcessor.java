@@ -28,7 +28,7 @@ import cn.taketoday.core.Ordered;
  * proxies.
  *<p>
  *  <b>NOTE</b>: this mainly a marker interface for post processing a bean,
- *  this is not like Spring's BeanPostProcessor
+ *  this is not like  BeanPostProcessor
  *</p>
  * <p>
  * Typically, post-processors that populate beans via marker interfaces or the

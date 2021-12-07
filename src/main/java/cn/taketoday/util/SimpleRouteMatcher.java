@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p><strong>Note:</strong> This implementation is not efficient since
  * {@code PathMatcher} treats paths and patterns as Strings. For more optimized
- * performance use the {@code PathPatternRouteMatcher} from {@code spring-web}
+ * performance use the {@code PathPatternRouteMatcher} from {@code today-web}
  * which enables use of parsed routes and patterns.
  *
  * @author Rossen Stoyanchev

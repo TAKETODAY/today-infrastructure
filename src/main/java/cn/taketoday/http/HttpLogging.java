@@ -31,7 +31,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * <p>That means "cn.taketoday.web" enables all web logging including
  * from lower level packages such as "cn.taketoday.http" and modules
- * such as codecs from {@literal "spring-core"} when those are wrapped with
+ * such as codecs from {@literal "today-core"} when those are wrapped with
  * {@link cn.taketoday.http.codec.EncoderHttpMessageWriter EncoderHttpMessageWriter} or
  * {@link cn.taketoday.http.codec.DecoderHttpMessageReader DecoderHttpMessageReader}.
  *

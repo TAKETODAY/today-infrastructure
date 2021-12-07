@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -382,7 +382,7 @@ public class Jackson2ObjectMapperFactoryBean
   /**
    * Set a complete list of modules to be registered with the {@link ObjectMapper}.
    * <p>Note: If this is set, no finding of modules is going to happen - not by
-   * Jackson, and not by Spring either (see {@link #setFindModulesViaServiceLoader}).
+   * Jackson, and not by project either (see {@link #setFindModulesViaServiceLoader}).
    * As a consequence, specifying an empty list here will suppress any kind of
    * module detection.
    * <p>Specify either this or {@link #setModulesToInstall}, not both.
@@ -397,7 +397,7 @@ public class Jackson2ObjectMapperFactoryBean
    * Specify one or more modules by class (or class name in XML)
    * to be registered with the {@link ObjectMapper}.
    * <p>Modules specified here will be registered after
-   * Spring's autodetection of JSR-310 and Joda-Time, or Jackson's
+   *  autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #setFindModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #setModules}, not both.
@@ -412,7 +412,7 @@ public class Jackson2ObjectMapperFactoryBean
   /**
    * Set whether to let Jackson find available modules via the JDK ServiceLoader,
    * based on META-INF metadata in the classpath. Requires Jackson 2.2 or higher.
-   * <p>If this mode is not set, Spring's Jackson2ObjectMapperFactoryBean itself
+   * <p>If this mode is not set,  Jackson2ObjectMapperFactoryBean itself
    * will try to find the JSR-310 and Joda-Time support modules on the classpath -
    * provided that Java 8 and Joda-Time themselves are available, respectively.
    *

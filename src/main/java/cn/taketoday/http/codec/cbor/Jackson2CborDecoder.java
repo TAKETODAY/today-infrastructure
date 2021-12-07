@@ -42,7 +42,6 @@ import reactor.core.publisher.Flux;
  *
  * @author Sebastien Deleuze
  * @see Jackson2CborEncoder
- * @see <a href="https://github.com/spring-projects/spring-framework/issues/20513">Add CBOR support to WebFlux</a>
  * @since 4.0
  */
 public class Jackson2CborDecoder extends AbstractJackson2Decoder {

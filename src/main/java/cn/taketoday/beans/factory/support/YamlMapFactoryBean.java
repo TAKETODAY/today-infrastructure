@@ -19,7 +19,7 @@
  */
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.core.YamlProcessor;
 import cn.taketoday.lang.Nullable;

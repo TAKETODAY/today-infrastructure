@@ -35,7 +35,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;

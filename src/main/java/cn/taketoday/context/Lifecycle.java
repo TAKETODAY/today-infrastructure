@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.beans.factory.DisposableBean;
 
 /**
  * A common interface defining methods for start/stop lifecycle control.
@@ -69,7 +70,7 @@ public interface Lifecycle {
    * that apply.
    *
    * @see SmartLifecycle#stop(Runnable)
-   * @see cn.taketoday.beans.DisposableBean#destroy()
+   * @see DisposableBean#destroy()
    */
   void stop();
 
