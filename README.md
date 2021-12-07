@@ -918,8 +918,8 @@ import jakarta.annotation.PreDestroy;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import lombok.extern.slf4j.Slf4j;
 
 /**

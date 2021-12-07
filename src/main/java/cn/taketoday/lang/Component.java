@@ -24,8 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * This annotation indicates that an annotated element is a bean component in
@@ -39,12 +40,26 @@ import cn.taketoday.beans.InitializingBean;
 public @interface Component {
 
   /**
-   * The value may indicate a suggestion for a logical component name, to be
-   * turned into a bean in case of an autodetected component.
+   * Alias for {@link #name}.
+   * <p>Intended to be used when no other attributes are needed, for example:
+   * {@code @Bean("customBeanName")}.
    *
-   * @return the suggested component name, if any (or empty String otherwise)
+   * @see #name
    */
-  String[] value() default { };
+  @AliasFor("name")
+  String[] value() default {};
+
+  /**
+   * The name of this bean, or if several names, a primary bean name plus aliases.
+   * <p>If left unspecified, the name of the bean is the name of the annotated method.
+   * If specified, the method name is ignored.
+   * <p>The bean name and aliases may also be configured via the {@link #value}
+   * attribute if no other attributes are declared.
+   *
+   * @see #value
+   */
+  @AliasFor("value")
+  String[] name() default {};
 
   /**
    * The optional name of a method to call on the bean instance during
@@ -56,7 +71,7 @@ public @interface Component {
    * @see InitializingBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
    */
-  String[] initMethods() default { };
+  String[] initMethods() default {};
 
   /**
    * The optional names of a method to call on the bean instance upon closing the
