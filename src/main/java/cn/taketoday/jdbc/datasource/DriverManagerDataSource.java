@@ -66,7 +66,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Juergen Hoeller
  * @see SimpleDriverDataSource
- * @since 14.03.2003
+ * @since 4.0
  */
 public class DriverManagerDataSource extends AbstractDriverBasedDataSource {
 

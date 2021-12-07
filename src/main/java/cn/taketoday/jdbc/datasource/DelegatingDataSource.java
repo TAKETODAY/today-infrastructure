@@ -41,7 +41,7 @@ import javax.sql.DataSource;
  *
  * @author Juergen Hoeller
  * @see #getConnection
- * @since 1.1
+ * @since 4.0
  */
 public class DelegatingDataSource implements DataSource, InitializingBean {
 

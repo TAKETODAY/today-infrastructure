@@ -28,12 +28,11 @@ import java.io.OutputStream;
  * such as Derby, preventing the creation of a log file.
  *
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 public final class OutputStreamFactory {
 
-  private OutputStreamFactory() {
-  }
+  private OutputStreamFactory() { }
 
   /**
    * Returns an {@link OutputStream} that ignores all data given to it.

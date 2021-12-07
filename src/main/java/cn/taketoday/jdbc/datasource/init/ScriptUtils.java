@@ -20,9 +20,6 @@
 
 package cn.taketoday.jdbc.datasource.init;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.sql.Connection;
@@ -36,6 +33,8 @@ import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -186,9 +185,10 @@ public abstract class ScriptUtils {
    * @see cn.taketoday.jdbc.datasource.DataSourceUtils#getConnection
    * @see cn.taketoday.jdbc.datasource.DataSourceUtils#releaseConnection
    */
-  public static void executeSqlScript(Connection connection, EncodedResource resource, boolean continueOnError,
-                                      boolean ignoreFailedDrops, String commentPrefix, @Nullable String separator,
-                                      String blockCommentStartDelimiter, String blockCommentEndDelimiter) throws ScriptException {
+  public static void executeSqlScript(
+          Connection connection, EncodedResource resource, boolean continueOnError,
+          boolean ignoreFailedDrops, String commentPrefix, @Nullable String separator,
+          String blockCommentStartDelimiter, String blockCommentEndDelimiter) throws ScriptException {
 
     executeSqlScript(connection, resource, continueOnError, ignoreFailedDrops,
             new String[] { commentPrefix }, separator, blockCommentStartDelimiter,
@@ -225,15 +225,15 @@ public abstract class ScriptUtils {
    * @see #EOF_STATEMENT_SEPARATOR
    * @see cn.taketoday.jdbc.datasource.DataSourceUtils#getConnection
    * @see cn.taketoday.jdbc.datasource.DataSourceUtils#releaseConnection
-   * @since 4.0
    */
-  public static void executeSqlScript(Connection connection, EncodedResource resource, boolean continueOnError,
-                                      boolean ignoreFailedDrops, String[] commentPrefixes, @Nullable String separator,
-                                      String blockCommentStartDelimiter, String blockCommentEndDelimiter) throws ScriptException {
+  public static void executeSqlScript(
+          Connection connection, EncodedResource resource, boolean continueOnError,
+          boolean ignoreFailedDrops, String[] commentPrefixes, @Nullable String separator,
+          String blockCommentStartDelimiter, String blockCommentEndDelimiter) throws ScriptException {
 
     try {
       if (logger.isDebugEnabled()) {
-        logger.debug("Executing SQL script from " + resource);
+        logger.debug("Executing SQL script from {}", resource);
       }
       long startTime = System.currentTimeMillis();
 
@@ -267,12 +267,11 @@ public abstract class ScriptUtils {
             stmt.execute(statement);
             int rowsAffected = stmt.getUpdateCount();
             if (logger.isDebugEnabled()) {
-              logger.debug(rowsAffected + " returned as update count for SQL: " + statement);
+              logger.debug("{} returned as update count for SQL: {}", rowsAffected, statement);
               SQLWarning warningToLog = stmt.getWarnings();
               while (warningToLog != null) {
-                logger.debug("SQLWarning ignored: SQL state '" + warningToLog.getSQLState() +
-                        "', error code '" + warningToLog.getErrorCode() +
-                        "', message [" + warningToLog.getMessage() + "]");
+                logger.debug("SQLWarning ignored: SQL state '{}', error code '{}', message [{}]",
+                        warningToLog.getSQLState(), warningToLog.getErrorCode(), warningToLog.getMessage());
                 warningToLog = warningToLog.getNextWarning();
               }
             }
@@ -301,7 +300,7 @@ public abstract class ScriptUtils {
 
       long elapsedTime = System.currentTimeMillis() - startTime;
       if (logger.isDebugEnabled()) {
-        logger.debug("Executed SQL script from " + resource + " in " + elapsedTime + " ms.");
+        logger.debug("Executed SQL script from {} in {} ms.", resource, elapsedTime);
       }
     }
     catch (Exception ex) {
@@ -329,8 +328,9 @@ public abstract class ScriptUtils {
    * @return a {@code String} containing the script lines
    * @throws IOException in case of I/O errors
    */
-  static String readScript(EncodedResource resource, @Nullable String separator,
-                           String[] commentPrefixes, String blockCommentEndDelimiter) throws IOException {
+  static String readScript(
+          EncodedResource resource, @Nullable String separator,
+          String[] commentPrefixes, String blockCommentEndDelimiter) throws IOException {
 
     try (LineNumberReader lnr = new LineNumberReader(resource.getReader())) {
       return readScript(lnr, commentPrefixes, separator, blockCommentEndDelimiter);
@@ -353,12 +353,10 @@ public abstract class ScriptUtils {
    * @param blockCommentEndDelimiter the <em>end</em> block comment delimiter
    * @return a {@code String} containing the script lines
    * @throws IOException in case of I/O errors
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
-  public static String readScript(LineNumberReader lineNumberReader, @Nullable String commentPrefix,
-                                  @Nullable String separator, @Nullable String blockCommentEndDelimiter) throws IOException {
+  public static String readScript(
+          LineNumberReader lineNumberReader, @Nullable String commentPrefix,
+          @Nullable String separator, @Nullable String blockCommentEndDelimiter) throws IOException {
 
     String[] commentPrefixes = (commentPrefix != null) ? new String[] { commentPrefix } : null;
     return readScript(lineNumberReader, commentPrefixes, separator, blockCommentEndDelimiter);
@@ -380,13 +378,10 @@ public abstract class ScriptUtils {
    * @param blockCommentEndDelimiter the <em>end</em> block comment delimiter
    * @return a {@code String} containing the script lines
    * @throws IOException in case of I/O errors
-   * @since 4.0
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
-  public static String readScript(LineNumberReader lineNumberReader, @Nullable String[] commentPrefixes,
-                                  @Nullable String separator, @Nullable String blockCommentEndDelimiter) throws IOException {
+  public static String readScript(
+          LineNumberReader lineNumberReader, @Nullable String[] commentPrefixes,
+          @Nullable String separator, @Nullable String blockCommentEndDelimiter) throws IOException {
 
     String currentStatement = lineNumberReader.readLine();
     StringBuilder scriptBuilder = new StringBuilder();
@@ -433,10 +428,7 @@ public abstract class ScriptUtils {
    * @see #DEFAULT_COMMENT_PREFIXES
    * @see #DEFAULT_BLOCK_COMMENT_START_DELIMITER
    * @see #DEFAULT_BLOCK_COMMENT_END_DELIMITER
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
   public static boolean containsSqlScriptDelimiters(String script, String delimiter) {
     return containsStatementSeparator(null, script, delimiter, DEFAULT_COMMENT_PREFIXES,
             DEFAULT_BLOCK_COMMENT_START_DELIMITER, DEFAULT_BLOCK_COMMENT_END_DELIMITER);
@@ -461,11 +453,11 @@ public abstract class ScriptUtils {
    * (typically {@code "/*"})
    * @param blockCommentEndDelimiter the <em>end</em> block comment delimiter
    * (typically <code>"*&#47;"</code>)
-   * @since 4.0
    */
-  private static boolean containsStatementSeparator(@Nullable EncodedResource resource, String script,
-                                                    String separator, String[] commentPrefixes, String blockCommentStartDelimiter,
-                                                    String blockCommentEndDelimiter) throws ScriptException {
+  private static boolean containsStatementSeparator(
+          @Nullable EncodedResource resource, String script,
+          String separator, String[] commentPrefixes, String blockCommentStartDelimiter,
+          String blockCommentEndDelimiter) throws ScriptException {
 
     boolean inSingleQuote = false;
     boolean inDoubleQuote = false;
@@ -541,10 +533,7 @@ public abstract class ScriptUtils {
    * @throws ScriptException if an error occurred while splitting the SQL script
    * @see #splitSqlScript(String, String, List)
    * @see #splitSqlScript(EncodedResource, String, String, String, String, String, List)
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
   public static void splitSqlScript(String script, char separator, List<String> statements) throws ScriptException {
     splitSqlScript(script, String.valueOf(separator), statements);
   }
@@ -569,10 +558,7 @@ public abstract class ScriptUtils {
    * @throws ScriptException if an error occurred while splitting the SQL script
    * @see #splitSqlScript(String, char, List)
    * @see #splitSqlScript(EncodedResource, String, String, String, String, String, List)
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
   public static void splitSqlScript(String script, String separator, List<String> statements) throws ScriptException {
     splitSqlScript(null, script, separator, DEFAULT_COMMENT_PREFIX, DEFAULT_BLOCK_COMMENT_START_DELIMITER,
             DEFAULT_BLOCK_COMMENT_END_DELIMITER, statements);
@@ -602,13 +588,11 @@ public abstract class ScriptUtils {
    * never {@code null} or empty
    * @param statements the list that will contain the individual statements
    * @throws ScriptException if an error occurred while splitting the SQL script
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
-  public static void splitSqlScript(@Nullable EncodedResource resource, String script,
-                                    String separator, String commentPrefix, String blockCommentStartDelimiter,
-                                    String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
+  public static void splitSqlScript(
+          @Nullable EncodedResource resource, String script,
+          String separator, String commentPrefix, String blockCommentStartDelimiter,
+          String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
 
     Assert.hasText(commentPrefix, "'commentPrefix' must not be null or empty");
     splitSqlScript(resource, script, separator, new String[] { commentPrefix },
@@ -639,14 +623,11 @@ public abstract class ScriptUtils {
    * never {@code null} or empty
    * @param statements the list that will contain the individual statements
    * @throws ScriptException if an error occurred while splitting the SQL script
-   * @since 4.0
-   * @deprecated as of Spring Framework 5.2.16 with no plans for replacement.
-   * This is an internal API and will likely be removed in Spring Framework 6.0.
    */
-  @Deprecated
-  public static void splitSqlScript(@Nullable EncodedResource resource, String script,
-                                    String separator, String[] commentPrefixes, String blockCommentStartDelimiter,
-                                    String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
+  public static void splitSqlScript(
+          @Nullable EncodedResource resource, String script,
+          String separator, String[] commentPrefixes, String blockCommentStartDelimiter,
+          String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
 
     Assert.hasText(script, "'script' must not be null or empty");
     Assert.notNull(separator, "'separator' must not be null");

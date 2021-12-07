@@ -34,7 +34,7 @@ import java.sql.Connection;
  * @see TransactionAwareDataSourceProxy
  * @see LazyConnectionDataSourceProxy
  * @see DataSourceUtils#getTargetConnection(Connection)
- * @since 1.1
+ * @since 4.0
  */
 public interface ConnectionProxy extends Connection {
 

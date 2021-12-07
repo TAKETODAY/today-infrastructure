@@ -20,13 +20,13 @@
 
 package cn.taketoday.jdbc.datasource.init;
 
-import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.jdbc.datasource.DataSourceUtils;
-import cn.taketoday.lang.Assert;
-
 import java.sql.Connection;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.lang.Assert;
 
 /**
  * Utility methods for executing a {@link DatabasePopulator}.

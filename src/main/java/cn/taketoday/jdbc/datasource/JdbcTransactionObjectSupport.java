@@ -47,7 +47,7 @@ import java.sql.Savepoint;
  *
  * @author Juergen Hoeller
  * @see DataSourceTransactionManager
- * @since 1.1
+ * @since 4.0
  */
 public abstract class JdbcTransactionObjectSupport implements SavepointManager, SmartTransactionObject {
 

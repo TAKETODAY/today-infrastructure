@@ -20,12 +20,12 @@
 
 package cn.taketoday.jdbc.datasource.init;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
-
-import javax.sql.DataSource;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Used to {@linkplain #setDatabasePopulator set up} a database during
@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  * @author Dave Syer
  * @author Sam Brannen
  * @see DatabasePopulator
- * @since 3.0
+ * @since 4.0
  */
 public class DataSourceInitializer implements InitializingBean, DisposableBean {
 
@@ -111,7 +111,7 @@ public class DataSourceInitializer implements InitializingBean, DisposableBean {
     execute(this.databaseCleaner);
   }
 
-  private void execute(@Nullable DatawbasePopulator populator) {
+  private void execute(@Nullable DatabasePopulator populator) {
     Assert.state(this.dataSource != null, "DataSource must be set");
     if (this.enabled && populator != null) {
       DatabasePopulatorUtils.execute(populator, this.dataSource);

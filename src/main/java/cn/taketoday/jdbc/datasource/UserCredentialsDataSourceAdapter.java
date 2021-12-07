@@ -62,7 +62,7 @@ import java.sql.SQLException;
  *
  * @author Juergen Hoeller
  * @see #getConnection
- * @since 1.0.2
+ * @since 4.0
  */
 public class UserCredentialsDataSourceAdapter extends DelegatingDataSource {
 

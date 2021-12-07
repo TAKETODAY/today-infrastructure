@@ -34,7 +34,7 @@ import javax.sql.DataSource;
  *
  * @author Keith Donald
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 public interface DataSourceFactory {
 

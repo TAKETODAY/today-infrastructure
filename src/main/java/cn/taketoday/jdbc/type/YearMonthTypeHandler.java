@@ -33,7 +33,7 @@ import java.time.YearMonth;
  * are expected as strings. The format must be uuuu-MM. Example: "2016-08"
  *
  * @author Björn Raupach
- * @since 3.4.5
+ * @since 4.0
  */
 public class YearMonthTypeHandler extends BaseTypeHandler<YearMonth> {
 

@@ -28,7 +28,7 @@ import java.time.Instant;
 
 /**
  * @author Tomas Rohovsky
- * @since 3.4.5
+ * @since 4.0
  */
 public class InstantTypeHandler extends BaseTypeHandler<Instant> {
 

@@ -29,7 +29,7 @@ import javax.sql.DataSource;
  * single given DataSource, returned for any data source name.
  *
  * @author Juergen Hoeller
- * @since 2.0
+ * @since 4.0
  */
 public class SingleDataSourceLookup implements DataSourceLookup {
 

@@ -55,7 +55,7 @@ import java.sql.SQLException;
  * @see #setIsolationLevelName
  * @see #setUsername
  * @see #setPassword
- * @since 2.0.3
+ * @since 4.0
  */
 public class IsolationLevelDataSourceAdapter extends UserCredentialsDataSourceAdapter {
 

@@ -20,9 +20,6 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.support.TransactionSynchronizationManager;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,6 +29,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.transaction.SynchronizationManager;
 
 /**
  * Proxy for a target JDBC {@link DataSource}, adding awareness of
@@ -76,7 +76,7 @@ import javax.sql.DataSource;
  * @see DataSourceUtils#doGetConnection
  * @see DataSourceUtils#applyTransactionTimeout
  * @see DataSourceUtils#doReleaseConnection
- * @since 1.1
+ * @since 4.0
  */
 public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
 
@@ -87,8 +87,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    *
    * @see #setTargetDataSource
    */
-  public TransactionAwareDataSourceProxy() {
-  }
+  public TransactionAwareDataSourceProxy() { }
 
   /**
    * Create a new TransactionAwareDataSourceProxy.
@@ -155,8 +154,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    * @param targetDataSource the target DataSource
    */
   protected boolean shouldObtainFixedConnection(DataSource targetDataSource) {
-    return (!TransactionSynchronizationManager.isSynchronizationActive() ||
-            !this.reobtainTransactionalConnections);
+    return !SynchronizationManager.isActive() || !this.reobtainTransactionalConnections;
   }
 
   /**

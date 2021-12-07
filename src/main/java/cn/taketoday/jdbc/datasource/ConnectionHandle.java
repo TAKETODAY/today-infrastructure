@@ -29,7 +29,7 @@ import java.sql.Connection;
  * @author Juergen Hoeller
  * @see SimpleConnectionHandle
  * @see ConnectionHolder
- * @since 1.1
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ConnectionHandle {

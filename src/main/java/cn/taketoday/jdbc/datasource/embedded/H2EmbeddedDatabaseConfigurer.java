@@ -20,10 +20,10 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
+import java.sql.Driver;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-
-import java.sql.Driver;
 
 /**
  * {@link EmbeddedDatabaseConfigurer} for an H2 embedded database instance.
@@ -33,7 +33,7 @@ import java.sql.Driver;
  * @author Oliver Gierke
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 final class H2EmbeddedDatabaseConfigurer extends AbstractEmbeddedDatabaseConfigurer {
 
@@ -48,10 +48,9 @@ final class H2EmbeddedDatabaseConfigurer extends AbstractEmbeddedDatabaseConfigu
    * @return the configurer instance
    * @throws ClassNotFoundException if H2 is not on the classpath
    */
-  @SuppressWarnings("unchecked")
   public static synchronized H2EmbeddedDatabaseConfigurer getInstance() throws ClassNotFoundException {
     if (instance == null) {
-      instance = new H2EmbeddedDatabaseConfigurer((Class<? extends Driver>)
+      instance = new H2EmbeddedDatabaseConfigurer(
               ClassUtils.forName("org.h2.Driver", H2EmbeddedDatabaseConfigurer.class.getClassLoader()));
     }
     return instance;

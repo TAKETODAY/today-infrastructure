@@ -20,13 +20,13 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.jdbc.datasource.init.ScriptUtils;
 import cn.taketoday.lang.Assert;
-
-import javax.sql.DataSource;
 
 /**
  * A builder that provides a convenient API for constructing an embedded database.
@@ -54,15 +54,13 @@ import javax.sql.DataSource;
  * @see ScriptUtils
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
  * @see cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils
- * @since 3.0
+ * @since 4.0
  */
 public class EmbeddedDatabaseBuilder {
 
-  private final EmbeddedDatabaseFactory databaseFactory;
-
-  private final ResourceDatabasePopulator databasePopulator;
-
   private final ResourceLoader resourceLoader;
+  private final EmbeddedDatabaseFactory databaseFactory;
+  private final ResourceDatabasePopulator databasePopulator;
 
   /**
    * Create a new embedded database builder with a {@link DefaultResourceLoader}.
@@ -94,7 +92,6 @@ public class EmbeddedDatabaseBuilder {
    * @param flag {@code true} if a unique database name should be generated
    * @return {@code this}, to facilitate method chaining
    * @see #setName
-   * @since 4.0
    */
   public EmbeddedDatabaseBuilder generateUniqueName(boolean flag) {
     this.databaseFactory.setGenerateUniqueDatabaseName(flag);
@@ -136,7 +133,6 @@ public class EmbeddedDatabaseBuilder {
    * for example to introduce connection pooling.
    *
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder setDataSourceFactory(DataSourceFactory dataSourceFactory) {
     Assert.notNull(dataSourceFactory, "DataSourceFactory is required");
@@ -171,7 +167,6 @@ public class EmbeddedDatabaseBuilder {
    *
    * @param scripts the scripts to execute
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder addScripts(String... scripts) {
     for (String script : scripts) {
@@ -186,7 +181,6 @@ public class EmbeddedDatabaseBuilder {
    *
    * @param scriptEncoding the encoding used in scripts
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder setScriptEncoding(String scriptEncoding) {
     this.databasePopulator.setSqlScriptEncoding(scriptEncoding);
@@ -201,7 +195,6 @@ public class EmbeddedDatabaseBuilder {
    *
    * @param separator the statement separator
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder setSeparator(String separator) {
     this.databasePopulator.setSeparator(separator);
@@ -215,7 +208,6 @@ public class EmbeddedDatabaseBuilder {
    * @param commentPrefix the prefix for single-line comments
    * @return {@code this}, to facilitate method chaining
    * @see #setCommentPrefixes(String...)
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder setCommentPrefix(String commentPrefix) {
     this.databasePopulator.setCommentPrefix(commentPrefix);
@@ -228,7 +220,6 @@ public class EmbeddedDatabaseBuilder {
    *
    * @param commentPrefixes the prefixes for single-line comments
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0
    */
   public EmbeddedDatabaseBuilder setCommentPrefixes(String... commentPrefixes) {
     this.databasePopulator.setCommentPrefixes(commentPrefixes);
@@ -242,7 +233,6 @@ public class EmbeddedDatabaseBuilder {
    * @param blockCommentStartDelimiter the start delimiter for block comments
    * @return {@code this}, to facilitate method chaining
    * @see #setBlockCommentEndDelimiter
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder setBlockCommentStartDelimiter(String blockCommentStartDelimiter) {
     this.databasePopulator.setBlockCommentStartDelimiter(blockCommentStartDelimiter);
@@ -256,7 +246,6 @@ public class EmbeddedDatabaseBuilder {
    * @param blockCommentEndDelimiter the end delimiter for block comments
    * @return {@code this}, to facilitate method chaining
    * @see #setBlockCommentStartDelimiter
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder setBlockCommentEndDelimiter(String blockCommentEndDelimiter) {
     this.databasePopulator.setBlockCommentEndDelimiter(blockCommentEndDelimiter);
@@ -270,7 +259,6 @@ public class EmbeddedDatabaseBuilder {
    *
    * @param flag {@code true} if script execution should continue on error
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder continueOnError(boolean flag) {
     this.databasePopulator.setContinueOnError(flag);
@@ -287,7 +275,6 @@ public class EmbeddedDatabaseBuilder {
    *
    * @param flag {@code true} if failed drop statements should be ignored
    * @return {@code this}, to facilitate method chaining
-   * @since 4.0.3
    */
   public EmbeddedDatabaseBuilder ignoreFailedDrops(boolean flag) {
     this.databasePopulator.setIgnoreFailedDrops(flag);

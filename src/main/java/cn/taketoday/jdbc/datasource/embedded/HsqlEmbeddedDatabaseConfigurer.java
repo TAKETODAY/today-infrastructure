@@ -20,10 +20,10 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
+import java.sql.Driver;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-
-import java.sql.Driver;
 
 /**
  * {@link EmbeddedDatabaseConfigurer} for an HSQL embedded database instance.
@@ -32,7 +32,7 @@ import java.sql.Driver;
  *
  * @author Keith Donald
  * @author Oliver Gierke
- * @since 3.0
+ * @since 4.0
  */
 final class HsqlEmbeddedDatabaseConfigurer extends AbstractEmbeddedDatabaseConfigurer {
 
@@ -47,10 +47,9 @@ final class HsqlEmbeddedDatabaseConfigurer extends AbstractEmbeddedDatabaseConfi
    * @return the configurer instance
    * @throws ClassNotFoundException if HSQL is not on the classpath
    */
-  @SuppressWarnings("unchecked")
   public static synchronized HsqlEmbeddedDatabaseConfigurer getInstance() throws ClassNotFoundException {
     if (instance == null) {
-      instance = new HsqlEmbeddedDatabaseConfigurer((Class<? extends Driver>)
+      instance = new HsqlEmbeddedDatabaseConfigurer(
               ClassUtils.forName("org.hsqldb.jdbcDriver", HsqlEmbeddedDatabaseConfigurer.class.getClassLoader()));
     }
     return instance;

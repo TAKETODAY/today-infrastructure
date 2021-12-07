@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 
 /**
  * @author Tomas Rohovsky
- * @since 3.4.5
+ * @since 4.0
  */
 public class LocalDateTimeTypeHandler extends BaseTypeHandler<LocalDateTime> {
 

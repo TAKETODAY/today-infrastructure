@@ -20,14 +20,14 @@
 
 package cn.taketoday.jdbc.datasource.lookup;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple {@link DataSourceLookup} implementation that relies on a map for doing lookups.
@@ -38,7 +38,7 @@ import javax.sql.DataSource;
  * @author Costin Leau
  * @author Juergen Hoeller
  * @author Rick Evans
- * @since 2.0
+ * @since 4.0
  */
 public class MapDataSourceLookup implements DataSourceLookup {
 
@@ -47,8 +47,7 @@ public class MapDataSourceLookup implements DataSourceLookup {
   /**
    * Create a new instance of the {@link MapDataSourceLookup} class.
    */
-  public MapDataSourceLookup() {
-  }
+  public MapDataSourceLookup() { }
 
   /**
    * Create a new instance of the {@link MapDataSourceLookup} class.

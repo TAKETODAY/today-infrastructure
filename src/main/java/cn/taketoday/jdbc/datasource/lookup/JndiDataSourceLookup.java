@@ -20,10 +20,10 @@
 
 package cn.taketoday.jdbc.datasource.lookup;
 
-import cn.taketoday.jndi.JndiLocatorSupport;
-
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import cn.taketoday.jndi.JndiLocatorSupport;
 
 /**
  * JNDI-based {@link DataSourceLookup} implementation.
@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  * @author Juergen Hoeller
  * @see #setJndiEnvironment
  * @see #setJndiTemplate
- * @since 2.0
+ * @since 4.0
  */
 public class JndiDataSourceLookup extends JndiLocatorSupport implements DataSourceLookup {
 

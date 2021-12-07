@@ -42,7 +42,7 @@ import cn.taketoday.util.CollectionUtils;
  * @see #setTargetDataSources
  * @see #setDefaultTargetDataSource
  * @see #determineCurrentLookupKey()
- * @since 2.0.1
+ * @since 4.0
  */
 public abstract class AbstractRoutingDataSource extends AbstractDataSource implements InitializingBean {
 
@@ -176,7 +176,6 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
    * @return an unmodifiable map of resolved lookup keys and DataSources
    * @throws IllegalStateException if the target DataSources are not resolved yet
    * @see #setTargetDataSources
-   * @since 4.0
    */
   public Map<Object, DataSource> getResolvedDataSources() {
     Assert.state(this.resolvedDataSources != null, "DataSources not resolved yet - call afterPropertiesSet");
@@ -188,7 +187,6 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
    *
    * @return the default DataSource, or {@code null} if none or not resolved yet
    * @see #setDefaultTargetDataSource
-   * @since 4.0
    */
   @Nullable
   public DataSource getResolvedDefaultDataSource() {

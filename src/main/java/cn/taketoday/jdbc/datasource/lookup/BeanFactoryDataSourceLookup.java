@@ -20,13 +20,13 @@
 
 package cn.taketoday.jdbc.datasource.lookup;
 
-import cn.taketoday.beans.BeansException;
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.lang.Assert;
-
-import javax.sql.DataSource;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link DataSourceLookup} implementation based on a Spring {@link BeanFactory}.
@@ -37,7 +37,7 @@ import javax.sql.DataSource;
  * @author Costin Leau
  * @author Juergen Hoeller
  * @see cn.taketoday.beans.factory.BeanFactory
- * @since 2.0
+ * @since 4.0
  */
 public class BeanFactoryDataSourceLookup implements DataSourceLookup, BeanFactoryAware {
 
@@ -50,8 +50,7 @@ public class BeanFactoryDataSourceLookup implements DataSourceLookup, BeanFactor
    *
    * @see #setBeanFactory
    */
-  public BeanFactoryDataSourceLookup() {
-  }
+  public BeanFactoryDataSourceLookup() { }
 
   /**
    * Create a new instance of the {@link BeanFactoryDataSourceLookup} class.
@@ -76,8 +75,13 @@ public class BeanFactoryDataSourceLookup implements DataSourceLookup, BeanFactor
   @Override
   public DataSource getDataSource(String dataSourceName) throws DataSourceLookupFailureException {
     Assert.state(this.beanFactory != null, "BeanFactory is required");
+
+    DataSource bean = this.beanFactory.getBean(dataSourceName, DataSource.class);
+    if (bean == null) {
+
+    }
     try {
-      return this.beanFactory.getBean(dataSourceName, DataSource.class);
+      return bean;
     }
     catch (BeansException ex) {
       throw new DataSourceLookupFailureException(

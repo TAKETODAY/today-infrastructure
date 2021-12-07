@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see SimpleDriverDataSource
  * @see DriverManagerDataSource
- * @since 2.5.5
+ * @since 4.0
  */
 public abstract class AbstractDriverBasedDataSource extends AbstractDataSource {
 

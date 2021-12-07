@@ -25,7 +25,7 @@ package cn.taketoday.jdbc.datasource.embedded;
  *
  * @author Keith Donald
  * @author Oliver Gierke
- * @since 3.0
+ * @since 4.0
  */
 public enum EmbeddedDatabaseType {
 

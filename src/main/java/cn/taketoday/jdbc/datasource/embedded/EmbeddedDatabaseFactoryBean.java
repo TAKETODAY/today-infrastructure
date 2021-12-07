@@ -20,14 +20,14 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.jdbc.datasource.init.DatabasePopulator;
 import cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils;
 import cn.taketoday.lang.Nullable;
-
-import javax.sql.DataSource;
 
 /**
  * A subclass of {@link EmbeddedDatabaseFactory} that implements {@link FactoryBean}
@@ -43,7 +43,7 @@ import javax.sql.DataSource;
  *
  * @author Keith Donald
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 public class EmbeddedDatabaseFactoryBean extends EmbeddedDatabaseFactory
         implements FactoryBean<DataSource>, InitializingBean, DisposableBean {

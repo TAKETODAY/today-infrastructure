@@ -27,7 +27,7 @@ import cn.taketoday.dao.NonTransientDataAccessException;
  * indicating that the specified DataSource could not be obtained.
  *
  * @author Juergen Hoeller
- * @since 2.0
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class DataSourceLookupFailureException extends NonTransientDataAccessException {

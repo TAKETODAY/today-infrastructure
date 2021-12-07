@@ -29,7 +29,7 @@ import java.sql.SQLXML;
  * Convert <code>String</code> to/from <code>SQLXML</code>.
  *
  * @author Iwao AVE!
- * @since 3.5.0
+ * @since 4.0
  */
 public class SqlxmlTypeHandler extends BaseTypeHandler<String> {
 

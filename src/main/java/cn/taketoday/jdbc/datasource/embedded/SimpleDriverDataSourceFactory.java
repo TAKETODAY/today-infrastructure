@@ -20,18 +20,18 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
-import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
-
 import java.sql.Driver;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  * Creates a {@link SimpleDriverDataSource}.
  *
  * @author Keith Donald
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 final class SimpleDriverDataSourceFactory implements DataSourceFactory {
 

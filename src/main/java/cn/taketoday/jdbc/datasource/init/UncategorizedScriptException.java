@@ -26,7 +26,7 @@ package cn.taketoday.jdbc.datasource.init;
  * from JDBC that we cannot pinpoint more precisely.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class UncategorizedScriptException extends ScriptException {

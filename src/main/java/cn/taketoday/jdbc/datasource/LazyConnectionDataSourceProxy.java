@@ -79,7 +79,7 @@ import javax.sql.DataSource;
  *
  * @author Juergen Hoeller
  * @see DataSourceTransactionManager
- * @since 1.1.4
+ * @since 4.0
  */
 public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
 

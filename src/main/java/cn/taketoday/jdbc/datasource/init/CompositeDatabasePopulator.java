@@ -20,14 +20,14 @@
 
 package cn.taketoday.jdbc.datasource.init;
 
-import cn.taketoday.lang.Assert;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * Composite {@link DatabasePopulator} that delegates to a list of given

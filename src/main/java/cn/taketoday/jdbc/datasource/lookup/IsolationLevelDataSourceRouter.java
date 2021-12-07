@@ -92,7 +92,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @see cn.taketoday.transaction.TransactionDefinition#ISOLATION_REPEATABLE_READ
  * @see cn.taketoday.transaction.TransactionDefinition#ISOLATION_SERIALIZABLE
  * @see cn.taketoday.transaction.jta.JtaTransactionManager
- * @since 2.0.1
+ * @since 4.0
  */
 public class IsolationLevelDataSourceRouter extends AbstractRoutingDataSource {
 

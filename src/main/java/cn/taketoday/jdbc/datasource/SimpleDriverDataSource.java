@@ -54,7 +54,7 @@ import java.util.Properties;
  *
  * @author Juergen Hoeller
  * @see DriverManagerDataSource
- * @since 2.5.5
+ * @since 4.0
  */
 public class SimpleDriverDataSource extends AbstractDriverBasedDataSource {
 

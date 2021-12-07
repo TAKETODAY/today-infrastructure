@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
  * of SQL scripts.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public abstract class ScriptException extends DataAccessException {

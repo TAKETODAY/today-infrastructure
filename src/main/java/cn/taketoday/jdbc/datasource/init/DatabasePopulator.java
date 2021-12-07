@@ -31,7 +31,7 @@ import java.sql.SQLException;
  * @see ResourceDatabasePopulator
  * @see DatabasePopulatorUtils
  * @see DataSourceInitializer
- * @since 3.0
+ * @since 4.0
  */
 @FunctionalInterface
 public interface DatabasePopulator {

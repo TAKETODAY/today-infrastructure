@@ -31,7 +31,7 @@ import javax.sql.DataSource;
  * @author Costin Leau
  * @author Juergen Hoeller
  * @see cn.taketoday.orm.jpa.persistenceunit.DefaultPersistenceUnitManager#setDataSourceLookup
- * @since 2.0
+ * @since 4.0
  */
 @FunctionalInterface
 public interface DataSourceLookup {

@@ -29,12 +29,9 @@ import cn.taketoday.lang.Assert;
  * @author Keith Donald
  * @author Oliver Gierke
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 final class EmbeddedDatabaseConfigurerFactory {
-
-  private EmbeddedDatabaseConfigurerFactory() {
-  }
 
   /**
    * Return a configurer instance for the given embedded database type.
@@ -46,16 +43,11 @@ final class EmbeddedDatabaseConfigurerFactory {
   public static EmbeddedDatabaseConfigurer getConfigurer(EmbeddedDatabaseType type) throws IllegalStateException {
     Assert.notNull(type, "EmbeddedDatabaseType is required");
     try {
-      switch (type) {
-        case HSQL:
-          return HsqlEmbeddedDatabaseConfigurer.getInstance();
-        case H2:
-          return H2EmbeddedDatabaseConfigurer.getInstance();
-        case DERBY:
-          return DerbyEmbeddedDatabaseConfigurer.getInstance();
-        default:
-          throw new UnsupportedOperationException("Embedded database type [" + type + "] is not supported");
-      }
+      return switch (type) {
+        case HSQL -> HsqlEmbeddedDatabaseConfigurer.getInstance();
+        case H2 -> H2EmbeddedDatabaseConfigurer.getInstance();
+        case DERBY -> DerbyEmbeddedDatabaseConfigurer.getInstance();
+      };
     }
     catch (ClassNotFoundException | NoClassDefFoundError ex) {
       throw new IllegalStateException("Driver for test database type [" + type + "] is not available", ex);

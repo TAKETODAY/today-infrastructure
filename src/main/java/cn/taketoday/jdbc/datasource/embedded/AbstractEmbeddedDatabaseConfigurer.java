@@ -20,14 +20,14 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Base class for {@link EmbeddedDatabaseConfigurer} implementations
@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  *
  * @author Oliver Gierke
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 abstract class AbstractEmbeddedDatabaseConfigurer implements EmbeddedDatabaseConfigurer {
 

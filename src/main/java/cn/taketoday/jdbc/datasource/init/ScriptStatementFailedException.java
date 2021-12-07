@@ -28,7 +28,7 @@ import cn.taketoday.core.io.EncodedResource;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 3.0.5
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class ScriptStatementFailedException extends ScriptException {

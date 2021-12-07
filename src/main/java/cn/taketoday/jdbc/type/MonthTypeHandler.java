@@ -27,7 +27,7 @@ import java.time.Month;
 
 /**
  * @author Björn Raupach
- * @since 3.4.5
+ * @since 4.0
  */
 public class MonthTypeHandler extends BaseTypeHandler<Month> {
 

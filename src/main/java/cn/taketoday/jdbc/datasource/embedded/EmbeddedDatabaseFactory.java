@@ -20,21 +20,20 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
-import cn.taketoday.jdbc.datasource.init.DatabasePopulator;
-import cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
+import cn.taketoday.jdbc.datasource.init.DatabasePopulator;
+import cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Factory for creating an {@link EmbeddedDatabase} instance.
@@ -63,7 +62,7 @@ import javax.sql.DataSource;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 public class EmbeddedDatabaseFactory {
 
@@ -296,9 +295,10 @@ public class EmbeddedDatabaseFactory {
     }
 
     // getParentLogger() is required for JDBC 4.1 compatibility
+
     @Override
-    public Logger getParentLogger() {
-      return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    public java.util.logging.Logger getParentLogger() {
+      return java.util.logging.Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
     }
 
     @Override

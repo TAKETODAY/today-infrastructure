@@ -31,7 +31,7 @@ import java.sql.Driver;
  * @author Keith Donald
  * @author Sam Brannen
  * @see DataSourceFactory
- * @since 3.0
+ * @since 4.0
  */
 public interface ConnectionProperties {
 

@@ -55,7 +55,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @see DatabasePopulatorUtils
  * @see ScriptUtils
- * @since 3.0
+ * @since 4.0
  */
 public class ResourceDatabasePopulator implements DatabasePopulator {
 
@@ -78,8 +78,6 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
 
   /**
    * Construct a new {@code ResourceDatabasePopulator} with default settings.
-   *
-   * @since 4.0.3
    */
   public ResourceDatabasePopulator() {
   }
@@ -90,7 +88,6 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    *
    * @param scripts the scripts to execute to initialize or clean up the database
    * (never {@code null})
-   * @since 4.0.3
    */
   public ResourceDatabasePopulator(Resource... scripts) {
     setScripts(scripts);
@@ -107,10 +104,10 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    * (may be {@code null} or <em>empty</em> to indicate platform encoding)
    * @param scripts the scripts to execute to initialize or clean up the database
    * (never {@code null})
-   * @since 4.0.3
    */
-  public ResourceDatabasePopulator(boolean continueOnError, boolean ignoreFailedDrops,
-                                   @Nullable String sqlScriptEncoding, Resource... scripts) {
+  public ResourceDatabasePopulator(
+          boolean continueOnError, boolean ignoreFailedDrops,
+          @Nullable String sqlScriptEncoding, Resource... scripts) {
 
     this.continueOnError = continueOnError;
     this.ignoreFailedDrops = ignoreFailedDrops;
@@ -196,7 +193,6 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    * <p>Defaults to {@code ["--"]}.
    *
    * @param commentPrefixes the prefixes for single-line comments
-   * @since 4.0
    */
   public void setCommentPrefixes(String... commentPrefixes) {
     Assert.notEmpty(commentPrefixes, "'commentPrefixes' must not be null or empty");
@@ -212,7 +208,6 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    * @param blockCommentStartDelimiter the start delimiter for block comments
    * (never {@code null} or empty)
    * @see #setBlockCommentEndDelimiter
-   * @since 4.0.3
    */
   public void setBlockCommentStartDelimiter(String blockCommentStartDelimiter) {
     Assert.hasText(blockCommentStartDelimiter, "'blockCommentStartDelimiter' must not be null or empty");
@@ -227,7 +222,6 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    * @param blockCommentEndDelimiter the end delimiter for block comments
    * (never {@code null} or empty)
    * @see #setBlockCommentStartDelimiter
-   * @since 4.0.3
    */
   public void setBlockCommentEndDelimiter(String blockCommentEndDelimiter) {
     Assert.hasText(blockCommentEndDelimiter, "'blockCommentEndDelimiter' must not be null or empty");
@@ -280,7 +274,6 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    * @param dataSource the {@code DataSource} to execute against (never {@code null})
    * @throws ScriptException if an error occurs
    * @see #populate(Connection)
-   * @since 4.0
    */
   public void execute(DataSource dataSource) throws ScriptException {
     DatabasePopulatorUtils.execute(this, dataSource);
