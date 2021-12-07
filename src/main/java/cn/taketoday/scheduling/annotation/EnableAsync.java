@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 
 /**
  * Enables  asynchronous method execution capability, similar to functionality

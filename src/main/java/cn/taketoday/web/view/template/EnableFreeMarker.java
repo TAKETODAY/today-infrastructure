@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 
 /**
  * @author TODAY 2021/3/24 21:50

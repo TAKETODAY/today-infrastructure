@@ -29,7 +29,7 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 

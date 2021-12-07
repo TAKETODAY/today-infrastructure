@@ -33,8 +33,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
-
 
 /**
  * Indicates that a component is eligible for registration when one or more

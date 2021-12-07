@@ -31,7 +31,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.framework.WebApplication;
 

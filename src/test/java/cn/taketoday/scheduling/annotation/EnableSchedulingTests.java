@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.core.type.EnabledForTestGroups;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskScheduler;
 import cn.taketoday.scheduling.config.IntervalTask;

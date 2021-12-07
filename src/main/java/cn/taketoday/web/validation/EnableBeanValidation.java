@@ -47,7 +47,7 @@ public @interface EnableBeanValidation {
 
 }
 
-@cn.taketoday.lang.Configuration
+@cn.taketoday.context.annotation.Configuration
 class BeanValidationConfig {
 
   @MissingBean

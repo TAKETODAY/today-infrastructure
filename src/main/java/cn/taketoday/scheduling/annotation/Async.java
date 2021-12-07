@@ -26,12 +26,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Configuration;
+
 /**
  * Annotation that marks a method as a candidate for <i>asynchronous</i> execution.
  * Can also be used at the type level, in which case all of the type's methods are
  * considered as asynchronous. Note, however, that {@code @Async} is not supported
  * on methods declared within a
- * {@link cn.taketoday.lang.Configuration @Configuration} class.
+ * {@link Configuration @Configuration} class.
  *
  * <p>In terms of target method signatures, any parameter types are supported.
  * However, the return type is constrained to either {@code void} or

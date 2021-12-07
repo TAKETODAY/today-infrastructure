@@ -29,6 +29,7 @@ import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
@@ -38,7 +39,6 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.util.ObjectUtils;
 
 /**

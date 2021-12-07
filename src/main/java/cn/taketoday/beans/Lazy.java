@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 
 /**
  * Indicates whether a bean is to be lazily initialized.

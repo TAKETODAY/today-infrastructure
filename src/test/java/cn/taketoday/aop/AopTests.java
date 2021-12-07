@@ -49,7 +49,7 @@ import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import lombok.extern.slf4j.Slf4j;
 

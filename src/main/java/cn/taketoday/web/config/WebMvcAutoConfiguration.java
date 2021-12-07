@@ -26,7 +26,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DefaultExceptionHandler;
 import cn.taketoday.web.handler.HandlerExceptionHandler;

@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ConfigurationBeanReader;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
@@ -100,7 +101,7 @@ public class StandardApplicationContext
    * Start with given class set
    *
    * @param components one or more component classes,
-   * e.g. {@link cn.taketoday.lang.Configuration @Configuration} classes
+   * e.g. {@link Configuration @Configuration} classes
    * @see #refresh()
    * @see #register(Class[])
    */

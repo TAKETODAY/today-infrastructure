@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.ImportSelector;
-import cn.taketoday.lang.Configuration;
 
 /**
  * Import a Configuration,ImportSelector, BeanDefinitionImporter,ApplicationListener or a bean

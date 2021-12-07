@@ -38,7 +38,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;

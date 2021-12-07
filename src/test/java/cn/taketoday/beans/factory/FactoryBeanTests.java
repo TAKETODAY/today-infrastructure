@@ -32,7 +32,7 @@ import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;

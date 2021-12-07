@@ -28,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.io.PropertySourceFactory;
-import cn.taketoday.lang.Configuration;
 
 /**
  * Annotation providing a convenient and declarative mechanism for adding a

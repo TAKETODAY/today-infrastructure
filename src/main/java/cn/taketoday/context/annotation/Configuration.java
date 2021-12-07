@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.lang;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -28,6 +28,10 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Scope;
+import cn.taketoday.lang.Value;
 
 /**
  * Indicates that a class declares one or more {@link Component @Component} methods and

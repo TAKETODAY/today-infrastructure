@@ -22,7 +22,7 @@ package cn.taketoday.context;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import lombok.Getter;

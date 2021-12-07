@@ -28,7 +28,7 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;

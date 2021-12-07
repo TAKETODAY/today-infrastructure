@@ -49,7 +49,7 @@ import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Qualifier;
 import cn.taketoday.lang.Singleton;

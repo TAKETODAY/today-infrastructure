@@ -38,7 +38,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
 

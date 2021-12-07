@@ -35,7 +35,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
 import cn.taketoday.lang.Scope;
 import cn.taketoday.lang.Value;
 

@@ -23,7 +23,7 @@ package cn.taketoday.scheduling.annotation;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 
 /**

@@ -27,7 +27,7 @@ import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestMapping;

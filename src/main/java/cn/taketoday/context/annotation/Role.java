@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.lang.Configuration;
 
 /**
  * Indicates the 'role' hint for a given bean.

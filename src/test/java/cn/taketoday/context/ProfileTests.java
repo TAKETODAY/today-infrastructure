@@ -22,7 +22,7 @@ package cn.taketoday.context;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.condition.WindowsCondition;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import org.assertj.core.api.Assertions;

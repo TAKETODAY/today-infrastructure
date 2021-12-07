@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;

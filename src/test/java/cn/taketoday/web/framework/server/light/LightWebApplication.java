@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ActionMapping;

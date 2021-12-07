@@ -21,7 +21,7 @@ package cn.taketoday.context.loader;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Constant;
 
 /**

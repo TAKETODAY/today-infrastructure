@@ -29,7 +29,7 @@ import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContextHolder;

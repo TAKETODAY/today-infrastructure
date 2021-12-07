@@ -42,7 +42,7 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
 

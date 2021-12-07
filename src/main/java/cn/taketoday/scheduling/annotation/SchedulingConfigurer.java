@@ -20,11 +20,12 @@
 
 package cn.taketoday.scheduling.annotation;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 
 /**
  * Optional interface to be implemented by {@link
- * cn.taketoday.lang.Configuration @Configuration} classes annotated
+ * Configuration @Configuration} classes annotated
  * with {@link EnableScheduling @EnableScheduling}. Typically used for setting a specific
  * {@link cn.taketoday.scheduling.TaskScheduler TaskScheduler} bean to be used when
  * executing scheduled tasks or for registering scheduled tasks in a <em>programmatic</em>

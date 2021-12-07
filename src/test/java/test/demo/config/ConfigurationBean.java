@@ -21,8 +21,7 @@ package test.demo.config;
 
 import jakarta.annotation.PostConstruct;
 
-import cn.taketoday.lang.Configuration;
-import cn.taketoday.lang.Prototype;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

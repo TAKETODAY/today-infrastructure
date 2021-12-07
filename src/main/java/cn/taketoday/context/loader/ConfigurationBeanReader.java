@@ -62,7 +62,7 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -73,7 +73,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/10/16 23:17
- * @see cn.taketoday.lang.Configuration
+ * @see Configuration
  * @see cn.taketoday.context.annotation.Import
  * @see cn.taketoday.context.annotation.MissingBean
  * @see cn.taketoday.context.annotation.MissingComponent

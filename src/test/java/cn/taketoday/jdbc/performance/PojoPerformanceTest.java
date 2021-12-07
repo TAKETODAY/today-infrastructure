@@ -57,7 +57,7 @@ import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
-import cn.taketoday.lang.Configuration;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.orm.hibernate5.EnableHibernate;
 

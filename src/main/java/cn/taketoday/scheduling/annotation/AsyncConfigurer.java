@@ -23,10 +23,11 @@ package cn.taketoday.scheduling.annotation;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Interface to be implemented by @{@link cn.taketoday.lang.Configuration
+ * Interface to be implemented by @{@link Configuration
  * Configuration} classes annotated with @{@link EnableAsync} that wish to customize the
  * {@link Executor} instance used when processing async method invocations or the
  * {@link AsyncUncaughtExceptionHandler} instance used to process exception thrown from
