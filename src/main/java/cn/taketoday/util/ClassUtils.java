@@ -129,19 +129,19 @@ public abstract class ClassUtils {
     Set<Class<?>> primitiveTypes = new HashSet<>(32);
     primitiveTypes.addAll(primitiveWrapperTypeMap.values());
     Collections.addAll(primitiveTypes, boolean[].class, byte[].class, char[].class,
-                       double[].class, float[].class, int[].class, long[].class, short[].class);
+            double[].class, float[].class, int[].class, long[].class, short[].class);
     for (Class<?> primitiveType : primitiveTypes) {
       primitiveTypeNameMap.put(primitiveType.getName(), primitiveType);
     }
 
     registerCommonClasses(Boolean[].class, Byte[].class, Character[].class, Double[].class,
-                          Float[].class, Integer[].class, Long[].class, Short[].class);
+            Float[].class, Integer[].class, Long[].class, Short[].class);
     registerCommonClasses(Number.class, Number[].class, String.class, String[].class,
-                          Class.class, Class[].class, Object.class, Object[].class);
+            Class.class, Class[].class, Object.class, Object[].class);
     registerCommonClasses(Throwable.class, Exception.class, RuntimeException.class,
-                          Error.class, StackTraceElement.class, StackTraceElement[].class);
+            Error.class, StackTraceElement.class, StackTraceElement[].class);
     registerCommonClasses(Enum.class, Iterable.class, Iterator.class, Enumeration.class,
-                          Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
+            Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
 
     Class<?>[] javaLanguageInterfaceArray = {
             Serializable.class, Externalizable.class, Closeable.class,
@@ -228,6 +228,28 @@ public abstract class ClassUtils {
       }
     }
     return cl;
+  }
+
+  /**
+   * Override the thread context ClassLoader with the environment's bean ClassLoader
+   * if necessary, i.e. if the bean ClassLoader is not equivalent to the thread
+   * context ClassLoader already.
+   *
+   * @param classLoaderToUse the actual ClassLoader to use for the thread context
+   * @return the original thread context ClassLoader, or {@code null} if not overridden
+   * @since 4.0
+   */
+  @Nullable
+  public static ClassLoader overrideThreadContextClassLoader(@Nullable ClassLoader classLoaderToUse) {
+    Thread currentThread = Thread.currentThread();
+    ClassLoader threadContextClassLoader = currentThread.getContextClassLoader();
+    if (classLoaderToUse != null && !classLoaderToUse.equals(threadContextClassLoader)) {
+      currentThread.setContextClassLoader(classLoaderToUse);
+      return threadContextClassLoader;
+    }
+    else {
+      return null;
+    }
   }
 
   /**
