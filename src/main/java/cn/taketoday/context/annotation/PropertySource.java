@@ -32,7 +32,7 @@ import cn.taketoday.lang.Configuration;
 
 /**
  * Annotation providing a convenient and declarative mechanism for adding a
- * {@link cn.taketoday.core.env.PropertySource PropertySource} to Spring's
+ * {@link cn.taketoday.core.env.PropertySource PropertySource} to
  * {@link cn.taketoday.core.env.Environment Environment}. To be used in
  * conjunction with @{@link Configuration} classes.
  *
@@ -127,7 +127,7 @@ import cn.taketoday.lang.Configuration;
  * with the application context.
  *
  * <pre class="code">
- * AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ * StandardApplicationContext ctx = new StandardApplicationContext();
  * ctx.register(ConfigA.class);
  * ctx.register(ConfigB.class);
  * ctx.refresh();
