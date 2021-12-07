@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.taketoday</groupId>
@@ -205,6 +205,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>jakarta.enterprise.concurrent</groupId>
+      <artifactId>jakarta.enterprise.concurrent-api</artifactId>
+      <version>2.0.0</version>
+      <scope>provided</scope>
+    </dependency>
     <!--
         ======================================================
              codec
@@ -579,12 +585,26 @@
       <version>2.14.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.14.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+
 
     <!--
         ======================================================
              test
         ======================================================
     -->
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>3.1.6</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -984,12 +1004,12 @@
                     <imagesdir>images</imagesdir>
                     <doctype>book</doctype>
                     <status>${status}</status>
-                    <data-uri/>
+                    <data-uri />
                     <icons>font</icons>
                     <toc>left</toc>
                     <icons>font</icons>
                     <sectanchors>true</sectanchors>
-                    <idprefix/>
+                    <idprefix />
                     <idseparator>-</idseparator>
                     <docinfo1>true</docinfo1>
                   </attributes>
@@ -1014,13 +1034,13 @@
                     <pdf-style>today</pdf-style>
                     <doctype>book</doctype>
                     <status>${status}</status>
-                    <data-uri/>
+                    <data-uri />
                     <icons>font</icons>
-                    <pagenums/>
-                    <toc/>
+                    <pagenums />
+                    <toc />
                     <icons>font</icons>
                     <sectanchors>true</sectanchors>
-                    <idprefix/>
+                    <idprefix />
                     <idseparator>-</idseparator>
                     <docinfo1>true</docinfo1>
                     <embedAssets>true</embedAssets>
