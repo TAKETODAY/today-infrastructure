@@ -184,7 +184,7 @@ class Frame {
   // -----------------------------------------------------------------------------------------------
 
   /** The basic block to which these input and output stack map frames correspond. */
-  Label owner;
+  public Label owner;
 
   /** The input stack map frame locals. This is an array of abstract types. */
   private int[] inputLocals;

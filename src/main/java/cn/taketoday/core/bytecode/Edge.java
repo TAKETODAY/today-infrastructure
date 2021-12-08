@@ -58,15 +58,15 @@ final class Edge {
    *       to an exception handler).
    * </ul>
    */
-  final int info;
+  public final int info;
 
   /** The successor block of this control flow graph edge. */
-  final Label successor;
+  public final Label successor;
 
   /**
    * The next edge in the list of outgoing edges of a basic block. See {@link Label#outgoingEdges}.
    */
-  Edge nextEdge;
+  public Edge nextEdge;
 
   /**
    * Constructs a new Edge.

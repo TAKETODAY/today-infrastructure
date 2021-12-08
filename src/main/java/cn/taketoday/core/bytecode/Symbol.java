@@ -108,20 +108,20 @@ abstract class Symbol {
    * The index of this symbol in the constant pool, in the BootstrapMethods attribute, or in the
    * (ASM specific) type table of a class (depending on the {@link #tag} value).
    */
-  final int index;
+  public final int index;
 
   /**
    * A tag indicating the type of this symbol. Must be one of the static tag values defined in this
    * class.
    */
-  final int tag;
+  public final int tag;
 
   /**
    * The internal name of the owner class of this symbol. Only used for {@link
    * #CONSTANT_FIELDREF_TAG}, {@link #CONSTANT_METHODREF_TAG}, {@link
    * #CONSTANT_INTERFACE_METHODREF_TAG}, and {@link #CONSTANT_METHOD_HANDLE_TAG} symbols.
    */
-  final String owner;
+  public final String owner;
 
   /**
    * The name of the class field or method corresponding to this symbol. Only used for {@link
@@ -130,7 +130,7 @@ abstract class Symbol {
    * #CONSTANT_METHOD_HANDLE_TAG}, {@link #CONSTANT_DYNAMIC_TAG} and {@link
    * #CONSTANT_INVOKE_DYNAMIC_TAG} symbols.
    */
-  final String name;
+  public final String name;
 
   /**
    * The string value of this symbol. This is:
@@ -148,7 +148,7 @@ abstract class Symbol {
    *   <li>{@literal null} for the other types of symbol.
    * </ul>
    */
-  final String value;
+  public final String value;
 
   /**
    * The numeric value of this symbol. This is:
@@ -169,7 +169,7 @@ abstract class Symbol {
    *   <li>0 for the other types of symbol.
    * </ul>
    */
-  final long data;
+  public final long data;
 
   /**
    * Additional information about this symbol, generally computed lazily. <i>Warning: the value of
@@ -188,7 +188,7 @@ abstract class Symbol {
    *   <li>0 for the other types of symbol, or if this field has not been computed yet.
    * </ul>
    */
-  int info;
+  public int info;
 
   /**
    * Constructs a new Symbol. This constructor can't be used directly because the Symbol class is

@@ -36,7 +36,7 @@ final class SymbolTable {
    * ClassWriter#getCommonSuperClass} and to serialize custom attributes with {@link
    * Attribute#write}.
    */
-  final ClassWriter classWriter;
+  public final ClassWriter classWriter;
 
   /**
    * The ClassReader from which this SymbolTable was constructed, or {@literal null} if it was
@@ -482,8 +482,7 @@ final class SymbolTable {
     else if (value instanceof String) {
       return addConstantString((String) value);
     }
-    else if (value instanceof Type) {
-      Type type = (Type) value;
+    else if (value instanceof Type type) {
       int typeSort = type.getSort();
       if (typeSort == Type.OBJECT) {
         return addConstantClass(type.getInternalName());
@@ -495,8 +494,7 @@ final class SymbolTable {
         return addConstantClass(type.getDescriptor());
       }
     }
-    else if (value instanceof Handle) {
-      Handle handle = (Handle) value;
+    else if (value instanceof Handle handle) {
       return addConstantMethodHandle(
               handle.getTag(),
               handle.getOwner(),
@@ -504,8 +502,7 @@ final class SymbolTable {
               handle.getDesc(),
               handle.isInterface());
     }
-    else if (value instanceof ConstantDynamic) {
-      ConstantDynamic constantDynamic = (ConstantDynamic) value;
+    else if (value instanceof ConstantDynamic constantDynamic) {
       return addConstantDynamic(
               constantDynamic.getName(),
               constantDynamic.getDescriptor(),

@@ -60,10 +60,7 @@ public final class Handle {
    * handle.
    * @param name the name of the field or method designated by this handle.
    * @param descriptor the descriptor of the field or method designated by this handle.
-   * @deprecated this constructor has been superseded by {@link #Handle(int, String, String, String,
-   * boolean)}.
    */
-  @Deprecated
   public Handle(final int tag, final String owner, final String name, final String descriptor) {
     this(tag, owner, name, descriptor, tag == Opcodes.H_INVOKEINTERFACE);
   }

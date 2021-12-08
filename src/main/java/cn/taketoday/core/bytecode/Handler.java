@@ -35,34 +35,34 @@ final class Handler {
    * The start_pc field of this JVMS exception_table entry. Corresponds to the beginning of the
    * exception handler's scope (inclusive).
    */
-  final Label startPc;
+  public final Label startPc;
 
   /**
    * The end_pc field of this JVMS exception_table entry. Corresponds to the end of the exception
    * handler's scope (exclusive).
    */
-  final Label endPc;
+  public final Label endPc;
 
   /**
    * The handler_pc field of this JVMS exception_table entry. Corresponding to the beginning of the
    * exception handler's code.
    */
-  final Label handlerPc;
+  public final Label handlerPc;
 
   /**
    * The catch_type field of this JVMS exception_table entry. This is the constant pool index of the
    * internal name of the type of exceptions handled by this handler, or 0 to catch any exceptions.
    */
-  final int catchType;
+  public final int catchType;
 
   /**
    * The internal name of the type of exceptions handled by this handler, or {@literal null} to
    * catch any exceptions.
    */
-  final String catchTypeDescriptor;
+  public final String catchTypeDescriptor;
 
   /** The next exception handler. */
-  Handler nextHandler;
+  public Handler nextHandler;
 
   /**
    * Constructs a new Handler.
@@ -74,8 +74,7 @@ final class Handler {
    * @param catchTypeDescriptor The internal name of the type of exceptions handled by this handler,
    * or {@literal null} to catch any exceptions.
    */
-  Handler(
-          final Label startPc,
+  Handler(final Label startPc,
           final Label endPc,
           final Label handlerPc,
           final int catchType,
