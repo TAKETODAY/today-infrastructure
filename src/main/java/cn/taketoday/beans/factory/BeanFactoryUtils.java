@@ -36,6 +36,8 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Qualifier;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Convenience methods operating on bean factories, in particular
@@ -568,6 +570,72 @@ public abstract class BeanFactoryUtils {
     }
   }
 
+  /**
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>This method allows a BeanFactory to be used as a replacement for the
+   * Singleton or Prototype design pattern. Callers may retain references to
+   * returned objects in the case of Singleton beans.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   *
+   * @param name the name of the bean to retrieve
+   * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
+   * @throws BeansException Exception occurred when getting a named bean
+   * @throws NullPointerException factory is {@code null}
+   * @see BeanFactory#getBean(String)
+   */
+  public Object requiredBean(BeanFactory factory, String name) throws BeansException {
+    Object bean = factory.getBean(name);
+    if (bean == null) {
+      throw new NoSuchBeanDefinitionException(name);
+    }
+    return bean;
+  }
+
+  /**
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>This method allows a BeanFactory to be used as a replacement for the
+   * Singleton or Prototype design pattern. Callers may retain references to
+   * returned objects in the case of Singleton beans.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   *
+   * @param name the name of the bean to retrieve
+   * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
+   * @throws NullPointerException factory is {@code null}
+   * @throws BeansException Exception occurred when getting a named bean
+   * @see BeanFactory#getBean(String, Class)
+   */
+  public <T> T requiredBean(BeanFactory factory, String name, Class<T> type) throws BeansException {
+    T bean = factory.getBean(name, type);
+    if (bean == null) {
+      throw new NoSuchBeanDefinitionException(name);
+    }
+    return bean;
+  }
+
+  /**
+   * Return the bean instance that uniquely matches the given object type, if any.
+   * <p>This method goes into {@link BeanFactory} by-type lookup territory
+   * but may also be translated into a conventional by-name lookup based on the name
+   * of the given type. For more extensive retrieval operations across sets of beans,
+   * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
+   *
+   * @param type type the bean must match; can be an interface or superclass
+   * @return an instance of the single bean matching the required type
+   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws BeansException if the bean could not be created
+   * @throws NullPointerException factory is {@code null}
+   * @see BeanFactory#getBean(Class)
+   */
+  public <T> T requiredBean(BeanFactory factory, Class<T> type) throws BeansException {
+    T bean = factory.getBean(type);
+    if (bean == null) {
+      throw new NoSuchBeanDefinitionException(type);
+    }
+    return bean;
+  }
+
   //
 
   public static <A extends Annotation> MergedAnnotation<A> getMergedAnnotation(
@@ -722,6 +790,80 @@ public abstract class BeanFactoryUtils {
       }
     }
     return false;
+  }
+
+  // bean-name
+
+  /**
+   * Generate a bean name for the given top-level bean definition,
+   * unique within the given bean factory.
+   *
+   * @param beanDefinition the bean definition to generate a bean name for
+   * @param registry the bean factory that the definition is going to be
+   * registered with (to check for existing bean names)
+   * @return the generated bean name
+   * @throws BeanDefinitionStoreException if no unique name can be generated
+   * for the given bean definition
+   * @see #generateBeanName(BeanDefinition, BeanDefinitionRegistry, boolean)
+   */
+  public static String generateBeanName(BeanDefinition beanDefinition, BeanDefinitionRegistry registry)
+          throws BeanDefinitionStoreException {
+    return generateBeanName(beanDefinition, registry, false);
+  }
+
+  /**
+   * Generate a bean name for the given bean definition, unique within the
+   * given bean factory.
+   *
+   * @param definition the bean definition to generate a bean name for
+   * @param registry the bean factory that the definition is going to be
+   * registered with (to check for existing bean names)
+   * @param isInnerBean whether the given bean definition will be registered
+   * as inner bean or as top-level bean (allowing for special name generation
+   * for inner beans versus top-level beans)
+   * @return the generated bean name
+   * @throws BeanDefinitionStoreException if no unique name can be generated
+   * for the given bean definition
+   */
+  public static String generateBeanName(
+          BeanDefinition definition, BeanDefinitionRegistry registry, boolean isInnerBean)
+          throws BeanDefinitionStoreException {
+
+    String generatedBeanName = definition.getBeanClassName();
+    if (!StringUtils.hasText(generatedBeanName)) {
+      throw new BeanDefinitionStoreException("Unnamed bean definition specifies neither " +
+              "'class' nor 'parent' nor 'factory-bean' - can't generate bean name");
+    }
+
+    if (isInnerBean) {
+      // Inner bean: generate identity hashcode suffix.
+      return generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
+    }
+
+    // Top-level bean: use plain class name with unique suffix if necessary.
+    return uniqueBeanName(generatedBeanName, registry);
+  }
+
+  /**
+   * Turn the given bean name into a unique bean name for the given bean factory,
+   * appending a unique counter as suffix if necessary.
+   *
+   * @param beanName the original bean name
+   * @param registry the bean factory that the definition is going to be
+   * registered with (to check for existing bean names)
+   * @return the unique bean name to use
+   */
+  public static String uniqueBeanName(String beanName, BeanDefinitionRegistry registry) {
+    String id = beanName;
+    int counter = -1;
+
+    // Increase counter until the id is unique.
+    String prefix = beanName + GENERATED_BEAN_NAME_SEPARATOR;
+    while (counter == -1 || registry.containsBeanDefinition(id)) {
+      counter++;
+      id = prefix + counter;
+    }
+    return id;
   }
 
 }

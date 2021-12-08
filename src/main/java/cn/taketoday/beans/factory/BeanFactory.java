@@ -140,10 +140,15 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   //---------------------------------------------------------------------
 
   /**
-   * Find the bean with the given type
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>This method allows a BeanFactory to be used as a replacement for the
+   * Singleton or Prototype design pattern. Callers may retain references to
+   * returned objects in the case of Singleton beans.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name Bean name
-   * @return Bet bean instance, returns null if it doesn't exist .
+   * @param name the name of the bean to retrieve
+   * @return Bet bean instance, returns null if it doesn't exist.
    * @throws BeansException Exception occurred when getting a named bean
    */
   @Nullable
@@ -157,7 +162,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param name the name of the bean to retrieve
    * @param args arguments to use when creating a bean instance using explicit arguments
    * (only applied when creating a new instance as opposed to retrieving an existing one)
-   * @return an instance of the bean
+   * @return an instance of the bean, returns null if it doesn't exist.
    * @throws BeanDefinitionStoreException if arguments have been given but
    * the affected bean isn't a prototype
    * @throws BeansException if the bean could not be created
@@ -167,11 +172,19 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   Object getBean(String name, Object... args) throws BeansException;
 
   /**
-   * Find the bean with the given name and cast to required type.
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>Behaves the same as {@link #getBean(String)}, but provides a measure of type
+   * safety by throwing a BeanNotOfRequiredTypeException if the bean is not of the
+   * required type. This means that ClassCastException can't be thrown on casting
+   * the result correctly, as can happen with {@link #getBean(String)}.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name Bean name
-   * @param requiredType Cast to required type
-   * @return get casted bean instance. returns null if it doesn't exist.
+   * @param name the name of the bean to retrieve
+   * @param requiredType type the bean must match; can be an interface or superclass
+   * @return an instance of the bean, returns null if it doesn't exist.
+   * @throws BeanNotOfRequiredTypeException if the bean is not of the required type
+   * @throws BeansException if the bean could not be created
    */
   @Nullable
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
@@ -353,12 +366,13 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
    *
    * @param requiredType type the bean must match; can be an interface or superclass
-   * @return an instance of the single bean matching the required type
-   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+   * @return an instance of the single bean matching the required type, returns null
+   * if it doesn't exist.
    * @throws NoUniqueBeanException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @since 3.0
    */
+  @Nullable
   <T> T getBean(Class<T> requiredType) throws BeansException;
 
   /**
@@ -373,13 +387,13 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param requiredType type the bean must match; can be an interface or superclass
    * @param args arguments to use when creating a bean instance using explicit arguments
    * (only applied when creating a new instance as opposed to retrieving an existing one)
-   * @return an instance of the bean
-   * @throws NoSuchBeanDefinitionException if there is no such bean definition
+   * @return an instance of the bean, returns null if it doesn't exist.
    * @throws BeanDefinitionStoreException if arguments have been given but
    * the affected bean isn't a prototype
    * @throws BeansException if the bean could not be created
    * @since 4.0
    */
+  @Nullable
   <T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
 
   /**
