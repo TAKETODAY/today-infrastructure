@@ -26,7 +26,6 @@ import java.util.Arrays;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Abstract base regular expression pointcut bean. JavaBean properties are:
@@ -79,13 +78,14 @@ public abstract class AbstractRegexpMethodPointcut
    * Set the regular expressions defining methods to match.
    * Matching will be the union of all these; if any match, the pointcut matches.
    *
+   * @throws NullPointerException if patterns contains {@code null}
    * @see #setPattern
    */
   public void setPatterns(String... patterns) {
     Assert.notEmpty(patterns, "'patterns' must not be empty");
     this.patterns = new String[patterns.length];
     for (int i = 0; i < patterns.length; i++) {
-      this.patterns[i] = StringUtils.trimWhitespace(patterns[i]);
+      this.patterns[i] = patterns[i].strip();
     }
     initPatternRepresentation(this.patterns);
   }
@@ -111,13 +111,14 @@ public abstract class AbstractRegexpMethodPointcut
    * Set the regular expressions defining methods to match for exclusion.
    * Matching will be the union of all these; if any match, the pointcut matches.
    *
+   * @throws NullPointerException if excludedPatterns contains {@code null}
    * @see #setExcludedPattern
    */
   public void setExcludedPatterns(String... excludedPatterns) {
     Assert.notEmpty(excludedPatterns, "'excludedPatterns' must not be empty");
     this.excludedPatterns = new String[excludedPatterns.length];
     for (int i = 0; i < excludedPatterns.length; i++) {
-      this.excludedPatterns[i] = StringUtils.trimWhitespace(excludedPatterns[i]);
+      this.excludedPatterns[i] = excludedPatterns[i].strip();
     }
     initExcludedPatternRepresentation(this.excludedPatterns);
   }

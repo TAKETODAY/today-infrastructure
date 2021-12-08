@@ -1040,23 +1040,11 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
-  public static String trimWhitespace(String str) {
-    if (isEmpty(str)) {
+  public static String trimWhitespace(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
       return str;
     }
-
-    int beginIndex = 0;
-    int endIndex = str.length() - 1;
-
-    while (beginIndex <= endIndex && Character.isWhitespace(str.charAt(beginIndex))) {
-      beginIndex++;
-    }
-
-    while (endIndex > beginIndex && Character.isWhitespace(str.charAt(endIndex))) {
-      endIndex--;
-    }
-
-    return str.substring(beginIndex, endIndex + 1);
+    return str.strip();
   }
 
   /**
@@ -1068,8 +1056,8 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
-  public static String trimAllWhitespace(String str) {
-    if (isEmpty(str)) {
+  public static String trimAllWhitespace(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
       return str;
     }
 
@@ -1092,17 +1080,11 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
-  public static String trimLeadingWhitespace(String str) {
-    if (isEmpty(str)) {
+  public static String trimLeadingWhitespace(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
       return str;
     }
-
-    int beginIdx = 0;
-    int length = str.length();
-    while (beginIdx < length && Character.isWhitespace(str.charAt(beginIdx))) {
-      beginIdx++;
-    }
-    return str.substring(beginIdx);
+    return str.stripLeading();
   }
 
   /**
@@ -1113,16 +1095,11 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
-  public static String trimTrailingWhitespace(String str) {
-    if (isEmpty(str)) {
+  public static String trimTrailingWhitespace(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
       return str;
     }
-
-    int endIdx = str.length() - 1;
-    while (endIdx >= 0 && Character.isWhitespace(str.charAt(endIdx))) {
-      endIdx--;
-    }
-    return str.substring(0, endIdx + 1);
+    return str.stripTrailing();
   }
 
   /**
@@ -1134,7 +1111,7 @@ else */
    * @since 3.0
    */
   public static String trimLeadingCharacter(String str, char leadingCharacter) {
-    if (isEmpty(str)) {
+    if (str == null || str.isEmpty()) {
       return str;
     }
 
@@ -1155,7 +1132,7 @@ else */
    * @since 3.0
    */
   public static String trimTrailingCharacter(String str, char trailingCharacter) {
-    if (isEmpty(str)) {
+    if (str == null || str.isEmpty()) {
       return str;
     }
 

@@ -72,7 +72,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
     Assert.notEmpty(beanNames, "'beanNames' must not be empty");
     this.beanNames = new ArrayList<>(beanNames.length);
     for (String mappedName : beanNames) {
-      this.beanNames.add(StringUtils.trimWhitespace(mappedName));
+      this.beanNames.add(mappedName.strip());
     }
   }
 
