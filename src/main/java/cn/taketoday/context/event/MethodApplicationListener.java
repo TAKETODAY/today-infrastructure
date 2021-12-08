@@ -23,19 +23,30 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EventObject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Supplier;
 
+import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -49,54 +60,153 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @author TODAY 2021/11/5 11:51
  * @since 4.0
  */
-public class MethodApplicationListener implements ApplicationListener<Object>, EventProvider {
+public class MethodApplicationListener implements GenericApplicationListener<Object>, Ordered {
   private static final Logger log = LoggerFactory.getLogger(MethodApplicationListener.class);
 
   private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
           "org.reactivestreams.Publisher", MethodEventDrivenPostProcessor.class.getClassLoader());
 
   private final Method targetMethod;
-  private final Class<?>[] eventTypes;
-  private final BeanFactory beanFactory;
-  private final MethodInvoker methodInvoker;
-  private final Supplier<Object> beanSupplier;
-  private final ArgumentsResolver argumentsResolver;
+  private MethodInvoker methodInvoker;
 
-  private final ApplicationContext context;
+  private ApplicationContext context;
+  private ExpressionEvaluator evaluator;
+  private ArgumentsResolver argumentsResolver;
 
   @Nullable
   private final String condition;
-  private final ExpressionEvaluator evaluator;
+  private final String beanName;
 
-  MethodApplicationListener(
-          Supplier<Object> beanSupplier,
-          Method targetMethod, Class<?>[] eventTypes,
-          BeanFactory beanFactory, ApplicationContext context, @Nullable String condition
-  ) {
-    this.beanSupplier = beanSupplier;
-    this.eventTypes = eventTypes;
-    this.beanFactory = beanFactory;
-    this.targetMethod = targetMethod;
-    this.methodInvoker = MethodInvoker.fromMethod(targetMethod);
+  private final int order;
+
+  @Nullable
+  private final String listenerId;
+
+  private final List<ResolvableType> declaredEventTypes;
+
+  /**
+   * Construct a new MethodApplicationListener.
+   *
+   * @param beanName the name of the bean to invoke the listener method on
+   * @param targetClass the target class that the method is declared on
+   * @param method the listener method to invoke
+   */
+  public MethodApplicationListener(String beanName, Class<?> targetClass, Method method) {
+    this.beanName = beanName;
+    this.targetMethod = !Proxy.isProxyClass(targetClass)
+                        ? AopUtils.getMostSpecificMethod(method, targetClass) : method;
+
+    MergedAnnotations annotations = MergedAnnotations.from(targetMethod);
+
+    MergedAnnotation<Order> order = annotations.get(Order.class);
+    this.order = order.getValue(Integer.class)
+            .orElse(Ordered.LOWEST_PRECEDENCE);
+
+    MergedAnnotation<EventListener> annotation = annotations.get(EventListener.class);
+    this.declaredEventTypes = getEventTypes(annotation, targetMethod);
+
+    this.condition = annotation.getValue("condition", String.class)
+            .filter(StringUtils::hasText)
+            .orElse(null);
+    this.listenerId = annotation.isPresent() ? annotation.getString("id") : null;
+  }
+
+  protected void init(ApplicationContext context) {
     this.context = context;
-
+    this.evaluator = context.getExpressionEvaluator();
     this.argumentsResolver = targetMethod.getParameterCount() == 0
                              ? null
-                             : beanFactory.getArgumentsResolver();
-    if (StringUtils.hasText(condition)) {
-      this.condition = condition;
+                             : context.getArgumentsResolver();
+
+  }
+
+  protected List<ResolvableType> getEventTypes(MergedAnnotation<EventListener> eventListener, Method declaredMethod) {
+    return getEventTypes(eventListener.getClassArray(MergedAnnotation.VALUE), declaredMethod);
+  }
+
+  protected List<ResolvableType> getEventTypes(Class<?>[] eventTypes, Method declaredMethod) {
+    if (ObjectUtils.isNotEmpty(eventTypes)) {
+      ArrayList<ResolvableType> types = new ArrayList<>(eventTypes.length);
+      for (Class<?> eventType : eventTypes) {
+        types.add(ResolvableType.fromClass(eventType));
+      }
+      return types;
+    }
+    Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+    if (parameterTypes.length == 0) {
+      throw new ConfigurationException("cannot determine event type on method: " + declaredMethod);
+    }
+    else if (parameterTypes.length == 1) {
+      return Collections.singletonList(ResolvableType.forParameter(declaredMethod, 0));
     }
     else {
-      this.condition = null;
+      // search EventObject
+      int idx = 0;
+      for (Class<?> parameterType : parameterTypes) {
+        // lookup EventObject
+        if (EventObject.class.isAssignableFrom(parameterType)) {
+          idx++;
+          break;
+        }
+      }
+      return Collections.singletonList(ResolvableType.forParameter(declaredMethod, idx));
     }
-    this.evaluator = context.getExpressionEvaluator();
+  }
+
+  @Override
+  public int getOrder() {
+    return order;
+  }
+
+  /**
+   * Return the target bean instance to use.
+   */
+  protected Object getTargetBean() {
+    Assert.state(context != null, "No ApplicationContext set");
+    return context.getBean(beanName);
+  }
+
+  /**
+   * Return the target listener method.
+   */
+  protected Method getTargetMethod() {
+    return this.targetMethod;
+  }
+
+  /**
+   * Return the condition to use.
+   * <p>Matches the {@code condition} attribute of the {@link EventListener}
+   * annotation or any matching attribute on a composed annotation that
+   * is meta-annotated with {@code @EventListener}.
+   */
+  @Nullable
+  protected String getCondition() {
+    return this.condition;
+  }
+
+  @Override
+  public boolean supportsEventType(ResolvableType eventType) {
+    for (ResolvableType declaredEventType : this.declaredEventTypes) {
+      if (declaredEventType.isAssignableFrom(eventType)) {
+        return true;
+      }
+    }
+    return eventType.hasUnresolvableGenerics();
+  }
+
+  @Override
+  public boolean supportsSourceType(@Nullable Class<?> sourceType) {
+    return true;
   }
 
   @Override
   public void onApplicationEvent(Object event) { // any event type
     Object[] parameter = resolveArguments(argumentsResolver, event);
     if (shouldInvoke(event, parameter)) {
-      Object result = methodInvoker.invoke(beanSupplier.get(), parameter);
+      if (methodInvoker == null) {
+        methodInvoker = MethodInvoker.fromMethod(targetMethod);
+      }
+      Object result = methodInvoker.invoke(getTargetBean(), parameter);
       if (result != null) {
         handleResult(result);
       }
@@ -132,14 +242,15 @@ public class MethodApplicationListener implements ApplicationListener<Object>, E
   @Nullable
   private Object[] resolveArguments(ArgumentsResolver resolver, Object event) {
     if (resolver != null) {
-      return resolver.resolve(targetMethod, beanFactory, new Object[] { event });
+      return resolver.resolve(targetMethod, context, new Object[] { event });
     }
     return null;
   }
 
   @Override
-  public Class<?>[] getSupportedEvent() {
-    return eventTypes;
+  @Nullable
+  public String getListenerId() {
+    return listenerId;
   }
 
   protected void handleResult(Object result) {

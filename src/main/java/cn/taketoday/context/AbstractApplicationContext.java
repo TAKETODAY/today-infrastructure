@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,6 @@ import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
@@ -48,6 +48,8 @@ import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
 import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
+import cn.taketoday.context.event.ApplicationEvent;
+import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
@@ -56,9 +58,9 @@ import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.ContextStoppedEvent;
 import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
+import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.conversion.ConversionService;
@@ -106,6 +108,15 @@ public abstract class AbstractApplicationContext
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
   /**
+   * Name of the ApplicationEventMulticaster bean in the factory.
+   * If none is supplied, a default SimpleApplicationEventMulticaster is used.
+   *
+   * @see ApplicationEventMulticaster
+   * @see SimpleApplicationEventMulticaster
+   */
+  public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
+
+  /**
    * Name of the LifecycleProcessor bean in the factory.
    * If none is supplied, a DefaultLifecycleProcessor is used.
    *
@@ -149,7 +160,7 @@ public abstract class AbstractApplicationContext
   /** @since 4.0 */
   private ExpressionEvaluator expressionEvaluator;
 
-  /** Flag that indicates whether this context has been closed already.  @since 4.0 */
+  /** Flag that indicates whether this context has been closed already. @since 4.0 */
   private final AtomicBoolean closed = new AtomicBoolean();
 
   /** Reference to the JVM shutdown hook, if registered. */
@@ -160,6 +171,24 @@ public abstract class AbstractApplicationContext
   @Nullable
   private LifecycleProcessor lifecycleProcessor;
 
+  /** Helper class used in event publishing. @since 4.0 */
+  @Nullable
+  private ApplicationEventMulticaster applicationEventMulticaster;
+
+  /** Statically specified listeners. @since 4.0 */
+  private final LinkedHashSet<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
+
+  /** Local listeners registered before refresh. @since 4.0 */
+  @Nullable
+  private Set<ApplicationListener<?>> earlyApplicationListeners;
+
+  /** ApplicationEvents published before the multicaster setup. @since 4.0 */
+  @Nullable
+  private Set<ApplicationEvent> earlyApplicationEvents;
+
+  /**
+   * Create a new AbstractApplicationContext with no parent.
+   */
   public AbstractApplicationContext() { }
 
   /**
@@ -330,6 +359,21 @@ public abstract class AbstractApplicationContext
     if (StringUtils.hasText(appName)) {
       setApplicationName(appName);
     }
+
+    // Store pre-refresh ApplicationListeners...
+    if (this.earlyApplicationListeners == null) {
+      this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
+    }
+    else {
+      // Reset local application listeners to pre-refresh state.
+      this.applicationListeners.clear();
+      this.applicationListeners.addAll(this.earlyApplicationListeners);
+    }
+
+    // Allow for the collection of early ApplicationEvents,
+    // to be published once the multicaster is available...
+    this.earlyApplicationEvents = new LinkedHashSet<>();
+
     ApplicationContextHolder.register(this); // @since 4.0
   }
 
@@ -434,7 +478,7 @@ public abstract class AbstractApplicationContext
    * @return the internal LifecycleProcessor (never {@code null})
    * @throws IllegalStateException if the context has not been initialized yet
    */
-  LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
+  public LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
     if (this.lifecycleProcessor == null) {
       throw new IllegalStateException(
               "LifecycleProcessor not initialized - " +
@@ -494,10 +538,6 @@ public abstract class AbstractApplicationContext
     ExpressionEvaluator.register(beanFactory, getEnvironment());
   }
 
-  public String createBeanName(Class<?> clazz) {
-    return BeanDefinitionBuilder.defaultBeanName(clazz);
-  }
-
   // post-processor
 
   /**
@@ -508,14 +548,7 @@ public abstract class AbstractApplicationContext
    *
    * @param beanFactory the bean factory used by the application context
    */
-  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    log.info("Loading BeanFactoryPostProcessor.");
-    Map<String, BeanFactoryPostProcessor> beansOfType = getBeansOfType(BeanFactoryPostProcessor.class, true, false);
-    if (!beansOfType.isEmpty()) {
-      getFactoryPostProcessors().addAll(beansOfType.values());
-      AnnotationAwareOrderComparator.sort(factoryPostProcessors);
-    }
-  }
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) { }
 
   /**
    * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
@@ -523,14 +556,13 @@ public abstract class AbstractApplicationContext
    * <p>Must be called before singleton instantiation.
    */
   protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
-    if (CollectionUtils.isNotEmpty(factoryPostProcessors)) {
-      for (BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
-        postProcessor.postProcessBeanFactory(beanFactory);
-      }
-    }
+    log.info("Invoking BeanFactoryPostProcessors");
+    PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
+
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
-    // (e.g. through an @Component method registered by ConfigurationBeanReader)
+    // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
     if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+//      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
   }
@@ -542,15 +574,7 @@ public abstract class AbstractApplicationContext
    */
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
     log.info("Loading BeanPostProcessor.");
-    Map<String, BeanPostProcessor> postProcessors = beanFactory.getBeansOfType(BeanPostProcessor.class, true, false);
-    if (beanFactory instanceof AbstractBeanFactory) {
-      ((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors.values());
-    }
-    else {
-      for (BeanPostProcessor postProcessor : postProcessors.values()) {
-        beanFactory.addBeanPostProcessor(postProcessor);
-      }
-    }
+    PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
   }
 
   //---------------------------------------------------------------------
@@ -559,53 +583,60 @@ public abstract class AbstractApplicationContext
 
   @Override
   public void refresh() throws IllegalStateException {
-    assertRefreshable();
-    // Prepare refresh
-    prepareRefresh();
+    synchronized(this) {
+      assertRefreshable();
+      // Prepare this context for refreshing.
+      prepareRefresh();
 
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
+      // Tell the subclass to refresh the internal bean factory.
+      ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    // register framework beans
-    registerFrameworkComponents(beanFactory);
+      // register framework beans
+      registerFrameworkComponents(beanFactory);
 
-    // Prepare BeanFactory
-    prepareBeanFactory(beanFactory);
+      // Prepare BeanFactory
+      prepareBeanFactory(beanFactory);
 
-    try {
-      // Allows post-processing of the bean factory in context subclasses.
-      postProcessBeanFactory(beanFactory);
+      try {
+        // Allows post-processing of the bean factory in context subclasses.
+        postProcessBeanFactory(beanFactory);
 
-      // Invoke factory processors registered as beans in the context.
-      invokeBeanFactoryPostProcessors(beanFactory);
+        // Invoke factory processors registered as beans in the context.
+        invokeBeanFactoryPostProcessors(beanFactory);
 
-      // Register bean processors that intercept bean creation.
-      registerBeanPostProcessors(beanFactory);
+        // Register bean processors that intercept bean creation.
+        registerBeanPostProcessors(beanFactory);
 
-      // Initialization singletons that has already in context
-      // Initialize other special beans in specific context subclasses.
-      // for example a Web Server
-      onRefresh();
+        // Initialize event multicaster for this context.
+        initApplicationEventMulticaster();
 
-      // Check for listener beans and register them.
-      registerApplicationListeners();
+        // Initialization singletons that has already in context
+        // Initialize other special beans in specific context subclasses.
+        // for example a Web Server
+        onRefresh();
 
-      // Instantiate all remaining (non-lazy-init) singletons.
-      finishBeanFactoryInitialization(beanFactory);
+        // Check for listener beans and register them.
+        registerApplicationListeners();
 
-      // Finish refresh
-      finishRefresh();
-    }
-    catch (Exception ex) {
-      if (log.isWarnEnabled()) {
-        log.warn("Exception encountered during context initialization - cancelling refresh attempt: " + ex);
+        // Instantiate all remaining (non-lazy-init) singletons.
+        finishBeanFactoryInitialization(beanFactory);
+
+        // Finish refresh
+        finishRefresh();
       }
+      catch (Exception ex) {
+        if (log.isWarnEnabled()) {
+          log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
+                  ex.toString());
+        }
 
-      applyState(State.FAILED);
-      cancelRefresh(ex);
-      throw new ApplicationContextException("context refresh failed", ex);
-    }
-    finally {
-      resetCommonCaches();
+        cancelRefresh(ex);
+        applyState(State.FAILED);
+        throw new ApplicationContextException("context refresh failed", ex);
+      }
+      finally {
+        resetCommonCaches();
+      }
     }
   }
 
@@ -640,10 +671,22 @@ public abstract class AbstractApplicationContext
 
   @Override
   public void close() {
-    applyState(State.CLOSING);
-    doClose();
-    applyState(State.CLOSED);
-    ApplicationContextHolder.remove(this);
+    synchronized(this) {
+      applyState(State.CLOSING);
+      doClose();
+      // If we registered a JVM shutdown hook, we don't need it anymore now:
+      // We've already explicitly closed the context.
+      if (this.shutdownHook != null) {
+        try {
+          Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
+        }
+        catch (IllegalStateException ex) {
+          // ignore - VM is already shutting down
+        }
+      }
+      applyState(State.CLOSED);
+      ApplicationContextHolder.remove(this);
+    }
   }
 
   /**
@@ -686,6 +729,13 @@ public abstract class AbstractApplicationContext
 
       // Let subclasses do some final clean-up if they wish...
       onClose();
+
+      // Reset local application listeners to pre-refresh state.
+      if (this.earlyApplicationListeners != null) {
+        this.applicationListeners.clear();
+        this.applicationListeners.addAll(this.earlyApplicationListeners);
+      }
+
     }
   }
 
@@ -1072,6 +1122,52 @@ public abstract class AbstractApplicationContext
   // Implementation of ApplicationEventPublisher interface
   //---------------------------------------------------------------------
 
+  /**
+   * Return the internal ApplicationEventMulticaster used by the context.
+   *
+   * @return the internal ApplicationEventMulticaster (never {@code null})
+   * @throws IllegalStateException if the context has not been initialized yet
+   */
+  public ApplicationEventMulticaster getApplicationEventMulticaster() throws IllegalStateException {
+    if (this.applicationEventMulticaster == null) {
+      throw new IllegalStateException("ApplicationEventMulticaster not initialized - " +
+              "call 'refresh' before multicasting events via the context: " + this);
+    }
+    return this.applicationEventMulticaster;
+  }
+
+  /**
+   * Initialize the ApplicationEventMulticaster.
+   * Uses SimpleApplicationEventMulticaster if none defined in the context.
+   *
+   * @see cn.taketoday.context.event.SimpleApplicationEventMulticaster
+   */
+  protected void initApplicationEventMulticaster() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
+      this.applicationEventMulticaster =
+              beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
+      if (log.isTraceEnabled()) {
+        log.trace("Using ApplicationEventMulticaster [{}]", applicationEventMulticaster);
+      }
+    }
+    else {
+      this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
+      beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
+      if (log.isTraceEnabled()) {
+        log.trace("No '{}' bean, using [{}]",
+                APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster.getClass().getSimpleName());
+      }
+    }
+  }
+
+  /**
+   * Return the list of statically specified ApplicationListeners.
+   */
+  public Collection<ApplicationListener<?>> getApplicationListeners() {
+    return this.applicationListeners;
+  }
+
   @Override
   public void publishEvent(Object event) {
     getEventPublisher().publishEvent(event);
@@ -1086,10 +1182,34 @@ public abstract class AbstractApplicationContext
 
   protected void registerApplicationListeners() {
     log.info("Loading Application Listeners.");
+
+    // Register statically specified listeners first.
+    for (ApplicationListener<?> listener : getApplicationListeners()) {
+      getApplicationEventMulticaster().addApplicationListener(listener);
+    }
+
+    // Do not initialize FactoryBeans here: We need to leave all regular beans
+    // uninitialized to let post-processors apply to them!
+    Set<String> listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
+    for (String listenerBeanName : listenerBeanNames) {
+      getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
+    }
+
+    // Publish early application events now that we finally have a multicaster...
+    Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
+    this.earlyApplicationEvents = null;
+    if (!CollectionUtils.isEmpty(earlyEventsToProcess)) {
+      for (ApplicationEvent earlyEvent : earlyEventsToProcess) {
+        getApplicationEventMulticaster().multicastEvent(earlyEvent);
+      }
+    }
+
+    //
+
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Set<String> beanNamesOfType = beanFactory.getBeanNamesForType(
-            ApplicationListener.class, true, true);
+            ApplicationListener.class, true, false);
 
     for (String beanName : beanNamesOfType) {
       addApplicationListener(beanName);
@@ -1123,9 +1243,24 @@ public abstract class AbstractApplicationContext
 
   }
 
+  /**
+   * Add a new ApplicationListener that will be notified on context events
+   * such as context refresh and context shutdown.
+   * <p>Note that any ApplicationListener registered here will be applied
+   * on refresh if the context is not active yet, or on the fly with the
+   * current event multicaster in case of a context that is already active.
+   *
+   * @param listener the ApplicationListener to register
+   * @see cn.taketoday.context.event.ContextRefreshedEvent
+   * @see cn.taketoday.context.event.ContextClosedEvent
+   */
   @Override
   public void addApplicationListener(ApplicationListener<?> listener) {
-    getEventPublisher().addApplicationListener(listener);
+    Assert.notNull(listener, "ApplicationListener must not be null");
+    if (this.applicationEventMulticaster != null) {
+      this.applicationEventMulticaster.addApplicationListener(listener);
+    }
+    this.applicationListeners.add(listener);
   }
 
   @Override
@@ -1136,7 +1271,6 @@ public abstract class AbstractApplicationContext
   @Override
   public void removeApplicationListener(String listenerBeanName) {
     getEventPublisher().removeApplicationListener(listenerBeanName);
-
   }
 
   @Override
@@ -1147,11 +1281,6 @@ public abstract class AbstractApplicationContext
   @Override
   public void removeAllListeners() {
     getEventPublisher().removeAllListeners();
-  }
-
-  @Override
-  public Collection<ApplicationListener<?>> getApplicationListeners() {
-    return getEventPublisher().getApplicationListeners();
   }
 
   /** @since 4.0 */

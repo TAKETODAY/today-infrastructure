@@ -24,6 +24,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.function.Predicate;
 
 import cn.taketoday.core.Order;
 import cn.taketoday.core.annotation.AliasFor;
@@ -84,7 +85,7 @@ public @interface EventListener {
    * event types
    */
   @AliasFor("event")
-  Class<?>[] value() default { };
+  Class<?>[] value() default {};
 
   /**
    * The event classes that this listener handles.
@@ -96,7 +97,7 @@ public @interface EventListener {
    * @since 4.0
    */
   @AliasFor("value")
-  Class<?>[] event() default { };
+  Class<?>[] event() default {};
 
   /**
    * Expression Language (EL) expression used for making the event
@@ -122,5 +123,15 @@ public @interface EventListener {
    * @since 4.0
    */
   String condition() default "";
+
+  /**
+   * An optional identifier for the listener, defaulting to the fully-qualified
+   * signature of the declaring method (e.g. "mypackage.MyClass.myMethod()").
+   *
+   * @see SmartApplicationListener#getListenerId()
+   * @see ApplicationEventMulticaster#removeApplicationListeners(Predicate)
+   * @since 4.0
+   */
+  String id() default "";
 
 }

@@ -22,6 +22,7 @@ package cn.taketoday.context;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ProtocolResolver;
@@ -31,6 +32,12 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2018-11-14 21:16
  */
 public interface ConfigurableApplicationContext extends ApplicationContext {
+
+  /**
+   * Any number of these characters are considered delimiters between
+   * multiple context config paths in a single String value.
+   */
+  String CONFIG_LOCATION_DELIMITERS = ",; \t\n";
 
   /**
    * Name of the ConversionService bean in the factory.
@@ -175,5 +182,19 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @see #close()
    */
   void registerShutdownHook();
+
+  /**
+   * Add a new ApplicationListener that will be notified on context events
+   * such as context refresh and context shutdown.
+   * <p>Note that any ApplicationListener registered here will be applied
+   * on refresh if the context is not active yet, or on the fly with the
+   * current event multicaster in case of a context that is already active.
+   *
+   * @param listener the ApplicationListener to register
+   * @see cn.taketoday.context.event.ContextRefreshedEvent
+   * @see cn.taketoday.context.event.ContextClosedEvent
+   * @since 4.0
+   */
+  void addApplicationListener(ApplicationListener<?> listener);
 
 }

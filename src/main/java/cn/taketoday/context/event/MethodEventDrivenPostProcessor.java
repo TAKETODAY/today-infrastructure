@@ -21,29 +21,56 @@
 package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
-import java.util.EventObject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.BeanSupplier;
+import cn.taketoday.aop.proxy.ProxyUtils;
+import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.MethodIntrospector;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Process @EventListener annotated on a method
  *
+ * <p>
+ * Registers {@link EventListener} methods as individual {@link ApplicationListener} instances.
+ * Implements {@link BeanFactoryPostProcessor} primarily for early retrieval,
+ * avoiding AOP checks for this processor bean and its {@link EventListenerFactory} delegates.
+ *
+ * </p>
+ *
  * @author TODAY 2021/3/17 12:35
+ * @see EventListenerFactory
+ * @see DefaultEventListenerFactory
  */
-@Configuration
-public class MethodEventDrivenPostProcessor implements InitializationBeanPostProcessor {
+public class MethodEventDrivenPostProcessor
+        implements BeanFactoryPostProcessor, SmartInitializingSingleton {
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final ConfigurableApplicationContext context;
+  @Nullable
+  private List<EventListenerFactory> eventListenerFactories;
+
+  private ConfigurableBeanFactory beanFactory;
+
+  private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
   public MethodEventDrivenPostProcessor(ConfigurableApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");
@@ -51,62 +78,88 @@ public class MethodEventDrivenPostProcessor implements InitializationBeanPostPro
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) {
-    Class<?> beanClass = bean.getClass();
-    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+  public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
 
-    ReflectionUtils.doWithMethods(beanClass, method -> {
-      MergedAnnotations.from(method).stream(EventListener.class).forEach(eventListener -> {
-        Class<?>[] eventTypes = getEventTypes(eventListener, method);
-        String condition = eventListener.getString("condition");
-        // use ContextUtils#resolveParameter to resolve method arguments
-        addListener(beanName, beanFactory, method, condition, eventTypes); // FIXME bean has already exist?
-      });
-    });
-
-    return bean;
+    Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
+    List<EventListenerFactory> factories = new ArrayList<>(beans.values());
+    AnnotationAwareOrderComparator.sort(factories);
+    this.eventListenerFactories = factories;
   }
 
-  protected Class<?>[] getEventTypes(MergedAnnotation<EventListener> eventListener, Method declaredMethod) {
-    return getEventTypes(eventListener.getClassArray(MergedAnnotation.VALUE), declaredMethod);
-  }
-
-  protected Class<?>[] getEventTypes(Class<?>[] eventTypes, Method declaredMethod) {
-    if (ObjectUtils.isNotEmpty(eventTypes)) {
-      return eventTypes;
-    }
-    Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
-    if (parameterTypes.length == 0) {
-      throw new ConfigurationException("cannot determine event type on method: " + declaredMethod);
-    }
-    else if (parameterTypes.length == 1) {
-      return new Class[] { parameterTypes[0] };
-    }
-    else {
-      Class<?> eventType = null;
-      for (Class<?> parameterType : parameterTypes) {
-        // lookup EventObject
-        if (EventObject.class.isAssignableFrom(parameterType)) {
-          eventType = parameterType;
-          break;
+  @Override
+  public void afterSingletonsInstantiated() {
+    ConfigurableBeanFactory beanFactory = this.beanFactory;
+    Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
+    Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
+    for (String beanName : beanNames) {
+      Class<?> type = null;
+      try {
+        type = ProxyUtils.determineTargetClass(beanFactory, beanName);
+      }
+      catch (Throwable ex) {
+        // An unresolvable bean type, probably from a lazy bean - let's ignore it.
+        if (logger.isDebugEnabled()) {
+          logger.debug("Could not resolve target class for bean with name '{}'", beanName, ex);
         }
       }
-      if (eventType == null) {
-        // fallback to first argument
-        eventType = parameterTypes[0];
+      if (type != null) {
+        try {
+          process(beanName, type);
+        }
+        catch (Throwable ex) {
+          throw new BeanInitializationException("Failed to process @EventListener " +
+                  "annotation on bean with name '" + beanName + "'", ex);
+        }
       }
-      return new Class[] { eventType };
     }
   }
 
-  protected void addListener(
-          String beanName, ConfigurableBeanFactory beanFactory,
-          Method declaredMethod, String condition, Class<?>... eventTypes) {
+  private void process(final String beanName, final Class<?> targetType) {
+    if (!this.nonAnnotatedClasses.contains(targetType)
+            && AnnotationUtils.isCandidateClass(targetType, EventListener.class)) {
+      Set<Method> annotatedMethods = null;
+      try {
+        annotatedMethods = MethodIntrospector.filterMethods(
+                targetType, method -> AnnotatedElementUtils.hasAnnotation(method, EventListener.class));
+      }
+      catch (Throwable ex) {
+        // An unresolvable type in a method signature, probably from a lazy bean - let's ignore it.
+        if (logger.isDebugEnabled()) {
+          logger.debug("Could not resolve methods for bean with name '{}'", beanName, ex);
+        }
+      }
 
-    MethodApplicationListener listener = new MethodApplicationListener(
-            BeanSupplier.from(beanFactory, beanName),
-            declaredMethod, eventTypes, beanFactory, context, condition);
-    context.addApplicationListener(listener);
+      if (CollectionUtils.isEmpty(annotatedMethods)) {
+        this.nonAnnotatedClasses.add(targetType);
+        if (logger.isTraceEnabled()) {
+          logger.trace("No @EventListener annotations found on bean class: " + targetType.getName());
+        }
+      }
+      else {
+        // Non-empty set of methods
+        List<EventListenerFactory> factories = this.eventListenerFactories;
+        Assert.state(factories != null, "EventListenerFactory List not initialized");
+        for (Method method : annotatedMethods) {
+          for (EventListenerFactory factory : factories) {
+            if (factory.supportsMethod(method)) {
+              Method methodToUse = AopUtils.selectInvocableMethod(method, beanFactory.getType(beanName));
+              ApplicationListener<?> listener =
+                      factory.createApplicationListener(beanName, targetType, methodToUse);
+              if (listener instanceof MethodApplicationListener) {
+                ((MethodApplicationListener) listener).init(context);
+              }
+              context.addApplicationListener(listener);
+              break;
+            }
+          }
+        }
+        if (logger.isDebugEnabled()) {
+          logger.debug("{} @EventListener methods processed on bean '{}': {}",
+                  annotatedMethods.size(), beanName, annotatedMethods);
+        }
+      }
+    }
   }
 
 }

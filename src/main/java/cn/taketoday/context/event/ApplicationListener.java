@@ -22,16 +22,33 @@ package cn.taketoday.context.event;
 import java.util.EventListener;
 
 /**
- * @author TODAY <br>
- * 2018-09-09 21:23
+ * Interface to be implemented by application event listeners.
+ *
+ * <p>Based on the standard {@code java.util.EventListener} interface
+ * for the Observer design pattern.
+ *
+ * <p>An {@code ApplicationListener} can generically declare
+ * the event type that it is interested in. When registered with a Spring
+ * {@code ApplicationContext}, events will be filtered accordingly, with the
+ * listener getting invoked for matching event objects only.
+ *
+ * @param <E> the specific event to listen to
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author TODAY 2018-09-09 21:23
+ * @see cn.taketoday.context.event.ApplicationEvent
+ * @see cn.taketoday.context.event.ApplicationEventMulticaster
+ * @see cn.taketoday.context.event.SmartApplicationListener
+ * @see cn.taketoday.context.event.GenericApplicationListener
+ * @see cn.taketoday.context.event.EventListener
  */
 @FunctionalInterface
 public interface ApplicationListener<E> extends EventListener {
 
   /**
-   * On event
+   * Handle an application event.
    *
-   * @param event event instance
+   * @param event the event to respond to
    */
   void onApplicationEvent(E event);
 
