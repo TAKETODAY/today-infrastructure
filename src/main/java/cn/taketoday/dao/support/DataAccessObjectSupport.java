@@ -20,9 +20,6 @@
 
 package cn.taketoday.dao.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.InitializingBean;
 
@@ -36,10 +33,7 @@ import cn.taketoday.beans.factory.InitializingBean;
  * @see cn.taketoday.jdbc.core.support.JdbcDaoSupport
  * @since 1.2.2
  */
-public abstract class DaoSupport implements InitializingBean {
-
-  /** Logger available to subclasses. */
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+public abstract class DataAccessObjectSupport implements InitializingBean {
 
   @Override
   public final void afterPropertiesSet() throws IllegalArgumentException, BeanInitializationException {
@@ -72,7 +66,6 @@ public abstract class DaoSupport implements InitializingBean {
    * (will be rethrown as a BeanInitializationException)
    * @see cn.taketoday.beans.factory.BeanInitializationException
    */
-  protected void initDao() throws Exception {
-  }
+  protected void initDao() throws Exception { }
 
 }
