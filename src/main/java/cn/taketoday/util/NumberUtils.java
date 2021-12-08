@@ -26,7 +26,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Set;
 
-import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -49,47 +48,6 @@ public abstract class NumberUtils {
             Byte.class, Short.class, Integer.class, Long.class,
             BigInteger.class, Float.class, Double.class, BigDecimal.class
     );
-  }
-
-  /**
-   * parse text to target number
-   *
-   * @param text source text
-   * @param targetClass target number class
-   * @return Number object
-   * @throws ConversionException Can't convert text to targetClass
-   */
-  @Deprecated
-  public static Object parseDigit(String text, Class<?> targetClass) {
-
-    if (StringUtils.isEmpty(text)) {
-      return 0;
-    }
-    if (Byte.class == targetClass || byte.class == targetClass) {
-      return Byte.valueOf(text);
-    }
-    else if (Short.class == targetClass || short.class == targetClass) {
-      return Short.valueOf(text);
-    }
-    else if (Integer.class == targetClass || int.class == targetClass) {
-      return Integer.valueOf(text);
-    }
-    else if (Long.class == targetClass || long.class == targetClass) {
-      return Long.valueOf(text);
-    }
-    else if (BigInteger.class == targetClass) {
-      return new BigInteger(text);
-    }
-    else if (Float.class == targetClass || float.class == targetClass) {
-      return Float.valueOf(text);
-    }
-    else if (Double.class == targetClass || double.class == targetClass) {
-      return Double.valueOf(text);
-    }
-    else if (BigDecimal.class == targetClass || Number.class == targetClass) {
-      return BigDecimal.valueOf(Double.parseDouble(text));
-    }
-    throw new ConversionException("can't convert[" + text + "] to [" + targetClass.getName() + "]");
   }
 
   /**
