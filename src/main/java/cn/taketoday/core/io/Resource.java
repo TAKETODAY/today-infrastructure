@@ -100,7 +100,7 @@ public interface Resource extends InputStreamSource {
    * Indicate whether non-empty contents of this resource can be read via
    * {@link #getInputStream()}.
    * <p>Will be {@code true} for typical resource descriptors that exist
-   * since it strictly implies {@link #exists()} semantics as of 5.1.
+   * since it strictly implies {@link #exists()} semantics.
    * Note that actual content reading may still fail when attempted.
    * However, a value of {@code false} is a definitive indication
    * that the resource content cannot be read.

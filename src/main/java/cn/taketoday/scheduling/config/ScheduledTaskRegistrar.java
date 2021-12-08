@@ -433,9 +433,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    *
    * @return a handle to the scheduled task, allowing to cancel it
    * (or {@code null} if processing a previously registered task)
-   * @deprecated as of 5.0.2, in favor of {@link #scheduleFixedRateTask(FixedRateTask)}
    */
-  @Deprecated
   @Nullable
   public ScheduledTask scheduleFixedRateTask(IntervalTask task) {
     FixedRateTask taskToUse = (task instanceof FixedRateTask ? (FixedRateTask) task :
@@ -482,9 +480,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    *
    * @return a handle to the scheduled task, allowing to cancel it
    * (or {@code null} if processing a previously registered task)
-   * @deprecated as of 5.0.2, in favor of {@link #scheduleFixedDelayTask(FixedDelayTask)}
    */
-  @Deprecated
   @Nullable
   public ScheduledTask scheduleFixedDelayTask(IntervalTask task) {
     FixedDelayTask taskToUse = task instanceof FixedDelayTask

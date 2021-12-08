@@ -64,7 +64,7 @@ import jakarta.mail.internet.MimeUtility;
  * <h3>Multipart Data</h3>
  *
  * <p>By default, {@code "multipart/form-data"} is used as the content type when
- * {@linkplain #write writing} multipart data. As of 4.0 it is
+ * {@linkplain #write writing} multipart data. it is
  * also possible to write multipart data using other multipart subtypes such as
  * {@code "multipart/mixed"} and {@code "multipart/related"}, as long as the
  * multipart subtype is registered as a {@linkplain #getSupportedMediaTypes
@@ -92,7 +92,7 @@ import jakarta.mail.internet.MimeUtility;
  * form.add("field 1", "value 1");
  * form.add("field 2", "value 2");
  * form.add("field 2", "value 3");
- * form.add("field 3", 4);  // non-String form values supported as of 5.1.4
+ * form.add("field 3", 4);  // non-String form values supported
  *
  * restTemplate.postForLocation("https://example.com/myForm", form);</pre>
  *
@@ -254,9 +254,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * Set the default character set to use for reading and writing form data when
    * the request or response {@code Content-Type} header does not explicitly
    * specify it.
-   * <p>As of 4.3, this is also used as the default charset for the conversion
+   * <p>this is also used as the default charset for the conversion
    * of text bodies in a multipart request.
-   * <p>As of 5.0, this is also used for part headers including
+   * <p>this is also used for part headers including
    * {@code Content-Disposition} (and its filename parameter) unless (the mutually
    * exclusive) {@link #setMultipartCharset multipartCharset} is also set, in
    * which case part headers are encoded as ASCII and <i>filename</i> is encoded
@@ -288,7 +288,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * Set the character set to use when writing multipart data to encode file
    * names. Encoding is based on the {@code encoded-word} syntax defined in
    * RFC 2047 and relies on {@code MimeUtility} from {@code javax.mail}.
-   * <p>As of 5.0 by default part headers, including {@code Content-Disposition}
+   * <p>by default part headers, including {@code Content-Disposition}
    * (and its filename parameter) will be encoded based on the setting of
    * {@link #setCharset(Charset)} or {@code UTF-8} by default.
    *

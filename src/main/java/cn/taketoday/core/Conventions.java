@@ -94,7 +94,7 @@ public final class Conventions {
   /**
    * Determine the conventional variable name for the given parameter taking
    * the generic collection type, if any, into account.
-   * <p>As of 5.0 this method supports reactive types:<br>
+   * <p>this method supports reactive types:<br>
    * {@code Mono<com.myapp.Product>} becomes {@code "productMono"}<br>
    * {@code Flux<com.myapp.MyProduct>} becomes {@code "myProductFlux"}<br>
    * {@code Observable<com.myapp.MyProduct>} becomes {@code "myProductObservable"}<br>
@@ -163,7 +163,7 @@ public final class Conventions {
    * method, taking the generic collection type, if any, into account, falling
    * back on the given return value if the method declaration is not specific
    * enough, e.g. {@code Object} return type or untyped collection.
-   * <p>As of 5.0 this method supports reactive types:<br>
+   * <p>this method supports reactive types:<br>
    * {@code Mono<com.myapp.Product>} becomes {@code "productMono"}<br>
    * {@code Flux<com.myapp.MyProduct>} becomes {@code "myProductFlux"}<br>
    * {@code Observable<com.myapp.MyProduct>} becomes {@code "myProductObservable"}<br>

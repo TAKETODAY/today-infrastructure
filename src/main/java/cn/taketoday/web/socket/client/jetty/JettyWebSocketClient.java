@@ -52,7 +52,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  * Initiates WebSocket requests to a WebSocket server programmatically
  * through the Jetty WebSocket API.
  *
- * <p>As of 4.1 this class implements {@link Lifecycle} rather than
+ * <p>this class implements {@link Lifecycle} rather than
  * {@link cn.taketoday.context.SmartLifecycle}. Use
  * {@link cn.taketoday.web.socket.client.WebSocketConnectionManager
  * WebSocketConnectionManager} instead to auto-start a WebSocket connection.

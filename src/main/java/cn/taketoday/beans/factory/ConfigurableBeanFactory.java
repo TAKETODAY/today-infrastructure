@@ -183,7 +183,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * Set the class loader to use for loading bean classes.
    * Default is the thread context class loader.
    * <p>Note that this class loader will only apply to bean definitions
-   * that do not carry a resolved bean class yet. This is the case as of 4.0
+   * that do not carry a resolved bean class yet. This is the case
    * by default: Bean definitions only carry bean class names,
    * to be resolved once the factory processes the bean definition.
    *

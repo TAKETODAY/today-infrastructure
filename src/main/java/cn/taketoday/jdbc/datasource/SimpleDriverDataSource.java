@@ -20,14 +20,14 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Properties;
+
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple implementation of the standard JDBC {@link javax.sql.DataSource} interface,
@@ -117,7 +117,7 @@ public class SimpleDriverDataSource extends AbstractDriverBasedDataSource {
    * @see #setDriver
    */
   public void setDriverClass(Class<? extends Driver> driverClass) {
-    this.driver = BeanUtils.instantiateClass(driverClass);
+    this.driver = BeanUtils.newInstance(driverClass);
   }
 
   /**

@@ -48,7 +48,7 @@ import cn.taketoday.util.StringUtils;
  * Supports resolution as a {@code File} and also as a {@code URL}.
  * Implements the extended {@link WritableResource} interface.
  *
- * <p>Note: As of 4.0, this {@link Resource} implementation uses
+ * <p>Note: this {@link Resource} implementation uses
  * NIO.2 API for read/write interactions. it may be constructed with a
  * {@link java.nio.file.Path} handle in which case it will perform all file system
  * interactions via NIO.2, only resorting to {@link File} on {@link #getFile()}.

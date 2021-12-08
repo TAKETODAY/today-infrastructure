@@ -21,17 +21,17 @@
 package cn.taketoday.jdbc.datasource.init;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jdbc.core.JdbcTemplate;
-import cn.taketoday.jdbc.datasource.DataSourceUtils;
-import cn.taketoday.jdbc.datasource.embedded.AutoCommitDisabledH2EmbeddedDatabaseConfigurer;
-import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabase;
-import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
-import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import java.sql.Connection;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.core.JdbcTemplate;
+import cn.taketoday.jdbc.datasource.embedded.AutoCommitDisabledH2EmbeddedDatabaseConfigurer;
+import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabase;
+import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
+import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

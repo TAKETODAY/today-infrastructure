@@ -20,14 +20,14 @@
 
 package cn.taketoday.jdbc.datasource;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import cn.taketoday.core.Constants;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * An adapter for a target {@link javax.sql.DataSource}, applying the current

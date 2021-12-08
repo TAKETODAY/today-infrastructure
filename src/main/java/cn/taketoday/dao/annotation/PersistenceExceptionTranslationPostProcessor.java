@@ -26,11 +26,10 @@ import cn.taketoday.aop.proxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Repository;
-import cn.taketoday.stereotype.Repository;
 
 /**
  * Bean post-processor that automatically applies persistence exception translation to any
- * bean marked with  @{@link cn.taketoday.stereotype.Repository Repository}
+ * bean marked with  @{@link cn.taketoday.lang.Repository Repository}
  * annotation, adding a corresponding {@link PersistenceExceptionTranslationAdvisor} to
  * the exposed proxy (either an existing AOP proxy or a newly generated proxy that
  * implements all of the target's interfaces).
@@ -50,7 +49,7 @@ import cn.taketoday.stereotype.Repository;
  * with the {@code @Repository} annotation, along with defining this post-processor
  * as a bean in the application context.
  *
- * <p>As of 5.3, {@code PersistenceExceptionTranslator} beans will be sorted according
+ * <p>{@code PersistenceExceptionTranslator} beans will be sorted according
  * to  dependency ordering rules: see {@link cn.taketoday.core.Ordered}
  * and {@link cn.taketoday.core.Order}. Note that such beans will
  * get retrieved from any scope, not just singleton scope, as of this 5.3 revision.

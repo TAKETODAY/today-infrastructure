@@ -147,7 +147,7 @@ public interface ApplicationContext
    * serves as a convenient, specific facility on the ApplicationContext interface.
    * <p><b>NOTE: this method will consistently throw IllegalStateException
    * after the application context has been closed.</b> In current Framework
-   * versions, only refreshable application contexts behave that way; as of 4.2,
+   * versions, only refreshable application contexts behave that way;
    * all application context implementations will be required to comply.
    *
    * @return the AutowireCapableBeanFactory for this context

@@ -108,7 +108,7 @@ public class CorsConfiguration {
    * {@code Access-Control-Allow-Origin} response header is set either to the
    * matched domain value or to {@code "*"}. Keep in mind however that the
    * CORS spec does not allow {@code "*"} when {@link #setAllowCredentials
-   * allowCredentials} is set to {@code true} and as of 5.3 that combination
+   * allowCredentials} is set to {@code true} and that combination
    * is rejected in favor of using {@link #setAllowedOriginPatterns
    * allowedOriginPatterns} instead.
    * <p>By default this is not set which means that no origins are allowed.

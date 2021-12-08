@@ -26,8 +26,6 @@ import org.junit.jupiter.api.Timeout;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.datasource.DataSourceUtils;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
