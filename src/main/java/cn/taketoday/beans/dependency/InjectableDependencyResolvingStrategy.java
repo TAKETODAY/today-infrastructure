@@ -21,6 +21,7 @@
 package cn.taketoday.beans.dependency;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
@@ -102,6 +103,7 @@ public class InjectableDependencyResolvingStrategy
       }
       else {
         context.setDependency(InjectionPoint.DO_NOT_SET);
+        context.terminate();
       }
     }
   }
@@ -110,10 +112,10 @@ public class InjectableDependencyResolvingStrategy
     String beanName = qualifierRetriever.retrieve(injectionPoint);
     if (StringUtils.hasText(beanName)) {
       // use name and bean type to get bean
-      return beanFactory.getBean(beanName, injectionPoint.getDependencyType());
+      return BeanFactoryUtils.requiredBean(beanFactory, beanName, injectionPoint.getDependencyType());
     }
     else {
-      return beanFactory.getBean(injectionPoint.getDependencyType());
+      return BeanFactoryUtils.requiredBean(beanFactory, injectionPoint.getDependencyType());
     }
   }
 
