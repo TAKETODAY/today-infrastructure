@@ -584,7 +584,7 @@ public abstract class BeanFactoryUtils {
    * @throws NullPointerException factory is {@code null}
    * @see BeanFactory#getBean(String)
    */
-  public Object requiredBean(BeanFactory factory, String name) throws BeansException {
+  public static Object requiredBean(BeanFactory factory, String name) throws BeansException {
     Object bean = factory.getBean(name);
     if (bean == null) {
       throw new NoSuchBeanDefinitionException(name);
@@ -606,7 +606,7 @@ public abstract class BeanFactoryUtils {
    * @throws BeansException Exception occurred when getting a named bean
    * @see BeanFactory#getBean(String, Class)
    */
-  public <T> T requiredBean(BeanFactory factory, String name, Class<T> type) throws BeansException {
+  public static <T> T requiredBean(BeanFactory factory, String name, Class<T> type) throws BeansException {
     T bean = factory.getBean(name, type);
     if (bean == null) {
       throw new NoSuchBeanDefinitionException(name);
@@ -628,7 +628,7 @@ public abstract class BeanFactoryUtils {
    * @throws NullPointerException factory is {@code null}
    * @see BeanFactory#getBean(Class)
    */
-  public <T> T requiredBean(BeanFactory factory, Class<T> type) throws BeansException {
+  public static <T> T requiredBean(BeanFactory factory, Class<T> type) throws BeansException {
     T bean = factory.getBean(type);
     if (bean == null) {
       throw new NoSuchBeanDefinitionException(type);
@@ -762,7 +762,7 @@ public abstract class BeanFactoryUtils {
    * @param beanName the name of the candidate bean
    * @param beanFactory the factory from which to retrieve the named bean
    * @return {@code true} if either the bean definition (in the XML case)
-   * or the bean's factory method (in the {@code @Bean} case) defines a matching
+   * or the bean's factory method (in the {@code @Component} case) defines a matching
    * qualifier value (through {@code <qualifier>} or {@code @Qualifier})
    */
   public static boolean isQualifierMatch(
@@ -864,6 +864,72 @@ public abstract class BeanFactoryUtils {
       id = prefix + counter;
     }
     return id;
+  }
+
+  /**
+   * @throws NoSuchBeanDefinitionException bean-definition not found
+   * @see BeanDefinitionRegistry#getBeanDefinition(String)
+   */
+  public static BeanDefinition getBeanDefinition(BeanDefinitionRegistry registry, String beanName) {
+    BeanDefinition def = registry.getBeanDefinition(beanName);
+    if (def == null) {
+      throw new NoSuchBeanDefinitionException(beanName);
+    }
+    return def;
+  }
+
+  /**
+   * @throws NoSuchBeanDefinitionException bean-definition not found
+   * @see BeanFactory#getBeanDefinition(String)
+   */
+  public static BeanDefinition getBeanDefinition(BeanFactory factory, String beanName) {
+    BeanDefinition def = factory.getBeanDefinition(beanName);
+    if (def == null) {
+      throw new NoSuchBeanDefinitionException(beanName);
+    }
+    return def;
+  }
+
+  /**
+   * Register the given bean definition with the given bean factory.
+   *
+   * @param definitionHolder the bean definition including name and aliases
+   * @param registry the bean factory to register with
+   * @throws BeanDefinitionStoreException if registration failed
+   */
+  public static void registerBeanDefinition(
+          BeanDefinitionRegistry registry, BeanDefinitionHolder definitionHolder)
+          throws BeanDefinitionStoreException {
+
+    // Register bean definition under primary name.
+    String beanName = definitionHolder.getBeanName();
+    registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
+
+    // Register aliases for bean name, if any.
+    String[] aliases = definitionHolder.getAliases();
+    if (aliases != null) {
+      for (String alias : aliases) {
+        registry.registerAlias(beanName, alias);
+      }
+    }
+  }
+
+  /**
+   * Register the given bean definition with a generated name,
+   * unique within the given bean factory.
+   *
+   * @param definition the bean definition to generate a bean name for
+   * @param registry the bean factory to register with
+   * @return the generated bean name
+   * @throws BeanDefinitionStoreException if no unique name can be generated
+   * for the given bean definition or the definition cannot be registered
+   */
+  public static String registerWithGeneratedName(
+          BeanDefinitionRegistry registry, BeanDefinition definition) throws BeanDefinitionStoreException {
+
+    String generatedName = generateBeanName(definition, registry, false);
+    registry.registerBeanDefinition(generatedName, definition);
+    return generatedName;
   }
 
 }
