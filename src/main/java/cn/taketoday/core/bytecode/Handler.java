@@ -182,8 +182,7 @@ final class Handler {
     output.putShort(getExceptionTableLength(firstHandler));
     Handler handler = firstHandler;
     while (handler != null) {
-      output
-              .putShort(handler.startPc.bytecodeOffset)
+      output.putShort(handler.startPc.bytecodeOffset)
               .putShort(handler.endPc.bytecodeOffset)
               .putShort(handler.handlerPc.bytecodeOffset)
               .putShort(handler.catchType);

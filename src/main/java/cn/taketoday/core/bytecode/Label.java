@@ -561,8 +561,7 @@ public class Label {
       if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0
               && basicBlock.subroutineId != subroutineCaller.subroutineId) {
         basicBlock.outgoingEdges =
-                new Edge(
-                        basicBlock.outputStackSize,
+                new Edge(basicBlock.outputStackSize,
                         // By construction, the first outgoing edge of a basic block that ends with a jsr
                         // instruction leads to the jsr continuation block, i.e. where execution continues
                         // when ret is called (see {@link #FLAG_SUBROUTINE_CALLER}).

@@ -407,9 +407,7 @@ public class ClassReader {
    * #SKIP_CODE}, {@link #SKIP_DEBUG}, {@link #SKIP_FRAMES} or {@link #EXPAND_FRAMES}.
    */
   public void accept(
-          final ClassVisitor classVisitor,
-          final Attribute[] attributePrototypes,
-          final int parsingOptions) {
+          final ClassVisitor classVisitor, final Attribute[] attributePrototypes, final int parsingOptions) {
     Context context = new Context();
     context.attributePrototypes = attributePrototypes;
     context.parsingOptions = parsingOptions;
@@ -1763,24 +1761,10 @@ public class ClassReader {
           break;
         case Constants.WIDE:
           switch (classBuffer[currentOffset + 1] & 0xFF) {
-            case Opcodes.ILOAD:
-            case Opcodes.FLOAD:
-            case Opcodes.ALOAD:
-            case Opcodes.LLOAD:
-            case Opcodes.DLOAD:
-            case Opcodes.ISTORE:
-            case Opcodes.FSTORE:
-            case Opcodes.ASTORE:
-            case Opcodes.LSTORE:
-            case Opcodes.DSTORE:
-            case Opcodes.RET:
-              currentOffset += 4;
-              break;
-            case Opcodes.IINC:
-              currentOffset += 6;
-              break;
-            default:
-              throw new IllegalArgumentException();
+            case Opcodes.ILOAD, Opcodes.FLOAD, Opcodes.ALOAD, Opcodes.LLOAD, Opcodes.DLOAD, Opcodes.ISTORE,
+                    Opcodes.FSTORE, Opcodes.ASTORE, Opcodes.LSTORE, Opcodes.DSTORE, Opcodes.RET -> currentOffset += 4;
+            case Opcodes.IINC -> currentOffset += 6;
+            default -> throw new IllegalArgumentException();
           }
           break;
         case Opcodes.TABLESWITCH:
