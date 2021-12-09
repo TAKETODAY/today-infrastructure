@@ -31,13 +31,23 @@ import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
+import cn.taketoday.context.annotation.ConditionEvaluator;
+import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
+import cn.taketoday.context.annotation.FailFastProblemReporter;
+import cn.taketoday.context.annotation.Problem;
+import cn.taketoday.context.annotation.ProblemReporter;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.DefaultPropertySourceFactory;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
+import cn.taketoday.core.io.PropertySourceFactory;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -69,6 +79,12 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   private PatternResourceLoader resourceLoader;
 
   private ScopeMetadataResolver scopeMetadataResolver;
+  private PropertySourceFactory propertySourceFactory;
+
+  /* Using short class names as default bean names by default. */
+  private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
+
+  private ProblemReporter problemReporter = new FailFastProblemReporter();
 
   public DefinitionLoadingContext(BeanDefinitionRegistry registry, @NonNull ApplicationContext context) {
     this.registry = registry;
@@ -90,6 +106,10 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   public ApplicationContext getApplicationContext() {
     return applicationContext;
+  }
+
+  public Environment getEnvironment() {
+    return applicationContext.getEnvironment();
   }
 
   public BeanFactory getBeanFactory() {
@@ -143,16 +163,19 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
     return conditionEvaluator;
   }
 
-  public void registerBeanDefinition(BeanDefinition definition) {
+  public void registerBeanDefinition(String beanName, BeanDefinition definition) {
+    definition.setScope(resolveScopeName(definition));
 
     if (CollectionUtils.isNotEmpty(customizers)) {
       for (BeanDefinitionCustomizer definitionCustomizer : customizers) {
         definitionCustomizer.customize(definition);
       }
     }
+    registry.registerBeanDefinition(beanName, definition);
+  }
 
-    definition.setScope(resolveScopeName(definition));
-    registry.registerBeanDefinition(definition);
+  public void registerBeanDefinition(BeanDefinition definition) {
+    registerBeanDefinition(definition.getName(), definition);
   }
 
   public boolean containsBeanDefinition(Class<?> beanClass) {
@@ -167,6 +190,10 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
     return registry.containsBeanDefinition(beanName);
   }
 
+  public void removeBeanDefinition(String beanName) {
+    registry.removeBeanDefinition(beanName);
+  }
+
   public boolean passCondition(AnnotatedElement annotated) {
     if (annotated instanceof Class) {
       return getConditionEvaluator().passCondition((Class<?>) annotated);
@@ -177,6 +204,10 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
     else {
       throw new IllegalArgumentException("AnnotatedElement must be Method or Class");
     }
+  }
+
+  public boolean passCondition(AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+    return getConditionEvaluator().passCondition(metadata, phase);
   }
 
   public boolean passCondition(AnnotatedTypeMetadata metadata) {
@@ -332,4 +363,55 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
     return getScopeMetadataResolver().resolveScopeMetadata(definition).getScopeName();
   }
 
+  /**
+   * setting default PropertySourceFactory
+   *
+   * @param propertySourceFactory PropertySourceFactory
+   */
+  public void setPropertySourceFactory(@Nullable PropertySourceFactory propertySourceFactory) {
+    this.propertySourceFactory = propertySourceFactory;
+  }
+
+  public PropertySourceFactory getPropertySourceFactory() {
+    if (propertySourceFactory == null) {
+      propertySourceFactory = new DefaultPropertySourceFactory();
+    }
+    return propertySourceFactory;
+  }
+
+  /**
+   * Set the {@code BeanNameGenerator} to use for detected bean classes.
+   * <p>The default is a {@link AnnotationBeanNameGenerator}.
+   */
+  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
+    this.beanNameGenerator = beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE;
+  }
+
+  public BeanNameGenerator getBeanNameGenerator() {
+    return beanNameGenerator;
+  }
+
+  public void setProblemReporter(ProblemReporter problemReporter) {
+    this.problemReporter = problemReporter;
+  }
+
+  public ProblemReporter getProblemReporter() {
+    return problemReporter;
+  }
+
+  public void reportError(Problem problem) {
+    problemReporter.error(problem);
+  }
+
+  public void reportWarning(Problem problem) {
+    problemReporter.warning(problem);
+  }
+
+  public void reportFatal(Problem problem) {
+    problemReporter.fatal(problem);
+  }
+
+  public ClassLoader getClassLoader() {
+    return getResourceLoader().getClassLoader();
+  }
 }
