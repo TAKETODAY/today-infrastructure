@@ -69,9 +69,9 @@ import cn.taketoday.core.io.PropertySourceFactory;
  * annotations using properties from a {@code PropertySource}, one must register
  * a {@code PropertySourcesPlaceholderConfigurer}. This happens automatically when using
  * {@code <context:property-placeholder>} in XML, but must be explicitly registered using
- * a {@code static} {@code @Bean} method when using {@code @Configuration} classes. See
+ * a {@code static} {@code @Component} method when using {@code @Configuration} classes. See
  * the "Working with externalized values" section of @{@link Configuration}'s javadoc and
- * "a note on BeanFactoryPostProcessor-returning @Bean methods" of
+ * "a note on BeanFactoryPostProcessor-returning @Component methods" of
  * {@link cn.taketoday.lang.Component}'s javadoc for details and examples.
  *
  * <h3>Resolving ${...} placeholders within {@code @PropertySource} resource locations</h3>

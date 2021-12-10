@@ -18,12 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionBuilder;
-import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.beans.factory.BeanDefinitionHolder;
+import cn.taketoday.context.annotation.ScannedBeanDefinition;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -41,11 +40,19 @@ public class ComponentAnnotationBeanDefinitionCreator implements BeanDefinitionL
     // annotation on class
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
     annotationMetadata.getAnnotations().stream(Component.class).forEach(component -> {
-      for (String name : BeanDefinitionBuilder.determineName(
-              loadingContext.createBeanName(annotationMetadata.getClassName()), component.getStringArray(MergedAnnotation.VALUE))) {
-        AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
+
+      String beanName = loadingContext.createBeanName(annotationMetadata.getClassName());
+
+      String[] strings = BeanDefinitionBuilder.determineName(
+              beanName, component.getStringArray(MergedAnnotation.VALUE));
+
+      for (String name : strings) {
+        ScannedBeanDefinition definition = new ScannedBeanDefinition(metadata);
         definition.setBeanClassName(annotationMetadata.getClassName());
         definition.setName(name);
+
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, name);
+
         loadingContext.registerBeanDefinition(definition);
       }
     });

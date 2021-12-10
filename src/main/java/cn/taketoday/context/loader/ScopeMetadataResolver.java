@@ -29,7 +29,7 @@ import cn.taketoday.lang.Scope;
  * @author Mark Fisher
  * @author TODAY 2021/10/26 15:56
  * @see Scope
- * @since 2.5
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ScopeMetadataResolver {

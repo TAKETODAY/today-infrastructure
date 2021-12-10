@@ -24,11 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -59,7 +59,7 @@ final class OnResourceCondition implements Condition {
             = metadata.getAnnotations().get(ConditionalOnResource.class);
 
     String[] stringArray = conditionalOnResource.getStringArray(MergedAnnotation.VALUE);
-    ApplicationContext resourceLoader = context.getContext();
+    ResourceLoader resourceLoader = context.getResourceLoader();
     for (final String resource : stringArray) {
       if (!resourceLoader.getResource(resource).exists()) {
         return false;

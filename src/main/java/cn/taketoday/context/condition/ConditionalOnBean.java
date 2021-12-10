@@ -36,7 +36,7 @@ import cn.taketoday.context.annotation.Conditional;
  * must be met for the condition to match, but they do not have to be met by the same
  * bean.
  * <p>
- * When placed on a {@code @Bean} method, the bean class defaults to the return type of
+ * When placed on a {@code @Component} method, the bean class defaults to the return type of
  * the factory method:
  *
  * <pre class="code">

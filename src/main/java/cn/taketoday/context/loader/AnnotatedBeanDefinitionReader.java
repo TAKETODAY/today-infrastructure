@@ -33,12 +33,16 @@ import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
+import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DependsOn;
+import cn.taketoday.context.annotation.Description;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -73,6 +77,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   private boolean enableConditionEvaluation = true;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
+  private BeanNameGenerator beanNameGenerator;
 
   public AnnotatedBeanDefinitionReader() { }
 
@@ -286,9 +291,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
         definition.setScope(Scope.PROTOTYPE);
       }
 
+      String beanName = this.beanNameGenerator.generateBeanName(definition, this.registry);
+
       String defaultName = createBeanName(clazz);
       definition.setInstanceSupplier(supplier);
-      definition.setName(defaultName);
+      definition.setName(beanName);
 
       if (ignoreAnnotation) {
         register(definition);
@@ -328,6 +335,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     MergedAnnotation<DependsOn> dependsOn = annotations.get(DependsOn.class);
     if (dependsOn.isPresent()) {
       definition.setDependsOn(dependsOn.getStringValueArray());
+    }
+
+    MergedAnnotation<Description> description = annotations.get(Description.class);
+    if (description != null) {
+      definition.setDescription(description.getStringValue());
     }
 
     // DisableDependencyInjection
@@ -455,6 +467,15 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
   public ScopeMetadataResolver getScopeMetadataResolver() {
     return scopeMetadataResolver;
+  }
+
+  /**
+   * Set the {@code BeanNameGenerator} to use for detected bean classes.
+   * <p>The default is a {@link AnnotationBeanNameGenerator}.
+   */
+  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
+    this.beanNameGenerator =
+            (beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE);
   }
 
 }

@@ -34,12 +34,13 @@ import cn.taketoday.core.type.StandardMethodMetadata;
  * @since 4.0
  */
 public class ConfigBeanDefinition extends AnnotatedBeanDefinition {
-  final BeanDefinition declaringDef;
+  private final String derivedBeanName;
 
   public ConfigBeanDefinition(
-          BeanDefinition declaringDef, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
+          String derivedBeanName, MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
     super(annotationMetadata, componentMethod);
-    this.declaringDef = declaringDef;
+    this.derivedBeanName = derivedBeanName;
+    setFactoryBeanName(derivedBeanName);
   }
 
   @Override
@@ -84,7 +85,7 @@ public class ConfigBeanDefinition extends AnnotatedBeanDefinition {
   @Override
   public BeanDefinition cloneDefinition() {
     AnnotatedBeanDefinition definition = new ConfigBeanDefinition(
-            declaringDef, getFactoryMethodMetadata(), getMetadata());
+            derivedBeanName, getFactoryMethodMetadata(), getMetadata());
     definition.copyFrom(this);
     return definition;
   }

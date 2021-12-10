@@ -30,7 +30,6 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
@@ -46,8 +45,7 @@ public class MissingBeanAnnotationBeanDefinitionCustomizer implements BeanDefini
   public void customize(BeanDefinition definition) {
     if (definition instanceof AnnotatedBeanDefinition annotated) {
       AnnotationMetadata metadata = annotated.getMetadata();
-      MergedAnnotations annotations = metadata.getAnnotations();
-      MergedAnnotation<ConditionalOnMissingBean> missingBean = annotations.get(ConditionalOnMissingBean.class);
+      MergedAnnotation<ConditionalOnMissingBean> missingBean = metadata.getAnnotation(ConditionalOnMissingBean.class);
       if (missingBean.isPresent()) {
         // Missing BeanMetadata a flag to determine its missed bean @since 3.0
         definition.setAttribute(MissingBean.MissingBeanMetadata, missingBean);

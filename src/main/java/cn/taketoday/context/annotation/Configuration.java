@@ -24,9 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
@@ -147,8 +144,7 @@ import cn.taketoday.lang.Value;
  *
  * <p>Properties resolved through the {@code Environment} reside in one or more "property
  * source" objects, and {@code @Configuration} classes may contribute property sources to
- * the {@code Environment} object using the {@link
- * cn.taketoday.context.annotation.PropertySource @PropertySource}
+ * the {@code Environment} object using the {@link PropertySource @PropertySource}
  * annotation:
  *
  * <pre class="code">
@@ -165,8 +161,7 @@ import cn.taketoday.lang.Value;
  * }</pre>
  *
  * <p>See the {@link cn.taketoday.core.env.Environment Environment}
- * and {@link cn.taketoday.context.annotation.PropertySource @PropertySource}
- * javadocs for further details.
+ * and {@link PropertySource @PropertySource} javadocs for further details.
  *
  * <h3>Using the {@code @Value} annotation</h3>
  *
@@ -190,11 +185,11 @@ import cn.taketoday.lang.Value;
  * {@link cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer
  * PropertySourcesPlaceholderConfigurer} that can be enabled <em>automatically</em>
  * in XML configuration via {@code <context:property-placeholder/>} or <em>explicitly</em>
- * in a {@code @Configuration} class via a dedicated {@code static} {@code @Bean} method
- * (see "a note on BeanFactoryPostProcessor-returning {@code @Bean} methods" of
- * {@link cn.taketoday.context.annotation.Bean @Bean}'s javadocs for details).
+ * in a {@code @Configuration} class via a dedicated {@code static} {@code @Component} method
+ * (see "a note on BeanFactoryPostProcessor-returning {@code @Component} methods" of
+ * {@link Component @Component}'s javadocs for details).
  * Note, however, that explicit registration
- * of a {@code PropertySourcesPlaceholderConfigurer} via a {@code static} {@code @Bean}
+ * of a {@code PropertySourcesPlaceholderConfigurer} via a {@code static} {@code @Component}
  * method is typically only required if you need to customize configuration such as the
  * placeholder syntax, etc. Specifically, if no bean post-processor (such as a
  * {@code PropertySourcesPlaceholderConfigurer}) has registered an <em>embedded value
@@ -202,7 +197,7 @@ import cn.taketoday.lang.Value;
  * <em>embedded value resolver</em> which resolves placeholders against property sources
  * registered in the {@code Environment}. See the section below on composing
  * {@code @Configuration} classes with XML using {@code @ImportResource}; see
- * the {@link Value @Value} javadocs; and see the {@link cn.taketoday.context.annotation.Bean @Bean} javadocs for details
+ * the {@link Value @Value} javadocs; and see the {@link Component @Component} javadocs for details
  * on working with {@code BeanFactoryPostProcessor} types such as
  * {@code PropertySourcesPlaceholderConfigurer}.
  *
@@ -210,7 +205,7 @@ import cn.taketoday.lang.Value;
  *
  * <h3>With the {@code @Import} annotation</h3>
  *
- * <p>{@code @Configuration} classes may be composed using the {@link cn.taketoday.context.annotation.Import @Import} annotation,
+ * <p>{@code @Configuration} classes may be composed using the {Import @Import} annotation,
  * similar to the way that {@code <import>} works in XML. Because
  * {@code @Configuration} objects are managed as beans within the container,
  * imported configurations may be injected &mdash; for example, via constructor injection:
@@ -274,7 +269,7 @@ import cn.taketoday.lang.Value;
  *     }
  * }</pre>
  *
- * <p>Alternatively, you may also declare profile conditions at the {@code @Bean} method level
+ * <p>Alternatively, you may also declare profile conditions at the {@code @Component} method level
  * &mdash; for example, for alternative bean variants within the same configuration class:
  *
  * <pre class="code">
@@ -329,21 +324,21 @@ import cn.taketoday.lang.Value;
  *
  * <h2>Configuring lazy initialization</h2>
  *
- * <p>By default, {@code @Bean} methods will be <em>eagerly instantiated</em> at container
+ * <p>By default, {@code @Component} methods will be <em>eagerly instantiated</em> at container
  * bootstrap time.  To avoid this, {@code @Configuration} may be used in conjunction with
- * the {@link cn.taketoday.beans.Lazy @Lazy} annotation to indicate that all {@code @Bean} methods declared
+ * the {@link cn.taketoday.beans.Lazy @Lazy} annotation to indicate that all {@code @Component} methods declared
  * within the class are by default lazily initialized. Note that {@code @Lazy} may be used
- * on individual {@code @Bean} methods as well.
+ * on individual {@code @Component} methods as well.
  *
  * <h2>Testing support for {@code @Configuration} classes</h2>
  *
- * <p>The Spring <em>TestContext framework</em> available in the {@code spring-test} module
+ * <p>The Framework <em>TestContext framework</em> available in the {@code today-test} module
  * provides the {@code @ContextConfiguration} annotation which can accept an array of
  * <em>component class</em> references &mdash; typically {@code @Configuration} or
  * {@code @Component} classes.
  *
  * <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(TODAYRunner.class)
  * &#064;ContextConfiguration(classes = {AppConfig.class, DatabaseConfig.class})
  * public class MyTests {
  *
@@ -382,7 +377,7 @@ import cn.taketoday.lang.Value;
  * in which case no runtime-generated subclass is necessary.
  * <li>Configuration classes must be non-local (i.e. may not be declared within a method).
  * <li>Any nested configuration classes must be declared as {@code static}.
- * <li>{@code @Bean} methods may not in turn create further configuration classes
+ * <li>{@code @Component} methods may not in turn create further configuration classes
  * (any such instances will be treated as regular beans, with their configuration
  * annotations remaining undetected).
  * </ul>
@@ -398,7 +393,7 @@ import cn.taketoday.lang.Value;
  * @see ComponentScan
  * @see cn.taketoday.beans.Lazy
  * @see cn.taketoday.context.annotation.PropertySource
- * @see StandardApplicationContext
+ * @see cn.taketoday.context.StandardApplicationContext
  * @see ConfigurationClassPostProcessor
  * @see cn.taketoday.core.env.Environment
  * @since 4.0
@@ -425,19 +420,19 @@ public @interface Configuration {
   String[] value() default {};
 
   /**
-   * Specify whether {@code @Bean} methods should get proxied in order to enforce
+   * Specify whether {@code @Component} methods should get proxied in order to enforce
    * bean lifecycle behavior, e.g. to return shared singleton bean instances even
-   * in case of direct {@code @Bean} method calls in user code. This feature
+   * in case of direct {@code @Component} method calls in user code. This feature
    * requires method interception, implemented through a runtime-generated CGLIB
    * subclass which comes with limitations such as the configuration class and
    * its methods not being allowed to declare {@code final}.
    * <p>The default is {@code true}, allowing for 'inter-bean references' via direct
    * method calls within the configuration class as well as for external calls to
-   * this configuration's {@code @Bean} methods, e.g. from another configuration class.
-   * If this is not needed since each of this particular configuration's {@code @Bean}
+   * this configuration's {@code @Component} methods, e.g. from another configuration class.
+   * If this is not needed since each of this particular configuration's {@code @Component}
    * methods is self-contained and designed as a plain factory method for container use,
    * switch this flag to {@code false} in order to avoid CGLIB subclass processing.
-   * <p>Turning off bean method interception effectively processes {@code @Bean}
+   * <p>Turning off bean method interception effectively processes {@code @Component}
    * methods individually like when declared on non-{@code @Configuration} classes,
    * a.k.a. "@Component Lite Mode" (see {@link Component @Component's javadoc}). It is therefore
    * behaviorally equivalent to removing the {@code @Configuration} stereotype.

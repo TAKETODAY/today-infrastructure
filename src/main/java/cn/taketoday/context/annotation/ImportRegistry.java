@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,29 +15,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.transaction;
+
+package cn.taketoday.context.annotation;
+
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2018-10-09 10:42
+ * Registry of imported class {@link AnnotationMetadata}.
+ *
+ * @author Juergen Hoeller
+ * @author Phillip Webb
  */
-public interface ResourceHolder {
+interface ImportRegistry {
 
-  /**
-   * Reset the transactional state of this holder.
-   */
-  void reset();
+  @Nullable
+  AnnotationMetadata getImportingClassFor(String importedClass);
 
-  /**
-   * Notify this holder that it has been unbound from transaction synchronization.
-   */
-  void unbound();
+  void removeImportingClass(String importingClass);
 
-  /**
-   * Determine whether this holder is considered as 'void', i.e. as a leftover
-   * from a previous thread.
-   */
-  boolean isVoid();
 }

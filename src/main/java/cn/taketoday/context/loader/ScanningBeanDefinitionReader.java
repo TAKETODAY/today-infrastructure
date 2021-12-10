@@ -21,35 +21,27 @@
 package cn.taketoday.context.loader;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.Collection;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.core.io.PatternResourceLoader;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-import cn.taketoday.core.type.filter.AnnotationTypeFilter;
-import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Repository;
-import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.annotation.Controller;
 
 /**
  * @author TODAY 2021/10/2 23:38
+ * @see BeanDefinitionLoadingStrategies
  * @since 4.0
  */
 public class ScanningBeanDefinitionReader {
   private static final Logger log = LoggerFactory.getLogger(ScanningBeanDefinitionReader.class);
-  static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
+  public static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
   private final BeanDefinitionRegistry registry;
 
@@ -58,13 +50,14 @@ public class ScanningBeanDefinitionReader {
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
 
-  private final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
-  private final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
+  private final ClassPathScanningCandidateComponentProvider componentProvider;
 
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
     this.registry = loadingContext.getRegistry();
     this.loadingContext = loadingContext;
-    registerDefaultFilters();
+    this.componentProvider = new ClassPathScanningCandidateComponentProvider(
+            false, loadingContext.getEnvironment());
+    componentProvider.setMetadataReaderFactory(loadingContext.getMetadataReaderFactory());
   }
 
   /**
@@ -118,37 +111,13 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      Set<Resource> resources = loadingContext.getResourceLoader().getResources(patternLocation);
-      MetadataReaderFactory metadataReaderFactory = loadingContext.getMetadataReaderFactory();
-      for (Resource resource : resources) {
-        process(resource, metadataReaderFactory);
-      }
+      componentProvider.scanCandidateComponents(patternLocation, metadataReader -> {
+        scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
+      });
     }
     catch (IOException e) {
-      throw new BeanDefinitionStoreException("IO exception occur With Msg: [" + e + ']', e);
+      throw new BeanDefinitionStoreException("I/O failure during classpath scanning", e);
     }
-  }
-
-  /**
-   * Determine whether the given class does not match any exclude filter
-   * and does match at least one include filter.
-   *
-   * @param metadataReader the ASM ClassReader for the class
-   * @return whether the class qualifies as a candidate component
-   */
-  protected boolean isCandidateComponent(
-          MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
-    for (TypeFilter tf : this.excludeFilters) {
-      if (tf.match(metadataReader, metadataReaderFactory)) {
-        return false;
-      }
-    }
-    for (TypeFilter tf : this.includeFilters) {
-      if (tf.match(metadataReader, metadataReaderFactory)) {
-        return isConditionMatch(metadataReader);
-      }
-    }
-    return false;
   }
 
   /**
@@ -162,13 +131,6 @@ public class ScanningBeanDefinitionReader {
     return loadingContext.passCondition(metadataReader.getAnnotationMetadata());
   }
 
-  protected void process(Resource resource, MetadataReaderFactory metadataReaderFactory) throws IOException {
-    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-    if (isCandidateComponent(metadataReader, metadataReaderFactory)) {
-      scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
-    }
-  }
-
   /**
    * Set the resource pattern to use when scanning the classpath.
    * This value will be appended to each base package name.
@@ -178,67 +140,6 @@ public class ScanningBeanDefinitionReader {
   public void setResourcePattern(String resourcePattern) {
     Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
     this.resourcePattern = resourcePattern;
-  }
-
-  /**
-   * Add an include type filter to the <i>end</i> of the inclusion list.
-   */
-  public void addIncludeFilter(TypeFilter includeFilter) {
-    this.includeFilters.add(includeFilter);
-  }
-
-  /**
-   * Add an exclude type filter to the <i>front</i> of the exclusion list.
-   */
-  public void addExcludeFilter(TypeFilter excludeFilter) {
-    this.excludeFilters.add(0, excludeFilter);
-  }
-
-  /**
-   * Reset the configured type filters.
-   *
-   * @param useDefaultFilters whether to re-register the default filters for
-   * the {@link Component @Component}, {@link Repository @Repository},
-   * {@link Service @Service}, and {@link Controller @Controller}
-   * stereotype annotations
-   * @see #registerDefaultFilters()
-   */
-  public void resetFilters(boolean useDefaultFilters) {
-    this.includeFilters.clear();
-    this.excludeFilters.clear();
-    if (useDefaultFilters) {
-      registerDefaultFilters();
-    }
-  }
-
-  /**
-   * Register the default filter for {@link Component @Component}.
-   * <p>This will implicitly register all annotations that have the
-   * {@link Component @Component} meta-annotation including the
-   * {@link Repository @Repository}, {@link Service @Service}, and
-   * {@link Controller @Controller} stereotype annotations.
-   * <p>Also supports Java EE's {@link jakarta.annotation.ManagedBean} and
-   * {@link jakarta.inject.Named} annotations, if available.
-   */
-  protected void registerDefaultFilters() {
-    this.includeFilters.add(new AnnotationTypeFilter(Component.class));
-    ClassLoader cl = getClass().getClassLoader();
-    try {
-      this.includeFilters.add(new AnnotationTypeFilter(
-              ClassUtils.forName("jakarta.annotation.ManagedBean", cl), false));
-      log.trace("'jakarta.annotation.ManagedBean' found and supported for component scanning");
-    }
-    catch (ClassNotFoundException ex) {
-      // JSR-250 1.1 API (as included in jakarta EE) not available - simply skip.
-    }
-    try {
-      this.includeFilters.add(new AnnotationTypeFilter(
-              ClassUtils.forName("jakarta.inject.Named", cl), false));
-      log.trace("'jakarta.inject.Named' annotation found and supported for component scanning");
-    }
-    catch (ClassNotFoundException ex) {
-      // JSR-330 API not available - simply skip.
-    }
   }
 
   /**
@@ -256,14 +157,16 @@ public class ScanningBeanDefinitionReader {
   }
 
   @SafeVarargs
-  public final void addLoadingStrategies(Class<? extends BeanDefinitionLoadingStrategy>... loadingStrategies) {
+  public final void addLoadingStrategies(
+          Class<? extends BeanDefinitionLoadingStrategy>... loadingStrategies) {
     for (Class<? extends BeanDefinitionLoadingStrategy> loadingStrategy : loadingStrategies) {
       BeanDefinitionLoadingStrategy strategy = loadingContext.instantiate(loadingStrategy);
       scanningStrategies.addStrategies(strategy);
     }
   }
 
-  public void addLoadingStrategies(Set<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies) {
+  public void addLoadingStrategies(
+          Collection<Class<? extends BeanDefinitionLoadingStrategy>> loadingStrategies) {
     for (Class<? extends BeanDefinitionLoadingStrategy> loadingStrategy : loadingStrategies) {
       BeanDefinitionLoadingStrategy strategy = loadingContext.instantiate(loadingStrategy);
       scanningStrategies.addStrategies(strategy);

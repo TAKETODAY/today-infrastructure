@@ -55,7 +55,7 @@ import cn.taketoday.lang.Component;
  * </ul>
  *
  * <p>If a {@code @Configuration} class is marked with {@code @Profile}, all of the
- * {@code @Bean} methods and {@link Import @Import} annotations associated with that class
+ * {@code @Component} methods and {@link Import @Import} annotations associated with that class
  * will be bypassed unless one or more of the specified profiles are active. A profile
  * string may contain a simple profile name (for example {@code "p1"}) or a profile
  * expression. A profile expression allows for more complicated profile logic to be
@@ -77,8 +77,8 @@ import cn.taketoday.lang.Component;
  * <p>If the {@code @Profile} annotation is omitted, registration will occur regardless
  * of which (if any) profiles are active.
  *
- * <p><b>NOTE:</b> With {@code @Profile} on {@code @Bean} methods, a special scenario may
- * apply: In the case of overloaded {@code @Bean} methods of the same Java method name
+ * <p><b>NOTE:</b> With {@code @Profile} on {@code @Component} methods, a special scenario may
+ * apply: In the case of overloaded {@code @Component} methods of the same Java method name
  * (analogous to constructor overloading), an {@code @Profile} condition needs to be
  * consistently declared on all overloaded methods. If the conditions are inconsistent,
  * only the condition on the first declaration among the overloaded methods will matter.

@@ -199,6 +199,10 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
     return true;
   }
 
+  /**
+   * Process the specified {@link Object}, checking if the condition
+   * matches and handling a non-null result, if any.
+   */
   @Override
   public void onApplicationEvent(Object event) { // any event type
     Object[] parameter = resolveArguments(argumentsResolver, event);

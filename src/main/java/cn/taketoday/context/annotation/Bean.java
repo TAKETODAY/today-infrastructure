@@ -58,7 +58,7 @@ import cn.taketoday.lang.Value;
  * <h3>Bean Names</h3>
  *
  * <p>While a {@link #name} attribute is available, the default strategy for
- * determining the name of a bean is to use the name of the {@code @Bean} method.
+ * determining the name of a bean is to use the name of the {@code @Component} method.
  * This is convenient and intuitive, but if explicit naming is desired, the
  * {@code name} attribute (or its alias {@code value}) may be used. Also note
  * that {@code name} accepts an array of Strings, allowing for multiple names

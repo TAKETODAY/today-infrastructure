@@ -24,15 +24,20 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ConfigurationBeanReader;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
@@ -197,6 +202,28 @@ public class StandardApplicationContext
   @Override
   public void scan(String... basePackages) {
     scanningReader().scanPackages(basePackages);
+  }
+
+  /**
+   * Provide a custom {@link BeanNameGenerator} for use with {@link AnnotatedBeanDefinitionReader}
+   * and/or {@link DefinitionLoadingContext}, if any.
+   * <p>Default is {@link AnnotationBeanNameGenerator}.
+   * <p>Any call to this method must occur prior to calls to {@link #register(Class...)}
+   * and/or {@link #scan(String...)}.
+   *
+   * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator
+   * @see DefinitionLoadingContext#setBeanNameGenerator
+   * @see AnnotationBeanNameGenerator
+   * @see FullyQualifiedAnnotationBeanNameGenerator
+   */
+  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+    Assert.notNull(beanNameGenerator, "BeanNameGenerator is required");
+    loadingContext().setBeanNameGenerator(beanNameGenerator);
+    scanningReader().setBeanNameGenerator(beanNameGenerator);
+    getBeanDefinitionReader().setBeanNameGenerator(beanNameGenerator);
+
+    getBeanFactory().registerSingleton(
+            AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
   }
 
   private ScanningBeanDefinitionReader scanningReader() {

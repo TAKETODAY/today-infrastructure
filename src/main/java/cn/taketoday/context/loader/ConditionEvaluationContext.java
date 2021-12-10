@@ -23,8 +23,15 @@ package cn.taketoday.context.loader;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.EnvironmentCapable;
+import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * for ConditionEvaluator Evaluation
@@ -34,45 +41,105 @@ import cn.taketoday.core.io.ResourceLoader;
  */
 public class ConditionEvaluationContext {
 
-  private final Environment environment;
-  private final ApplicationContext context;
+  @Nullable
   private final BeanDefinitionRegistry registry;
+
+  @Nullable
+  private final ConfigurableBeanFactory beanFactory;
+
+  private final Environment environment;
 
   private final ResourceLoader resourceLoader;
 
+  @Nullable
+  private final ClassLoader classLoader;
+
   public ConditionEvaluationContext(ApplicationContext context, BeanDefinitionRegistry registry) {
-    this.context = context;
     this.registry = registry;
     this.resourceLoader = context;
     this.environment = context.getEnvironment();
+    this.beanFactory = deduceBeanFactory(registry);
+    this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);
   }
 
-  public ApplicationContext getContext() {
-    return context;
+  public ConditionEvaluationContext(
+          @Nullable BeanDefinitionRegistry registry,
+          @Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
+
+    this.registry = registry;
+    this.beanFactory = deduceBeanFactory(registry);
+    this.environment = environment != null ? environment : deduceEnvironment(registry);
+    this.resourceLoader = resourceLoader != null ? resourceLoader : deduceResourceLoader(registry);
+    this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);
   }
 
-  public Environment getEnvironment() {
-    return environment;
+  @Nullable
+  private ConfigurableBeanFactory deduceBeanFactory(@Nullable BeanDefinitionRegistry source) {
+    if (source instanceof ConfigurableBeanFactory) {
+      return (ConfigurableBeanFactory) source;
+    }
+    if (source instanceof ConfigurableApplicationContext) {
+      return (((ConfigurableApplicationContext) source).getBeanFactory());
+    }
+    return null;
+  }
+
+  private Environment deduceEnvironment(@Nullable BeanDefinitionRegistry source) {
+    if (source instanceof EnvironmentCapable) {
+      return ((EnvironmentCapable) source).getEnvironment();
+    }
+    return new StandardEnvironment();
+  }
+
+  private ResourceLoader deduceResourceLoader(@Nullable BeanDefinitionRegistry source) {
+    if (source instanceof ResourceLoader) {
+      return (ResourceLoader) source;
+    }
+    return new DefaultResourceLoader();
+  }
+
+  @Nullable
+  private ClassLoader deduceClassLoader(
+          @Nullable ResourceLoader resourceLoader,
+          @Nullable ConfigurableBeanFactory beanFactory) {
+
+    if (resourceLoader != null) {
+      ClassLoader classLoader = resourceLoader.getClassLoader();
+      if (classLoader != null) {
+        return classLoader;
+      }
+    }
+    if (beanFactory != null) {
+      return beanFactory.getBeanClassLoader();
+    }
+    return ClassUtils.getDefaultClassLoader();
   }
 
   public BeanDefinitionRegistry getRegistry() {
-    return registry;
+    Assert.state(this.registry != null, "No BeanDefinitionRegistry available");
+    return this.registry;
+  }
+
+  @Nullable
+  public ConfigurableBeanFactory getBeanFactory() {
+    return this.beanFactory;
+  }
+
+  public Environment getEnvironment() {
+    return this.environment;
   }
 
   public ResourceLoader getResourceLoader() {
-    return resourceLoader;
+    return this.resourceLoader;
+  }
+
+  @Nullable
+  public ClassLoader getClassLoader() {
+    return this.classLoader;
   }
 
   public <T> T evaluateExpression(String expression, Class<T> booleanClass) {
-    return context.getExpressionEvaluator().evaluate(expression, booleanClass);
-  }
-
-  public ClassLoader getClassLoader() {
-    return resourceLoader.getClassLoader();
-  }
-
-  public ConfigurableBeanFactory getBeanFactory() {
-    return context.unwrapFactory(ConfigurableBeanFactory.class);
+    return context.getExpressionEvaluator().evaluate(expression, booleanClass); // TODO
   }
 
 }

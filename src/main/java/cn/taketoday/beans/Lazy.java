@@ -37,15 +37,15 @@ import cn.taketoday.context.annotation.Configuration;
  * {@link Component @Component} or on methods annotated with {@link Component @Component}.
  *
  * <p>If this annotation is not present on a {@code @Component} or {@code @Bean} definition,
- * eager initialization will occur. If present and set to {@code true}, the {@code @Bean} or
+ * eager initialization will occur. If present and set to {@code true}, the {@code @Component} or
  * {@code @Component} will not be initialized until referenced by another bean or explicitly
  * retrieved from the enclosing {@link cn.taketoday.beans.factory.BeanFactory
  * BeanFactory}. If present and set to {@code false}, the bean will be instantiated on
  * startup by bean factories that perform eager initialization of singletons.
  *
  * <p>If Lazy is present on a {@link Configuration @Configuration} class, this
- * indicates that all {@code @Bean} methods within that {@code @Configuration}
- * should be lazily initialized. If {@code @Lazy} is present and false on a {@code @Bean}
+ * indicates that all {@code @Component} methods within that {@code @Configuration}
+ * should be lazily initialized. If {@code @Lazy} is present and false on a {@code @Component}
  * method within a {@code @Lazy}-annotated {@code @Configuration} class, this indicates
  * overriding the 'default lazy' behavior and that the bean should be eagerly initialized.
  *
