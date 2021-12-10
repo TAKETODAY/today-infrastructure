@@ -21,6 +21,8 @@ package cn.taketoday.beans.factory;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Strategy interface used by a {@link ConfigurableBeanFactory},
  * representing a target scope to hold bean instances in.
@@ -133,4 +135,25 @@ public interface Scope {
    */
   void registerDestructionCallback(String name, Runnable callback);
 
+  /**
+   * Return the <em>conversation ID</em> for the current underlying scope, if any.
+   * <p>The exact meaning of the conversation ID depends on the underlying
+   * storage mechanism. In the case of session-scoped objects, the
+   * conversation ID would typically be equal to (or derived from) the
+   * {@link jakarta.servlet.http.HttpSession#getId() session ID}; in the
+   * case of a custom conversation that sits within the overall session,
+   * the specific ID for the current conversation would be appropriate.
+   * <p><b>Note: This is an optional operation.</b> It is perfectly valid to
+   * return {@code null} in an implementation of this method if the
+   * underlying storage mechanism has no obvious candidate for such an ID.
+   *
+   * @return the conversation ID, or {@code null} if there is no
+   * conversation ID for the current scope
+   * @throws IllegalStateException if the underlying scope is not currently active
+   * @since 4.0
+   */
+  @Nullable
+  default String getConversationId() {
+    return null;
+  }
 }

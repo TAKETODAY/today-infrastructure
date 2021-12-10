@@ -100,7 +100,7 @@ public class AnnotatedBeanDefinition extends BeanDefinition {
    * @return the factory method metadata, or {@code null} if none
    */
   @Nullable
-  public final MethodMetadata getFactoryMethodMetadata() {
+  public MethodMetadata getFactoryMethodMetadata() {
     return this.factoryMethodMetadata;
   }
 

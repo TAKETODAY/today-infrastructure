@@ -56,7 +56,7 @@ public class ListFactoryBean extends AbstractFactoryBean<List<Object>> {
 
   /**
    * Set the class to use for the target List. Can be populated with a fully
-   * qualified class name when defined in a Spring application context.
+   * qualified class name when defined in a Framework application context.
    * <p>Default is a {@code java.util.ArrayList}.
    *
    * @see java.util.ArrayList

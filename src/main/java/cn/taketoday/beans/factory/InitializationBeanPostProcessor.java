@@ -46,7 +46,7 @@ public interface InitializationBeanPostProcessor extends BeanPostProcessor {
    * @param beanName The definition of the bean
    * @return the bean instance to use, either the original or a wrapped one; if
    * {@code null}, no subsequent BeanPostProcessors will be invoked
-   * @throws Exception in case of errors
+   * @throws BeansException in case of errors
    * @see InitializingBean#afterPropertiesSet
    */
   default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -67,7 +67,7 @@ public interface InitializationBeanPostProcessor extends BeanPostProcessor {
    * @param beanName the definition of the bean
    * @return the bean instance to use, either the original or a wrapped one; if
    * {@code null}, no subsequent BeanPostProcessors will be invoked
-   * @throws Exception in case of errors
+   * @throws BeansException in case of errors
    * @see InitializingBean#afterPropertiesSet
    * @see FactoryBean
    */

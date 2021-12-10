@@ -31,8 +31,7 @@ package cn.taketoday.beans.factory;
  *
  * @author Juergen Hoeller
  * @author Chris Beams
- * @author TODAY <br>
- * 2020-02-21 11:45
+ * @author TODAY 2020-02-21 11:45
  * @see BeanNameAware
  * @see BeanFactoryAware
  * @see InitializingBean
@@ -41,13 +40,16 @@ package cn.taketoday.beans.factory;
 public interface BeanClassLoaderAware extends Aware {
 
   /**
-   * Callback that supplies the bean {@link ClassLoader class loader} to a bean
-   * instance.
-   * <p>
-   * Invoked <i>before</i> apply properties
+   * Callback that supplies the bean {@link ClassLoader class loader} to
+   * a bean instance.
+   * <p>Invoked <i>after</i> the population of normal bean properties but
+   * <i>before</i> an initialization callback such as
+   * {@link InitializingBean InitializingBean's}
+   * {@link InitializingBean#afterPropertiesSet()}
+   * method or a custom init-method.
    *
-   * @param classLoader The owning class loader
+   * @param beanClassLoader the owning class loader
    */
-  void setBeanClassLoader(ClassLoader classLoader);
+  void setBeanClassLoader(ClassLoader beanClassLoader);
 
 }

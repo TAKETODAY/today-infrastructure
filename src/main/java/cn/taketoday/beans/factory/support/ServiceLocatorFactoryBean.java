@@ -73,7 +73,7 @@ import cn.taketoday.util.StringUtils;
  * mapping} between service IDs and bean names can be defined.
  *
  * <p>By way of an example, consider the following service locator interface.
- * Note that this interface is not dependent on any Spring APIs.
+ * Note that this interface is not dependent on any Framework APIs.
  *
  * <pre class="code">package a.b.c;
  *
@@ -110,7 +110,7 @@ import cn.taketoday.util.StringUtils;
  *
  *    private ServiceFactory myServiceFactory;
  *
- *    // actual implementation provided by the Spring container
+ *    // actual implementation provided by the IoC
  *    public void setServiceFactory(ServiceFactory myServiceFactory) {
  *        this.myServiceFactory = myServiceFactory;
  *    }
@@ -124,7 +124,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <p>By way of an example that looks up a bean <b>by name</b>, consider
  * the following service locator interface. Again, note that this
- * interface is not dependent on any Spring APIs.
+ * interface is not dependent on any Framework APIs.
  *
  * <pre class="code">package a.b.c;
  *
@@ -161,7 +161,7 @@ import cn.taketoday.util.StringUtils;
  *
  *    private ServiceFactory myServiceFactory;
  *
- *    // actual implementation provided by the Spring container
+ *    // actual implementation provided by the IoC
  *    public void setServiceFactory(ServiceFactory myServiceFactory) {
  *        this.myServiceFactory = myServiceFactory;
  *    }
@@ -225,7 +225,7 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
    * <p>If not specified, subclasses of  BeansException will be thrown,
    * for example NoSuchBeanDefinitionException. As those are unchecked, the
    * caller does not need to handle them, so it might be acceptable that
-   * Spring exceptions get thrown as long as they are just handled generically.
+   * Framework exceptions get thrown as long as they are just handled generically.
    *
    * @see #determineServiceLocatorExceptionConstructor
    * @see #createServiceLocatorException

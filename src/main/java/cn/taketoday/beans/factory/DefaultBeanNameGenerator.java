@@ -21,10 +21,23 @@
 package cn.taketoday.beans.factory;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/19 21:35</a>
- * @since 4.0
+ * Default implementation of the {@link BeanNameGenerator} interface, delegating to
+ * {@link BeanFactoryUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/12/7 22:33
  */
-public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
+public class DefaultBeanNameGenerator implements BeanNameGenerator {
 
-  void postProcessDependencies(Object bean, BeanDefinition definition);
+  /**
+   * A convenient constant for a default {@code DefaultBeanNameGenerator} instance
+   */
+  public static final DefaultBeanNameGenerator INSTANCE = new DefaultBeanNameGenerator();
+
+  @Override
+  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    return BeanFactoryUtils.generateBeanName(definition, registry);
+  }
+
 }

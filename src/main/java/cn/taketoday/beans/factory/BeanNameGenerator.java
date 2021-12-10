@@ -21,10 +21,21 @@
 package cn.taketoday.beans.factory;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/19 21:35</a>
+ * Strategy interface for generating bean names for bean definitions.
+ *
+ * @author Juergen Hoeller
  * @since 4.0
  */
-public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
+public interface BeanNameGenerator {
 
-  void postProcessDependencies(Object bean, BeanDefinition definition);
+  /**
+   * Generate a bean name for the given bean definition.
+   *
+   * @param definition the bean definition to generate a name for
+   * @param registry the bean definition registry that the given definition
+   * is supposed to be registered with
+   * @return the generated bean name
+   */
+  String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry);
+
 }

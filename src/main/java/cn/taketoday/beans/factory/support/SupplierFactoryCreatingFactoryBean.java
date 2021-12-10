@@ -19,15 +19,16 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serializable;
+import java.util.function.Supplier;
+
 import cn.taketoday.beans.factory.AbstractFactoryBean;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-
-import java.io.Serializable;
-import java.util.function.Supplier;
 
 /**
  * A {@link FactoryBean} implementation that returns a value which is an
@@ -140,7 +141,7 @@ public class SupplierFactoryCreatingFactoryBean extends AbstractFactoryBean<Supp
 
     @Override
     public Object get() throws BeansException {
-      return this.beanFactory.getBean(this.targetBeanName);
+      return BeanFactoryUtils.requiredBean(beanFactory, targetBeanName);
     }
   }
 

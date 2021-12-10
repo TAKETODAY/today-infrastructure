@@ -155,6 +155,13 @@ public class BeanDefinition
   /** disable DI @since 4.0 */
   private boolean enableDependencyInjection = true;
 
+  // @since 4.0
+  @Nullable
+  private String description;
+
+  @Nullable
+  private String[] dependsOn;
+
   // cache for fast access
   Executable executable;
   BeanInstantiator instantiator;
@@ -169,7 +176,7 @@ public class BeanDefinition
   boolean postProcessed = false;
 
   @Nullable
-  private String[] dependsOn;
+  volatile ResolvableType targetType;
 
   public BeanDefinition() { }
 
@@ -252,6 +259,24 @@ public class BeanDefinition
               "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
     }
     return (Class<?>) beanClassObject;
+  }
+
+  /**
+   * Return a resolvable type for this bean definition.
+   * <p>This implementation delegates to {@link #getBeanClass()}.
+   *
+   * @since 4.0
+   */
+  public ResolvableType getResolvableType() {
+    ResolvableType targetType = this.targetType;
+    if (targetType != null) {
+      return targetType;
+    }
+    ResolvableType returnType = this.factoryMethodReturnType;
+    if (returnType != null) {
+      return returnType;
+    }
+    return hasBeanClass() ? ResolvableType.fromClass(getBeanClass()) : ResolvableType.NONE;
   }
 
   /**
@@ -796,6 +821,25 @@ public class BeanDefinition
   /** @since 4.0 */
   public boolean isEnableDependencyInjection() {
     return enableDependencyInjection;
+  }
+
+  /**
+   * Set a human-readable description of this bean definition.
+   *
+   * @since 4.0
+   */
+  public void setDescription(@Nullable String description) {
+    this.description = description;
+  }
+
+  /**
+   * Return a human-readable description of this bean definition.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getDescription() {
+    return this.description;
   }
 
   /**
