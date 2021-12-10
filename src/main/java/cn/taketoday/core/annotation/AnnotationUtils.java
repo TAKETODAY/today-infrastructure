@@ -118,7 +118,7 @@ public abstract class AnnotationUtils {
    */
   public static <A extends Annotation> boolean isPresent(
           @Nullable AnnotatedElement element, @Nullable Class<A> annType) {
-    return AnnotatedElementUtils.isAnnotated(element, annType);
+    return AnnotatedElementUtils.hasAnnotation(element, annType);
   }
 
   /**

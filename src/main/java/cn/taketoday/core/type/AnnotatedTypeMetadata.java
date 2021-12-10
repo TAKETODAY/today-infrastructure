@@ -59,9 +59,33 @@ public interface AnnotatedTypeMetadata {
    * underlying element.
    *
    * @return merged annotations based on the direct annotations
-   * @since 4.0
    */
   MergedAnnotations getAnnotations();
+
+  /**
+   * Get the {@linkplain MergedAnnotationSelectors#nearest() nearest} matching
+   * annotation or meta-annotation of the specified type, or
+   * {@link MergedAnnotation#missing()} if none is present.
+   *
+   * @param annotationType the annotation type to get
+   * @return a {@link MergedAnnotation} instance
+   */
+  default <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {
+    return getAnnotations().get(annotationType);
+  }
+
+  /**
+   * Get the {@linkplain MergedAnnotationSelectors#nearest() nearest} matching
+   * annotation or meta-annotation of the specified type, or
+   * {@link MergedAnnotation#missing()} if none is present.
+   *
+   * @param annotationType the fully qualified class name of the annotation type
+   * to get
+   * @return a {@link MergedAnnotation} instance
+   */
+  default <A extends Annotation> MergedAnnotation<A> getAnnotation(String annotationType) {
+    return getAnnotations().get(annotationType);
+  }
 
   /**
    * Get the fully qualified class names of all annotation types that
@@ -86,12 +110,13 @@ public interface AnnotatedTypeMetadata {
    */
   default Set<String> getMetaAnnotationTypes(String annotationName) {
     MergedAnnotation<?> annotation = getAnnotations().get(annotationName, MergedAnnotation::isDirectlyPresent);
-    if (!annotation.isPresent()) {
-      return Collections.emptySet();
+    if (annotation.isPresent()) {
+      return MergedAnnotations.from(annotation.getType(), SearchStrategy.INHERITED_ANNOTATIONS)
+              .stream()
+              .map(mergedAnnotation -> mergedAnnotation.getType().getName())
+              .collect(Collectors.toCollection(LinkedHashSet::new));
     }
-    return MergedAnnotations.from(annotation.getType(), SearchStrategy.INHERITED_ANNOTATIONS).stream()
-            .map(mergedAnnotation -> mergedAnnotation.getType().getName())
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+    return Collections.emptySet();
   }
 
   /**
@@ -115,7 +140,9 @@ public interface AnnotatedTypeMetadata {
    * @return {@code true} if a matching meta-annotation is present
    */
   default boolean hasMetaAnnotation(String metaAnnotationName) {
-    return getAnnotations().get(metaAnnotationName, MergedAnnotation::isMetaPresent).isPresent();
+    return getAnnotations()
+            .get(metaAnnotationName, MergedAnnotation::isMetaPresent)
+            .isPresent();
   }
 
   /**

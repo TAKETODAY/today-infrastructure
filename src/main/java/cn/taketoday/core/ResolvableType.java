@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.SerializableTypeWrapper.ParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -1022,6 +1023,75 @@ public class ResolvableType implements Serializable {
   // Factory methods
 
   /**
+   * Return a {@link ResolvableType} for the specified {@link MethodParameter}.
+   *
+   * @param methodParameter the source method parameter (must not be {@code null})
+   * @return a {@link ResolvableType} for the specified method parameter
+   * @see #forParameter(Executable, int)
+   * @since 4.0
+   */
+  public static ResolvableType forMethodParameter(MethodParameter methodParameter) {
+    return forMethodParameter(methodParameter, (Type) null);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link MethodParameter} with a
+   * given implementation type. Use this variant when the class that declares the method
+   * includes generic parameter variables that are satisfied by the implementation type.
+   *
+   * @param methodParameter the source method parameter (must not be {@code null})
+   * @param implementationType the implementation type
+   * @return a {@link ResolvableType} for the specified method parameter
+   * @see #forMethodParameter(MethodParameter)
+   * @since 4.0
+   */
+  public static ResolvableType forMethodParameter(
+          MethodParameter methodParameter,
+          @Nullable ResolvableType implementationType) {
+
+    Assert.notNull(methodParameter, "MethodParameter must not be null");
+    implementationType = (implementationType != null ? implementationType :
+                          fromType(methodParameter.getContainingClass()));
+    ResolvableType owner = implementationType.as(methodParameter.getDeclaringClass());
+    return valueOf(null, new ParameterTypeProvider(methodParameter), owner.asVariableResolver()).
+            getNested(methodParameter.getNestingLevel(), methodParameter.typeIndexesPerLevel);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link MethodParameter},
+   * overriding the target type to resolve with a specific given type.
+   *
+   * @param methodParameter the source method parameter (must not be {@code null})
+   * @param targetType the type to resolve (a part of the method parameter's type)
+   * @return a {@link ResolvableType} for the specified method parameter
+   * @see #forParameter(Executable, int)
+   * @since 4.0
+   */
+  public static ResolvableType forMethodParameter(MethodParameter methodParameter, @Nullable Type targetType) {
+    Assert.notNull(methodParameter, "MethodParameter must not be null");
+    return forMethodParameter(methodParameter, targetType, methodParameter.getNestingLevel());
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link MethodParameter} at
+   * a specific nesting level, overriding the target type to resolve with a specific
+   * given type.
+   *
+   * @param methodParameter the source method parameter (must not be {@code null})
+   * @param targetType the type to resolve (a part of the method parameter's type)
+   * @param nestingLevel the nesting level to use
+   * @return a {@link ResolvableType} for the specified method parameter
+   * @see #forParameter(Executable, int)
+   * @since 4.0
+   */
+  static ResolvableType forMethodParameter(
+          MethodParameter methodParameter, @Nullable Type targetType, int nestingLevel) {
+    ResolvableType owner = fromType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
+    return valueOf(targetType, new ParameterTypeProvider(methodParameter), owner.asVariableResolver()).
+            getNested(nestingLevel, methodParameter.typeIndexesPerLevel);
+  }
+
+  /**
    * Return a {@link ResolvableType} for the specified {@link Executable} parameter.
    *
    * @param executable the source Executable (must not be {@code null})
@@ -1095,7 +1165,7 @@ public class ResolvableType implements Serializable {
     ResolvableType owner = implementationClass == null
                            ? fromType(declaringClass)
                            : fromType(implementationClass).as(declaringClass);
-    return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter, parameterIndex), owner.asVariableResolver());
+    return valueOf(null, new ParameterTypeProvider(parameter, parameterIndex), owner.asVariableResolver());
   }
 
   /**
@@ -1128,7 +1198,7 @@ public class ResolvableType implements Serializable {
                            ? implementationType.as(declaringClass)
                            : fromType(declaringClass);
 
-    return valueOf(null, new SerializableTypeWrapper.ParameterTypeProvider(parameter), owner.asVariableResolver());
+    return valueOf(null, new ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
 
   public static ResolvableType fromParameter(Parameter parameter, Class<?> implementationType) {
@@ -1149,7 +1219,7 @@ public class ResolvableType implements Serializable {
     Executable executable = parameter.getDeclaringExecutable();
     Class<?> declaringClass = executable.getDeclaringClass();
     ResolvableType owner = fromType(declaringClass);
-    return valueOf(targetType, new SerializableTypeWrapper.ParameterTypeProvider(parameter), owner.asVariableResolver());
+    return valueOf(targetType, new ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
 
   /**

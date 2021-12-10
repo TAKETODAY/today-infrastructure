@@ -249,6 +249,14 @@ final class SerializableTypeWrapper {
     private final int parameterIndex;
     private transient Parameter methodParameter;
 
+    public ParameterTypeProvider(MethodParameter methodParameter) {
+      this.methodName = (methodParameter.getMethod() != null ? methodParameter.getMethod().getName() : null);
+      this.parameterTypes = methodParameter.getExecutable().getParameterTypes();
+      this.declaringClass = methodParameter.getDeclaringClass();
+      this.parameterIndex = methodParameter.getParameterIndex();
+      this.methodParameter = methodParameter.getParameter();
+    }
+
     public ParameterTypeProvider(Parameter parameter) {
       this(parameter, ReflectionUtils.getParameterIndex(parameter));
     }

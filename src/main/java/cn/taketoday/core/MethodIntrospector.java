@@ -19,17 +19,16 @@
  */
 package cn.taketoday.core;
 
-
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Defines the algorithm for searching for metadata-associated methods exhaustively
@@ -47,7 +46,6 @@ public final class MethodIntrospector {
 
   private MethodIntrospector() { }
 
-
   /**
    * Select methods on the given target type based on the lookup of associated metadata.
    * <p>Callers define methods of interest through the {@link MetadataLookup} parameter,
@@ -61,8 +59,8 @@ public final class MethodIntrospector {
    * or an empty map in case of no match
    */
   public static <T> Map<Method, T> selectMethods(Class<?> targetType, final MetadataLookup<T> metadataLookup) {
-    final Map<Method, T> methodMap = new LinkedHashMap<>();
-    Set<Class<?>> handlerTypes = new LinkedHashSet<>();
+    final LinkedHashMap<Method, T> methodMap = new LinkedHashMap<>();
+    LinkedHashSet<Class<?>> handlerTypes = new LinkedHashSet<>();
     Class<?> specificHandlerType = null;
 
     if (!Proxy.isProxyClass(targetType)) {
@@ -98,9 +96,8 @@ public final class MethodIntrospector {
    * recognize handler methods of interest
    * @return the selected methods, or an empty set in case of no match
    */
-  public static Set<Method> selectMethods(Class<?> targetType, final ReflectionUtils.MethodFilter methodFilter) {
-    return selectMethods(targetType,
-            (MetadataLookup<Boolean>) method -> (methodFilter.matches(method) ? Boolean.TRUE : null)).keySet();
+  public static Set<Method> filterMethods(Class<?> targetType, final ReflectionUtils.MethodFilter methodFilter) {
+    return selectMethods(targetType, method -> (methodFilter.matches(method) ? Boolean.TRUE : null)).keySet();
   }
 
   /**
@@ -144,7 +141,6 @@ public final class MethodIntrospector {
               method.getName(), method.getDeclaringClass().getSimpleName()));
     }
   }
-
 
   /**
    * A callback interface for metadata lookup on a given method.

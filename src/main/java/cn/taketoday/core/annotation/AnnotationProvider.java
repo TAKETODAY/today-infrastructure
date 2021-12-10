@@ -51,7 +51,7 @@ public interface AnnotationProvider<A extends Annotation> {
    */
   default MergedAnnotation<A> getMergedAnnotation(AnnotatedTypeMetadata metadata) {
     Assert.notNull(metadata, "AnnotatedTypeMetadata is required");
-    return metadata.getAnnotations().get(annotationType());
+    return metadata.getAnnotation(annotationType());
   }
 
   /**

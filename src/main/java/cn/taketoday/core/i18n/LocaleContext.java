@@ -31,7 +31,7 @@ import java.util.Locale;
  * via the LocaleContextHolder class.
  *
  * @author Juergen Hoeller
- * @since 1.2
+ * @since 4.0
  * @see LocaleContextHolder#getLocale()
  * @see TimeZoneAwareLocaleContext
  */

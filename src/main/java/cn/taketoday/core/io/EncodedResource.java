@@ -43,7 +43,7 @@ import cn.taketoday.lang.Assert;
  * @see Resource#getInputStream()
  * @see java.io.Reader
  * @see java.nio.charset.Charset
- * @since 1.2.6
+ * @since 4.0
  */
 public class EncodedResource implements InputStreamSource {
 

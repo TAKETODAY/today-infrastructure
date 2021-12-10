@@ -265,7 +265,7 @@ public class TypeDescriptor implements Serializable {
    * @return <tt>true</tt> if the annotation is present
    */
   public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-    return AnnotatedElementUtils.isAnnotated(this.annotatedElement, annotationType);
+    return AnnotatedElementUtils.hasAnnotation(this.annotatedElement, annotationType);
   }
 
   /**
