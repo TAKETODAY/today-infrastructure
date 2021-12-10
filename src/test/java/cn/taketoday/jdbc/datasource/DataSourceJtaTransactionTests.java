@@ -38,7 +38,6 @@ import cn.taketoday.jdbc.datasource.lookup.IsolationLevelDataSourceRouter;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.TransactionStatus;
-import cn.taketoday.transaction.TransactionTemplate;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.jta.JtaTransactionObject;
 import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
@@ -64,7 +63,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
- * @since 17.10.2005
+ * @since 4.0
  */
 public class DataSourceJtaTransactionTests {
 

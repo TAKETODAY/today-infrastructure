@@ -35,11 +35,11 @@ import cn.taketoday.transaction.SynchronizationManager;
 
 /**
  * Proxy for a target JDBC {@link DataSource}, adding awareness of
- * Spring-managed transactions. Similar to a transactional JNDI DataSource
+ * Framework-managed transactions. Similar to a transactional JNDI DataSource
  * as provided by a Jakarta EE server.
  *
  * <p>Data access code that should remain unaware of  data access support
- * can work with this proxy to seamlessly participate in Spring-managed transactions.
+ * can work with this proxy to seamlessly participate in Framework-managed transactions.
  * Note that the transaction manager, for example {@link DataSourceTransactionManager},
  * still needs to work with the underlying DataSource, <i>not</i> with this proxy.
  *
@@ -56,7 +56,7 @@ import cn.taketoday.transaction.SynchronizationManager;
  * Connection. If not within a transaction, normal DataSource behavior applies.
  *
  * <p>This proxy allows data access code to work with the plain JDBC API and still
- * participate in Spring-managed transactions, similar to JDBC code in a Jakarta EE/JTA
+ * participate in Framework-managed transactions, similar to JDBC code in a Jakarta EE/JTA
  * environment. However, if possible, use  DataSourceUtils, JdbcTemplate or
  * JDBC operation objects to get transaction participation even without a proxy for
  * the target DataSource, avoiding the need to define such a proxy in the first place.
@@ -64,7 +64,7 @@ import cn.taketoday.transaction.SynchronizationManager;
  * <p>As a further effect, using a transaction-aware DataSource will apply remaining
  * transaction timeouts to all created JDBC (Prepared/Callable)Statement. This means
  * that all operations performed through standard JDBC will automatically participate
- * in Spring-managed transaction timeouts.
+ * in Framework-managed transaction timeouts.
  *
  * <p><b>NOTE:</b> This DataSource proxy needs to return wrapped Connections (which
  * implement the {@link ConnectionProxy} interface) in order to handle close calls
@@ -112,7 +112,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
   }
 
   /**
-   * Delegates to DataSourceUtils for automatically participating in Spring-managed
+   * Delegates to DataSourceUtils for automatically participating in Framework-managed
    * transactions. Throws the original SQLException, if any.
    * <p>The returned Connection handle implements the ConnectionProxy interface,
    * allowing to retrieve the underlying target Connection.

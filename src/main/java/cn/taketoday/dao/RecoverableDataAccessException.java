@@ -29,7 +29,7 @@ package cn.taketoday.dao;
  *
  * @author Thomas Risberg
  * @see java.sql.SQLRecoverableException
- * @since 2.5
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class RecoverableDataAccessException extends DataAccessException {

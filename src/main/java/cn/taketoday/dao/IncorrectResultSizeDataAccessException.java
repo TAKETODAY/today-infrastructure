@@ -27,7 +27,7 @@ package cn.taketoday.dao;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @see EmptyResultDataAccessException
- * @since 1.0.2
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class IncorrectResultSizeDataAccessException extends DataRetrievalFailureException {

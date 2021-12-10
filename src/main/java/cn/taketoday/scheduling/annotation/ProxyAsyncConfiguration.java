@@ -23,10 +23,10 @@ package cn.taketoday.scheduling.annotation;
 import java.lang.annotation.Annotation;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Component;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 
 /**
@@ -45,7 +45,7 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 public class ProxyAsyncConfiguration extends AbstractAsyncConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Bean(TaskManagementConfigUtils.ASYNC_ANNOTATION_PROCESSOR_BEAN_NAME)
+  @Component(TaskManagementConfigUtils.ASYNC_ANNOTATION_PROCESSOR_BEAN_NAME)
   public AsyncAnnotationBeanPostProcessor asyncAdvisor() {
     Assert.notNull(this.enableAsync, "@EnableAsync annotation metadata was not injected");
     AsyncAnnotationBeanPostProcessor bpp = new AsyncAnnotationBeanPostProcessor();

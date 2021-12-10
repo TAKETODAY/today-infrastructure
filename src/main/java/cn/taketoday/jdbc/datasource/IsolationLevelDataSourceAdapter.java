@@ -26,12 +26,11 @@ import java.sql.SQLException;
 import cn.taketoday.core.Constants;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionDefinition;
-import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
  * An adapter for a target {@link javax.sql.DataSource}, applying the current
- * Spring transaction's isolation level (and potentially specified user credentials)
+ * Framework transaction's isolation level (and potentially specified user credentials)
  * to every {@code getConnection} call. Also applies the read-only flag,
  * if specified.
  *
@@ -90,7 +89,7 @@ public class IsolationLevelDataSourceAdapter extends UserCredentialsDataSourceAd
   /**
    * Specify the default isolation level to use for Connection retrieval,
    * according to the JDBC {@link Connection} constants
-   * (equivalent to the corresponding Spring
+   * (equivalent to the corresponding Framework
    * {@link cn.taketoday.transaction.TransactionDefinition} constants).
    * <p>If not specified, the target DataSource's default will be used.
    * Note that a transaction-specific isolation value will always override

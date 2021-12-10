@@ -112,7 +112,7 @@ import cn.taketoday.context.annotation.Configuration;
  * when possible.
  *
  * <p>Note: In the above example the {@code ThreadPoolTaskExecutor} is not a fully managed
- * Spring bean. Add the {@code @Bean} annotation to the {@code getAsyncExecutor()} method
+ * Spring bean. Add the {@code @Component} annotation to the {@code getAsyncExecutor()} method
  * if you want a fully managed bean. In such circumstances it is no longer necessary to
  * manually call the {@code executor.initialize()} method as this will be invoked
  * automatically when the bean is initialized.

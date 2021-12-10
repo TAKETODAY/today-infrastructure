@@ -22,6 +22,8 @@ package cn.taketoday.jdbc.support;
 import java.sql.SQLException;
 import java.util.List;
 
+import cn.taketoday.jdbc.core.SqlParameterValue;
+
 /**
  * @author TODAY <br>
  * 2019-08-18 20:09

@@ -21,9 +21,9 @@
 package cn.taketoday.scheduling.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Role;
+import cn.taketoday.lang.Component;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 
 /**
@@ -44,7 +44,7 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 public class SchedulingConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Bean(TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
+  @Component(TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
   public ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
     return new ScheduledAnnotationBeanPostProcessor();
   }

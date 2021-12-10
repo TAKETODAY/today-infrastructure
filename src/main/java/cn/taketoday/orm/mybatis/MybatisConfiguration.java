@@ -32,7 +32,6 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
@@ -42,6 +41,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.logging.Logger;
@@ -53,7 +53,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * @author TODAY 2018-10-05 19:03
  */
-@cn.taketoday.context.annotation.Configuration
+@cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -72,7 +72,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
       if (repository.isPresent()) {
         String className = metadata.getAnnotationMetadata().getClassName();
         log.debug("Found Mapper: [{}]", className);
-        String[] names = repository.getStringArray(MergedAnnotation.VALUE);
+        String[] names = repository.getStringValueArray();
         String name = ObjectUtils.isNotEmpty(names)
                       ? names[0] : loadingContext.createBeanName(className);
 
@@ -91,7 +91,7 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
     return ret;
   }
 
-  @MissingBean
+  @Component
   public SqlSession sqlSession(
           @Autowired DataSource dataSource,
           @Env("mybatis.env") String envId,

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.transaction;
 
+import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 
@@ -41,7 +42,7 @@ import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
  *
  * @author Juergen Hoeller
  * @author TODAY 2018-10-09 11:51
- * @see TransactionManager#getTransaction(TransactionDefinition)
+ * @see PlatformTransactionManager#getTransaction(TransactionDefinition)
  */
 public interface TransactionDefinition {
 

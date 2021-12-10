@@ -26,7 +26,7 @@ package cn.taketoday.web.util;
  *
  * @author Juergen Hoeller
  * @author Martin Kersten
- * @since 1.2.1
+ * @since 4.0
  */
 class HtmlCharacterEntityDecoder {
 

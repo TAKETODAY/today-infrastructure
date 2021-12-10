@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * A simple benchmark test
  *
- * @since 2.4
+ * @since 4.0
  */
 @Disabled
 class BenchmarkTests {

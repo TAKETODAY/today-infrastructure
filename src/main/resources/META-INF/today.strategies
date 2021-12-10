@@ -1,2 +1,2 @@
 cn.taketoday.context.loader.BeanDefinitionLoadingStrategy=\
-cn.taketoday.context.annotation.ComponentAnnotationBeanDefinitionCreator
+cn.taketoday.context.loader.ComponentAnnotationBeanDefinitionCreator

@@ -39,7 +39,7 @@ import cn.taketoday.beans.factory.FactoryBean;
  *
  * @author Rod Johnson
  * @author Chris Beams
- * @since 10.03.2003
+ * @since 4.0
  */
 public class DummyFactory
         implements FactoryBean<Object>, BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {

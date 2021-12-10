@@ -24,7 +24,7 @@ package cn.taketoday.transaction;
  * rollback.
  *
  * @author Rod Johnson
- * @since 17.03.2003
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class UnexpectedRollbackException extends TransactionException {

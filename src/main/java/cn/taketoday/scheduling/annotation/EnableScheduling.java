@@ -127,7 +127,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  *     }
  * }</pre>
  *
- * <p>Note in the example above the use of {@code @Bean(destroyMethod="shutdown")}.
+ * <p>Note in the example above the use of {@code @Component(destroyMethod="shutdown")}.
  * This ensures that the task executor is properly shut down when the Spring
  * application context itself is closed.
  *

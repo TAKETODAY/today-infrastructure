@@ -318,12 +318,16 @@ public abstract class StringUtils {
    * Sort the given {@code String} array if necessary.
    *
    * @param array the original array (potentially empty)
+   * @return the array in sorted form (never {@code null})
    * @since 4.0
    */
-  public static void sortArray(String[] array) {
-    if (ObjectUtils.isNotEmpty(array)) {
-      Arrays.sort(array);
+  public static String[] sortArray(String[] array) {
+    if (ObjectUtils.isEmpty(array)) {
+      return array;
     }
+
+    Arrays.sort(array);
+    return array;
   }
 
   /**

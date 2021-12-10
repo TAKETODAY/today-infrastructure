@@ -31,6 +31,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.transaction.support.ResourceTransactionManager;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -101,7 +102,7 @@ public abstract class SynchronizationManager {
       final Object value = doGetResource(key);
       if (value != null && log.isTraceEnabled()) {
         log.trace("Retrieved value [{}] for key [{}] bound to thread: [{}]",
-                  value, key, Thread.currentThread().getName());
+                value, key, Thread.currentThread().getName());
       }
       return value;
     }

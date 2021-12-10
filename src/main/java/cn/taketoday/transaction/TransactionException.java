@@ -21,14 +21,18 @@ package cn.taketoday.transaction;
 
 import java.io.Serial;
 
+import cn.taketoday.core.NestedRuntimeException;
+
 /**
- * @author TODAY <br>
- * 2018-11-06 22:46
+ * Superclass for all transaction exceptions.
+ *
+ * @author TODAY
+ * @see 2018-11-06 22:46
  */
-public class TransactionException extends RuntimeException {
+public abstract class TransactionException extends NestedRuntimeException {
 
   @Serial
-  private static final long serialVersionUID = 1035812189386467319L;
+  private static final long serialVersionUID = 1L;
 
   public TransactionException() {
     super();

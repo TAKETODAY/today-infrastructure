@@ -32,7 +32,7 @@ package cn.taketoday.dao;
  * @see CannotAcquireLockException
  * @see DeadlockLoserDataAccessException
  * @see OptimisticLockingFailureException
- * @since 1.2
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class PessimisticLockingFailureException extends ConcurrencyFailureException {

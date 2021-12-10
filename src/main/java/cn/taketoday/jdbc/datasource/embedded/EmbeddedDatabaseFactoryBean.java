@@ -31,15 +31,15 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * A subclass of {@link EmbeddedDatabaseFactory} that implements {@link FactoryBean}
- * for registration as a Spring bean. Returns the actual {@link DataSource} that
- * provides connectivity to the embedded database to Spring.
+ * for registration as a Framework bean. Returns the actual {@link DataSource} that
+ * provides connectivity to the embedded database to Framework.
  *
  * <p>The target {@link DataSource} is returned instead of an {@link EmbeddedDatabase}
  * proxy since the {@link FactoryBean} will manage the initialization and destruction
  * lifecycle of the embedded database instance.
  *
  * <p>Implements {@link DisposableBean} to shutdown the embedded database when the
- * managing Spring container is being closed.
+ * managing IoC is being closed.
  *
  * @author Keith Donald
  * @author Juergen Hoeller

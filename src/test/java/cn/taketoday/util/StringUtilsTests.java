@@ -519,7 +519,8 @@ class StringUtilsTests {
     assertThat(locale).as("When given an empty Locale string, must return null.").isNull();
   }
 
-  @Test  // SPR-8637
+  @Test
+    // SPR-8637
   void parseLocaleWithMultiSpecialCharactersInVariant() {
     String variant = "proper-northern";
     String localeString = "en_GB_" + variant;
@@ -527,7 +528,8 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
   }
 
-  @Test  // SPR-3671
+  @Test
+    // SPR-3671
   void parseLocaleWithMultiValuedVariant() {
     String variant = "proper_northern";
     String localeString = "en_GB_" + variant;
@@ -535,7 +537,8 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
   }
 
-  @Test  // SPR-3671
+  @Test
+    // SPR-3671
   void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparators() {
     String variant = "proper northern";
     String localeString = "en GB " + variant;
@@ -543,7 +546,8 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
   }
 
-  @Test  // SPR-3671
+  @Test
+    // SPR-3671
   void parseLocaleWithMultiValuedVariantUsingMixtureOfUnderscoresAndSpacesAsSeparators() {
     String variant = "proper northern";
     String localeString = "en_GB_" + variant;
@@ -551,7 +555,8 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
   }
 
-  @Test  // SPR-3671
+  @Test
+    // SPR-3671
   void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparatorsWithLotsOfLeadingWhitespace() {
     String variant = "proper northern";
     String localeString = "en GB            " + variant;  // lots of whitespace
@@ -559,7 +564,8 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
   }
 
-  @Test  // SPR-3671
+  @Test
+    // SPR-3671
   void parseLocaleWithMultiValuedVariantUsingUnderscoresAsSeparatorsWithLotsOfLeadingWhitespace() {
     String variant = "proper_northern";
     String localeString = "en_GB_____" + variant;  // lots of underscores
@@ -567,19 +573,22 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
   }
 
-  @Test  // SPR-7779
+  @Test
+    // SPR-7779
   void parseLocaleWithInvalidCharacters() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> StringUtils.parseLocaleString("%0D%0AContent-length:30%0D%0A%0D%0A%3Cscript%3Ealert%28123%29%3C/script%3E"));
   }
 
-  @Test  // SPR-9420
+  @Test
+    // SPR-9420
   void parseLocaleWithSameLowercaseTokenForLanguageAndCountry() {
     assertThat(StringUtils.parseLocaleString("tr_tr").toString()).isEqualTo("tr_TR");
     assertThat(StringUtils.parseLocaleString("bg_bg_vnt").toString()).isEqualTo("bg_BG_vnt");
   }
 
-  @Test  // SPR-11806
+  @Test
+    // SPR-11806
   void parseLocaleWithVariantContainingCountryCode() {
     String variant = "GBtest";
     String localeString = "en_GB_" + variant;
@@ -587,12 +596,14 @@ class StringUtilsTests {
     assertThat(locale.getVariant()).as("Variant containing country code not extracted correctly").isEqualTo(variant);
   }
 
-  @Test  // SPR-14718, SPR-7598
+  @Test
+    // SPR-14718, SPR-7598
   void parseJava7Variant() {
     assertThat(StringUtils.parseLocaleString("sr__#LATN").toString()).isEqualTo("sr__#LATN");
   }
 
-  @Test  // SPR-16651
+  @Test
+    // SPR-16651
   void availableLocalesWithLocaleString() {
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale parsedLocale = StringUtils.parseLocaleString(locale.toString());
@@ -605,7 +616,8 @@ class StringUtilsTests {
     }
   }
 
-  @Test  // SPR-16651
+  @Test
+    // SPR-16651
   void availableLocalesWithLanguageTag() {
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale parsedLocale = StringUtils.parseLocale(locale.toLanguageTag());

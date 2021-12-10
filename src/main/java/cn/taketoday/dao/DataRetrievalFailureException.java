@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
  * will be thrown either by O/R mapping tools or by DAO implementations.
  *
  * @author Juergen Hoeller
- * @since 13.10.2003
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class DataRetrievalFailureException extends NonTransientDataAccessException {

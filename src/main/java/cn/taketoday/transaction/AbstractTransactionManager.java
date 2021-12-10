@@ -28,6 +28,7 @@ import java.util.List;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
+import cn.taketoday.transaction.support.DefaultTransactionStatus;
 
 import static cn.taketoday.transaction.TransactionDefinition.ISOLATION_DEFAULT;
 
@@ -35,7 +36,8 @@ import static cn.taketoday.transaction.TransactionDefinition.ISOLATION_DEFAULT;
  * @author TODAY <br>
  * 2018-11-06 22:51
  */
-public abstract class AbstractTransactionManager implements TransactionManager, Serializable {
+@Deprecated
+public abstract class AbstractTransactionManager implements PlatformTransactionManager, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -319,7 +321,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     // Create "empty" transaction: no actual transaction, but potentially synchronization.
     if (def.getIsolationLevel() != ISOLATION_DEFAULT) {
       log.warn("Custom isolation level specified but no actual transaction initiated; isolation level will effectively be ignored: {}",
-               def);
+              def);
     }
     boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
     return prepareTransactionStatus(SynchronizationManager.getMetaData(), def, null, true, newSynchronization, null);
@@ -345,7 +347,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
       case TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
         if (log.isDebugEnabled()) {
           log.debug("Suspending current transaction, creating new transaction with name [{}]",
-                    def.getName());
+                  def.getName());
         }
         final SuspendedResourcesHolder res = suspend(metaData, transaction);
 
@@ -460,11 +462,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
           final boolean newSynchronization,
           final Object suspendedResources
   ) {
-    return new DefaultTransactionStatus(transaction,
-                                        newTransaction,
-                                        newSynchronization,
-                                        definition.isReadOnly(),
-                                        suspendedResources);
+    return null;
   }
 
   /**
@@ -1093,7 +1091,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * @see #doResume
    */
   protected Object doSuspend(final SynchronizationMetaData metaData, final Object transaction) {
-    throw new TransactionException(
+    throw new TransactionSuspensionNotSupportedException(
             "Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
   }
 
@@ -1116,7 +1114,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
           SynchronizationMetaData metaData,
           Object transaction, Object suspendedResources) throws TransactionException {
 
-    throw new TransactionException(
+    throw new TransactionSuspensionNotSupportedException(
             "Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
   }
 

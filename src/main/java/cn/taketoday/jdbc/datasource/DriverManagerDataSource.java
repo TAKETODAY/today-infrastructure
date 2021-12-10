@@ -49,7 +49,7 @@ import cn.taketoday.util.ClassUtils;
  * usage (which is exactly what SimpleDriverDataSource does).</b>
  *
  * <p>In a Jakarta EE container, it is recommended to use a JNDI DataSource provided by
- * the container. Such a DataSource can be exposed as a DataSource bean in a Spring
+ * the container. Such a DataSource can be exposed as a DataSource bean in a Framework
  * ApplicationContext via {@link cn.taketoday.jndi.JndiObjectFactoryBean},
  * for seamless switching to and from a local DataSource bean like this class.
  * For tests, you can then either set up a mock JNDI environment through

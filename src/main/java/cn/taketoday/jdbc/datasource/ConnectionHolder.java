@@ -80,7 +80,7 @@ public class ConnectionHolder extends ResourceHolderSupport {
    *
    * @param connection the JDBC Connection to hold
    * @see SimpleConnectionHandle
-   * @see #ConnectionHolder(Connection, boolean)
+   * @see #ConnectionHolder(java.sql.Connection, boolean)
    */
   public ConnectionHolder(Connection connection) {
     this.connectionHandle = new SimpleConnectionHandle(connection);

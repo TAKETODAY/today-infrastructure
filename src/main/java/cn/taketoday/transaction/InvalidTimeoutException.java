@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,19 +19,26 @@
  */
 package cn.taketoday.transaction;
 
-import java.io.Serial;
-
 /**
- * @author TODAY <br>
- * 2018-10-09 11:09
+ * Exception that gets thrown when an invalid timeout is specified,
+ * that is, the specified timeout valid is out of range or the
+ * transaction manager implementation doesn't support timeouts.
+ *
+ * @author Juergen Hoeller
+ * @author TODAY
+ * @since 2018-10-09 11:09
  */
-public class InvalidTimeoutException extends TransactionException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public class InvalidTimeoutException extends TransactionUsageException {
 
   private final int timeout;
 
+  /**
+   * Constructor for InvalidTimeoutException.
+   *
+   * @param msg the detail message
+   * @param timeout the invalid timeout value
+   */
   public InvalidTimeoutException(String msg, int timeout) {
     super(msg);
     this.timeout = timeout;

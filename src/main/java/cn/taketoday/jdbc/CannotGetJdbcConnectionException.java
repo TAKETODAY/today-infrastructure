@@ -19,7 +19,7 @@
  */
 package cn.taketoday.jdbc;
 
-import cn.taketoday.core.DataAccessException;
+import cn.taketoday.core.NestedRuntimeException;
 
 import java.io.Serial;
 
@@ -29,7 +29,7 @@ import java.io.Serial;
  * @author TODAY <br>
  * 2019-11-09 14:53
  */
-public class CannotGetJdbcConnectionException extends DataAccessException {
+public class CannotGetJdbcConnectionException extends NestedRuntimeException {
   @Serial
   private static final long serialVersionUID = 1L;
 

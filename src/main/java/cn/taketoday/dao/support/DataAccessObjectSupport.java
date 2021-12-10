@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.InitializingBean;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.core.support.JdbcDaoSupport
- * @since 1.2.2
+ * @since 4.0
  */
 public abstract class DataAccessObjectSupport implements InitializingBean {
 

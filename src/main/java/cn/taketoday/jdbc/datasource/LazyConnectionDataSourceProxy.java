@@ -20,11 +20,6 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import cn.taketoday.core.Constants;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,6 +29,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.core.Constants;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Proxy for a target DataSource, fetching actual JDBC Connections lazily,

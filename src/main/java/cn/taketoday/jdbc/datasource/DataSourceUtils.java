@@ -29,9 +29,9 @@ import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.transaction.ConnectionHolder;
 import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import cn.taketoday.transaction.TransactionDefinition;
@@ -39,18 +39,22 @@ import cn.taketoday.transaction.TransactionSynchronization;
 
 /**
  * Helper class that provides static methods for obtaining JDBC Connections from
- * a {@link javax.sql.DataSource}. Includes special support for Spring-managed
+ * a {@link javax.sql.DataSource}. Includes special support for Framework-managed
  * transactional Connections, e.g. managed by {@link DataSourceTransactionManager}
  * or {@link cn.taketoday.transaction.jta.JtaTransactionManager}.
  *
- * <p>Used internally by Spring's {@link cn.taketoday.jdbc.core.JdbcTemplate},
- * Spring's JDBC operation objects and the JDBC {@link DataSourceTransactionManager}.
+ * <p>Used internally by Framework's {@link cn.taketoday.jdbc.core.JdbcTemplate},
+ * Framework's JDBC operation objects and the JDBC {@link DataSourceTransactionManager}.
  * Can also be used directly in application code.
  *
  * @author TODAY 2018-11-06 20:37
  */
 public abstract class DataSourceUtils {
   private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);
+  /**
+   * Order value for TransactionSynchronization objects that clean up JDBC Connections.
+   */
+  public static final int CONNECTION_SYNCHRONIZATION_ORDER = 1000;
 
   /**
    * Get jdbc Connection from {@link DataSource}
@@ -223,6 +227,44 @@ public abstract class DataSourceUtils {
 
       // Reset read-only flag.
       if (con.isReadOnly()) {
+        if (log.isDebugEnabled()) {
+          log.debug("Resetting read-only flag of JDBC Connection [{}]", con);
+        }
+        con.setReadOnly(false);
+      }
+    }
+    catch (Throwable ex) {
+      log.debug("Could not reset JDBC Connection after transaction", ex);
+    }
+  }
+
+  /**
+   * Reset the given Connection after a transaction,
+   * regarding read-only flag and isolation level.
+   *
+   * @param con the Connection to reset
+   * @param previousIsolationLevel the isolation level to restore, if any
+   * @param resetReadOnly whether to reset the connection's read-only flag
+   * @see #prepareConnectionForTransaction
+   * @see Connection#setTransactionIsolation
+   * @see Connection#setReadOnly
+   * @since 4.0
+   */
+  public static void resetConnectionAfterTransaction(
+          Connection con, @Nullable Integer previousIsolationLevel, boolean resetReadOnly) {
+
+    Assert.notNull(con, "No Connection specified");
+    try {
+      // Reset transaction isolation to previous value, if changed for the transaction.
+      if (previousIsolationLevel != null) {
+        if (log.isDebugEnabled()) {
+          log.debug("Resetting isolation level of JDBC Connection [{}] to {}", con, previousIsolationLevel);
+        }
+        con.setTransactionIsolation(previousIsolationLevel);
+      }
+
+      // Reset read-only flag if we originally switched it to true on transaction begin.
+      if (resetReadOnly) {
         if (log.isDebugEnabled()) {
           log.debug("Resetting read-only flag of JDBC Connection [{}]", con);
         }

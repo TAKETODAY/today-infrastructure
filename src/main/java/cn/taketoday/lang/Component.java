@@ -42,7 +42,7 @@ public @interface Component {
   /**
    * Alias for {@link #name}.
    * <p>Intended to be used when no other attributes are needed, for example:
-   * {@code @Bean("customBeanName")}.
+   * {@code @Component("customBeanName")}.
    *
    * @see #name
    */

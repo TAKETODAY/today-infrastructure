@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.util.EventObject;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Value;
 import cn.taketoday.lang.Singleton;
+import cn.taketoday.lang.Value;
 import lombok.ToString;
 
 /**
@@ -39,8 +39,7 @@ class MethodEventDrivenPostProcessorTests {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      context.getBeanFactory()
-              .addBeanPostProcessor(new MethodEventDrivenPostProcessor(context));
+      context.addBeanFactoryPostProcessor(new MethodEventDrivenPostProcessor(context));
 
       context.register(EventBean.class);
 

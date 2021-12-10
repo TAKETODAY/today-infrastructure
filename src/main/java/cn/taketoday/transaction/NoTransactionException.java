@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,18 +22,35 @@ package cn.taketoday.transaction;
 import java.io.Serial;
 
 /**
- * @author TODAY <br>
- * 2019-11-08 20:13
+ * Exception thrown when an operation is attempted that
+ * relies on an existing transaction (such as setting
+ * rollback status) and there is no existing transaction.
+ * This represents an illegal usage of the transaction API.
+ *
+ * @author Rod Johnson
+ * @author TODAY
+ * @since 2019-11-08 20:13
  */
-public class NoTransactionException extends TransactionException {
-
+@SuppressWarnings("serial")
+public class NoTransactionException extends TransactionUsageException {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructor for NoTransactionException.
+   *
+   * @param msg the detail message
+   */
   public NoTransactionException(String msg) {
     super(msg);
   }
 
+  /**
+   * Constructor for NoTransactionException.
+   *
+   * @param msg the detail message
+   * @param cause the root cause from the transaction API in use
+   */
   public NoTransactionException(String msg, Throwable cause) {
     super(msg, cause);
   }

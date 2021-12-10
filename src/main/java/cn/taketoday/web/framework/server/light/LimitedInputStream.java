@@ -80,7 +80,7 @@ public class LimitedInputStream extends FilterInputStream {
 
   @Override
   public long skip(long len) throws IOException {
-    long res = in.skip(len > limit ? limit : len);
+    long res = in.skip(Math.min(len, limit));
     limit -= res;
     return res;
   }

@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @see PessimisticLockingFailureException
  * @see CannotAcquireLockException
  * @see DeadlockLoserDataAccessException
- * @since 1.1
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class ConcurrencyFailureException extends TransientDataAccessException {

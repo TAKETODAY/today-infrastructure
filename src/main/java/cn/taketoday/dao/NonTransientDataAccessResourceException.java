@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Thomas Risberg
  * @see java.sql.SQLNonTransientConnectionException
- * @since 2.5
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class NonTransientDataAccessResourceException extends NonTransientDataAccessException {

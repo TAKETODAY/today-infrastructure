@@ -40,7 +40,7 @@ public abstract class DatabasePopulatorUtils {
 
   /**
    * Execute the given {@link DatabasePopulator} against the given {@link DataSource}.
-   * <p>As of Spring Framework 5.3.11, the {@link Connection} for the supplied
+   * <p>As of Framework Framework 5.3.11, the {@link Connection} for the supplied
    * {@code DataSource} will be {@linkplain Connection#commit() committed} if
    * it is not configured for {@link Connection#getAutoCommit() auto-commit} and
    * is not {@linkplain DataSourceUtils#isConnectionTransactional transactional}.

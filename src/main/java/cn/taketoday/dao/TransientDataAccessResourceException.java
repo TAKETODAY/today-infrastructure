@@ -26,7 +26,7 @@ package cn.taketoday.dao;
  *
  * @author Thomas Risberg
  * @see java.sql.SQLTransientConnectionException
- * @since 2.5
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class TransientDataAccessResourceException extends TransientDataAccessException {

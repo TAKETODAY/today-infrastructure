@@ -1,6 +1,6 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.core.DataAccessException;
+import cn.taketoday.core.NestedRuntimeException;
 
 import java.io.Serial;
 
@@ -9,7 +9,7 @@ import java.io.Serial;
  *
  * @author TODAY
  */
-public class PersistenceException extends DataAccessException {
+public class PersistenceException extends NestedRuntimeException {
   @Serial
   private static final long serialVersionUID = 1L;
 

@@ -30,7 +30,7 @@ import java.util.Comparator;
  * @param <T> the type of comparable objects that may be compared by this comparator
  * @author Keith Donald
  * @see Comparable
- * @since 1.2.2
+ * @since 4.0
  */
 public class ComparableComparator<T extends Comparable<T>> implements Comparator<T> {
 

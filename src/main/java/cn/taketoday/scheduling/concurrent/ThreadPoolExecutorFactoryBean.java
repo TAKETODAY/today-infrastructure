@@ -52,7 +52,7 @@ import cn.taketoday.lang.Nullable;
  * <p>For an alternative, you may set up a {@link ThreadPoolExecutor} instance directly
  * using constructor injection, or use a factory method definition that points to the
  * {@link Executors} class.
- * <b>This is strongly recommended in particular for common {@code @Bean} methods in
+ * <b>This is strongly recommended in particular for common {@code @Component} methods in
  * configuration classes, where this {@code FactoryBean} variant would force you to
  * return the {@code FactoryBean} type instead of the actual {@code Executor} type.</b>
  *

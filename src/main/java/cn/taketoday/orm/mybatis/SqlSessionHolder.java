@@ -22,13 +22,13 @@ package cn.taketoday.orm.mybatis;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.taketoday.transaction.AbstractResourceHolder;
+import cn.taketoday.transaction.support.ResourceHolderSupport;
 
 /**
  * @author TODAY <br>
  * 2018-10-09 11:24
  */
-public final class SqlSessionHolder extends AbstractResourceHolder {
+public final class SqlSessionHolder extends ResourceHolderSupport {
 
   private final SqlSession sqlSession;
   private final ExecutorType executorType;

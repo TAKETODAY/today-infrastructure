@@ -29,9 +29,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * {@link DataSourceLookup} implementation based on a Spring {@link BeanFactory}.
+ * {@link DataSourceLookup} implementation based on a Framework {@link BeanFactory}.
  *
- * <p>Will lookup Spring managed beans identified by bean name,
+ * <p>Will lookup Framework managed beans identified by bean name,
  * expecting them to be of type {@code javax.sql.DataSource}.
  *
  * @author Costin Leau
@@ -55,10 +55,10 @@ public class BeanFactoryDataSourceLookup implements DataSourceLookup, BeanFactor
   /**
    * Create a new instance of the {@link BeanFactoryDataSourceLookup} class.
    * <p>Use of this constructor is redundant if this object is being created
-   * by a Spring IoC container, as the supplied {@link BeanFactory} will be
+   * by a Framework IoC container, as the supplied {@link BeanFactory} will be
    * replaced by the {@link BeanFactory} that creates it (c.f. the
    * {@link BeanFactoryAware} contract). So only use this constructor if you
-   * are using this class outside the context of a Spring IoC container.
+   * are using this class outside the context of a Framework IoC container.
    *
    * @param beanFactory the bean factory to be used to lookup {@link DataSource DataSources}
    */
