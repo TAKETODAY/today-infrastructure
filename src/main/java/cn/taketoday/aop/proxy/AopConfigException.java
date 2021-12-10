@@ -27,7 +27,7 @@ import cn.taketoday.core.NestedRuntimeException;
  *
  * @author Rod Johnson
  * @author TODAY 2021/2/1 19:04
- * @since 13.03.2003
+ * @since 4.0
  */
 public class AopConfigException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;

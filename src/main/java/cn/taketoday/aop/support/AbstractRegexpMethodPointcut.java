@@ -48,7 +48,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Rob Harrop
  * @author TODAY 2021/2/4 12:13
  * @see JdkRegexpMethodPointcut
- * @since 1.1
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public abstract class AbstractRegexpMethodPointcut

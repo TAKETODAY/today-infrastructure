@@ -39,7 +39,7 @@ import org.aopalliance.aop.Advice;
  * @author TODAY 2021/2/1 18:48
  * @see IntroductionInfo
  * @see IntroductionAdvisor
- * @since 1.1.1
+ * @since 4.0
  */
 public interface DynamicIntroductionAdvice extends Advice {
 

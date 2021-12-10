@@ -158,7 +158,7 @@ public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
     }
 
     // exist in bean factory ?
-    if (AnnotatedElementUtils.isAnnotated(interceptor, Component.class)) {
+    if (AnnotatedElementUtils.hasAnnotation(interceptor, Component.class)) {
       if (beanFactory instanceof BeanDefinitionRegistry) {
         BeanDefinition interceptorDef = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(interceptor);
         if (interceptorDef != null) {
