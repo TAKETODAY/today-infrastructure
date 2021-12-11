@@ -37,7 +37,7 @@ import cn.taketoday.jdbc.InvalidResultSetAccessException;
  * @see SqlRowSet#getMetaData()
  * @see java.sql.ResultSetMetaData
  * @see cn.taketoday.jdbc.InvalidResultSetAccessException
- * @since 1.2
+ * @since 4.0
  */
 public interface SqlRowSetMetaData {
 

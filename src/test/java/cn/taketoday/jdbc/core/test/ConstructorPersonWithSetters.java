@@ -28,53 +28,51 @@ import java.util.Date;
  */
 public class ConstructorPersonWithSetters {
 
-	private String name;
+  private String name;
 
-	private long age;
+  private long age;
 
-	private Date birth_date;
+  private Date birth_date;
 
-	private BigDecimal balance;
+  private BigDecimal balance;
 
+  public ConstructorPersonWithSetters(String name, long age, Date birth_date, BigDecimal balance) {
+    this.name = name.toUpperCase();
+    this.age = age;
+    this.birth_date = birth_date;
+    this.balance = balance;
+  }
 
-	public ConstructorPersonWithSetters(String name, long age, Date birth_date, BigDecimal balance) {
-		this.name = name.toUpperCase();
-		this.age = age;
-		this.birth_date = birth_date;
-		this.balance = balance;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
+  public void setAge(long age) {
+    this.age = age;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setBirth_date(Date birth_date) {
+    this.birth_date = birth_date;
+  }
 
-	public void setAge(long age) {
-		this.age = age;
-	}
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
+  }
 
-	public void setBirth_date(Date birth_date) {
-		this.birth_date = birth_date;
-	}
+  public String name() {
+    return this.name;
+  }
 
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
+  public long age() {
+    return this.age;
+  }
 
-	public String name() {
-		return this.name;
-	}
+  public Date birth_date() {
+    return this.birth_date;
+  }
 
-	public long age() {
-		return this.age;
-	}
-
-	public Date birth_date() {
-		return this.birth_date;
-	}
-
-	public BigDecimal balance() {
-		return this.balance;
-	}
+  public BigDecimal balance() {
+    return this.balance;
+  }
 
 }

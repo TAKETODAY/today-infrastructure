@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @see JdbcTemplate#execute(ConnectionCallback)
  * @see JdbcTemplate#query
  * @see JdbcTemplate#update
- * @since 1.1.3
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ConnectionCallback<T> {

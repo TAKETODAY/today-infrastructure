@@ -22,6 +22,7 @@ package cn.taketoday.jdbc.datasource.init;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+
 import cn.taketoday.core.io.ClassRelativeResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.jdbc.core.JdbcTemplate;
@@ -40,48 +41,47 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 abstract class AbstractDatabaseInitializationTests {
 
-	private final ClassRelativeResourceLoader resourceLoader = new ClassRelativeResourceLoader(getClass());
+  private final ClassRelativeResourceLoader resourceLoader = new ClassRelativeResourceLoader(getClass());
 
-	EmbeddedDatabase db;
+  EmbeddedDatabase db;
 
-	JdbcTemplate jdbcTemplate;
+  JdbcTemplate jdbcTemplate;
 
+  @BeforeEach
+  void setUp() {
+    db = new EmbeddedDatabaseBuilder().setType(getEmbeddedDatabaseType()).build();
+    jdbcTemplate = new JdbcTemplate(db);
+  }
 
-	@BeforeEach
-	void setUp() {
-		db = new EmbeddedDatabaseBuilder().setType(getEmbeddedDatabaseType()).build();
-		jdbcTemplate = new JdbcTemplate(db);
-	}
+  @AfterEach
+  void shutDown() {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.clear();
+      TransactionSynchronizationManager.unbindResource(db);
+    }
+    db.shutdown();
+  }
 
-	@AfterEach
-	void shutDown() {
-		if (TransactionSynchronizationManager.isSynchronizationActive()) {
-			TransactionSynchronizationManager.clear();
-			TransactionSynchronizationManager.unbindResource(db);
-		}
-		db.shutdown();
-	}
+  abstract EmbeddedDatabaseType getEmbeddedDatabaseType();
 
-	abstract EmbeddedDatabaseType getEmbeddedDatabaseType();
+  Resource resource(String path) {
+    return resourceLoader.getResource(path);
+  }
 
-	Resource resource(String path) {
-		return resourceLoader.getResource(path);
-	}
+  Resource defaultSchema() {
+    return resource("db-schema.sql");
+  }
 
-	Resource defaultSchema() {
-		return resource("db-schema.sql");
-	}
+  Resource usersSchema() {
+    return resource("users-schema.sql");
+  }
 
-	Resource usersSchema() {
-		return resource("users-schema.sql");
-	}
-
-	void assertUsersDatabaseCreated(String... lastNames) {
-		for (String lastName : lastNames) {
-			String sql = "select count(0) from users where last_name = ?";
-			Integer result = jdbcTemplate.queryForObject(sql, Integer.class, lastName);
-			assertThat(result).as("user with last name [" + lastName + "]").isEqualTo(1);
-		}
-	}
+  void assertUsersDatabaseCreated(String... lastNames) {
+    for (String lastName : lastNames) {
+      String sql = "select count(0) from users where last_name = ?";
+      Integer result = jdbcTemplate.queryForObject(sql, Integer.class, lastName);
+      assertThat(result).as("user with last name [" + lastName + "]").isEqualTo(1);
+    }
+  }
 
 }

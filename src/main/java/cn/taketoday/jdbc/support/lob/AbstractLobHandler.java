@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @see ResultSet#findColumn
- * @since 1.2
+ * @since 4.0
  */
 public abstract class AbstractLobHandler implements LobHandler {
 

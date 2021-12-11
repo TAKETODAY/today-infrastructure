@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @see #hasValue(String)
  * @see #getValue(String)
  * @see #getParameterNames()
- * @since 2.0
+ * @since 4.0
  */
 public abstract class AbstractSqlParameterSource implements SqlParameterSource {
 

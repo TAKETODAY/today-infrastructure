@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @see NamedParameterJdbcTemplate
  * @see MapSqlParameterSource
  * @see BeanPropertySqlParameterSource
- * @since 2.0
+ * @since 4.0
  */
 public interface SqlParameterSource {
 

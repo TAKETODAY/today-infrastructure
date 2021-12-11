@@ -64,7 +64,7 @@ import cn.taketoday.util.CollectionUtils;
  * @see ResultSet
  * @see javax.sql.rowset.CachedRowSet
  * @see cn.taketoday.jdbc.core.JdbcTemplate#queryForRowSet
- * @since 1.2
+ * @since 4.0
  */
 public class ResultSetWrappingSqlRowSet implements SqlRowSet {
 

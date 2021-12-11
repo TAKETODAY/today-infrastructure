@@ -53,11 +53,11 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.orm.hibernate5.EnableHibernate;
 
@@ -97,27 +97,27 @@ public class PojoPerformanceTest {
     operations.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
     // language=MySQL
     operations.createQuery("\n CREATE TABLE post" +
-                                   "\n (" +
-                                   "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
-                                   "\n   , text VARCHAR(255)" +
-                                   "\n   , creation_date DATETIME" +
-                                   "\n   , last_change_date DATETIME" +
-                                   "\n   , counter1 INT" +
-                                   "\n   , counter2 INT" +
-                                   "\n   , counter3 INT" +
-                                   "\n   , counter4 INT" +
-                                   "\n   , counter5 INT" +
-                                   "\n   , counter6 INT" +
-                                   "\n   , counter7 INT" +
-                                   "\n   , counter8 INT" +
-                                   "\n   , counter9 INT" +
-                                   "\n )" +
-                                   "\n;").executeUpdate();
+            "\n (" +
+            "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
+            "\n   , text VARCHAR(255)" +
+            "\n   , creation_date DATETIME" +
+            "\n   , last_change_date DATETIME" +
+            "\n   , counter1 INT" +
+            "\n   , counter2 INT" +
+            "\n   , counter3 INT" +
+            "\n   , counter4 INT" +
+            "\n   , counter5 INT" +
+            "\n   , counter6 INT" +
+            "\n   , counter7 INT" +
+            "\n   , counter8 INT" +
+            "\n   , counter9 INT" +
+            "\n )" +
+            "\n;").executeUpdate();
 
     Random r = new Random();
 
     Query insQuery = operations.createQuery( // language=MySQL
-                                             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
+            "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
               .addParameter("creation_date", new DateTime(System.currentTimeMillis() + r.nextInt()).toDate())

@@ -57,7 +57,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.support.lob.LobHandler
  * @see cn.taketoday.jdbc.LobRetrievalFailureException
- * @since 1.0.2
+ * @since 4.0
  */
 public abstract class AbstractLobStreamingResultSetExtractor<T> implements ResultSetExtractor<T> {
 

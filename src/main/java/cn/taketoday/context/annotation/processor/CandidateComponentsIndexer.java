@@ -98,7 +98,7 @@ public class CandidateComponentsIndexer implements Processor {
   }
 
   private List<StereotypesProvider> getStereotypesProviders(ProcessingEnvironment env) {
-    List<StereotypesProvider> result = new ArrayList<>();
+    ArrayList<StereotypesProvider> result = new ArrayList<>();
     TypeHelper typeHelper = new TypeHelper(env);
     result.add(new IndexedStereotypesProvider(typeHelper));
     result.add(new StandardStereotypesProvider(typeHelper));
@@ -112,8 +112,10 @@ public class CandidateComponentsIndexer implements Processor {
   }
 
   private void addMetadataFor(Element element) {
-    Set<String> stereotypes = new LinkedHashSet<>();
-    this.stereotypesProviders.forEach(p -> stereotypes.addAll(p.getStereotypes(element)));
+    LinkedHashSet<String> stereotypes = new LinkedHashSet<>();
+    for (StereotypesProvider p : stereotypesProviders) {
+      stereotypes.addAll(p.getStereotypes(element));
+    }
     if (!stereotypes.isEmpty()) {
       this.metadataCollector.add(new ItemMetadata(this.typeHelper.getType(element), stereotypes));
     }
@@ -132,10 +134,12 @@ public class CandidateComponentsIndexer implements Processor {
   }
 
   private static List<TypeElement> staticTypesIn(Iterable<? extends Element> elements) {
-    List<TypeElement> list = new ArrayList<>();
+    ArrayList<TypeElement> list = new ArrayList<>();
     for (Element element : elements) {
-      if ((element.getKind().isClass() || element.getKind() == ElementKind.INTERFACE) &&
-              element.getModifiers().contains(Modifier.STATIC) && element instanceof TypeElement) {
+      if ((element.getKind().isClass()
+              || element.getKind() == ElementKind.INTERFACE)
+              && element.getModifiers().contains(Modifier.STATIC)
+              && element instanceof TypeElement) {
         list.add((TypeElement) element);
       }
     }

@@ -61,7 +61,7 @@ import cn.taketoday.jdbc.core.namedparam.SqlParameterSource;
  * @author Stephane Nicoll
  * @see java.sql.DatabaseMetaData
  * @see cn.taketoday.jdbc.core.JdbcTemplate
- * @since 2.5
+ * @since 4.0
  */
 public class SimpleJdbcCall extends AbstractJdbcCall implements SimpleJdbcCallOperations {
 

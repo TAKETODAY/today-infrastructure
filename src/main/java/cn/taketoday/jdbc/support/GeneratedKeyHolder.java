@@ -40,7 +40,7 @@ import cn.taketoday.lang.Nullable;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Slawomir Dymitrow
- * @since 1.1
+ * @since 4.0
  */
 public class GeneratedKeyHolder implements KeyHolder {
 

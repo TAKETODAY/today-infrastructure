@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @see PreparedStatement#setObject
  * @see JdbcOperations#update(String, Object[], int[])
  * @see cn.taketoday.jdbc.support.SqlValue
- * @since 1.1
+ * @since 4.0
  */
 public interface SqlTypeValue {
 

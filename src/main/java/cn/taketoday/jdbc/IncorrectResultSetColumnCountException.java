@@ -27,7 +27,7 @@ import cn.taketoday.dao.DataRetrievalFailureException;
  * for example when expecting a single column but getting 0 or more than 1 columns.
  *
  * @author Juergen Hoeller
- * @since 2.0
+ * @since 4.0
  * @see cn.taketoday.dao.IncorrectResultSizeDataAccessException
  */
 @SuppressWarnings("serial")

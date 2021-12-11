@@ -41,7 +41,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 public class OracleTableMetaDataProvider extends GenericTableMetaDataProvider {
 

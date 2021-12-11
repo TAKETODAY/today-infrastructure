@@ -36,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @see ResultSetWrappingSqlRowSet#getMetaData()
- * @since 1.2
+ * @since 4.0
  */
 public class ResultSetWrappingSqlRowSetMetaData implements SqlRowSetMetaData {
 

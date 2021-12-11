@@ -39,7 +39,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @see cn.taketoday.jdbc.core.JdbcTemplate
- * @since 28.11.2003
+ * @since 4.0
  */
 public abstract class JdbcAccessor implements InitializingBean {
 

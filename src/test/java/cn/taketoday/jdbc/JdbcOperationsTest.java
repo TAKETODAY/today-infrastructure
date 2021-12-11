@@ -791,7 +791,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       List<Integer> keys = new ArrayList<>();
       for (String val : vals) {
         Integer key = connection.createQuery("insert into testRunInsideTransactionWithResultTable(value) values(:val)",
-                                             "runnerWithResultTester")
+                        "runnerWithResultTester")
                 .addParameter("val", val)
                 .executeUpdate().getKey(Integer.class);
         keys.add(key);
@@ -823,7 +823,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     jdbcOperations
             .createQuery("insert into testUpdateWithNulls_2(value) values(:val)").addParameter("val", 2).addToBatch().addParameter("val",
-                                                                                                                                   nullInt)
+                    nullInt)
             .addToBatch().executeBatch();
   }
 
@@ -1667,9 +1667,9 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
-                                   " email like :email" +
-                                   " and id in(:ids)" +
-                                   " and text = :text")
+                      " email like :email" +
+                      " and id in(:ids)" +
+                      " and text = :text")
               .addParameter("email", "%email.com")
               .addParameters("ids", 1, 2, 3)
               .addParameter("text", "some text")
@@ -1681,9 +1681,9 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
-                                   " email like :email" +
-                                   " and id in(:ids)" +
-                                   " and text = :text")
+                      " email like :email" +
+                      " and id in(:ids)" +
+                      " and text = :text")
               .addParameter("email", "%email.com")
               .addParameter("ids", ImmutableList.of())
               .addParameter("text", "some text")
@@ -1695,9 +1695,9 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
-                                   " email like :email" +
-                                   " and id in(:ids)" +
-                                   " and text = :text")
+                      " email like :email" +
+                      " and id in(:ids)" +
+                      " and text = :text")
               .addParameter("email", "%email.com")
               .addParameter("ids", ImmutableList.of(1))
               .addParameter("text", "some text")
@@ -1709,11 +1709,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
-                                   " email like :email" +
-                                   " and text = :text" +
-                                   " and id in(:ids)" +
-                                   " and text = :text" +
-                                   " and id in(:ids)")
+                      " email like :email" +
+                      " and text = :text" +
+                      " and id in(:ids)" +
+                      " and text = :text" +
+                      " and id in(:ids)")
               .addParameter("email", "%email.com")
               .addParameters("ids", 1, 2, 3)
               .addParameter("text", "some text")

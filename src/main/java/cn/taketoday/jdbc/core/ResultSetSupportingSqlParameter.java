@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
  * {@link SqlOutParameter} and {@link SqlReturnResultSet}.
  *
  * @author Juergen Hoeller
- * @since 1.0.2
+ * @since 4.0
  */
 public class ResultSetSupportingSqlParameter extends SqlParameter {
 

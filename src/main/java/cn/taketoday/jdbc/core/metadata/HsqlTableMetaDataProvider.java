@@ -29,7 +29,7 @@ import java.sql.SQLException;
  * {@code getGeneratedKeys} support.
  *
  * @author Thomas Risberg
- * @since 2.5
+ * @since 4.0
  */
 public class HsqlTableMetaDataProvider extends GenericTableMetaDataProvider {
 

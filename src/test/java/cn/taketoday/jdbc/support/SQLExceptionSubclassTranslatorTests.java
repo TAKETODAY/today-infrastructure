@@ -21,6 +21,9 @@
 package cn.taketoday.jdbc.support;
 
 import org.junit.jupiter.api.Test;
+
+import java.sql.SQLException;
+
 import cn.taketoday.dao.ConcurrencyFailureException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.DataIntegrityViolationException;
@@ -31,8 +34,6 @@ import cn.taketoday.dao.RecoverableDataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;
 
-import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -40,75 +41,74 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SQLExceptionSubclassTranslatorTests {
 
-	private static SQLErrorCodes ERROR_CODES = new SQLErrorCodes();
+  private static SQLErrorCodes ERROR_CODES = new SQLErrorCodes();
 
-	static {
-		ERROR_CODES.setBadSqlGrammarCodes("1");
-	}
+  static {
+    ERROR_CODES.setBadSqlGrammarCodes("1");
+  }
 
+  @Test
+  public void errorCodeTranslation() {
+    SQLExceptionTranslator sext = new SQLErrorCodeSQLExceptionTranslator(ERROR_CODES);
 
-	@Test
-	public void errorCodeTranslation() {
-		SQLExceptionTranslator sext = new SQLErrorCodeSQLExceptionTranslator(ERROR_CODES);
+    SQLException dataIntegrityViolationEx = SQLExceptionSubclassFactory.newSQLDataException("", "", 0);
+    DataIntegrityViolationException divex = (DataIntegrityViolationException) sext.translate("task", "SQL", dataIntegrityViolationEx);
+    assertThat(divex.getCause()).isEqualTo(dataIntegrityViolationEx);
 
-		SQLException dataIntegrityViolationEx = SQLExceptionSubclassFactory.newSQLDataException("", "", 0);
-		DataIntegrityViolationException divex = (DataIntegrityViolationException) sext.translate("task", "SQL", dataIntegrityViolationEx);
-		assertThat(divex.getCause()).isEqualTo(dataIntegrityViolationEx);
+    SQLException featureNotSupEx = SQLExceptionSubclassFactory.newSQLFeatureNotSupportedException("", "", 0);
+    InvalidDataAccessApiUsageException idaex = (InvalidDataAccessApiUsageException) sext.translate("task", "SQL", featureNotSupEx);
+    assertThat(idaex.getCause()).isEqualTo(featureNotSupEx);
 
-		SQLException featureNotSupEx = SQLExceptionSubclassFactory.newSQLFeatureNotSupportedException("", "", 0);
-		InvalidDataAccessApiUsageException idaex = (InvalidDataAccessApiUsageException) sext.translate("task", "SQL", featureNotSupEx);
-		assertThat(idaex.getCause()).isEqualTo(featureNotSupEx);
+    SQLException dataIntegrityViolationEx2 = SQLExceptionSubclassFactory.newSQLIntegrityConstraintViolationException("", "", 0);
+    DataIntegrityViolationException divex2 = (DataIntegrityViolationException) sext.translate("task", "SQL", dataIntegrityViolationEx2);
+    assertThat(divex2.getCause()).isEqualTo(dataIntegrityViolationEx2);
 
-		SQLException dataIntegrityViolationEx2 = SQLExceptionSubclassFactory.newSQLIntegrityConstraintViolationException("", "", 0);
-		DataIntegrityViolationException divex2 = (DataIntegrityViolationException) sext.translate("task", "SQL", dataIntegrityViolationEx2);
-		assertThat(divex2.getCause()).isEqualTo(dataIntegrityViolationEx2);
+    SQLException permissionDeniedEx = SQLExceptionSubclassFactory.newSQLInvalidAuthorizationSpecException("", "", 0);
+    PermissionDeniedDataAccessException pdaex = (PermissionDeniedDataAccessException) sext.translate("task", "SQL", permissionDeniedEx);
+    assertThat(pdaex.getCause()).isEqualTo(permissionDeniedEx);
 
-		SQLException permissionDeniedEx = SQLExceptionSubclassFactory.newSQLInvalidAuthorizationSpecException("", "", 0);
-		PermissionDeniedDataAccessException pdaex = (PermissionDeniedDataAccessException) sext.translate("task", "SQL", permissionDeniedEx);
-		assertThat(pdaex.getCause()).isEqualTo(permissionDeniedEx);
+    SQLException dataAccessResourceEx = SQLExceptionSubclassFactory.newSQLNonTransientConnectionException("", "", 0);
+    DataAccessResourceFailureException darex = (DataAccessResourceFailureException) sext.translate("task", "SQL", dataAccessResourceEx);
+    assertThat(darex.getCause()).isEqualTo(dataAccessResourceEx);
 
-		SQLException dataAccessResourceEx = SQLExceptionSubclassFactory.newSQLNonTransientConnectionException("", "", 0);
-		DataAccessResourceFailureException darex = (DataAccessResourceFailureException) sext.translate("task", "SQL", dataAccessResourceEx);
-		assertThat(darex.getCause()).isEqualTo(dataAccessResourceEx);
+    SQLException badSqlEx2 = SQLExceptionSubclassFactory.newSQLSyntaxErrorException("", "", 0);
+    BadSqlGrammarException bsgex2 = (BadSqlGrammarException) sext.translate("task", "SQL2", badSqlEx2);
+    assertThat(bsgex2.getSql()).isEqualTo("SQL2");
+    assertThat((Object) bsgex2.getSQLException()).isEqualTo(badSqlEx2);
 
-		SQLException badSqlEx2 = SQLExceptionSubclassFactory.newSQLSyntaxErrorException("", "", 0);
-		BadSqlGrammarException bsgex2 = (BadSqlGrammarException) sext.translate("task", "SQL2", badSqlEx2);
-		assertThat(bsgex2.getSql()).isEqualTo("SQL2");
-		assertThat((Object) bsgex2.getSQLException()).isEqualTo(badSqlEx2);
+    SQLException tranRollbackEx = SQLExceptionSubclassFactory.newSQLTransactionRollbackException("", "", 0);
+    ConcurrencyFailureException cfex = (ConcurrencyFailureException) sext.translate("task", "SQL", tranRollbackEx);
+    assertThat(cfex.getCause()).isEqualTo(tranRollbackEx);
 
-		SQLException tranRollbackEx = SQLExceptionSubclassFactory.newSQLTransactionRollbackException("", "", 0);
-		ConcurrencyFailureException cfex = (ConcurrencyFailureException) sext.translate("task", "SQL", tranRollbackEx);
-		assertThat(cfex.getCause()).isEqualTo(tranRollbackEx);
+    SQLException transientConnEx = SQLExceptionSubclassFactory.newSQLTransientConnectionException("", "", 0);
+    TransientDataAccessResourceException tdarex = (TransientDataAccessResourceException) sext.translate("task", "SQL", transientConnEx);
+    assertThat(tdarex.getCause()).isEqualTo(transientConnEx);
 
-		SQLException transientConnEx = SQLExceptionSubclassFactory.newSQLTransientConnectionException("", "", 0);
-		TransientDataAccessResourceException tdarex = (TransientDataAccessResourceException) sext.translate("task", "SQL", transientConnEx);
-		assertThat(tdarex.getCause()).isEqualTo(transientConnEx);
+    SQLException transientConnEx2 = SQLExceptionSubclassFactory.newSQLTimeoutException("", "", 0);
+    QueryTimeoutException tdarex2 = (QueryTimeoutException) sext.translate("task", "SQL", transientConnEx2);
+    assertThat(tdarex2.getCause()).isEqualTo(transientConnEx2);
 
-		SQLException transientConnEx2 = SQLExceptionSubclassFactory.newSQLTimeoutException("", "", 0);
-		QueryTimeoutException tdarex2 = (QueryTimeoutException) sext.translate("task", "SQL", transientConnEx2);
-		assertThat(tdarex2.getCause()).isEqualTo(transientConnEx2);
+    SQLException recoverableEx = SQLExceptionSubclassFactory.newSQLRecoverableException("", "", 0);
+    RecoverableDataAccessException rdaex2 = (RecoverableDataAccessException) sext.translate("task", "SQL", recoverableEx);
+    assertThat(rdaex2.getCause()).isEqualTo(recoverableEx);
 
-		SQLException recoverableEx = SQLExceptionSubclassFactory.newSQLRecoverableException("", "", 0);
-		RecoverableDataAccessException rdaex2 = (RecoverableDataAccessException) sext.translate("task", "SQL", recoverableEx);
-		assertThat(rdaex2.getCause()).isEqualTo(recoverableEx);
+    // Test classic error code translation. We should move there next if the exception we pass in is not one
+    // of the new sub-classes.
+    SQLException sexEct = new SQLException("", "", 1);
+    BadSqlGrammarException bsgEct = (BadSqlGrammarException) sext.translate("task", "SQL-ECT", sexEct);
+    assertThat(bsgEct.getSql()).isEqualTo("SQL-ECT");
+    assertThat((Object) bsgEct.getSQLException()).isEqualTo(sexEct);
 
-		// Test classic error code translation. We should move there next if the exception we pass in is not one
-		// of the new sub-classes.
-		SQLException sexEct = new SQLException("", "", 1);
-		BadSqlGrammarException bsgEct = (BadSqlGrammarException) sext.translate("task", "SQL-ECT", sexEct);
-		assertThat(bsgEct.getSql()).isEqualTo("SQL-ECT");
-		assertThat((Object) bsgEct.getSQLException()).isEqualTo(sexEct);
-
-		// Test fallback. We assume that no database will ever return this error code,
-		// but 07xxx will be bad grammar picked up by the fallback SQLState translator
-		SQLException sexFbt = new SQLException("", "07xxx", 666666666);
-		BadSqlGrammarException bsgFbt = (BadSqlGrammarException) sext.translate("task", "SQL-FBT", sexFbt);
-		assertThat(bsgFbt.getSql()).isEqualTo("SQL-FBT");
-		assertThat((Object) bsgFbt.getSQLException()).isEqualTo(sexFbt);
-		// and 08xxx will be data resource failure (non-transient) picked up by the fallback SQLState translator
-		SQLException sexFbt2 = new SQLException("", "08xxx", 666666666);
-		DataAccessResourceFailureException darfFbt = (DataAccessResourceFailureException) sext.translate("task", "SQL-FBT2", sexFbt2);
-		assertThat(darfFbt.getCause()).isEqualTo(sexFbt2);
-	}
+    // Test fallback. We assume that no database will ever return this error code,
+    // but 07xxx will be bad grammar picked up by the fallback SQLState translator
+    SQLException sexFbt = new SQLException("", "07xxx", 666666666);
+    BadSqlGrammarException bsgFbt = (BadSqlGrammarException) sext.translate("task", "SQL-FBT", sexFbt);
+    assertThat(bsgFbt.getSql()).isEqualTo("SQL-FBT");
+    assertThat((Object) bsgFbt.getSQLException()).isEqualTo(sexFbt);
+    // and 08xxx will be data resource failure (non-transient) picked up by the fallback SQLState translator
+    SQLException sexFbt2 = new SQLException("", "08xxx", 666666666);
+    DataAccessResourceFailureException darfFbt = (DataAccessResourceFailureException) sext.translate("task", "SQL-FBT2", sexFbt2);
+    assertThat(darfFbt.getCause()).isEqualTo(sexFbt2);
+  }
 
 }

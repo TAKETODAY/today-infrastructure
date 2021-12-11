@@ -31,7 +31,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Thomas Risberg
  * @see SQLErrorCodeSQLExceptionTranslator
- * @since 1.1
+ * @since 4.0
  */
 public class CustomSQLErrorCodesTranslation {
 
@@ -44,7 +44,7 @@ public class CustomSQLErrorCodesTranslation {
    * Set the SQL error codes to match.
    */
   public void setErrorCodes(String... errorCodes) {
-    this.errorCodes = StringUtils.sortStringArray(errorCodes);
+    this.errorCodes = StringUtils.sortArray(errorCodes);
   }
 
   /**

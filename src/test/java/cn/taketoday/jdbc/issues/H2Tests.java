@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;

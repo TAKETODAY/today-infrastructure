@@ -31,7 +31,7 @@ import java.sql.ResultSet;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
- * @since 2.0
+ * @since 4.0
  */
 public class SqlInOutParameter extends SqlOutParameter {
 

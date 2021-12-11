@@ -53,7 +53,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see PreparedStatement#setObject(int, Object, int)
  * @see cn.taketoday.jdbc.object.StoredProcedure
- * @since 1.1
+ * @since 4.0
  */
 public abstract class AbstractSqlTypeValue implements SqlTypeValue {
 

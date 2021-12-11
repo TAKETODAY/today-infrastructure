@@ -28,9 +28,9 @@ import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
  */
 class HsqlDatabasePopulatorTests extends AbstractDatabasePopulatorTests {
 
-	@Override
-	protected EmbeddedDatabaseType getEmbeddedDatabaseType() {
-		return EmbeddedDatabaseType.HSQL;
-	}
+  @Override
+  protected EmbeddedDatabaseType getEmbeddedDatabaseType() {
+    return EmbeddedDatabaseType.HSQL;
+  }
 
 }

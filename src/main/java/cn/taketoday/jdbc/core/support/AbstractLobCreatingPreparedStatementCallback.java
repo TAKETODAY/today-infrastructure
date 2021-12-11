@@ -54,7 +54,7 @@ import cn.taketoday.lang.Assert;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.support.lob.LobCreator
- * @since 1.0.2
+ * @since 4.0
  */
 public abstract class AbstractLobCreatingPreparedStatementCallback implements PreparedStatementCallback<Integer> {
 

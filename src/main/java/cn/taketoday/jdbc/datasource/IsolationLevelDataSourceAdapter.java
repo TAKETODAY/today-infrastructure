@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import cn.taketoday.core.Constants;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionDefinition;
+import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**

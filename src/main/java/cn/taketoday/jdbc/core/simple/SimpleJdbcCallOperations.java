@@ -33,7 +33,7 @@ import cn.taketoday.jdbc.core.namedparam.SqlParameterSource;
  *
  * @author Thomas Risberg
  * @author Stephane Nicoll
- * @since 2.5
+ * @since 4.0
  */
 public interface SimpleJdbcCallOperations {
 

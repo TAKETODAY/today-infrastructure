@@ -47,7 +47,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 public class TableMetaDataContext {
 

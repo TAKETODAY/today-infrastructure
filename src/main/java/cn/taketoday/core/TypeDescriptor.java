@@ -122,6 +122,22 @@ public class TypeDescriptor implements Serializable {
   }
 
   /**
+   * Create a new type descriptor from a {@link MethodParameter}.
+   * <p>Use this constructor when a source or target conversion point is a
+   * constructor parameter, method parameter, or method return value.
+   *
+   * @param methodParameter the method parameter
+   * @since 4.0
+   */
+  public TypeDescriptor(MethodParameter methodParameter) {
+    this.resolvableType = ResolvableType.forMethodParameter(methodParameter);
+    this.type = this.resolvableType.resolve(methodParameter.getNestedParameterType());
+    this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(
+            methodParameter.getParameterIndex() == -1 ?
+            methodParameter.getMethodAnnotations() : methodParameter.getParameterAnnotations());
+  }
+
+  /**
    * Variation of {@link #getType()} that accounts for a primitive type by
    * returning its object wrapper type.
    * <p>This is useful for conversion service implementations that wish to

@@ -33,7 +33,7 @@ import cn.taketoday.logging.LoggerFactory;
  * based on the type of database being used.
  *
  * @author Thomas Risberg
- * @since 2.5
+ * @since 4.0
  */
 public final class TableMetaDataProviderFactory {
 

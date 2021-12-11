@@ -27,35 +27,34 @@ import java.util.Date;
  */
 public abstract class AbstractPerson {
 
-	private String name;
+  private String name;
 
-	private long age;
+  private long age;
 
-	private Date birth_date;
+  private Date birth_date;
 
+  public String getName() {
+    return name;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public long getAge() {
+    return age;
+  }
 
-	public long getAge() {
-		return age;
-	}
+  public void setAge(long age) {
+    this.age = age;
+  }
 
-	public void setAge(long age) {
-		this.age = age;
-	}
+  public Date getBirth_date() {
+    return birth_date;
+  }
 
-	public Date getBirth_date() {
-		return birth_date;
-	}
-
-	public void setBirth_date(Date birth_date) {
-		this.birth_date = birth_date;
-	}
+  public void setBirth_date(Date birth_date) {
+    this.birth_date = birth_date;
+  }
 
 }

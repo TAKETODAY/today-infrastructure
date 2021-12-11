@@ -43,7 +43,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Juergen Hoeller
  * @author Marten Deinum
- * @since 18.12.2003
+ * @since 4.0
  */
 public class DatabaseStartupValidator implements InitializingBean {
 

@@ -27,15 +27,14 @@ import java.math.BigDecimal;
  */
 public class ConcretePerson extends AbstractPerson {
 
-	private BigDecimal balance;
+  private BigDecimal balance;
 
+  public BigDecimal getBalance() {
+    return balance;
+  }
 
-	public BigDecimal getBalance() {
-		return balance;
-	}
-
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
+  }
 
 }

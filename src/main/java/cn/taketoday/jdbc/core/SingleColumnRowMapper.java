@@ -47,7 +47,7 @@ import cn.taketoday.util.NumberUtils;
  * @author Kazuki Shimizu
  * @see JdbcTemplate#queryForList(String, Class)
  * @see JdbcTemplate#queryForObject(String, Class)
- * @since 1.2
+ * @since 4.0
  */
 public class SingleColumnRowMapper<T> implements RowMapper<T> {
 

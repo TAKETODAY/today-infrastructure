@@ -60,7 +60,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @see SqlParameter
  * @see SqlTypeValue
  * @see cn.taketoday.jdbc.core.support.SqlLobValue
- * @since 1.1
+ * @since 4.0
  */
 public abstract class StatementCreatorUtils {
 

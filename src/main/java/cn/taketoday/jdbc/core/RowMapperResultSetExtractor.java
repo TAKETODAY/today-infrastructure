@@ -60,7 +60,7 @@ import cn.taketoday.lang.Assert;
  * @see RowMapper
  * @see JdbcTemplate
  * @see cn.taketoday.jdbc.object.MappingSqlQuery
- * @since 1.0.2
+ * @since 4.0
  */
 public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
 

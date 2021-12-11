@@ -44,7 +44,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see JdbcTemplate#execute(String, PreparedStatementCallback)
  * @see JdbcTemplate#execute(PreparedStatementCreator, PreparedStatementCallback)
- * @since 16.03.2004
+ * @since 4.0
  */
 @FunctionalInterface
 public interface PreparedStatementCallback<T> {

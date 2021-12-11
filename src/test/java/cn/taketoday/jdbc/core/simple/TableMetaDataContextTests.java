@@ -22,9 +22,6 @@ package cn.taketoday.jdbc.core.simple;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jdbc.core.SqlParameterValue;
-import cn.taketoday.jdbc.core.metadata.TableMetaDataContext;
-import cn.taketoday.jdbc.core.namedparam.MapSqlParameterSource;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -35,6 +32,10 @@ import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.core.SqlParameterValue;
+import cn.taketoday.jdbc.core.metadata.TableMetaDataContext;
+import cn.taketoday.jdbc.core.namedparam.MapSqlParameterSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -47,120 +48,118 @@ import static org.mockito.Mockito.verify;
  *
  * @author Thomas Risberg
  */
-public class TableMetaDataContextTests  {
+public class TableMetaDataContextTests {
 
-	private Connection connection;
+  private Connection connection;
 
-	private DataSource dataSource;
+  private DataSource dataSource;
 
-	private DatabaseMetaData databaseMetaData;
+  private DatabaseMetaData databaseMetaData;
 
-	private TableMetaDataContext context = new TableMetaDataContext();
+  private TableMetaDataContext context = new TableMetaDataContext();
 
+  @BeforeEach
+  public void setUp() throws Exception {
+    connection = mock(Connection.class);
+    dataSource = mock(DataSource.class);
+    databaseMetaData = mock(DatabaseMetaData.class);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(dataSource.getConnection()).willReturn(connection);
+  }
 
-	@BeforeEach
-	public void setUp() throws Exception {
-		connection = mock(Connection.class);
-		dataSource = mock(DataSource.class);
-		databaseMetaData = mock(DatabaseMetaData.class);
-		given(connection.getMetaData()).willReturn(databaseMetaData);
-		given(dataSource.getConnection()).willReturn(connection);
-	}
+  @Test
+  public void testMatchInParametersAndSqlTypeInfoWrapping() throws Exception {
+    final String TABLE = "customers";
+    final String USER = "me";
 
+    ResultSet metaDataResultSet = mock(ResultSet.class);
+    given(metaDataResultSet.next()).willReturn(true, false);
+    given(metaDataResultSet.getString("TABLE_SCHEM")).willReturn(USER);
+    given(metaDataResultSet.getString("TABLE_NAME")).willReturn(TABLE);
+    given(metaDataResultSet.getString("TABLE_TYPE")).willReturn("TABLE");
 
-	@Test
-	public void testMatchInParametersAndSqlTypeInfoWrapping() throws Exception {
-		final String TABLE = "customers";
-		final String USER = "me";
+    ResultSet columnsResultSet = mock(ResultSet.class);
+    given(columnsResultSet.next()).willReturn(
+            true, true, true, true, false);
+    given(columnsResultSet.getString("COLUMN_NAME")).willReturn(
+            "id", "name", "customersince", "version");
+    given(columnsResultSet.getInt("DATA_TYPE")).willReturn(
+            Types.INTEGER, Types.VARCHAR, Types.DATE, Types.NUMERIC);
+    given(columnsResultSet.getBoolean("NULLABLE")).willReturn(
+            false, true, true, false);
 
-		ResultSet metaDataResultSet = mock(ResultSet.class);
-		given(metaDataResultSet.next()).willReturn(true, false);
-		given(metaDataResultSet.getString("TABLE_SCHEM")).willReturn(USER);
-		given(metaDataResultSet.getString("TABLE_NAME")).willReturn(TABLE);
-		given(metaDataResultSet.getString("TABLE_TYPE")).willReturn("TABLE");
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getDatabaseProductName()).willReturn("1.0");
+    given(databaseMetaData.getUserName()).willReturn(USER);
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(databaseMetaData.getTables(null, null, TABLE, null)).willReturn(metaDataResultSet);
+    given(databaseMetaData.getColumns(null, USER, TABLE, null)).willReturn(columnsResultSet);
 
-		ResultSet columnsResultSet = mock(ResultSet.class);
-		given(columnsResultSet.next()).willReturn(
-				true, true, true, true, false);
-		given(columnsResultSet.getString("COLUMN_NAME")).willReturn(
-				"id", "name", "customersince", "version");
-		given(columnsResultSet.getInt("DATA_TYPE")).willReturn(
-				Types.INTEGER, Types.VARCHAR, Types.DATE, Types.NUMERIC);
-		given(columnsResultSet.getBoolean("NULLABLE")).willReturn(
-				false, true, true, false);
+    MapSqlParameterSource map = new MapSqlParameterSource();
+    map.addValue("id", 1);
+    map.addValue("name", "Sven");
+    map.addValue("customersince", new Date());
+    map.addValue("version", 0);
+    map.registerSqlType("customersince", Types.DATE);
+    map.registerSqlType("version", Types.NUMERIC);
 
-		given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
-		given(databaseMetaData.getDatabaseProductName()).willReturn("1.0");
-		given(databaseMetaData.getUserName()).willReturn(USER);
-		given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
-		given(databaseMetaData.getTables(null, null, TABLE, null)).willReturn(metaDataResultSet);
-		given(databaseMetaData.getColumns(null, USER, TABLE, null)).willReturn(columnsResultSet);
+    context.setTableName(TABLE);
+    context.processMetaData(dataSource, new ArrayList<>(), new String[] {});
 
-		MapSqlParameterSource map = new MapSqlParameterSource();
-		map.addValue("id", 1);
-		map.addValue("name", "Sven");
-		map.addValue("customersince", new Date());
-		map.addValue("version", 0);
-		map.registerSqlType("customersince", Types.DATE);
-		map.registerSqlType("version", Types.NUMERIC);
+    List<Object> values = context.matchInParameterValuesWithInsertColumns(map);
 
-		context.setTableName(TABLE);
-		context.processMetaData(dataSource, new ArrayList<>(), new String[] {});
+    assertThat(values.size()).as("wrong number of parameters: ").isEqualTo(4);
+    boolean condition3 = values.get(0) instanceof Number;
+    assertThat(condition3).as("id not wrapped with type info").isTrue();
+    boolean condition2 = values.get(1) instanceof String;
+    assertThat(condition2).as("name not wrapped with type info").isTrue();
+    boolean condition1 = values.get(2) instanceof SqlParameterValue;
+    assertThat(condition1).as("date wrapped with type info").isTrue();
+    boolean condition = values.get(3) instanceof SqlParameterValue;
+    assertThat(condition).as("version wrapped with type info").isTrue();
+    verify(metaDataResultSet, atLeastOnce()).next();
+    verify(columnsResultSet, atLeastOnce()).next();
+    verify(metaDataResultSet).close();
+    verify(columnsResultSet).close();
+  }
 
-		List<Object> values = context.matchInParameterValuesWithInsertColumns(map);
+  @Test
+  public void testTableWithSingleColumnGeneratedKey() throws Exception {
+    final String TABLE = "customers";
+    final String USER = "me";
 
-		assertThat(values.size()).as("wrong number of parameters: ").isEqualTo(4);
-		boolean condition3 = values.get(0) instanceof Number;
-		assertThat(condition3).as("id not wrapped with type info").isTrue();
-		boolean condition2 = values.get(1) instanceof String;
-		assertThat(condition2).as("name not wrapped with type info").isTrue();
-		boolean condition1 = values.get(2) instanceof SqlParameterValue;
-		assertThat(condition1).as("date wrapped with type info").isTrue();
-		boolean condition = values.get(3) instanceof SqlParameterValue;
-		assertThat(condition).as("version wrapped with type info").isTrue();
-		verify(metaDataResultSet, atLeastOnce()).next();
-		verify(columnsResultSet, atLeastOnce()).next();
-		verify(metaDataResultSet).close();
-		verify(columnsResultSet).close();
-	}
+    ResultSet metaDataResultSet = mock(ResultSet.class);
+    given(metaDataResultSet.next()).willReturn(true, false);
+    given(metaDataResultSet.getString("TABLE_SCHEM")).willReturn(USER);
+    given(metaDataResultSet.getString("TABLE_NAME")).willReturn(TABLE);
+    given(metaDataResultSet.getString("TABLE_TYPE")).willReturn("TABLE");
 
-	@Test
-	public void testTableWithSingleColumnGeneratedKey() throws Exception {
-		final String TABLE = "customers";
-		final String USER = "me";
+    ResultSet columnsResultSet = mock(ResultSet.class);
+    given(columnsResultSet.next()).willReturn(true, false);
+    given(columnsResultSet.getString("COLUMN_NAME")).willReturn("id");
+    given(columnsResultSet.getInt("DATA_TYPE")).willReturn(Types.INTEGER);
+    given(columnsResultSet.getBoolean("NULLABLE")).willReturn(false);
 
-		ResultSet metaDataResultSet = mock(ResultSet.class);
-		given(metaDataResultSet.next()).willReturn(true, false);
-		given(metaDataResultSet.getString("TABLE_SCHEM")).willReturn(USER);
-		given(metaDataResultSet.getString("TABLE_NAME")).willReturn(TABLE);
-		given(metaDataResultSet.getString("TABLE_TYPE")).willReturn("TABLE");
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getDatabaseProductName()).willReturn("1.0");
+    given(databaseMetaData.getUserName()).willReturn(USER);
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(databaseMetaData.getTables(null, null, TABLE, null)).willReturn(metaDataResultSet);
+    given(databaseMetaData.getColumns(null, USER, TABLE, null)).willReturn(columnsResultSet);
 
-		ResultSet columnsResultSet = mock(ResultSet.class);
-		given(columnsResultSet.next()).willReturn(true, false);
-		given(columnsResultSet.getString("COLUMN_NAME")).willReturn("id");
-		given(columnsResultSet.getInt("DATA_TYPE")).willReturn(Types.INTEGER);
-		given(columnsResultSet.getBoolean("NULLABLE")).willReturn(false);
+    MapSqlParameterSource map = new MapSqlParameterSource();
+    String[] keyCols = new String[] { "id" };
+    context.setTableName(TABLE);
+    context.processMetaData(dataSource, new ArrayList<>(), keyCols);
+    List<Object> values = context.matchInParameterValuesWithInsertColumns(map);
+    String insertString = context.createInsertString(keyCols);
 
-		given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
-		given(databaseMetaData.getDatabaseProductName()).willReturn("1.0");
-		given(databaseMetaData.getUserName()).willReturn(USER);
-		given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
-		given(databaseMetaData.getTables(null, null, TABLE, null)).willReturn(metaDataResultSet);
-		given(databaseMetaData.getColumns(null, USER, TABLE, null)).willReturn(columnsResultSet);
-
-		MapSqlParameterSource map = new MapSqlParameterSource();
-		String[] keyCols = new String[] { "id" };
-		context.setTableName(TABLE);
-		context.processMetaData(dataSource, new ArrayList<>(), keyCols);
-		List<Object> values = context.matchInParameterValuesWithInsertColumns(map);
-		String insertString = context.createInsertString(keyCols);
-
-		assertThat(values.size()).as("wrong number of parameters: ").isEqualTo(0);
-		assertThat(insertString).as("empty insert not generated correctly").isEqualTo("INSERT INTO customers () VALUES()");
-		verify(metaDataResultSet, atLeastOnce()).next();
-		verify(columnsResultSet, atLeastOnce()).next();
-		verify(metaDataResultSet).close();
-		verify(columnsResultSet).close();
-	}
+    assertThat(values.size()).as("wrong number of parameters: ").isEqualTo(0);
+    assertThat(insertString).as("empty insert not generated correctly").isEqualTo("INSERT INTO customers () VALUES()");
+    verify(metaDataResultSet, atLeastOnce()).next();
+    verify(columnsResultSet, atLeastOnce()).next();
+    verify(metaDataResultSet).close();
+    verify(columnsResultSet).close();
+  }
 
 }

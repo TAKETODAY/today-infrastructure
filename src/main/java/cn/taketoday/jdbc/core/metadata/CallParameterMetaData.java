@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @see GenericCallMetaDataProvider
- * @since 2.5
+ * @since 4.0
  */
 public class CallParameterMetaData {
 

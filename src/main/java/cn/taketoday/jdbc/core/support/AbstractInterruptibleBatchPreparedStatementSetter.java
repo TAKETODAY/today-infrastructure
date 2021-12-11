@@ -32,7 +32,7 @@ import cn.taketoday.jdbc.core.InterruptibleBatchPreparedStatementSetter;
  *
  * @author Juergen Hoeller
  * @see #setValuesIfAvailable
- * @since 2.0
+ * @since 4.0
  */
 public abstract class AbstractInterruptibleBatchPreparedStatementSetter
         implements InterruptibleBatchPreparedStatementSetter {

@@ -31,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
-
 /**
  * Tests for {@link AbstractRoutingDataSource}.
  *
@@ -39,126 +38,125 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class AbstractRoutingDataSourceTests {
 
-	@Test
-	void setTargetDataSources() {
-		final ThreadLocal<String> lookupKey = new ThreadLocal<>();
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return lookupKey.get();
-			}
-		};
-		DataSource ds1 = new StubDataSource();
-		DataSource ds2 = new StubDataSource();
+  @Test
+  void setTargetDataSources() {
+    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return lookupKey.get();
+      }
+    };
+    DataSource ds1 = new StubDataSource();
+    DataSource ds2 = new StubDataSource();
 
-		MapDataSourceLookup dataSourceLookup = new MapDataSourceLookup();
-		dataSourceLookup.addDataSource("dataSource2", ds2);
-		routingDataSource.setDataSourceLookup(dataSourceLookup);
+    MapDataSourceLookup dataSourceLookup = new MapDataSourceLookup();
+    dataSourceLookup.addDataSource("dataSource2", ds2);
+    routingDataSource.setDataSourceLookup(dataSourceLookup);
 
-		Map<Object, Object> targetDataSources = new HashMap<>();
-		targetDataSources.put("ds1", ds1);
-		targetDataSources.put("ds2", "dataSource2");
-		routingDataSource.setTargetDataSources(targetDataSources);
+    Map<Object, Object> targetDataSources = new HashMap<>();
+    targetDataSources.put("ds1", ds1);
+    targetDataSources.put("ds2", "dataSource2");
+    routingDataSource.setTargetDataSources(targetDataSources);
 
-		routingDataSource.afterPropertiesSet();
-		lookupKey.set("ds1");
-		assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds1);
-		lookupKey.set("ds2");
-		assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds2);
-	}
+    routingDataSource.afterPropertiesSet();
+    lookupKey.set("ds1");
+    assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds1);
+    lookupKey.set("ds2");
+    assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds2);
+  }
 
-	@Test
-	void targetDataSourcesIsNull() {
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return null;
-			}
-		};
-		assertThatIllegalArgumentException().isThrownBy(routingDataSource::afterPropertiesSet)
-				.withMessage("Property 'targetDataSources' is required");
-	}
+  @Test
+  void targetDataSourcesIsNull() {
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return null;
+      }
+    };
+    assertThatIllegalArgumentException().isThrownBy(routingDataSource::afterPropertiesSet)
+            .withMessage("Property 'targetDataSources' is required");
+  }
 
-	@Test
-	void dataSourceIsUnSupportedType() {
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return null;
-			}
-		};
-		Map<Object, Object> targetDataSources = new HashMap<>();
-		targetDataSources.put("ds1", 1);
-		routingDataSource.setTargetDataSources(targetDataSources);
-		assertThatIllegalArgumentException().isThrownBy(routingDataSource::afterPropertiesSet)
-				.withMessage("Illegal data source value - only [javax.sql.DataSource] and String supported: 1");
-	}
+  @Test
+  void dataSourceIsUnSupportedType() {
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return null;
+      }
+    };
+    Map<Object, Object> targetDataSources = new HashMap<>();
+    targetDataSources.put("ds1", 1);
+    routingDataSource.setTargetDataSources(targetDataSources);
+    assertThatIllegalArgumentException().isThrownBy(routingDataSource::afterPropertiesSet)
+            .withMessage("Illegal data source value - only [javax.sql.DataSource] and String supported: 1");
+  }
 
+  @Test
+  void setDefaultTargetDataSource() {
+    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return lookupKey.get();
+      }
+    };
+    DataSource ds = new StubDataSource();
+    routingDataSource.setTargetDataSources(new HashMap<>());
+    routingDataSource.setDefaultTargetDataSource(ds);
+    routingDataSource.afterPropertiesSet();
+    lookupKey.set("foo");
+    assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds);
+  }
 
-	@Test
-	void setDefaultTargetDataSource() {
-		final ThreadLocal<String> lookupKey = new ThreadLocal<>();
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return lookupKey.get();
-			}
-		};
-		DataSource ds = new StubDataSource();
-		routingDataSource.setTargetDataSources(new HashMap<>());
-		routingDataSource.setDefaultTargetDataSource(ds);
-		routingDataSource.afterPropertiesSet();
-		lookupKey.set("foo");
-		assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds);
-	}
+  @Test
+  void setDefaultTargetDataSourceFallbackIsFalse() {
+    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return lookupKey.get();
+      }
+    };
+    DataSource ds = new StubDataSource();
+    routingDataSource.setTargetDataSources(new HashMap<>());
+    routingDataSource.setDefaultTargetDataSource(ds);
+    routingDataSource.setLenientFallback(false);
+    routingDataSource.afterPropertiesSet();
+    lookupKey.set("foo");
+    assertThatIllegalStateException().isThrownBy(routingDataSource::determineTargetDataSource)
+            .withMessage("Cannot determine target DataSource for lookup key [foo]");
+  }
 
-	@Test
-	void setDefaultTargetDataSourceFallbackIsFalse() {
-		final ThreadLocal<String> lookupKey = new ThreadLocal<>();
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return lookupKey.get();
-			}
-		};
-		DataSource ds = new StubDataSource();
-		routingDataSource.setTargetDataSources(new HashMap<>());
-		routingDataSource.setDefaultTargetDataSource(ds);
-		routingDataSource.setLenientFallback(false);
-		routingDataSource.afterPropertiesSet();
-		lookupKey.set("foo");
-		assertThatIllegalStateException().isThrownBy(routingDataSource::determineTargetDataSource)
-				.withMessage("Cannot determine target DataSource for lookup key [foo]");
-	}
+  @Test
+  void setDefaultTargetDataSourceLookupKeyIsNullWhenFallbackIsFalse() {
+    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return lookupKey.get();
+      }
+    };
+    DataSource ds = new StubDataSource();
+    routingDataSource.setTargetDataSources(new HashMap<>());
+    routingDataSource.setDefaultTargetDataSource(ds);
+    routingDataSource.setLenientFallback(false);
+    routingDataSource.afterPropertiesSet();
+    lookupKey.set(null);
+    assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds);
+  }
 
-	@Test
-	void setDefaultTargetDataSourceLookupKeyIsNullWhenFallbackIsFalse() {
-		final ThreadLocal<String> lookupKey = new ThreadLocal<>();
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return lookupKey.get();
-			}
-		};
-		DataSource ds = new StubDataSource();
-		routingDataSource.setTargetDataSources(new HashMap<>());
-		routingDataSource.setDefaultTargetDataSource(ds);
-		routingDataSource.setLenientFallback(false);
-		routingDataSource.afterPropertiesSet();
-		lookupKey.set(null);
-		assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds);
-	}
-
-	@Test
-	public void notInitialized() {
-		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
-			@Override
-			protected Object determineCurrentLookupKey() {
-				return null;
-			}
-		};
-		assertThatIllegalArgumentException().isThrownBy(routingDataSource::determineTargetDataSource)
-				.withMessage("DataSource router not initialized");
-	}
+  @Test
+  public void notInitialized() {
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return null;
+      }
+    };
+    assertThatIllegalArgumentException().isThrownBy(routingDataSource::determineTargetDataSource)
+            .withMessage("DataSource router not initialized");
+  }
 
 }

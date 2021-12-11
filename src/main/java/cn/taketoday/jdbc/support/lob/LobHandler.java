@@ -75,7 +75,7 @@ import cn.taketoday.lang.Nullable;
  * @see ResultSet#getString
  * @see ResultSet#getAsciiStream
  * @see ResultSet#getCharacterStream
- * @since 23.12.2003
+ * @since 4.0
  */
 public interface LobHandler {
 

@@ -20,11 +20,11 @@
 
 package cn.taketoday.jdbc.support;
 
+import java.sql.SQLException;
+
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.lang.Nullable;
-
-import java.sql.SQLException;
 
 /**
  * Custom SQLException translation for testing.
@@ -33,12 +33,12 @@ import java.sql.SQLException;
  */
 public class CustomSqlExceptionTranslator implements SQLExceptionTranslator {
 
-	@Override
-	public DataAccessException translate(String task, @Nullable String sql, SQLException ex) {
-		if (ex.getErrorCode() == 2) {
-			return new TransientDataAccessResourceException("Custom", ex);
-		}
-		return null;
-	}
+  @Override
+  public DataAccessException translate(String task, @Nullable String sql, SQLException ex) {
+    if (ex.getErrorCode() == 2) {
+      return new TransientDataAccessResourceException("Custom", ex);
+    }
+    return null;
+  }
 
 }

@@ -264,6 +264,69 @@ class StringUtilsTests {
   }
 
   @Test
+  void countOccurrencesOf() {
+    assertThat(StringUtils.countOccurrencesOf(null, null) == 0).as("nullx2 = 0").isTrue();
+    assertThat(StringUtils.countOccurrencesOf("s", null) == 0).as("null string = 0").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(null, "s") == 0).as("null substring = 0").isTrue();
+    String s = "erowoiueoiur";
+    assertThat(StringUtils.countOccurrencesOf(s, "WERWER") == 0).as("not found = 0").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "x") == 0).as("not found char = 0").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, " ") == 0).as("not found ws = 0").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "") == 0).as("not found empty string = 0").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "e") == 2).as("found char=2").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "oi") == 2).as("found substring=2").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "oiu") == 2).as("found substring=2").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "oiur") == 1).as("found substring=3").isTrue();
+    assertThat(StringUtils.countOccurrencesOf(s, "r") == 2).as("test last").isTrue();
+  }
+
+  @Test
+  void replace() {
+    String inString = "a6AazAaa77abaa";
+    String oldPattern = "aa";
+    String newPattern = "foo";
+
+    // Simple replace
+    String s = StringUtils.replace(inString, oldPattern, newPattern);
+    assertThat(s.equals("a6AazAfoo77abfoo")).as("Replace 1 worked").isTrue();
+
+    // Non match: no change
+    s = StringUtils.replace(inString, "qwoeiruqopwieurpoqwieur", newPattern);
+    assertThat(s).as("Replace non-matched is returned as-is").isSameAs(inString);
+
+    // Null new pattern: should ignore
+    s = StringUtils.replace(inString, oldPattern, null);
+    assertThat(s).as("Replace non-matched is returned as-is").isSameAs(inString);
+
+    // Null old pattern: should ignore
+    s = StringUtils.replace(inString, null, newPattern);
+    assertThat(s).as("Replace non-matched is returned as-is").isSameAs(inString);
+  }
+
+  @Test
+  void delete() {
+    String inString = "The quick brown fox jumped over the lazy dog";
+
+    String noThe = StringUtils.delete(inString, "the");
+    assertThat(noThe.equals("The quick brown fox jumped over  lazy dog")).as("Result has no the [" + noThe + "]").isTrue();
+
+    String nohe = StringUtils.delete(inString, "he");
+    assertThat(nohe.equals("T quick brown fox jumped over t lazy dog")).as("Result has no he [" + nohe + "]").isTrue();
+
+    String nosp = StringUtils.delete(inString, " ");
+    assertThat(nosp.equals("Thequickbrownfoxjumpedoverthelazydog")).as("Result has no spaces").isTrue();
+
+    String killEnd = StringUtils.delete(inString, "dog");
+    assertThat(killEnd.equals("The quick brown fox jumped over the lazy ")).as("Result has no dog").isTrue();
+
+    String mismatch = StringUtils.delete(inString, "dxxcxcxog");
+    assertThat(mismatch.equals(inString)).as("Result is unchanged").isTrue();
+
+    String nochange = StringUtils.delete(inString, "");
+    assertThat(nochange.equals(inString)).as("Result is unchanged").isTrue();
+  }
+
+  @Test
   void uncapitalize() {
     String capitalized = "I am capitalized";
     assertThat(StringUtils.uncapitalize(capitalized)).isEqualTo("i am capitalized");

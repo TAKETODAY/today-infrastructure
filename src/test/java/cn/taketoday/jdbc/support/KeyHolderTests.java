@@ -21,11 +21,12 @@
 package cn.taketoday.jdbc.support;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.dao.DataRetrievalFailureException;
-import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.taketoday.dao.DataRetrievalFailureException;
+import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -42,87 +43,86 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class KeyHolderTests {
 
-	private final KeyHolder kh = new GeneratedKeyHolder();
+  private final KeyHolder kh = new GeneratedKeyHolder();
 
+  @Test
+  void getKeyForSingleNumericKey() {
+    kh.getKeyList().add(singletonMap("key", 1));
 
-	@Test
-	void getKeyForSingleNumericKey() {
-		kh.getKeyList().add(singletonMap("key", 1));
+    assertThat(kh.getKey()).as("single key should be returned").isEqualTo(1);
+  }
 
-		assertThat(kh.getKey()).as("single key should be returned").isEqualTo(1);
-	}
+  @Test
+  void getKeyForSingleNonNumericKey() {
+    kh.getKeyList().add(singletonMap("key", "ABC"));
 
-	@Test
-	void getKeyForSingleNonNumericKey() {
-		kh.getKeyList().add(singletonMap("key", "ABC"));
+    assertThatExceptionOfType(DataRetrievalFailureException.class)
+            .isThrownBy(() -> kh.getKey())
+            .withMessage("The generated key type is not supported. Unable to cast [java.lang.String] to [java.lang.Number].");
+  }
 
-		assertThatExceptionOfType(DataRetrievalFailureException.class)
-			.isThrownBy(() -> kh.getKey())
-			.withMessage("The generated key type is not supported. Unable to cast [java.lang.String] to [java.lang.Number].");
-	}
+  @Test
+  void getKeyWithNoKeysInMap() {
+    kh.getKeyList().add(emptyMap());
 
-	@Test
-	void getKeyWithNoKeysInMap() {
-		kh.getKeyList().add(emptyMap());
+    assertThatExceptionOfType(DataRetrievalFailureException.class)
+            .isThrownBy(() -> kh.getKey())
+            .withMessageStartingWith("Unable to retrieve the generated key.");
+  }
 
-		assertThatExceptionOfType(DataRetrievalFailureException.class)
-			.isThrownBy(() -> kh.getKey())
-			.withMessageStartingWith("Unable to retrieve the generated key.");
-	}
+  @Test
+  void getKeyWithMultipleKeysInMap() {
+    @SuppressWarnings("serial")
+    Map<String, Object> m = new HashMap<String, Object>() {{
+      put("key", 1);
+      put("seq", 2);
+    }};
+    kh.getKeyList().add(m);
 
-	@Test
-	void getKeyWithMultipleKeysInMap() {
-		@SuppressWarnings("serial")
-		Map<String, Object> m = new HashMap<String, Object>() {{
-			put("key", 1);
-			put("seq", 2);
-		}};
-		kh.getKeyList().add(m);
+    assertThat(kh.getKeys()).as("two keys should be in the map").hasSize(2);
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+            .isThrownBy(() -> kh.getKey())
+            .withMessageStartingWith("The getKey method should only be used when a single key is returned.");
+  }
 
-		assertThat(kh.getKeys()).as("two keys should be in the map").hasSize(2);
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-			.isThrownBy(() -> kh.getKey())
-			.withMessageStartingWith("The getKey method should only be used when a single key is returned.");
-	}
+  @Test
+  void getKeyAsStringForSingleKey() {
+    kh.getKeyList().add(singletonMap("key", "ABC"));
 
-	@Test
-	void getKeyAsStringForSingleKey() {
-		kh.getKeyList().add(singletonMap("key", "ABC"));
+    assertThat(kh.getKeyAs(String.class)).as("single key should be returned").isEqualTo("ABC");
+  }
 
-		assertThat(kh.getKeyAs(String.class)).as("single key should be returned").isEqualTo("ABC");
-	}
+  @Test
+  void getKeyAsWrongType() {
+    kh.getKeyList().add(singletonMap("key", "ABC"));
 
-	@Test
-	void getKeyAsWrongType() {
-		kh.getKeyList().add(singletonMap("key", "ABC"));
+    assertThatExceptionOfType(DataRetrievalFailureException.class)
+            .isThrownBy(() -> kh.getKeyAs(Integer.class))
+            .withMessage("The generated key type is not supported. Unable to cast [java.lang.String] to [java.lang.Integer].");
+  }
 
-		assertThatExceptionOfType(DataRetrievalFailureException.class)
-			.isThrownBy(() -> kh.getKeyAs(Integer.class))
-			.withMessage("The generated key type is not supported. Unable to cast [java.lang.String] to [java.lang.Integer].");
-	}
+  @Test
+  void getKeyAsIntegerWithNullValue() {
+    kh.getKeyList().add(singletonMap("key", null));
 
-	@Test
-	void getKeyAsIntegerWithNullValue() {
-		kh.getKeyList().add(singletonMap("key", null));
+    assertThatExceptionOfType(DataRetrievalFailureException.class)
+            .isThrownBy(() -> kh.getKeyAs(Integer.class))
+            .withMessage("The generated key type is not supported. Unable to cast [null] to [java.lang.Integer].");
+  }
 
-		assertThatExceptionOfType(DataRetrievalFailureException.class)
-			.isThrownBy(() -> kh.getKeyAs(Integer.class))
-			.withMessage("The generated key type is not supported. Unable to cast [null] to [java.lang.Integer].");
-	}
+  @Test
+  void getKeysWithMultipleKeyRows() {
+    @SuppressWarnings("serial")
+    Map<String, Object> m = new HashMap<String, Object>() {{
+      put("key", 1);
+      put("seq", 2);
+    }};
+    kh.getKeyList().addAll(asList(m, m));
 
-	@Test
-	void getKeysWithMultipleKeyRows() {
-		@SuppressWarnings("serial")
-		Map<String, Object> m = new HashMap<String, Object>() {{
-			put("key", 1);
-			put("seq", 2);
-		}};
-		kh.getKeyList().addAll(asList(m, m));
-
-		assertThat(kh.getKeyList()).as("two rows should be in the list").hasSize(2);
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-			.isThrownBy(() -> kh.getKeys())
-			.withMessageStartingWith("The getKeys method should only be used when keys for a single row are returned.");
-	}
+    assertThat(kh.getKeyList()).as("two rows should be in the list").hasSize(2);
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+            .isThrownBy(() -> kh.getKeys())
+            .withMessageStartingWith("The getKeys method should only be used when keys for a single row are returned.");
+  }
 
 }

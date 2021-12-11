@@ -44,7 +44,7 @@ import cn.taketoday.jdbc.core.BatchPreparedStatementSetter;
  *
  * @author Keith Donald
  * @author Juergen Hoeller
- * @since 1.1
+ * @since 4.0
  * @see #flush
  * @see #reset
  */

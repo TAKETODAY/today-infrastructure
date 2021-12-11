@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  * {@link cn.taketoday.jdbc.core.simple.SimpleJdbcCall}.
  *
  * @author Thomas Risberg
- * @since 2.5
+ * @since 4.0
  */
 public interface CallMetaDataProvider {
 

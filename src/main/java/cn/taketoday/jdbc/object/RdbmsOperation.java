@@ -257,7 +257,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * Resolve the configured SQL for actual use.
    *
    * @return the SQL (never {@code null})
-   * @since 5.0
+   * @since 4.0
    */
   protected String resolveSql() {
     String sql = getSql();

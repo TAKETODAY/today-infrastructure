@@ -276,8 +276,7 @@ public class PreparedStatementCreatorFactory {
           }
           declaredParameter = declaredParameters.get(i);
         }
-        if (in instanceof Iterable && declaredParameter.getSqlType() != Types.ARRAY) {
-          Iterable<?> entries = (Iterable<?>) in;
+        if (in instanceof Iterable<?> entries && declaredParameter.getSqlType() != Types.ARRAY) {
           for (Object entry : entries) {
             if (entry instanceof Object[] valueArray) {
               for (Object argValue : valueArray) {

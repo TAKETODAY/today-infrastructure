@@ -53,7 +53,7 @@ import javax.sql.DataSource;
  * <p>Thanks to Tarald Saxi Stormark for the suggestion!
  *
  * @author Thomas Risberg
- * @since 3.0.5
+ * @since 4.0
  */
 public class SybaseAnywhereMaxValueIncrementer extends SybaseMaxValueIncrementer {
 

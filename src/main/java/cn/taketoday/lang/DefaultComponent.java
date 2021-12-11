@@ -32,7 +32,7 @@ public final class DefaultComponent implements Component {
 
   private String[] value = Constant.EMPTY_STRING_ARRAY;
   private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
-  private String destroyMethod ;
+  private String destroyMethod;
 
   @Override
   public Class<? extends Annotation> annotationType() {
@@ -41,6 +41,11 @@ public final class DefaultComponent implements Component {
 
   @Override
   public String[] value() {
+    return value;
+  }
+
+  @Override
+  public String[] name() {
     return value;
   }
 

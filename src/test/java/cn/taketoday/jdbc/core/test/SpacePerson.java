@@ -28,44 +28,44 @@ import java.time.LocalDateTime;
  */
 public class SpacePerson {
 
-	private String lastName;
+  private String lastName;
 
-	private long age;
+  private long age;
 
-	private LocalDateTime birthDate;
+  private LocalDateTime birthDate;
 
-	private BigDecimal balance;
+  private BigDecimal balance;
 
-	public String getLastName() {
-		return lastName;
-	}
+  public String getLastName() {
+    return lastName;
+  }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-	public long getAge() {
-		return age;
-	}
+  public long getAge() {
+    return age;
+  }
 
-	public void setAge(long age) {
-		this.age = age;
-	}
+  public void setAge(long age) {
+    this.age = age;
+  }
 
-	public LocalDateTime getBirthDate() {
-		return birthDate;
-	}
+  public LocalDateTime getBirthDate() {
+    return birthDate;
+  }
 
-	public void setBirthDate(LocalDateTime birthDate) {
-		this.birthDate = birthDate;
-	}
+  public void setBirthDate(LocalDateTime birthDate) {
+    this.birthDate = birthDate;
+  }
 
-	public BigDecimal getBalance() {
-		return balance;
-	}
+  public BigDecimal getBalance() {
+    return balance;
+  }
 
-	public void setBalance(BigDecimal balanace) {
-		this.balance = balanace;
-	}
+  public void setBalance(BigDecimal balanace) {
+    this.balance = balanace;
+  }
 
 }

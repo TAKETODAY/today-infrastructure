@@ -20,14 +20,11 @@
 
 package cn.taketoday.jdbc.core.namedparam;
 
-import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
-import java.util.List;
 
-import cn.taketoday.beans.BeanWrapper;
-import cn.taketoday.beans.NotReadablePropertyException;
-import cn.taketoday.beans.PropertyAccessor;
-import cn.taketoday.beans.PropertyAccessorFactory;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.jdbc.core.StatementCreatorUtils;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -43,15 +40,14 @@ import cn.taketoday.util.StringUtils;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @see NamedParameterJdbcTemplate
- * @see cn.taketoday.beans.BeanWrapper
- * @since 2.0
+ * @since 4.0
  */
 public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
 
-  private final BeanWrapper beanWrapper;
-
   @Nullable
   private String[] propertyNames;
+
+  private final BeanPropertyAccessor accessor;
 
   /**
    * Create a new BeanPropertySqlParameterSource for the given bean.
@@ -59,23 +55,19 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
    * @param object the bean instance to wrap
    */
   public BeanPropertySqlParameterSource(Object object) {
-    this.beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+    this.accessor = BeanPropertyAccessor.ofObject(object);
   }
 
   @Override
   public boolean hasValue(String paramName) {
-    return this.beanWrapper.isReadableProperty(paramName);
+    BeanProperty beanProperty = accessor.obtainMetadata().getBeanProperty(paramName);
+    return beanProperty != null && !beanProperty.isWriteOnly();
   }
 
   @Override
   @Nullable
   public Object getValue(String paramName) throws IllegalArgumentException {
-    try {
-      return this.beanWrapper.getPropertyValue(paramName);
-    }
-    catch (NotReadablePropertyException ex) {
-      throw new IllegalArgumentException(ex.getMessage());
-    }
+    return accessor.getProperty(paramName);
   }
 
   /**
@@ -89,7 +81,7 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
     if (sqlType != TYPE_UNKNOWN) {
       return sqlType;
     }
-    Class<?> propType = this.beanWrapper.getPropertyType(paramName);
+    Class<?> propType = accessor.obtainMetadata().getPropertyClass(paramName);
     return StatementCreatorUtils.javaTypeToSqlParameterType(propType);
   }
 
@@ -107,11 +99,10 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
    */
   public String[] getReadablePropertyNames() {
     if (this.propertyNames == null) {
-      List<String> names = new ArrayList<>();
-      PropertyDescriptor[] props = this.beanWrapper.getPropertyDescriptors();
-      for (PropertyDescriptor pd : props) {
-        if (this.beanWrapper.isReadableProperty(pd.getName())) {
-          names.add(pd.getName());
+      ArrayList<String> names = new ArrayList<>();
+      for (BeanProperty property : accessor.obtainMetadata()) {
+        if (!property.isWriteOnly()) {
+          names.add(property.getName());
         }
       }
       this.propertyNames = StringUtils.toStringArray(names);

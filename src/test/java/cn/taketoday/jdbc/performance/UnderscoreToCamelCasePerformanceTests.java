@@ -28,8 +28,8 @@ public class UnderscoreToCamelCasePerformanceTests {
   }
 
   private List<String> toConvert = ImmutableList.of("my_string_variable", "string", "my_really_long_string_variable_name",
-                                                    "my_string2_with_numbers_4", "my_string_with_MixED_CaSe",
-                                                    "", " ", "\t", "\n\n");
+          "my_string2_with_numbers_4", "my_string_with_MixED_CaSe",
+          "", " ", "\t", "\n\n");
 
   //----------------------------------------
   //          performance tests

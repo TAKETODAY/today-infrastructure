@@ -24,7 +24,6 @@ import java.lang.reflect.Constructor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
@@ -64,8 +63,7 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
    * @see #setMappedClass
    * @see #setConversionService
    */
-  public DataClassRowMapper() {
-  }
+  public DataClassRowMapper() { }
 
   /**
    * Create a new {@code DataClassRowMapper}.
@@ -80,7 +78,7 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   protected void initialize(Class<T> mappedClass) {
     super.initialize(mappedClass);
 
-    this.mappedConstructor = BeanUtils.getResolvableConstructor(mappedClass);
+    this.mappedConstructor = BeanUtils.getConstructor(mappedClass);
     int paramCount = this.mappedConstructor.getParameterCount();
     if (paramCount > 0) {
       this.constructorParameterNames = BeanUtils.getParameterNames(this.mappedConstructor);
@@ -95,17 +93,18 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   }
 
   @Override
-  protected T constructMappedInstance(ResultSet rs, TypeConverter tc) throws SQLException {
+  protected T constructMappedInstance(ResultSet rs) throws SQLException {
     Assert.state(this.mappedConstructor != null, "Mapped constructor was not initialized");
 
     Object[] args;
+    ConversionService conversionService = getConversionService();
     if (this.constructorParameterNames != null && this.constructorParameterTypes != null) {
       args = new Object[this.constructorParameterNames.length];
       for (int i = 0; i < args.length; i++) {
         String name = underscoreName(this.constructorParameterNames[i]);
         TypeDescriptor td = this.constructorParameterTypes[i];
         Object value = getColumnValue(rs, rs.findColumn(name), td.getType());
-        args[i] = tc.convertIfNecessary(value, td.getType(), td);
+        args[i] = conversionService.convert(value, td);
       }
     }
     else {

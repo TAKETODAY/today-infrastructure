@@ -27,7 +27,7 @@ package cn.taketoday.jdbc.core;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.core.support.SqlLobValue
- * @since 1.1
+ * @since 4.0
  */
 public interface DisposableSqlTypeValue extends SqlTypeValue {
 

@@ -28,37 +28,35 @@ import java.util.Date;
  */
 public class ConstructorPerson {
 
-	private final String name;
+  private final String name;
 
-	private final long age;
+  private final long age;
 
-	private final Date birth_date;
+  private final Date birth_date;
 
-	private final BigDecimal balance;
+  private final BigDecimal balance;
 
+  public ConstructorPerson(String name, long age, Date birth_date, BigDecimal balance) {
+    this.name = name;
+    this.age = age;
+    this.birth_date = birth_date;
+    this.balance = balance;
+  }
 
-	public ConstructorPerson(String name, long age, Date birth_date, BigDecimal balance) {
-		this.name = name;
-		this.age = age;
-		this.birth_date = birth_date;
-		this.balance = balance;
-	}
+  public String name() {
+    return this.name;
+  }
 
+  public long age() {
+    return this.age;
+  }
 
-	public String name() {
-		return this.name;
-	}
+  public Date birth_date() {
+    return this.birth_date;
+  }
 
-	public long age() {
-		return this.age;
-	}
-
-	public Date birth_date() {
-		return this.birth_date;
-	}
-
-	public BigDecimal balance() {
-		return this.balance;
-	}
+  public BigDecimal balance() {
+    return this.balance;
+  }
 
 }

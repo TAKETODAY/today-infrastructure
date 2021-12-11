@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.InvalidPropertyValueException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -506,11 +508,16 @@ public class BeanPropertyAccessor {
    * @param beanProperty property metadata
    * @throws InvalidPropertyValueException conversion failed
    */
-  protected Object convertIfNecessary(Object value, BeanProperty beanProperty) {
+  public Object convertIfNecessary(Object value, BeanProperty beanProperty) {
     if (value == null || beanProperty.isInstance(value)) {
       return value;
     }
-    return doConvertInternal(value, beanProperty);
+    try {
+      return doConvertInternal(value, beanProperty);
+    }
+    catch (ConversionException e) {
+      throw new TypeMismatchException(beanProperty.getName(), value, beanProperty.getType(), e);
+    }
   }
 
   protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
@@ -520,7 +527,7 @@ public class BeanPropertyAccessor {
   /**
    * @throws InvalidPropertyValueException conversion failed
    */
-  protected Object convertIfNecessary(@Nullable Object value, Class<?> requiredType) {
+  public Object convertIfNecessary(@Nullable Object value, Class<?> requiredType) {
     if (value == null || requiredType.isInstance(value)) {
       return value;
     }

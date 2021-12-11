@@ -31,6 +31,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.transaction.support.ResourceHolder;
 import cn.taketoday.transaction.support.ResourceTransactionManager;
 import cn.taketoday.util.CollectionUtils;
 

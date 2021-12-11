@@ -40,7 +40,7 @@ import java.sql.SQLException;
  * @author Nicolas Fabre
  * @author Thomas Risberg
  * @see JdbcTemplate#batchUpdate(String, java.util.Collection, int, ParameterizedPreparedStatementSetter)
- * @since 3.1
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ParameterizedPreparedStatementSetter<T> {

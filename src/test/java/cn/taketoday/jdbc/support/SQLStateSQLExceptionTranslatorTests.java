@@ -21,14 +21,15 @@
 package cn.taketoday.jdbc.support;
 
 import org.junit.jupiter.api.Test;
+
+import java.sql.SQLException;
+
 import cn.taketoday.dao.ConcurrencyFailureException;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.DataIntegrityViolationException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;
-
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -40,58 +41,56 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class SQLStateSQLExceptionTranslatorTests {
 
-	private static final String REASON = "The game is afoot!";
+  private static final String REASON = "The game is afoot!";
 
-	private static final String TASK = "Counting sheep... yawn.";
+  private static final String TASK = "Counting sheep... yawn.";
 
-	private static final String SQL = "select count(0) from t_sheep where over_fence = ... yawn... 1";
+  private static final String SQL = "select count(0) from t_sheep where over_fence = ... yawn... 1";
 
+  @Test
+  public void testTranslateNullException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            new SQLStateSQLExceptionTranslator().translate("", "", null));
+  }
 
-	@Test
-	public void testTranslateNullException() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				new SQLStateSQLExceptionTranslator().translate("", "", null));
-	}
+  @Test
+  public void testTranslateBadSqlGrammar() {
+    doTest("07", BadSqlGrammarException.class);
+  }
 
-	@Test
-	public void testTranslateBadSqlGrammar() {
-		doTest("07", BadSqlGrammarException.class);
-	}
+  @Test
+  public void testTranslateDataIntegrityViolation() {
+    doTest("23", DataIntegrityViolationException.class);
+  }
 
-	@Test
-	public void testTranslateDataIntegrityViolation() {
-		doTest("23", DataIntegrityViolationException.class);
-	}
+  @Test
+  public void testTranslateDataAccessResourceFailure() {
+    doTest("53", DataAccessResourceFailureException.class);
+  }
 
-	@Test
-	public void testTranslateDataAccessResourceFailure() {
-		doTest("53", DataAccessResourceFailureException.class);
-	}
+  @Test
+  public void testTranslateTransientDataAccessResourceFailure() {
+    doTest("S1", TransientDataAccessResourceException.class);
+  }
 
-	@Test
-	public void testTranslateTransientDataAccessResourceFailure() {
-		doTest("S1", TransientDataAccessResourceException.class);
-	}
+  @Test
+  public void testTranslateConcurrencyFailure() {
+    doTest("40", ConcurrencyFailureException.class);
+  }
 
-	@Test
-	public void testTranslateConcurrencyFailure() {
-		doTest("40", ConcurrencyFailureException.class);
-	}
+  @Test
+  public void testTranslateUncategorized() {
+    assertThat(new SQLStateSQLExceptionTranslator().translate("", "", new SQLException(REASON, "00000000"))).isNull();
+  }
 
-	@Test
-	public void testTranslateUncategorized() {
-		assertThat(new SQLStateSQLExceptionTranslator().translate("", "", new SQLException(REASON, "00000000"))).isNull();
-	}
-
-
-	private void doTest(String sqlState, Class<?> dataAccessExceptionType) {
-		SQLException ex = new SQLException(REASON, sqlState);
-		SQLExceptionTranslator translator = new SQLStateSQLExceptionTranslator();
-		DataAccessException dax = translator.translate(TASK, SQL, ex);
-		assertThat(dax).as("Specific translation must not result in a null DataAccessException being returned.").isNotNull();
-		assertThat(dax.getClass()).as("Wrong DataAccessException type returned as the result of the translation").isEqualTo(dataAccessExceptionType);
-		assertThat(dax.getCause()).as("The original SQLException must be preserved in the translated DataAccessException").isNotNull();
-		assertThat(dax.getCause()).as("The exact same original SQLException must be preserved in the translated DataAccessException").isSameAs(ex);
-	}
+  private void doTest(String sqlState, Class<?> dataAccessExceptionType) {
+    SQLException ex = new SQLException(REASON, sqlState);
+    SQLExceptionTranslator translator = new SQLStateSQLExceptionTranslator();
+    DataAccessException dax = translator.translate(TASK, SQL, ex);
+    assertThat(dax).as("Specific translation must not result in a null DataAccessException being returned.").isNotNull();
+    assertThat(dax.getClass()).as("Wrong DataAccessException type returned as the result of the translation").isEqualTo(dataAccessExceptionType);
+    assertThat(dax.getCause()).as("The original SQLException must be preserved in the translated DataAccessException").isNotNull();
+    assertThat(dax.getCause()).as("The exact same original SQLException must be preserved in the translated DataAccessException").isSameAs(ex);
+  }
 
 }

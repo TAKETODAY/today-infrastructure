@@ -40,83 +40,83 @@ import static org.mockito.Mockito.verify;
  */
 public class DelegatingDataSourceTests {
 
-	private final DataSource delegate = mock(DataSource.class);
+  private final DataSource delegate = mock(DataSource.class);
 
-	private DelegatingDataSource dataSource = new DelegatingDataSource(delegate);
+  private DelegatingDataSource dataSource = new DelegatingDataSource(delegate);
 
-	@Test
-	public void shouldDelegateGetConnection() throws Exception {
-		Connection connection = mock(Connection.class);
-		given(delegate.getConnection()).willReturn(connection);
-		assertThat(dataSource.getConnection()).isEqualTo(connection);
-	}
+  @Test
+  public void shouldDelegateGetConnection() throws Exception {
+    Connection connection = mock(Connection.class);
+    given(delegate.getConnection()).willReturn(connection);
+    assertThat(dataSource.getConnection()).isEqualTo(connection);
+  }
 
-	@Test
-	public void shouldDelegateGetConnectionWithUsernameAndPassword() throws Exception {
-		Connection connection = mock(Connection.class);
-		String username = "username";
-		String password = "password";
-		given(delegate.getConnection(username, password)).willReturn(connection);
-		assertThat(dataSource.getConnection(username, password)).isEqualTo(connection);
-	}
+  @Test
+  public void shouldDelegateGetConnectionWithUsernameAndPassword() throws Exception {
+    Connection connection = mock(Connection.class);
+    String username = "username";
+    String password = "password";
+    given(delegate.getConnection(username, password)).willReturn(connection);
+    assertThat(dataSource.getConnection(username, password)).isEqualTo(connection);
+  }
 
-	@Test
-	public void shouldDelegateGetLogWriter() throws Exception {
-		PrintWriter writer = new PrintWriter(new ByteArrayOutputStream());
-		given(delegate.getLogWriter()).willReturn(writer);
-		assertThat(dataSource.getLogWriter()).isEqualTo(writer);
-	}
+  @Test
+  public void shouldDelegateGetLogWriter() throws Exception {
+    PrintWriter writer = new PrintWriter(new ByteArrayOutputStream());
+    given(delegate.getLogWriter()).willReturn(writer);
+    assertThat(dataSource.getLogWriter()).isEqualTo(writer);
+  }
 
-	@Test
-	public void shouldDelegateSetLogWriter() throws Exception {
-		PrintWriter writer = new PrintWriter(new ByteArrayOutputStream());
-		dataSource.setLogWriter(writer);
-		verify(delegate).setLogWriter(writer);
-	}
+  @Test
+  public void shouldDelegateSetLogWriter() throws Exception {
+    PrintWriter writer = new PrintWriter(new ByteArrayOutputStream());
+    dataSource.setLogWriter(writer);
+    verify(delegate).setLogWriter(writer);
+  }
 
-	@Test
-	public void shouldDelegateGetLoginTimeout() throws Exception {
-		int timeout = 123;
-		given(delegate.getLoginTimeout()).willReturn(timeout);
-		assertThat(dataSource.getLoginTimeout()).isEqualTo(timeout);
-	}
+  @Test
+  public void shouldDelegateGetLoginTimeout() throws Exception {
+    int timeout = 123;
+    given(delegate.getLoginTimeout()).willReturn(timeout);
+    assertThat(dataSource.getLoginTimeout()).isEqualTo(timeout);
+  }
 
-	@Test
-	public void shouldDelegateSetLoginTimeoutWithSeconds() throws Exception {
-		int timeout = 123;
-		dataSource.setLoginTimeout(timeout);
-		verify(delegate).setLoginTimeout(timeout);
-	}
+  @Test
+  public void shouldDelegateSetLoginTimeoutWithSeconds() throws Exception {
+    int timeout = 123;
+    dataSource.setLoginTimeout(timeout);
+    verify(delegate).setLoginTimeout(timeout);
+  }
 
-	@Test
-	public void shouldDelegateUnwrapWithoutImplementing() throws Exception {
-		ExampleWrapper wrapper = mock(ExampleWrapper.class);
-		given(delegate.unwrap(ExampleWrapper.class)).willReturn(wrapper);
-		assertThat(dataSource.unwrap(ExampleWrapper.class)).isEqualTo(wrapper);
-	}
+  @Test
+  public void shouldDelegateUnwrapWithoutImplementing() throws Exception {
+    ExampleWrapper wrapper = mock(ExampleWrapper.class);
+    given(delegate.unwrap(ExampleWrapper.class)).willReturn(wrapper);
+    assertThat(dataSource.unwrap(ExampleWrapper.class)).isEqualTo(wrapper);
+  }
 
-	@Test
-	public void shouldDelegateUnwrapImplementing() throws Exception {
-		dataSource = new DelegatingDataSourceWithWrapper();
-		assertThat(dataSource.unwrap(ExampleWrapper.class)).isSameAs(dataSource);
-	}
+  @Test
+  public void shouldDelegateUnwrapImplementing() throws Exception {
+    dataSource = new DelegatingDataSourceWithWrapper();
+    assertThat(dataSource.unwrap(ExampleWrapper.class)).isSameAs(dataSource);
+  }
 
-	@Test
-	public void shouldDelegateIsWrapperForWithoutImplementing() throws Exception {
-		given(delegate.isWrapperFor(ExampleWrapper.class)).willReturn(true);
-		assertThat(dataSource.isWrapperFor(ExampleWrapper.class)).isTrue();
-	}
+  @Test
+  public void shouldDelegateIsWrapperForWithoutImplementing() throws Exception {
+    given(delegate.isWrapperFor(ExampleWrapper.class)).willReturn(true);
+    assertThat(dataSource.isWrapperFor(ExampleWrapper.class)).isTrue();
+  }
 
-	@Test
-	public void shouldDelegateIsWrapperForImplementing() throws Exception {
-		dataSource = new DelegatingDataSourceWithWrapper();
-		assertThat(dataSource.isWrapperFor(ExampleWrapper.class)).isTrue();
-	}
+  @Test
+  public void shouldDelegateIsWrapperForImplementing() throws Exception {
+    dataSource = new DelegatingDataSourceWithWrapper();
+    assertThat(dataSource.isWrapperFor(ExampleWrapper.class)).isTrue();
+  }
 
-	public static interface ExampleWrapper {
-	}
+  public static interface ExampleWrapper {
+  }
 
-	private static class DelegatingDataSourceWithWrapper extends DelegatingDataSource
-			implements ExampleWrapper {
-	}
+  private static class DelegatingDataSourceWithWrapper extends DelegatingDataSource
+          implements ExampleWrapper {
+  }
 }

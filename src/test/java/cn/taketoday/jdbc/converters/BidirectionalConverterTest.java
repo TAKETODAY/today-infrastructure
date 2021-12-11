@@ -75,7 +75,7 @@ public class BidirectionalConverterTest {
 
   private void createAndFillTable(List<UUIDWrapper> wrappers) {
     sql2o.createQuery("create table uuid_wrapper(\n" +
-                              "text varchar(100) primary key)").executeUpdate();
+            "text varchar(100) primary key)").executeUpdate();
 
     Query insQuery = sql2o.createQuery("insert into uuid_wrapper(text) values (:text)");
     for (UUIDWrapper wrapper : wrappers) {

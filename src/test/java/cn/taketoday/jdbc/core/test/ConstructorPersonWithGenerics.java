@@ -29,37 +29,35 @@ import java.util.List;
  */
 public class ConstructorPersonWithGenerics {
 
-	private final String name;
+  private final String name;
 
-	private final long age;
+  private final long age;
 
-	private final Date birth_date;
+  private final Date birth_date;
 
-	private final List<BigDecimal> balance;
+  private final List<BigDecimal> balance;
 
+  public ConstructorPersonWithGenerics(String name, long age, Date birth_date, List<BigDecimal> balance) {
+    this.name = name;
+    this.age = age;
+    this.birth_date = birth_date;
+    this.balance = balance;
+  }
 
-	public ConstructorPersonWithGenerics(String name, long age, Date birth_date, List<BigDecimal> balance) {
-		this.name = name;
-		this.age = age;
-		this.birth_date = birth_date;
-		this.balance = balance;
-	}
+  public String name() {
+    return this.name;
+  }
 
+  public long age() {
+    return this.age;
+  }
 
-	public String name() {
-		return this.name;
-	}
+  public Date birth_date() {
+    return this.birth_date;
+  }
 
-	public long age() {
-		return this.age;
-	}
-
-	public Date birth_date() {
-		return this.birth_date;
-	}
-
-	public List<BigDecimal> balance() {
-		return this.balance;
-	}
+  public List<BigDecimal> balance() {
+    return this.balance;
+  }
 
 }

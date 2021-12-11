@@ -37,7 +37,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public final class CallMetaDataProviderFactory {
 

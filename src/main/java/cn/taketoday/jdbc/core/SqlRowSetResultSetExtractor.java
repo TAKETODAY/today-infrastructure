@@ -41,7 +41,7 @@ import cn.taketoday.jdbc.support.rowset.SqlRowSet;
  * @see cn.taketoday.jdbc.support.rowset.SqlRowSet
  * @see JdbcTemplate#queryForRowSet(String)
  * @see CachedRowSet
- * @since 1.2
+ * @since 4.0
  */
 public class SqlRowSetResultSetExtractor implements ResultSetExtractor<SqlRowSet> {
 

@@ -18,4 +18,4 @@
 # along with this program.  If not, see [http://www.gnu.org/licenses/]
 #
 
-cn.taketoday.context.annotation.processor.CandidateComponentsIndexer
+#cn.taketoday.context.annotation.processor.CandidateComponentsIndexer

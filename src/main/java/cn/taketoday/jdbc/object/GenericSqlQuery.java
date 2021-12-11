@@ -36,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see #setRowMapper
  * @see #setRowMapperClass
- * @since 3.0
+ * @since 4.0
  */
 public class GenericSqlQuery<T> extends SqlQuery<T> {
 

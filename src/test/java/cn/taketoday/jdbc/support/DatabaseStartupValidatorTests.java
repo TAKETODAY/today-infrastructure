@@ -18,13 +18,14 @@ package cn.taketoday.jdbc.support;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -40,98 +41,97 @@ import static org.mockito.Mockito.verify;
  */
 class DatabaseStartupValidatorTests {
 
-	private final DataSource dataSource = mock(DataSource.class);
+  private final DataSource dataSource = mock(DataSource.class);
 
-	private final Connection connection = mock(Connection.class);
+  private final Connection connection = mock(Connection.class);
 
-	private final DatabaseStartupValidator validator = new DatabaseStartupValidator();
+  private final DatabaseStartupValidator validator = new DatabaseStartupValidator();
 
+  @BeforeEach
+  void setUp() throws Exception {
+    given(dataSource.getConnection()).willReturn(connection);
+    validator.setDataSource(dataSource);
+    validator.setTimeout(3); // ensure tests don't accidentally run too long
+  }
 
-	@BeforeEach
-	void setUp() throws Exception {
-		given(dataSource.getConnection()).willReturn(connection);
-		validator.setDataSource(dataSource);
-		validator.setTimeout(3); // ensure tests don't accidentally run too long
-	}
+  @Test
+  void exceededTimeoutThrowsException() {
+    validator.setTimeout(1);
+    assertThatExceptionOfType(CannotGetJdbcConnectionException.class)
+            .isThrownBy(validator::afterPropertiesSet);
+  }
 
-	@Test
-	void exceededTimeoutThrowsException() {
-		validator.setTimeout(1);
-		assertThatExceptionOfType(CannotGetJdbcConnectionException.class)
-			.isThrownBy(validator::afterPropertiesSet);
-	}
+  @Test
+  void properSetupForDataSource() {
+    validator.setDataSource(null);
 
-	@Test
-	void properSetupForDataSource() {
-		validator.setDataSource(null);
+    assertThatIllegalArgumentException().isThrownBy(validator::afterPropertiesSet);
+  }
 
-		assertThatIllegalArgumentException().isThrownBy(validator::afterPropertiesSet);
-	}
+  @Test
+  void shouldUseJdbc4IsValidByDefault() throws Exception {
+    given(connection.isValid(1)).willReturn(true);
 
-	@Test
-	void shouldUseJdbc4IsValidByDefault() throws Exception {
-		given(connection.isValid(1)).willReturn(true);
+    validator.afterPropertiesSet();
 
-		validator.afterPropertiesSet();
+    verify(connection, times(1)).isValid(1);
+    verify(connection, times(1)).close();
+  }
 
-		verify(connection, times(1)).isValid(1);
-		verify(connection, times(1)).close();
-	}
+  @Test
+  void shouldCallValidatonTwiceWhenNotValid() throws Exception {
+    given(connection.isValid(1)).willReturn(false, true);
 
-	@Test
-	void shouldCallValidatonTwiceWhenNotValid() throws Exception {
-		given(connection.isValid(1)).willReturn(false, true);
+    validator.afterPropertiesSet();
 
-		validator.afterPropertiesSet();
+    verify(connection, times(2)).isValid(1);
+    verify(connection, times(2)).close();
+  }
 
-		verify(connection, times(2)).isValid(1);
-		verify(connection, times(2)).close();
-	}
+  @Test
+  void shouldCallValidatonTwiceInCaseOfException() throws Exception {
+    given(connection.isValid(1)).willThrow(new SQLException("Test")).willReturn(true);
 
-	@Test
-	void shouldCallValidatonTwiceInCaseOfException() throws Exception {
-		given(connection.isValid(1)).willThrow(new SQLException("Test")).willReturn(true);
+    validator.afterPropertiesSet();
 
-		validator.afterPropertiesSet();
+    verify(connection, times(2)).isValid(1);
+    verify(connection, times(2)).close();
+  }
 
-		verify(connection, times(2)).isValid(1);
-		verify(connection, times(2)).close();
-	}
+  @Test
+  @SuppressWarnings("deprecation")
+  void useValidationQueryInsteadOfIsValid() throws Exception {
+    String validationQuery = "SELECT NOW() FROM DUAL";
+    Statement statement = mock(Statement.class);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.execute(validationQuery)).willReturn(true);
 
-	@Test
-	@SuppressWarnings("deprecation")
-	void useValidationQueryInsteadOfIsValid() throws Exception {
-		String validationQuery = "SELECT NOW() FROM DUAL";
-		Statement statement = mock(Statement.class);
-		given(connection.createStatement()).willReturn(statement);
-		given(statement.execute(validationQuery)).willReturn(true);
+    validator.setValidationQuery(validationQuery);
+    validator.afterPropertiesSet();
 
-		validator.setValidationQuery(validationQuery);
-		validator.afterPropertiesSet();
+    verify(connection, times(1)).createStatement();
+    verify(statement, times(1)).execute(validationQuery);
+    verify(connection, times(1)).close();
+    verify(statement, times(1)).close();
+  }
 
-		verify(connection, times(1)).createStatement();
-		verify(statement, times(1)).execute(validationQuery);
-		verify(connection, times(1)).close();
-		verify(statement, times(1)).close();
-	}
+  @Test
+  @SuppressWarnings("deprecation")
+  void shouldExecuteValidatonTwiceOnError() throws Exception {
+    String validationQuery = "SELECT NOW() FROM DUAL";
+    Statement statement = mock(Statement.class);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.execute(validationQuery))
+            .willThrow(new SQLException("Test"))
+            .willReturn(true);
 
-	@Test
-	@SuppressWarnings("deprecation")
-	void shouldExecuteValidatonTwiceOnError() throws Exception {
-		String validationQuery = "SELECT NOW() FROM DUAL";
-		Statement statement = mock(Statement.class);
-		given(connection.createStatement()).willReturn(statement);
-		given(statement.execute(validationQuery))
-				.willThrow(new SQLException("Test"))
-				.willReturn(true);
+    validator.setValidationQuery(validationQuery);
+    validator.afterPropertiesSet();
 
-		validator.setValidationQuery(validationQuery);
-		validator.afterPropertiesSet();
-
-		verify(connection, times(2)).createStatement();
-		verify(statement, times(2)).execute(validationQuery);
-		verify(connection, times(2)).close();
-		verify(statement, times(2)).close();
-	}
+    verify(connection, times(2)).createStatement();
+    verify(statement, times(2)).execute(validationQuery);
+    verify(connection, times(2)).close();
+    verify(statement, times(2)).close();
+  }
 
 }

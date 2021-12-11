@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
  * @see JdbcTemplate#query(String, RowCallbackHandler, Object[])
  * @see JdbcTemplate#query(String, RowMapper, Object[])
  * @see JdbcTemplate#update(String, Object[])
- * @since 2.0.5
+ * @since 4.0
  */
 public class SqlParameterValue extends SqlParameter {
 

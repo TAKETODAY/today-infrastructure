@@ -47,9 +47,9 @@ import cn.taketoday.lang.Nullable;
  * @see #setDataSource
  * @see #getJdbcTemplate
  * @see cn.taketoday.jdbc.core.JdbcTemplate
- * @since 28.07.2003
+ * @since 4.0
  */
-public abstract class JdbcDaoSupport extends DataAccessObjectSupport {
+public abstract class JdbcDataAccessObjectSupport extends DataAccessObjectSupport {
 
   @Nullable
   private JdbcTemplate jdbcTemplate;
@@ -113,8 +113,7 @@ public abstract class JdbcDaoSupport extends DataAccessObjectSupport {
    *
    * @see #getJdbcTemplate()
    */
-  protected void initTemplateConfig() {
-  }
+  protected void initTemplateConfig() { }
 
   @Override
   protected void checkDaoConfig() {

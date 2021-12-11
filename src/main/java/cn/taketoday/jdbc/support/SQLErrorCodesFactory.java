@@ -178,14 +178,14 @@ public class SQLErrorCodesFactory {
     if (sec != null) {
       checkCustomTranslatorRegistry(databaseName, sec);
       if (logger.isDebugEnabled()) {
-        logger.debug("SQL error codes for '" + databaseName + "' found");
+        logger.debug("SQL error codes for '{}' found", databaseName);
       }
       return sec;
     }
 
     // Could not find the database among the defined ones.
     if (logger.isDebugEnabled()) {
-      logger.debug("SQL error codes for '" + databaseName + "' not found");
+      logger.debug("SQL error codes for '{}' not found", databaseName);
     }
     return new SQLErrorCodes();
   }
@@ -221,7 +221,7 @@ public class SQLErrorCodesFactory {
   public SQLErrorCodes resolveErrorCodes(DataSource dataSource) {
     Assert.notNull(dataSource, "DataSource must not be null");
     if (logger.isDebugEnabled()) {
-      logger.debug("Looking up default SQLErrorCodes for DataSource [" + identify(dataSource) + "]");
+      logger.debug("Looking up default SQLErrorCodes for DataSource [{}]", identify(dataSource));
     }
 
     // Try efficient lock-free access for existing cache entry
@@ -248,7 +248,7 @@ public class SQLErrorCodesFactory {
     }
 
     if (logger.isDebugEnabled()) {
-      logger.debug("SQLErrorCodes found in cache for DataSource [" + identify(dataSource) + "]");
+      logger.debug("SQLErrorCodes found in cache for DataSource [{}]", identify(dataSource));
     }
 
     return sec;
@@ -266,8 +266,8 @@ public class SQLErrorCodesFactory {
   public SQLErrorCodes registerDatabase(DataSource dataSource, String databaseName) {
     SQLErrorCodes sec = getErrorCodes(databaseName);
     if (logger.isDebugEnabled()) {
-      logger.debug("Caching SQL error codes for DataSource [" + identify(dataSource) +
-              "]: database product name is '" + databaseName + "'");
+      logger.debug("Caching SQL error codes for DataSource [{}]: database product name is '{}'",
+              identify(dataSource), databaseName);
     }
     this.dataSourceCache.put(dataSource, sec);
     return sec;
@@ -280,7 +280,6 @@ public class SQLErrorCodesFactory {
    * @return the corresponding {@code SQLErrorCodes} object that got removed,
    * or {@code null} if not registered
    * @see #registerDatabase(DataSource, String)
-   * @since 4.0
    */
   @Nullable
   public SQLErrorCodes unregisterDatabase(DataSource dataSource) {
@@ -306,14 +305,14 @@ public class SQLErrorCodesFactory {
             CustomSQLExceptionTranslatorRegistry.getInstance().findTranslatorForDatabase(databaseName);
     if (customTranslator != null) {
       if (errorCodes.getCustomSqlExceptionTranslator() != null && logger.isDebugEnabled()) {
-        logger.debug("Overriding already defined custom translator '" +
-                errorCodes.getCustomSqlExceptionTranslator().getClass().getSimpleName() +
-                " with '" + customTranslator.getClass().getSimpleName() +
-                "' found in the CustomSQLExceptionTranslatorRegistry for database '" + databaseName + "'");
+        logger.debug("Overriding already defined custom translator '{}' " +
+                        "with '{}' found in the CustomSQLExceptionTranslatorRegistry for database '{}'",
+                errorCodes.getCustomSqlExceptionTranslator().getClass().getSimpleName(),
+                customTranslator.getClass().getSimpleName(), databaseName);
       }
       else if (logger.isTraceEnabled()) {
-        logger.trace("Using custom translator '" + customTranslator.getClass().getSimpleName() +
-                "' found in the CustomSQLExceptionTranslatorRegistry for database '" + databaseName + "'");
+        logger.trace("Using custom translator '{}' found in the CustomSQLExceptionTranslatorRegistry for database '{}'",
+                customTranslator.getClass().getSimpleName(), databaseName);
       }
       errorCodes.setCustomSqlExceptionTranslator(customTranslator);
     }

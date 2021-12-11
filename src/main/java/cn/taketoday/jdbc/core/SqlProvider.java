@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @see PreparedStatementCreator
  * @see CallableStatementCreator
  * @see StatementCallback
- * @since 16.03.2004
+ * @since 4.0
  */
 public interface SqlProvider {
 

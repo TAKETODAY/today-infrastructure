@@ -30,7 +30,7 @@ import cn.taketoday.core.NestedCheckedException;
  * meta-data is usually not a fatal problem.
  *
  * @author Thomas Risberg
- * @since 1.0.1
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class MetaDataAccessException extends NestedCheckedException {

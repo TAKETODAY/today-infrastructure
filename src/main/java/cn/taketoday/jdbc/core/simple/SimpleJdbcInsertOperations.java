@@ -31,7 +31,7 @@ import cn.taketoday.jdbc.support.KeyHolder;
  * as it can easily be mocked or stubbed.
  *
  * @author Thomas Risberg
- * @since 2.5
+ * @since 4.0
  */
 public interface SimpleJdbcInsertOperations {
 

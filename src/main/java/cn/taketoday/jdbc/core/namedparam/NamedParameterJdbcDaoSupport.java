@@ -21,7 +21,7 @@
 package cn.taketoday.jdbc.core.namedparam;
 
 import cn.taketoday.jdbc.core.JdbcTemplate;
-import cn.taketoday.jdbc.core.support.JdbcDaoSupport;
+import cn.taketoday.jdbc.core.support.JdbcDataAccessObjectSupport;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,9 +30,9 @@ import cn.taketoday.lang.Nullable;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @see NamedParameterJdbcTemplate
- * @since 2.0
+ * @since 4.0
  */
-public class NamedParameterJdbcDaoSupport extends JdbcDaoSupport {
+public class NamedParameterJdbcDaoSupport extends JdbcDataAccessObjectSupport {
 
   @Nullable
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;

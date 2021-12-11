@@ -21,14 +21,15 @@
 package cn.taketoday.jdbc.core;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jdbc.core.test.ConstructorPerson;
-import cn.taketoday.jdbc.core.test.ConstructorPersonWithGenerics;
-import cn.taketoday.jdbc.core.test.ConstructorPersonWithSetters;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import cn.taketoday.jdbc.core.test.ConstructorPerson;
+import cn.taketoday.jdbc.core.test.ConstructorPersonWithGenerics;
+import cn.taketoday.jdbc.core.test.ConstructorPersonWithSetters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,72 +39,69 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DataClassRowMapperTests extends AbstractRowMapperTests {
 
-	@Test
-	public void testStaticQueryWithDataClass() throws Exception {
-		Mock mock = new Mock();
-		List<ConstructorPerson> result = mock.getJdbcTemplate().query(
-				"select name, age, birth_date, balance from people",
-				new DataClassRowMapper<>(ConstructorPerson.class));
-		assertThat(result.size()).isEqualTo(1);
-		verifyPerson(result.get(0));
+  @Test
+  public void testStaticQueryWithDataClass() throws Exception {
+    Mock mock = new Mock();
+    List<ConstructorPerson> result = mock.getJdbcTemplate().query( // language=MySQL
+            "select name, age, birth_date, balance from people", new DataClassRowMapper<>(ConstructorPerson.class));
+    assertThat(result.size()).isEqualTo(1);
+    verifyPerson(result.get(0));
 
-		mock.verifyClosed();
-	}
+    mock.verifyClosed();
+  }
 
-	@Test
-	public void testStaticQueryWithDataClassAndGenerics() throws Exception {
-		Mock mock = new Mock();
-		List<ConstructorPersonWithGenerics> result = mock.getJdbcTemplate().query(
-				"select name, age, birth_date, balance from people",
-				new DataClassRowMapper<>(ConstructorPersonWithGenerics.class));
-		assertThat(result.size()).isEqualTo(1);
-		ConstructorPersonWithGenerics person = result.get(0);
-		assertThat(person.name()).isEqualTo("Bubba");
-		assertThat(person.age()).isEqualTo(22L);
-		assertThat(person.birth_date()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
-		assertThat(person.balance()).isEqualTo(Collections.singletonList(new BigDecimal("1234.56")));
+  @Test
+  public void testStaticQueryWithDataClassAndGenerics() throws Exception {
+    Mock mock = new Mock();
+    List<ConstructorPersonWithGenerics> result = mock.getJdbcTemplate().query(// language=MySQL
+            "select name, age, birth_date, balance from people", new DataClassRowMapper<>(ConstructorPersonWithGenerics.class));
+    assertThat(result.size()).isEqualTo(1);
+    ConstructorPersonWithGenerics person = result.get(0);
+    assertThat(person.name()).isEqualTo("Bubba");
+    assertThat(person.age()).isEqualTo(22L);
+    assertThat(person.birth_date()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
+    assertThat(person.balance()).isEqualTo(Collections.singletonList(new BigDecimal("1234.56")));
 
-		mock.verifyClosed();
-	}
+    mock.verifyClosed();
+  }
 
-	@Test
-	public void testStaticQueryWithDataClassAndSetters() throws Exception {
-		Mock mock = new Mock();
-		List<ConstructorPersonWithSetters> result = mock.getJdbcTemplate().query(
-				"select name, age, birth_date, balance from people",
-				new DataClassRowMapper<>(ConstructorPersonWithSetters.class));
-		assertThat(result.size()).isEqualTo(1);
-		ConstructorPersonWithSetters person = result.get(0);
-		assertThat(person.name()).isEqualTo("BUBBA");
-		assertThat(person.age()).isEqualTo(22L);
-		assertThat(person.birth_date()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
-		assertThat(person.balance()).isEqualTo(new BigDecimal("1234.56"));
+  @Test
+  public void testStaticQueryWithDataClassAndSetters() throws Exception {
+    Mock mock = new Mock();
+    List<ConstructorPersonWithSetters> result = mock.getJdbcTemplate().query(
+            "select name, age, birth_date, balance from people",
+            new DataClassRowMapper<>(ConstructorPersonWithSetters.class));
+    assertThat(result.size()).isEqualTo(1);
+    ConstructorPersonWithSetters person = result.get(0);
+    assertThat(person.name()).isEqualTo("BUBBA");
+    assertThat(person.age()).isEqualTo(22L);
+    assertThat(person.birth_date()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
+    assertThat(person.balance()).isEqualTo(new BigDecimal("1234.56"));
 
-		mock.verifyClosed();
-	}
+    mock.verifyClosed();
+  }
 
-	@Test
-	public void testStaticQueryWithDataRecord() throws Exception {
-		Mock mock = new Mock();
-		List<RecordPerson> result = mock.getJdbcTemplate().query(
-				"select name, age, birth_date, balance from people",
-				new DataClassRowMapper<>(RecordPerson.class));
-		assertThat(result.size()).isEqualTo(1);
-		verifyPerson(result.get(0));
+  @Test
+  public void testStaticQueryWithDataRecord() throws Exception {
+    Mock mock = new Mock();
+    List<RecordPerson> result = mock.getJdbcTemplate().query(
+            "select name, age, birth_date, balance from people",
+            new DataClassRowMapper<>(RecordPerson.class));
+    assertThat(result.size()).isEqualTo(1);
+    verifyPerson(result.get(0));
 
-		mock.verifyClosed();
-	}
+    mock.verifyClosed();
+  }
 
-	protected void verifyPerson(RecordPerson person) {
-		assertThat(person.name()).isEqualTo("Bubba");
-		assertThat(person.age()).isEqualTo(22L);
-		assertThat(person.birth_date()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
-		assertThat(person.balance()).isEqualTo(new BigDecimal("1234.56"));
-		verifyPersonViaBeanWrapper(person);
-	}
+  protected void verifyPerson(RecordPerson person) {
+    assertThat(person.name()).isEqualTo("Bubba");
+    assertThat(person.age()).isEqualTo(22L);
+    assertThat(person.birth_date()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
+    assertThat(person.balance()).isEqualTo(new BigDecimal("1234.56"));
+    verifyPersonViaBeanWrapper(person);
+  }
 
-
-	static record RecordPerson(String name, long age, Date birth_date, BigDecimal balance) {
-	}
+  static record RecordPerson(String name, long age, Date birth_date, BigDecimal balance) {
+  }
 
 }

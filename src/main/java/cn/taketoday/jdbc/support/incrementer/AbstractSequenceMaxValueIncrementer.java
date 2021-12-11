@@ -38,7 +38,7 @@ import cn.taketoday.jdbc.support.JdbcUtils;
  *
  * @author Juergen Hoeller
  * @see #getSequenceQuery
- * @since 26.02.2004
+ * @since 4.0
  */
 public abstract class AbstractSequenceMaxValueIncrementer extends AbstractDataFieldMaxValueIncrementer {
 

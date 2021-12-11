@@ -30,7 +30,7 @@ public class ArrayParametersTest {
             ArrayParameters.updateMap(Maps.newHashMap(paramName2), arrayParametersSortedAsc);
 
     assertEquals(ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 5)))),
-                 paramName);
+            paramName);
 
     parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 7)));
 

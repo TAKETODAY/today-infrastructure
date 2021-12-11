@@ -176,7 +176,7 @@ public abstract class ExpressionArithmetic {
 
     @Override
     protected Number divideInternal(Number num0, Number num1) {
-      return ((BigDecimal) num0).divide((BigDecimal) num1, BigDecimal.ROUND_HALF_UP);
+      return ((BigDecimal) num0).divide((BigDecimal) num1, RoundingMode.HALF_UP);
     }
 
     @Override

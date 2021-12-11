@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  * @see #addValue(String, Object, int)
  * @see #registerSqlType
  * @see NamedParameterJdbcTemplate
- * @since 2.0
+ * @since 4.0
  */
 public class MapSqlParameterSource extends AbstractSqlParameterSource {
 

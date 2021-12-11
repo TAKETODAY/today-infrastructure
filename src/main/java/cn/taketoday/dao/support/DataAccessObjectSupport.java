@@ -22,6 +22,7 @@ package cn.taketoday.dao.support;
 
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.jdbc.core.support.JdbcDataAccessObjectSupport;
 
 /**
  * Generic base class for DAOs, defining template methods for DAO initialization.
@@ -30,7 +31,7 @@ import cn.taketoday.beans.factory.InitializingBean;
  * JdbcDaoSupport, JdoDaoSupport, etc.
  *
  * @author Juergen Hoeller
- * @see cn.taketoday.jdbc.core.support.JdbcDaoSupport
+ * @see JdbcDataAccessObjectSupport
  * @since 4.0
  */
 public abstract class DataAccessObjectSupport implements InitializingBean {

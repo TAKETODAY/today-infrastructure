@@ -34,7 +34,7 @@ package cn.taketoday.jdbc.core;
  * @see PreparedStatementSetter
  * @see DisposableSqlTypeValue
  * @see cn.taketoday.jdbc.core.support.SqlLobValue
- * @since 1.1
+ * @since 4.0
  */
 public interface ParameterDisposer {
 

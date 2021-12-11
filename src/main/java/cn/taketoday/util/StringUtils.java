@@ -587,6 +587,39 @@ else */
   }
 
   /**
+   * Count the occurrences of the substring {@code sub} in string {@code str}.
+   *
+   * @param str string to search in
+   * @param sub string to search for
+   */
+  public static int countOccurrencesOf(String str, String sub) {
+    if (isEmpty(str) || isEmpty(sub)) {
+      return 0;
+    }
+
+    int count = 0;
+    int pos = 0;
+    int idx;
+    while ((idx = str.indexOf(sub, pos)) != -1) {
+      ++count;
+      pos = idx + sub.length();
+    }
+    return count;
+  }
+
+  /**
+   * Delete all occurrences of the given substring.
+   *
+   * @param inString the original {@code String}
+   * @param pattern the pattern to delete all occurrences of
+   * @return the resulting {@code String}
+   * @since 4.0
+   */
+  public static String delete(String inString, String pattern) {
+    return replace(inString, pattern, "");
+  }
+
+  /**
    * Replace all occurrences of a substring within a string with another string.
    *
    * @param inString {@code String} to examine

@@ -28,7 +28,7 @@ import cn.taketoday.dao.DataRetrievalFailureException;
  * Exception to be thrown when a LOB could not be retrieved.
  *
  * @author Juergen Hoeller
- * @since 1.0.2
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class LobRetrievalFailureException extends DataRetrievalFailureException {

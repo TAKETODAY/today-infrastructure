@@ -25,7 +25,7 @@ package cn.taketoday.jdbc.core.metadata;
  *
  * @author Thomas Risberg
  * @see GenericTableMetaDataProvider
- * @since 2.5
+ * @since 4.0
  */
 public class TableParameterMetaData {
 

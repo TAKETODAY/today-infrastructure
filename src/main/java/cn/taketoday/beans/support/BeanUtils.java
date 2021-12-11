@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.support;
 
+import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -27,6 +28,8 @@ import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
@@ -38,6 +41,9 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0
  */
 public abstract class BeanUtils {
+
+  private static final ParameterNameDiscoverer parameterNameDiscoverer =
+          new DefaultParameterNameDiscoverer();
 
   /**
    * Get instance with bean class use default {@link Constructor}
@@ -207,6 +213,31 @@ public abstract class BeanUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * Determine required parameter names for the given constructor,
+   * considering the JavaBeans {@link ConstructorProperties} annotation
+   * as well as Framework's {@link DefaultParameterNameDiscoverer}.
+   *
+   * @param ctor the constructor to find parameter names for
+   * @return the parameter names (matching the constructor's parameter count)
+   * @throws IllegalStateException if the parameter names are not resolvable
+   * @see ConstructorProperties
+   * @see DefaultParameterNameDiscoverer
+   * @since 4.0
+   */
+  public static String[] getParameterNames(Constructor<?> ctor) {
+    ConstructorProperties cp = ctor.getAnnotation(ConstructorProperties.class);
+    String[] paramNames = cp != null ? cp.value() : parameterNameDiscoverer.getParameterNames(ctor);
+    if (paramNames == null) {
+      throw new IllegalStateException("Cannot resolve parameter names for constructor " + ctor);
+    }
+    if (paramNames.length != ctor.getParameterCount()) {
+      throw new IllegalStateException(
+              "Invalid number of parameter names: " + paramNames.length + " for constructor " + ctor);
+    }
+    return paramNames;
   }
 
 }

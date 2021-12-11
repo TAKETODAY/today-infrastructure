@@ -69,7 +69,7 @@ import cn.taketoday.util.ConcurrentLruCache;
  * @author Juergen Hoeller
  * @see NamedParameterJdbcOperations
  * @see cn.taketoday.jdbc.core.JdbcTemplate
- * @since 2.0
+ * @since 4.0
  */
 public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations {
 
@@ -139,7 +139,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * Return the maximum number of entries for this template's SQL cache.
    */
   public int getCacheLimit() {
-    return this.parsedSqlCache.sizeLimit();
+    return this.parsedSqlCache.maxSize();
   }
 
   @Override
@@ -419,8 +419,9 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * @see PreparedStatementCreatorFactory#newPreparedStatementCreator(Object[])
    * @since 4.0
    */
-  protected PreparedStatementCreator getPreparedStatementCreator(String sql, SqlParameterSource paramSource,
-                                                                 @Nullable Consumer<PreparedStatementCreatorFactory> customizer) {
+  protected PreparedStatementCreator getPreparedStatementCreator(
+          String sql, SqlParameterSource paramSource,
+          @Nullable Consumer<PreparedStatementCreatorFactory> customizer) {
 
     ParsedSql parsedSql = getParsedSql(sql);
     PreparedStatementCreatorFactory pscf = getPreparedStatementCreatorFactory(parsedSql, paramSource);
@@ -450,7 +451,6 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * @return the corresponding {@link PreparedStatementCreatorFactory}
    * @see #getPreparedStatementCreator(String, SqlParameterSource, Consumer)
    * @see #getParsedSql(String)
-   * @since 4.0
    */
   protected PreparedStatementCreatorFactory getPreparedStatementCreatorFactory(
           ParsedSql parsedSql, SqlParameterSource paramSource) {

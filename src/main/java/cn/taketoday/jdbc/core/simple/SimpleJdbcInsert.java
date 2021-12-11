@@ -50,7 +50,7 @@ import cn.taketoday.jdbc.support.KeyHolder;
  * @author Juergen Hoeller
  * @see java.sql.DatabaseMetaData
  * @see JdbcTemplate
- * @since 2.5
+ * @since 4.0
  */
 public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcInsertOperations {
 

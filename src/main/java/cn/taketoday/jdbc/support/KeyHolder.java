@@ -45,7 +45,7 @@ import cn.taketoday.lang.Nullable;
  * @author Slawomir Dymitrow
  * @see cn.taketoday.jdbc.core.JdbcTemplate
  * @see cn.taketoday.jdbc.object.SqlUpdate
- * @since 1.1
+ * @since 4.0
  */
 public interface KeyHolder {
 

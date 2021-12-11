@@ -20,10 +20,10 @@
 
 package cn.taketoday.jdbc.datasource.lookup;
 
-import cn.taketoday.jdbc.datasource.AbstractDataSource;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import cn.taketoday.jdbc.datasource.AbstractDataSource;
 
 /**
  * Stub, do-nothing DataSource implementation.
@@ -34,14 +34,14 @@ import java.sql.SQLException;
  */
 class StubDataSource extends AbstractDataSource {
 
-	@Override
-	public Connection getConnection() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+  @Override
+  public Connection getConnection() throws SQLException {
+    throw new UnsupportedOperationException();
+  }
 
-	@Override
-	public Connection getConnection(String username, String password) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+  @Override
+  public Connection getConnection(String username, String password) throws SQLException {
+    throw new UnsupportedOperationException();
+  }
 
 }

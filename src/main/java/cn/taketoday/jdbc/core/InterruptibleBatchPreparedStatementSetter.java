@@ -43,7 +43,7 @@ package cn.taketoday.jdbc.core;
  * @author Juergen Hoeller
  * @see JdbcTemplate#batchUpdate(String, BatchPreparedStatementSetter)
  * @see cn.taketoday.jdbc.core.support.AbstractInterruptibleBatchPreparedStatementSetter
- * @since 2.0
+ * @since 4.0
  */
 public interface InterruptibleBatchPreparedStatementSetter extends BatchPreparedStatementSetter {
 

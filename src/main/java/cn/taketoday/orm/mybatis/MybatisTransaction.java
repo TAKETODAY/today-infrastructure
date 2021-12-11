@@ -26,6 +26,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.jdbc.datasource.ConnectionHolder;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * Overrides the Derby meta-data info regarding retrieving generated keys.
  *
  * @author Thomas Risberg
- * @since 3.0
+ * @since 4.0
  */
 public class DerbyTableMetaDataProvider extends GenericTableMetaDataProvider {
 

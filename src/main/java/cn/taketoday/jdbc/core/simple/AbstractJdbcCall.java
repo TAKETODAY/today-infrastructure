@@ -50,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public abstract class AbstractJdbcCall {
 

@@ -39,7 +39,7 @@ import cn.taketoday.lang.Nullable;
  * @see java.sql.Types
  * @see CallableStatement#getObject
  * @see cn.taketoday.jdbc.object.StoredProcedure#execute(java.util.Map)
- * @since 1.1
+ * @since 4.0
  */
 public interface SqlReturnType {
 

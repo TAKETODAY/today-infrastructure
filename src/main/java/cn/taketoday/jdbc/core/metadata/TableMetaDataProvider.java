@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * This is intended for internal use by the Simple JDBC classes.
  *
  * @author Thomas Risberg
- * @since 2.5
+ * @since 4.0
  */
 public interface TableMetaDataProvider {
 

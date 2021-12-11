@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Yanming Zhou
- * @since 2.0
+ * @since 4.0
  */
 public abstract class NamedParameterUtils {
 

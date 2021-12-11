@@ -28,44 +28,44 @@ import java.time.LocalDate;
  */
 public class DatePerson {
 
-	private String lastName;
+  private String lastName;
 
-	private long age;
+  private long age;
 
-	private LocalDate birthDate;
+  private LocalDate birthDate;
 
-	private BigDecimal balance;
+  private BigDecimal balance;
 
-	public String getLastName() {
-		return lastName;
-	}
+  public String getLastName() {
+    return lastName;
+  }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-	public long getAge() {
-		return age;
-	}
+  public long getAge() {
+    return age;
+  }
 
-	public void setAge(long age) {
-		this.age = age;
-	}
+  public void setAge(long age) {
+    this.age = age;
+  }
 
-	public LocalDate getBirthDate() {
-		return birthDate;
-	}
+  public LocalDate getBirthDate() {
+    return birthDate;
+  }
 
-	public void setBirthDate(LocalDate birthDate) {
-		this.birthDate = birthDate;
-	}
+  public void setBirthDate(LocalDate birthDate) {
+    this.birthDate = birthDate;
+  }
 
-	public BigDecimal getBalance() {
-		return balance;
-	}
+  public BigDecimal getBalance() {
+    return balance;
+  }
 
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
+  }
 
 }

@@ -219,7 +219,6 @@ public class StandardApplicationContext
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
     Assert.notNull(beanNameGenerator, "BeanNameGenerator is required");
     loadingContext().setBeanNameGenerator(beanNameGenerator);
-    scanningReader().setBeanNameGenerator(beanNameGenerator);
     getBeanDefinitionReader().setBeanNameGenerator(beanNameGenerator);
 
     getBeanFactory().registerSingleton(

@@ -50,7 +50,7 @@ import cn.taketoday.lang.Nullable;
  * @see java.sql.ResultSet
  * @see cn.taketoday.jdbc.InvalidResultSetAccessException
  * @see cn.taketoday.jdbc.core.JdbcTemplate#queryForRowSet
- * @since 1.2
+ * @since 4.0
  */
 public interface SqlRowSet extends Serializable {
 

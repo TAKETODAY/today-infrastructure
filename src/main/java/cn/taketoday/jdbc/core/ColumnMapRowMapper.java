@@ -45,7 +45,7 @@ import cn.taketoday.util.LinkedCaseInsensitiveMap;
  * @author Juergen Hoeller
  * @see JdbcTemplate#queryForList(String)
  * @see JdbcTemplate#queryForMap(String)
- * @since 1.2
+ * @since 4.0
  */
 public class ColumnMapRowMapper implements RowMapper<Map<String, Object>> {
 

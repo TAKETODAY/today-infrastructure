@@ -66,7 +66,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.jdbc.core.JdbcTemplate#update(String, Object[], int[])
  * @see cn.taketoday.jdbc.object.SqlUpdate#update(Object[])
  * @see cn.taketoday.jdbc.object.StoredProcedure#execute(java.util.Map)
- * @since 1.1
+ * @since 4.0
  */
 public class SqlLobValue implements DisposableSqlTypeValue {
 
