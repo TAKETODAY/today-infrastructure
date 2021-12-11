@@ -159,7 +159,6 @@ public class MethodParameter {
    * @param executable the Executable to specify a parameter for
    * @param parameterIndex the index of the parameter
    * @param containingClass the containing class
-   * @since 4.0
    */
   MethodParameter(Executable executable, int parameterIndex, @Nullable Class<?> containingClass) {
     Assert.notNull(executable, "Executable must not be null");
@@ -243,7 +242,6 @@ public class MethodParameter {
    * Return the wrapped executable.
    *
    * @return the Method or Constructor as Executable
-   * @since 4.0
    */
   public Executable getExecutable() {
     return this.executable;
@@ -251,8 +249,6 @@ public class MethodParameter {
 
   /**
    * Return the {@link Parameter} descriptor for method/constructor parameter.
-   *
-   * @since 4.0
    */
   public Parameter getParameter() {
     if (this.parameterIndex < 0) {
@@ -313,7 +309,6 @@ public class MethodParameter {
    * for the current level set to the specified value.
    *
    * @param typeIndex the new type index
-   * @since 4.0
    */
   public MethodParameter withTypeIndex(int typeIndex) {
     return nested(this.nestingLevel, typeIndex);
@@ -369,8 +364,6 @@ public class MethodParameter {
   /**
    * Return a variant of this {@code MethodParameter} which points to the
    * same parameter but one nesting level deeper.
-   *
-   * @since 4.0
    */
   public MethodParameter nested() {
     return nested(null);
@@ -381,7 +374,6 @@ public class MethodParameter {
    * same parameter but one nesting level deeper.
    *
    * @param typeIndex the type index for the new nesting level
-   * @since 4.0
    */
   public MethodParameter nested(@Nullable Integer typeIndex) {
     MethodParameter nestedParam = this.nestedMethodParameter;
@@ -722,13 +714,7 @@ public class MethodParameter {
     }
     ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
     if (discoverer != null) {
-      String[] parameterNames = null;
-      if (this.executable instanceof Method) {
-        parameterNames = discoverer.getParameterNames((Method) this.executable);
-      }
-      else if (this.executable instanceof Constructor) {
-        parameterNames = discoverer.getParameterNames((Constructor<?>) this.executable);
-      }
+      String[] parameterNames = discoverer.getParameterNames(this.executable);
       if (parameterNames != null) {
         this.parameterName = parameterNames[this.parameterIndex];
       }
@@ -769,11 +755,11 @@ public class MethodParameter {
     if (!(other instanceof MethodParameter otherParam)) {
       return false;
     }
-    return (getContainingClass() == otherParam.getContainingClass() &&
-            ObjectUtils.nullSafeEquals(this.typeIndexesPerLevel, otherParam.typeIndexesPerLevel) &&
-            this.nestingLevel == otherParam.nestingLevel &&
-            this.parameterIndex == otherParam.parameterIndex &&
-            this.executable.equals(otherParam.executable));
+    return getContainingClass() == otherParam.getContainingClass()
+            && ObjectUtils.nullSafeEquals(this.typeIndexesPerLevel, otherParam.typeIndexesPerLevel)
+            && this.nestingLevel == otherParam.nestingLevel
+            && this.parameterIndex == otherParam.parameterIndex
+            && this.executable.equals(otherParam.executable);
   }
 
   @Override
@@ -801,7 +787,6 @@ public class MethodParameter {
    * @param executable the Method or Constructor to specify a parameter for
    * @param parameterIndex the index of the parameter
    * @return the corresponding MethodParameter instance
-   * @since 4.0
    */
   public static MethodParameter forExecutable(Executable executable, int parameterIndex) {
     if (executable instanceof Method) {
@@ -822,7 +807,6 @@ public class MethodParameter {
    *
    * @param parameter the parameter descriptor
    * @return the corresponding MethodParameter instance
-   * @since 4.0
    */
   public static MethodParameter forParameter(Parameter parameter) {
     return forExecutable(parameter.getDeclaringExecutable(), ReflectionUtils.getParameterIndex(parameter));
