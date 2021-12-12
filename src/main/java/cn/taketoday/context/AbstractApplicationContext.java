@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,6 +61,7 @@ import cn.taketoday.context.event.DefaultApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.support.DelegatingMessageSource;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -115,6 +117,14 @@ public abstract class AbstractApplicationContext
    * @see SimpleApplicationEventMulticaster
    */
   public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
+
+  /**
+   * Name of the MessageSource bean in the factory.
+   * If none is supplied, message resolution is delegated to the parent.
+   *
+   * @see MessageSource
+   */
+  public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
 
   /**
    * Name of the LifecycleProcessor bean in the factory.
@@ -185,6 +195,10 @@ public abstract class AbstractApplicationContext
   /** ApplicationEvents published before the multicaster setup. @since 4.0 */
   @Nullable
   private Set<ApplicationEvent> earlyApplicationEvents;
+
+  /** MessageSource we delegate our implementation of this interface to. @since 4.0 */
+  @Nullable
+  private MessageSource messageSource;
 
   /**
    * Create a new AbstractApplicationContext with no parent.
@@ -304,6 +318,49 @@ public abstract class AbstractApplicationContext
             ((ConfigurableApplicationContext) getParent()).getBeanFactory() : getParent());
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of MessageSource interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+    return getMessageSource().getMessage(code, args, defaultMessage, locale);
+  }
+
+  @Override
+  public String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException {
+    return getMessageSource().getMessage(code, args, locale);
+  }
+
+  @Override
+  public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
+    return getMessageSource().getMessage(resolvable, locale);
+  }
+
+  /**
+   * Return the internal MessageSource used by the context.
+   *
+   * @return the internal MessageSource (never {@code null})
+   * @throws IllegalStateException if the context has not been initialized yet
+   */
+  private MessageSource getMessageSource() throws IllegalStateException {
+    if (this.messageSource == null) {
+      throw new IllegalStateException("MessageSource not initialized - " +
+              "call 'refresh' before accessing messages via the context: " + this);
+    }
+    return this.messageSource;
+  }
+
+  /**
+   * Return the internal message source of the parent context if it is an
+   * AbstractApplicationContext too; else, return the parent context itself.
+   */
+  @Nullable
+  protected MessageSource getInternalParentMessageSource() {
+    return getParent() instanceof AbstractApplicationContext ?
+           ((AbstractApplicationContext) getParent()).messageSource : getParent();
+  }
+
   /**
    * Reset reflection metadata caches, in particular the
    * {@link ReflectionUtils}, {@link AnnotationUtils}, {@link ResolvableType}
@@ -387,6 +444,13 @@ public abstract class AbstractApplicationContext
             beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
       beanFactory.setConversionService(
               beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+    }
+
+    // Register a default embedded value resolver if no BeanFactoryPostProcessor
+    // (such as a PropertySourcesPlaceholderConfigurer bean) registered any before:
+    // at this point, primarily for resolution in annotation attribute values.
+    if (!beanFactory.hasEmbeddedValueResolver()) {
+      beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
     }
 
     // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
@@ -606,6 +670,9 @@ public abstract class AbstractApplicationContext
 
         // Register bean processors that intercept bean creation.
         registerBeanPostProcessors(beanFactory);
+
+        // Initialize message source for this context.
+        initMessageSource();
 
         // Initialize event multicaster for this context.
         initApplicationEventMulticaster();
@@ -1134,6 +1201,38 @@ public abstract class AbstractApplicationContext
               "call 'refresh' before multicasting events via the context: " + this);
     }
     return this.applicationEventMulticaster;
+  }
+
+  /**
+   * Initialize the MessageSource.
+   * Use parent's if none defined in this context.
+   */
+  protected void initMessageSource() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
+      this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
+      // Make MessageSource aware of parent MessageSource.
+      if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource hms) {
+        if (hms.getParentMessageSource() == null) {
+          // Only set parent context as parent MessageSource if no parent MessageSource
+          // registered already.
+          hms.setParentMessageSource(getInternalParentMessageSource());
+        }
+      }
+      if (log.isTraceEnabled()) {
+        log.trace("Using MessageSource [{}]", messageSource);
+      }
+    }
+    else {
+      // Use empty MessageSource to be able to accept getMessage calls.
+      DelegatingMessageSource dms = new DelegatingMessageSource();
+      dms.setParentMessageSource(getInternalParentMessageSource());
+      this.messageSource = dms;
+      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
+      if (log.isTraceEnabled()) {
+        log.trace("No '{}' bean, using [{}]", MESSAGE_SOURCE_BEAN_NAME, messageSource);
+      }
+    }
   }
 
   /**

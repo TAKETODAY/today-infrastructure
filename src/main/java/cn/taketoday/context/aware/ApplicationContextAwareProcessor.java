@@ -21,16 +21,14 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.MessageSourceAware;
 import cn.taketoday.context.expression.EmbeddedValueResolver;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
-import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -72,12 +70,12 @@ public class ApplicationContextAwareProcessor implements InitializationBeanPostP
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     if (bean instanceof Aware) {
-      awareInternal(bean, beanName);
+      awareInternal(bean);
     }
     return bean;
   }
 
-  private void awareInternal(Object bean, String beanName) {
+  private void awareInternal(Object bean) {
     if (bean instanceof EnvironmentAware) {
       ((EnvironmentAware) bean).setEnvironment(context.getEnvironment());
     }
@@ -90,19 +88,12 @@ public class ApplicationContextAwareProcessor implements InitializationBeanPostP
     if (bean instanceof ApplicationContextAware) {
       ((ApplicationContextAware) bean).setApplicationContext(context);
     }
+    if (bean instanceof MessageSourceAware) {
+      ((MessageSourceAware) bean).setMessageSource(context);
+    }
     if (bean instanceof EmbeddedValueResolverAware) {
       ((EmbeddedValueResolverAware) bean).setEmbeddedValueResolver(this.embeddedValueResolver);
     }
-
-    if (bean instanceof ImportAware) { // @since 3.0
-      BeanDefinition beanDefinition = context.getBeanDefinition(beanName);
-      Assert.state(beanDefinition != null, "No BeanDefinition");
-      Object attribute = beanDefinition.getAttribute(ImportAware.ImportAnnotatedMetadata);
-      if (attribute instanceof AnnotationMetadata) {
-        ((ImportAware) bean).setImportMetadata((AnnotationMetadata) attribute);
-      }
-    }
-
   }
 
 }
