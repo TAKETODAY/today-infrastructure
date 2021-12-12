@@ -55,6 +55,7 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Required;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -101,7 +102,7 @@ public class ConfigurationClassPostProcessor
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  public ConfigurationClassPostProcessor(DefinitionLoadingContext loadingContext) {
+  public ConfigurationClassPostProcessor(@Required DefinitionLoadingContext loadingContext) {
     this.loadingContext = loadingContext;
   }
 

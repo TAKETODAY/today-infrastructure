@@ -36,7 +36,6 @@ import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -130,7 +129,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     String configBeanName = this.importBeanNameGenerator.generateBeanName(
             configBeanDef, loadingContext.getRegistry());
-    AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
+    AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
     loadingContext.registerBeanDefinition(configBeanName, configBeanDef);
     configClass.setBeanName(configBeanName);
@@ -200,7 +199,7 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setFactoryMethodName(methodName);
     }
 
-    AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
+    AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef);
 
     String[] initMethodName = component.getStringArray("initMethod");
     if (ObjectUtils.isNotEmpty(initMethodName)) {
@@ -211,9 +210,9 @@ class ConfigurationClassBeanDefinitionReader {
     beanDef.setDestroyMethod(destroyMethodName);
 
     // Consider scoping
-    AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(metadata, Scope.class);
-    if (attributes != null) {
-      beanDef.setScope(attributes.getString("value"));
+    MergedAnnotation<Scope> annotation = metadata.getAnnotation(Scope.class);
+    if (annotation.isPresent()) {
+      beanDef.setScope(annotation.getStringValue());
     }
 
     // Replace the original bean definition with the target one, if necessary

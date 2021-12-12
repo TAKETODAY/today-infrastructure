@@ -20,13 +20,9 @@
 
 package cn.taketoday.context.annotation;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.Lazy;
-import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionHolder;
@@ -36,10 +32,8 @@ import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.event.DefaultEventListenerFactory;
 import cn.taketoday.context.event.MethodEventDrivenPostProcessor;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -229,82 +223,7 @@ public abstract class AnnotationConfigUtils {
   }
 
   public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) {
-    processCommonDefinitionAnnotations(abd, abd.getMetadata());
-  }
-
-  static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
-    AnnotationAttributes lazy = attributesFor(metadata, Lazy.class);
-    if (lazy != null) {
-      abd.setLazyInit(lazy.getBoolean("value"));
-    }
-    else if (abd.getMetadata() != metadata) {
-      lazy = attributesFor(abd.getMetadata(), Lazy.class);
-      if (lazy != null) {
-        abd.setLazyInit(lazy.getBoolean("value"));
-      }
-    }
-
-    if (metadata.isAnnotated(Primary.class.getName())) {
-      abd.setPrimary(true);
-    }
-    AnnotationAttributes dependsOn = attributesFor(metadata, DependsOn.class);
-    if (dependsOn != null) {
-      abd.setDependsOn(dependsOn.getStringArray("value"));
-    }
-
-    AnnotationAttributes role = attributesFor(metadata, Role.class);
-    if (role != null) {
-      abd.setRole(role.getNumber("value").intValue());
-    }
-    AnnotationAttributes description = attributesFor(metadata, Description.class);
-    if (description != null) {
-      abd.setDescription(description.getString("value"));
-    }
-  }
-
-  @Nullable
-  static AnnotationAttributes attributesFor(AnnotatedTypeMetadata metadata, Class<?> annotationClass) {
-    return attributesFor(metadata, annotationClass.getName());
-  }
-
-  @Nullable
-  static AnnotationAttributes attributesFor(AnnotatedTypeMetadata metadata, String annotationClassName) {
-    return AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(annotationClassName, false));
-  }
-
-  static Set<AnnotationAttributes> attributesForRepeatable(AnnotationMetadata metadata,
-                                                           Class<?> containerClass, Class<?> annotationClass) {
-
-    return attributesForRepeatable(metadata, containerClass.getName(), annotationClass.getName());
-  }
-
-  @SuppressWarnings("unchecked")
-  static Set<AnnotationAttributes> attributesForRepeatable(
-          AnnotationMetadata metadata, String containerClassName, String annotationClassName) {
-
-    Set<AnnotationAttributes> result = new LinkedHashSet<>();
-
-    // Direct annotation present?
-    addAttributesIfNotNull(result, metadata.getAnnotationAttributes(annotationClassName, false));
-
-    // Container annotation present?
-    Map<String, Object> container = metadata.getAnnotationAttributes(containerClassName, false);
-    if (container != null && container.containsKey("value")) {
-      for (Map<String, Object> containedAttributes : (Map<String, Object>[]) container.get("value")) {
-        addAttributesIfNotNull(result, containedAttributes);
-      }
-    }
-
-    // Return merged result
-    return Collections.unmodifiableSet(result);
-  }
-
-  private static void addAttributesIfNotNull(
-          Set<AnnotationAttributes> result, @Nullable Map<String, Object> attributes) {
-
-    if (attributes != null) {
-      result.add(AnnotationAttributes.fromMap(attributes));
-    }
+    AnnotatedBeanDefinitionReader.applyAnnotationMetadata(abd);
   }
 
 }

@@ -163,6 +163,11 @@ public class StandardApplicationContext
   }
 
   @Override
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+
+  }
+
+  @Override
   protected void initPropertySources(ConfigurableEnvironment environment) {
     super.initPropertySources(environment);
     try {
