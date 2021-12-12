@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -60,7 +60,7 @@ final class ConfigurationClass {
 
   private final LinkedHashSet<ComponentMethod> componentMethods = new LinkedHashSet<>();
 
-  private final Map<BeanDefinitionImporter, AnnotationMetadata>
+  private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata>
           importBeanDefinitionRegistrars = new LinkedHashMap<>();
 
   final HashSet<String> skippedComponentMethods = new HashSet<>();
@@ -188,11 +188,11 @@ final class ConfigurationClass {
     return this.componentMethods;
   }
 
-  void addImportBeanDefinitionRegistrar(BeanDefinitionImporter registrar, AnnotationMetadata importingClassMetadata) {
+  void addImportBeanDefinitionRegistrar(ImportBeanDefinitionRegistrar registrar, AnnotationMetadata importingClassMetadata) {
     this.importBeanDefinitionRegistrars.put(registrar, importingClassMetadata);
   }
 
-  Map<BeanDefinitionImporter, AnnotationMetadata> getImportBeanDefinitionRegistrars() {
+  Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> getImportBeanDefinitionRegistrars() {
     return this.importBeanDefinitionRegistrars;
   }
 

@@ -47,7 +47,7 @@ import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
-import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.MultiValueMap;
@@ -582,22 +582,22 @@ class ConfigurationClassParser {
               processImports(configClass, currentSourceClass, importSourceClasses, exclusionFilter, false);
             }
           }
-          else if (candidate.isAssignable(BeanDefinitionImporter.class)) {
+          else if (candidate.isAssignable(ImportBeanDefinitionRegistrar.class)) {
             // Candidate class is an ImportBeanDefinitionRegistrar ->
             // delegate to it to register additional bean definitions
             Class<?> candidateClass = candidate.loadClass();
-            BeanDefinitionImporter registrar =
+            ImportBeanDefinitionRegistrar registrar =
                     ParserStrategyUtils.instantiateClass(
-                            candidateClass, BeanDefinitionImporter.class, loadingContext);
+                            candidateClass, ImportBeanDefinitionRegistrar.class, loadingContext);
             configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
           }
-//          else {
-          // Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
-          // process it as an @Configuration class
-          this.importStack.registerImport(
-                  currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
-          processConfigurationClass(candidate.asConfigClass(configClass), exclusionFilter);
-//          }
+          else {
+            // Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
+            // process it as an @Configuration class
+            this.importStack.registerImport(
+                    currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
+            processConfigurationClass(candidate.asConfigClass(configClass), exclusionFilter);
+          }
         }
       }
       catch (BeanDefinitionStoreException ex) {
@@ -807,10 +807,10 @@ class ConfigurationClassParser {
       for (DeferredImportSelectorGrouping grouping : groupings.values()) {
         Predicate<String> exclusionFilter = grouping.getCandidateFilter();
         for (Group.Entry entry : grouping.getImports()) {
-          ConfigurationClass configurationClass = configurationClasses.get(entry.getMetadata());
+          ConfigurationClass configurationClass = configurationClasses.get(entry.metadata());
           try {
             processImports(configurationClass, asSourceClass(configurationClass, exclusionFilter),
-                    Collections.singleton(asSourceClass(entry.getImportClassName(), exclusionFilter)),
+                    Collections.singleton(asSourceClass(entry.importClassName(), exclusionFilter)),
                     exclusionFilter, false);
           }
           catch (BeanDefinitionStoreException ex) {

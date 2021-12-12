@@ -30,7 +30,7 @@ import cn.taketoday.core.type.AnnotationMetadata;
  * @since 3.0
  */
 public interface AnnotationBeanDefinitionRegistrar<A extends Annotation>
-        extends AnnotationProvider<A>, BeanDefinitionImporter {
+        extends AnnotationProvider<A>, ImportBeanDefinitionRegistrar {
 
   @Override
   default void registerBeanDefinitions(

@@ -17,30 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.loader;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
- * Import a Configuration,ImportSelector, BeanDefinitionImporter,ApplicationListener or a bean
- *
  * @author TODAY <br>
- * 2019-10-01 17:27
+ * 2019-10-01 19:08
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Import {
+@FunctionalInterface
+public interface ImportBeanDefinitionRegistrar {
 
   /**
-   * {@link Configuration},{@link ImportSelector}, {@link ImportBeanDefinitionRegistrar},
-   * or general beans classes
+   * Register bean definitions
+   *
+   * @param importMetadata The BeanDefinition that annotated {@link Import}
+   * @param context Bean definition loading context
    */
-  Class<?>[] value();
+  void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context);
 
 }

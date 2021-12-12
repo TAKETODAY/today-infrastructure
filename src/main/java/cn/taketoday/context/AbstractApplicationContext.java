@@ -1281,12 +1281,12 @@ public abstract class AbstractApplicationContext
     }
 
     // Publish event via parent context as well...
-    if (this.parent != null) {
-      if (this.parent instanceof AbstractApplicationContext) {
-        ((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
+    if (parent != null) {
+      if (parent instanceof AbstractApplicationContext parent) {
+        parent.publishEvent(event, eventType);
       }
       else {
-        this.parent.publishEvent(event);
+        parent.publishEvent(event);
       }
     }
 

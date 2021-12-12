@@ -34,7 +34,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
-import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -266,8 +266,8 @@ class ConfigurationClassBeanDefinitionReader {
     return true;
   }
 
-  private void loadBeanDefinitionsFromRegistrars(Map<BeanDefinitionImporter, AnnotationMetadata> registrars) {
-    for (Map.Entry<BeanDefinitionImporter, AnnotationMetadata> entry : registrars.entrySet()) {
+  private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
+    for (Map.Entry<ImportBeanDefinitionRegistrar, AnnotationMetadata> entry : registrars.entrySet()) {
       entry.getKey().registerBeanDefinitions(entry.getValue(), loadingContext);
     }
   }

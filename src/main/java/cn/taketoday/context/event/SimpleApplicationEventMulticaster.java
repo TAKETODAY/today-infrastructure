@@ -125,7 +125,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
   @Override
   public void multicastEvent(final Object event, @Nullable ResolvableType eventType) {
-    if (eventType != null) {
+    if (eventType == null) {
       eventType = resolveDefaultEventType(event);
     }
     Executor executor = getTaskExecutor();

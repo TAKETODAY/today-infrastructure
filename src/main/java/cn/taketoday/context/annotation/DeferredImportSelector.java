@@ -74,15 +74,7 @@ public interface DeferredImportSelector extends ImportSelector {
      * An entry that holds the {@link AnnotationMetadata} of the importing
      * {@link Configuration} class and the class name to import.
      */
-    class Entry {
-
-      private final AnnotationMetadata metadata;
-      private final String importClassName;
-
-      public Entry(AnnotationMetadata metadata, String importClassName) {
-        this.metadata = metadata;
-        this.importClassName = importClassName;
-      }
+    record Entry(AnnotationMetadata metadata, String importClassName) {
 
       /**
        * Return the {@link AnnotationMetadata} of the importing

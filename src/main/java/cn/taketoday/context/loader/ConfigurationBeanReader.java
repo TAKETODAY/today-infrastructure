@@ -79,7 +79,7 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.context.annotation.MissingComponent
  * @see cn.taketoday.context.loader.ImportSelector
  * @see cn.taketoday.context.event.ApplicationListener
- * @see cn.taketoday.context.loader.BeanDefinitionImporter
+ * @see ImportBeanDefinitionRegistrar
  * @since 4.0
  */
 public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
@@ -221,10 +221,10 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   }
 
   /**
-   * Create {@link ImportSelector} ,or {@link BeanDefinitionImporter},
+   * Create {@link ImportSelector} ,or {@link ImportBeanDefinitionRegistrar},
    * {@link ApplicationListener} object
    *
-   * @param target Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
+   * @param target Must be {@link ImportSelector} ,or {@link ImportBeanDefinitionRegistrar}
    * @return {@link ImportSelector} object
    */
   @SuppressWarnings("unchecked")
@@ -297,8 +297,8 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
       }
     }
     // for BeanDefinitionImporter to imports beans
-    if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
-      this.<BeanDefinitionImporter>createImporter(importMetadata, importClass)
+    if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(importClass)) {
+      this.<ImportBeanDefinitionRegistrar>createImporter(importMetadata, importClass)
               .registerBeanDefinitions(importMetadata, context);
     }
   }
