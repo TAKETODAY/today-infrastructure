@@ -25,11 +25,15 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.List;
 
+import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Role;
+import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.lang.Component;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.ObjectNotationProcessor;
 import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
@@ -39,7 +43,8 @@ import cn.taketoday.web.support.JacksonMessageBodyConverter;
  * @author TODAY 2021/3/26 20:16
  * @since 3.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
+@DisableAllDependencyInjection
 public class JacksonConfiguration
         extends ApplicationContextSupport implements InitializingBean {
 
@@ -49,7 +54,9 @@ public class JacksonConfiguration
    * @see ObjectMapper
    * @see SerializationFeature#FAIL_ON_EMPTY_BEANS
    */
-  @MissingBean
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean
   ObjectMapper objectMapper() {
     final ObjectMapper objectMapper = createObjectMapper();
     // disable fail on empty beans
@@ -61,12 +68,16 @@ public class JacksonConfiguration
     return new ObjectMapper();
   }
 
-  @MissingBean(type = ObjectNotationProcessor.class)
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(ObjectNotationProcessor.class)
   JacksonObjectNotationProcessor jacksonObjectNotationProcessor(ObjectMapper mapper) {
     return new JacksonObjectNotationProcessor(mapper);
   }
 
-  @MissingBean(type = MessageBodyConverter.class)
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(MessageBodyConverter.class)
   JacksonMessageBodyConverter jacksonMessageBodyConverter(ObjectMapper mapper) {
     return new JacksonMessageBodyConverter(mapper);
   }

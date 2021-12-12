@@ -262,6 +262,7 @@ public @interface Bean {
    * @see InitializingBean
    * @see ConfigurableApplicationContext#refresh()
    */
+  @AliasFor(annotation = Component.class)
   String[] initMethods() default {};
 
   /**
@@ -292,6 +293,7 @@ public @interface Bean {
    * @see DisposableBean
    * @see ConfigurableApplicationContext#close()
    */
+  @AliasFor(annotation = Component.class)
   String destroyMethod() default "";
 
 }

@@ -72,6 +72,13 @@ public class BeanDefinitionHolder {
     this.aliases = aliases;
   }
 
+  public BeanDefinitionHolder(BeanDefinition beanDefinition, @Nullable String[] aliases) {
+    Assert.notNull(beanDefinition, "BeanDefinition must not be null");
+    this.beanDefinition = beanDefinition;
+    this.beanName = beanDefinition.getName();
+    this.aliases = aliases;
+  }
+
   /**
    * Copy constructor: Create a new BeanDefinitionHolder with the
    * same contents as the given BeanDefinitionHolder instance.

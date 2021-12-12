@@ -22,11 +22,13 @@ package cn.taketoday.web.config;
 
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DefaultExceptionHandler;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -44,7 +46,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * config framework
  * </p>
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @DisableAllDependencyInjection
 public class WebMvcAutoConfiguration {
 
@@ -72,6 +74,7 @@ public class WebMvcAutoConfiguration {
    * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
    */
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean
   HandlerMethodRegistry handlerMethodRegistry() {
     return new HandlerMethodRegistry();
@@ -82,6 +85,7 @@ public class WebMvcAutoConfiguration {
    */
   @Component
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ParameterResolvingRegistry parameterResolvers(WebApplicationContext context) {
     final ParameterResolvingRegistry resolversRegistry = new ParameterResolvingRegistry();
     resolversRegistry.setApplicationContext(context);
@@ -92,6 +96,7 @@ public class WebMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
   JacksonConfiguration jacksonConfiguration() {
     return new JacksonConfiguration();
@@ -102,6 +107,7 @@ public class WebMvcAutoConfiguration {
    */
   @Component
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ReturnValueHandlers resultHandlers(WebApplicationContext context) {
     ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     resultHandlers.setApplicationContext(context);
@@ -114,6 +120,7 @@ public class WebMvcAutoConfiguration {
    * default {@link HandlerExceptionHandler}
    */
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(HandlerExceptionHandler.class)
   DefaultExceptionHandler defaultExceptionHandler() {
     return new DefaultExceptionHandler();

@@ -73,17 +73,19 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
         String className = metadata.getAnnotationMetadata().getClassName();
         log.debug("Found Mapper: [{}]", className);
         String[] names = repository.getStringValueArray();
+        BeanDefinition beanDefinition = createBeanDefinition(className);
         String name = ObjectUtils.isNotEmpty(names)
-                      ? names[0] : loadingContext.createBeanName(className);
+                      ? names[0] : loadingContext.generateBeanName(beanDefinition);
 
-        loadingContext.registerBeanDefinition(createBeanDefinition(className, name));
+        loadingContext.registerBeanDefinition(name, beanDefinition);
       }
     }
 
   }
 
-  protected BeanDefinition createBeanDefinition(String className, String name) {
-    BeanDefinition ret = new BeanDefinition(name, className);
+  protected BeanDefinition createBeanDefinition(String className) {
+    BeanDefinition ret = new BeanDefinition();
+    ret.setBeanClassName(className);
     ret.setSynthetic(true);
     ret.setInitMethods("applySqlSession");
     ret.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);

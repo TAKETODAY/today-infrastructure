@@ -104,7 +104,7 @@ public class BeanCreationException extends BeansException {
    */
   public BeanCreationException(@Nullable String resourceDescription, @Nullable String beanName, String msg) {
     super("Error creating bean with name '" + beanName + "'" +
-                  (resourceDescription != null ? " defined in " + resourceDescription : "") + ": " + msg);
+            (resourceDescription != null ? " defined in " + resourceDescription : "") + ": " + msg);
     this.resourceDescription = resourceDescription;
     this.beanName = beanName;
     this.relatedCauses = null;
@@ -119,7 +119,8 @@ public class BeanCreationException extends BeansException {
    * @param msg the detail message
    * @param cause the root cause
    */
-  public BeanCreationException(@Nullable String resourceDescription, String beanName, String msg, Throwable cause) {
+  public BeanCreationException(
+          @Nullable String resourceDescription, String beanName, String msg, Throwable cause) {
     this(resourceDescription, beanName, msg);
     initCause(cause);
   }

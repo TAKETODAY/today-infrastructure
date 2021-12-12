@@ -82,6 +82,7 @@ import cn.taketoday.util.StringUtils;
  * @see ImportBeanDefinitionRegistrar
  * @since 4.0
  */
+@Deprecated
 public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
   private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanReader.class);
 
@@ -290,7 +291,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
         for (String select : imports) {
           AnnotationMetadata annotationMetadata = context.getAnnotationMetadata(select);
           AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
-          String beanName = context.createBeanName(select);
+          String beanName = context.generateBeanName(definition);
           definition.setName(beanName);
           register(definition, importMetadata);
         }

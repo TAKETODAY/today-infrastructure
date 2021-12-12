@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.dependency.DisableDependencyInjection;
+import cn.taketoday.beans.dependency.EnableDependencyInjection;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -34,8 +37,8 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -149,7 +152,7 @@ class ConfigurationClassBeanDefinitionReader {
     String methodName = metadata.getMethodName();
 
     // Do we need to mark the bean as skipped by its condition?
-    if (this.loadingContext.passCondition(metadata, ConfigurationPhase.REGISTER_BEAN)) {
+    if (loadingContext.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
       configClass.skippedComponentMethods.add(methodName);
       return;
     }
@@ -157,7 +160,6 @@ class ConfigurationClassBeanDefinitionReader {
       return;
     }
     MergedAnnotations annotations = metadata.getAnnotations();
-
     MergedAnnotation<Component> component = annotations.get(Component.class);
     Assert.state(component.isPresent(), "No @Component annotation attributes");
 
@@ -182,6 +184,12 @@ class ConfigurationClassBeanDefinitionReader {
     }
 
     ConfigBeanDefinition beanDef = new ConfigBeanDefinition(beanName, metadata, configClass.getMetadata());
+    boolean disableDependencyInjectionAll = configClass.getMetadata().isAnnotated(
+            DisableAllDependencyInjection.class.getName());
+    boolean enableDependencyInjection = isEnableDependencyInjection(
+            annotations, disableDependencyInjectionAll);
+
+    beanDef.setEnableDependencyInjection(enableDependencyInjection);
 
     if (metadata.isStatic()) {
       // static @Component method
@@ -201,7 +209,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef);
 
-    String[] initMethodName = component.getStringArray("initMethod");
+    String[] initMethodName = component.getStringArray("initMethods");
     if (ObjectUtils.isNotEmpty(initMethodName)) {
       beanDef.setInitMethods(initMethodName);
     }
@@ -222,6 +230,11 @@ class ConfigurationClassBeanDefinitionReader {
               configClass.getMetadata().getClassName(), beanName));
     }
     registry.registerBeanDefinition(beanName, beanDef);
+  }
+
+  private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableDependencyInjectionAll) {
+    return annotations.isPresent(EnableDependencyInjection.class)
+            || !(disableDependencyInjectionAll || annotations.isPresent(DisableDependencyInjection.class));
   }
 
   protected boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName) {

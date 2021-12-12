@@ -26,9 +26,9 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanNameGenerator;
@@ -57,7 +57,6 @@ import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 
@@ -137,22 +136,16 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   }
 
   /**
-   * default is use {@link ClassUtils#getShortName(Class)}
-   *
+   * Generate a bean name for the given bean definition.
    * <p>
-   * sub-classes can overriding this method to provide a strategy to create bean name
+   * use internal registry
    * </p>
    *
-   * @param type type
-   * @return bean name
-   * @see ClassUtils#getShortName(Class)
+   * @param definition the bean definition to generate a name for
+   * @return the generated bean name
    */
-  public String createBeanName(Class<?> type) {
-    return BeanDefinitionBuilder.defaultBeanName(type);
-  }
-
-  public String createBeanName(String clazzName) {
-    return BeanDefinitionBuilder.defaultBeanName(clazzName);
+  public String generateBeanName(BeanDefinition definition) {
+    return beanNameGenerator.generateBeanName(definition, registry);
   }
 
   @NonNull
@@ -172,6 +165,22 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
       }
     }
     registry.registerBeanDefinition(beanName, definition);
+  }
+
+  public void registerAlias(String beanName, String alias) {
+    registry.registerAlias(beanName, alias);
+  }
+
+  public void registerBeanDefinition(BeanDefinitionHolder holder) {
+    registerBeanDefinition(holder.getBeanDefinition());
+    // Register aliases for bean name, if any.
+    String[] aliases = holder.getAliases();
+    if (aliases != null) {
+      String beanName = holder.getBeanName();
+      for (String alias : aliases) {
+        registry.registerAlias(beanName, alias);
+      }
+    }
   }
 
   public void registerBeanDefinition(BeanDefinition definition) {
@@ -208,6 +217,10 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   public boolean passCondition(AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
     return getConditionEvaluator().passCondition(metadata, phase);
+  }
+
+  public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+    return getConditionEvaluator().shouldSkip(metadata, phase);
   }
 
   public boolean passCondition(AnnotatedTypeMetadata metadata) {
