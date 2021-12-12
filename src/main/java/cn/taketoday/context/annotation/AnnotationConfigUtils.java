@@ -20,12 +20,8 @@
 
 package cn.taketoday.context.annotation;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor;
@@ -70,16 +66,10 @@ public abstract class AnnotationConfigUtils {
           "cn.taketoday.context.annotation.internalConfigurationBeanNameGenerator";
 
   /**
-   * The bean name of the internally managed Autowired annotation processor.
-   */
-  public static final String AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME =
-          "cn.taketoday.context.annotation.internalAutowiredAnnotationProcessor";
-
-  /**
    * The bean name of the internally managed common annotation processor.
    */
-  public static final String COMMON_ANNOTATION_PROCESSOR_BEAN_NAME =
-          "cn.taketoday.context.annotation.internalCommonAnnotationProcessor";
+  public static final String jakarta_ANNOTATION_PROCESSOR_BEAN_NAME =
+          "cn.taketoday.context.annotation.internalJakartaAnnotationProcessor";
 
   /**
    * The bean name of the internally managed JSR-250 annotation processor.
@@ -110,9 +100,6 @@ public abstract class AnnotationConfigUtils {
 
   private static final ClassLoader classLoader = AnnotationConfigUtils.class.getClassLoader();
 
-  private static final boolean jakartaAnnotationsPresent =
-          ClassUtils.isPresent("jakarta.annotation.PostConstruct", classLoader);
-
   private static final boolean jsr250Present =
           ClassUtils.isPresent("javax.annotation.PostConstruct", classLoader);
 
@@ -126,21 +113,6 @@ public abstract class AnnotationConfigUtils {
    * @param registry the registry to operate on
    */
   public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
-    registerAnnotationConfigProcessors(registry, null);
-  }
-
-  /**
-   * Register all relevant annotation post processors in the given registry.
-   *
-   * @param registry the registry to operate on
-   * @param source the configuration source element (already extracted)
-   * that this registration was triggered from. May be {@code null}.
-   * @return a Set of BeanDefinitionHolders, containing all bean definitions
-   * that have actually been registered by this call
-   */
-  public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
-          BeanDefinitionRegistry registry, @Nullable Object source) {
-
     StandardBeanFactory beanFactory = unwrapStandardBeanFactory(registry);
     if (beanFactory != null) {
       if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
@@ -148,12 +120,19 @@ public abstract class AnnotationConfigUtils {
       }
     }
 
-    Set<BeanDefinitionHolder> beanDefs = new LinkedHashSet<>(8);
-
-    if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition(ConfigurationClassPostProcessor.class);
-      def.setSource(source);
-      beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
+    // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor
+    // for the javax variant of PostConstruct/PreDestroy.
+    if (ClassUtils.isPresent("jakarta.annotation.PostConstruct", classLoader)
+            && !registry.containsBeanDefinition(jakarta_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+      try {
+        BeanDefinition def = new BeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
+        def.propertyValues().add("initAnnotationType", classLoader.loadClass("jakarta.annotation.PostConstruct"));
+        def.propertyValues().add("destroyAnnotationType", classLoader.loadClass("jakarta.annotation.PreDestroy"));
+        registerPostProcessor(registry, def, jakarta_ANNOTATION_PROCESSOR_BEAN_NAME);
+      }
+      catch (ClassNotFoundException ex) {
+        // Failed to load javax variants of the annotation types -> ignore.
+      }
     }
 
     // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor
@@ -163,8 +142,7 @@ public abstract class AnnotationConfigUtils {
         BeanDefinition def = new BeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
         def.propertyValues().add("initAnnotationType", classLoader.loadClass("javax.annotation.PostConstruct"));
         def.propertyValues().add("destroyAnnotationType", classLoader.loadClass("javax.annotation.PreDestroy"));
-        def.setSource(source);
-        beanDefs.add(registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME));
+        registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME);
       }
       catch (ClassNotFoundException ex) {
         // Failed to load javax variants of the annotation types -> ignore.
@@ -182,31 +160,25 @@ public abstract class AnnotationConfigUtils {
         throw new IllegalStateException(
                 "Cannot load optional framework class: " + PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, ex);
       }
-      def.setSource(source);
-      beanDefs.add(registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME));
+      registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME);
     }
 
     if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(MethodEventDrivenPostProcessor.class);
-      def.setSource(source);
-      beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME));
+      registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME);
     }
 
     if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(DefaultEventListenerFactory.class);
-      def.setSource(source);
-      beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_FACTORY_BEAN_NAME));
+      registerPostProcessor(registry, def, EVENT_LISTENER_FACTORY_BEAN_NAME);
     }
 
-    return beanDefs;
   }
 
-  private static BeanDefinitionHolder registerPostProcessor(
+  private static void registerPostProcessor(
           BeanDefinitionRegistry registry, BeanDefinition definition, String beanName) {
-
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     registry.registerBeanDefinition(beanName, definition);
-    return new BeanDefinitionHolder(definition, beanName);
   }
 
   @Nullable

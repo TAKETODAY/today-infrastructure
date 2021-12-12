@@ -39,6 +39,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.MultiValueMap;
@@ -75,7 +76,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
  */
-class OnBeanCondition implements Condition, Ordered {
+class OnBeanCondition implements ConfigurationCondition, Ordered {
   private static final Logger log = LoggerFactory.getLogger(OnBeanCondition.class);
 
   @Override
@@ -421,6 +422,11 @@ class OnBeanCondition implements Condition, Ordered {
   @Override
   public int getOrder() {
     return LOWEST_PRECEDENCE;
+  }
+
+  @Override
+  public ConfigurationPhase getConfigurationPhase() {
+    return ConfigurationPhase.REGISTER_BEAN;
   }
 
   /**

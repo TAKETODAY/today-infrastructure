@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
@@ -159,12 +160,19 @@ public class StandardApplicationContext
     for (BeanDefinitionLoader loader : strategies) {
       loader.loadBeanDefinitions(loadingContext);
     }
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(loadingContext.getRegistry());
   }
 
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    if (!containsBeanDefinition(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+      BeanDefinition def = new BeanDefinition(
+              AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME,
+              ConfigurationClassPostProcessor.class);
+      def.setConstructorArgs(loadingContext);
+      registerBeanDefinition(def);
+    }
 
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(loadingContext.getRegistry());
   }
 
   @Override

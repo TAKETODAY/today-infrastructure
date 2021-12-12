@@ -34,7 +34,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationProvider;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
@@ -65,7 +64,7 @@ public @interface EnableAspectAutoProxy {
 }
 
 @Configuration
-class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvider<EnableAspectAutoProxy> {
+class AutoProxyConfiguration implements BeanDefinitionImporter {
 
   /**
    * ProxyCreator Bean
@@ -92,8 +91,9 @@ class AutoProxyConfiguration implements BeanDefinitionImporter, AnnotationProvid
     if (context.getBeanFactory().isTypeMatch(
             proxyCreatorDef.getName(), ProxyConfig.class)) {
 
-      MergedAnnotation<EnableAspectAutoProxy> aspectAutoProxy = getMergedAnnotation(importMetadata);
-      if (aspectAutoProxy != null) {
+      MergedAnnotation<EnableAspectAutoProxy> aspectAutoProxy
+              = importMetadata.getAnnotation(EnableAspectAutoProxy.class);
+      if (aspectAutoProxy.isPresent()) {
         proxyCreatorDef.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));
         proxyCreatorDef.addPropertyValue("proxyTargetClass", aspectAutoProxy.getBoolean("proxyTargetClass"));
       }

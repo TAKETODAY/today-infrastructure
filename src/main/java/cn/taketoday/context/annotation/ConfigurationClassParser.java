@@ -195,7 +195,7 @@ class ConfigurationClassParser {
   }
 
   protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
-    if (this.loadingContext.passCondition(
+    if (loadingContext.passCondition(
             configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
       ConfigurationClass existingClass = this.configurationClasses.get(configClass);
       if (existingClass != null) {
@@ -591,13 +591,13 @@ class ConfigurationClassParser {
                             candidateClass, BeanDefinitionImporter.class, loadingContext);
             configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
           }
-          else {
-            // Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
-            // process it as an @Configuration class
-            this.importStack.registerImport(
-                    currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
-            processConfigurationClass(candidate.asConfigClass(configClass), exclusionFilter);
-          }
+//          else {
+          // Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
+          // process it as an @Configuration class
+          this.importStack.registerImport(
+                  currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
+          processConfigurationClass(candidate.asConfigClass(configClass), exclusionFilter);
+//          }
         }
       }
       catch (BeanDefinitionStoreException ex) {
@@ -668,7 +668,7 @@ class ConfigurationClassParser {
    * Factory method to obtain a {@link SourceClass} collection from class names.
    */
   private Collection<SourceClass> asSourceClasses(String[] classNames, Predicate<String> filter) throws IOException {
-    List<SourceClass> annotatedClasses = new ArrayList<>(classNames.length);
+    ArrayList<SourceClass> annotatedClasses = new ArrayList<>(classNames.length);
     for (String className : classNames) {
       annotatedClasses.add(asSourceClass(className, filter));
     }
