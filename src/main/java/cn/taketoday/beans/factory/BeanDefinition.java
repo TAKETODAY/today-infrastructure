@@ -482,18 +482,21 @@ public class BeanDefinition
    * @param name supports property-path like 'user.name'
    * @since 3.0
    */
-  public void addPropertyValue(String name, Object value) {
+  public BeanDefinition addPropertyValue(String name, Object value) {
     propertyValues().add(name, value);
+    return this;
   }
 
   /** @since 4.0 */
-  public void addPropertyValues(PropertyValue... propertyValues) {
+  public BeanDefinition addPropertyValues(PropertyValue... propertyValues) {
     propertyValues().set(propertyValues);
+    return this;
   }
 
   /** @since 4.0 */
-  public void addPropertyValues(Map<String, Object> propertyValues) {
+  public BeanDefinition addPropertyValues(Map<String, Object> propertyValues) {
     propertyValues().set(propertyValues);
+    return this;
   }
 
   /**
@@ -501,16 +504,19 @@ public class BeanDefinition
    *
    * @param propertyValues The array of the bean's PropertyValue s
    */
-  public void setPropertyValues(PropertyValue... propertyValues) {
+  public BeanDefinition setPropertyValues(PropertyValue... propertyValues) {
     propertyValues().set(propertyValues);
+    return this;
   }
 
-  public void setPropertyValues(Collection<PropertyValue> propertyValues) {
+  public BeanDefinition setPropertyValues(Collection<PropertyValue> propertyValues) {
     propertyValues().set(propertyValues);
+    return this;
   }
 
-  public void setPropertyValues(PropertyValues propertyValues) {
+  public BeanDefinition setPropertyValues(PropertyValues propertyValues) {
     this.propertyValues = propertyValues;
+    return this;
   }
 
   public PropertyValues propertyValues() {
@@ -521,8 +527,9 @@ public class BeanDefinition
   }
 
   /** @since 4.0 */
-  public void setPropertyValues(Map<String, Object> propertyValues) {
+  public BeanDefinition setPropertyValues(Map<String, Object> propertyValues) {
     propertyValues().set(propertyValues);
+    return this;
   }
 
   /**
@@ -544,6 +551,11 @@ public class BeanDefinition
   @Nullable
   public PropertyValues getPropertyValues() {
     return propertyValues;
+  }
+
+  // @since 4.0
+  public boolean hasPropertyValues() {
+    return propertyValues != null;
   }
 
   /**

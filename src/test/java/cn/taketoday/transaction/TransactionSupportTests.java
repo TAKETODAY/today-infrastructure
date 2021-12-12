@@ -23,8 +23,11 @@ package cn.taketoday.transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.transaction.support.DefaultTransactionDefinition;
+import cn.taketoday.transaction.support.DefaultTransactionStatus;
 import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
+import cn.taketoday.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

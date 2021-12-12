@@ -21,11 +21,6 @@
 package cn.taketoday.scheduling.concurrent;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.annotation.StandardApplicationContext;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.GenericApplicationContext;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +28,12 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,58 +47,58 @@ import static org.mockito.Mockito.verify;
  */
 class ThreadPoolExecutorFactoryBeanTests {
 
-	@Test
-	void defaultExecutor() throws Exception {
-		ConfigurableApplicationContext context = new StandardApplicationContext(ExecutorConfig.class);
-		ExecutorService executor = context.getBean(ExecutorService.class);
+  @Test
+  void defaultExecutor() throws Exception {
+    ConfigurableApplicationContext context = new StandardApplicationContext(ExecutorConfig.class);
+    ExecutorService executor = context.getBean(ExecutorService.class);
 
-		FutureTask<String> task = new FutureTask<>(() -> "foo");
-		executor.execute(task);
-		assertThat(task.get()).isEqualTo("foo");
-		context.close();
-	}
+    FutureTask<String> task = new FutureTask<>(() -> "foo");
+    executor.execute(task);
+    assertThat(task.get()).isEqualTo("foo");
+    context.close();
+  }
 
-	@Test
-	void executorWithDefaultSettingsDoesNotPrestartAllCoreThreads() {
-		GenericApplicationContext context = new GenericApplicationContext();
-		context.registerBean("taskExecutor", ThreadPoolExecutorFactoryBean.class, TestThreadPoolExecutorFactoryBean::new);
-		context.refresh();
-		ThreadPoolExecutor threadPoolExecutor = context.getBean(ThreadPoolExecutor.class);
-		verify(threadPoolExecutor, never()).prestartAllCoreThreads();
-	}
+  @Test
+  void executorWithDefaultSettingsDoesNotPrestartAllCoreThreads() {
+    DefaultApplicationContext context = new DefaultApplicationContext();
+    context.registerBean("taskExecutor", ThreadPoolExecutorFactoryBean.class, TestThreadPoolExecutorFactoryBean::new);
+    context.refresh();
+    ThreadPoolExecutor threadPoolExecutor = context.getBean(ThreadPoolExecutor.class);
+    verify(threadPoolExecutor, never()).prestartAllCoreThreads();
+  }
 
-	@Test
-	void executorWithPrestartAllCoreThreads() {
-		GenericApplicationContext context = new GenericApplicationContext();
-		context.registerBean("taskExecutor", ThreadPoolExecutorFactoryBean.class, () -> {
-			TestThreadPoolExecutorFactoryBean factoryBean = new TestThreadPoolExecutorFactoryBean();
-			factoryBean.setPrestartAllCoreThreads(true);
-			return factoryBean;
-		});
-		context.refresh();
-		ThreadPoolExecutor threadPoolExecutor = context.getBean(ThreadPoolExecutor.class);
-		verify(threadPoolExecutor).prestartAllCoreThreads();
-	}
+  @Test
+  void executorWithPrestartAllCoreThreads() {
+    DefaultApplicationContext context = new DefaultApplicationContext();
+    context.registerBean("taskExecutor", ThreadPoolExecutorFactoryBean.class, () -> {
+      TestThreadPoolExecutorFactoryBean factoryBean = new TestThreadPoolExecutorFactoryBean();
+      factoryBean.setPrestartAllCoreThreads(true);
+      return factoryBean;
+    });
+    context.refresh();
+    ThreadPoolExecutor threadPoolExecutor = context.getBean(ThreadPoolExecutor.class);
+    verify(threadPoolExecutor).prestartAllCoreThreads();
+  }
 
-	@Configuration
-	static class ExecutorConfig {
+  @Configuration
+  static class ExecutorConfig {
 
-		@Bean
-		ThreadPoolExecutorFactoryBean executor() {
-			return new ThreadPoolExecutorFactoryBean();
-		}
+    @Bean
+    ThreadPoolExecutorFactoryBean executor() {
+      return new ThreadPoolExecutorFactoryBean();
+    }
 
-	}
+  }
 
-	private static class TestThreadPoolExecutorFactoryBean extends ThreadPoolExecutorFactoryBean {
+  private static class TestThreadPoolExecutorFactoryBean extends ThreadPoolExecutorFactoryBean {
 
-		@Override
-		protected ThreadPoolExecutor createExecutor(
-				int corePoolSize, int maxPoolSize, int keepAliveSeconds, BlockingQueue<Runnable> queue,
-				ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+    @Override
+    protected ThreadPoolExecutor createExecutor(
+            int corePoolSize, int maxPoolSize, int keepAliveSeconds, BlockingQueue<Runnable> queue,
+            ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
 
-			return mock(ThreadPoolExecutor.class);
-		}
-	}
+      return mock(ThreadPoolExecutor.class);
+    }
+  }
 
 }

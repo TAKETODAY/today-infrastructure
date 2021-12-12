@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.jdbc.core.RowMapper;
+
 /**
  * @author TODAY <br>
  * 2019-08-18 19:20

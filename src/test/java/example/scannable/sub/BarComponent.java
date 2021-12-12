@@ -20,7 +20,7 @@
 
 package example.scannable.sub;
 
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.lang.Component;
 
 /**
  * @author Stephane Nicoll

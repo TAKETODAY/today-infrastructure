@@ -38,7 +38,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * unless the {@link #fallbackExecution} flag is explicitly set. If a transaction is
  * running, the event is handled according to its {@code TransactionPhase}.
  *
- * <p>Adding {@link cn.taketoday.core.annotation.Order @Order} to your annotated
+ * <p>Adding {@link cn.taketoday.core.Order @Order} to your annotated
  * method allows you to prioritize that listener amongst other listeners running before
  * or after transaction completion.
  *
@@ -87,9 +87,9 @@ public @interface TransactionalEventListener {
   boolean fallbackExecution() default false;
 
   /**
-   * Alias for {@link #classes}.
+   * Alias for {@link #event}.
    */
-  @AliasFor(annotation = EventListener.class, attribute = "classes")
+  @AliasFor(annotation = EventListener.class, attribute = "event")
   Class<?>[] value() default {};
 
   /**
@@ -99,8 +99,8 @@ public @interface TransactionalEventListener {
    * attribute is specified with multiple values, the annotated method
    * must <em>not</em> declare any parameters.
    */
-  @AliasFor(annotation = EventListener.class, attribute = "classes")
-  Class<?>[] classes() default {};
+  @AliasFor(annotation = EventListener.class, attribute = "event")
+  Class<?>[] event() default {};
 
   /**
    * Spring Expression Language (SpEL) attribute used for making the event
@@ -118,7 +118,6 @@ public @interface TransactionalEventListener {
    *
    * @see EventListener#id
    * @see TransactionalApplicationListener#getListenerId()
-   * @since 4.0
    */
   @AliasFor(annotation = EventListener.class, attribute = "id")
   String id() default "";

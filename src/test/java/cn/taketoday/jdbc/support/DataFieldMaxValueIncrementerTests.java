@@ -36,6 +36,7 @@ import cn.taketoday.jdbc.support.incrementer.MySQLMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.OracleSequenceMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.PostgresSequenceMaxValueIncrementer;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

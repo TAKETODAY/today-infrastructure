@@ -43,8 +43,6 @@ public interface TransactionAttribute extends TransactionDefinition {
    * Return a qualifier value associated with this transaction attribute.
    * <p>This may be used for choosing a corresponding transaction manager
    * to process this specific transaction.
-   *
-   * @since 3.0
    */
   @Nullable
   String getQualifier();
@@ -53,8 +51,6 @@ public interface TransactionAttribute extends TransactionDefinition {
    * Return labels associated with this transaction attribute.
    * <p>This may be used for applying specific transactional behavior
    * or follow a purely descriptive nature.
-   *
-   * @since 4.0
    */
   Collection<String> getLabels();
 

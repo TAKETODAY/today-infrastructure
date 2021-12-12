@@ -24,6 +24,7 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -53,6 +54,8 @@ public class ConditionEvaluationContext {
 
   @Nullable
   private final ClassLoader classLoader;
+
+  private ExpressionEvaluator evaluator;
 
   public ConditionEvaluationContext(ApplicationContext context, BeanDefinitionRegistry registry) {
     this.registry = registry;
@@ -139,8 +142,18 @@ public class ConditionEvaluationContext {
   }
 
   public <T> T evaluateExpression(String expression, Class<T> booleanClass) {
-
-    return context.getExpressionEvaluator().evaluate(expression, booleanClass); // TODO
+    if (evaluator == null) {
+      if (resourceLoader instanceof ApplicationContext context) {
+        this.evaluator = context.getExpressionEvaluator();
+      }
+      else if (registry instanceof ApplicationContext context) {
+        this.evaluator = context.getExpressionEvaluator();
+      }
+      else {
+        evaluator = new ExpressionEvaluator();
+      }
+    }
+    return evaluator.evaluate(expression, booleanClass); // TODO
   }
 
 }

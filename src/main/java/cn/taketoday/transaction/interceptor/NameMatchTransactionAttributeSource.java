@@ -44,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @see #isMatch
  * @see MethodMapTransactionAttributeSource
- * @since 21.08.2003
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class NameMatchTransactionAttributeSource
@@ -104,7 +104,7 @@ public class NameMatchTransactionAttributeSource
    */
   public void addTransactionalMethod(String methodName, TransactionAttribute attr) {
     if (logger.isDebugEnabled()) {
-      logger.debug("Adding transactional method [" + methodName + "] with attribute [" + attr + "]");
+      logger.debug("Adding transactional method [{}] with attribute [{}]", methodName, attr);
     }
     if (this.embeddedValueResolver != null && attr instanceof DefaultTransactionAttribute dta) {
       dta.resolveAttributeStrings(this.embeddedValueResolver);

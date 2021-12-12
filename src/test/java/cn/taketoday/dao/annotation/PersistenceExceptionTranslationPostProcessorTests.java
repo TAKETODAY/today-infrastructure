@@ -20,24 +20,29 @@
 
 package cn.taketoday.dao.annotation;
 
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
-import cn.taketoday.aop.framework.Advised;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.aop.support.annotation.Aspect;
+import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
+import cn.taketoday.aop.support.annotation.Before;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.annotation.PersistenceExceptionTranslationAdvisorTests.RepositoryInterface;
 import cn.taketoday.dao.annotation.PersistenceExceptionTranslationAdvisorTests.RepositoryInterfaceImpl;
 import cn.taketoday.dao.annotation.PersistenceExceptionTranslationAdvisorTests.StereotypedRepositoryInterfaceImpl;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
-import cn.taketoday.stereotype.Repository;
-
+import cn.taketoday.lang.Repository;
 import jakarta.persistence.PersistenceException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,94 +54,97 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class PersistenceExceptionTranslationPostProcessorTests {
 
-	@Test
-	@SuppressWarnings("resource")
-	public void proxiesCorrectly() {
-		GenericApplicationContext gac = new GenericApplicationContext();
-		gac.registerBeanDefinition("translator",
-				new RootBeanDefinition(PersistenceExceptionTranslationPostProcessor.class));
-		gac.registerBeanDefinition("notProxied", new RootBeanDefinition(RepositoryInterfaceImpl.class));
-		gac.registerBeanDefinition("proxied", new RootBeanDefinition(StereotypedRepositoryInterfaceImpl.class));
-		gac.registerBeanDefinition("classProxied", new RootBeanDefinition(RepositoryWithoutInterface.class));
-		gac.registerBeanDefinition("classProxiedAndAdvised",
-				new RootBeanDefinition(RepositoryWithoutInterfaceAndOtherwiseAdvised.class));
-		gac.registerBeanDefinition("myTranslator",
-				new RootBeanDefinition(MyPersistenceExceptionTranslator.class));
-		gac.registerBeanDefinition("proxyCreator",
-				BeanDefinitionBuilder.rootBeanDefinition(AnnotationAwareAspectJAutoProxyCreator.class).
-						addPropertyValue("order", 50).getBeanDefinition());
-		gac.registerBeanDefinition("logger", new RootBeanDefinition(LogAllAspect.class));
-		gac.refresh();
+  @Test
+  @SuppressWarnings("resource")
+  public void proxiesCorrectly() {
+    DefaultApplicationContext gac = new DefaultApplicationContext();
+    gac.registerBeanDefinition("translator",
+            new BeanDefinition(PersistenceExceptionTranslationPostProcessor.class));
+    gac.registerBeanDefinition("notProxied", new BeanDefinition(RepositoryInterfaceImpl.class));
+    gac.registerBeanDefinition("proxied", new BeanDefinition(StereotypedRepositoryInterfaceImpl.class));
+    gac.registerBeanDefinition("classProxied", new BeanDefinition(RepositoryWithoutInterface.class));
+    gac.registerBeanDefinition("classProxiedAndAdvised",
+            new BeanDefinition(RepositoryWithoutInterfaceAndOtherwiseAdvised.class));
+    gac.registerBeanDefinition("myTranslator",
+            new BeanDefinition(MyPersistenceExceptionTranslator.class));
+    gac.registerBeanDefinition("proxyCreator",
+            new BeanDefinition(AspectAutoProxyCreator.class).addPropertyValue("order", 50));
+    gac.registerBeanDefinition("logger", new BeanDefinition(LogAllAspect.class));
+    gac.refresh();
 
-		RepositoryInterface shouldNotBeProxied = (RepositoryInterface) gac.getBean("notProxied");
-		assertThat(AopUtils.isAopProxy(shouldNotBeProxied)).isFalse();
-		RepositoryInterface shouldBeProxied = (RepositoryInterface) gac.getBean("proxied");
-		assertThat(AopUtils.isAopProxy(shouldBeProxied)).isTrue();
-		RepositoryWithoutInterface rwi = (RepositoryWithoutInterface) gac.getBean("classProxied");
-		assertThat(AopUtils.isAopProxy(rwi)).isTrue();
-		checkWillTranslateExceptions(rwi);
+    RepositoryInterface shouldNotBeProxied = (RepositoryInterface) gac.getBean("notProxied");
+    assertThat(AopUtils.isAopProxy(shouldNotBeProxied)).isFalse();
+    RepositoryInterface shouldBeProxied = (RepositoryInterface) gac.getBean("proxied");
+    assertThat(AopUtils.isAopProxy(shouldBeProxied)).isTrue();
+    RepositoryWithoutInterface rwi = (RepositoryWithoutInterface) gac.getBean("classProxied");
+    assertThat(AopUtils.isAopProxy(rwi)).isTrue();
+    checkWillTranslateExceptions(rwi);
 
-		Additional rwi2 = (Additional) gac.getBean("classProxiedAndAdvised");
-		assertThat(AopUtils.isAopProxy(rwi2)).isTrue();
-		rwi2.additionalMethod(false);
-		checkWillTranslateExceptions(rwi2);
-		assertThatExceptionOfType(DataAccessResourceFailureException.class).isThrownBy(() ->
-				rwi2.additionalMethod(true))
-			.withMessage("my failure");
-	}
+    Additional rwi2 = (Additional) gac.getBean("classProxiedAndAdvised");
+    assertThat(AopUtils.isAopProxy(rwi2)).isTrue();
+    rwi2.additionalMethod(false);
+    checkWillTranslateExceptions(rwi2);
+    assertThatExceptionOfType(DataAccessResourceFailureException.class).isThrownBy(() ->
+                    rwi2.additionalMethod(true))
+            .withMessage("my failure");
+  }
 
-	protected void checkWillTranslateExceptions(Object o) {
-		assertThat(o).isInstanceOf(Advised.class);
-		assertThat(((Advised) o).getAdvisors()).anyMatch(
-				PersistenceExceptionTranslationAdvisor.class::isInstance);
-	}
+  protected void checkWillTranslateExceptions(Object o) {
+    assertThat(o).isInstanceOf(Advised.class);
+    assertThat(((Advised) o).getAdvisors()).anyMatch(
+            PersistenceExceptionTranslationAdvisor.class::isInstance);
+  }
 
+  @Repository
+  public static class RepositoryWithoutInterface {
 
-	@Repository
-	public static class RepositoryWithoutInterface {
+    public void nameDoesntMatter() {
+    }
+  }
 
-		public void nameDoesntMatter() {
-		}
-	}
+  @Documented
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.METHOD, ElementType.TYPE })
+  public @interface Logging {
 
+    String value() default "";
+  }
 
-	public interface Additional {
+  public interface Additional {
 
-		void additionalMethod(boolean fail);
-	}
+    @Logging
+    void additionalMethod(boolean fail);
+  }
 
+  public static class RepositoryWithoutInterfaceAndOtherwiseAdvised extends StereotypedRepositoryInterfaceImpl
+          implements Additional {
 
-	public static class RepositoryWithoutInterfaceAndOtherwiseAdvised extends StereotypedRepositoryInterfaceImpl
-			implements Additional {
+    @Override
+    public void additionalMethod(boolean fail) {
+      if (fail) {
+        throw new PersistenceException("my failure");
+      }
+    }
+  }
 
-		@Override
-		public void additionalMethod(boolean fail) {
-			if (fail) {
-				throw new PersistenceException("my failure");
-			}
-		}
-	}
+  public static class MyPersistenceExceptionTranslator implements PersistenceExceptionTranslator {
 
+    @Override
+    public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+      if (ex instanceof PersistenceException) {
+        return new DataAccessResourceFailureException(ex.getMessage());
+      }
+      return null;
+    }
+  }
 
-	public static class MyPersistenceExceptionTranslator implements PersistenceExceptionTranslator {
+  @Aspect
+  public static class LogAllAspect {
 
-		@Override
-		public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
-			if (ex instanceof PersistenceException) {
-				return new DataAccessResourceFailureException(ex.getMessage());
-			}
-			return null;
-		}
-	}
-
-
-	@Aspect
-	public static class LogAllAspect {
-
-		@Before("execution(void *.additionalMethod(*))")
-		public void log(JoinPoint jp) {
-			System.out.println("Before " + jp.getSignature().getName());
-		}
-	}
+    @Before(Logging.class)
+    public void log(MethodInvocation jp) {
+      System.out.println("Before " + jp.getMethod().getName());
+    }
+  }
 
 }

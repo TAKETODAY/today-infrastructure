@@ -38,19 +38,6 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * {@link cn.taketoday.aop.proxy.ProxyFactoryBean}
  * with a separate {@link TransactionInterceptor} definition.
  *
- * <p><strong>HISTORICAL NOTE:</strong> This class was originally designed to cover the
- * typical case of declarative transaction demarcation: namely, wrapping a singleton
- * target object with a transactional proxy, proxying all the interfaces that the target
- * implements. However, in Spring versions 2.0 and beyond, the functionality provided here
- * is superseded by the more convenient {@code tx:} XML namespace. See the
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#transaction-declarative">declarative transaction management</a>
- * section of the Spring reference documentation to understand modern options for managing
- * transactions in Spring applications. For these reasons, <strong>users should favor
- * the {@code tx:} XML namespace as well as
- * the @{@link cn.taketoday.transaction.annotation.Transactional Transactional}
- * and @{@link cn.taketoday.transaction.annotation.EnableTransactionManagement
- * EnableTransactionManagement} annotations.</strong>
- *
  * <p>There are three main properties that need to be specified:
  * <ul>
  * <li>"transactionManager": the {@link PlatformTransactionManager} implementation to use
@@ -112,11 +99,11 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @see #setTransactionAttributes
  * @see TransactionInterceptor
  * @see cn.taketoday.aop.proxy.ProxyFactoryBean
- * @since 21.08.2003
+ * @since 4.0
  */
 @SuppressWarnings("serial")
-public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBean
-        implements BeanFactoryAware {
+public class TransactionProxyFactoryBean
+        extends AbstractSingletonProxyFactoryBean implements BeanFactoryAware {
 
   private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
 
@@ -158,7 +145,6 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
    *
    * @see #setTransactionAttributes
    * @see TransactionInterceptor#setTransactionAttributeSource
-   * @see TransactionAttributeSourceEditor
    * @see MethodMapTransactionAttributeSource
    * @see NameMatchTransactionAttributeSource
    * @see cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource

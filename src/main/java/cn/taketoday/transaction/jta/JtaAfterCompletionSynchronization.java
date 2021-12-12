@@ -36,7 +36,7 @@ import jakarta.transaction.Synchronization;
  * @author Juergen Hoeller
  * @see TransactionSynchronization#afterCommit
  * @see TransactionSynchronization#afterCompletion
- * @since 2.0
+ * @since 4.0
  */
 public class JtaAfterCompletionSynchronization implements Synchronization {
 

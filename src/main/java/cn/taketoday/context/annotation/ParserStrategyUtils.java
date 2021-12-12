@@ -85,8 +85,8 @@ abstract class ParserStrategyUtils {
     if (constructors.length == 1 && constructors[0].getParameterCount() > 0) {
       try {
         Constructor<?> constructor = constructors[0];
-        Object[] args = resolveArgs(constructor.getParameterTypes(),
-                environment, resourceLoader, registry, classLoader);
+        Object[] args = resolveArgs(
+                constructor.getParameterTypes(), environment, resourceLoader, registry, classLoader);
         return BeanUtils.newInstance(constructor, args);
       }
       catch (Exception ex) {
@@ -103,8 +103,8 @@ abstract class ParserStrategyUtils {
 
     Object[] parameters = new Object[parameterTypes.length];
     for (int i = 0; i < parameterTypes.length; i++) {
-      parameters[i] = resolveParameter(parameterTypes[i], environment,
-              resourceLoader, registry, classLoader);
+      parameters[i] = resolveParameter(
+              parameterTypes[i], environment, resourceLoader, registry, classLoader);
     }
     return parameters;
   }

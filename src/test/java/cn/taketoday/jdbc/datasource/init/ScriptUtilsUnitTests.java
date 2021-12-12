@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.support.EncodedResource;
+import cn.taketoday.core.io.EncodedResource;
 
 import static cn.taketoday.jdbc.datasource.init.ScriptUtils.DEFAULT_BLOCK_COMMENT_END_DELIMITER;
 import static cn.taketoday.jdbc.datasource.init.ScriptUtils.DEFAULT_BLOCK_COMMENT_START_DELIMITER;

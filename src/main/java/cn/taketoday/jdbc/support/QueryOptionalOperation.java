@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import cn.taketoday.jdbc.core.RowMapper;
+
 /**
  * @author TODAY <br>
  * 2019-08-18 20:08

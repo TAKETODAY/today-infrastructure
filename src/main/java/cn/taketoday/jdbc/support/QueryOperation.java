@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.jdbc.core.RowMapper;
 import cn.taketoday.jdbc.core.SqlParameterValue;
 
 /**

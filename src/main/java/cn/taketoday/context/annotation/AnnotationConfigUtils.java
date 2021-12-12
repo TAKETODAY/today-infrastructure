@@ -147,7 +147,7 @@ public abstract class AnnotationConfigUtils {
   public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
           BeanDefinitionRegistry registry, @Nullable Object source) {
 
-    StandardBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
+    StandardBeanFactory beanFactory = unwrapStandardBeanFactory(registry);
     if (beanFactory != null) {
       if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
         beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
@@ -216,7 +216,7 @@ public abstract class AnnotationConfigUtils {
   }
 
   @Nullable
-  private static StandardBeanFactory unwrapDefaultListableBeanFactory(BeanDefinitionRegistry registry) {
+  private static StandardBeanFactory unwrapStandardBeanFactory(BeanDefinitionRegistry registry) {
     if (registry instanceof StandardBeanFactory) {
       return (StandardBeanFactory) registry;
     }

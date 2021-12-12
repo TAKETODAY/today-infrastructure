@@ -20,9 +20,9 @@
 
 package cn.taketoday.context.expression;
 
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -33,20 +33,22 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2021/12/7 11:24
  */
 public class EmbeddedValueResolver implements StringValueResolver {
+  private final ConfigurableBeanFactory beanFactory;
   private final ExpressionEvaluator expressionEvaluator;
 
-  public EmbeddedValueResolver(ApplicationContext applicationContext) {
-    this.expressionEvaluator = applicationContext.getExpressionEvaluator();
-  }
-
-  public EmbeddedValueResolver(ExpressionEvaluator expressionEvaluator) {
-    Assert.notNull(expressionEvaluator, "ExpressionEvaluator is required");
-    this.expressionEvaluator = expressionEvaluator;
+  public EmbeddedValueResolver(ConfigurableApplicationContext context) {
+    this.expressionEvaluator = context.getExpressionEvaluator();
+    this.beanFactory = context.getBeanFactory();
   }
 
   @Nullable
   @Override
   public String resolveStringValue(String strVal) {
-    return expressionEvaluator.evaluate(strVal, String.class);
+    String value = beanFactory.resolveEmbeddedValue(strVal);
+    if (value != null) {
+      Object evaluated = expressionEvaluator.evaluate(value, String.class);
+      value = evaluated != null ? evaluated.toString() : null;
+    }
+    return value;
   }
 }

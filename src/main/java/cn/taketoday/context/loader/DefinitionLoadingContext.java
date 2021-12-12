@@ -93,7 +93,8 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   }
 
   public DefinitionLoadingContext(
-          BeanDefinitionRegistry registry, @Nullable ConditionEvaluator conditionEvaluator, @NonNull ApplicationContext context) {
+          BeanDefinitionRegistry registry,
+          @Nullable ConditionEvaluator conditionEvaluator, @NonNull ApplicationContext context) {
     this.registry = registry;
     this.resourceLoader = context;
     this.applicationContext = context;

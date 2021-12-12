@@ -31,7 +31,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <p>Can also be used for programmatic registration of inner bean
  * definitions. If you don't care about BeanNameAware and the like,
- * registering RootBeanDefinition or ChildBeanDefinition is good enough.
+ * registering BeanDefinition or ChildBeanDefinition is good enough.
  *
  * @author Juergen Hoeller
  * @see BeanNameAware

@@ -22,19 +22,20 @@ package cn.taketoday.dao.annotation;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.beans.factory.support.DefaultListableBeanFactory;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.support.PersistenceExceptionTranslationInterceptor;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
-import cn.taketoday.stereotype.Repository;
-
-import java.util.ArrayList;
-import java.util.List;
+import cn.taketoday.lang.Repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,62 +52,61 @@ import static org.mockito.Mockito.mock;
  */
 public class PersistenceExceptionTranslationInterceptorTests extends PersistenceExceptionTranslationAdvisorTests {
 
-	@Override
-	protected void addPersistenceExceptionTranslation(ProxyFactory pf, PersistenceExceptionTranslator pet) {
-		if (AnnotationUtils.findAnnotation(pf.getTargetClass(), Repository.class) != null) {
-			DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
-			bf.registerBeanDefinition("peti", new RootBeanDefinition(PersistenceExceptionTranslationInterceptor.class));
-			bf.registerSingleton("pet", pet);
-			pf.addAdvice((PersistenceExceptionTranslationInterceptor) bf.getBean("peti"));
-		}
-	}
+  @Override
+  protected void addPersistenceExceptionTranslation(ProxyFactory pf, PersistenceExceptionTranslator pet) {
+    if (AnnotationUtils.findAnnotation(pf.getTargetClass(), Repository.class) != null) {
+      StandardBeanFactory bf = new StandardBeanFactory();
+      bf.registerBeanDefinition("peti", new BeanDefinition(PersistenceExceptionTranslationInterceptor.class));
+      bf.registerSingleton("pet", pet);
+      pf.addAdvice((PersistenceExceptionTranslationInterceptor) bf.getBean("peti"));
+    }
+  }
 
-	@Test
-	void detectPersistenceExceptionTranslators() throws Throwable {
-		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
-		bf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
-		bf.registerBeanDefinition("peti", new RootBeanDefinition(PersistenceExceptionTranslationInterceptor.class));
+  @Test
+  void detectPersistenceExceptionTranslators() throws Throwable {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    bf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    bf.registerBeanDefinition("peti", new BeanDefinition(PersistenceExceptionTranslationInterceptor.class));
 
-		List<Integer> callOrder = new ArrayList<>();
-		bf.registerSingleton("pet20", new CallOrderAwareExceptionTranslator(20, callOrder));
-		bf.registerSingleton("pet10", new CallOrderAwareExceptionTranslator(10, callOrder));
-		bf.registerSingleton("pet30", new CallOrderAwareExceptionTranslator(30, callOrder));
+    List<Integer> callOrder = new ArrayList<>();
+    bf.registerSingleton("pet20", new CallOrderAwareExceptionTranslator(20, callOrder));
+    bf.registerSingleton("pet10", new CallOrderAwareExceptionTranslator(10, callOrder));
+    bf.registerSingleton("pet30", new CallOrderAwareExceptionTranslator(30, callOrder));
 
-		PersistenceExceptionTranslationInterceptor interceptor =
-				bf.getBean("peti", PersistenceExceptionTranslationInterceptor.class);
-		interceptor.setAlwaysTranslate(true);
+    PersistenceExceptionTranslationInterceptor interceptor =
+            bf.getBean("peti", PersistenceExceptionTranslationInterceptor.class);
+    interceptor.setAlwaysTranslate(true);
 
-		RuntimeException exception = new RuntimeException();
-		MethodInvocation invocation = mock(MethodInvocation.class);
-		given(invocation.proceed()).willThrow(exception);
+    RuntimeException exception = new RuntimeException();
+    MethodInvocation invocation = mock(MethodInvocation.class);
+    given(invocation.proceed()).willThrow(exception);
 
-		assertThatThrownBy(() -> interceptor.invoke(invocation)).isSameAs(exception);
+    assertThatThrownBy(() -> interceptor.invoke(invocation)).isSameAs(exception);
 
-		assertThat(callOrder).containsExactly(10, 20, 30);
-	}
+    assertThat(callOrder).containsExactly(10, 20, 30);
+  }
 
+  private static class CallOrderAwareExceptionTranslator implements PersistenceExceptionTranslator, Ordered {
 
-	private static class CallOrderAwareExceptionTranslator implements PersistenceExceptionTranslator, Ordered {
+    private final int order;
 
-		private final int order;
+    private final List<Integer> callOrder;
 
-		private final List<Integer> callOrder;
+    public CallOrderAwareExceptionTranslator(int order, List<Integer> callOrder) {
+      this.order = order;
+      this.callOrder = callOrder;
+    }
 
-		public CallOrderAwareExceptionTranslator(int order, List<Integer> callOrder) {
-			this.order = order;
-			this.callOrder = callOrder;
-		}
+    @Override
+    public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+      callOrder.add(this.order);
+      return null;
+    }
 
-		@Override
-		public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
-			callOrder.add(this.order);
-			return null;
-		}
-
-		@Override
-		public int getOrder() {
-			return this.order;
-		}
-	}
+    @Override
+    public int getOrder() {
+      return this.order;
+    }
+  }
 
 }

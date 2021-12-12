@@ -54,7 +54,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -62,7 +61,6 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.io.DefaultPropertySourceFactory;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.PropertySourceFactory;
 import cn.taketoday.core.io.Resource;
@@ -102,14 +100,13 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @author Stephane Nicoll
  * @see ConfigurationClassBeanDefinitionReader
- * @since 3.0
+ * @since 4.0
  */
 class ConfigurationClassParser {
 
-  private static final PropertySourceFactory DEFAULT_PROPERTY_SOURCE_FACTORY = new DefaultPropertySourceFactory();
-
   private static final Predicate<String> DEFAULT_EXCLUSION_FILTER = className ->
-          (className.startsWith("java.lang.annotation.") || className.startsWith("cn.taketoday.stereotype."));
+          className.startsWith("java.lang.annotation.")
+                  || className.startsWith("cn.taketoday.lang.");
 
   private static final Comparator<DeferredImportSelectorHolder> DEFERRED_IMPORT_COMPARATOR =
           (o1, o2) -> AnnotationAwareOrderComparator.INSTANCE.compare(o1.getImportSelector(), o2.getImportSelector());
@@ -746,7 +743,7 @@ class ConfigurationClassParser {
   private class DeferredImportSelectorHandler {
 
     @Nullable
-    private List<DeferredImportSelectorHolder> deferredImportSelectors = new ArrayList<>();
+    private ArrayList<DeferredImportSelectorHolder> deferredImportSelectors = new ArrayList<>();
 
     /**
      * Handle the specified {@link DeferredImportSelector}. If deferred import
@@ -776,7 +773,11 @@ class ConfigurationClassParser {
         if (deferredImports != null) {
           DeferredImportSelectorGroupingHandler handler = new DeferredImportSelectorGroupingHandler();
           deferredImports.sort(DEFERRED_IMPORT_COMPARATOR);
-          deferredImports.forEach(handler::register);
+
+          for (DeferredImportSelectorHolder deferredImport : deferredImports) {
+            handler.register(deferredImport);
+          }
+
           handler.processGroupImports();
         }
       }
@@ -789,24 +790,24 @@ class ConfigurationClassParser {
   private class DeferredImportSelectorGroupingHandler {
 
     private final Map<Object, DeferredImportSelectorGrouping> groupings = new LinkedHashMap<>();
-
     private final Map<AnnotationMetadata, ConfigurationClass> configurationClasses = new HashMap<>();
 
     public void register(DeferredImportSelectorHolder deferredImport) {
       Class<? extends Group> group = deferredImport.getImportSelector().getImportGroup();
-      DeferredImportSelectorGrouping grouping = this.groupings.computeIfAbsent(
-              (group != null ? group : deferredImport),
-              key -> new DeferredImportSelectorGrouping(createGroup(group)));
+      DeferredImportSelectorGrouping grouping = groupings.computeIfAbsent(
+              group != null ? group : deferredImport,
+              key -> new DeferredImportSelectorGrouping(createGroup(group))
+      );
       grouping.add(deferredImport);
-      this.configurationClasses.put(deferredImport.getConfigurationClass().getMetadata(),
+      configurationClasses.put(deferredImport.getConfigurationClass().getMetadata(),
               deferredImport.getConfigurationClass());
     }
 
     public void processGroupImports() {
-      for (DeferredImportSelectorGrouping grouping : this.groupings.values()) {
+      for (DeferredImportSelectorGrouping grouping : groupings.values()) {
         Predicate<String> exclusionFilter = grouping.getCandidateFilter();
-        grouping.getImports().forEach(entry -> {
-          ConfigurationClass configurationClass = this.configurationClasses.get(entry.getMetadata());
+        for (Group.Entry entry : grouping.getImports()) {
+          ConfigurationClass configurationClass = configurationClasses.get(entry.getMetadata());
           try {
             processImports(configurationClass, asSourceClass(configurationClass, exclusionFilter),
                     Collections.singleton(asSourceClass(entry.getImportClassName(), exclusionFilter)),
@@ -820,14 +821,13 @@ class ConfigurationClassParser {
                     "Failed to process import candidates for configuration class [" +
                             configurationClass.getMetadata().getClassName() + "]", ex);
           }
-        });
+        }
       }
     }
 
     private Group createGroup(@Nullable Class<? extends Group> type) {
-      Class<? extends Group> effectiveType = (type != null ? type : DefaultDeferredImportSelectorGroup.class);
-      return ParserStrategyUtils.instantiateClass(
-              effectiveType, Group.class, loadingContext);
+      Class<? extends Group> effectiveType = type != null ? type : DefaultDeferredImportSelectorGroup.class;
+      return ParserStrategyUtils.instantiateClass(effectiveType, Group.class, loadingContext);
     }
   }
 

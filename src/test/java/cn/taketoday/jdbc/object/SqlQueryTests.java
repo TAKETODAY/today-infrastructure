@@ -39,8 +39,8 @@ import javax.sql.DataSource;
 
 import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
-import cn.taketoday.jdbc.Customer;
 import cn.taketoday.jdbc.core.SqlParameter;
+import cn.taketoday.jdbc.core.namedparam.Customer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 

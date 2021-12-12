@@ -43,11 +43,11 @@ import jakarta.transaction.UserTransaction;
  * @author Juergen Hoeller
  * @see jakarta.transaction.Transaction#registerSynchronization
  * @see cn.taketoday.transaction.support.TransactionSynchronization
- * @since 2.0
+ * @since 4.0
  */
-public class SpringJtaSynchronizationAdapter implements Synchronization {
+public class JtaSynchronizationAdapter implements Synchronization {
 
-  protected static final Logger logger = LoggerFactory.getLogger(SpringJtaSynchronizationAdapter.class);
+  protected static final Logger logger = LoggerFactory.getLogger(JtaSynchronizationAdapter.class);
 
   private final TransactionSynchronization springSynchronization;
 
@@ -62,7 +62,7 @@ public class SpringJtaSynchronizationAdapter implements Synchronization {
    *
    * @param springSynchronization the Spring TransactionSynchronization to delegate to
    */
-  public SpringJtaSynchronizationAdapter(TransactionSynchronization springSynchronization) {
+  public JtaSynchronizationAdapter(TransactionSynchronization springSynchronization) {
     Assert.notNull(springSynchronization, "TransactionSynchronization must not be null");
     this.springSynchronization = springSynchronization;
   }
@@ -81,8 +81,8 @@ public class SpringJtaSynchronizationAdapter implements Synchronization {
    * (can be omitted if the JTA provider itself marks the transaction rollback-only
    * in such a scenario, which is required by the JTA specification as of JTA 1.1).
    */
-  public SpringJtaSynchronizationAdapter(TransactionSynchronization springSynchronization,
-                                         @Nullable UserTransaction jtaUserTransaction) {
+  public JtaSynchronizationAdapter(TransactionSynchronization springSynchronization,
+                                   @Nullable UserTransaction jtaUserTransaction) {
 
     this(springSynchronization);
     this.jtaTransaction = jtaUserTransaction;
@@ -102,7 +102,7 @@ public class SpringJtaSynchronizationAdapter implements Synchronization {
    * (can be omitted if the JTA provider itself marks the transaction rollback-only
    * in such a scenario, which is required by the JTA specification as of JTA 1.1)
    */
-  public SpringJtaSynchronizationAdapter(
+  public JtaSynchronizationAdapter(
           TransactionSynchronization springSynchronization, @Nullable TransactionManager jtaTransactionManager) {
 
     this(springSynchronization);

@@ -34,10 +34,12 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.support.DefaultListableBeanFactory;
-import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.jdbc.Customer;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionReference;
+import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.jdbc.core.SqlParameter;
+import cn.taketoday.jdbc.core.namedparam.Customer;
 import cn.taketoday.jdbc.datasource.TestDataSourceWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +56,7 @@ public class GenericSqlQueryTests {
   private static final String SELECT_ID_FORENAME_NAMED_PARAMETERS_PARSED =
           "select id, forename from custmr where id = ? and country = ?";
 
-  private DefaultListableBeanFactory beanFactory;
+  private StandardBeanFactory beanFactory;
 
   private Connection connection;
 
@@ -62,11 +64,143 @@ public class GenericSqlQueryTests {
 
   private ResultSet resultSet;
 
+  /*
+	<bean id="dataSource" class="cn.taketoday.jdbc.datasource.TestDataSourceWrapper"/>
+	<bean id="queryWithPlaceholders" class="cn.taketoday.jdbc.object.GenericSqlQuery">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="sql" value="select id, forename from custmr where id = ? and country = ?"/>
+		<property name="parameters">
+			<list>
+				<bean class="cn.taketoday.jdbc.core.SqlParameter">
+					<constructor-arg index="0" value="amount"/>
+					<constructor-arg index="1">
+						<util:constant static-field="java.sql.Types.INTEGER"/>
+					</constructor-arg>
+				</bean>
+				<bean class="cn.taketoday.jdbc.core.SqlParameter">
+					<constructor-arg index="0" value="custid"/>
+					<constructor-arg index="1">
+						<util:constant static-field="java.sql.Types.VARCHAR"/>
+					</constructor-arg>
+				</bean>
+			</list>
+		</property>
+    <property name="rowMapperClass" value="cn.taketoday.jdbc.object.CustomerMapper"/>
+	</bean>
+	<bean id="queryWithNamedParameters" class="cn.taketoday.jdbc.object.GenericSqlQuery">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="sql" value="select id, forename from custmr where id = :id and country = :country"/>
+		<property name="parameters">
+			<list>
+				<bean class="cn.taketoday.jdbc.core.SqlParameter">
+					<constructor-arg index="0" value="id"/>
+					<constructor-arg index="1">
+						<util:constant static-field="java.sql.Types.INTEGER"/>
+					</constructor-arg>
+				</bean>
+				<bean class="cn.taketoday.jdbc.core.SqlParameter">
+					<constructor-arg index="0" value="country"/>
+					<constructor-arg index="1">
+						<util:constant static-field="java.sql.Types.VARCHAR"/>
+					</constructor-arg>
+				</bean>
+			</list>
+		</property>
+        <property name="rowMapperClass" value="cn.taketoday.jdbc.object.CustomerMapper"/>
+	</bean>
+
+	<bean id="queryWithRowMapperBean" class="cn.taketoday.jdbc.object.GenericSqlQuery">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="sql" value="select id, forename from custmr where id = :id and country = :country"/>
+		<property name="parameters">
+			<list>
+				<bean class="cn.taketoday.jdbc.core.SqlParameter">
+					<constructor-arg index="0" value="id"/>
+					<constructor-arg index="1">
+						<util:constant static-field="java.sql.Types.INTEGER"/>
+					</constructor-arg>
+				</bean>
+				<bean class="cn.taketoday.jdbc.core.SqlParameter">
+					<constructor-arg index="0" value="country"/>
+					<constructor-arg index="1">
+						<util:constant static-field="java.sql.Types.VARCHAR"/>
+					</constructor-arg>
+				</bean>
+			</list>
+		</property>
+		<property name="rowMapper">
+			<bean class="cn.taketoday.jdbc.object.CustomerMapper"/>
+		</property>
+	</bean>
+   */
+
   @BeforeEach
   public void setUp() throws Exception {
-    this.beanFactory = new DefaultListableBeanFactory();
-    new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(
-            new ClassPathResource("org/springframework/jdbc/object/GenericSqlQueryTests-context.xml"));
+    this.beanFactory = new StandardBeanFactory();
+
+    // <bean id="dataSource" class="cn.taketoday.jdbc.datasource.TestDataSourceWrapper"/>
+
+    beanFactory.registerBeanDefinition(new BeanDefinition("dataSource", TestDataSourceWrapper.class));
+    beanFactory.registerBeanDefinition(new BeanDefinition("queryWithPlaceholders", GenericSqlQuery.class)
+            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("rowMapperClass", CustomerMapper.class)
+            .addPropertyValue("sql", "select id, forename from custmr where id = ? and country = ?")
+            .addPropertyValue("parameters", List.of(
+                    /* <bean class="cn.taketoday.jdbc.core.SqlParameter">
+                        <constructor-arg index="0" value="amount"/>
+                        <constructor-arg index="1">
+                          <util:constant static-field="java.sql.Types.INTEGER"/>
+                        </constructor-arg>
+                      </bean>
+                      <bean class="cn.taketoday.jdbc.core.SqlParameter">
+                        <constructor-arg index="0" value="custid"/>
+                        <constructor-arg index="1">
+                          <util:constant static-field="java.sql.Types.VARCHAR"/>
+                        </constructor-arg>
+                      </bean>*/
+
+                    new SqlParameter("amount", Types.INTEGER),
+                    new SqlParameter("custid", Types.INTEGER)
+            ))
+
+    );
+
+    beanFactory.registerBeanDefinition(new BeanDefinition("queryWithNamedParameters", GenericSqlQuery.class)
+            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("rowMapperClass", CustomerMapper.class)
+            .addPropertyValue("sql", "select id, forename from custmr where id = :id and country = :country")
+            .addPropertyValue("parameters", List.of(
+                    new SqlParameter("id", Types.INTEGER),
+                    new SqlParameter("country", Types.INTEGER)
+            ))
+
+    );
+    beanFactory.registerBeanDefinition(new BeanDefinition("queryWithRowMapperBean", GenericSqlQuery.class)
+            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("rowMapperClass", CustomerMapper.class)
+            .addPropertyValue("rowMapper", BeanDefinitionReference.from(CustomerMapper.class))
+            .addPropertyValue("sql", "select id, forename from custmr where id = :id and country = :country")
+            .addPropertyValue("parameters", List.of(
+                    /*<list>
+                        <bean class="cn.taketoday.jdbc.core.SqlParameter">
+                          <constructor-arg index="0" value="id"/>
+                          <constructor-arg index="1">
+                            <util:constant static-field="java.sql.Types.INTEGER"/>
+                          </constructor-arg>
+                        </bean>
+                        <bean class="cn.taketoday.jdbc.core.SqlParameter">
+                          <constructor-arg index="0" value="country"/>
+                          <constructor-arg index="1">
+                            <util:constant static-field="java.sql.Types.VARCHAR"/>
+                          </constructor-arg>
+                        </bean>
+                      </list>*/
+                    new SqlParameter("id", Types.INTEGER),
+                    new SqlParameter("country", Types.INTEGER)
+            ))
+
+    );
+
     DataSource dataSource = mock(DataSource.class);
     this.connection = mock(Connection.class);
     this.preparedStatement = mock(PreparedStatement.class);

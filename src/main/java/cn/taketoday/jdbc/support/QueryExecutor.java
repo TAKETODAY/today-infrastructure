@@ -31,6 +31,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.jdbc.core.RowMapper;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandlerFactory;

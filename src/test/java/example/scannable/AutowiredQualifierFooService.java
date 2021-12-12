@@ -20,13 +20,12 @@
 
 package example.scannable;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.scheduling.annotation.AsyncResult;
-
 import java.util.concurrent.Future;
 
+import cn.taketoday.beans.Lazy;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Qualifier;
+import cn.taketoday.scheduling.annotation.AsyncResult;
 import jakarta.annotation.PostConstruct;
 
 /**
@@ -36,33 +35,33 @@ import jakarta.annotation.PostConstruct;
 @Lazy
 public class AutowiredQualifierFooService implements FooService {
 
-	@Autowired
-	@Qualifier("testing")
-	private FooDao fooDao;
+  @Autowired
+  @Qualifier("testing")
+  private FooDao fooDao;
 
-	private boolean initCalled = false;
+  private boolean initCalled = false;
 
-	@PostConstruct
-	private void init() {
-		if (this.initCalled) {
-			throw new IllegalStateException("Init already called");
-		}
-		this.initCalled = true;
-	}
+  @PostConstruct
+  private void init() {
+    if (this.initCalled) {
+      throw new IllegalStateException("Init already called");
+    }
+    this.initCalled = true;
+  }
 
-	@Override
-	public String foo(int id) {
-		return this.fooDao.findFoo(id);
-	}
+  @Override
+  public String foo(int id) {
+    return this.fooDao.findFoo(id);
+  }
 
-	@Override
-	public Future<String> asyncFoo(int id) {
-		return new AsyncResult<>(this.fooDao.findFoo(id));
-	}
+  @Override
+  public Future<String> asyncFoo(int id) {
+    return new AsyncResult<>(this.fooDao.findFoo(id));
+  }
 
-	@Override
-	public boolean isInitCalled() {
-		return this.initCalled;
-	}
+  @Override
+  public boolean isInitCalled() {
+    return this.initCalled;
+  }
 
 }

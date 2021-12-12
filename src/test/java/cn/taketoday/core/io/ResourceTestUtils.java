@@ -18,28 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.support;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package cn.taketoday.core.io;
 
 /**
- * @author TODAY 2021/6/2 21:32
+ * Convenience utilities for common operations with test resources.
+ *
+ * @author Chris Beams
  */
-@FunctionalInterface
-public interface RowMapper<T> {
+public abstract class ResourceTestUtils {
 
   /**
-   * Implementations must implement this method to map each row of data in the
-   * ResultSet. This method should not call {@code next()} on the ResultSet; it is
-   * only supposed to map values of the current row.
-   *
-   * @param rs the ResultSet to map (pre-initialized for the current row)
-   * @param rowNum the number of the current row
-   * @return the result object for the current row (may be {@code null})
-   * @throws SQLException if a SQLException is encountered getting column values (that is,
-   * there's no need to catch SQLException)
+   * Load a {@link ClassPathResource} qualified by the simple name of clazz,
+   * and relative to the package for clazz.
+   * <p>Example: given a clazz 'com.foo.BarTests' and a resourceSuffix of 'context.xml',
+   * this method will return a ClassPathResource representing com/foo/BarTests-context.xml
+   * <p>Intended for use loading context configuration XML files within JUnit tests.
    */
-  T mapRow(final ResultSet rs, final int rowNum) throws SQLException;
+  public static ClassPathResource qualifiedResource(Class<?> clazz, String resourceSuffix) {
+    return new ClassPathResource(String.format("%s-%s", clazz.getSimpleName(), resourceSuffix), clazz);
+  }
 
 }

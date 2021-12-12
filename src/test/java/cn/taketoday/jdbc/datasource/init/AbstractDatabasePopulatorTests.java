@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 

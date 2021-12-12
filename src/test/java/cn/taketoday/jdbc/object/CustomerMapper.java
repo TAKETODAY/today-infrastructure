@@ -23,8 +23,8 @@ package cn.taketoday.jdbc.object;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.Customer;
 import cn.taketoday.jdbc.core.RowMapper;
+import cn.taketoday.jdbc.core.namedparam.Customer;
 
 public class CustomerMapper implements RowMapper<Customer> {
 

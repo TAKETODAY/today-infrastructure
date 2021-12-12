@@ -57,11 +57,11 @@ import cn.taketoday.util.StringUtils;
  * {@code com} directory</li>
  * <li><code>com/&#42;&#42;/test.jsp</code> &mdash; matches all {@code test.jsp}
  * files underneath the {@code com} path</li>
- * <li><code>org/springframework/&#42;&#42;/*.jsp</code> &mdash; matches all
- * {@code .jsp} files underneath the {@code org/springframework} path</li>
+ * <li><code>cn/taketoday/&#42;&#42;/*.jsp</code> &mdash; matches all
+ * {@code .jsp} files underneath the {@code cn/taketoday} path</li>
  * <li><code>org/&#42;&#42;/servlet/bla.jsp</code> &mdash; matches
- * {@code org/springframework/servlet/bla.jsp} but also
- * {@code org/springframework/testing/servlet/bla.jsp} and
+ * {@code cn/taketoday/servlet/bla.jsp} but also
+ * {@code cn/taketoday/testing/servlet/bla.jsp} and
  * {@code org/servlet/bla.jsp}</li>
  * <li>{@code com/{filename:\\w+}.jsp} will match {@code com/test.jsp} and
  * assign the value {@code test} to the {@code filename} variable</li>

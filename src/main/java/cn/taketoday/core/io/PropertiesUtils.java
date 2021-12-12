@@ -33,6 +33,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.DefaultPropertiesPersister;
+import cn.taketoday.util.PropertiesPersister;
 import cn.taketoday.util.ResourceUtils;
 
 /**
@@ -56,11 +58,11 @@ public abstract class PropertiesUtils {
    * Load properties from the given EncodedResource,
    * potentially defining a specific encoding for the properties file.
    *
-   * @see #fillProperties(java.util.Properties, EncodedResource)
+   * @see #fillProperties(java.util.Properties, EncodedResource, PropertiesPersister)
    */
   public static Properties loadProperties(EncodedResource resource) throws IOException {
     Properties props = new Properties();
-    fillProperties(props, resource);
+    fillProperties(props, resource, DefaultPropertiesPersister.INSTANCE);
     return props;
   }
 
@@ -75,15 +77,15 @@ public abstract class PropertiesUtils {
   }
 
   /**
-   * Fill the given properties from the given EncodedResource,
-   * potentially defining a specific encoding for the properties file.
+   * Actually load properties from the given EncodedResource into the given Properties instance.
    *
    * @param props the Properties instance to load into
    * @param resource the resource to load from
+   * @param persister the PropertiesPersister to use
    * @throws IOException in case of I/O errors
    */
-  public static void fillProperties(
-          Properties props, EncodedResource resource) throws IOException {
+  static void fillProperties(
+          Properties props, EncodedResource resource, PropertiesPersister persister) throws IOException {
 
     InputStream stream = null;
     Reader reader = null;
@@ -91,15 +93,15 @@ public abstract class PropertiesUtils {
       String filename = resource.getResource().getName();
       if (filename != null && filename.endsWith(XML_FILE_EXTENSION)) {
         stream = resource.getInputStream();
-        props.loadFromXML(stream);
+        persister.loadFromXml(props, stream);
       }
       else if (resource.requiresReader()) {
         reader = resource.getReader();
-        props.load(reader);
+        persister.load(props, reader);
       }
       else {
         stream = resource.getInputStream();
-        props.load(stream);
+        persister.load(props, stream);
       }
     }
     finally {

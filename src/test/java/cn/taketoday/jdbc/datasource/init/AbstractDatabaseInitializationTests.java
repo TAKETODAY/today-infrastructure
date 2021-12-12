@@ -23,7 +23,7 @@ package cn.taketoday.jdbc.datasource.init;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import cn.taketoday.core.io.ClassRelativeResourceLoader;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabase;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 abstract class AbstractDatabaseInitializationTests {
 
-  private final ClassRelativeResourceLoader resourceLoader = new ClassRelativeResourceLoader(getClass());
+  private final DefaultResourceLoader resourceLoader = new DefaultResourceLoader(getClass().getClassLoader());
 
   EmbeddedDatabase db;
 

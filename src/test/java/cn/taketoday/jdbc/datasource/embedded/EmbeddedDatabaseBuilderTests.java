@@ -22,7 +22,7 @@ package cn.taketoday.jdbc.datasource.embedded;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.io.ClassRelativeResourceLoader;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.init.CannotReadScriptException;
 import cn.taketoday.jdbc.datasource.init.ScriptStatementFailedException;
@@ -30,6 +30,7 @@ import cn.taketoday.jdbc.datasource.init.ScriptStatementFailedException;
 import static cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType.DERBY;
 import static cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Integration tests for {@link EmbeddedDatabaseBuilder}.
@@ -39,8 +40,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class EmbeddedDatabaseBuilderTests {
 
-  private final EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(new ClassRelativeResourceLoader(
-          getClass()));
+  private final EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(
+          new DefaultResourceLoader(getClass().getClassLoader()));
 
   @Test
   public void addDefaultScripts() throws Exception {
@@ -136,11 +137,11 @@ public class EmbeddedDatabaseBuilderTests {
 
   @Test
   public void createSameSchemaTwiceWithoutUniqueDbNames() throws Exception {
-    EmbeddedDatabase db1 = new EmbeddedDatabaseBuilder(new ClassRelativeResourceLoader(getClass()))
+    EmbeddedDatabase db1 = new EmbeddedDatabaseBuilder(new DefaultResourceLoader(getClass().getClassLoader()))
             .addScripts("db-schema-without-dropping.sql").build();
     try {
       assertThatExceptionOfType(ScriptStatementFailedException.class).isThrownBy(() ->
-              new EmbeddedDatabaseBuilder(new ClassRelativeResourceLoader(getClass())).addScripts("db-schema-without-dropping.sql").build());
+              new EmbeddedDatabaseBuilder(new DefaultResourceLoader(getClass().getClassLoader())).addScripts("db-schema-without-dropping.sql").build());
     }
     finally {
       db1.shutdown();
@@ -149,7 +150,7 @@ public class EmbeddedDatabaseBuilderTests {
 
   @Test
   public void createSameSchemaTwiceWithGeneratedUniqueDbNames() throws Exception {
-    EmbeddedDatabase db1 = new EmbeddedDatabaseBuilder(new ClassRelativeResourceLoader(getClass()))//
+    EmbeddedDatabase db1 = new EmbeddedDatabaseBuilder(new DefaultResourceLoader(getClass().getClassLoader()))//
             .addScripts("db-schema-without-dropping.sql", "db-test-data.sql")//
             .generateUniqueName(true)//
             .build();
@@ -159,7 +160,7 @@ public class EmbeddedDatabaseBuilderTests {
     template1.update("insert into T_TEST (NAME) values ('Sam')");
     assertNumRowsInTestTable(template1, 2);
 
-    EmbeddedDatabase db2 = new EmbeddedDatabaseBuilder(new ClassRelativeResourceLoader(getClass()))//
+    EmbeddedDatabase db2 = new EmbeddedDatabaseBuilder(new DefaultResourceLoader(getClass().getClassLoader()))//
             .addScripts("db-schema-without-dropping.sql", "db-test-data.sql")//
             .generateUniqueName(true)//
             .build();

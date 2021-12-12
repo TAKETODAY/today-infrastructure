@@ -38,6 +38,7 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
@@ -135,6 +136,9 @@ public abstract class AbstractBeanFactory
   /** Names of beans that are currently in creation. */
   private final ThreadLocal<Object> prototypesCurrentlyInCreation =
           new NamedThreadLocal<>("Prototype beans currently in creation");
+
+  /** String resolvers to apply e.g. to annotation attribute values. */
+  private final ArrayList<StringValueResolver> embeddedValueResolvers = new ArrayList<>();
 
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
@@ -1724,6 +1728,33 @@ public abstract class AbstractBeanFactory
       boolean foundResult = resolved != null && resolved != Object.class;
       return (foundResult ? this.result : ResolvableType.NONE);
     }
+  }
+
+  @Override
+  public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+    Assert.notNull(valueResolver, "StringValueResolver must not be null");
+    this.embeddedValueResolvers.add(valueResolver);
+  }
+
+  @Override
+  public boolean hasEmbeddedValueResolver() {
+    return !this.embeddedValueResolvers.isEmpty();
+  }
+
+  @Override
+  @Nullable
+  public String resolveEmbeddedValue(@Nullable String value) {
+    if (value == null) {
+      return null;
+    }
+    String result = value;
+    for (StringValueResolver resolver : this.embeddedValueResolvers) {
+      result = resolver.resolveStringValue(result);
+      if (result == null) {
+        return null;
+      }
+    }
+    return result;
   }
 
   protected final static class BeanPostProcessors {

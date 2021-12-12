@@ -46,6 +46,7 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.ImportAware;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
@@ -93,6 +94,10 @@ public class ConfigurationClassPostProcessor
   @Nullable
   private ConfigurationClassBeanDefinitionReader reader;
 
+  private boolean localBeanNameGeneratorSet = false;
+  /* Using short class names as default bean names by default. */
+  private BeanNameGenerator componentScanBeanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
+
   /* Using fully qualified class names as default bean names by default. */
   private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
 
@@ -117,11 +122,6 @@ public class ConfigurationClassPostProcessor
     loadingContext.setProblemReporter(problemReporter);
   }
 
-  @Override
-  public void setBeanClassLoader(ClassLoader beanClassLoader) {
-    this.beanClassLoader = beanClassLoader;
-  }
-
   /**
    * Set the {@link BeanNameGenerator} to be used when triggering component scanning
    * from {@link Configuration} classes and when registering {@link Import}'ed
@@ -135,7 +135,7 @@ public class ConfigurationClassPostProcessor
    * application contexts or the {@code <context:annotation-config>} element. Any bean name
    * generator specified against the application context will take precedence over any set here.
    *
-   * @see AnnotationConfigApplicationContext#setBeanNameGenerator(BeanNameGenerator)
+   * @see cn.taketoday.context.StandardApplicationContext#setBeanNameGenerator(BeanNameGenerator)
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
@@ -143,6 +143,11 @@ public class ConfigurationClassPostProcessor
     this.localBeanNameGeneratorSet = true;
     this.componentScanBeanNameGenerator = beanNameGenerator;
     this.importBeanNameGenerator = beanNameGenerator;
+  }
+
+  @Override
+  public void setBeanClassLoader(ClassLoader beanClassLoader) {
+    this.beanClassLoader = beanClassLoader;
   }
 
   /**

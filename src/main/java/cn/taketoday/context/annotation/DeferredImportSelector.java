@@ -77,7 +77,6 @@ public interface DeferredImportSelector extends ImportSelector {
     class Entry {
 
       private final AnnotationMetadata metadata;
-
       private final String importClassName;
 
       public Entry(AnnotationMetadata metadata, String importClassName) {

@@ -28,18 +28,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.framework.Advised;
-import cn.taketoday.aop.framework.ProxyFactory;
+import cn.taketoday.aop.SerializationTestUtils;
+import cn.taketoday.aop.proxy.Advised;
+import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.testfixture.io.SerializationTestUtils;
+import cn.taketoday.transaction.CallCountingTransactionManager;
+import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;
-import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
-import groovy.lang.GroovyObject;
-import groovy.lang.MetaClass;
 import jakarta.ejb.TransactionAttributeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,947 +51,854 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AnnotationTransactionAttributeSourceTests {
 
-	@Test
-	public void serializable() throws Exception {
-		TestBean1 tb = new TestBean1();
-		CallCountingTransactionManager ptm = new CallCountingTransactionManager();
-		AnnotationTransactionAttributeSource tas = new AnnotationTransactionAttributeSource();
-		TransactionInterceptor ti = new TransactionInterceptor((PlatformTransactionManager) ptm, tas);
-
-		ProxyFactory proxyFactory = new ProxyFactory();
-		proxyFactory.setInterfaces(ITestBean1.class);
-		proxyFactory.addAdvice(ti);
-		proxyFactory.setTarget(tb);
-		ITestBean1 proxy = (ITestBean1) proxyFactory.getProxy();
-		proxy.getAge();
-		assertThat(ptm.commits).isEqualTo(1);
-
-		ITestBean1 serializedProxy = SerializationTestUtils.serializeAndDeserialize(proxy);
-		serializedProxy.getAge();
-		Advised advised = (Advised) serializedProxy;
-		TransactionInterceptor serializedTi = (TransactionInterceptor) advised.getAdvisors()[0].getAdvice();
-		CallCountingTransactionManager serializedPtm =
-				(CallCountingTransactionManager) serializedTi.getTransactionManager();
-		assertThat(serializedPtm.commits).isEqualTo(2);
-	}
-
-	@Test
-	public void nullOrEmpty() throws Exception {
-		Method method = Empty.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		assertThat(atas.getTransactionAttribute(method, null)).isNull();
-
-		// Try again in case of caching
-		assertThat(atas.getTransactionAttribute(method, null)).isNull();
-	}
-
-	/**
-	 * Test the important case where the invocation is on a proxied interface method
-	 * but the attribute is defined on the target class.
-	 */
-	@Test
-	public void transactionAttributeDeclaredOnClassMethod() throws Exception {
-		Method classMethod = ITestBean1.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(classMethod, TestBean1.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-	}
-
-	/**
-	 * Test the important case where the invocation is on a proxied interface method
-	 * but the attribute is defined on the target class.
-	 */
-	@Test
-	public void transactionAttributeDeclaredOnCglibClassMethod() throws Exception {
-		Method classMethod = ITestBean1.class.getMethod("getAge");
-		TestBean1 tb = new TestBean1();
-		ProxyFactory pf = new ProxyFactory(tb);
-		pf.setProxyTargetClass(true);
-		Object proxy = pf.getProxy();
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(classMethod, proxy.getClass());
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-	}
-
-	/**
-	 * Test case where attribute is on the interface method.
-	 */
-	@Test
-	public void transactionAttributeDeclaredOnInterfaceMethodOnly() throws Exception {
-		Method interfaceMethod = ITestBean2.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(interfaceMethod, TestBean2.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-	}
-
-	/**
-	 * Test that when an attribute exists on both class and interface, class takes precedence.
-	 */
-	@Test
-	public void transactionAttributeOnTargetClassMethodOverridesAttributeOnInterfaceMethod() throws Exception {
-		Method interfaceMethod = ITestBean3.class.getMethod("getAge");
-		Method interfaceMethod2 = ITestBean3.class.getMethod("setAge", int.class);
-		Method interfaceMethod3 = ITestBean3.class.getMethod("getName");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		atas.setEmbeddedValueResolver(strVal -> ("${myTimeout}".equals(strVal) ? "5" : strVal));
-
-		TransactionAttribute actual = atas.getTransactionAttribute(interfaceMethod, TestBean3.class);
-		assertThat(actual.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRES_NEW);
-		assertThat(actual.getIsolationLevel()).isEqualTo(TransactionAttribute.ISOLATION_REPEATABLE_READ);
-		assertThat(actual.getTimeout()).isEqualTo(5);
-		assertThat(actual.isReadOnly()).isTrue();
-
-		TransactionAttribute actual2 = atas.getTransactionAttribute(interfaceMethod2, TestBean3.class);
-		assertThat(actual2.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRES_NEW);
-		assertThat(actual2.getIsolationLevel()).isEqualTo(TransactionAttribute.ISOLATION_REPEATABLE_READ);
-		assertThat(actual2.getTimeout()).isEqualTo(5);
-		assertThat(actual2.isReadOnly()).isTrue();
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-
-		TransactionAttribute actual3 = atas.getTransactionAttribute(interfaceMethod3, TestBean3.class);
-		assertThat(actual3.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-	}
-
-	@Test
-	public void rollbackRulesAreApplied() throws Exception {
-		Method method = TestBean3.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean3.class);
+  @Test
+  public void serializable() throws Exception {
+    TestBean1 tb = new TestBean1();
+    CallCountingTransactionManager ptm = new CallCountingTransactionManager();
+    AnnotationTransactionAttributeSource tas = new AnnotationTransactionAttributeSource();
+    TransactionInterceptor ti = new TransactionInterceptor((PlatformTransactionManager) ptm, tas);
+
+    ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setInterfaces(ITestBean1.class);
+    proxyFactory.addAdvice(ti);
+    proxyFactory.setTarget(tb);
+    ITestBean1 proxy = (ITestBean1) proxyFactory.getProxy();
+    proxy.getAge();
+    assertThat(ptm.commits).isEqualTo(1);
+
+    ITestBean1 serializedProxy = SerializationTestUtils.serializeAndDeserialize(proxy);
+    serializedProxy.getAge();
+    Advised advised = (Advised) serializedProxy;
+    TransactionInterceptor serializedTi = (TransactionInterceptor) advised.getAdvisors()[0].getAdvice();
+    CallCountingTransactionManager serializedPtm =
+            (CallCountingTransactionManager) serializedTi.getTransactionManager();
+    assertThat(serializedPtm.commits).isEqualTo(2);
+  }
+
+  @Test
+  public void nullOrEmpty() throws Exception {
+    Method method = Empty.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    assertThat(atas.getTransactionAttribute(method, null)).isNull();
+
+    // Try again in case of caching
+    assertThat(atas.getTransactionAttribute(method, null)).isNull();
+  }
+
+  /**
+   * Test the important case where the invocation is on a proxied interface method
+   * but the attribute is defined on the target class.
+   */
+  @Test
+  public void transactionAttributeDeclaredOnClassMethod() throws Exception {
+    Method classMethod = ITestBean1.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(classMethod, TestBean1.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+  }
+
+  /**
+   * Test the important case where the invocation is on a proxied interface method
+   * but the attribute is defined on the target class.
+   */
+  @Test
+  public void transactionAttributeDeclaredOnCglibClassMethod() throws Exception {
+    Method classMethod = ITestBean1.class.getMethod("getAge");
+    TestBean1 tb = new TestBean1();
+    ProxyFactory pf = new ProxyFactory(tb);
+    pf.setProxyTargetClass(true);
+    Object proxy = pf.getProxy();
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(classMethod, proxy.getClass());
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+  }
+
+  /**
+   * Test case where attribute is on the interface method.
+   */
+  @Test
+  public void transactionAttributeDeclaredOnInterfaceMethodOnly() throws Exception {
+    Method interfaceMethod = ITestBean2.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(interfaceMethod, TestBean2.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+  }
+
+  /**
+   * Test that when an attribute exists on both class and interface, class takes precedence.
+   */
+  @Test
+  public void transactionAttributeOnTargetClassMethodOverridesAttributeOnInterfaceMethod() throws Exception {
+    Method interfaceMethod = ITestBean3.class.getMethod("getAge");
+    Method interfaceMethod2 = ITestBean3.class.getMethod("setAge", int.class);
+    Method interfaceMethod3 = ITestBean3.class.getMethod("getName");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    atas.setEmbeddedValueResolver(strVal -> ("${myTimeout}".equals(strVal) ? "5" : strVal));
+
+    TransactionAttribute actual = atas.getTransactionAttribute(interfaceMethod, TestBean3.class);
+    assertThat(actual.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRES_NEW);
+    assertThat(actual.getIsolationLevel()).isEqualTo(TransactionAttribute.ISOLATION_REPEATABLE_READ);
+    assertThat(actual.getTimeout()).isEqualTo(5);
+    assertThat(actual.isReadOnly()).isTrue();
+
+    TransactionAttribute actual2 = atas.getTransactionAttribute(interfaceMethod2, TestBean3.class);
+    assertThat(actual2.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRES_NEW);
+    assertThat(actual2.getIsolationLevel()).isEqualTo(TransactionAttribute.ISOLATION_REPEATABLE_READ);
+    assertThat(actual2.getTimeout()).isEqualTo(5);
+    assertThat(actual2.isReadOnly()).isTrue();
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+
+    TransactionAttribute actual3 = atas.getTransactionAttribute(interfaceMethod3, TestBean3.class);
+    assertThat(actual3.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+  }
+
+  @Test
+  public void rollbackRulesAreApplied() throws Exception {
+    Method method = TestBean3.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean3.class);
 
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute("java.lang.Exception"));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-		assertThat(actual.rollbackOn(new Exception())).isTrue();
-		assertThat(actual.rollbackOn(new IOException())).isFalse();
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute("java.lang.Exception"));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+    assertThat(actual.rollbackOn(new Exception())).isTrue();
+    assertThat(actual.rollbackOn(new IOException())).isFalse();
 
-		actual = atas.getTransactionAttribute(method, method.getDeclaringClass());
-
-		rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute("java.lang.Exception"));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-		assertThat(actual.rollbackOn(new Exception())).isTrue();
-		assertThat(actual.rollbackOn(new IOException())).isFalse();
-	}
-
-	@Test
-	public void labelsAreApplied() throws Exception {
-		Method method = TestBean11.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean11.class);
-
-		assertThat(actual.getLabels()).containsOnly("retryable", "long-running");
-
-		method = TestBean11.class.getMethod("setAge", Integer.TYPE);
-		actual = atas.getTransactionAttribute(method, method.getDeclaringClass());
-
-		assertThat(actual.getLabels()).containsOnly("short-running");
-	}
-
-	/**
-	 * Test that transaction attribute is inherited from class
-	 * if not specified on method.
-	 */
-	@Test
-	public void defaultsToClassTransactionAttribute() throws Exception {
-		Method method = TestBean4.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean4.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-	}
-
-	@Test
-	public void customClassAttributeDetected() throws Exception {
-		Method method = TestBean5.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean5.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-	}
-
-	@Test
-	public void customMethodAttributeDetected() throws Exception {
-		Method method = TestBean6.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean6.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-	}
-
-	@Test
-	public void customClassAttributeWithReadOnlyOverrideDetected() throws Exception {
-		Method method = TestBean7.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean7.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-
-		assertThat(actual.isReadOnly()).isTrue();
-	}
-
-	@Test
-	public void customMethodAttributeWithReadOnlyOverrideDetected() throws Exception {
-		Method method = TestBean8.class.getMethod("getAge");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean8.class);
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-
-		assertThat(actual.isReadOnly()).isTrue();
-	}
-
-	@Test
-	public void customClassAttributeWithReadOnlyOverrideOnInterface() throws Exception {
-		Method method = TestInterface9.class.getMethod("getAge");
-
-		Transactional annotation = AnnotationUtils.findAnnotation(method, Transactional.class);
-		assertThat(annotation).as("AnnotationUtils.findAnnotation should not find @Transactional for TestBean9.getAge()").isNull();
-		annotation = AnnotationUtils.findAnnotation(TestBean9.class, Transactional.class);
-		assertThat(annotation).as("AnnotationUtils.findAnnotation failed to find @Transactional for TestBean9").isNotNull();
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean9.class);
-		assertThat(actual).as("Failed to retrieve TransactionAttribute for TestBean9.getAge()").isNotNull();
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-
-		assertThat(actual.isReadOnly()).isTrue();
-	}
-
-	@Test
-	public void customMethodAttributeWithReadOnlyOverrideOnInterface() throws Exception {
-		Method method = TestInterface10.class.getMethod("getAge");
-
-		Transactional annotation = AnnotationUtils.findAnnotation(method, Transactional.class);
-		assertThat(annotation).as("AnnotationUtils.findAnnotation failed to find @Transactional for TestBean10.getAge()").isNotNull();
-		annotation = AnnotationUtils.findAnnotation(TestBean10.class, Transactional.class);
-		assertThat(annotation).as("AnnotationUtils.findAnnotation should not find @Transactional for TestBean10").isNull();
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean10.class);
-		assertThat(actual).as("Failed to retrieve TransactionAttribute for TestBean10.getAge()").isNotNull();
-
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
-		rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
-		assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
-
-		assertThat(actual.isReadOnly()).isTrue();
-	}
-
-	@Test
-	public void transactionAttributeDeclaredOnClassMethodWithEjb3() throws Exception {
-		Method getAgeMethod = ITestBean1.class.getMethod("getAge");
-		Method getNameMethod = ITestBean1.class.getMethod("getName");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, Ejb3AnnotatedBean1.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, Ejb3AnnotatedBean1.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
-	}
-
-	@Test
-	public void transactionAttributeDeclaredOnClassWithEjb3() throws Exception {
-		Method getAgeMethod = ITestBean1.class.getMethod("getAge");
-		Method getNameMethod = ITestBean1.class.getMethod("getName");
-
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, Ejb3AnnotatedBean2.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, Ejb3AnnotatedBean2.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
-	}
+    actual = atas.getTransactionAttribute(method, method.getDeclaringClass());
+
+    rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute("java.lang.Exception"));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+    assertThat(actual.rollbackOn(new Exception())).isTrue();
+    assertThat(actual.rollbackOn(new IOException())).isFalse();
+  }
+
+  @Test
+  public void labelsAreApplied() throws Exception {
+    Method method = TestBean11.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean11.class);
+
+    assertThat(actual.getLabels()).containsOnly("retryable", "long-running");
+
+    method = TestBean11.class.getMethod("setAge", Integer.TYPE);
+    actual = atas.getTransactionAttribute(method, method.getDeclaringClass());
+
+    assertThat(actual.getLabels()).containsOnly("short-running");
+  }
+
+  /**
+   * Test that transaction attribute is inherited from class
+   * if not specified on method.
+   */
+  @Test
+  public void defaultsToClassTransactionAttribute() throws Exception {
+    Method method = TestBean4.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean4.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+  }
+
+  @Test
+  public void customClassAttributeDetected() throws Exception {
+    Method method = TestBean5.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean5.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+  }
+
+  @Test
+  public void customMethodAttributeDetected() throws Exception {
+    Method method = TestBean6.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean6.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+  }
+
+  @Test
+  public void customClassAttributeWithReadOnlyOverrideDetected() throws Exception {
+    Method method = TestBean7.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean7.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+
+    assertThat(actual.isReadOnly()).isTrue();
+  }
+
+  @Test
+  public void customMethodAttributeWithReadOnlyOverrideDetected() throws Exception {
+    Method method = TestBean8.class.getMethod("getAge");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean8.class);
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+
+    assertThat(actual.isReadOnly()).isTrue();
+  }
+
+  @Test
+  public void customClassAttributeWithReadOnlyOverrideOnInterface() throws Exception {
+    Method method = TestInterface9.class.getMethod("getAge");
+
+    Transactional annotation = AnnotationUtils.findAnnotation(method, Transactional.class);
+    assertThat(annotation).as("AnnotationUtils.findAnnotation should not find @Transactional for TestBean9.getAge()").isNull();
+    annotation = AnnotationUtils.findAnnotation(TestBean9.class, Transactional.class);
+    assertThat(annotation).as("AnnotationUtils.findAnnotation failed to find @Transactional for TestBean9").isNotNull();
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean9.class);
+    assertThat(actual).as("Failed to retrieve TransactionAttribute for TestBean9.getAge()").isNotNull();
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+
+    assertThat(actual.isReadOnly()).isTrue();
+  }
+
+  @Test
+  public void customMethodAttributeWithReadOnlyOverrideOnInterface() throws Exception {
+    Method method = TestInterface10.class.getMethod("getAge");
+
+    Transactional annotation = AnnotationUtils.findAnnotation(method, Transactional.class);
+    assertThat(annotation).as("AnnotationUtils.findAnnotation failed to find @Transactional for TestBean10.getAge()").isNotNull();
+    annotation = AnnotationUtils.findAnnotation(TestBean10.class, Transactional.class);
+    assertThat(annotation).as("AnnotationUtils.findAnnotation should not find @Transactional for TestBean10").isNull();
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute actual = atas.getTransactionAttribute(method, TestBean10.class);
+    assertThat(actual).as("Failed to retrieve TransactionAttribute for TestBean10.getAge()").isNotNull();
+
+    RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+    rbta.getRollbackRules().add(new RollbackRuleAttribute(Exception.class));
+    rbta.getRollbackRules().add(new NoRollbackRuleAttribute(IOException.class));
+    assertThat(((RuleBasedTransactionAttribute) actual).getRollbackRules()).isEqualTo(rbta.getRollbackRules());
+
+    assertThat(actual.isReadOnly()).isTrue();
+  }
+
+  @Test
+  public void transactionAttributeDeclaredOnClassMethodWithEjb3() throws Exception {
+    Method getAgeMethod = ITestBean1.class.getMethod("getAge");
+    Method getNameMethod = ITestBean1.class.getMethod("getName");
+
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, Ejb3AnnotatedBean1.class);
+    assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+    TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, Ejb3AnnotatedBean1.class);
+    assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
+  }
+
+  @Test
+  public void transactionAttributeDeclaredOnClassWithEjb3() throws Exception {
+    Method getAgeMethod = ITestBean1.class.getMethod("getAge");
+    Method getNameMethod = ITestBean1.class.getMethod("getName");
 
-	@Test
-	public void transactionAttributeDeclaredOnInterfaceWithEjb3() throws Exception {
-		Method getAgeMethod = ITestEjb.class.getMethod("getAge");
-		Method getNameMethod = ITestEjb.class.getMethod("getName");
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, Ejb3AnnotatedBean2.class);
+    assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+    TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, Ejb3AnnotatedBean2.class);
+    assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
+  }
 
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, Ejb3AnnotatedBean3.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, Ejb3AnnotatedBean3.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
-	}
+  @Test
+  public void transactionAttributeDeclaredOnInterfaceWithEjb3() throws Exception {
+    Method getAgeMethod = ITestEjb.class.getMethod("getAge");
+    Method getNameMethod = ITestEjb.class.getMethod("getName");
 
-	@Test
-	public void transactionAttributeDeclaredOnClassMethodWithJta() throws Exception {
-		Method getAgeMethod = ITestBean1.class.getMethod("getAge");
-		Method getNameMethod = ITestBean1.class.getMethod("getName");
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, Ejb3AnnotatedBean3.class);
+    assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+    TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, Ejb3AnnotatedBean3.class);
+    assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
+  }
 
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, JtaAnnotatedBean1.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, JtaAnnotatedBean1.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
-	}
+  @Test
+  public void transactionAttributeDeclaredOnClassMethodWithJta() throws Exception {
+    Method getAgeMethod = ITestBean1.class.getMethod("getAge");
+    Method getNameMethod = ITestBean1.class.getMethod("getName");
 
-	@Test
-	public void transactionAttributeDeclaredOnClassWithJta() throws Exception {
-		Method getAgeMethod = ITestBean1.class.getMethod("getAge");
-		Method getNameMethod = ITestBean1.class.getMethod("getName");
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, JtaAnnotatedBean1.class);
+    assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+    TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, JtaAnnotatedBean1.class);
+    assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
+  }
+
+  @Test
+  public void transactionAttributeDeclaredOnClassWithJta() throws Exception {
+    Method getAgeMethod = ITestBean1.class.getMethod("getAge");
+    Method getNameMethod = ITestBean1.class.getMethod("getName");
 
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, JtaAnnotatedBean2.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, JtaAnnotatedBean2.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
-	}
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, JtaAnnotatedBean2.class);
+    assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+    TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, JtaAnnotatedBean2.class);
+    assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
+  }
 
-	@Test
-	public void transactionAttributeDeclaredOnInterfaceWithJta() throws Exception {
-		Method getAgeMethod = ITestEjb.class.getMethod("getAge");
-		Method getNameMethod = ITestEjb.class.getMethod("getName");
+  @Test
+  public void transactionAttributeDeclaredOnInterfaceWithJta() throws Exception {
+    Method getAgeMethod = ITestEjb.class.getMethod("getAge");
+    Method getNameMethod = ITestEjb.class.getMethod("getName");
 
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, JtaAnnotatedBean3.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, JtaAnnotatedBean3.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
-	}
+    AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
+    TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, JtaAnnotatedBean3.class);
+    assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
+    TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, JtaAnnotatedBean3.class);
+    assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_SUPPORTS);
+  }
 
-	@Test
-	public void transactionAttributeDeclaredOnGroovyClass() throws Exception {
-		Method getAgeMethod = ITestBean1.class.getMethod("getAge");
-		Method getNameMethod = ITestBean1.class.getMethod("getName");
-		Method getMetaClassMethod = GroovyObject.class.getMethod("getMetaClass");
+  interface ITestBean1 {
 
-		AnnotationTransactionAttributeSource atas = new AnnotationTransactionAttributeSource();
-		TransactionAttribute getAgeAttr = atas.getTransactionAttribute(getAgeMethod, GroovyTestBean.class);
-		assertThat(getAgeAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		TransactionAttribute getNameAttr = atas.getTransactionAttribute(getNameMethod, GroovyTestBean.class);
-		assertThat(getNameAttr.getPropagationBehavior()).isEqualTo(TransactionAttribute.PROPAGATION_REQUIRED);
-		assertThat(atas.getTransactionAttribute(getMetaClassMethod, GroovyTestBean.class)).isNull();
-	}
+    int getAge();
+
+    void setAge(int age);
 
+    String getName();
+
+    void setName(String name);
+  }
 
-	interface ITestBean1 {
+  interface ITestBean2 {
 
-		int getAge();
+    @Transactional
+    int getAge();
 
-		void setAge(int age);
+    void setAge(int age);
+  }
 
-		String getName();
+  interface ITestBean2X extends ITestBean2 {
 
-		void setName(String name);
-	}
+    String getName();
 
+    void setName(String name);
+  }
 
-	interface ITestBean2 {
+  @Transactional
+  interface ITestBean3 {
 
-		@Transactional
-		int getAge();
+    int getAge();
 
-		void setAge(int age);
-	}
+    void setAge(int age);
 
+    String getName();
 
-	interface ITestBean2X extends ITestBean2 {
+    void setName(String name);
+  }
 
-		String getName();
+  static class Empty implements ITestBean1 {
 
-		void setName(String name);
-	}
+    private String name;
 
+    private int age;
+
+    public Empty() {
+    }
 
-	@Transactional
-	interface ITestBean3 {
+    public Empty(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
 
-		int getAge();
+    @Override
+    public String getName() {
+      return name;
+    }
 
-		void setAge(int age);
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		String getName();
+    @Override
+    public int getAge() {
+      return age;
+    }
 
-		void setName(String name);
-	}
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
+  @SuppressWarnings("serial")
+  static class TestBean1 implements ITestBean1, Serializable {
+
+    private String name;
 
-	static class Empty implements ITestBean1 {
+    private int age;
+
+    public TestBean1() {
+    }
+
+    public TestBean1(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
 
-		private String name;
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		private int age;
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int getAge() {
+      return age;
+    }
+
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
+
+  static class TestBean2 implements ITestBean2X {
+
+    private String name;
+
+    private int age;
+
+    public TestBean2() {
+    }
+
+    public TestBean2(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public int getAge() {
+      return age;
+    }
+
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
+
+  static class TestBean3 implements ITestBean3 {
+
+    private String name;
+
+    private int age;
+
+    public TestBean3() {
+    }
+
+    public TestBean3(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ,
+                   timeout = 5, readOnly = true, rollbackFor = Exception.class, noRollbackFor = IOException.class)
+    public int getAge() {
+      return age;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ,
+                   timeoutString = "${myTimeout}", readOnly = true, rollbackFor = Exception.class,
+                   noRollbackFor = IOException.class)
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
+
+  @Transactional(rollbackFor = Exception.class, noRollbackFor = IOException.class)
+  static class TestBean4 implements ITestBean3 {
 
-		public Empty() {
-		}
+    private String name;
 
-		public Empty(String name, int age) {
-			this.name = name;
-			this.age = age;
-		}
+    private int age;
+
+    public TestBean4() {
+    }
 
-		@Override
-		public String getName() {
-			return name;
-		}
+    public TestBean4(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
 
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
+    @Override
+    public String getName() {
+      return name;
+    }
 
-		@Override
-		public int getAge() {
-			return age;
-		}
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
+    @Override
+    public int getAge() {
+      return age;
+    }
 
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
-	@SuppressWarnings("serial")
-	static class TestBean1 implements ITestBean1, Serializable {
+  @Retention(RetentionPolicy.RUNTIME)
+  @Transactional(rollbackFor = Exception.class, noRollbackFor = IOException.class)
+  @interface Tx {
+  }
 
-		private String name;
+  @Tx
+  static class TestBean5 {
 
-		private int age;
+    public int getAge() {
+      return 10;
+    }
+  }
 
-		public TestBean1() {
-		}
+  static class TestBean6 {
+
+    @Tx
+    public int getAge() {
+      return 10;
+    }
+  }
 
-		public TestBean1(String name, int age) {
-			this.name = name;
-			this.age = age;
-		}
+  @Retention(RetentionPolicy.RUNTIME)
+  @Transactional(rollbackFor = Exception.class, noRollbackFor = IOException.class)
+  @interface TxWithAttribute {
 
-		@Override
-		public String getName() {
-			return name;
-		}
+    boolean readOnly();
+  }
 
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
+  @TxWithAttribute(readOnly = true)
+  static class TestBean7 {
 
-		@Override
-		@Transactional(rollbackFor = Exception.class)
-		public int getAge() {
-			return age;
-		}
+    public int getAge() {
+      return 10;
+    }
+  }
 
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
+  static class TestBean8 {
 
+    @TxWithAttribute(readOnly = true)
+    public int getAge() {
+      return 10;
+    }
+  }
+
+  @TxWithAttribute(readOnly = true)
+  interface TestInterface9 {
+
+    int getAge();
+  }
 
-	static class TestBean2 implements ITestBean2X {
+  static class TestBean9 implements TestInterface9 {
 
-		private String name;
+    @Override
+    public int getAge() {
+      return 10;
+    }
+  }
 
-		private int age;
+  interface TestInterface10 {
 
-		public TestBean2() {
-		}
+    @TxWithAttribute(readOnly = true)
+    int getAge();
+  }
 
-		public TestBean2(String name, int age) {
-			this.name = name;
-			this.age = age;
-		}
+  static class TestBean10 implements TestInterface10 {
 
-		@Override
-		public String getName() {
-			return name;
-		}
+    @Override
+    public int getAge() {
+      return 10;
+    }
+  }
 
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
+  @Transactional(label = { "retryable", "long-running" })
+  static class TestBean11 {
 
-		@Override
-		public int getAge() {
-			return age;
-		}
+    private int age = 10;
 
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
+    @Transactional(label = "short-running")
+    public void setAge(int age) {
+      this.age = age;
+    }
 
+    public int getAge() {
+      return age;
+    }
+  }
 
-	static class TestBean3 implements ITestBean3 {
+  static class Ejb3AnnotatedBean1 implements ITestBean1 {
 
-		private String name;
+    private String name;
 
-		private int age;
+    private int age;
 
-		public TestBean3() {
-		}
+    @Override
+    @jakarta.ejb.TransactionAttribute(TransactionAttributeType.SUPPORTS)
+    public String getName() {
+      return name;
+    }
 
-		public TestBean3(String name, int age) {
-			this.name = name;
-			this.age = age;
-		}
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		@Override
-		public String getName() {
-			return name;
-		}
+    @Override
+    @jakarta.ejb.TransactionAttribute
+    public int getAge() {
+      return age;
+    }
 
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
-		@Override
-		@Transactional(propagation = Propagation.REQUIRES_NEW, isolation=Isolation.REPEATABLE_READ,
-				timeout = 5, readOnly = true, rollbackFor = Exception.class, noRollbackFor = IOException.class)
-		public int getAge() {
-			return age;
-		}
+  @jakarta.ejb.TransactionAttribute(TransactionAttributeType.SUPPORTS)
+  static class Ejb3AnnotatedBean2 implements ITestBean1 {
 
-		@Override
-		@Transactional(propagation = Propagation.REQUIRES_NEW, isolation=Isolation.REPEATABLE_READ,
-				timeoutString = "${myTimeout}", readOnly = true, rollbackFor = Exception.class,
-				noRollbackFor = IOException.class)
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
+    private String name;
 
+    private int age;
 
-	@Transactional(rollbackFor = Exception.class, noRollbackFor = IOException.class)
-	static class TestBean4 implements ITestBean3 {
+    @Override
+    public String getName() {
+      return name;
+    }
 
-		private String name;
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		private int age;
+    @Override
+    @jakarta.ejb.TransactionAttribute
+    public int getAge() {
+      return age;
+    }
 
-		public TestBean4() {
-		}
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
-		public TestBean4(String name, int age) {
-			this.name = name;
-			this.age = age;
-		}
+  @jakarta.ejb.TransactionAttribute(TransactionAttributeType.SUPPORTS)
+  interface ITestEjb {
 
-		@Override
-		public String getName() {
-			return name;
-		}
+    @jakarta.ejb.TransactionAttribute
+    int getAge();
 
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
+    void setAge(int age);
 
-		@Override
-		public int getAge() {
-			return age;
-		}
+    String getName();
 
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
+    void setName(String name);
+  }
 
+  static class Ejb3AnnotatedBean3 implements ITestEjb {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Transactional(rollbackFor = Exception.class, noRollbackFor = IOException.class)
-	@interface Tx {
-	}
+    private String name;
 
+    private int age;
 
-	@Tx
-	static class TestBean5 {
+    @Override
+    public String getName() {
+      return name;
+    }
 
-		public int getAge() {
-			return 10;
-		}
-	}
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
+    @Override
+    public int getAge() {
+      return age;
+    }
 
-	static class TestBean6 {
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
-		@Tx
-		public int getAge() {
-			return 10;
-		}
-	}
+  static class JtaAnnotatedBean1 implements ITestBean1 {
 
+    private String name;
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Transactional(rollbackFor = Exception.class, noRollbackFor = IOException.class)
-	@interface TxWithAttribute {
+    private int age;
 
-		boolean readOnly();
-	}
+    @Override
+    @jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.SUPPORTS)
+    public String getName() {
+      return name;
+    }
 
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-	@TxWithAttribute(readOnly = true)
-	static class TestBean7 {
+    @Override
+    @jakarta.transaction.Transactional
+    public int getAge() {
+      return age;
+    }
 
-		public int getAge() {
-			return 10;
-		}
-	}
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
+  @jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.SUPPORTS)
+  static class JtaAnnotatedBean2 implements ITestBean1 {
 
-	static class TestBean8 {
+    private String name;
 
-		@TxWithAttribute(readOnly = true)
-		public int getAge() {
-			return 10;
-		}
-	}
+    private int age;
 
+    @Override
+    public String getName() {
+      return name;
+    }
 
-	@TxWithAttribute(readOnly = true)
-	interface TestInterface9 {
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		int getAge();
-	}
+    @Override
+    @jakarta.transaction.Transactional
+    public int getAge() {
+      return age;
+    }
 
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
-	static class TestBean9 implements TestInterface9 {
+  @jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.SUPPORTS)
+  interface ITestJta {
 
-		@Override
-		public int getAge() {
-			return 10;
-		}
-	}
+    @jakarta.transaction.Transactional
+    int getAge();
 
+    void setAge(int age);
 
-	interface TestInterface10 {
+    String getName();
 
-		@TxWithAttribute(readOnly = true)
-		int getAge();
-	}
+    void setName(String name);
+  }
 
+  static class JtaAnnotatedBean3 implements ITestEjb {
 
-	static class TestBean10 implements TestInterface10 {
+    private String name;
 
-		@Override
-		public int getAge() {
-			return 10;
-		}
-	}
+    private int age;
 
-	@Transactional(label = {"retryable", "long-running"})
-	static class TestBean11 {
+    @Override
+    public String getName() {
+      return name;
+    }
 
-		private int age = 10;
+    @Override
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		@Transactional(label = "short-running")
-		public void setAge(int age) {
-			this.age = age;
-		}
+    @Override
+    public int getAge() {
+      return age;
+    }
 
-		public int getAge() {
-			return age;
-		}
-	}
-
-
-	static class Ejb3AnnotatedBean1 implements ITestBean1 {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		@jakarta.ejb.TransactionAttribute(TransactionAttributeType.SUPPORTS)
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		@jakarta.ejb.TransactionAttribute
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
-
-	@jakarta.ejb.TransactionAttribute(TransactionAttributeType.SUPPORTS)
-	static class Ejb3AnnotatedBean2 implements ITestBean1 {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		@jakarta.ejb.TransactionAttribute
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
-
-	@jakarta.ejb.TransactionAttribute(TransactionAttributeType.SUPPORTS)
-	interface ITestEjb {
-
-		@jakarta.ejb.TransactionAttribute
-		int getAge();
-
-		void setAge(int age);
-
-		String getName();
-
-		void setName(String name);
-	}
-
-
-	static class Ejb3AnnotatedBean3 implements ITestEjb {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
-
-	static class JtaAnnotatedBean1 implements ITestBean1 {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		@jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.SUPPORTS)
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		@jakarta.transaction.Transactional
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
-
-	@jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.SUPPORTS)
-	static class JtaAnnotatedBean2 implements ITestBean1 {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		@jakarta.transaction.Transactional
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
-
-	@jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.SUPPORTS)
-	interface ITestJta {
-
-		@jakarta.transaction.Transactional
-		int getAge();
-
-		void setAge(int age);
-
-		String getName();
-
-		void setName(String name);
-	}
-
-
-	static class JtaAnnotatedBean3 implements ITestEjb {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
-
-	@Transactional
-	static class GroovyTestBean implements ITestBean1, GroovyObject {
-
-		private String name;
-
-		private int age;
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public int getAge() {
-			return age;
-		}
-
-		@Override
-		public void setAge(int age) {
-			this.age = age;
-		}
-
-		@Override
-		public Object invokeMethod(String name, Object args) {
-			return null;
-		}
-
-		@Override
-		public Object getProperty(String propertyName) {
-			return null;
-		}
-
-		@Override
-		public void setProperty(String propertyName, Object newValue) {
-		}
-
-		@Override
-		public MetaClass getMetaClass() {
-			return null;
-		}
-
-		@Override
-		public void setMetaClass(MetaClass metaClass) {
-		}
-	}
+    @Override
+    public void setAge(int age) {
+      this.age = age;
+    }
+  }
 
 }

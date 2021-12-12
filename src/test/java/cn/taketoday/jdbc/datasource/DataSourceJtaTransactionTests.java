@@ -32,7 +32,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.support.StaticListableBeanFactory;
+import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.jdbc.datasource.lookup.BeanFactoryDataSourceLookup;
 import cn.taketoday.jdbc.datasource.lookup.IsolationLevelDataSourceRouter;
 import cn.taketoday.transaction.TransactionDefinition;
@@ -705,9 +705,9 @@ public class DataSourceJtaTransactionTests {
     if (dataSourceLookup) {
       targetDataSources.put("ISOLATION_REPEATABLE_READ", "ds2");
       dsToUse.setDefaultTargetDataSource("ds1");
-      StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
-      beanFactory.addBean("ds1", dataSource1);
-      beanFactory.addBean("ds2", dataSource2);
+      StandardBeanFactory beanFactory = new StandardBeanFactory();
+      beanFactory.registerBean("ds1", () -> dataSource1);
+      beanFactory.registerBean("ds2", () -> dataSource2);
       dsToUse.setDataSourceLookup(new BeanFactoryDataSourceLookup(beanFactory));
     }
     else {
