@@ -41,7 +41,6 @@ import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase
 import cn.taketoday.context.annotation.FailFastProblemReporter;
 import cn.taketoday.context.annotation.Problem;
 import cn.taketoday.context.annotation.ProblemReporter;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.DefaultPropertySourceFactory;
@@ -213,10 +212,6 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   public boolean passCondition(AnnotatedTypeMetadata metadata) {
     return getConditionEvaluator().passCondition(metadata);
-  }
-
-  public void addApplicationListener(ApplicationListener<?> importer) {
-    applicationContext.addApplicationListener(importer);
   }
 
   //---------------------------------------------------------------------

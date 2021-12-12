@@ -19,50 +19,35 @@
  */
 package cn.taketoday.context.event;
 
-import java.util.Collection;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationEventPublisherAware;
 
 /**
- * @author TODAY 2018-09-09 21:26
+ * Interface that encapsulates event publication functionality.
+ *
+ * <p>Serves as a super-interface for {@link ApplicationContext}.
+ *
+ * @author TODAY
+ * @see ApplicationContext
+ * @see ApplicationEventPublisherAware
+ * @see cn.taketoday.context.event.ApplicationEvent
+ * @see cn.taketoday.context.event.ApplicationEventMulticaster
+ * @see cn.taketoday.context.event.EventPublicationInterceptor
+ * @since 2018-09-09 21:26
  */
 public interface ApplicationEventPublisher {
 
   /**
-   * Publish event
+   * Notify all <strong>matching</strong> listeners registered with this
+   * application of an event.
+   * <p>Such an event publication step is effectively a hand-off to the
+   * multicaster and does not imply synchronous/asynchronous execution
+   * or even immediate execution at all. Event listeners are encouraged
+   * to be as efficient as possible, individually using asynchronous
+   * execution for longer-running and potentially blocking operations.
    *
-   * @param event Any Event object
+   * @param event the event to publish
    */
   void publishEvent(Object event);
-
-  /**
-   * Add an {@link ApplicationListener} that will be notified on context events
-   * such as context refresh and context shutdown.
-   * <p>
-   *
-   * @param listener the {@link ApplicationListener}
-   * @throws IllegalArgumentException if listener is null
-   * @since 2.1.6
-   */
-  void addApplicationListener(ApplicationListener<?> listener);
-
-  /**
-   * @since 4.0
-   */
-  void addApplicationListener(String listenerBeanName);
-
-  /**
-   * Remove all listeners registered with this multicaster.
-   * <p>After a remove call, the multicaster will perform no action
-   * on event notification until new listeners are registered.
-   */
-  void removeAllListeners();
-
-  void removeApplicationListener(String listenerBeanName);
-
-  void removeApplicationListener(ApplicationListener<?> listener);
-
-  /**
-   * @since 4.0
-   */
-  Collection<ApplicationListener<?>> getApplicationListeners();
 
 }

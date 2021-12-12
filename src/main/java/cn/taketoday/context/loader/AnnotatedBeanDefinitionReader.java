@@ -338,7 +338,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     }
 
     MergedAnnotation<Description> description = annotations.get(Description.class);
-    if (description != null) {
+    if (description.isPresent()) {
       definition.setDescription(description.getStringValue());
     }
 

@@ -95,8 +95,6 @@ public class ConfigurationClassPostProcessor
   private ConfigurationClassBeanDefinitionReader reader;
 
   private boolean localBeanNameGeneratorSet = false;
-  /* Using short class names as default bean names by default. */
-  private BeanNameGenerator componentScanBeanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
   /* Using fully qualified class names as default bean names by default. */
   private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
@@ -141,8 +139,8 @@ public class ConfigurationClassPostProcessor
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
     Assert.notNull(beanNameGenerator, "BeanNameGenerator must not be null");
     this.localBeanNameGeneratorSet = true;
-    this.componentScanBeanNameGenerator = beanNameGenerator;
     this.importBeanNameGenerator = beanNameGenerator;
+    loadingContext.setBeanNameGenerator(beanNameGenerator);
   }
 
   @Override

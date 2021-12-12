@@ -51,14 +51,11 @@ import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
-import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.ContextStoppedEvent;
-import cn.taketoday.context.event.DefaultApplicationEventPublisher;
-import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.support.DelegatingMessageSource;
@@ -142,7 +139,7 @@ public abstract class AbstractApplicationContext
   // @since 2.1.5
   private State state = State.NONE;
 
-  private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
+  private final ArrayList<BeanFactoryPostProcessor> factoryPostProcessors = new ArrayList<>();
 
   /** Unique id for this context, if any. @since 4.0 */
   private String id = ObjectUtils.identityToString(this);
@@ -153,9 +150,6 @@ public abstract class AbstractApplicationContext
 
   /** Display name. */
   private String applicationName = ObjectUtils.identityToString(this);
-
-  /** @since 4.0 */
-  private ApplicationEventPublisher eventPublisher;
 
   /** @since 4.0 */
   private BeanFactoryAwareBeanInstantiator beanInstantiator;
@@ -194,7 +188,7 @@ public abstract class AbstractApplicationContext
 
   /** ApplicationEvents published before the multicaster setup. @since 4.0 */
   @Nullable
-  private Set<ApplicationEvent> earlyApplicationEvents;
+  private Set<Object> earlyApplicationEvents;
 
   /** MessageSource we delegate our implementation of this interface to. @since 4.0 */
   @Nullable
@@ -935,7 +929,7 @@ public abstract class AbstractApplicationContext
   public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
     Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
 
-    getFactoryPostProcessors().add(postProcessor);
+    factoryPostProcessors.add(postProcessor);
   }
 
   @Override
@@ -1173,16 +1167,12 @@ public abstract class AbstractApplicationContext
   // ---------------------------
 
   public List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
-    ArrayList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
-    if (processors == null) {
-      return this.factoryPostProcessors = new ArrayList<>();
-    }
-    return processors;
+    return factoryPostProcessors;
   }
 
   // since 4.0
   public void addFactoryPostProcessors(BeanFactoryPostProcessor... postProcessors) {
-    CollectionUtils.addAll(getFactoryPostProcessors(), postProcessors);
+    CollectionUtils.addAll(factoryPostProcessors, postProcessors);
   }
 
   //---------------------------------------------------------------------
@@ -1269,7 +1259,37 @@ public abstract class AbstractApplicationContext
 
   @Override
   public void publishEvent(Object event) {
-    getEventPublisher().publishEvent(event);
+    publishEvent(event, null);
+  }
+
+  /**
+   * Publish the given event to all listeners.
+   *
+   * @param event the event to publish (may be an {@link ApplicationEvent}
+   * @param eventType the resolved event type, if known
+   * @since 4.0
+   */
+  protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
+    Assert.notNull(event, "Event must not be null");
+
+    // Multicast right now if possible - or lazily once the multicaster is initialized
+    if (this.earlyApplicationEvents != null) {
+      this.earlyApplicationEvents.add(event);
+    }
+    else {
+      getApplicationEventMulticaster().multicastEvent(event, eventType);
+    }
+
+    // Publish event via parent context as well...
+    if (this.parent != null) {
+      if (this.parent instanceof AbstractApplicationContext) {
+        ((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
+      }
+      else {
+        this.parent.publishEvent(event);
+      }
+    }
+
   }
 
   public final BeanFactoryAwareBeanInstantiator getBeanInstantiator() {
@@ -1295,29 +1315,11 @@ public abstract class AbstractApplicationContext
     }
 
     // Publish early application events now that we finally have a multicaster...
-    Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
+    Set<Object> earlyEventsToProcess = this.earlyApplicationEvents;
     this.earlyApplicationEvents = null;
     if (!CollectionUtils.isEmpty(earlyEventsToProcess)) {
-      for (ApplicationEvent earlyEvent : earlyEventsToProcess) {
+      for (Object earlyEvent : earlyEventsToProcess) {
         getApplicationEventMulticaster().multicastEvent(earlyEvent);
-      }
-    }
-
-    //
-
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
-
-    Set<String> beanNamesOfType = beanFactory.getBeanNamesForType(
-            ApplicationListener.class, true, false);
-
-    for (String beanName : beanNamesOfType) {
-      addApplicationListener(beanName);
-    }
-
-    Set<String> beanNames = beanFactory.getBeanNamesForAnnotation(EventListener.class);
-    for (String beanName : beanNames) {
-      if (!beanNamesOfType.contains(beanName)) {
-        addApplicationListener(beanName);
       }
     }
 
@@ -1360,41 +1362,6 @@ public abstract class AbstractApplicationContext
       this.applicationEventMulticaster.addApplicationListener(listener);
     }
     this.applicationListeners.add(listener);
-  }
-
-  @Override
-  public void addApplicationListener(String listenerBeanName) {
-    getEventPublisher().addApplicationListener(listenerBeanName);
-  }
-
-  @Override
-  public void removeApplicationListener(String listenerBeanName) {
-    getEventPublisher().removeApplicationListener(listenerBeanName);
-  }
-
-  @Override
-  public void removeApplicationListener(ApplicationListener<?> listener) {
-    getEventPublisher().removeApplicationListener(listener);
-  }
-
-  @Override
-  public void removeAllListeners() {
-    getEventPublisher().removeAllListeners();
-  }
-
-  /** @since 4.0 */
-  @Override
-  public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
-    Assert.notNull(eventPublisher, "event-publisher must not be nul");
-    this.eventPublisher = eventPublisher;
-  }
-
-  /** @since 4.0 */
-  public ApplicationEventPublisher getEventPublisher() {
-    if (eventPublisher == null) {
-      eventPublisher = new DefaultApplicationEventPublisher(getBeanFactory());
-    }
-    return eventPublisher;
   }
 
   // Object

@@ -41,6 +41,7 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.ConfigBeanDefinition;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.aware.ImportAware;
@@ -62,7 +63,6 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -300,9 +300,6 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
       this.<BeanDefinitionImporter>createImporter(importMetadata, importClass)
               .registerBeanDefinitions(importMetadata, context);
-    }
-    if (ApplicationListener.class.isAssignableFrom(importClass)) {
-      context.addApplicationListener(this.createImporter(importMetadata, importClass));
     }
   }
 

@@ -54,7 +54,6 @@ public class AdvisorAdapterRegistrationTests {
   @AfterEach
   public void resetGlobalAdvisorAdapterRegistry() {
     DefaultAdvisorAdapterRegistry.reset();
-
   }
 
   @Test

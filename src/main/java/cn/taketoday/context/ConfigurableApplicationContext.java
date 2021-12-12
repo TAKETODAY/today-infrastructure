@@ -21,7 +21,6 @@ package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -137,11 +136,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @since 4.0
    */
   void setClassLoader(ClassLoader classLoader);
-
-  /**
-   * @since 4.0
-   */
-  void setEventPublisher(ApplicationEventPublisher eventPublisher);
 
   /**
    * Set this context can refresh again
