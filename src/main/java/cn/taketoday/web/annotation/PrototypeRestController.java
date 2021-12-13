@@ -32,7 +32,7 @@ import cn.taketoday.lang.Component;
  * 2019-09-01 16:21
  */
 @Component
-@cn.taketoday.lang.Scope(Scope.PROTOTYPE)
+@cn.taketoday.context.annotation.Scope(Scope.PROTOTYPE)
 @ResponseBody
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

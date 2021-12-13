@@ -28,7 +28,6 @@ import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Scope;
 
 /**
  * @author TODAY 2021/10/26 15:57

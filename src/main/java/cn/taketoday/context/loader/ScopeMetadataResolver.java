@@ -21,7 +21,7 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.lang.Scope;
+import cn.taketoday.context.annotation.Scope;
 
 /**
  * Strategy interface for resolving the scope of bean definitions.

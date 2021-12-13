@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**

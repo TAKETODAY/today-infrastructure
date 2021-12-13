@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Scope;
+import cn.taketoday.context.annotation.Scope;
 
 /**
  * @author TODAY <br>
