@@ -50,7 +50,7 @@ public class MatchAlwaysTransactionAttributeSource implements TransactionAttribu
    * example, "PROPAGATION_REQUIRED".
    *
    * @param transactionAttribute the String form of the transactionAttribute to use.
-   * @see cn.taketoday.transaction.interceptor.TransactionAttributeEditor
+   * @see TransactionAttribute#parse(String)
    */
   public void setTransactionAttribute(TransactionAttribute transactionAttribute) {
     if (transactionAttribute instanceof DefaultTransactionAttribute dta) {

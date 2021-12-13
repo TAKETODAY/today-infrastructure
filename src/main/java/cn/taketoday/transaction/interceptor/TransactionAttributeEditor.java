@@ -22,6 +22,8 @@ package cn.taketoday.transaction.interceptor;
 
 import java.beans.PropertyEditorSupport;
 
+import cn.taketoday.util.StringUtils;
+
 /**
  * PropertyEditor for {@link TransactionAttribute} objects. Accepts a String of form
  * <p>{@code PROPAGATION_NAME, ISOLATION_NAME, readOnly, timeout_NNNN,+Exception1,-Exception2}
@@ -50,7 +52,12 @@ public class TransactionAttributeEditor extends PropertyEditorSupport {
    */
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
-    setValue(TransactionAttribute.parse(text));
+    if (StringUtils.isNotEmpty(text)) {
+      setValue(TransactionAttribute.parse(text));
+    }
+    else {
+      setValue(null);
+    }
   }
 
 }

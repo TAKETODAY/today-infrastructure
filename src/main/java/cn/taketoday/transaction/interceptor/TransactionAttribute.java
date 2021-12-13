@@ -79,51 +79,47 @@ public interface TransactionAttribute extends TransactionDefinition {
    * <p>
    * Format is PROPAGATION_NAME,ISOLATION_NAME,readOnly,timeout_NNNN,+Exception1,-Exception2.
    * Null or the empty string means that the method is non-transactional.
+   *
+   * @see RuleBasedTransactionAttribute
    */
-  @Nullable
   static TransactionAttribute parse(String text) throws IllegalArgumentException {
-    if (StringUtils.isNotEmpty(text)) {
-      // tokenize it with ","
-      String[] tokens = StringUtils.commaDelimitedListToStringArray(text);
-      RuleBasedTransactionAttribute attr = new RuleBasedTransactionAttribute();
-      for (String token : tokens) {
-        // Trim leading and trailing whitespace.
-        String trimmedToken = token.strip();
-        // Check whether token contains illegal whitespace within text.
-        if (StringUtils.containsWhitespace(trimmedToken)) {
-          throw new IllegalArgumentException(
-                  "Transaction attribute token contains illegal whitespace: [" + trimmedToken + "]");
-        }
-        // Check token type.
-        if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_PROPAGATION)) {
-          attr.setPropagationBehaviorName(trimmedToken);
-        }
-        else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_ISOLATION)) {
-          attr.setIsolationLevelName(trimmedToken);
-        }
-        else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_TIMEOUT)) {
-          String value = trimmedToken.substring(DefaultTransactionAttribute.PREFIX_TIMEOUT.length());
-          attr.setTimeoutString(value);
-        }
-        else if (trimmedToken.equals(RuleBasedTransactionAttribute.READ_ONLY_MARKER)) {
-          attr.setReadOnly(true);
-        }
-        else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_COMMIT_RULE)) {
-          attr.getRollbackRules().add(new NoRollbackRuleAttribute(trimmedToken.substring(1)));
-        }
-        else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_ROLLBACK_RULE)) {
-          attr.getRollbackRules().add(new RollbackRuleAttribute(trimmedToken.substring(1)));
-        }
-        else {
-          throw new IllegalArgumentException("Invalid transaction attribute token: [" + trimmedToken + "]");
-        }
+    // tokenize it with ","
+    String[] tokens = StringUtils.commaDelimitedListToStringArray(text);
+    RuleBasedTransactionAttribute attr = new RuleBasedTransactionAttribute();
+    for (String token : tokens) {
+      // Trim leading and trailing whitespace.
+      String trimmedToken = token.strip();
+      // Check whether token contains illegal whitespace within text.
+      if (StringUtils.containsWhitespace(trimmedToken)) {
+        throw new IllegalArgumentException(
+                "Transaction attribute token contains illegal whitespace: [" + trimmedToken + "]");
       }
-      attr.resolveAttributeStrings(null);  // placeholders expected to be pre-resolved
-      return attr;
+      // Check token type.
+      if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_PROPAGATION)) {
+        attr.setPropagationBehaviorName(trimmedToken);
+      }
+      else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_ISOLATION)) {
+        attr.setIsolationLevelName(trimmedToken);
+      }
+      else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_TIMEOUT)) {
+        String value = trimmedToken.substring(DefaultTransactionAttribute.PREFIX_TIMEOUT.length());
+        attr.setTimeoutString(value);
+      }
+      else if (trimmedToken.equals(RuleBasedTransactionAttribute.READ_ONLY_MARKER)) {
+        attr.setReadOnly(true);
+      }
+      else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_COMMIT_RULE)) {
+        attr.getRollbackRules().add(new NoRollbackRuleAttribute(trimmedToken.substring(1)));
+      }
+      else if (trimmedToken.startsWith(RuleBasedTransactionAttribute.PREFIX_ROLLBACK_RULE)) {
+        attr.getRollbackRules().add(new RollbackRuleAttribute(trimmedToken.substring(1)));
+      }
+      else {
+        throw new IllegalArgumentException("Invalid transaction attribute token: [" + trimmedToken + "]");
+      }
     }
-    else {
-      return null;
-    }
+    attr.resolveAttributeStrings(null);  // placeholders expected to be pre-resolved
+    return attr;
   }
 
 }

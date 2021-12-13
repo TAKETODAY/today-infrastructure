@@ -49,12 +49,7 @@ import cn.taketoday.util.StringUtils;
 @SuppressWarnings("serial")
 public class NameMatchTransactionAttributeSource
         implements TransactionAttributeSource, EmbeddedValueResolverAware, InitializingBean, Serializable {
-
-  /**
-   * Logger available to subclasses.
-   * <p>Static for optimal serialization.
-   */
-  protected static final Logger logger = LoggerFactory.getLogger(NameMatchTransactionAttributeSource.class);
+  private static final Logger logger = LoggerFactory.getLogger(NameMatchTransactionAttributeSource.class);
 
   /** Keys are method names; values are TransactionAttributes. */
   private final Map<String, TransactionAttribute> nameMap = new HashMap<>();
@@ -77,20 +72,18 @@ public class NameMatchTransactionAttributeSource
    * Parse the given properties into a name/attribute map.
    * <p>Expects method names as keys and String attributes definitions as values,
    * parsable into {@link TransactionAttribute} instances via a
-   * {@link TransactionAttributeEditor}.
+   * {@link TransactionAttribute#parse(String)}.
    *
    * @see #setNameMap
-   * @see TransactionAttributeEditor
+   * @see TransactionAttribute#parse(String)
    */
   public void setProperties(Properties transactionAttributes) {
-    TransactionAttributeEditor tae = new TransactionAttributeEditor();
     Enumeration<?> propNames = transactionAttributes.propertyNames();
     while (propNames.hasMoreElements()) {
       String methodName = (String) propNames.nextElement();
       String value = transactionAttributes.getProperty(methodName);
-      tae.setAsText(value);
-      TransactionAttribute attr = (TransactionAttribute) tae.getValue();
-      addTransactionalMethod(methodName, attr);
+      TransactionAttribute attribute = TransactionAttribute.parse(value);
+      addTransactionalMethod(methodName, attribute);
     }
   }
 
