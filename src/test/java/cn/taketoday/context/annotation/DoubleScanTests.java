@@ -18,25 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+package cn.taketoday.context.annotation;
 
 /**
  * @author Juergen Hoeller
+ * @author Chris Beams
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class DoubleScanTests extends SimpleScanTests {
 
-  String value() default "thoreau";
+	@Override
+	protected String[] getConfigLocations() {
+		return new String[] {"doubleScanTests.xml"};
+	}
 
 }

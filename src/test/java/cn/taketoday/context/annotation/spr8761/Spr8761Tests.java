@@ -18,25 +18,42 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation.spr8761;
 
-import java.lang.annotation.ElementType;
+import org.junit.jupiter.api.Test;
+import cn.taketoday.context.annotation.StandardApplicationContext;
+import cn.taketoday.lang.Component;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
 
 /**
- * @author Juergen Hoeller
+ * Tests cornering the regression reported in SPR-8761.
+ *
+ * @author Chris Beams
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class Spr8761Tests {
 
-  String value() default "thoreau";
+	/**
+	 * Prior to the fix for SPR-8761, this test threw because the nested MyComponent
+	 * annotation was being falsely considered as a 'lite' Configuration class candidate.
+	 */
+	@Test
+	public void repro() {
+		StandardApplicationContext ctx = new StandardApplicationContext();
+		ctx.scan(getClass().getPackage().getName());
+		ctx.refresh();
+		assertThat(ctx.containsBean("withNestedAnnotation")).isTrue();
+	}
 
+}
+
+@Component
+class WithNestedAnnotation {
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Component
+	public static @interface MyComponent {
+	}
 }

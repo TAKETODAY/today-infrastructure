@@ -18,25 +18,30 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation.configuration.a;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.configuration.PackagePrivateBeanMethodInheritanceTests.Bar;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+public abstract class BaseConfig {
 
-/**
- * @author Juergen Hoeller
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+	// ---- reproduce ----
+	@Bean
+	Bar packagePrivateBar() {
+		return new Bar();
+	}
 
-  String value() default "thoreau";
+	public Bar reproBar() {
+		return packagePrivateBar();
+	}
 
+	// ---- workaround ----
+	@Bean
+	protected Bar protectedBar() {
+		return new Bar();
+	}
+
+	public Bar workaroundBar() {
+		return protectedBar();
+	}
 }

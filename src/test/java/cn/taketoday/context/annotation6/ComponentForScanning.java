@@ -17,26 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.context.annotation6;
 
-package example.scannable;
+import cn.taketoday.lang.Component;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
-
-/**
- * @author Juergen Hoeller
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
-
-  String value() default "thoreau";
-
+@Component
+public class ComponentForScanning {
 }

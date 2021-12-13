@@ -18,25 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.core.convert.converter.Converter;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+import example.scannable.FooService;
 
 /**
  * @author Juergen Hoeller
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class FooServiceDependentConverter implements Converter<String, cn.taketoday.beans.testfixture.beans.TestBean> {
 
-  String value() default "thoreau";
+	@SuppressWarnings("unused")
+	private FooService fooService;
+
+	public void setFooService(FooService fooService) {
+		this.fooService = fooService;
+	}
+
+	@Override
+	public cn.taketoday.beans.testfixture.beans.TestBean convert(String source) {
+		return new cn.taketoday.beans.testfixture.beans.TestBean(source);
+	}
 
 }

@@ -18,25 +18,37 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation.spr8808;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Configuration;
 
 /**
- * @author Juergen Hoeller
+ * Tests cornering the bug in which @Configuration classes that @ComponentScan themselves
+ * would result in a ConflictingBeanDefinitionException.
+ *
+ * @author Chris Beams
+ * @since 3.1
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class Spr8808Tests {
 
-  String value() default "thoreau";
+  /**
+   * This test failed with ConflictingBeanDefinitionException prior to fixes for
+   * SPR-8808.
+   */
+  @Test
+  public void repro() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(Config.class);
+    ctx.refresh();
+  }
 
+}
+
+@Configuration
+@ComponentScan(basePackageClasses = Spr8808Tests.class) // scan *this* package
+class Config {
 }

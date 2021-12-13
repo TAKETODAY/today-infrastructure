@@ -18,25 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation.configuration.spr8955;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+import cn.taketoday.lang.Component;
 
 /**
- * @author Juergen Hoeller
+ * @author Chris Beams
+ * @author Willem Dekker
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+abstract class Spr8955Parent {
 
-  String value() default "thoreau";
+	@Component
+	static class Spr8955Child extends Spr8955Parent {
+
+	}
 
 }

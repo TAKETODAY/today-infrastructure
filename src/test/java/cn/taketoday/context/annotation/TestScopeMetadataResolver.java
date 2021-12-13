@@ -18,25 +18,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.beans.factory.BeanDefinition;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+import cn.taketoday.context.loader.ScopeMetadata;
+import cn.taketoday.context.loader.ScopeMetadataResolver;
 
 /**
- * @author Juergen Hoeller
+ * @author Mark Fisher
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class TestScopeMetadataResolver implements ScopeMetadataResolver {
 
-  String value() default "thoreau";
+	@Override
+	public ScopeMetadata resolveScopeMetadata(BeanDefinition beanDefinition) {
+		ScopeMetadata metadata = new ScopeMetadata();
+		metadata.setScopeName("myCustomScope");
+		return metadata;
+	}
 
 }

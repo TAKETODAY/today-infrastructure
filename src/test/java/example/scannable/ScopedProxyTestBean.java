@@ -22,7 +22,7 @@ package example.scannable;
 
 import java.util.concurrent.Future;
 
-import cn.taketoday.lang.Scope;
+import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.scheduling.annotation.AsyncResult;
 
 /**

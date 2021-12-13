@@ -18,25 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 
 /**
- * @author Juergen Hoeller
+ * @author Mark Fisher
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class TestBeanNameGenerator extends AnnotationBeanNameGenerator {
 
-  String value() default "thoreau";
+	@Override
+	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+		String beanName = super.generateBeanName(definition, registry);
+		return "testing." + beanName;
+	}
 
 }

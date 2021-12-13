@@ -18,25 +18,18 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation.componentscan.level1;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Configuration;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
-
-/**
- * @author Juergen Hoeller
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
-
-  String value() default "thoreau";
-
+@Configuration
+@ComponentScan("cn.taketoday.context.annotation.componentscan.level2")
+public class Level1Config {
+  @Bean
+  public TestBean level1Bean() {
+    return new TestBean("level1Bean");
+  }
 }

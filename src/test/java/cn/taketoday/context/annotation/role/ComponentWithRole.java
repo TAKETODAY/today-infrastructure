@@ -18,25 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.scannable;
+package cn.taketoday.context.annotation.role;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.annotation.Description;
+import cn.taketoday.context.annotation.Role;
+import cn.taketoday.lang.Component;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
-
-/**
- * @author Juergen Hoeller
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
-
-  String value() default "thoreau";
-
+@Component("componentWithRole")
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+@Description("A Component with a role")
+public class ComponentWithRole {
 }

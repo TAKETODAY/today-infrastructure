@@ -17,26 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.context.annotation4;
 
-package example.scannable;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Service;
+import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.annotation.Bean;
 
 /**
- * @author Juergen Hoeller
+ * Class to test that @FactoryMethods are detected only when inside a class with an @Component
+ * class annotation.
+ *
+ * @author Mark Pollack
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Service
-@Scope("prototype")
-public @interface CustomStereotype {
+public class SimpleBean {
 
-  String value() default "thoreau";
+  // This should *not* recognized as a bean since it does not reside inside an @Component
+  @Bean
+  public TestBean getPublicInstance() {
+    return new TestBean("publicInstance");
+  }
 
 }
