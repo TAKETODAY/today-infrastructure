@@ -21,7 +21,6 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.context.annotation.ScannedBeanDefinition;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Component;
@@ -40,7 +39,7 @@ public class ComponentAnnotationBeanDefinitionCreator implements BeanDefinitionL
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
     annotationMetadata.getAnnotations().stream(Component.class).forEach(component -> {
 
-      String[] nameArray = component.getStringArray(MergedAnnotation.VALUE);
+      String[] nameArray = component.getStringValueArray();
       // first is bean name, after name is aliases
       ScannedBeanDefinition definition = new ScannedBeanDefinition(metadata);
       if (ObjectUtils.isEmpty(nameArray)) {
