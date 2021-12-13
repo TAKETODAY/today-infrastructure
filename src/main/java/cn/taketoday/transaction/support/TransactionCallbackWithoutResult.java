@@ -30,7 +30,7 @@ import cn.taketoday.transaction.TransactionStatus;
  *
  * @author Juergen Hoeller
  * @see TransactionTemplate
- * @since @since 4.0
+ * @since 4.0
  */
 public abstract class TransactionCallbackWithoutResult implements TransactionCallback<Object> {
 

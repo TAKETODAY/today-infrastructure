@@ -35,7 +35,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  *
  * @author Juergen Hoeller
  * @see TransactionSynchronizationManager
- * @since 2.0.4
+ * @since 4.0
  */
 public interface ResourceTransactionManager extends PlatformTransactionManager {
 

@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rod Johnson
  * @see NoRollbackRuleAttribute
- * @since 09.04.2003
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class RollbackRuleAttribute implements Serializable {

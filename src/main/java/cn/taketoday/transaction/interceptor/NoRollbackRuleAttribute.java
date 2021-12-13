@@ -25,7 +25,7 @@ package cn.taketoday.transaction.interceptor;
  * to the {@code RollbackRuleAttribute} superclass.
  *
  * @author Rod Johnson
- * @since 09.04.2003
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class NoRollbackRuleAttribute extends RollbackRuleAttribute {

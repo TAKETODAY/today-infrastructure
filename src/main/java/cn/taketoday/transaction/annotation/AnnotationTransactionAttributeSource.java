@@ -60,15 +60,6 @@ import cn.taketoday.util.ClassUtils;
 public class AnnotationTransactionAttributeSource
         extends AbstractFallbackTransactionAttributeSource implements Serializable {
 
-  private static final boolean ejb3Present;
-  private static final boolean jta12Present;
-
-  static {
-    ClassLoader classLoader = AnnotationTransactionAttributeSource.class.getClassLoader();
-    jta12Present = ClassUtils.isPresent("jakarta.transaction.Transactional", classLoader);
-    ejb3Present = ClassUtils.isPresent("jakarta.ejb.TransactionAttribute", classLoader);
-  }
-
   private final boolean publicMethodsOnly;
 
   private final Set<TransactionAnnotationParser> annotationParsers;
@@ -94,6 +85,10 @@ public class AnnotationTransactionAttributeSource
    */
   public AnnotationTransactionAttributeSource(boolean publicMethodsOnly) {
     this.publicMethodsOnly = publicMethodsOnly;
+    ClassLoader classLoader = getClass().getClassLoader();
+    boolean jta12Present = ClassUtils.isPresent("jakarta.transaction.Transactional", classLoader);
+    boolean ejb3Present = ClassUtils.isPresent("jakarta.ejb.TransactionAttribute", classLoader);
+
     if (jta12Present || ejb3Present) {
       this.annotationParsers = new LinkedHashSet<>(4);
       this.annotationParsers.add(new TransactionalAnnotationParser());

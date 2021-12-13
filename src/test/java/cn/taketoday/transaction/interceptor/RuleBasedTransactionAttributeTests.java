@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @author Rick Evans
  * @author Chris Beams
- * @since 09.04.2003
+ * @since 4.0
  */
 public class RuleBasedTransactionAttributeTests {
 

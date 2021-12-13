@@ -51,8 +51,7 @@ import cn.taketoday.util.StringUtils;
 public class MethodMapTransactionAttributeSource
         implements TransactionAttributeSource, EmbeddedValueResolverAware, BeanClassLoaderAware, InitializingBean {
 
-  /** Logger available to subclasses. */
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(MethodMapTransactionAttributeSource.class);
 
   /** Map from method name to attribute value. */
   @Nullable
@@ -69,10 +68,10 @@ public class MethodMapTransactionAttributeSource
   private boolean initialized = false;
 
   /** Map from Method to TransactionAttribute. */
-  private final Map<Method, TransactionAttribute> transactionAttributeMap = new HashMap<>();
+  private final HashMap<Method, TransactionAttribute> transactionAttributeMap = new HashMap<>();
 
   /** Map from Method to name pattern used for registration. */
-  private final Map<Method, String> methodNameMap = new HashMap<>();
+  private final HashMap<Method, String> methodNameMap = new HashMap<>();
 
   /**
    * Set a name/attribute map, consisting of "FQCN.method" method names
@@ -122,7 +121,9 @@ public class MethodMapTransactionAttributeSource
    */
   protected void initMethodMap(@Nullable Map<String, TransactionAttribute> methodMap) {
     if (methodMap != null) {
-      methodMap.forEach(this::addTransactionalMethod);
+      for (Map.Entry<String, TransactionAttribute> entry : methodMap.entrySet()) {
+        addTransactionalMethod(entry.getKey(), entry.getValue());
+      }
     }
   }
 
@@ -177,17 +178,17 @@ public class MethodMapTransactionAttributeSource
       if (regMethodName == null || (!regMethodName.equals(name) && regMethodName.length() <= name.length())) {
         // No already registered method name, or more specific
         // method name specification now -> (re-)register method.
-        if (logger.isDebugEnabled() && regMethodName != null) {
-          logger.debug("Replacing attribute for transactional method [" + method + "]: current name '" +
-                  name + "' is more specific than '" + regMethodName + "'");
+        if (log.isDebugEnabled() && regMethodName != null) {
+          log.debug("Replacing attribute for transactional method [{}]: current name '{}' is more specific than '{}'",
+                  method, name, regMethodName);
         }
         this.methodNameMap.put(method, name);
         addTransactionalMethod(method, attr);
       }
       else {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Keeping attribute for transactional method [" + method + "]: current name '" +
-                  name + "' is not more specific than '" + regMethodName + "'");
+        if (log.isDebugEnabled()) {
+          log.debug("Keeping attribute for transactional method [{}]: current name '{}' is not more specific than '{}'",
+                  method, name, regMethodName);
         }
       }
     }
@@ -202,8 +203,8 @@ public class MethodMapTransactionAttributeSource
   public void addTransactionalMethod(Method method, TransactionAttribute attr) {
     Assert.notNull(method, "Method must not be null");
     Assert.notNull(attr, "TransactionAttribute must not be null");
-    if (logger.isDebugEnabled()) {
-      logger.debug("Adding transactional method [" + method + "] with attribute [" + attr + "]");
+    if (log.isDebugEnabled()) {
+      log.debug("Adding transactional method [{}] with attribute [{}]", method, attr);
     }
     if (this.embeddedValueResolver != null && attr instanceof DefaultTransactionAttribute dta) {
       dta.resolveAttributeStrings(this.embeddedValueResolver);

@@ -37,7 +37,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Juergen Hoeller
  * @see TransactionSynchronization
  * @see TransactionSynchronizationManager#getSynchronizations()
- * @since 2.0
+ * @since 4.0
  */
 public abstract class TransactionSynchronizationUtils {
 

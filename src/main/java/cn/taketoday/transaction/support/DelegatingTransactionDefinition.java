@@ -33,7 +33,7 @@ import cn.taketoday.transaction.TransactionDefinition;
  * to the target instance.
  *
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public abstract class DelegatingTransactionDefinition implements TransactionDefinition, Serializable {

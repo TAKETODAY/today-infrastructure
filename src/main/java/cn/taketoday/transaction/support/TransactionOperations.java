@@ -34,7 +34,7 @@ import cn.taketoday.transaction.TransactionStatus;
  * mocked or stubbed.
  *
  * @author Juergen Hoeller
- * @since 2.0.4
+ * @since 4.0
  */
 public interface TransactionOperations {
 

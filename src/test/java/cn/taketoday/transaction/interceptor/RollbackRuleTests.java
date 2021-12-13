@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rick Evans
  * @author Chris Beams
  * @author Sam Brannen
- * @since 09.04.2003
+ * @since 4.0
  */
 public class RollbackRuleTests {
 

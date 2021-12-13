@@ -37,7 +37,7 @@ import jakarta.transaction.TransactionManager;
  * a JTA {@link Transaction} handle for it.
  *
  * @author Juergen Hoeller
- * @since 3.0.2
+ * @since 4.0
  */
 public class ManagedTransactionAdapter implements Transaction {
 
