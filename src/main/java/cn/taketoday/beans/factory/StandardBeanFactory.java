@@ -78,6 +78,22 @@ public class StandardBeanFactory
   @Nullable
   private Comparator<Object> dependencyComparator;
 
+  /**
+   * Create a new StandardBeanFactory.
+   */
+  public StandardBeanFactory() {
+    super();
+  }
+
+  /**
+   * Create a new StandardBeanFactory with the given parent.
+   *
+   * @param parentBeanFactory the parent BeanFactory
+   */
+  public StandardBeanFactory(@Nullable BeanFactory parentBeanFactory) {
+    super(parentBeanFactory);
+  }
+
   //---------------------------------------------------------------------
   // Implementation of DefaultSingletonBeanRegistry
   //---------------------------------------------------------------------

@@ -195,17 +195,6 @@ public class BeanDefinition
   }
 
   /**
-   * Build a {@link BeanDefinition} with given child {@link BeanDefinition}
-   *
-   * @param beanName Bean name
-   * @param childDef Child {@link BeanDefinition}
-   */
-  public BeanDefinition(String beanName, BeanDefinition childDef) {
-    copyFrom(childDef);
-    setName(beanName);
-  }
-
-  /**
    * Indicates that If the bean is a {@link Singleton}.
    *
    * @return If the bean is a {@link Singleton}.
@@ -259,6 +248,24 @@ public class BeanDefinition
               "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
     }
     return (Class<?>) beanClassObject;
+  }
+
+  /**
+   * Specify a generics-containing target type of this bean definition, if known in advance.
+   *
+   * @since 4.0
+   */
+  public void setTargetType(ResolvableType targetType) {
+    this.targetType = targetType;
+  }
+
+  /**
+   * Specify the target type of this bean definition, if known in advance.
+   *
+   * @since 4.0
+   */
+  public void setTargetType(@Nullable Class<?> targetType) {
+    this.targetType = (targetType != null ? ResolvableType.fromClass(targetType) : null);
   }
 
   /**

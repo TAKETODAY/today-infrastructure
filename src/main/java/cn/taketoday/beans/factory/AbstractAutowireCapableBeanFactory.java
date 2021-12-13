@@ -89,6 +89,21 @@ public abstract class AbstractAutowireCapableBeanFactory
   private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 
   /**
+   * Create a new AbstractAutowireCapableBeanFactory.
+   */
+  public AbstractAutowireCapableBeanFactory() { }
+
+  /**
+   * Create a new AbstractAutowireCapableBeanFactory with the given parent.
+   *
+   * @param parentBeanFactory parent bean factory, or {@code null} if none
+   */
+  public AbstractAutowireCapableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
+    this();
+    setParentBeanFactory(parentBeanFactory);
+  }
+
+  /**
    * Return the factory method currently being invoked or {@code null} if none.
    * <p>Allows factory method implementations to determine whether the current
    * caller is the container itself as opposed to user code.

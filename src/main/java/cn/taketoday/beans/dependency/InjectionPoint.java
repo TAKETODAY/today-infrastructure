@@ -23,6 +23,7 @@ package cn.taketoday.beans.dependency;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.PropertyValueRetriever;
@@ -141,5 +142,12 @@ public abstract class InjectionPoint implements Serializable {
   public boolean isProperty() {
     return false;
   }
+
+  /**
+   * Returns the wrapped member, containing the injection point.
+   *
+   * @return the Field / Method / Constructor as Member
+   */
+  public abstract Member getMember();
 
 }

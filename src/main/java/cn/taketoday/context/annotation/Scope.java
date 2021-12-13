@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
 /**
@@ -66,14 +67,26 @@ public @interface Scope {
   String PROTOTYPE = "prototype";
 
   /**
-   * Specifies the name of the scope to use for the annotated component/bean.
-   * <p>Defaults is {@link cn.taketoday.beans.factory.Scope#SINGLETON SCOPE_SINGLETON}.
+   * Alias for {@link #scopeName}.
    *
-   * @see cn.taketoday.beans.factory.Scope#PROTOTYPE
-   * @see cn.taketoday.beans.factory.Scope#SINGLETON
+   * @see #scopeName
+   */
+  @AliasFor("scopeName")
+  String value() default SINGLETON;
+
+  /**
+   * Specifies the name of the scope to use for the annotated component/bean.
+   * <p>Defaults to an empty string ({@code ""}) which implies
+   * {@link cn.taketoday.beans.factory.Scope#SINGLETON SCOPE_SINGLETON}.
+   *
+   * @see cn.taketoday.beans.factory.BeanDefinition#SCOPE_PROTOTYPE
+   * @see cn.taketoday.beans.factory.BeanDefinition#SCOPE_SINGLETON
    * @see cn.taketoday.web.WebApplicationContext#SCOPE_REQUEST
    * @see cn.taketoday.web.WebApplicationContext#SCOPE_SESSION
+   * @see #value
+   * @since 4.0
    */
-  String value() default SINGLETON;
+  @AliasFor("value")
+  String scopeName() default SINGLETON;
 
 }

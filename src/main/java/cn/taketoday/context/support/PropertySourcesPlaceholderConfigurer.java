@@ -197,7 +197,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
   @Deprecated
   protected void processProperties(ConfigurableBeanFactory beanFactory, Properties props) {
     throw new UnsupportedOperationException(
-            "Call processProperties(ConfigurableListableBeanFactory, ConfigurablePropertyResolver) instead");
+            "Call processProperties(ConfigurableBeanFactory, ConfigurablePropertyResolver) instead");
   }
 
   /**

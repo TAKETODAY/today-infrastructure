@@ -45,7 +45,7 @@ public class AnnotatedBeanDefinition extends BeanDefinition {
   private MethodMetadata factoryMethodMetadata;
 
   /**
-   * Create a new AnnotatedGenericBeanDefinition for the given bean class.
+   * Create a new AnnotatedBeanDefinition for the given bean class.
    *
    * @param beanClass the loaded bean class
    */
@@ -55,7 +55,7 @@ public class AnnotatedBeanDefinition extends BeanDefinition {
   }
 
   /**
-   * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
+   * Create a new AnnotatedBeanDefinition for the given annotation metadata,
    * allowing for ASM-based processing and avoidance of early loading of the bean class.
    *
    * @param metadata the annotation metadata for the bean class in question
@@ -72,7 +72,7 @@ public class AnnotatedBeanDefinition extends BeanDefinition {
   }
 
   /**
-   * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
+   * Create a new AnnotatedBeanDefinition for the given annotation metadata,
    * based on an annotated class and a factory method on that class.
    *
    * @param metadata the annotation metadata for the bean class in question

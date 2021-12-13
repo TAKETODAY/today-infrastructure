@@ -90,7 +90,7 @@ public class MethodEventDrivenPostProcessor
   @Override
   public void afterSingletonsInstantiated() {
     ConfigurableBeanFactory beanFactory = this.beanFactory;
-    Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
+    Assert.state(this.beanFactory != null, "No ConfigurableBeanFactory set");
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
       Class<?> type = null;

@@ -51,7 +51,7 @@ import cn.taketoday.lang.Nullable;
 public class ScannedBeanDefinition extends AnnotatedBeanDefinition {
 
   /**
-   * Create a new ScannedGenericBeanDefinition for the class that the
+   * Create a new ScannedBeanDefinition for the class that the
    * given MetadataReader describes.
    *
    * @param metadataReader the MetadataReader for the scanned target class

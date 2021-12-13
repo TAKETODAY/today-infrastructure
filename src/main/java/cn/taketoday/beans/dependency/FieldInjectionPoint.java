@@ -22,6 +22,7 @@ package cn.taketoday.beans.dependency;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
@@ -72,6 +73,11 @@ public class FieldInjectionPoint extends InjectionPoint {
   @Override
   public boolean isProperty() {
     return true;
+  }
+
+  @Override
+  public Member getMember() {
+    return this.property;
   }
 
   @Override
