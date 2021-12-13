@@ -44,6 +44,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FactoryBeanTests {
 
+  static {
+    System.setProperty("java.lang.invoke.MethodHandle.DUMP_CLASS_FILES", "true");
+  }
   // bean
   // --------------------------------------
   private static class TEST {

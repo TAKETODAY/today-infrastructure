@@ -164,26 +164,8 @@ public class DefineClassHelper {
         domain = PROTECTION_DOMAIN;
       }
 
-      // Look for publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain)
-      try {
-        Method publicDefineClass = loader.getClass().getMethod(
-                "publicDefineClass", String.class, byte[].class, ProtectionDomain.class);
-        c = (Class<?>) publicDefineClass.invoke(loader, className, classFile, domain);
-      }
-      catch (InvocationTargetException ex) {
-        if (!(ex.getTargetException() instanceof UnsupportedOperationException)) {
-          throw new CodeGenerationException(ex.getTargetException());
-        }
-        // in case of UnsupportedOperationException, fall through
-        t = ex.getTargetException();
-      }
-      catch (Throwable ex) {
-        // publicDefineClass method not available -> fall through
-        t = ex;
-      }
-
       // Classic option: protected ClassLoader.defineClass method
-      if (c == null && defineClass != null) {
+      if (defineClass != null) {
         try {
           if (!defineClass.isAccessible()) {
             defineClass.setAccessible(true);
@@ -200,6 +182,25 @@ public class DefineClassHelper {
         }
         catch (Throwable ex) {
           throw newException(className, ex);
+        }
+      }
+      if (c == null) {
+        // Look for publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain)
+        try {
+          Method publicDefineClass = loader.getClass().getMethod(
+                  "publicDefineClass", String.class, byte[].class, ProtectionDomain.class);
+          c = (Class<?>) publicDefineClass.invoke(loader, className, classFile, domain);
+        }
+        catch (InvocationTargetException ex) {
+          if (!(ex.getTargetException() instanceof UnsupportedOperationException)) {
+            throw new CodeGenerationException(ex.getTargetException());
+          }
+          // in case of UnsupportedOperationException, fall through
+          t = ex.getTargetException();
+        }
+        catch (Throwable ex) {
+          // publicDefineClass method not available -> fall through
+          t = ex;
         }
       }
     }
