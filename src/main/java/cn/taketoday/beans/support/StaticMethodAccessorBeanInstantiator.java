@@ -25,7 +25,7 @@ import cn.taketoday.core.reflect.MethodAccessor;
  * @author TODAY 2020/9/20 20:35
  */
 class StaticMethodAccessorBeanInstantiator extends BeanInstantiator {
-  private final MethodAccessor accessor;
+  protected final MethodAccessor accessor;
 
   StaticMethodAccessorBeanInstantiator(final MethodAccessor accessor) {
     this.accessor = accessor;
@@ -39,4 +39,10 @@ class StaticMethodAccessorBeanInstantiator extends BeanInstantiator {
   protected Object getObject() {
     return null;
   }
+
+  @Override
+  public String toString() {
+    return "BeanInstantiator for static method: " + accessor.getMethod();
+  }
+
 }

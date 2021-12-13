@@ -39,4 +39,10 @@ final class ReflectiveInstantiator extends ConstructorAccessor {
   public Object doInstantiate(final Object[] args) {
     return BeanUtils.newInstance(constructor, args);
   }
+
+  @Override
+  public String toString() {
+    return "BeanInstantiator use reflective constructor: " + constructor;
+  }
+
 }

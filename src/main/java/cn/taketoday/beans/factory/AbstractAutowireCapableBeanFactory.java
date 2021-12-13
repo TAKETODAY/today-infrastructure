@@ -86,6 +86,18 @@ public abstract class AbstractAutowireCapableBeanFactory
   /** Cache of unfinished FactoryBean instances: FactoryBean name to its instance. */
   private final ConcurrentHashMap<String, Object> factoryBeanInstanceCache = new ConcurrentHashMap<>();
 
+  private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
+
+  /**
+   * Return the factory method currently being invoked or {@code null} if none.
+   * <p>Allows factory method implementations to determine whether the current
+   * caller is the container itself as opposed to user code.
+   */
+  @Nullable
+  public static Method getCurrentlyInvokedFactoryMethod() {
+    return currentlyInvokedFactoryMethod.get();
+  }
+
   //---------------------------------------------------------------------
   // Implementation of AutowireCapableBeanFactory interface
   //---------------------------------------------------------------------
@@ -519,7 +531,26 @@ public abstract class AbstractAutowireCapableBeanFactory
         constructorArgs = getArgumentsResolver().resolve(def.executable, this);
       }
     }
-    return instantiator.instantiate(constructorArgs);
+
+    // fix
+    if (def.executable instanceof Method factoryMethod) {
+      Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
+      try {
+        currentlyInvokedFactoryMethod.set(factoryMethod);
+        return instantiator.instantiate(constructorArgs);
+      }
+      finally {
+        if (priorInvokedFactoryMethod != null) {
+          currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
+        }
+        else {
+          currentlyInvokedFactoryMethod.remove();
+        }
+      }
+    }
+    else {
+      return instantiator.instantiate(constructorArgs);
+    }
   }
 
   private BeanInstantiator resolveBeanInstantiator(BeanDefinition definition) {

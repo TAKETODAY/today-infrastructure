@@ -24,10 +24,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
+import cn.taketoday.beans.factory.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -284,9 +288,28 @@ class ConfigurationClassEnhancer {
       // is the same as that of referring to a FactoryBean within XML. See SPR-6602.
       if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName)
               && factoryContainsBean(beanFactory, beanName)) {
-        Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+        Object factoryBean = BeanFactoryUtils.requiredBean(
+                beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName);
         // It is a candidate FactoryBean - go ahead with enhancement
         return enhanceFactoryBean(factoryBean, beanMethod.getReturnType(), beanFactory, beanName);
+      }
+
+      // fix circular bean creation
+      if (isCurrentlyInvokedFactoryMethod(beanMethod)) {
+        // The factory is calling the bean method in order to instantiate and register the bean
+        // (i.e. via a getBean() call) -> invoke the super implementation of the method to actually
+        // create the bean instance.
+        if (log.isInfoEnabled() &&
+                BeanFactoryPostProcessor.class.isAssignableFrom(beanMethod.getReturnType())) {
+          log.info("@Component method {}.{} is non-static and returns an object " +
+                          "assignable to Framework's BeanFactoryPostProcessor interface. This will " +
+                          "result in a failure to process annotations such as @Autowired, " +
+                          "@Resource and @PostConstruct within the method's declaring " +
+                          "@Configuration class. Add the 'static' modifier to this method to avoid " +
+                          "these container lifecycle issues; see @Component javadoc for complete details.",
+                  beanMethod.getDeclaringClass().getSimpleName(), beanMethod.getName());
+        }
+        return cglibMethodProxy.invokeSuper(enhancedConfigInstance, beanMethodArgs);
       }
 
       return resolveBeanReference(beanMethod, beanMethodArgs, beanFactory, beanName);
@@ -340,6 +363,11 @@ class ConfigurationClassEnhancer {
             throw new IllegalStateException(msg);
           }
         }
+        Method currentlyInvoked = AbstractAutowireCapableBeanFactory.getCurrentlyInvokedFactoryMethod();
+        if (currentlyInvoked != null) {
+          String outerBeanName = BeanAnnotationHelper.determineBeanNameFor(currentlyInvoked);
+          beanFactory.registerDependentBean(beanName, outerBeanName);
+        }
         return beanInstance;
       }
       finally {
@@ -385,6 +413,18 @@ class ConfigurationClassEnhancer {
     }
 
     /**
+     * Check whether the given method corresponds to the container's currently invoked
+     * factory method. Compares method name and parameter types only in order to work
+     * around a potential problem with covariant return types (currently only known
+     * to happen on Groovy classes).
+     */
+    private boolean isCurrentlyInvokedFactoryMethod(Method method) {
+      Method currentlyInvoked = AbstractAutowireCapableBeanFactory.getCurrentlyInvokedFactoryMethod();
+      return currentlyInvoked != null && method.getName().equals(currentlyInvoked.getName())
+              && Arrays.equals(method.getParameterTypes(), currentlyInvoked.getParameterTypes());
+    }
+
+    /**
      * Create a subclass proxy that intercepts calls to getObject(), delegating to the current BeanFactory
      * instead of creating a new instance. These proxies are created only when calling a FactoryBean from
      * within a Bean method, allowing for proper scoping semantics even when working against the FactoryBean
@@ -402,20 +442,18 @@ class ConfigurationClassEnhancer {
         if (finalClass || finalMethod) {
           if (exposedType.isInterface()) {
             if (log.isTraceEnabled()) {
-              log.trace("Creating interface proxy for FactoryBean '" + beanName + "' of type [" +
-                      clazz.getName() + "] for use within another @Component method because its " +
-                      (finalClass ? "implementation class" : "getObject() method") +
-                      " is final: Otherwise a getObject() call would not be routed to the factory.");
+              log.trace("Creating interface proxy for FactoryBean '{}' of type [{}] for use within another @Component " +
+                              "method because its {} is final: Otherwise a getObject() call would not be routed to the factory.",
+                      beanName, clazz.getName(), (finalClass ? "implementation class" : "getObject() method"));
             }
             return createInterfaceProxyForFactoryBean(factoryBean, exposedType, beanFactory, beanName);
           }
           else {
             if (log.isDebugEnabled()) {
-              log.debug("Unable to proxy FactoryBean '" + beanName + "' of type [" +
-                      clazz.getName() + "] for use within another @Component method because its " +
-                      (finalClass ? "implementation class" : "getObject() method") +
-                      " is final: A getObject() call will NOT be routed to the factory. " +
-                      "Consider declaring the return type as a FactoryBean interface.");
+              log.debug("Unable to proxy FactoryBean '{}' of type [{}] for use within another @Component method " +
+                              "because its {} is final: A getObject() call will NOT be routed to the factory. " +
+                              "Consider declaring the return type as a FactoryBean interface.",
+                      beanName, clazz.getName(), finalClass ? "implementation class" : "getObject() method");
             }
             return factoryBean;
           }
@@ -443,8 +481,7 @@ class ConfigurationClassEnhancer {
     }
 
     private Object createCglibProxyForFactoryBean(
-            Object factoryBean,
-            ConfigurableBeanFactory beanFactory, String beanName) {
+            Object factoryBean, ConfigurableBeanFactory beanFactory, String beanName) {
 
       Enhancer enhancer = new Enhancer();
       enhancer.setSuperclass(factoryBean.getClass());

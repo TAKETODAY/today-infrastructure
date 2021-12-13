@@ -19,12 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.ConstructorNotFoundException;
-import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -40,6 +34,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Fast reflection operation
@@ -907,8 +907,8 @@ public abstract class ReflectionUtils {
    */
   public static Method[] toMethodArray(Collection<Method> collection) {
     return CollectionUtils.isEmpty(collection)
-            ? EMPTY_METHOD_ARRAY
-            : collection.toArray(new Method[collection.size()]);
+           ? EMPTY_METHOD_ARRAY
+           : collection.toArray(new Method[collection.size()]);
   }
 
   // Field handling
@@ -1156,8 +1156,8 @@ public abstract class ReflectionUtils {
    */
   public static Field[] toFieldArray(Collection<Field> fields) {
     return CollectionUtils.isEmpty(fields)
-            ? EMPTY_FIELD_ARRAY
-            : fields.toArray(new Field[0]);
+           ? EMPTY_FIELD_ARRAY
+           : fields.toArray(new Field[0]);
   }
 
   // Constructor handling

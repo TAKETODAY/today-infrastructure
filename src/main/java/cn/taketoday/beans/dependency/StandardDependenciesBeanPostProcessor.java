@@ -93,6 +93,7 @@ public class StandardDependenciesBeanPostProcessor
     ReflectionUtils.doWithMethods(beanClass, method -> {
       if (isInjectable(method)) {
         Object[] args = argumentsResolver().resolve(method, beanFactory);
+        ReflectionUtils.makeAccessible(method);
         ReflectionUtils.invokeMethod(method, bean, args);
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);

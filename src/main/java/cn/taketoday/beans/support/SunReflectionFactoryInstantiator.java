@@ -72,6 +72,11 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
     return constructor.newInstance(); // serialization
   }
 
+  @Override
+  public String toString() {
+    return "BeanInstantiator use serialization constructor: " + constructor;
+  }
+
   public static <T> Constructor<T> newConstructorForSerialization(Class<T> type) {
     return newConstructorForSerialization(type, javaLangObjectConstructor);
   }

@@ -45,4 +45,9 @@ final class MethodAccessorBeanInstantiator
   protected Object getObject() {
     return obj.get();
   }
+
+  @Override
+  public String toString() {
+    return "BeanInstantiator for instance method: " + accessor.getMethod();
+  }
 }
