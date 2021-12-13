@@ -680,18 +680,18 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   protected static final class TransactionInfo {
 
     @Nullable
-    private final PlatformTransactionManager transactionManager;
+    public final PlatformTransactionManager transactionManager;
 
     @Nullable
-    private final TransactionAttribute transactionAttribute;
+    public final TransactionAttribute transactionAttribute;
 
-    private final String joinpointIdentification;
-
-    @Nullable
-    private TransactionStatus transactionStatus;
+    public final String joinpointIdentification;
 
     @Nullable
-    private TransactionInfo oldTransactionInfo;
+    public TransactionStatus transactionStatus;
+
+    @Nullable
+    public TransactionInfo oldTransactionInfo;
 
     public TransactionInfo(@Nullable PlatformTransactionManager transactionManager,
                            @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
