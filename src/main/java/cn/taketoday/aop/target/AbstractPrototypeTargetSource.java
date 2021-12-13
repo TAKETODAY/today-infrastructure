@@ -20,17 +20,17 @@
 
 package cn.taketoday.aop.target;
 
-import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serial;
+
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.DisposableBean;
 
 /**
  * Base class for dynamic {@link cn.taketoday.aop.TargetSource} implementations
@@ -123,8 +123,8 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
       // Create disconnected SingletonTargetSource/EmptyTargetSource.
       Object target = getTarget();
       return target != null
-              ? new SingletonTargetSource(target)
-              : EmptyTargetSource.forClass(getTargetClass());
+             ? new SingletonTargetSource(target)
+             : EmptyTargetSource.forClass(getTargetClass());
     }
     catch (Exception ex) {
       String msg = "Cannot get target for disconnecting TargetSource [" + this + "]";

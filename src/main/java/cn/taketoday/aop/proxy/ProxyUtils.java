@@ -67,7 +67,7 @@ public abstract class ProxyUtils {
    * {@link #PRESERVE_TARGET_CLASS_ATTRIBUTE "preserveTargetClass" attribute}
    * of the corresponding bean definition.
    *
-   * @param beanFactory the containing ConfigurableListableBeanFactory
+   * @param beanFactory the containing ConfigurableBeanFactory
    * @param beanName the name of the bean
    * @return whether the given bean should be proxied with its target class
    */
@@ -86,7 +86,7 @@ public abstract class ProxyUtils {
    * Determine the original target class for the specified bean, if possible,
    * otherwise falling back to a regular {@code getType} lookup.
    *
-   * @param beanFactory the containing ConfigurableListableBeanFactory
+   * @param beanFactory the containing ConfigurableBeanFactory
    * @param beanName the name of the bean
    * @return the original target class as stored in the bean definition, if any
    * @see BeanFactory#getType(String)
@@ -112,7 +112,7 @@ public abstract class ProxyUtils {
   /**
    * Expose the given target class for the specified bean, if possible.
    *
-   * @param beanFactory the containing ConfigurableListableBeanFactory
+   * @param beanFactory the containing ConfigurableBeanFactory
    * @param beanName the name of the bean
    * @param targetClass the corresponding target class
    */

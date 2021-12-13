@@ -66,7 +66,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
     super.setBeanFactory(beanFactory);
     if (!(beanFactory instanceof ConfigurableBeanFactory)) {
       throw new IllegalArgumentException(
-              "AdvisorAutoProxyCreator requires a ConfigurableListableBeanFactory: " + beanFactory);
+              "AdvisorAutoProxyCreator requires a ConfigurableBeanFactory: " + beanFactory);
     }
     initBeanFactory((ConfigurableBeanFactory) beanFactory);
   }
