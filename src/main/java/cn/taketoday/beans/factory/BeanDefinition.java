@@ -184,6 +184,10 @@ public class BeanDefinition
     setBeanClass(beanClass);
   }
 
+  public BeanDefinition(String beanClassName) {
+    this.beanClass = beanClassName;
+  }
+
   public BeanDefinition(String name, String beanClassName) {
     this.name = name;
     this.beanClass = beanClassName;
