@@ -31,44 +31,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.aop.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.aop.scope.ScopedObject;
-import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
+import cn.taketoday.aop.support.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionHolder;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import cn.taketoday.beans.factory.annotation.Lookup;
-import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import cn.taketoday.beans.factory.support.ChildBeanDefinition;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.SyncTaskExecutor;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.util.Assert;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -460,7 +453,7 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerBeanDefinition("config", new BeanDefinition(ConfigWithOrderedInnerClasses.class));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
-    beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+    beanFactory.addBeanPostProcessor(new StandardDependenciesBeanPostProcessor());
 
     Foo foo = beanFactory.getBean(Foo.class);
     boolean condition = foo instanceof ExtendedFoo;
@@ -471,7 +464,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void scopedProxyTargetMarkedAsNonAutowireCandidate() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.registerBeanDefinition("config", new BeanDefinition(ScopedProxyConfigurationClass.class));
@@ -501,7 +494,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void genericsBasedInjection() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     BeanDefinition bd = new BeanDefinition(RepositoryInjectionBean.class);
@@ -518,7 +511,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void genericsBasedInjectionWithScoped() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     BeanDefinition bd = new BeanDefinition(RepositoryInjectionBean.class);
@@ -535,7 +528,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void genericsBasedInjectionWithScopedProxy() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     BeanDefinition bd = new BeanDefinition(RepositoryInjectionBean.class);
@@ -555,7 +548,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void genericsBasedInjectionWithScopedProxyUsingAsm() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     BeanDefinition bd = new BeanDefinition(RepositoryInjectionBean.class.getName());
@@ -575,7 +568,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void genericsBasedInjectionWithImplTypeAtInjectionPoint() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     BeanDefinition bd = new BeanDefinition(SpecificRepositoryInjectionBean.class);
@@ -592,7 +585,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void genericsBasedInjectionWithFactoryBean() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     BeanDefinition bd = new BeanDefinition(RepositoryFactoryBeanInjectionBean.class);
@@ -648,14 +641,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerBeanDefinition("configClass", new BeanDefinition(RepositoryConfiguration.class));
     new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
   }
@@ -708,14 +701,17 @@ class ConfigurationClassPostProcessorTests {
     new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class)
+            .toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+            .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+            .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
   }
@@ -725,14 +721,17 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerBeanDefinition("configClass", new BeanDefinition(RawInstanceRepositoryConfiguration.class));
     new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class)
+            .toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+            .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+            .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
   }
@@ -743,14 +742,15 @@ class ConfigurationClassPostProcessorTests {
     new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class)
+            .toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
   }
@@ -765,14 +765,16 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.addBeanPostProcessor(autoProxyCreator);
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+            .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+            .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -790,14 +792,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -815,14 +817,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -840,14 +842,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -863,14 +865,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.addBeanPostProcessor(autoProxyCreator);
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
 
-    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -887,14 +889,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -911,14 +913,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -935,14 +937,14 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerSingleton("traceInterceptor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     beanFactory.preInstantiateSingletons();
 
-    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class);
+    String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class));
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -951,7 +953,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void testSelfReferenceExclusionForFactoryMethodOnSameBean() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
@@ -965,7 +967,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void testConfigWithDefaultMethods() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
@@ -979,7 +981,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void testConfigWithDefaultMethodsUsingAsm() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
@@ -993,7 +995,7 @@ class ConfigurationClassPostProcessorTests {
 
   @Test
   void testCircularDependency() {
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.registerBeanDefinition("configClass1", new BeanDefinition(A.class));

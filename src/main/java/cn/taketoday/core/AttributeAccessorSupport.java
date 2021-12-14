@@ -75,7 +75,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     Assert.notNull(computeFunction, "Compute function must not be null");
     Object value = getAttributes().computeIfAbsent(name, computeFunction);
     Assert.state(value != null,
-                 () -> String.format("Compute function must not return null for attribute named '%s'", name));
+            () -> String.format("Compute function must not return null for attribute named '%s'", name));
     return (T) value;
   }
 

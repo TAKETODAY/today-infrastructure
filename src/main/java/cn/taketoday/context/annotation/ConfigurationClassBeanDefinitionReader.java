@@ -35,7 +35,6 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeanNameGenerator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
@@ -64,25 +63,20 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 class ConfigurationClassBeanDefinitionReader {
-
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
 
-  final DefinitionLoadingContext loadingContext;
-  private final BeanNameGenerator importBeanNameGenerator;
-
   private final ImportRegistry importRegistry;
+  private final DefinitionLoadingContext loadingContext;
 
   /**
    * Create a new {@link ConfigurationClassBeanDefinitionReader} instance
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
   ConfigurationClassBeanDefinitionReader(
-          DefinitionLoadingContext loadingContext,
-          BeanNameGenerator importBeanNameGenerator, ImportRegistry importRegistry) {
+          DefinitionLoadingContext loadingContext, ImportRegistry importRegistry) {
 
     this.loadingContext = loadingContext;
     this.importRegistry = importRegistry;
-    this.importBeanNameGenerator = importBeanNameGenerator;
   }
 
   /**
@@ -129,8 +123,7 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
 
-    String configBeanName = this.importBeanNameGenerator.generateBeanName(
-            configBeanDef, loadingContext.getRegistry());
+    String configBeanName = loadingContext.generateBeanName(configBeanDef);
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
     loadingContext.registerBeanDefinition(configBeanName, configBeanDef);

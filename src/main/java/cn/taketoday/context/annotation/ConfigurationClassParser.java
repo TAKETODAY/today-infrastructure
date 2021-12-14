@@ -47,8 +47,8 @@ import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NestedIOException;
@@ -138,18 +138,17 @@ class ConfigurationClassParser {
     this.componentScanParser = new ComponentScanAnnotationParser(loadingContext);
   }
 
-  public void parse(Set<BeanDefinitionHolder> configCandidates) {
-    for (BeanDefinitionHolder holder : configCandidates) {
-      BeanDefinition bd = holder.getBeanDefinition();
+  public void parse(Set<BeanDefinition> configCandidates) {
+    for (BeanDefinition definition : configCandidates) {
       try {
-        if (bd instanceof AnnotatedBeanDefinition) {
-          parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
+        if (definition instanceof AnnotatedBeanDefinition) {
+          parse(((AnnotatedBeanDefinition) definition).getMetadata(), definition.getName());
         }
-        else if (bd != null && bd.hasBeanClass()) {
-          parse(bd.getBeanClass(), holder.getBeanName());
+        else if (definition != null && definition.hasBeanClass()) {
+          parse(definition.getBeanClass(), definition.getName());
         }
         else {
-          parse(bd.getBeanClassName(), holder.getBeanName());
+          parse(definition.getBeanClassName(), definition.getName());
         }
       }
       catch (BeanDefinitionStoreException ex) {
@@ -157,7 +156,7 @@ class ConfigurationClassParser {
       }
       catch (Throwable ex) {
         throw new BeanDefinitionStoreException(
-                "Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
+                "Failed to parse configuration class [" + definition.getBeanClassName() + "]", ex);
       }
     }
 

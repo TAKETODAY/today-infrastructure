@@ -78,11 +78,11 @@ import cn.taketoday.util.ClassUtils;
  */
 public class ConfigurationClassPostProcessor
         implements BeanDefinitionRegistryPostProcessor, PriorityOrdered, BeanClassLoaderAware {
+  private static final Logger log = LoggerFactory.getLogger(ConfigurationClassPostProcessor.class);
 
   private static final String IMPORT_REGISTRY_BEAN_NAME =
           ConfigurationClassPostProcessor.class.getName() + ".importRegistry";
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
   public static final AnnotationBeanNameGenerator IMPORT_BEAN_NAME_GENERATOR =
           FullyQualifiedAnnotationBeanNameGenerator.INSTANCE;
 
@@ -95,12 +95,11 @@ public class ConfigurationClassPostProcessor
   @Nullable
   private ConfigurationClassBeanDefinitionReader reader;
 
-  private boolean localBeanNameGeneratorSet = false;
-
-  /* Using fully qualified class names as default bean names by default. */
-  private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
-
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+
+  public ConfigurationClassPostProcessor() {
+    this.loadingContext = new DefinitionLoadingContext();
+  }
 
   public ConfigurationClassPostProcessor(@Required DefinitionLoadingContext loadingContext) {
     this.loadingContext = loadingContext;
@@ -139,8 +138,6 @@ public class ConfigurationClassPostProcessor
    */
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
     Assert.notNull(beanNameGenerator, "BeanNameGenerator must not be null");
-    this.localBeanNameGeneratorSet = true;
-    this.importBeanNameGenerator = beanNameGenerator;
     loadingContext.setBeanNameGenerator(beanNameGenerator);
   }
 
@@ -195,18 +192,18 @@ public class ConfigurationClassPostProcessor
    * {@link Configuration} classes.
    */
   public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
-    List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
+    List<BeanDefinition> configCandidates = new ArrayList<>();
     String[] candidateNames = registry.getBeanDefinitionNames();
 
     for (String beanName : candidateNames) {
       BeanDefinition beanDef = BeanFactoryUtils.getBeanDefinition(registry, beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
+        if (log.isDebugEnabled()) {
+          log.debug("Bean definition has already been processed as a configuration class: " + beanDef);
         }
       }
       else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, loadingContext)) {
-        configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
+        configCandidates.add(beanDef);
       }
     }
 
@@ -217,8 +214,8 @@ public class ConfigurationClassPostProcessor
 
     // Sort by previously determined @Order value, if applicable
     configCandidates.sort((bd1, bd2) -> {
-      int i1 = ConfigurationClassUtils.getOrder(bd1.getBeanDefinition());
-      int i2 = ConfigurationClassUtils.getOrder(bd2.getBeanDefinition());
+      int i1 = ConfigurationClassUtils.getOrder(bd1);
+      int i2 = ConfigurationClassUtils.getOrder(bd2);
       return Integer.compare(i1, i2);
     });
 
@@ -226,19 +223,12 @@ public class ConfigurationClassPostProcessor
     SingletonBeanRegistry sbr = null;
     if (registry instanceof SingletonBeanRegistry) {
       sbr = (SingletonBeanRegistry) registry;
-      if (!this.localBeanNameGeneratorSet) {
-        BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(
-                AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
-        if (generator != null) {
-          this.importBeanNameGenerator = generator;
-        }
-      }
     }
 
     // Parse each @Configuration class
     ConfigurationClassParser parser = new ConfigurationClassParser(loadingContext);
 
-    Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
+    Set<BeanDefinition> candidates = new LinkedHashSet<>(configCandidates);
     Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
     do {
       parser.parse(candidates);
@@ -249,8 +239,7 @@ public class ConfigurationClassPostProcessor
 
       // Read the model and create bean definitions based on its content
       if (this.reader == null) {
-        this.reader = new ConfigurationClassBeanDefinitionReader(
-                loadingContext, this.importBeanNameGenerator, parser.getImportRegistry());
+        this.reader = new ConfigurationClassBeanDefinitionReader(loadingContext, parser.getImportRegistry());
       }
       this.reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);
@@ -325,8 +314,8 @@ public class ConfigurationClassPostProcessor
         }
       }
       if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
-        if (logger.isInfoEnabled() && beanFactory.containsSingleton(beanName)) {
-          logger.info("Cannot enhance @Configuration bean definition '" + beanName +
+        if (log.isInfoEnabled() && beanFactory.containsSingleton(beanName)) {
+          log.info("Cannot enhance @Configuration bean definition '" + beanName +
                   "' since its singleton instance has been created too early. The typical cause " +
                   "is a non-static @Component method with a BeanDefinitionRegistryPostProcessor " +
                   "return type: Consider declaring such methods as 'static'.");
@@ -348,8 +337,8 @@ public class ConfigurationClassPostProcessor
       Class<?> configClass = beanDef.getBeanClass();
       Class<?> enhancedClass = enhancer.enhance(configClass, this.beanClassLoader);
       if (configClass != enhancedClass) {
-        if (logger.isTraceEnabled()) {
-          logger.trace(String.format("Replacing bean definition '%s' existing class '%s' with " +
+        if (log.isTraceEnabled()) {
+          log.trace(String.format("Replacing bean definition '%s' existing class '%s' with " +
                   "enhanced class '%s'", entry.getKey(), configClass.getName(), enhancedClass.getName()));
         }
         beanDef.setBeanClass(enhancedClass);
