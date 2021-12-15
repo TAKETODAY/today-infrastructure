@@ -257,7 +257,7 @@ public class ConfigurationClassPostProcessor
             BeanDefinition bd = registry.getBeanDefinition(candidateName);
             if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, loadingContext)
                     && !alreadyParsedClasses.contains(bd.getBeanClassName())) {
-              candidates.add(new BeanDefinitionHolder(bd, candidateName));
+              candidates.add(bd);
             }
           }
         }
@@ -363,7 +363,7 @@ public class ConfigurationClassPostProcessor
 
     @Override
     public void postProcessDependencies(Object bean, BeanDefinition definition) {
-      // postProcessProperties method attempts to autowire other configuration beans.
+      // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         enhancedConfiguration.setBeanFactory(this.beanFactory);
       }

@@ -314,7 +314,7 @@ final class PostProcessorRegistrationDelegate {
           ConfigurableBeanFactory beanFactory, List<BeanPostProcessor> postProcessors) {
 
     if (beanFactory instanceof AbstractBeanFactory) {
-      // Bulk addition is more efficient against our CopyOnWriteArrayList there
+      // Bulk addition is more efficient against our list there
       ((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors);
     }
     else {

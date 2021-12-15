@@ -73,6 +73,7 @@ public final class ApplicationListenerDetector
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) {
+    // FIXME 优化 singletonNames
     if (bean instanceof ApplicationListener) {
       // potentially not detected as a listener by getBeanNamesForType retrieval
       Boolean flag = singletonNames.get(beanName);
