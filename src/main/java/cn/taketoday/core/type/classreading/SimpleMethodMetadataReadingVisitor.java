@@ -82,7 +82,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
       Type[] argumentTypes = Type.getArgumentTypes(descriptor);
 
       String returnTypeName = Type.forReturnType(this.descriptor).getClassName();
-      MergedAnnotations annotations = MergedAnnotations.of(this.annotations);
+      MergedAnnotations annotations = MergedAnnotations.valueOf(this.annotations);
       SimpleMethodMetadata metadata = new SimpleMethodMetadata(
               this.methodName, this.access, this.declaringClassName,
               returnTypeName, getSource(), annotations, argumentTypes, classLoader);

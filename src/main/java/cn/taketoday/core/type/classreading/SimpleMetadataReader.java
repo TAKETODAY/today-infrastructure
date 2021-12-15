@@ -44,7 +44,6 @@ final class SimpleMetadataReader implements MetadataReader {
           ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES;
 
   private final Resource resource;
-
   private final AnnotationMetadata annotationMetadata;
 
   SimpleMetadataReader(Resource resource, @Nullable ClassLoader classLoader) throws IOException {

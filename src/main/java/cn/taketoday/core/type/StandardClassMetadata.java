@@ -20,15 +20,17 @@
 
 package cn.taketoday.core.type;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashSet;
-import java.util.stream.Stream;
 
 /**
  * {@link ClassMetadata} implementation that uses standard reflection
@@ -130,11 +132,11 @@ public class StandardClassMetadata implements ClassMetadata {
   }
 
   @Override
-  public MethodMetadata[] getMethods() {
+  public Set<MethodMetadata> getDeclaredMethods() {
     Method[] methods = ReflectionUtils.getDeclaredMethods(getIntrospectedClass());
     return Stream.of(methods)
             .map(this::mapMethod)
-            .toArray(MethodMetadata[]::new);
+            .collect(Collectors.toSet());
   }
 
   protected MethodMetadata mapMethod(Method method) {

@@ -20,15 +20,17 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link AnnotationMetadata} created from a
@@ -52,11 +54,14 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
 
   private final boolean independentInnerClass;
 
-  private final String[] interfaceNames;
+  @Nullable
+  private final Set<String> interfaceNames;
 
-  private final String[] memberClassNames;
+  @Nullable
+  private final Set<String> memberClassNames;
 
-  private final MethodMetadata[] annotatedMethods;
+  @Nullable
+  private final Set<MethodMetadata> declaredMethods;
 
   private final MergedAnnotations annotations;
 
@@ -64,19 +69,25 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
   private Set<String> annotationTypes;
 
   SimpleAnnotationMetadata(
-          String className, int access, @Nullable String enclosingClassName,
-          @Nullable String superClassName, boolean independentInnerClass, String[] interfaceNames,
-          String[] memberClassNames, MethodMetadata[] annotatedMethods, MergedAnnotations annotations) {
+          String className, int access,
+          @Nullable String enclosingClassName,
+          @Nullable String superClassName,
+          boolean independentInnerClass,
+          @Nullable Set<String> interfaceNames,
+          @Nullable Set<String> memberClassNames,
+          @Nullable Set<MethodMetadata> declaredMethods, MergedAnnotations annotations
+  ) {
 
-    this.className = className;
     this.access = access;
-    this.enclosingClassName = enclosingClassName;
-    this.superClassName = superClassName;
-    this.independentInnerClass = independentInnerClass;
-    this.interfaceNames = interfaceNames;
-    this.memberClassNames = memberClassNames;
-    this.annotatedMethods = annotatedMethods;
+    this.className = className;
     this.annotations = annotations;
+    this.superClassName = superClassName;
+    this.enclosingClassName = enclosingClassName;
+    this.independentInnerClass = independentInnerClass;
+
+    this.interfaceNames = interfaceNames;
+    this.declaredMethods = declaredMethods;
+    this.memberClassNames = memberClassNames;
   }
 
   @Override
@@ -111,7 +122,7 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
 
   @Override
   public boolean isIndependent() {
-    return (this.enclosingClassName == null || this.independentInnerClass);
+    return this.enclosingClassName == null || this.independentInnerClass;
   }
 
   @Override
@@ -128,20 +139,25 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
 
   @Override
   public String[] getInterfaceNames() {
-    return this.interfaceNames.clone();
+    if (interfaceNames == null) {
+      return Constant.EMPTY_STRING_ARRAY;
+    }
+    return StringUtils.toStringArray(interfaceNames);
   }
 
   @Override
   public String[] getMemberClassNames() {
-    return this.memberClassNames.clone();
+    if (memberClassNames == null) {
+      return Constant.EMPTY_STRING_ARRAY;
+    }
+    return StringUtils.toStringArray(memberClassNames);
   }
 
   @Override
   public Set<String> getAnnotationTypes() {
     Set<String> annotationTypes = this.annotationTypes;
     if (annotationTypes == null) {
-      annotationTypes = Collections.unmodifiableSet(
-              AnnotationMetadata.super.getAnnotationTypes());
+      annotationTypes = Collections.unmodifiableSet(AnnotationMetadata.super.getAnnotationTypes());
       this.annotationTypes = annotationTypes;
     }
     return annotationTypes;
@@ -149,21 +165,24 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
 
   @Override
   public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
-    LinkedHashSet<MethodMetadata> annotatedMethods = null;
-    for (MethodMetadata annotatedMethod : this.annotatedMethods) {
-      if (annotatedMethod.isAnnotated(annotationName)) {
-        if (annotatedMethods == null) {
-          annotatedMethods = new LinkedHashSet<>(4);
+    if (declaredMethods != null) {
+      LinkedHashSet<MethodMetadata> annotatedMethods = new LinkedHashSet<>(declaredMethods.size());
+      for (MethodMetadata annotatedMethod : declaredMethods) {
+        if (annotatedMethod.isAnnotated(annotationName)) {
+          annotatedMethods.add(annotatedMethod);
         }
-        annotatedMethods.add(annotatedMethod);
       }
+      return annotatedMethods;
     }
-    return annotatedMethods != null ? annotatedMethods : Collections.emptySet();
+    return Collections.emptySet();
   }
 
   @Override
-  public MethodMetadata[] getMethods() {
-    return annotatedMethods;
+  public Set<MethodMetadata> getDeclaredMethods() {
+    if (declaredMethods == null) {
+      return Collections.emptySet();
+    }
+    return Collections.unmodifiableSet(declaredMethods);
   }
 
   @Override
@@ -173,8 +192,10 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
 
   @Override
   public boolean equals(@Nullable Object obj) {
-    return ((this == obj) || ((obj instanceof SimpleAnnotationMetadata) &&
-            this.className.equals(((SimpleAnnotationMetadata) obj).className)));
+    return (this == obj) || (
+            (obj instanceof SimpleAnnotationMetadata)
+                    && this.className.equals(((SimpleAnnotationMetadata) obj).className)
+    );
   }
 
   @Override

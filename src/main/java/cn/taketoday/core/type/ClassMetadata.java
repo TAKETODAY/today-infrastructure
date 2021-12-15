@@ -20,6 +20,8 @@
 
 package cn.taketoday.core.type;
 
+import java.util.Set;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -123,5 +125,11 @@ public interface ClassMetadata {
 
   int getModifiers();
 
-  MethodMetadata[] getMethods();
+  /**
+   * Retrieve the method metadata for all user-declared methods on the
+   * underlying class, preserving declaration order as far as possible.
+   *
+   * @return a set of {@link MethodMetadata}
+   */
+  Set<MethodMetadata> getDeclaredMethods();
 }

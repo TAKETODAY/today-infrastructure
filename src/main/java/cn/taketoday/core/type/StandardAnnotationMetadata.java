@@ -149,7 +149,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
             if (annotatedMethods == null) {
               annotatedMethods = new LinkedHashSet<>(4);
             }
-            annotatedMethods.add(new StandardMethodMetadata(method, this.nestedAnnotationsAsMap));
+            annotatedMethods.add(mapMethod(method));
           }
         }
       }
