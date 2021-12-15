@@ -119,6 +119,9 @@ public class DefaultApplicationContext
   }
 
   @Override
+  protected void refreshBeanFactory() throws BeansException, IllegalStateException { }
+
+  @Override
   public StandardBeanFactory getBeanFactory() {
     return beanFactory;
   }

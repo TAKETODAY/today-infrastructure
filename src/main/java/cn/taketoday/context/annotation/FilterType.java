@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
+import cn.taketoday.core.type.filter.AspectJTypeFilter;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.core.type.filter.RegexPatternTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
@@ -60,6 +61,12 @@ public enum FilterType {
    * @see RegexPatternTypeFilter
    */
   REGEX,
+  /**
+   * Filter candidates matching a given AspectJ type pattern expression.
+   *
+   * @see AspectJTypeFilter
+   */
+  ASPECTJ,
 
   /**
    * Filter candidates using a given custom

@@ -18,35 +18,41 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.spr16756;
+package type;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Component;
 
-@Component
-public class ScannedComponent {
+/**
+ * We must use a standalone set of types to ensure that no one else is loading
+ * them and interfering with
+ * {@link cn.taketoday.core.type.ClassloadingAssertions#assertClassNotLoaded(String)}.
+ *
+ * @author Ramnivas Laddad
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see cn.taketoday.core.type.AspectJTypeFilterTests
+ * @since 4.0 2021/12/15 23:06
+ */
+public class AspectJTypeFilterTestsTypes {
 
-  @Autowired
-  private State state;
-
-  public String iDoAnything() {
-    return state.anyMethod();
+  public interface SomeInterface {
   }
 
-  public interface State {
+  public static class SomeClass {
+  }
 
-    String anyMethod();
+  public static class SomeClassExtendingSomeClass extends SomeClass {
+  }
+
+  public static class SomeClassImplementingSomeInterface implements SomeInterface {
+  }
+
+  public static class SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface
+          extends SomeClassExtendingSomeClass implements SomeInterface {
   }
 
   @Component
-  @Scope(/*proxyMode = ScopedProxyMode.INTERFACES,*/ value = "prototype")
-  public static class StateImpl implements State {
-
-    @Override
-    public String anyMethod() {
-      return "anyMethod called";
-    }
+  public static class SomeClassAnnotatedWithComponent {
   }
 
 }

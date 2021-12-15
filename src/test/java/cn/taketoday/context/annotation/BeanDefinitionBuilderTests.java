@@ -20,11 +20,11 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

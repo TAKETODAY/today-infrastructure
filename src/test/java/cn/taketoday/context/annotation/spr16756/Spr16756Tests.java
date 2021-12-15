@@ -21,20 +21,21 @@
 package cn.taketoday.context.annotation.spr16756;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.annotation.StandardApplicationContext;
+
+import cn.taketoday.context.StandardApplicationContext;
 
 /**
  * @author Juergen Hoeller
  */
 public class Spr16756Tests {
 
-	@Test
-	public void shouldNotFailOnNestedScopedComponent() {
-		StandardApplicationContext context = new StandardApplicationContext();
-		context.register(ScanningConfiguration.class);
-		context.refresh();
-		context.getBean(ScannedComponent.class);
-		context.getBean(ScannedComponent.State.class);
-	}
+  @Test
+  public void shouldNotFailOnNestedScopedComponent() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    context.register(ScanningConfiguration.class);
+    context.refresh();
+    context.getBean(ScannedComponent.class);
+    context.getBean(ScannedComponent.State.class);
+  }
 
 }

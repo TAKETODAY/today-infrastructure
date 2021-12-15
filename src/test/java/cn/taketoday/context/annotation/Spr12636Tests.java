@@ -22,15 +22,17 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.annotation.Order;
-import cn.taketoday.scheduling.annotation.Async;
-import cn.taketoday.scheduling.annotation.EnableAsync;
-import cn.taketoday.lang.Component;
 
 import java.util.List;
+
+import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.core.Order;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Component;
+import cn.taketoday.scheduling.annotation.Async;
+import cn.taketoday.scheduling.annotation.EnableAsync;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,82 +41,81 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class Spr12636Tests {
 
-	private ConfigurableApplicationContext context;
+  private ConfigurableApplicationContext context;
 
-	@AfterEach
-	public void closeContext() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
+  @AfterEach
+  public void closeContext() {
+    if (this.context != null) {
+      this.context.close();
+    }
+  }
 
-	@Test
-	public void orderOnImplementation() {
-		this.context = new StandardApplicationContext(
-				UserServiceTwo.class, UserServiceOne.class, UserServiceCollector.class);
-		UserServiceCollector bean = this.context.getBean(UserServiceCollector.class);
-		assertThat(bean.userServices.get(0)).isSameAs(context.getBean("serviceOne", UserService.class));
-		assertThat(bean.userServices.get(1)).isSameAs(context.getBean("serviceTwo", UserService.class));
+  @Test
+  public void orderOnImplementation() {
+    this.context = new StandardApplicationContext(
+            UserServiceTwo.class, UserServiceOne.class, UserServiceCollector.class);
+    UserServiceCollector bean = this.context.getBean(UserServiceCollector.class);
+    assertThat(bean.userServices.get(0)).isSameAs(context.getBean("serviceOne", UserService.class));
+    assertThat(bean.userServices.get(1)).isSameAs(context.getBean("serviceTwo", UserService.class));
 
-	}
+  }
 
-	@Test
-	public void orderOnImplementationWithProxy() {
-		this.context = new StandardApplicationContext(
-				UserServiceTwo.class, UserServiceOne.class, UserServiceCollector.class, AsyncConfig.class);
+  @Test
+  public void orderOnImplementationWithProxy() {
+    this.context = new StandardApplicationContext(
+            UserServiceTwo.class, UserServiceOne.class, UserServiceCollector.class, AsyncConfig.class);
 
-		// Validate those beans are indeed wrapped by a proxy
-		UserService serviceOne = this.context.getBean("serviceOne", UserService.class);
-		UserService serviceTwo = this.context.getBean("serviceTwo", UserService.class);
-		assertThat(AopUtils.isAopProxy(serviceOne)).isTrue();
-		assertThat(AopUtils.isAopProxy(serviceTwo)).isTrue();
+    // Validate those beans are indeed wrapped by a proxy
+    UserService serviceOne = this.context.getBean("serviceOne", UserService.class);
+    UserService serviceTwo = this.context.getBean("serviceTwo", UserService.class);
+    assertThat(AopUtils.isAopProxy(serviceOne)).isTrue();
+    assertThat(AopUtils.isAopProxy(serviceTwo)).isTrue();
 
-		UserServiceCollector bean = this.context.getBean(UserServiceCollector.class);
-		assertThat(bean.userServices.get(0)).isSameAs(serviceOne);
-		assertThat(bean.userServices.get(1)).isSameAs(serviceTwo);
-	}
+    UserServiceCollector bean = this.context.getBean(UserServiceCollector.class);
+    assertThat(bean.userServices.get(0)).isSameAs(serviceOne);
+    assertThat(bean.userServices.get(1)).isSameAs(serviceTwo);
+  }
 
-	@Configuration
-	@EnableAsync
-	static class AsyncConfig {
-	}
+  @Configuration
+  @EnableAsync
+  static class AsyncConfig {
+  }
 
+  @Component
+  static class UserServiceCollector {
 
-	@Component
-	static class UserServiceCollector {
+    public final List<UserService> userServices;
 
-		public final List<UserService> userServices;
+    @Autowired
+    UserServiceCollector(List<UserService> userServices) {
+      this.userServices = userServices;
+    }
+  }
 
-		@Autowired
-		UserServiceCollector(List<UserService> userServices) {
-			this.userServices = userServices;
-		}
-	}
+  interface UserService {
 
-	interface UserService {
+    void doIt();
+  }
 
-		void doIt();
-	}
+  @Component("serviceOne")
+  @Order(1)
+  static class UserServiceOne implements UserService {
 
-	@Component("serviceOne")
-	@Order(1)
-	static class UserServiceOne implements UserService {
+    @Async
+    @Override
+    public void doIt() {
 
-		@Async
-		@Override
-		public void doIt() {
+    }
+  }
 
-		}
-	}
+  @Component("serviceTwo")
+  @Order(2)
+  static class UserServiceTwo implements UserService {
 
-	@Component("serviceTwo")
-	@Order(2)
-	static class UserServiceTwo implements UserService {
+    @Async
+    @Override
+    public void doIt() {
 
-		@Async
-		@Override
-		public void doIt() {
-
-		}
-	}
+    }
+  }
 }

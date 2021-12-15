@@ -21,7 +21,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see org.springframework.core.io.Resource
+ * @see cn.taketoday.core.io.Resource
  * @since 4.0 2021/12/15 13:51
  */
 public interface BeanDefinitionReader {
@@ -96,8 +96,8 @@ public interface BeanDefinitionReader {
    * @return the number of bean definitions found
    * @throws BeanDefinitionStoreException in case of loading or parsing errors
    * @see #getResourceLoader()
-   * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
-   * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
+   * @see #loadBeanDefinitions(cn.taketoday.core.io.Resource)
+   * @see #loadBeanDefinitions(cn.taketoday.core.io.Resource[])
    */
   int loadBeanDefinitions(String location) throws BeanDefinitionStoreException;
 

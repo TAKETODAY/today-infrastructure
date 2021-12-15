@@ -21,11 +21,11 @@
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import example.scannable.FooService;
 import example.scannable.ServiceInvocationCounter;
 
@@ -37,29 +37,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SimpleConfigTests {
 
-	@Test
-	public void testFooService() throws Exception {
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(getConfigLocations(), getClass());
+  @Test
+  public void testFooService() throws Exception {
+    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(getConfigLocations(), getClass());
 
-		FooService fooService = ctx.getBean("fooServiceImpl", FooService.class);
-		ServiceInvocationCounter serviceInvocationCounter = ctx.getBean("serviceInvocationCounter", ServiceInvocationCounter.class);
+    FooService fooService = ctx.getBean("fooServiceImpl", FooService.class);
+    ServiceInvocationCounter serviceInvocationCounter = ctx.getBean("serviceInvocationCounter", ServiceInvocationCounter.class);
 
-		String value = fooService.foo(1);
-		assertThat(value).isEqualTo("bar");
+    String value = fooService.foo(1);
+    assertThat(value).isEqualTo("bar");
 
-		Future<?> future = fooService.asyncFoo(1);
-		boolean condition = future instanceof FutureTask;
-		assertThat(condition).isTrue();
-		assertThat(future.get()).isEqualTo("bar");
+    Future<?> future = fooService.asyncFoo(1);
+    boolean condition = future instanceof FutureTask;
+    assertThat(condition).isTrue();
+    assertThat(future.get()).isEqualTo("bar");
 
-		assertThat(serviceInvocationCounter.getCount()).isEqualTo(2);
+    assertThat(serviceInvocationCounter.getCount()).isEqualTo(2);
 
-		fooService.foo(1);
-		assertThat(serviceInvocationCounter.getCount()).isEqualTo(3);
-	}
+    fooService.foo(1);
+    assertThat(serviceInvocationCounter.getCount()).isEqualTo(3);
+  }
 
-	public String[] getConfigLocations() {
-		return new String[] {"simpleConfigTests.xml"};
-	}
+  public String[] getConfigLocations() {
+    return new String[] { "simpleConfigTests.xml" };
+  }
 
 }

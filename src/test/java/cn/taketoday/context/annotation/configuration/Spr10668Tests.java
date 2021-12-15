@@ -21,10 +21,13 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.annotation.StandardApplicationContext;
+
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Autowired;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Tests for SPR-10668.
@@ -34,34 +37,31 @@ import cn.taketoday.context.annotation.Configuration;
  */
 public class Spr10668Tests {
 
-	@Test
-	public void testSelfInjectHierarchy() throws Exception {
-		StandardApplicationContext context = new StandardApplicationContext(ChildConfig.class);
-		assertThat(context.getBean(MyComponent.class)).isNotNull();
-		context.close();
-	}
+  @Test
+  public void testSelfInjectHierarchy() throws Exception {
+    StandardApplicationContext context = new StandardApplicationContext(ChildConfig.class);
+    assertThat(context.getBean(MyComponent.class)).isNotNull();
+    context.close();
+  }
 
+  @Configuration
+  public static class ParentConfig {
 
-	@Configuration
-	public static class ParentConfig {
+    @Autowired(required = false)
+    MyComponent component;
+  }
 
-		@Autowired(required = false)
-		MyComponent component;
-	}
+  @Configuration
+  public static class ChildConfig extends ParentConfig {
 
+    @Bean
+    public MyComponentImpl myComponent() {
+      return new MyComponentImpl();
+    }
+  }
 
-	@Configuration
-	public static class ChildConfig extends ParentConfig {
+  public interface MyComponent { }
 
-		@Bean
-		public MyComponentImpl myComponent() {
-			return new MyComponentImpl();
-		}
-	}
-
-
-	public interface MyComponent {}
-
-	public static class MyComponentImpl implements MyComponent {}
+  public static class MyComponentImpl implements MyComponent { }
 
 }

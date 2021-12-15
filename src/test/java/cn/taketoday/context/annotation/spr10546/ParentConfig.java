@@ -24,14 +24,13 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 
 /**
- *
  * @author Rob Winch
  */
 @Configuration
 public class ParentConfig {
-	@Bean
-	public String myBean() {
-		return "myBean";
-	}
+  @Bean
+  public String myBean() {
+    return "myBean";
+  }
 }
 

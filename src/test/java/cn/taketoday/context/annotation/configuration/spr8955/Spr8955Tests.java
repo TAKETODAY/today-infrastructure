@@ -21,7 +21,8 @@
 package cn.taketoday.context.annotation.configuration.spr8955;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.annotation.StandardApplicationContext;
+
+import cn.taketoday.context.StandardApplicationContext;
 
 /**
  * @author Chris Beams
@@ -29,11 +30,11 @@ import cn.taketoday.context.annotation.StandardApplicationContext;
  */
 public class Spr8955Tests {
 
-	@Test
-	public void repro() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.scan("cn.taketoday.context.annotation.configuration.spr8955");
-		ctx.refresh();
-	}
+  @Test
+  public void repro() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.scan("cn.taketoday.context.annotation.configuration.spr8955");
+    ctx.refresh();
+  }
 
 }

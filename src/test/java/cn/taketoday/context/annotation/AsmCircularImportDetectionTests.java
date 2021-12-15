@@ -33,20 +33,20 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
  */
 public class AsmCircularImportDetectionTests extends AbstractCircularImportDetectionTests {
 
-	@Override
-	protected ConfigurationClassParser newParser() {
-		return new ConfigurationClassParser(
-				new CachingMetadataReaderFactory(),
-				new FailFastProblemReporter(),
-				new StandardEnvironment(),
-				new DefaultResourceLoader(),
-				new AnnotationBeanNameGenerator(),
-				new StandardBeanFactory());
-	}
+  @Override
+  protected ConfigurationClassParser newParser() {
+    return new ConfigurationClassParser(
+            new CachingMetadataReaderFactory(),
+            new FailFastProblemReporter(),
+            new StandardEnvironment(),
+            new DefaultResourceLoader(),
+            new AnnotationBeanNameGenerator(),
+            new StandardBeanFactory());
+  }
 
-	@Override
-	protected String loadAsConfigurationSource(Class<?> clazz) throws Exception {
-		return clazz.getName();
-	}
+  @Override
+  protected String loadAsConfigurationSource(Class<?> clazz) throws Exception {
+    return clazz.getName();
+  }
 
 }

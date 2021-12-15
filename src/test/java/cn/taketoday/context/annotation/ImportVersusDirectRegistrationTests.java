@@ -21,8 +21,10 @@
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -31,57 +33,54 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class ImportVersusDirectRegistrationTests {
 
-	@Test
-	public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredDirectly() {
-		try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
-			directRegistration.register(AccidentalLiteConfiguration.class);
-			directRegistration.refresh();
-			assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-					directRegistration.getBean(Thing.class));
-		}
-	}
+  @Test
+  public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredDirectly() {
+    try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
+      directRegistration.register(AccidentalLiteConfiguration.class);
+      directRegistration.refresh();
+      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+              directRegistration.getBean(Thing.class));
+    }
+  }
 
-	@Test
-	public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredWithClassName() {
-		try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
-			directRegistration.registerBeanDefinition("config",
-					new BeanDefinition(AccidentalLiteConfiguration.class.getName()));
-			directRegistration.refresh();
-			assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-					directRegistration.getBean(Thing.class));
-		}
-	}
+  @Test
+  public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredWithClassName() {
+    try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
+      directRegistration.registerBeanDefinition("config",
+              new BeanDefinition(AccidentalLiteConfiguration.class.getName()));
+      directRegistration.refresh();
+      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+              directRegistration.getBean(Thing.class));
+    }
+  }
 
-	@Test
-	public void thingIsNotAvailableWhenOuterConfigurationIsImported() {
-		try (StandardApplicationContext viaImport = new StandardApplicationContext()) {
-			viaImport.register(Importer.class);
-			viaImport.refresh();
-			assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-					viaImport.getBean(Thing.class));
-		}
-	}
+  @Test
+  public void thingIsNotAvailableWhenOuterConfigurationIsImported() {
+    try (StandardApplicationContext viaImport = new StandardApplicationContext()) {
+      viaImport.register(Importer.class);
+      viaImport.refresh();
+      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+              viaImport.getBean(Thing.class));
+    }
+  }
 
 }
-
 
 @Import(AccidentalLiteConfiguration.class)
 class Importer {
 }
 
-
 class AccidentalLiteConfiguration {
 
-	@Configuration
-	class InnerConfiguration {
+  @Configuration
+  class InnerConfiguration {
 
-		@Bean
-		public Thing thing() {
-			return new Thing();
-		}
-	}
+    @Bean
+    public Thing thing() {
+      return new Thing();
+    }
+  }
 }
-
 
 class Thing {
 }

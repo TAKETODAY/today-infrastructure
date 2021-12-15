@@ -24,7 +24,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 
 /**
- *
  * @author Rob Winch
  */
 @Configuration

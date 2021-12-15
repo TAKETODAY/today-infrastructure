@@ -29,15 +29,12 @@ import java.util.List;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Juergen Hoeller
@@ -127,41 +124,41 @@ public class LazyAutowiredAnnotationBeanPostProcessorTests {
     doTestLazyResourceInjection(ConstructorResourceInjectionBeanWithCompositeAnnotation.class);
   }
 
-  @Test
-  public void testLazyResourceInjectionWithNonExistingTarget() {
-    StandardBeanFactory bf = new StandardBeanFactory();
-    bf.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-    bpp.setBeanFactory(bf);
-    bf.addBeanPostProcessor(bpp);
-    BeanDefinition bd = new BeanDefinition(FieldResourceInjectionBean.class);
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bf.registerBeanDefinition("annotatedBean", bd);
+//  @Test
+//  public void testLazyResourceInjectionWithNonExistingTarget() {
+//    StandardBeanFactory bf = new StandardBeanFactory();
+//    bf.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+//    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+//    bpp.setBeanFactory(bf);
+//    bf.addBeanPostProcessor(bpp);
+//    BeanDefinition bd = new BeanDefinition(FieldResourceInjectionBean.class);
+//    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+//    bf.registerBeanDefinition("annotatedBean", bd);
+//
+//    FieldResourceInjectionBean bean = (FieldResourceInjectionBean) bf.getBean("annotatedBean");
+//    assertThat(bean.getTestBean()).isNotNull();
+//    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+//            bean.getTestBean().getName());
+//  }
 
-    FieldResourceInjectionBean bean = (FieldResourceInjectionBean) bf.getBean("annotatedBean");
-    assertThat(bean.getTestBean()).isNotNull();
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-            bean.getTestBean().getName());
-  }
-
-  @Test
-  public void testLazyOptionalResourceInjectionWithNonExistingTarget() {
-    StandardBeanFactory bf = new StandardBeanFactory();
-    bf.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
-    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-    bpp.setBeanFactory(bf);
-    bf.addBeanPostProcessor(bpp);
-    BeanDefinition bd = new BeanDefinition(OptionalFieldResourceInjectionBean.class);
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bf.registerBeanDefinition("annotatedBean", bd);
-
-    OptionalFieldResourceInjectionBean bean = (OptionalFieldResourceInjectionBean) bf.getBean("annotatedBean");
-    assertThat(bean.getTestBean()).isNotNull();
-    assertThat(bean.getTestBeans()).isNotNull();
-    assertThat(bean.getTestBeans().isEmpty()).isTrue();
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-            bean.getTestBean().getName());
-  }
+//  @Test
+//  public void testLazyOptionalResourceInjectionWithNonExistingTarget() {
+//    StandardBeanFactory bf = new StandardBeanFactory();
+//    bf.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+//    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+//    bpp.setBeanFactory(bf);
+//    bf.addBeanPostProcessor(bpp);
+//    BeanDefinition bd = new BeanDefinition(OptionalFieldResourceInjectionBean.class);
+//    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+//    bf.registerBeanDefinition("annotatedBean", bd);
+//
+//    OptionalFieldResourceInjectionBean bean = (OptionalFieldResourceInjectionBean) bf.getBean("annotatedBean");
+//    assertThat(bean.getTestBean()).isNotNull();
+//    assertThat(bean.getTestBeans()).isNotNull();
+//    assertThat(bean.getTestBeans().isEmpty()).isTrue();
+//    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+//            bean.getTestBean().getName());
+//  }
 
   public interface TestBeanHolder {
 

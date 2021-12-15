@@ -21,7 +21,6 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.core.convert.converter.Converter;
-
 import example.scannable.FooService;
 
 /**
@@ -29,16 +28,16 @@ import example.scannable.FooService;
  */
 public class FooServiceDependentConverter implements Converter<String, cn.taketoday.beans.testfixture.beans.TestBean> {
 
-	@SuppressWarnings("unused")
-	private FooService fooService;
+  @SuppressWarnings("unused")
+  private FooService fooService;
 
-	public void setFooService(FooService fooService) {
-		this.fooService = fooService;
-	}
+  public void setFooService(FooService fooService) {
+    this.fooService = fooService;
+  }
 
-	@Override
-	public cn.taketoday.beans.testfixture.beans.TestBean convert(String source) {
-		return new cn.taketoday.beans.testfixture.beans.TestBean(source);
-	}
+  @Override
+  public cn.taketoday.beans.testfixture.beans.TestBean convert(String source) {
+    return new cn.taketoday.beans.testfixture.beans.TestBean(source);
+  }
 
 }

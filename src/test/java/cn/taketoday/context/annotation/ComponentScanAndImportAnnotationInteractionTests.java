@@ -21,7 +21,9 @@
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.componentscan.importing.ImportingConfig;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 
@@ -33,75 +35,71 @@ import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
  */
 public class ComponentScanAndImportAnnotationInteractionTests {
 
-	@Test
-	public void componentScanOverlapsWithImport() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(Config1.class);
-		ctx.register(Config2.class);
-		ctx.refresh(); // no conflicts found trying to register SimpleComponent
-		ctx.getBean(SimpleComponent.class); // succeeds -> there is only one bean of type SimpleComponent
-	}
+  @Test
+  public void componentScanOverlapsWithImport() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(Config1.class);
+    ctx.register(Config2.class);
+    ctx.refresh(); // no conflicts found trying to register SimpleComponent
+    ctx.getBean(SimpleComponent.class); // succeeds -> there is only one bean of type SimpleComponent
+  }
 
-	@Test
-	public void componentScanOverlapsWithImportUsingAsm() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.registerBeanDefinition("config1", new BeanDefinition(Config1.class.getName()));
-		ctx.registerBeanDefinition("config2", new BeanDefinition(Config2.class.getName()));
-		ctx.refresh(); // no conflicts found trying to register SimpleComponent
-		ctx.getBean(SimpleComponent.class); // succeeds -> there is only one bean of type SimpleComponent
-	}
+  @Test
+  public void componentScanOverlapsWithImportUsingAsm() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.registerBeanDefinition("config1", new BeanDefinition(Config1.class.getName()));
+    ctx.registerBeanDefinition("config2", new BeanDefinition(Config2.class.getName()));
+    ctx.refresh(); // no conflicts found trying to register SimpleComponent
+    ctx.getBean(SimpleComponent.class); // succeeds -> there is only one bean of type SimpleComponent
+  }
 
-	@Test
-	public void componentScanViaImport() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(Config3.class);
-		ctx.refresh();
-		ctx.getBean(SimpleComponent.class);
-	}
+  @Test
+  public void componentScanViaImport() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(Config3.class);
+    ctx.refresh();
+    ctx.getBean(SimpleComponent.class);
+  }
 
-	@Test
-	public void componentScanViaImportUsingAsm() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.registerBeanDefinition("config", new BeanDefinition(Config3.class.getName()));
-		ctx.refresh();
-		ctx.getBean(SimpleComponent.class);
-	}
+  @Test
+  public void componentScanViaImportUsingAsm() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.registerBeanDefinition("config", new BeanDefinition(Config3.class.getName()));
+    ctx.refresh();
+    ctx.getBean(SimpleComponent.class);
+  }
 
-	@Test
-	public void componentScanViaImportUsingScan() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.scan("cn.taketoday.context.annotation.componentscan.importing");
-		ctx.refresh();
-		ctx.getBean(SimpleComponent.class);
-	}
+  @Test
+  public void componentScanViaImportUsingScan() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.scan("cn.taketoday.context.annotation.componentscan.importing");
+    ctx.refresh();
+    ctx.getBean(SimpleComponent.class);
+  }
 
-	@Test
-	public void circularImportViaComponentScan() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.registerBeanDefinition("config", new BeanDefinition(ImportingConfig.class.getName()));
-		ctx.refresh();
-		ctx.getBean(SimpleComponent.class);
-	}
+  @Test
+  public void circularImportViaComponentScan() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.registerBeanDefinition("config", new BeanDefinition(ImportingConfig.class.getName()));
+    ctx.refresh();
+    ctx.getBean(SimpleComponent.class);
+  }
 
+  @ComponentScan("cn.taketoday.context.annotation.componentscan.simple")
+  static final class Config1 {
+  }
 
-	@ComponentScan("cn.taketoday.context.annotation.componentscan.simple")
-	static final class Config1 {
-	}
+  @Import(SimpleComponent.class)
+  static final class Config2 {
+  }
 
+  @Import(ImportedConfig.class)
+  static final class Config3 {
+  }
 
-	@Import(SimpleComponent.class)
-	static final class Config2 {
-	}
-
-
-	@Import(ImportedConfig.class)
-	static final class Config3 {
-	}
-
-
-	@ComponentScan("cn.taketoday.context.annotation.componentscan.simple")
-	@ComponentScan("cn.taketoday.context.annotation.componentscan.importing")
-	public static final class ImportedConfig {
-	}
+  @ComponentScan("cn.taketoday.context.annotation.componentscan.simple")
+  @ComponentScan("cn.taketoday.context.annotation.componentscan.importing")
+  public static final class ImportedConfig {
+  }
 
 }

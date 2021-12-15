@@ -26,9 +26,9 @@ import cn.taketoday.lang.Component;
 @Component
 public class SimpleComponent {
 
-	@Bean
-	public String exampleBean() {
-		return "example";
-	}
+  @Bean
+  public String exampleBean() {
+    return "example";
+  }
 
 }

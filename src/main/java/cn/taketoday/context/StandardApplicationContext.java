@@ -45,6 +45,8 @@ import cn.taketoday.util.StringUtils;
 /**
  * Standard {@link ApplicationContext}
  *
+ * like Spring's AnnotationConfigApplicationContext
+ *
  * @author TODAY 2018-09-06 13:47
  */
 public class StandardApplicationContext

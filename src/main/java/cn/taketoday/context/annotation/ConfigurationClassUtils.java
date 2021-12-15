@@ -21,7 +21,6 @@
 package cn.taketoday.context.annotation;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 
 import cn.taketoday.aop.AopInfrastructureBean;
@@ -54,24 +53,18 @@ import cn.taketoday.logging.LoggerFactory;
 abstract class ConfigurationClassUtils {
 
   public static final String CONFIGURATION_CLASS_FULL = "full";
-
   public static final String CONFIGURATION_CLASS_LITE = "lite";
-
   public static final String CONFIGURATION_CLASS_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "configurationClass");
 
   private static final String ORDER_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "order");
 
-  private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(ConfigurationClassUtils.class);
 
-  private static final Set<String> candidateIndicators = new HashSet<>(8);
-
-  static {
-    candidateIndicators.add(Component.class.getName());
-    candidateIndicators.add(ComponentScan.class.getName());
-    candidateIndicators.add(Import.class.getName());
-  }
+  private static final Set<String> candidateIndicators = Set.of(
+          Import.class.getName(), Component.class.getName(), ComponentScan.class.getName()
+  );
 
   public static boolean checkConfigurationClassCandidate(
           BeanDefinition beanDef, DefinitionLoadingContext loadingContext) {
@@ -119,8 +112,8 @@ abstract class ConfigurationClassUtils {
         metadata = metadataReader.getAnnotationMetadata();
       }
       catch (IOException ex) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Could not find class file for introspecting configuration annotations: {}",
+        if (log.isDebugEnabled()) {
+          log.debug("Could not find class file for introspecting configuration annotations: {}",
                   className, ex);
         }
         return false;
@@ -178,9 +171,7 @@ abstract class ConfigurationClassUtils {
       return metadata.hasAnnotatedMethods(Component.class.getName());
     }
     catch (Throwable ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Failed to introspect @Component methods on class [{}]: {}", metadata.getClassName(), ex.toString());
-      }
+      log.debug("Failed to introspect @Component methods on class [{}]: {}", metadata.getClassName(), ex.toString());
       return false;
     }
   }
@@ -207,8 +198,11 @@ abstract class ConfigurationClassUtils {
    * or {@link Ordered#LOWEST_PRECEDENCE} if none declared
    */
   public static int getOrder(BeanDefinition beanDef) {
-    Integer order = (Integer) beanDef.getAttribute(ORDER_ATTRIBUTE);
-    return order != null ? order : Ordered.LOWEST_PRECEDENCE;
+    Object order = beanDef.getAttribute(ORDER_ATTRIBUTE);
+    if (order instanceof Integer) {
+      return (int) order;
+    }
+    return Ordered.LOWEST_PRECEDENCE;
   }
 
 }

@@ -21,14 +21,17 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.testfixture.beans.TestBean;
+
+import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.StandardApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.lang.Autowired;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Unit tests cornering the bug exposed in SPR-6779.
@@ -38,81 +41,80 @@ import cn.taketoday.util.ClassUtils;
  */
 public class ImportedConfigurationClassEnhancementTests {
 
-	@Test
-	public void autowiredConfigClassIsEnhancedWhenImported() {
-		autowiredConfigClassIsEnhanced(ConfigThatDoesImport.class);
-	}
+  @Test
+  public void autowiredConfigClassIsEnhancedWhenImported() {
+    autowiredConfigClassIsEnhanced(ConfigThatDoesImport.class);
+  }
 
-	@Test
-	public void autowiredConfigClassIsEnhancedWhenRegisteredViaConstructor() {
-		autowiredConfigClassIsEnhanced(ConfigThatDoesNotImport.class, ConfigToBeAutowired.class);
-	}
+  @Test
+  public void autowiredConfigClassIsEnhancedWhenRegisteredViaConstructor() {
+    autowiredConfigClassIsEnhanced(ConfigThatDoesNotImport.class, ConfigToBeAutowired.class);
+  }
 
-	@SuppressWarnings("deprecation")
-	private void autowiredConfigClassIsEnhanced(Class<?>... configClasses) {
-		ApplicationContext ctx = new StandardApplicationContext(configClasses);
-		Config config = ctx.getBean(Config.class);
-		assertThat(ClassUtils.isCglibProxy(config.autowiredConfig)).as("autowired config class has not been enhanced").isTrue();
-	}
+  @SuppressWarnings("deprecation")
+  private void autowiredConfigClassIsEnhanced(Class<?>... configClasses) {
+    ApplicationContext ctx = new StandardApplicationContext(configClasses);
+    Config config = ctx.getBean(Config.class);
+    assertThat(AopUtils.isCglibProxy(config.autowiredConfig)).as("autowired config class has not been enhanced").isTrue();
+  }
 
+  @Test
+  public void autowiredConfigClassBeanMethodsRespectScopingWhenImported() {
+    autowiredConfigClassBeanMethodsRespectScoping(ConfigThatDoesImport.class);
+  }
 
-	@Test
-	public void autowiredConfigClassBeanMethodsRespectScopingWhenImported() {
-		autowiredConfigClassBeanMethodsRespectScoping(ConfigThatDoesImport.class);
-	}
+  @Test
+  public void autowiredConfigClassBeanMethodsRespectScopingWhenRegisteredViaConstructor() {
+    autowiredConfigClassBeanMethodsRespectScoping(ConfigThatDoesNotImport.class, ConfigToBeAutowired.class);
+  }
 
-	@Test
-	public void autowiredConfigClassBeanMethodsRespectScopingWhenRegisteredViaConstructor() {
-		autowiredConfigClassBeanMethodsRespectScoping(ConfigThatDoesNotImport.class, ConfigToBeAutowired.class);
-	}
+  private void autowiredConfigClassBeanMethodsRespectScoping(Class<?>... configClasses) {
+    ApplicationContext ctx = new StandardApplicationContext(configClasses);
+    Config config = ctx.getBean(Config.class);
+    TestBean testBean1 = config.autowiredConfig.testBean();
+    TestBean testBean2 = config.autowiredConfig.testBean();
+    assertThat(testBean1)
+            .as("got two distinct instances of testBean when singleton scoping was expected")
+            .isSameAs(testBean2);
+  }
 
-	private void autowiredConfigClassBeanMethodsRespectScoping(Class<?>... configClasses) {
-		ApplicationContext ctx = new StandardApplicationContext(configClasses);
-		Config config = ctx.getBean(Config.class);
-		TestBean testBean1 = config.autowiredConfig.testBean();
-		TestBean testBean2 = config.autowiredConfig.testBean();
-		assertThat(testBean1)
-				.as("got two distinct instances of testBean when singleton scoping was expected")
-				.isSameAs(testBean2);
-	}
+  @Test
+  public void importingNonConfigurationClassCausesBeanDefinitionParsingException() {
+    ApplicationContext ctx = new StandardApplicationContext(ConfigThatImportsNonConfigClass.class);
+    ConfigThatImportsNonConfigClass config = ctx.getBean(ConfigThatImportsNonConfigClass.class);
+    assertThat(config.testBean).isSameAs(ctx.getBean(TestBean.class));
+  }
 
+  @Configuration
+  static class ConfigToBeAutowired {
 
-	@Test
-	public void importingNonConfigurationClassCausesBeanDefinitionParsingException() {
-		ApplicationContext ctx = new StandardApplicationContext(ConfigThatImportsNonConfigClass.class);
-		ConfigThatImportsNonConfigClass config = ctx.getBean(ConfigThatImportsNonConfigClass.class);
-		assertThat(config.testBean).isSameAs(ctx.getBean(TestBean.class));
-	}
+    public @Bean
+    TestBean testBean() {
+      return new TestBean();
+    }
+  }
 
+  static class Config {
 
+    @Autowired
+    ConfigToBeAutowired autowiredConfig;
+  }
 
-	@Configuration
-	static class ConfigToBeAutowired {
+  @Import(ConfigToBeAutowired.class)
+  @Configuration
+  static class ConfigThatDoesImport extends Config {
+  }
 
-		public @Bean TestBean testBean() {
-			return new TestBean();
-		}
-	}
+  @Configuration
+  static class ConfigThatDoesNotImport extends Config {
+  }
 
-	static class Config {
+  @Configuration
+  @Import(TestBean.class)
+  static class ConfigThatImportsNonConfigClass {
 
-		@Autowired ConfigToBeAutowired autowiredConfig;
-	}
-
-	@Import(ConfigToBeAutowired.class)
-	@Configuration
-	static class ConfigThatDoesImport extends Config {
-	}
-
-	@Configuration
-	static class ConfigThatDoesNotImport extends Config {
-	}
-
-	@Configuration
-	@Import(TestBean.class)
-	static class ConfigThatImportsNonConfigClass {
-
-		@Autowired TestBean testBean;
-	}
+    @Autowired
+    TestBean testBean;
+  }
 
 }

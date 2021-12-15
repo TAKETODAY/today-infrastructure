@@ -52,7 +52,7 @@ import java.lang.annotation.Target;
  * @see cn.taketoday.beans.dependency.DependencyResolvingStrategy
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 public @interface Value {
 
   /**

@@ -21,11 +21,12 @@
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
+
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.componentscan.cycle.left.LeftConfig;
 import cn.taketoday.context.annotation.componentscan.level1.Level1Config;
 import cn.taketoday.context.annotation.componentscan.level2.Level2Config;
 import cn.taketoday.context.annotation.componentscan.level3.Level3Component;
-
 
 /**
  * Tests ensuring that configuration classes marked with @ComponentScan
@@ -36,28 +37,28 @@ import cn.taketoday.context.annotation.componentscan.level3.Level3Component;
  */
 public class ComponentScanAnnotationRecursionTests {
 
-	@Test
-	public void recursion() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(Level1Config.class);
-		ctx.refresh();
+  @Test
+  public void recursion() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(Level1Config.class);
+    ctx.refresh();
 
-		// assert that all levels have been detected
-		ctx.getBean(Level1Config.class);
-		ctx.getBean(Level2Config.class);
-		ctx.getBean(Level3Component.class);
+    // assert that all levels have been detected
+    ctx.getBean(Level1Config.class);
+    ctx.getBean(Level2Config.class);
+    ctx.getBean(Level3Component.class);
 
-		// assert that enhancement is working
-		assertThat(ctx.getBean("level1Bean")).isSameAs(ctx.getBean("level1Bean"));
-		assertThat(ctx.getBean("level2Bean")).isSameAs(ctx.getBean("level2Bean"));
-	}
+    // assert that enhancement is working
+    assertThat(ctx.getBean("level1Bean")).isSameAs(ctx.getBean("level1Bean"));
+    assertThat(ctx.getBean("level2Bean")).isSameAs(ctx.getBean("level2Bean"));
+  }
 
-	public void evenCircularScansAreSupported() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(LeftConfig.class); // left scans right, and right scans left
-		ctx.refresh();
-		ctx.getBean("leftConfig");      // but this is handled gracefully
-		ctx.getBean("rightConfig");     // and beans from both packages are available
-	}
+  public void evenCircularScansAreSupported() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(LeftConfig.class); // left scans right, and right scans left
+    ctx.refresh();
+    ctx.getBean("leftConfig");      // but this is handled gracefully
+    ctx.getBean("rightConfig");     // and beans from both packages are available
+  }
 
 }

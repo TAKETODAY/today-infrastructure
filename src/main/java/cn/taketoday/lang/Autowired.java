@@ -19,12 +19,12 @@
  */
 package cn.taketoday.lang;
 
-import cn.taketoday.core.annotation.AliasFor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * Marks a constructor, parameter, field, setter method, or config method as to be
@@ -80,7 +80,8 @@ import java.lang.annotation.Target;
  * @see Value
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
+@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD,
+        ElementType.PARAMETER, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 public @interface Autowired {
 
   /**
@@ -100,10 +101,10 @@ public @interface Autowired {
   @AliasFor("value")
   String name() default Constant.BLANK;
 
-	/**
-	 * Declares whether the annotated dependency is required.
-	 * <p>Defaults to {@code true}.
-	 */
+  /**
+   * Declares whether the annotated dependency is required.
+   * <p>Defaults to {@code true}.
+   */
   boolean required() default true;
 
 }

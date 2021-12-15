@@ -21,7 +21,6 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 
@@ -30,11 +29,11 @@ import cn.taketoday.context.loader.ScopeMetadataResolver;
  */
 public class TestScopeMetadataResolver implements ScopeMetadataResolver {
 
-	@Override
-	public ScopeMetadata resolveScopeMetadata(BeanDefinition beanDefinition) {
-		ScopeMetadata metadata = new ScopeMetadata();
-		metadata.setScopeName("myCustomScope");
-		return metadata;
-	}
+  @Override
+  public ScopeMetadata resolveScopeMetadata(BeanDefinition beanDefinition) {
+    ScopeMetadata metadata = new ScopeMetadata();
+    metadata.setScopeName("myCustomScope");
+    return metadata;
+  }
 
 }

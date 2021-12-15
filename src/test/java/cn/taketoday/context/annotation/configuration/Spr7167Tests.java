@@ -21,45 +21,48 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+
+import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.annotation.StandardApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.util.ClassUtils;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class Spr7167Tests {
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void test() {
-		ConfigurableApplicationContext ctx = new StandardApplicationContext(MyConfig.class);
+  @SuppressWarnings("deprecation")
+  @Test
+  public void test() {
+    ConfigurableApplicationContext ctx = new StandardApplicationContext(MyConfig.class);
 
-		assertThat(ctx.getBeanFactory().getBeanDefinition("someDependency").getDescription())
-				.as("someDependency was not post processed")
-				.isEqualTo("post processed by MyPostProcessor");
+    assertThat(ctx.getBeanFactory().getBeanDefinition("someDependency").getDescription())
+            .as("someDependency was not post processed")
+            .isEqualTo("post processed by MyPostProcessor");
 
-		MyConfig config = ctx.getBean(MyConfig.class);
-		assertThat(ClassUtils.isCglibProxy(config)).as("Config class was not enhanced").isTrue();
-	}
+    MyConfig config = ctx.getBean(MyConfig.class);
+    assertThat(AopUtils.isCglibProxy(config)).as("Config class was not enhanced").isTrue();
+  }
 
 }
 
 @Configuration
 class MyConfig {
 
-	@Bean
-	public Dependency someDependency() {
-		return new Dependency();
-	}
+  @Bean
+  public Dependency someDependency() {
+    return new Dependency();
+  }
 
-	@Bean
-	public BeanFactoryPostProcessor thePostProcessor() {
-		return new MyPostProcessor(someDependency());
-	}
+  @Bean
+  public BeanFactoryPostProcessor thePostProcessor() {
+    return new MyPostProcessor(someDependency());
+  }
 }
 
 class Dependency {
@@ -67,12 +70,12 @@ class Dependency {
 
 class MyPostProcessor implements BeanFactoryPostProcessor {
 
-	public MyPostProcessor(Dependency someDependency) {
-	}
+  public MyPostProcessor(Dependency someDependency) {
+  }
 
-	@Override
-	public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
-		AbstractBeanDefinition bd = (AbstractBeanDefinition) beanFactory.getBeanDefinition("someDependency");
-		bd.setDescription("post processed by MyPostProcessor");
-	}
+  @Override
+  public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
+    BeanDefinition bd = beanFactory.getBeanDefinition("someDependency");
+    bd.setDescription("post processed by MyPostProcessor");
+  }
 }

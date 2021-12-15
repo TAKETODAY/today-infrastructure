@@ -30,6 +30,7 @@ import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
+import cn.taketoday.core.type.filter.AspectJTypeFilter;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.core.type.filter.RegexPatternTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
@@ -97,12 +98,13 @@ public abstract class TypeFilterUtils {
     }
 
     // string
+
     for (String expression : filterAnnotation.getStringArray("pattern")) {
-      if (filterType == FilterType.REGEX) {
-        typeFilters.add(new RegexPatternTypeFilter(Pattern.compile(expression)));
-      }
-      else {
-        throw new IllegalArgumentException("Filter type not supported with String pattern: " + filterType);
+      switch (filterType) {
+        case ASPECTJ -> typeFilters.add(new AspectJTypeFilter(expression, loadingContext.getClassLoader()));
+        case REGEX -> typeFilters.add(new RegexPatternTypeFilter(Pattern.compile(expression)));
+        default -> throw new IllegalArgumentException(
+                "Filter type not supported with String pattern: " + filterType);
       }
     }
 

@@ -21,10 +21,11 @@
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.role.ComponentWithRole;
 import cn.taketoday.context.annotation.role.ComponentWithoutRole;
-
 
 /**
  * Tests the use of the @Role and @Description annotation on @Bean methods and @Component classes.
@@ -35,54 +36,52 @@ import cn.taketoday.context.annotation.role.ComponentWithoutRole;
  */
 public class RoleAndDescriptionAnnotationTests {
 
-	@Test
-	public void onBeanMethod() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(Config.class);
-		ctx.refresh();
-		assertThat(ctx.getBeanDefinition("foo").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
-		assertThat(ctx.getBeanDefinition("foo").getDescription()).isNull();
-		assertThat(ctx.getBeanDefinition("bar").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
-		assertThat(ctx.getBeanDefinition("bar").getDescription()).isEqualTo("A Bean method with a role");
-	}
+  @Test
+  public void onBeanMethod() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(Config.class);
+    ctx.refresh();
+    assertThat(ctx.getBeanDefinition("foo").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
+    assertThat(ctx.getBeanDefinition("foo").getDescription()).isNull();
+    assertThat(ctx.getBeanDefinition("bar").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
+    assertThat(ctx.getBeanDefinition("bar").getDescription()).isEqualTo("A Bean method with a role");
+  }
 
-	@Test
-	public void onComponentClass() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(ComponentWithoutRole.class, ComponentWithRole.class);
-		ctx.refresh();
-		assertThat(ctx.getBeanDefinition("componentWithoutRole").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
-		assertThat(ctx.getBeanDefinition("componentWithoutRole").getDescription()).isNull();
-		assertThat(ctx.getBeanDefinition("componentWithRole").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
-		assertThat(ctx.getBeanDefinition("componentWithRole").getDescription()).isEqualTo("A Component with a role");
-	}
+  @Test
+  public void onComponentClass() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(ComponentWithoutRole.class, ComponentWithRole.class);
+    ctx.refresh();
+    assertThat(ctx.getBeanDefinition("componentWithoutRole").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
+    assertThat(ctx.getBeanDefinition("componentWithoutRole").getDescription()).isNull();
+    assertThat(ctx.getBeanDefinition("componentWithRole").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
+    assertThat(ctx.getBeanDefinition("componentWithRole").getDescription()).isEqualTo("A Component with a role");
+  }
 
+  @Test
+  public void viaComponentScanning() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.scan("cn.taketoday.context.annotation.role");
+    ctx.refresh();
+    assertThat(ctx.getBeanDefinition("componentWithoutRole").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
+    assertThat(ctx.getBeanDefinition("componentWithoutRole").getDescription()).isNull();
+    assertThat(ctx.getBeanDefinition("componentWithRole").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
+    assertThat(ctx.getBeanDefinition("componentWithRole").getDescription()).isEqualTo("A Component with a role");
+  }
 
-	@Test
-	public void viaComponentScanning() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.scan("cn.taketoday.context.annotation.role");
-		ctx.refresh();
-		assertThat(ctx.getBeanDefinition("componentWithoutRole").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
-		assertThat(ctx.getBeanDefinition("componentWithoutRole").getDescription()).isNull();
-		assertThat(ctx.getBeanDefinition("componentWithRole").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
-		assertThat(ctx.getBeanDefinition("componentWithRole").getDescription()).isEqualTo("A Component with a role");
-	}
+  @Configuration
+  static class Config {
+    @Bean
+    public String foo() {
+      return "foo";
+    }
 
-
-	@Configuration
-	static class Config {
-		@Bean
-		public String foo() {
-			return "foo";
-		}
-
-		@Bean
-		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		@Description("A Bean method with a role")
-		public String bar() {
-			return "bar";
-		}
-	}
+    @Bean
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    @Description("A Bean method with a role")
+    public String bar() {
+      return "bar";
+    }
+  }
 
 }

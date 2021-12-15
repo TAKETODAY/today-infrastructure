@@ -21,11 +21,12 @@
 package cn.taketoday.context.annotation.spr12334;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.annotation.StandardApplicationContext;
+
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
@@ -34,39 +35,36 @@ import cn.taketoday.core.type.AnnotationMetadata;
  */
 public class Spr12334Tests {
 
-	@Test
-	public void shouldNotScanTwice() {
-		TestImport.scanned = false;
+  @Test
+  public void shouldNotScanTwice() {
+    TestImport.scanned = false;
 
-		StandardApplicationContext context = new StandardApplicationContext();
-		context.scan(TestImport.class.getPackage().getName());
-		context.refresh();
-		context.getBean(TestConfiguration.class);
-	}
+    StandardApplicationContext context = new StandardApplicationContext();
+    context.scan(TestImport.class.getPackage().getName());
+    context.refresh();
+    context.getBean(TestConfiguration.class);
+  }
 
+  @Import(TestImport.class)
+  public @interface AnotherImport {
+  }
 
-	@Import(TestImport.class)
-	public @interface AnotherImport {
-	}
+  @Configuration
+  @AnotherImport
+  public static class TestConfiguration {
+  }
 
+  public static class TestImport implements ImportBeanDefinitionRegistrar {
 
-	@Configuration
-	@AnotherImport
-	public static class TestConfiguration {
-	}
+    private static boolean scanned = false;
 
-
-	public static class TestImport implements ImportBeanDefinitionRegistrar {
-
-		private static boolean scanned = false;
-
-		@Override
-		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry)  {
-			if (scanned) {
-				throw new IllegalStateException("Already scanned");
-			}
-			scanned = true;
-		}
-	}
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+      if (scanned) {
+        throw new IllegalStateException("Already scanned");
+      }
+      scanned = true;
+    }
+  }
 
 }

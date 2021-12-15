@@ -21,17 +21,17 @@
 package cn.taketoday.context.annotation.spr12233;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.context.annotation.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.StandardApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-
 
 /**
  * Tests cornering the regression reported in SPR-12233.
@@ -40,44 +40,43 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  */
 public class Spr12233Tests {
 
-	@Test
-	public void spr12233() throws Exception {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(PropertySourcesPlaceholderConfigurer.class);
-		ctx.register(ImportConfiguration.class);
-		ctx.refresh();
-		ctx.close();
-	}
+  @Test
+  public void spr12233() throws Exception {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(PropertySourcesPlaceholderConfigurer.class);
+    ctx.register(ImportConfiguration.class);
+    ctx.refresh();
+    ctx.close();
+  }
 
-	static class NeverConfigurationCondition implements ConfigurationCondition {
-		@Override
-		public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-			return false;
-		}
+  static class NeverConfigurationCondition implements ConfigurationCondition {
+    @Override
+    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+      return false;
+    }
 
-		@Override
-		public ConfigurationPhase getConfigurationPhase() {
-			return ConfigurationPhase.REGISTER_BEAN;
-		}
-	}
+    @Override
+    public ConfigurationPhase getConfigurationPhase() {
+      return ConfigurationPhase.REGISTER_BEAN;
+    }
+  }
 
-	@Import(ComponentScanningConfiguration.class)
-	static class ImportConfiguration {
+  @Import(ComponentScanningConfiguration.class)
+  static class ImportConfiguration {
 
-	}
+  }
 
-	@Configuration
-	@ComponentScan
-	static class ComponentScanningConfiguration {
+  @Configuration
+  @ComponentScan
+  static class ComponentScanningConfiguration {
 
-	}
+  }
 
+  @Configuration
+  @Conditional(NeverConfigurationCondition.class)
+  static class ConditionWithPropertyValueInjection {
 
-	@Configuration
-	@Conditional(NeverConfigurationCondition.class)
-	static class ConditionWithPropertyValueInjection {
-
-		@Value("${idontexist}")
-		private String property;
-	}
+    @Value("${idontexist}")
+    private String property;
+  }
 }

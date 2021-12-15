@@ -24,6 +24,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.io.InputStream;
+
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
@@ -35,8 +38,6 @@ import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
-
-import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -50,218 +51,217 @@ import static org.mockito.Mockito.reset;
  */
 public class ParserStrategyUtilsTests {
 
-	@Mock
-	private Environment environment;
+  @Mock
+  private Environment environment;
 
-	@Mock(extraInterfaces = BeanFactory.class)
-	private BeanDefinitionRegistry registry;
+  @Mock(extraInterfaces = BeanFactory.class)
+  private BeanDefinitionRegistry registry;
 
-	@Mock
-	private ClassLoader beanClassLoader;
+  @Mock
+  private ClassLoader beanClassLoader;
 
-	@Mock
-	private ResourceLoader resourceLoader;
+  @Mock
+  private ResourceLoader resourceLoader;
 
-	@BeforeEach
-	void setup() {
-		MockitoAnnotations.openMocks(this);
-		given(this.resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
-	}
+  @BeforeEach
+  void setup() {
+    MockitoAnnotations.openMocks(this);
+    given(this.resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
+  }
 
-	@Test
-	public void instantiateClassWhenHasNoArgsConstructorCallsAware() {
-		NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
-		assertThat(instance.setEnvironment).isSameAs(this.environment);
-		assertThat(instance.setBeanFactory).isSameAs(this.registry);
-		assertThat(instance.setBeanClassLoader).isSameAs(this.beanClassLoader);
-		assertThat(instance.setResourceLoader).isSameAs(this.resourceLoader);
-	}
+  @Test
+  public void instantiateClassWhenHasNoArgsConstructorCallsAware() {
+    NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
+    assertThat(instance.setEnvironment).isSameAs(this.environment);
+    assertThat(instance.setBeanFactory).isSameAs(this.registry);
+    assertThat(instance.setBeanClassLoader).isSameAs(this.beanClassLoader);
+    assertThat(instance.setResourceLoader).isSameAs(this.resourceLoader);
+  }
 
-	@Test
-	public void instantiateClassWhenHasSingleContructorInjectsParams() {
-		ArgsConstructor instance = instantiateClass(ArgsConstructor.class);
-		assertThat(instance.environment).isSameAs(this.environment);
-		assertThat(instance.beanFactory).isSameAs(this.registry);
-		assertThat(instance.beanClassLoader).isSameAs(this.beanClassLoader);
-		assertThat(instance.resourceLoader).isSameAs(this.resourceLoader);
-	}
+  @Test
+  public void instantiateClassWhenHasSingleContructorInjectsParams() {
+    ArgsConstructor instance = instantiateClass(ArgsConstructor.class);
+    assertThat(instance.environment).isSameAs(this.environment);
+    assertThat(instance.beanFactory).isSameAs(this.registry);
+    assertThat(instance.beanClassLoader).isSameAs(this.beanClassLoader);
+    assertThat(instance.resourceLoader).isSameAs(this.resourceLoader);
+  }
 
-	@Test
-	public void instantiateClassWhenHasSingleContructorAndAwareInjectsParamsAndCallsAware() {
-		ArgsConstructorAndAware instance = instantiateClass(ArgsConstructorAndAware.class);
-		assertThat(instance.environment).isSameAs(this.environment);
-		assertThat(instance.setEnvironment).isSameAs(this.environment);
-		assertThat(instance.beanFactory).isSameAs(this.registry);
-		assertThat(instance.setBeanFactory).isSameAs(this.registry);
-		assertThat(instance.beanClassLoader).isSameAs(this.beanClassLoader);
-		assertThat(instance.setBeanClassLoader).isSameAs(this.beanClassLoader);
-		assertThat(instance.resourceLoader).isSameAs(this.resourceLoader);
-		assertThat(instance.setResourceLoader).isSameAs(this.resourceLoader);
-	}
+  @Test
+  public void instantiateClassWhenHasSingleContructorAndAwareInjectsParamsAndCallsAware() {
+    ArgsConstructorAndAware instance = instantiateClass(ArgsConstructorAndAware.class);
+    assertThat(instance.environment).isSameAs(this.environment);
+    assertThat(instance.setEnvironment).isSameAs(this.environment);
+    assertThat(instance.beanFactory).isSameAs(this.registry);
+    assertThat(instance.setBeanFactory).isSameAs(this.registry);
+    assertThat(instance.beanClassLoader).isSameAs(this.beanClassLoader);
+    assertThat(instance.setBeanClassLoader).isSameAs(this.beanClassLoader);
+    assertThat(instance.resourceLoader).isSameAs(this.resourceLoader);
+    assertThat(instance.setResourceLoader).isSameAs(this.resourceLoader);
+  }
 
-	@Test
-	public void instantiateClassWhenHasMultipleConstructorsUsesNoArgsConstructor() {
-		// Remain back-compatible by using the default constructor if there's more then one
-		MultipleConstructors instance = instantiateClass(MultipleConstructors.class);
-		assertThat(instance.usedDefaultConstructor).isTrue();
-	}
+  @Test
+  public void instantiateClassWhenHasMultipleConstructorsUsesNoArgsConstructor() {
+    // Remain back-compatible by using the default constructor if there's more then one
+    MultipleConstructors instance = instantiateClass(MultipleConstructors.class);
+    assertThat(instance.usedDefaultConstructor).isTrue();
+  }
 
-	@Test
-	public void instantiateClassWhenHasMutlipleConstructorsAndNotDefaultThrowsException() {
-		assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
-				instantiateClass(MultipleConstructorsWithNoDefault.class));
-	}
+  @Test
+  public void instantiateClassWhenHasMutlipleConstructorsAndNotDefaultThrowsException() {
+    assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
+            instantiateClass(MultipleConstructorsWithNoDefault.class));
+  }
 
-	@Test
-	public void instantiateClassWhenHasUnsupportedParameterThrowsException() {
-		assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
-				instantiateClass(InvalidConstructorParameterType.class))
-			.withCauseInstanceOf(IllegalStateException.class)
-			.withMessageContaining("No suitable constructor found");
-	}
+  @Test
+  public void instantiateClassWhenHasUnsupportedParameterThrowsException() {
+    assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
+                    instantiateClass(InvalidConstructorParameterType.class))
+            .withCauseInstanceOf(IllegalStateException.class)
+            .withMessageContaining("No suitable constructor found");
+  }
 
-	@Test
-	public void instantiateClassHasSubclassParameterThrowsException() {
-		// To keep the algorithm simple we don't support subtypes
-		assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
-				instantiateClass(InvalidConstructorParameterSubType.class))
-			.withCauseInstanceOf(IllegalStateException.class)
-			.withMessageContaining("No suitable constructor found");
-	}
+  @Test
+  public void instantiateClassHasSubclassParameterThrowsException() {
+    // To keep the algorithm simple we don't support subtypes
+    assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
+                    instantiateClass(InvalidConstructorParameterSubType.class))
+            .withCauseInstanceOf(IllegalStateException.class)
+            .withMessageContaining("No suitable constructor found");
+  }
 
-	@Test
-	public void instantiateClassWhenHasNoBeanClassLoaderInjectsNull() {
-		reset(this.resourceLoader);
-		ArgsConstructor instance = instantiateClass(ArgsConstructor.class);
-		assertThat(instance.beanClassLoader).isNull();
-	}
+  @Test
+  public void instantiateClassWhenHasNoBeanClassLoaderInjectsNull() {
+    reset(this.resourceLoader);
+    ArgsConstructor instance = instantiateClass(ArgsConstructor.class);
+    assertThat(instance.beanClassLoader).isNull();
+  }
 
-	@Test
-	public void instantiateClassWhenHasNoBeanClassLoaderDoesNotCallAware() {
-		reset(this.resourceLoader);
-		NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
-		assertThat(instance.setBeanClassLoader).isNull();
-		assertThat(instance.setBeanClassLoaderCalled).isFalse();
-	}
+  @Test
+  public void instantiateClassWhenHasNoBeanClassLoaderDoesNotCallAware() {
+    reset(this.resourceLoader);
+    NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
+    assertThat(instance.setBeanClassLoader).isNull();
+    assertThat(instance.setBeanClassLoaderCalled).isFalse();
+  }
 
-	private <T> T instantiateClass(Class<T> clazz) {
-		return ParserStrategyUtils.instantiateClass(clazz, clazz, this.environment,
-				this.resourceLoader, this.registry);
-	}
+  private <T> T instantiateClass(Class<T> clazz) {
+    return ParserStrategyUtils.instantiateClass(clazz, clazz, this.environment,
+            this.resourceLoader, this.registry);
+  }
 
-	static class NoArgsConstructor implements BeanClassLoaderAware,
-			BeanFactoryAware, EnvironmentAware, ResourceLoaderAware {
+  static class NoArgsConstructor implements BeanClassLoaderAware,
+                                            BeanFactoryAware, EnvironmentAware, ResourceLoaderAware {
 
-		Environment setEnvironment;
+    Environment setEnvironment;
 
-		BeanFactory setBeanFactory;
+    BeanFactory setBeanFactory;
 
-		ClassLoader setBeanClassLoader;
+    ClassLoader setBeanClassLoader;
 
-		boolean setBeanClassLoaderCalled;
+    boolean setBeanClassLoaderCalled;
 
-		ResourceLoader setResourceLoader;
+    ResourceLoader setResourceLoader;
 
-		@Override
-		public void setEnvironment(Environment environment) {
-			this.setEnvironment = environment;
-		}
+    @Override
+    public void setEnvironment(Environment environment) {
+      this.setEnvironment = environment;
+    }
 
-		@Override
-		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-			this.setBeanFactory = beanFactory;
-		}
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+      this.setBeanFactory = beanFactory;
+    }
 
-		@Override
-		public void setBeanClassLoader(ClassLoader classLoader) {
-			this.setBeanClassLoader = classLoader;
-			this.setBeanClassLoaderCalled = true;
-		}
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+      this.setBeanClassLoader = classLoader;
+      this.setBeanClassLoaderCalled = true;
+    }
 
-		@Override
-		public void setResourceLoader(ResourceLoader resourceLoader) {
-			this.setResourceLoader = resourceLoader;
-		}
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+      this.setResourceLoader = resourceLoader;
+    }
 
-	}
+  }
 
-	static class ArgsConstructor {
+  static class ArgsConstructor {
 
-		final Environment environment;
+    final Environment environment;
 
-		final BeanFactory beanFactory;
+    final BeanFactory beanFactory;
 
-		final ClassLoader beanClassLoader;
+    final ClassLoader beanClassLoader;
 
-		final ResourceLoader resourceLoader;
+    final ResourceLoader resourceLoader;
 
-		ArgsConstructor(Environment environment, BeanFactory beanFactory,
-				ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
-			this.environment = environment;
-			this.beanFactory = beanFactory;
-			this.beanClassLoader = beanClassLoader;
-			this.resourceLoader = resourceLoader;
-		}
+    ArgsConstructor(Environment environment, BeanFactory beanFactory,
+                    ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
+      this.environment = environment;
+      this.beanFactory = beanFactory;
+      this.beanClassLoader = beanClassLoader;
+      this.resourceLoader = resourceLoader;
+    }
 
-	}
+  }
 
-	static class ArgsConstructorAndAware extends NoArgsConstructor {
+  static class ArgsConstructorAndAware extends NoArgsConstructor {
 
-		final Environment environment;
+    final Environment environment;
 
-		final BeanFactory beanFactory;
+    final BeanFactory beanFactory;
 
-		final ClassLoader beanClassLoader;
+    final ClassLoader beanClassLoader;
 
-		final ResourceLoader resourceLoader;
+    final ResourceLoader resourceLoader;
 
-		ArgsConstructorAndAware(Environment environment, BeanFactory beanFactory,
-				ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
-			this.environment = environment;
-			this.beanFactory = beanFactory;
-			this.beanClassLoader = beanClassLoader;
-			this.resourceLoader = resourceLoader;
-		}
+    ArgsConstructorAndAware(Environment environment, BeanFactory beanFactory,
+                            ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
+      this.environment = environment;
+      this.beanFactory = beanFactory;
+      this.beanClassLoader = beanClassLoader;
+      this.resourceLoader = resourceLoader;
+    }
 
-	}
+  }
 
-	static class MultipleConstructors {
+  static class MultipleConstructors {
 
-		final boolean usedDefaultConstructor;
+    final boolean usedDefaultConstructor;
 
-		MultipleConstructors() {
-			this.usedDefaultConstructor = true;
-		}
+    MultipleConstructors() {
+      this.usedDefaultConstructor = true;
+    }
 
-		MultipleConstructors(Environment environment) {
-			this.usedDefaultConstructor = false;
-		}
+    MultipleConstructors(Environment environment) {
+      this.usedDefaultConstructor = false;
+    }
 
-	}
+  }
 
-	static class MultipleConstructorsWithNoDefault {
+  static class MultipleConstructorsWithNoDefault {
 
-		MultipleConstructorsWithNoDefault(Environment environment, BeanFactory beanFactory) {
-		}
+    MultipleConstructorsWithNoDefault(Environment environment, BeanFactory beanFactory) {
+    }
 
-		MultipleConstructorsWithNoDefault(Environment environment) {
-		}
+    MultipleConstructorsWithNoDefault(Environment environment) {
+    }
 
-	}
+  }
 
-	static class InvalidConstructorParameterType {
+  static class InvalidConstructorParameterType {
 
-		InvalidConstructorParameterType(Environment environment, InputStream inputStream) {
-		}
+    InvalidConstructorParameterType(Environment environment, InputStream inputStream) {
+    }
 
-	}
+  }
 
-	static class InvalidConstructorParameterSubType {
+  static class InvalidConstructorParameterSubType {
 
-		InvalidConstructorParameterSubType(ConfigurableEnvironment environment) {
-		}
+    InvalidConstructorParameterSubType(ConfigurableEnvironment environment) {
+    }
 
-	}
-
+  }
 
 }

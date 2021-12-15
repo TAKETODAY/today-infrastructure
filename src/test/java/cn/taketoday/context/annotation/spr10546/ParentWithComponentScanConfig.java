@@ -25,11 +25,10 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.spr10546.scanpackage.AEnclosingConfig;
 
 /**
- *
  * @author Rob Winch
  */
 @Configuration
-@ComponentScan(basePackageClasses=AEnclosingConfig.class)
+@ComponentScan(basePackageClasses = AEnclosingConfig.class)
 public class ParentWithComponentScanConfig {
 
 }

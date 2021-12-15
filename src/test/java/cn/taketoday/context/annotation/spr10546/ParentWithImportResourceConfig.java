@@ -24,11 +24,10 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportResource;
 
 /**
- *
  * @author Rob Winch
  */
 @Configuration
-@ImportResource("classpath:org/springframework/context/annotation/spr10546/importedResource.xml")
+@ImportResource("classpath:cn/taketoday/context/annotation/spr10546/importedResource.xml")
 public class ParentWithImportResourceConfig {
 
 }

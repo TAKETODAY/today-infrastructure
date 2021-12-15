@@ -33,7 +33,6 @@ import cn.taketoday.aop.proxy.ProxyUtils;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -96,10 +95,6 @@ public class ConfigurationClassPostProcessor
   private ConfigurationClassBeanDefinitionReader reader;
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
-
-  public ConfigurationClassPostProcessor() {
-    this.loadingContext = new DefinitionLoadingContext();
-  }
 
   public ConfigurationClassPostProcessor(@Required DefinitionLoadingContext loadingContext) {
     this.loadingContext = loadingContext;
@@ -228,8 +223,8 @@ public class ConfigurationClassPostProcessor
     // Parse each @Configuration class
     ConfigurationClassParser parser = new ConfigurationClassParser(loadingContext);
 
-    Set<BeanDefinition> candidates = new LinkedHashSet<>(configCandidates);
-    Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
+    LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>(configCandidates);
+    HashSet<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
     do {
       parser.parse(candidates);
       parser.validate();
@@ -247,15 +242,15 @@ public class ConfigurationClassPostProcessor
       candidates.clear();
       if (registry.getBeanDefinitionCount() > candidateNames.length) {
         String[] newCandidateNames = registry.getBeanDefinitionNames();
-        Set<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));
-        Set<String> alreadyParsedClasses = new HashSet<>();
+        HashSet<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));
+        HashSet<String> alreadyParsedClasses = new HashSet<>();
         for (ConfigurationClass configurationClass : alreadyParsed) {
           alreadyParsedClasses.add(configurationClass.getMetadata().getClassName());
         }
         for (String candidateName : newCandidateNames) {
           if (!oldCandidateNames.contains(candidateName)) {
             BeanDefinition bd = registry.getBeanDefinition(candidateName);
-            if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, loadingContext)
+            if (bd != null && ConfigurationClassUtils.checkConfigurationClassCandidate(bd, loadingContext)
                     && !alreadyParsedClasses.contains(bd.getBeanClassName())) {
               candidates.add(bd);
             }
@@ -282,7 +277,7 @@ public class ConfigurationClassPostProcessor
    * @see ConfigurationClassEnhancer
    */
   public void enhanceConfigurationClasses(ConfigurableBeanFactory beanFactory) {
-    Map<String, BeanDefinition> configBeanDefs = new LinkedHashMap<>();
+    LinkedHashMap<String, BeanDefinition> configBeanDefs = new LinkedHashMap<>();
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       BeanDefinition beanDef = BeanFactoryUtils.getBeanDefinition(beanFactory, beanName);
       Object configClassAttr = beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);

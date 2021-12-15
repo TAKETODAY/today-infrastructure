@@ -21,14 +21,16 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.annotation.StandardApplicationContext;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Ensures that @Configuration is supported properly as a meta-annotation.
@@ -37,37 +39,35 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class ConfigurationMetaAnnotationTests {
 
-	@Test
-	public void customConfigurationStereotype() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.register(Config.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean("customName")).isTrue();
-		TestBean a = ctx.getBean("a", TestBean.class);
-		TestBean b = ctx.getBean("b", TestBean.class);
-		assertThat(b).isSameAs(a.getSpouse());
-	}
+  @Test
+  public void customConfigurationStereotype() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.register(Config.class);
+    ctx.refresh();
+    assertThat(ctx.containsBean("customName")).isTrue();
+    TestBean a = ctx.getBean("a", TestBean.class);
+    TestBean b = ctx.getBean("b", TestBean.class);
+    assertThat(b).isSameAs(a.getSpouse());
+  }
 
+  @TestConfiguration("customName")
+  static class Config {
+    @Bean
+    public TestBean a() {
+      TestBean a = new TestBean();
+      a.setSpouse(b());
+      return a;
+    }
 
-	@TestConfiguration("customName")
-	static class Config {
-		@Bean
-		public TestBean a() {
-			TestBean a = new TestBean();
-			a.setSpouse(b());
-			return a;
-		}
+    @Bean
+    public TestBean b() {
+      return new TestBean();
+    }
+  }
 
-		@Bean
-		public TestBean b() {
-			return new TestBean();
-		}
-	}
-
-
-	@Configuration
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface TestConfiguration {
-		String value() default "";
-	}
+  @Configuration
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface TestConfiguration {
+    String value() default "";
+  }
 }

@@ -20,16 +20,16 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.annotation.Qualifier;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD, ElementType.PARAMETER})
+import cn.taketoday.lang.Qualifier;
+
+@Target({ ElementType.METHOD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
 public @interface BeanAge {
-	int value();
+  int value();
 }

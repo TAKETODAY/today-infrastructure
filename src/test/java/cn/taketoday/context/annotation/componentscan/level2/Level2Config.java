@@ -28,8 +28,8 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration
 @ComponentScan("cn.taketoday.context.annotation.componentscan.level3")
 public class Level2Config {
-	@Bean
-	public TestBean level2Bean() {
-		return new TestBean("level2Bean");
-	}
+  @Bean
+  public TestBean level2Bean() {
+    return new TestBean("level2Bean");
+  }
 }

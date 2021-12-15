@@ -21,17 +21,17 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 
 /**
  * @author Mark Fisher
  */
 public class TestBeanNameGenerator extends AnnotationBeanNameGenerator {
 
-	@Override
-	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-		String beanName = super.generateBeanName(definition, registry);
-		return "testing." + beanName;
-	}
+  @Override
+  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    String beanName = super.generateBeanName(definition, registry);
+    return "testing." + beanName;
+  }
 
 }

@@ -21,12 +21,14 @@
 package cn.taketoday.context.annotation.spr8761;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.annotation.StandardApplicationContext;
-import cn.taketoday.lang.Component;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.lang.Component;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Tests cornering the regression reported in SPR-8761.
@@ -35,25 +37,25 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class Spr8761Tests {
 
-	/**
-	 * Prior to the fix for SPR-8761, this test threw because the nested MyComponent
-	 * annotation was being falsely considered as a 'lite' Configuration class candidate.
-	 */
-	@Test
-	public void repro() {
-		StandardApplicationContext ctx = new StandardApplicationContext();
-		ctx.scan(getClass().getPackage().getName());
-		ctx.refresh();
-		assertThat(ctx.containsBean("withNestedAnnotation")).isTrue();
-	}
+  /**
+   * Prior to the fix for SPR-8761, this test threw because the nested MyComponent
+   * annotation was being falsely considered as a 'lite' Configuration class candidate.
+   */
+  @Test
+  public void repro() {
+    StandardApplicationContext ctx = new StandardApplicationContext();
+    ctx.scan(getClass().getPackage().getName());
+    ctx.refresh();
+    assertThat(ctx.containsBean("withNestedAnnotation")).isTrue();
+  }
 
 }
 
 @Component
 class WithNestedAnnotation {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Component
-	public static @interface MyComponent {
-	}
+  @Retention(RetentionPolicy.RUNTIME)
+  @Component
+  public static @interface MyComponent {
+  }
 }

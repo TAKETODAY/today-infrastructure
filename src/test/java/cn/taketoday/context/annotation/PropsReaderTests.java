@@ -20,6 +20,11 @@
 
 package cn.taketoday.context.annotation;
 
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.env.MapPropertyResolver;
@@ -29,10 +34,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -240,6 +241,5 @@ class PropsReaderTests {
 
   }
   //
-
 
 }

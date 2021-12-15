@@ -23,7 +23,6 @@ package cn.taketoday.context.annotation.spr10546;
 import cn.taketoday.context.annotation.Configuration;
 
 /**
- *
  * @author Rob Winch
  */
 @Configuration

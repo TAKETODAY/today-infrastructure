@@ -22,13 +22,13 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
  * of the {@link BeanDefinitionDocumentReader} interface.
  *
  * <p>Typically applied to a
- * {@link org.springframework.beans.factory.support.DefaultListableBeanFactory}
- * or a {@link org.springframework.context.support.GenericApplicationContext}.
+ * {@link cn.taketoday.beans.factory.support.DefaultListableBeanFactory}
+ * or a {@link cn.taketoday.context.support.GenericApplicationContext}.
  *
  * <p>This class loads a DOM document and applies the BeanDefinitionDocumentReader to it.
  * The document reader will register each bean definition with the given bean factory,
  * talking to the latter's implementation of the
- * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry} interface.
+ * {@link cn.taketoday.beans.factory.support.BeanDefinitionRegistry} interface.
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -38,8 +38,8 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
  * @see BeanDefinitionDocumentReader
  * @see DefaultBeanDefinitionDocumentReader
  * @see BeanDefinitionRegistry
- * @see org.springframework.beans.factory.support.DefaultListableBeanFactory
- * @see org.springframework.context.support.GenericApplicationContext
+ * @see cn.taketoday.beans.factory.support.DefaultListableBeanFactory
+ * @see cn.taketoday.context.support.GenericApplicationContext
  * @since 4.0 2021/12/15 13:50
  */
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
@@ -168,8 +168,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
   }
 
   /**
-   * Specify which {@link org.springframework.beans.factory.parsing.ProblemReporter} to use.
-   * <p>The default implementation is {@link org.springframework.beans.factory.parsing.FailFastProblemReporter}
+   * Specify which {@link cn.taketoday.beans.factory.parsing.ProblemReporter} to use.
+   * <p>The default implementation is {@link cn.taketoday.beans.factory.parsing.FailFastProblemReporter}
    * which exhibits fail fast behaviour. External tools can provide an alternative implementation
    * that collates errors and warnings for display in the tool UI.
    */

@@ -33,6 +33,7 @@ import org.atinject.tck.auto.Tire;
 import org.atinject.tck.auto.V8Engine;
 import org.atinject.tck.auto.accessories.Cupholder;
 import org.atinject.tck.auto.accessories.SpareTire;
+
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Jsr330ScopeMetadataResolver;
 import cn.taketoday.context.annotation.Primary;
@@ -44,25 +45,25 @@ import cn.taketoday.context.support.DefaultApplicationContext;
  */
 public class SpringAtInjectTckTests {
 
-	@SuppressWarnings("unchecked")
-	public static Test suite() {
-		DefaultApplicationContext ac = new DefaultApplicationContext();
-		AnnotatedBeanDefinitionReader bdr = new AnnotatedBeanDefinitionReader(ac);
-		bdr.setScopeMetadataResolver(new Jsr330ScopeMetadataResolver());
+  @SuppressWarnings("unchecked")
+  public static Test suite() {
+    DefaultApplicationContext ac = new DefaultApplicationContext();
+    AnnotatedBeanDefinitionReader bdr = new AnnotatedBeanDefinitionReader(ac);
+    bdr.setScopeMetadataResolver(new Jsr330ScopeMetadataResolver());
 
-		bdr.registerBean(Convertible.class);
-		bdr.registerBean(DriversSeat.class, Drivers.class);
-		bdr.registerBean(Seat.class, Primary.class);
-		bdr.registerBean(V8Engine.class);
-		bdr.registerBean(SpareTire.class, "spare");
-		bdr.registerBean(Cupholder.class);
-		bdr.registerBean(Tire.class, Primary.class);
-		bdr.registerBean(FuelTank.class);
+    bdr.registerBean(Convertible.class);
+    bdr.registerBean(DriversSeat.class, Drivers.class);
+    bdr.registerBean(Seat.class, Primary.class);
+    bdr.registerBean(V8Engine.class);
+    bdr.registerBean(SpareTire.class, "spare");
+    bdr.registerBean(Cupholder.class);
+    bdr.registerBean(Tire.class, Primary.class);
+    bdr.registerBean(FuelTank.class);
 
-		ac.refresh();
-		Car car = ac.getBean(Car.class);
+    ac.refresh();
+    Car car = ac.getBean(Car.class);
 
-		return Tck.testsFor(car, false, true);
-	}
+    return Tck.testsFor(car, false, true);
+  }
 
 }

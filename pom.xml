@@ -592,7 +592,7 @@
       <version>2.16.0</version>
       <scope>provided</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
@@ -606,6 +606,28 @@
       <version>2.9.0</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>1.9.8.RC3</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <version>1.9.8.RC3</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjtools</artifactId>
+      <version>1.9.8.RC3</version>
+      <scope>provided</scope>
+    </dependency>
+
 
     <!--
         ======================================================

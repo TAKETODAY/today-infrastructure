@@ -125,7 +125,7 @@ public class BeanFactoryTransactionTests {
   /*
 	<bean id="proxyFactory1" class="cn.taketoday.aop.framework.ProxyFactoryBean">
 		<property name="proxyInterfaces">
-			<value>cn.taketoday.beans.testfixture.beans.ITestBean</value>
+			<value>cn.taketoday.beans.factory.support.ITestBean</value>
 		</property>
 		<property name="interceptorNames">
 			<list>

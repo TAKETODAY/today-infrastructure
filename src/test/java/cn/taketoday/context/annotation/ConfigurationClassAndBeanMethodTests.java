@@ -21,184 +21,177 @@
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.core.io.DefaultResourceLoader;
-import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link ConfigurationClassParser}, {@link ConfigurationClass},
- * and {@link BeanMethod}.
+ * and {@link ComponentMethod}.
  *
  * @author Sam Brannen
- * @since 5.3.9
  */
 class ConfigurationClassAndBeanMethodTests {
 
-	@Test
-	void verifyEquals() throws Exception {
-		ConfigurationClass configurationClass1 = newConfigurationClass(Config1.class);
-		ConfigurationClass configurationClass2 = newConfigurationClass(Config1.class);
-		ConfigurationClass configurationClass3 = newConfigurationClass(Config2.class);
+  @Test
+  void verifyEquals() throws Exception {
+    ConfigurationClass configurationClass1 = newConfigurationClass(Config1.class);
+    ConfigurationClass configurationClass2 = newConfigurationClass(Config1.class);
+    ConfigurationClass configurationClass3 = newConfigurationClass(Config2.class);
 
-		assertThat(configurationClass1.equals(null)).isFalse();
-		assertThat(configurationClass1).isNotSameAs(configurationClass2);
+    assertThat(configurationClass1.equals(null)).isFalse();
+    assertThat(configurationClass1).isNotSameAs(configurationClass2);
 
-		assertThat(configurationClass1.equals(configurationClass1)).isTrue();
-		assertThat(configurationClass2.equals(configurationClass2)).isTrue();
-		assertThat(configurationClass1.equals(configurationClass2)).isTrue();
-		assertThat(configurationClass2.equals(configurationClass1)).isTrue();
+    assertThat(configurationClass1.equals(configurationClass1)).isTrue();
+    assertThat(configurationClass2.equals(configurationClass2)).isTrue();
+    assertThat(configurationClass1.equals(configurationClass2)).isTrue();
+    assertThat(configurationClass2.equals(configurationClass1)).isTrue();
 
-		assertThat(configurationClass1.equals(configurationClass3)).isFalse();
-		assertThat(configurationClass3.equals(configurationClass2)).isFalse();
+    assertThat(configurationClass1.equals(configurationClass3)).isFalse();
+    assertThat(configurationClass3.equals(configurationClass2)).isFalse();
 
-		// ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
-		List<BeanMethod> beanMethods1 = getBeanMethods(configurationClass1);
-		BeanMethod beanMethod_1_0 = beanMethods1.get(0);
-		BeanMethod beanMethod_1_1 = beanMethods1.get(1);
-		BeanMethod beanMethod_1_2 = beanMethods1.get(2);
+    List<ComponentMethod> beanMethods1 = getBeanMethods(configurationClass1);
+    ComponentMethod beanMethod_1_0 = beanMethods1.get(0);
+    ComponentMethod beanMethod_1_1 = beanMethods1.get(1);
+    ComponentMethod beanMethod_1_2 = beanMethods1.get(2);
 
-		List<BeanMethod> beanMethods2 = getBeanMethods(configurationClass2);
-		BeanMethod beanMethod_2_0 = beanMethods2.get(0);
-		BeanMethod beanMethod_2_1 = beanMethods2.get(1);
-		BeanMethod beanMethod_2_2 = beanMethods2.get(2);
+    List<ComponentMethod> beanMethods2 = getBeanMethods(configurationClass2);
+    ComponentMethod beanMethod_2_0 = beanMethods2.get(0);
+    ComponentMethod beanMethod_2_1 = beanMethods2.get(1);
+    ComponentMethod beanMethod_2_2 = beanMethods2.get(2);
 
-		List<BeanMethod> beanMethods3 = getBeanMethods(configurationClass3);
-		BeanMethod beanMethod_3_0 = beanMethods3.get(0);
-		BeanMethod beanMethod_3_1 = beanMethods3.get(1);
-		BeanMethod beanMethod_3_2 = beanMethods3.get(2);
+    List<ComponentMethod> beanMethods3 = getBeanMethods(configurationClass3);
+    ComponentMethod beanMethod_3_0 = beanMethods3.get(0);
+    ComponentMethod beanMethod_3_1 = beanMethods3.get(1);
+    ComponentMethod beanMethod_3_2 = beanMethods3.get(2);
 
-		assertThat(beanMethod_1_0.equals(null)).isFalse();
-		assertThat(beanMethod_1_0).isNotSameAs(beanMethod_2_0);
+    assertThat(beanMethod_1_0.equals(null)).isFalse();
+    assertThat(beanMethod_1_0).isNotSameAs(beanMethod_2_0);
 
-		assertThat(beanMethod_1_0.equals(beanMethod_1_0)).isTrue();
-		assertThat(beanMethod_1_0.equals(beanMethod_2_0)).isTrue();
-		assertThat(beanMethod_1_1.equals(beanMethod_2_1)).isTrue();
-		assertThat(beanMethod_1_2.equals(beanMethod_2_2)).isTrue();
+    assertThat(beanMethod_1_0.equals(beanMethod_1_0)).isTrue();
+    assertThat(beanMethod_1_0.equals(beanMethod_2_0)).isTrue();
+    assertThat(beanMethod_1_1.equals(beanMethod_2_1)).isTrue();
+    assertThat(beanMethod_1_2.equals(beanMethod_2_2)).isTrue();
 
-		assertThat(beanMethod_1_0.getMetadata().getMethodName()).isEqualTo(beanMethod_3_0.getMetadata().getMethodName());
-		assertThat(beanMethod_1_0.equals(beanMethod_3_0)).isFalse();
-		assertThat(beanMethod_1_1.equals(beanMethod_3_1)).isFalse();
-		assertThat(beanMethod_1_2.equals(beanMethod_3_2)).isFalse();
-	}
+    assertThat(beanMethod_1_0.getMetadata().getMethodName()).isEqualTo(beanMethod_3_0.getMetadata().getMethodName());
+    assertThat(beanMethod_1_0.equals(beanMethod_3_0)).isFalse();
+    assertThat(beanMethod_1_1.equals(beanMethod_3_1)).isFalse();
+    assertThat(beanMethod_1_2.equals(beanMethod_3_2)).isFalse();
+  }
 
-	@Test
-	void verifyHashCode() throws Exception {
-		ConfigurationClass configurationClass1 = newConfigurationClass(Config1.class);
-		ConfigurationClass configurationClass2 = newConfigurationClass(Config1.class);
-		ConfigurationClass configurationClass3 = newConfigurationClass(Config2.class);
+  @Test
+  void verifyHashCode() throws Exception {
+    ConfigurationClass configurationClass1 = newConfigurationClass(Config1.class);
+    ConfigurationClass configurationClass2 = newConfigurationClass(Config1.class);
+    ConfigurationClass configurationClass3 = newConfigurationClass(Config2.class);
 
-		assertThat(configurationClass1).hasSameHashCodeAs(configurationClass2);
-		assertThat(configurationClass1).doesNotHaveSameHashCodeAs(configurationClass3);
+    assertThat(configurationClass1).hasSameHashCodeAs(configurationClass2);
+    assertThat(configurationClass1).doesNotHaveSameHashCodeAs(configurationClass3);
 
-		// ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
-		List<BeanMethod> beanMethods1 = getBeanMethods(configurationClass1);
-		BeanMethod beanMethod_1_0 = beanMethods1.get(0);
-		BeanMethod beanMethod_1_1 = beanMethods1.get(1);
-		BeanMethod beanMethod_1_2 = beanMethods1.get(2);
+    List<ComponentMethod> beanMethods1 = getBeanMethods(configurationClass1);
+    ComponentMethod beanMethod_1_0 = beanMethods1.get(0);
+    ComponentMethod beanMethod_1_1 = beanMethods1.get(1);
+    ComponentMethod beanMethod_1_2 = beanMethods1.get(2);
 
-		List<BeanMethod> beanMethods2 = getBeanMethods(configurationClass2);
-		BeanMethod beanMethod_2_0 = beanMethods2.get(0);
-		BeanMethod beanMethod_2_1 = beanMethods2.get(1);
-		BeanMethod beanMethod_2_2 = beanMethods2.get(2);
+    List<ComponentMethod> beanMethods2 = getBeanMethods(configurationClass2);
+    ComponentMethod beanMethod_2_0 = beanMethods2.get(0);
+    ComponentMethod beanMethod_2_1 = beanMethods2.get(1);
+    ComponentMethod beanMethod_2_2 = beanMethods2.get(2);
 
-		List<BeanMethod> beanMethods3 = getBeanMethods(configurationClass3);
-		BeanMethod beanMethod_3_0 = beanMethods3.get(0);
-		BeanMethod beanMethod_3_1 = beanMethods3.get(1);
-		BeanMethod beanMethod_3_2 = beanMethods3.get(2);
+    List<ComponentMethod> beanMethods3 = getBeanMethods(configurationClass3);
+    ComponentMethod beanMethod_3_0 = beanMethods3.get(0);
+    ComponentMethod beanMethod_3_1 = beanMethods3.get(1);
+    ComponentMethod beanMethod_3_2 = beanMethods3.get(2);
 
-		assertThat(beanMethod_1_0).hasSameHashCodeAs(beanMethod_2_0);
-		assertThat(beanMethod_1_1).hasSameHashCodeAs(beanMethod_2_1);
-		assertThat(beanMethod_1_2).hasSameHashCodeAs(beanMethod_2_2);
+    assertThat(beanMethod_1_0).hasSameHashCodeAs(beanMethod_2_0);
+    assertThat(beanMethod_1_1).hasSameHashCodeAs(beanMethod_2_1);
+    assertThat(beanMethod_1_2).hasSameHashCodeAs(beanMethod_2_2);
 
-		assertThat(beanMethod_1_0).doesNotHaveSameHashCodeAs(beanMethod_3_0);
-		assertThat(beanMethod_1_1).doesNotHaveSameHashCodeAs(beanMethod_3_1);
-		assertThat(beanMethod_1_2).doesNotHaveSameHashCodeAs(beanMethod_3_2);
-	}
+    assertThat(beanMethod_1_0).doesNotHaveSameHashCodeAs(beanMethod_3_0);
+    assertThat(beanMethod_1_1).doesNotHaveSameHashCodeAs(beanMethod_3_1);
+    assertThat(beanMethod_1_2).doesNotHaveSameHashCodeAs(beanMethod_3_2);
+  }
 
-	@Test
-	void verifyToString() throws Exception {
-		ConfigurationClass configurationClass = newConfigurationClass(Config1.class);
-		assertThat(configurationClass.toString())
-			.startsWith("ConfigurationClass: beanName 'Config1', class path resource");
+  @Test
+  void verifyToString() throws Exception {
+    ConfigurationClass configurationClass = newConfigurationClass(Config1.class);
+    assertThat(configurationClass.toString())
+            .startsWith("ConfigurationClass: beanName 'Config1', class path resource");
 
-		List<BeanMethod> beanMethods = getBeanMethods(configurationClass);
-		String prefix = "BeanMethod: " + Config1.class.getName();
-		assertThat(beanMethods.get(0).toString()).isEqualTo(prefix + ".bean0()");
-		assertThat(beanMethods.get(1).toString()).isEqualTo(prefix + ".bean1(java.lang.String)");
-		assertThat(beanMethods.get(2).toString()).isEqualTo(prefix + ".bean2(java.lang.String,java.lang.Integer)");
-	}
+    List<ComponentMethod> beanMethods = getBeanMethods(configurationClass);
+    String prefix = "ComponentMethod: " + Config1.class.getName();
+    assertThat(beanMethods.get(0).toString()).isEqualTo(prefix + ".bean0()");
+    assertThat(beanMethods.get(1).toString()).isEqualTo(prefix + ".bean1(java.lang.String)");
+    assertThat(beanMethods.get(2).toString()).isEqualTo(prefix + ".bean2(java.lang.String,java.lang.Integer)");
+  }
 
+  private static ConfigurationClass newConfigurationClass(Class<?> clazz) throws Exception {
+    ConfigurationClassParser parser = newParser();
+    parser.parse(clazz.getName(), clazz.getSimpleName());
+    assertThat(parser.getConfigurationClasses()).hasSize(1);
+    return parser.getConfigurationClasses().iterator().next();
+  }
 
-	private static ConfigurationClass newConfigurationClass(Class<?> clazz) throws Exception {
-		ConfigurationClassParser parser = newParser();
-		parser.parse(clazz.getName(), clazz.getSimpleName());
-		assertThat(parser.getConfigurationClasses()).hasSize(1);
-		return parser.getConfigurationClasses().iterator().next();
-	}
+  private static ConfigurationClassParser newParser() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(context.getBeanFactory(), context);
+    return new ConfigurationClassParser(loadingContext);
+  }
 
-	private static ConfigurationClassParser newParser() {
-		return new ConfigurationClassParser(
-				new CachingMetadataReaderFactory(),
-				new FailFastProblemReporter(),
-				new StandardEnvironment(),
-				new DefaultResourceLoader(),
-				new AnnotationBeanNameGenerator(),
-				new StandardBeanFactory());
-	}
+  private static List<ComponentMethod> getBeanMethods(ConfigurationClass configurationClass) {
+    List<ComponentMethod> beanMethods = configurationClass.getMethods().stream()
+            .sorted(Comparator.comparing(beanMethod -> beanMethod.getMetadata().getMethodName()))
+            .collect(Collectors.toList());
+    assertThat(beanMethods).hasSize(3);
+    return beanMethods;
+  }
 
-	private static List<BeanMethod> getBeanMethods(ConfigurationClass configurationClass) {
-		List<BeanMethod> beanMethods = configurationClass.getBeanMethods().stream()
-				.sorted(Comparator.comparing(beanMethod -> beanMethod.getMetadata().getMethodName()))
-				.collect(Collectors.toList());
-		assertThat(beanMethods).hasSize(3);
-		return beanMethods;
-	}
+  static class Config1 {
 
-	static class Config1 {
+    @Bean
+    String bean0() {
+      return "";
+    }
 
-		@Bean
-		String bean0() {
-			return "";
-		}
+    @Bean
+    String bean1(String text) {
+      return "";
+    }
 
-		@Bean
-		String bean1(String text) {
-			return "";
-		}
+    @Bean
+    String bean2(String text, Integer num) {
+      return "";
+    }
 
-		@Bean
-		String bean2(String text, Integer num) {
-			return "";
-		}
+  }
 
-	}
+  static class Config2 {
 
-	static class Config2 {
+    @Bean
+    String bean0() {
+      return "";
+    }
 
-		@Bean
-		String bean0() {
-			return "";
-		}
+    @Bean
+    String bean1(String text) {
+      return "";
+    }
 
-		@Bean
-		String bean1(String text) {
-			return "";
-		}
+    @Bean
+    String bean2(String text, Integer num) {
+      return "";
+    }
 
-		@Bean
-		String bean2(String text, Integer num) {
-			return "";
-		}
-
-	}
+  }
 
 }

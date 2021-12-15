@@ -21,11 +21,12 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
-import cn.taketoday.context.support.DefaultApplicationContext;
 
 /**
  * Corners the bug originally reported by SPR-8824, where the presence of two
@@ -38,20 +39,20 @@ import cn.taketoday.context.support.DefaultApplicationContext;
  */
 public class DuplicateConfigurationClassPostProcessorTests {
 
-	@Test
-	public void repro() {
-		DefaultApplicationContext ctx = new DefaultApplicationContext();
-		ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class));
-		ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class));
-		ctx.registerBeanDefinition("myConfig", new BeanDefinition(Config.class));
-		ctx.refresh();
-	}
+  @Test
+  public void repro() {
+    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class));
+    ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class));
+    ctx.registerBeanDefinition("myConfig", new BeanDefinition(Config.class));
+    ctx.refresh();
+  }
 
-	@Configuration
-	static class Config {
-		@Bean
-		public String string() {
-			return "bean";
-		}
-	}
+  @Configuration
+  static class Config {
+    @Bean
+    public String string() {
+      return "bean";
+    }
+  }
 }

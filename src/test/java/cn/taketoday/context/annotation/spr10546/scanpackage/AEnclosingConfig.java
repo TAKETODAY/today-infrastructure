@@ -32,6 +32,6 @@ import cn.taketoday.context.annotation.spr10546.ParentConfig;
  */
 @Configuration
 public class AEnclosingConfig {
-	@Configuration
-	public static class ChildConfig extends ParentConfig {}
+  @Configuration
+  public static class ChildConfig extends ParentConfig { }
 }

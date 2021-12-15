@@ -28,9 +28,9 @@ import cn.taketoday.lang.Component;
  */
 abstract class Spr8955Parent {
 
-	@Component
-	static class Spr8955Child extends Spr8955Parent {
+  @Component
+  static class Spr8955Child extends Spr8955Parent {
 
-	}
+  }
 
 }
