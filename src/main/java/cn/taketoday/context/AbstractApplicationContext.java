@@ -52,6 +52,7 @@ import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.event.ApplicationListenerDetector;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
@@ -390,251 +391,6 @@ public abstract class AbstractApplicationContext
     }
   }
 
-  /**
-   * Prepare to load context
-   */
-  protected void prepareRefresh() {
-    this.startupDate = System.currentTimeMillis();
-    log.info("Starting Application Context at [{}].", formatStartupDate());
-
-    applyState(State.STARTING);
-    ConfigurableEnvironment environment = getEnvironment();
-
-    // Initialize any placeholder property sources in the context environment.
-    initPropertySources(environment);
-
-    environment.validateRequiredProperties();
-
-    // @since 4.0
-    String appName = environment.getProperty(APPLICATION_NAME);
-    if (StringUtils.hasText(appName)) {
-      setApplicationName(appName);
-    }
-
-    // Store pre-refresh ApplicationListeners...
-    if (this.earlyApplicationListeners == null) {
-      this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
-    }
-    else {
-      // Reset local application listeners to pre-refresh state.
-      this.applicationListeners.clear();
-      this.applicationListeners.addAll(this.earlyApplicationListeners);
-    }
-
-    // Allow for the collection of early ApplicationEvents,
-    // to be published once the multicaster is available...
-    this.earlyApplicationEvents = new LinkedHashSet<>();
-
-    ApplicationContextHolder.register(this); // @since 4.0
-  }
-
-  /**
-   * Finish the initialization of this context's bean factory,
-   * initializing all remaining singleton beans.
-   */
-  protected void finishBeanFactoryInitialization(ConfigurableBeanFactory beanFactory) {
-    // Initialize conversion service for this context.
-    if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-            beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
-      beanFactory.setConversionService(
-              beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
-    }
-
-    // Register a default embedded value resolver if no BeanFactoryPostProcessor
-    // (such as a PropertySourcesPlaceholderConfigurer bean) registered any before:
-    // at this point, primarily for resolution in annotation attribute values.
-    if (!beanFactory.hasEmbeddedValueResolver()) {
-      beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
-    }
-
-    // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
-
-    // Stop using the temporary ClassLoader for type matching.
-    beanFactory.setTempClassLoader(null);
-
-    // Instantiate all remaining (non-lazy-init) singletons.
-    beanFactory.preInstantiateSingletons();
-  }
-
-  /**
-   * Context start success
-   */
-  protected void finishRefresh() {
-    clearResourceCaches();
-
-    // Initialize lifecycle processor for this context.
-    initLifecycleProcessor();
-
-    // Propagate refresh to lifecycle processor first.
-    getLifecycleProcessor().onRefresh();
-
-    // Publish the final event.
-    publishEvent(new ContextRefreshedEvent(this));
-
-    applyState(State.STARTED);
-    log.info("Application Context Startup in {}ms", System.currentTimeMillis() - getStartupDate());
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of Lifecycle interface
-  //---------------------------------------------------------------------
-
-  @Override
-  public void start() {
-    getLifecycleProcessor().start();
-    publishEvent(new ContextStartedEvent(this));
-  }
-
-  @Override
-  public void stop() {
-    getLifecycleProcessor().stop();
-    publishEvent(new ContextStoppedEvent(this));
-  }
-
-  @Override
-  public boolean isRunning() {
-    return this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning();
-  }
-
-  // lifecycleProcessor
-
-  // @since 4.0
-  public void setLifecycleProcessor(@Nullable LifecycleProcessor lifecycleProcessor) {
-    this.lifecycleProcessor = lifecycleProcessor;
-  }
-
-  /**
-   * Initialize the LifecycleProcessor.
-   * Uses DefaultLifecycleProcessor if none defined in the context.
-   *
-   * @see DefaultLifecycleProcessor
-   */
-  protected void initLifecycleProcessor() {
-    if (lifecycleProcessor == null) {
-      ConfigurableBeanFactory beanFactory = getBeanFactory();
-      if (beanFactory.containsLocalBean(LIFECYCLE_PROCESSOR_BEAN_NAME)) {
-        this.lifecycleProcessor = beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
-        if (log.isTraceEnabled()) {
-          log.trace("Using LifecycleProcessor [{}]", lifecycleProcessor);
-        }
-      }
-      else {
-        DefaultLifecycleProcessor defaultProcessor = new DefaultLifecycleProcessor();
-        defaultProcessor.setBeanFactory(beanFactory);
-        this.lifecycleProcessor = defaultProcessor;
-        beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
-        if (log.isTraceEnabled()) {
-          log.trace("No '{}' bean, using [{}]", LIFECYCLE_PROCESSOR_BEAN_NAME, lifecycleProcessor.getClass().getSimpleName());
-        }
-      }
-    }
-  }
-
-  /**
-   * Return the internal LifecycleProcessor used by the context.
-   *
-   * @return the internal LifecycleProcessor (never {@code null})
-   * @throws IllegalStateException if the context has not been initialized yet
-   */
-  public LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
-    if (this.lifecycleProcessor == null) {
-      throw new IllegalStateException(
-              "LifecycleProcessor not initialized - " +
-                      "call 'refresh' before invoking lifecycle methods via the context: " + this);
-    }
-    return this.lifecycleProcessor;
-  }
-
-  /**
-   * Initialization singletons that has already in context
-   */
-  protected void onRefresh() {
-    // sub-classes Initialization
-  }
-
-  public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
-    log.info("Preparing internal bean-factory");
-    // Tell the internal bean factory to use the context's class loader etc.
-    beanFactory.setBeanClassLoader(getClassLoader());
-
-    // Detect a LoadTimeWeaver and prepare for weaving, if found.
-    if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
-      // Set a temporary ClassLoader for type matching.
-      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
-    }
-
-    // register bean post processors
-
-    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-    StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
-
-    DependencyResolvingStrategies resolvingStrategies = postProcessor.getResolvingStrategies();
-    ExpressionDependencyResolver expressionDependencyResolver = new ExpressionDependencyResolver();
-    expressionDependencyResolver.setExpressionEvaluator(getExpressionEvaluator());
-    resolvingStrategies.addStrategies(
-            expressionDependencyResolver,
-            new PropsDependencyResolvingStrategy(this)
-    );
-
-    beanFactory.addBeanPostProcessor(postProcessor);
-    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
-
-    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
-    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
-  }
-
-  /**
-   * Register Framework Beans
-   */
-  protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
-    log.info("Registering framework beans");
-    // register Environment
-    beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
-    // @since 4.0 ArgumentsResolver
-    beanFactory.registerSingleton(getArgumentsResolver());
-
-    ExpressionEvaluator.register(beanFactory, getEnvironment());
-  }
-
-  // post-processor
-
-  /**
-   * Modify the application context's internal bean factory after its standard
-   * initialization. All bean definitions will have been loaded, but no beans
-   * will have been instantiated yet. This allows for registering special
-   * BeanPostProcessors etc in certain ApplicationContext implementations.
-   *
-   * @param beanFactory the bean factory used by the application context
-   */
-  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) { }
-
-  /**
-   * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
-   * respecting explicit order if given.
-   * <p>Must be called before singleton instantiation.
-   */
-  protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.info("Invoking BeanFactoryPostProcessors");
-    PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
-
-    // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
-    // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
-    if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
-//      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
-      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
-    }
-  }
-
-  /**
-   * Instantiate and register all BeanPostProcessor beans,
-   * respecting explicit order if given.
-   * <p>Must be called before any instantiation of application beans.
-   */
-  protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.info("Loading BeanPostProcessor.");
-    PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
-  }
-
   //---------------------------------------------------------------------
   // Implementation of ApplicationContext interface
   //---------------------------------------------------------------------
@@ -647,7 +403,7 @@ public abstract class AbstractApplicationContext
       prepareRefresh();
 
       // Tell the subclass to refresh the internal bean factory.
-      ConfigurableBeanFactory beanFactory = getBeanFactory();
+      ConfigurableBeanFactory beanFactory = obtainFreshBeanFactory();
 
       // register framework beans
       registerFrameworkComponents(beanFactory);
@@ -701,20 +457,49 @@ public abstract class AbstractApplicationContext
     }
   }
 
-  /**
-   * Cancel this context's refresh attempt, after an exception got thrown.
-   *
-   * @param ex the exception that led to the cancellation
-   */
-  protected void cancelRefresh(Exception ex) {
-    close();
-  }
-
   private void assertRefreshable() {
     if (!refreshable &&
             (state == State.STARTED || state == State.STARTING || state == State.CLOSING)) {
       throw new IllegalStateException("this context not supports refresh again");
     }
+  }
+
+  /**
+   * Prepare to load context
+   */
+  protected void prepareRefresh() {
+    this.startupDate = System.currentTimeMillis();
+    log.info("Starting Application Context at [{}].", formatStartupDate());
+
+    applyState(State.STARTING);
+    ConfigurableEnvironment environment = getEnvironment();
+
+    // Initialize any placeholder property sources in the context environment.
+    initPropertySources(environment);
+
+    environment.validateRequiredProperties();
+
+    // @since 4.0
+    String appName = environment.getProperty(APPLICATION_NAME);
+    if (StringUtils.hasText(appName)) {
+      setApplicationName(appName);
+    }
+
+    // Store pre-refresh ApplicationListeners...
+    if (this.earlyApplicationListeners == null) {
+      this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
+    }
+    else {
+      // Reset local application listeners to pre-refresh state.
+      this.applicationListeners.clear();
+      this.applicationListeners.addAll(this.earlyApplicationListeners);
+    }
+
+    // Allow for the collection of early ApplicationEvents,
+    // to be published once the multicaster is available...
+    this.earlyApplicationEvents = new LinkedHashSet<>();
+
+    ApplicationContextHolder.register(this); // @since 4.0
   }
 
   /**
@@ -727,8 +512,157 @@ public abstract class AbstractApplicationContext
     // for subclasses loading properties or prepare property-source
   }
 
-  @Override
-  public abstract AbstractBeanFactory getBeanFactory();
+  /**
+   * Register Framework Beans
+   */
+  protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
+    log.info("Registering framework beans");
+    // register Environment
+    beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
+    // @since 4.0 ArgumentsResolver
+    beanFactory.registerSingleton(getArgumentsResolver());
+
+    ExpressionEvaluator.register(beanFactory, getEnvironment());
+  }
+
+  /**
+   * Initialization singletons that has already in context
+   */
+  protected void onRefresh() {
+    // sub-classes Initialization
+  }
+
+  /**
+   * Tell the subclass to refresh the internal bean factory.
+   *
+   * @return the fresh BeanFactory instance
+   * @see #refreshBeanFactory()
+   * @see #getBeanFactory()
+   * @since 4.0
+   */
+  protected ConfigurableBeanFactory obtainFreshBeanFactory() {
+    refreshBeanFactory();
+    return getBeanFactory();
+  }
+
+  /**
+   * Configure the factory's standard context characteristics,
+   * such as the context's ClassLoader and post-processors.
+   *
+   * @param beanFactory the BeanFactory to configure
+   */
+  public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
+    log.info("Preparing internal bean-factory");
+    // Tell the internal bean factory to use the context's class loader etc.
+    beanFactory.setBeanClassLoader(getClassLoader());
+    // Configure the bean factory with context callbacks.
+    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+    // Register early post-processor for detecting inner beans as ApplicationListeners.
+    beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
+
+    // Detect a LoadTimeWeaver and prepare for weaving, if found.
+    if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+      // Set a temporary ClassLoader for type matching.
+      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+    }
+
+    // register DI bean post processors
+    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
+    StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
+
+    DependencyResolvingStrategies resolvingStrategies = postProcessor.getResolvingStrategies();
+    ExpressionDependencyResolver expressionDependencyResolver = new ExpressionDependencyResolver();
+    expressionDependencyResolver.setExpressionEvaluator(getExpressionEvaluator());
+    resolvingStrategies.addStrategies(
+            expressionDependencyResolver,
+            new PropsDependencyResolvingStrategy(this)
+    );
+
+    beanFactory.addBeanPostProcessor(postProcessor);
+
+    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+  }
+
+  // post-processor
+
+  /**
+   * Modify the application context's internal bean factory after its standard
+   * initialization. All bean definitions will have been loaded, but no beans
+   * will have been instantiated yet. This allows for registering special
+   * BeanPostProcessors etc in certain ApplicationContext implementations.
+   *
+   * @param beanFactory the bean factory used by the application context
+   */
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) { }
+
+  /**
+   * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
+   * respecting explicit order if given.
+   * <p>Must be called before singleton instantiation.
+   */
+  protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
+    log.info("Invoking BeanFactoryPostProcessors");
+    PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
+
+    // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
+    // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
+    if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+//      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
+      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+    }
+  }
+
+  /**
+   * Instantiate and register all BeanPostProcessor beans,
+   * respecting explicit order if given.
+   * <p>Must be called before any instantiation of application beans.
+   */
+  protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
+    log.info("Loading BeanPostProcessor.");
+    PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
+  }
+
+  /**
+   * Initialize the MessageSource.
+   * Use parent's if none defined in this context.
+   */
+  protected void initMessageSource() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
+      this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
+      // Make MessageSource aware of parent MessageSource.
+      if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource hms) {
+        if (hms.getParentMessageSource() == null) {
+          // Only set parent context as parent MessageSource if no parent MessageSource
+          // registered already.
+          hms.setParentMessageSource(getInternalParentMessageSource());
+        }
+      }
+      if (log.isTraceEnabled()) {
+        log.trace("Using MessageSource [{}]", messageSource);
+      }
+    }
+    else {
+      // Use empty MessageSource to be able to accept getMessage calls.
+      DelegatingMessageSource dms = new DelegatingMessageSource();
+      dms.setParentMessageSource(getInternalParentMessageSource());
+      this.messageSource = dms;
+      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
+      if (log.isTraceEnabled()) {
+        log.trace("No '{}' bean, using [{}]", MESSAGE_SOURCE_BEAN_NAME, messageSource);
+      }
+    }
+  }
+
+  /**
+   * Cancel this context's refresh attempt, after an exception got thrown.
+   *
+   * @param ex the exception that led to the cancellation
+   */
+  protected void cancelRefresh(Exception ex) {
+    close();
+  }
 
   @Override
   public void close() {
@@ -813,15 +747,6 @@ public abstract class AbstractApplicationContext
   protected void onClose() {
     // For subclasses: do nothing by default.
   }
-
-  /**
-   * Subclasses must implement this method to release their internal bean factory.
-   * This method gets invoked by {@link #close()} after all other shutdown work.
-   * <p>Should never throw an exception but rather log shutdown failures.
-   *
-   * @since 4.0
-   */
-  protected void closeBeanFactory() { }
 
   /**
    * Template method for destroying all beans that this context manages.
@@ -1176,6 +1101,76 @@ public abstract class AbstractApplicationContext
   }
 
   //---------------------------------------------------------------------
+  // Implementation of Lifecycle interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public void start() {
+    getLifecycleProcessor().start();
+    publishEvent(new ContextStartedEvent(this));
+  }
+
+  @Override
+  public void stop() {
+    getLifecycleProcessor().stop();
+    publishEvent(new ContextStoppedEvent(this));
+  }
+
+  @Override
+  public boolean isRunning() {
+    return this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning();
+  }
+
+  // lifecycleProcessor
+
+  // @since 4.0
+  public void setLifecycleProcessor(@Nullable LifecycleProcessor lifecycleProcessor) {
+    this.lifecycleProcessor = lifecycleProcessor;
+  }
+
+  /**
+   * Initialize the LifecycleProcessor.
+   * Uses DefaultLifecycleProcessor if none defined in the context.
+   *
+   * @see DefaultLifecycleProcessor
+   */
+  protected void initLifecycleProcessor() {
+    if (lifecycleProcessor == null) {
+      ConfigurableBeanFactory beanFactory = getBeanFactory();
+      if (beanFactory.containsLocalBean(LIFECYCLE_PROCESSOR_BEAN_NAME)) {
+        this.lifecycleProcessor = beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
+        if (log.isTraceEnabled()) {
+          log.trace("Using LifecycleProcessor [{}]", lifecycleProcessor);
+        }
+      }
+      else {
+        DefaultLifecycleProcessor defaultProcessor = new DefaultLifecycleProcessor();
+        defaultProcessor.setBeanFactory(beanFactory);
+        this.lifecycleProcessor = defaultProcessor;
+        beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
+        if (log.isTraceEnabled()) {
+          log.trace("No '{}' bean, using [{}]", LIFECYCLE_PROCESSOR_BEAN_NAME, lifecycleProcessor.getClass().getSimpleName());
+        }
+      }
+    }
+  }
+
+  /**
+   * Return the internal LifecycleProcessor used by the context.
+   *
+   * @return the internal LifecycleProcessor (never {@code null})
+   * @throws IllegalStateException if the context has not been initialized yet
+   */
+  public LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
+    if (this.lifecycleProcessor == null) {
+      throw new IllegalStateException(
+              "LifecycleProcessor not initialized - " +
+                      "call 'refresh' before invoking lifecycle methods via the context: " + this);
+    }
+    return this.lifecycleProcessor;
+  }
+
+  //---------------------------------------------------------------------
   // Implementation of ApplicationEventPublisher interface
   //---------------------------------------------------------------------
 
@@ -1191,38 +1186,6 @@ public abstract class AbstractApplicationContext
               "call 'refresh' before multicasting events via the context: " + this);
     }
     return this.applicationEventMulticaster;
-  }
-
-  /**
-   * Initialize the MessageSource.
-   * Use parent's if none defined in this context.
-   */
-  protected void initMessageSource() {
-    ConfigurableBeanFactory beanFactory = getBeanFactory();
-    if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
-      this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
-      // Make MessageSource aware of parent MessageSource.
-      if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource hms) {
-        if (hms.getParentMessageSource() == null) {
-          // Only set parent context as parent MessageSource if no parent MessageSource
-          // registered already.
-          hms.setParentMessageSource(getInternalParentMessageSource());
-        }
-      }
-      if (log.isTraceEnabled()) {
-        log.trace("Using MessageSource [{}]", messageSource);
-      }
-    }
-    else {
-      // Use empty MessageSource to be able to accept getMessage calls.
-      DelegatingMessageSource dms = new DelegatingMessageSource();
-      dms.setParentMessageSource(getInternalParentMessageSource());
-      this.messageSource = dms;
-      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
-      if (log.isTraceEnabled()) {
-        log.trace("No '{}' bean, using [{}]", MESSAGE_SOURCE_BEAN_NAME, messageSource);
-      }
-    }
   }
 
   /**
@@ -1363,6 +1326,97 @@ public abstract class AbstractApplicationContext
     }
     this.applicationListeners.add(listener);
   }
+
+  /**
+   * Finish the initialization of this context's bean factory,
+   * initializing all remaining singleton beans.
+   */
+  protected void finishBeanFactoryInitialization(ConfigurableBeanFactory beanFactory) {
+    // Initialize conversion service for this context.
+    if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
+            beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+      beanFactory.setConversionService(
+              beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+    }
+
+    // Register a default embedded value resolver if no BeanFactoryPostProcessor
+    // (such as a PropertySourcesPlaceholderConfigurer bean) registered any before:
+    // at this point, primarily for resolution in annotation attribute values.
+    if (!beanFactory.hasEmbeddedValueResolver()) {
+      beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
+    }
+
+    // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
+
+    // Stop using the temporary ClassLoader for type matching.
+    beanFactory.setTempClassLoader(null);
+
+    // Instantiate all remaining (non-lazy-init) singletons.
+    beanFactory.preInstantiateSingletons();
+  }
+
+  /**
+   * Context start success
+   */
+  protected void finishRefresh() {
+    clearResourceCaches();
+
+    // Initialize lifecycle processor for this context.
+    initLifecycleProcessor();
+
+    // Propagate refresh to lifecycle processor first.
+    getLifecycleProcessor().onRefresh();
+
+    // Publish the final event.
+    publishEvent(new ContextRefreshedEvent(this));
+
+    applyState(State.STARTED);
+    log.info("Application Context Startup in {}ms", System.currentTimeMillis() - getStartupDate());
+  }
+
+  //---------------------------------------------------------------------
+  // Abstract methods that must be implemented by subclasses
+  //---------------------------------------------------------------------
+
+  /**
+   * Subclasses must implement this method to perform the actual configuration load.
+   * The method is invoked by {@link #refresh()} before any other initialization work.
+   * <p>A subclass will either create a new bean factory and hold a reference to it,
+   * or return a single BeanFactory instance that it holds. In the latter case, it will
+   * usually throw an IllegalStateException if refreshing the context more than once.
+   *
+   * @throws BeansException if initialization of the bean factory failed
+   * @throws IllegalStateException if already initialized and multiple refresh
+   * attempts are not supported
+   * @since 4.0
+   */
+  protected abstract void refreshBeanFactory() throws BeansException, IllegalStateException;
+
+  /**
+   * Subclasses must implement this method to release their internal bean factory.
+   * This method gets invoked by {@link #close()} after all other shutdown work.
+   * <p>Should never throw an exception but rather log shutdown failures.
+   *
+   * @since 4.0
+   */
+  protected void closeBeanFactory() { }
+
+  /**
+   * Subclasses must return their internal bean factory here. They should implement the
+   * lookup efficiently, so that it can be called repeatedly without a performance penalty.
+   * <p>Note: Subclasses should check whether the context is still active before
+   * returning the internal bean factory. The internal factory should generally be
+   * considered unavailable once the context has been closed.
+   *
+   * @return this application context's internal bean factory (never {@code null})
+   * @throws IllegalStateException if the context does not hold an internal bean factory yet
+   * (usually if {@link #refresh()} has never been called) or if the context has been
+   * closed already
+   * @see #refreshBeanFactory()
+   * @see #closeBeanFactory()
+   */
+  @Override
+  public abstract AbstractBeanFactory getBeanFactory();
 
   // Object
 
