@@ -20,18 +20,20 @@
 
 package cn.taketoday.scheduling.annotation;
 
-import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.SingletonSupplier;
 
 /**
  * Abstract base {@code Configuration} class providing common structure for enabling
@@ -67,17 +69,27 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
   /**
    * Collect any {@link AsyncConfigurer} beans through autowiring.
    */
-  @Autowired(required = false)
-  void setConfigurers(Collection<AsyncConfigurer> configurers) {
-    if (CollectionUtils.isEmpty(configurers)) {
-      return;
-    }
-    if (configurers.size() > 1) {
-      throw new IllegalStateException("Only one AsyncConfigurer may exist");
-    }
-    AsyncConfigurer configurer = configurers.iterator().next();
-    this.executor = configurer::getAsyncExecutor;
-    this.exceptionHandler = configurer::getAsyncUncaughtExceptionHandler;
+  @Autowired
+  void setConfigurers(ObjectSupplier<AsyncConfigurer> configurers) {
+    Supplier<AsyncConfigurer> asyncConfigurer = SingletonSupplier.of(() -> {
+      Object[] array = configurers.stream().toArray();
+      if (ObjectUtils.isEmpty(array)) {
+        return null;
+      }
+      if (array.length > 1) {
+        throw new IllegalStateException("Only one AsyncConfigurer may exist");
+      }
+      return (AsyncConfigurer) array[0];
+    });
+    this.executor = adapt(asyncConfigurer, AsyncConfigurer::getAsyncExecutor);
+    this.exceptionHandler = adapt(asyncConfigurer, AsyncConfigurer::getAsyncUncaughtExceptionHandler);
+  }
+
+  private <T> Supplier<T> adapt(Supplier<AsyncConfigurer> supplier, Function<AsyncConfigurer, T> provider) {
+    return () -> {
+      AsyncConfigurer asyncConfigurer = supplier.get();
+      return asyncConfigurer != null ? provider.apply(asyncConfigurer) : null;
+    };
   }
 
 }
