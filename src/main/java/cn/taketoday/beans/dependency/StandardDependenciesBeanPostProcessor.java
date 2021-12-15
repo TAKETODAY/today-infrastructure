@@ -143,10 +143,11 @@ public class StandardDependenciesBeanPostProcessor
     return beanFactory;
   }
 
-  public void setArgumentsResolver(ArgumentsResolver argumentsResolver) {
+  public void setArgumentsResolver(@Nullable ArgumentsResolver argumentsResolver) {
     this.argumentsResolver = argumentsResolver;
   }
 
+  @Nullable
   public ArgumentsResolver getArgumentsResolver() {
     return argumentsResolver;
   }

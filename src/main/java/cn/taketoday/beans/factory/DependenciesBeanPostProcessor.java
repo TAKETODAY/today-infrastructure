@@ -21,10 +21,17 @@
 package cn.taketoday.beans.factory;
 
 /**
+ * process dependency injection
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/19 21:35</a>
  * @since 4.0
  */
 public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
 
+  /**
+   * process when dependency injection is enabled
+   *
+   * @see BeanDefinition#isEnableDependencyInjection()
+   */
   void postProcessDependencies(Object bean, BeanDefinition definition);
 }

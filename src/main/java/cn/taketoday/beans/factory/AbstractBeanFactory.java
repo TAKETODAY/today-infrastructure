@@ -1336,7 +1336,6 @@ public abstract class AbstractBeanFactory
 
     postProcessors.remove(beanPostProcessor);
     postProcessors.add(beanPostProcessor);
-    AnnotationAwareOrderComparator.sort(postProcessors);
   }
 
   /**
@@ -1351,7 +1350,6 @@ public abstract class AbstractBeanFactory
 
     postProcessors.removeAll(beanPostProcessors);
     postProcessors.addAll(beanPostProcessors);
-    AnnotationAwareOrderComparator.sort(postProcessors);
   }
 
   @Override
