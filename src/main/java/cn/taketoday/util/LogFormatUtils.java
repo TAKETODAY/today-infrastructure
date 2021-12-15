@@ -70,10 +70,10 @@ public abstract class LogFormatUtils {
     }
     String result;
     try {
-      result = value.toString();
+      result = ObjectUtils.nullSafeToString(value);
     }
     catch (Throwable ex) {
-      result = ex.toString();
+      result = ObjectUtils.nullSafeToString(ex);
     }
     if (maxLength != -1) {
       result = (result.length() > maxLength ? result.substring(0, maxLength) + " (truncated)..." : result);
