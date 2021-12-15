@@ -177,7 +177,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return MergedAnnotation.missing();
     }
     MergedAnnotation<A> result = scan(annotationType,
-                                      new MergedAnnotationFinder<>(annotationType, predicate, selector));
+            new MergedAnnotationFinder<>(annotationType, predicate, selector));
     return (result != null ? result : MergedAnnotation.missing());
   }
 

@@ -32,6 +32,7 @@ import java.util.stream.StreamSupport;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -39,7 +40,7 @@ import cn.taketoday.util.ObjectUtils;
  * {@link MergedAnnotation} instances that represent direct annotations.
  *
  * @author Phillip Webb
- * @see MergedAnnotations#of(Collection)
+ * @see MergedAnnotations#valueOf(Collection)
  * @since 4.0
  */
 final class MergedAnnotationsCollection implements MergedAnnotations {
@@ -177,8 +178,8 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
         }
         MergedAnnotation<A> candidate =
                 mappingIndex == 0
-                        ? (MergedAnnotation<A>) root
-                        : TypeMappedAnnotation.createIfPossible(mapping, root, IntrospectionFailureLogger.INFO);
+                ? (MergedAnnotation<A>) root
+                : TypeMappedAnnotation.createIfPossible(mapping, root, IntrospectionFailureLogger.INFO);
         if (candidate != null && (predicate == null || predicate.test(candidate))) {
           if (selector.isBestCandidate(candidate)) {
             return candidate;
@@ -223,9 +224,8 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
     return (actualType == requiredType || actualType.getName().equals(requiredType));
   }
 
-  static MergedAnnotations of(Collection<MergedAnnotation<?>> annotations) {
-    Assert.notNull(annotations, "Annotations must not be null");
-    if (annotations.isEmpty()) {
+  static MergedAnnotations valueOf(@Nullable Collection<MergedAnnotation<?>> annotations) {
+    if (CollectionUtils.isEmpty(annotations)) {
       return TypeMappedAnnotations.NONE;
     }
     return new MergedAnnotationsCollection(annotations);
@@ -297,8 +297,8 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
       if (mappingIndex == 0) {
         return (MergedAnnotation<A>) root;
       }
-      IntrospectionFailureLogger logger = (this.requiredType != null ?
-              IntrospectionFailureLogger.INFO : IntrospectionFailureLogger.DEBUG);
+      IntrospectionFailureLogger logger =
+              (this.requiredType != null ? IntrospectionFailureLogger.INFO : IntrospectionFailureLogger.DEBUG);
       return TypeMappedAnnotation.createIfPossible(
               mappings[annotationIndex].get(mappingIndex), root, logger);
     }

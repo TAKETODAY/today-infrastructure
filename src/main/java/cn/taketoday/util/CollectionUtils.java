@@ -19,13 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +45,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2019-12-29 23:39
@@ -100,7 +100,7 @@ public abstract class CollectionUtils {
    * @return whether the given Collection is empty
    */
   public static boolean isEmpty(@Nullable Collection<?> collection) {
-    return (collection == null || collection.isEmpty());
+    return collection == null || collection.isEmpty();
   }
 
   /**

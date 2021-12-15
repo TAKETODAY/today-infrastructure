@@ -66,7 +66,7 @@ import cn.taketoday.lang.Nullable;
  * {@code @RequestMapping}. The merged view of the {@code @RequestMapping}
  * annotation will contain the following attributes:
  *
- *<table border="1">
+ * <table border="1">
  * <tr>
  * <th>Name</th>
  * <th>Value</th>
@@ -458,9 +458,10 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @param annotations the annotations to include
    * @return a {@link MergedAnnotations} instance containing the annotations
    * @see MergedAnnotation#valueOf(ClassLoader, Object, Class, java.util.Map)
+   * @see TypeMappedAnnotations#NONE
    */
-  static MergedAnnotations of(Collection<MergedAnnotation<?>> annotations) {
-    return MergedAnnotationsCollection.of(annotations);
+  static MergedAnnotations valueOf(@Nullable Collection<MergedAnnotation<?>> annotations) {
+    return MergedAnnotationsCollection.valueOf(annotations);
   }
 
   /**
