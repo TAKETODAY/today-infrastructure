@@ -37,6 +37,9 @@ import cn.taketoday.web.framework.server.WebServer;
  */
 public class WebApplication {
   private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
+  private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
+
+  private boolean headless = true;
 
   private final WebServerApplicationContext context;
   private final String appBasePath = System.getProperty("user.dir");
@@ -86,6 +89,7 @@ public class WebApplication {
    * @return {@link WebServerApplicationContext}
    */
   public WebServerApplicationContext run(String... args) {
+    configureHeadlessProperty();
     log.info("Starting Web Application at [{}]", getAppBasePath());
 
     WebServerApplicationContext context = getApplicationContext();
@@ -112,7 +116,7 @@ public class WebApplication {
       webServer.start();
 
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-               System.currentTimeMillis() - context.getStartupDate()//
+              System.currentTimeMillis() - context.getStartupDate()//
       );
       return context;
     }
@@ -123,8 +127,21 @@ public class WebApplication {
     }
   }
 
+  private void configureHeadlessProperty() {
+    System.setProperty(SYSTEM_PROPERTY_JAVA_AWT_HEADLESS, System.getProperty(
+            SYSTEM_PROPERTY_JAVA_AWT_HEADLESS, Boolean.toString(this.headless)));
+  }
+
   public String getAppBasePath() {
     return appBasePath;
+  }
+
+  public void setHeadless(boolean headless) {
+    this.headless = headless;
+  }
+
+  public boolean isHeadless() {
+    return headless;
   }
 
 }
