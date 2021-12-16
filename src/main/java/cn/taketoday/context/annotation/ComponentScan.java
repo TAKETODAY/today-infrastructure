@@ -35,7 +35,7 @@ import cn.taketoday.core.type.filter.TypeFilter;
 
 /**
  * Configures component scanning directives for use with @{@link Configuration} classes.
- * Provides support parallel with Spring XML's {@code <context:component-scan>} element.
+ * Provides support parallel with Framework XML's {@code <context:component-scan>} element.
  *
  * <p>Either {@link #basePackageClasses} or {@link #basePackages} (or its alias
  * {@link #value}) may be specified to define specific packages to scan. If specific

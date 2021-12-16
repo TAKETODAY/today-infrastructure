@@ -15,6 +15,17 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.context.annotation.FailFastProblemReporter;
+import cn.taketoday.context.annotation.ProblemReporter;
+import cn.taketoday.core.NamedThreadLocal;
+import cn.taketoday.core.io.DescriptiveResource;
+import cn.taketoday.core.io.EncodedResource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Bean definition reader for XML bean definitions.

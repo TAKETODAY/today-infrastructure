@@ -43,13 +43,13 @@ import cn.taketoday.util.StringUtils;
  * {@link BeanNameGenerator} implementation for bean classes annotated with the
  * {@link cn.taketoday.lang.Component @Component} annotation or
  * with another annotation that is itself annotated with {@code @Component} as a
- * meta-annotation. For example, Spring's stereotype annotations (such as
+ * meta-annotation. For example, Framework's stereotype annotations (such as
  * {@link cn.taketoday.lang.Repository @Repository}) are
  * themselves annotated with {@code @Component}.
  *
  * <p>Also supports Jakarta EE's {@link jakarta.annotation.ManagedBean} and
  * JSR-330's {@link jakarta.inject.Named} annotations, if available. Note that
- * Spring component annotations always override such standard annotations.
+ * Framework component annotations always override such standard annotations.
  *
  * <p>If the annotation's value doesn't indicate a bean name, an appropriate
  * name will be built based on the short name of the class (with the first

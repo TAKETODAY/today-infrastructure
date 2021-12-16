@@ -68,7 +68,7 @@ public interface ImportSelector {
    *
    * @return the class names, or an empty array if none
    */
-  String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context);
+  String[] selectImports(AnnotationMetadata importingClassMetadata);
 
   /**
    * Return a predicate for excluding classes from the import candidates, to be

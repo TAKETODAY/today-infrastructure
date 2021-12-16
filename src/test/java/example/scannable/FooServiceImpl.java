@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -70,8 +71,8 @@ public abstract class FooServiceImpl implements FooService {
   @Autowired
   public ApplicationEventPublisher eventPublisher;
 
-//  @Autowired
-//  public MessageSource messageSource;
+  @Autowired
+  public MessageSource messageSource;
 
   @Autowired
   public ApplicationContext context;
@@ -113,7 +114,7 @@ public abstract class FooServiceImpl implements FooService {
     return this.initCalled;
   }
 
-//  @Lookup
+  //  @Lookup
   protected abstract FooDao fooDao();
 
 }

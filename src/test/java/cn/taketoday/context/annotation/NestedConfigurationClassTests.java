@@ -23,6 +23,7 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.Lazy;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 
@@ -342,7 +343,7 @@ public class NestedConfigurationClassTests {
   }
 
   @Configuration
-  @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+  @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
   static class S1ConfigWithProxy extends L0Config {
 
     @Override
@@ -377,7 +378,7 @@ public class NestedConfigurationClassTests {
     static class L1ConfigEmpty {
 
       @Component
-      @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+      @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
       protected static class L2ConfigEmpty {
       }
     }
@@ -390,7 +391,7 @@ public class NestedConfigurationClassTests {
     static class L1ConfigEmpty {
 
       @Component
-      @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+      @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
       protected static class L2ConfigEmpty {
       }
     }

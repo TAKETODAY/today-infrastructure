@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,11 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  */
 public class Spr6602Tests {
-
-  @Test
-  public void testXmlBehavior() throws Exception {
-    doAssertions(new ClassPathXmlApplicationContext("Spr6602Tests-context.xml", Spr6602Tests.class));
-  }
 
   @Test
   public void testConfigurationClassBehavior() throws Exception {

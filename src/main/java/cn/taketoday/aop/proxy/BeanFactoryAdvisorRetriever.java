@@ -35,7 +35,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- * Helper for retrieving standard Spring Advisors from a BeanFactory,
+ * Helper for retrieving standard Framework Advisors from a BeanFactory,
  * for use with auto-proxying.
  *
  * @author Juergen Hoeller

@@ -355,10 +355,10 @@ import cn.taketoday.lang.Value;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/testing.html#testcontext-framework">TestContext framework</a>
  * reference documentation for details.
  *
- * <h2>Enabling built-in Spring features using {@code @Enable} annotations</h2>
+ * <h2>Enabling built-in Framework features using {@code @Enable} annotations</h2>
  *
- * <p>Spring features such as asynchronous method execution, scheduled task execution,
- * annotation driven transaction management, and even Spring MVC can be enabled and
+ * <p>Framework features such as asynchronous method execution, scheduled task execution,
+ * annotation driven transaction management, and even Framework MVC can be enabled and
  * configured from {@code @Configuration} classes using their respective "{@code @Enable}"
  * annotations. See
  * {@link cn.taketoday.scheduling.annotation.EnableAsync @EnableAsync},
@@ -404,7 +404,7 @@ import cn.taketoday.lang.Value;
 public @interface Configuration {
 
   /**
-   * Explicitly specify the name of the Spring bean definition associated with the
+   * Explicitly specify the name of the Framework bean definition associated with the
    * {@code @Configuration} class. If left unspecified (the common case), a bean
    * name will be automatically generated.
    * <p>The custom name applies only if the {@code @Configuration} class is picked

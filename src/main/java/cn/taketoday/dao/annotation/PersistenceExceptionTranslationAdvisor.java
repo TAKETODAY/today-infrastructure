@@ -32,7 +32,7 @@ import cn.taketoday.dao.support.PersistenceExceptionTranslationInterceptor;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 
 /**
- * Spring AOP exception translation aspect for use at Repository or DAO layer level.
+ * Framework AOP exception translation aspect for use at Repository or DAO layer level.
  * Translates native persistence exceptions into  DataAccessException hierarchy,
  * based on a given PersistenceExceptionTranslator.
  *

@@ -46,7 +46,7 @@ import cn.taketoday.lang.Nullable;
  * or {@code ApplicationContext}).
  *
  * <p>Candidate classes are detected through configurable type filters. The
- * default filters include classes that are annotated with Spring's
+ * default filters include classes that are annotated with Framework's
  * {@link cn.taketoday.lang.Component @Component},
  * {@link cn.taketoday.lang.Repository @Repository},
  * {@link cn.taketoday.lang.Service @Service}, or
@@ -132,7 +132,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * {@link cn.taketoday.lang.Repository @Repository},
    * {@link cn.taketoday.lang.Service @Service}, and
    * {@link cn.taketoday.web.annotation.Controller @Controller} stereotype annotations
-   * @param environment the Spring {@link Environment} to use when evaluating bean
+   * @param environment the Framework {@link Environment} to use when evaluating bean
    * definition profile metadata
    * @see #setResourceLoader
    */
@@ -153,7 +153,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * {@link cn.taketoday.lang.Repository @Repository},
    * {@link cn.taketoday.lang.Service @Service}, and
    * {@link cn.taketoday.web.annotation.Controller @Controller} stereotype annotations
-   * @param environment the Spring {@link Environment} to use when evaluating bean
+   * @param environment the Framework {@link Environment} to use when evaluating bean
    * definition profile metadata
    * @param resourceLoader the {@link ResourceLoader} to use
    */

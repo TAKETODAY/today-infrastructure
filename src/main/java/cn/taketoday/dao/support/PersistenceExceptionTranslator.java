@@ -24,7 +24,7 @@ import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Interface implemented by Spring integrations with data access technologies
+ * Interface implemented by Framework integrations with data access technologies
  * that throw runtime exceptions, such as JPA and Hibernate.
  *
  * <p>This allows consistent usage of combined exception translation functionality,
@@ -47,7 +47,7 @@ public interface PersistenceExceptionTranslator {
    * from user code or otherwise unrelated to persistence.
    * <p>Of particular importance is the correct translation to
    * DataIntegrityViolationException, for example on constraint violation.
-   * Implementations may use Spring JDBC's sophisticated exception translation
+   * Implementations may use Framework JDBC's sophisticated exception translation
    * to provide further information in the event of SQLException as a root cause.
    *
    * @param ex a RuntimeException to translate

@@ -24,6 +24,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -36,6 +37,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -55,6 +57,17 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 public class ConfigurationClassAspectIntegrationTests {
 
+  private StandardBeanFactory beanFactory;
+
+  private DefinitionLoadingContext loadingContext;
+
+  @BeforeEach
+  void setup() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    beanFactory = context.getBeanFactory();
+  }
+
   @Test
   public void aspectAnnotatedConfiguration() {
     assertAdviceWasApplied(AspectConfig.class);
@@ -70,7 +83,7 @@ public class ConfigurationClassAspectIntegrationTests {
     new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
             new ClassPathResource("aspectj-autoproxy-config.xml", ConfigurationClassAspectIntegrationTests.class));
     DefaultApplicationContext ctx = new DefaultApplicationContext(factory);
-    ctx.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor());
+    ctx.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor(loadingContext));
     ctx.registerBeanDefinition("config", new BeanDefinition(configClass));
     ctx.refresh();
 
@@ -128,7 +141,7 @@ public class ConfigurationClassAspectIntegrationTests {
   }
 
   @Configuration
-  @EnableAspectJAutoProxy
+//  @EnableAspectJAutoProxy
   public static class Application {
 
     @Bean

@@ -27,7 +27,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Instantiates a target handler through a Spring {@link BeanFactory} and also provides
+ * Instantiates a target handler through a Framework {@link BeanFactory} and also provides
  * an equivalent destroy method. Mainly for internal use to assist with initializing and
  * destroying handlers with per-connection lifecycle.
  *

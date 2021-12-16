@@ -20,13 +20,14 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.core.convert.converter.Converter;
+import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.core.conversion.Converter;
 import example.scannable.FooService;
 
 /**
  * @author Juergen Hoeller
  */
-public class FooServiceDependentConverter implements Converter<String, cn.taketoday.beans.testfixture.beans.TestBean> {
+public class FooServiceDependentConverter implements Converter<String, TestBean> {
 
   @SuppressWarnings("unused")
   private FooService fooService;
@@ -36,8 +37,8 @@ public class FooServiceDependentConverter implements Converter<String, cn.taketo
   }
 
   @Override
-  public cn.taketoday.beans.testfixture.beans.TestBean convert(String source) {
-    return new cn.taketoday.beans.testfixture.beans.TestBean(source);
+  public TestBean convert(String source) {
+    return new TestBean(source);
   }
 
 }

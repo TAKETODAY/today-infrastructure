@@ -30,7 +30,7 @@ import cn.taketoday.lang.Component;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 
 /**
- * {@code @Configuration} class that registers the Spring infrastructure beans necessary
+ * {@code @Configuration} class that registers the Framework infrastructure beans necessary
  * to enable proxy-based asynchronous method execution.
  *
  * @author Chris Beams

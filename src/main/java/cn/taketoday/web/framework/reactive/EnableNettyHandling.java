@@ -22,14 +22,13 @@ package cn.taketoday.web.framework.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.AnnotationImportSelector;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContextHolder;
@@ -126,21 +125,18 @@ class NettyConfig implements AnnotationImportSelector<EnableNettyHandling> {
   @Nullable
   @Override
   public String[] selectImports(
-          EnableNettyHandling target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context) {
+          EnableNettyHandling target, AnnotationMetadata annotatedMetadata) {
     // replace context holder
     if (target.fastThreadLocal()) {
       RequestContextHolder.replaceContextHolder(new FastRequestThreadLocal());
     }
 
-    if (!context.containsBeanDefinition(NettyDispatcher.class)) {
-      if (target.async()) {
-        return new String[] { AsyncNettyDispatcherHandler.class.getName() };
-      }
-      else {
-        return new String[] { NettyDispatcher.class.getName() };
-      }
+    if (target.async()) {
+      return new String[] { AsyncNettyDispatcherHandler.class.getName() };
     }
-    return null;
+    else {
+      return new String[] { NettyDispatcher.class.getName() };
+    }
   }
 
 }

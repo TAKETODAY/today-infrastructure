@@ -28,6 +28,7 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -173,7 +174,7 @@ public class BeanMethodPolymorphismTests {
   public void beanMethodThroughAopProxy() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(Config.class);
-    ctx.register(AnnotationAwareAspectJAutoProxyCreator.class);
+//    ctx.register(AnnotationAwareAspectJAutoProxyCreator.class);
     ctx.register(TestAdvisor.class);
     ctx.refresh();
     ctx.getBean("testBean", TestBean.class);

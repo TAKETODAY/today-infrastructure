@@ -20,21 +20,24 @@
 
 package cn.taketoday.context.annotation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * <p>
@@ -48,8 +51,8 @@ import jakarta.annotation.PreDestroy;
  * </p>
  * <ul>
  * <li>{@link InitializingBean} &amp; {@link DisposableBean} interfaces</li>
- * <li>Custom {@link BeanDefinition#getInitMethodName() init} &amp;
- * {@link BeanDefinition#getDestroyMethodName() destroy} methods</li>
+ * <li>Custom {@link BeanDefinition#getInitMethods() init} &amp;
+ * {@link BeanDefinition#getDestroyMethod() destroy} methods</li>
  * <li>JSR 250's {@link PostConstruct @PostConstruct} &amp;
  * {@link PreDestroy @PreDestroy} annotations</li>
  * </ul>
@@ -59,7 +62,7 @@ import jakarta.annotation.PreDestroy;
  */
 public class Spr3775InitDestroyLifecycleTests {
 
-  private static final Log logger = LogFactory.getLog(Spr3775InitDestroyLifecycleTests.class);
+  private static final Logger logger = LoggerFactory.getLogger(Spr3775InitDestroyLifecycleTests.class);
 
   /** LIFECYCLE_TEST_BEAN. */
   private static final String LIFECYCLE_TEST_BEAN = "lifecycleTestBean";
@@ -80,9 +83,13 @@ public class Spr3775InitDestroyLifecycleTests {
                                                                final String initMethodName, final String destroyMethodName) {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     BeanDefinition beanDefinition = new BeanDefinition(beanClass);
-    beanDefinition.setInitMethodName(initMethodName);
-    beanDefinition.setDestroyMethodName(destroyMethodName);
-    beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
+    beanDefinition.setInitMethods(initMethodName);
+    beanDefinition.setDestroyMethod(destroyMethodName);
+
+    InitDestroyAnnotationBeanPostProcessor postProcessor = new InitDestroyAnnotationBeanPostProcessor();
+    postProcessor.setInitAnnotationType(PostConstruct.class);
+    postProcessor.setDestroyAnnotationType(PreDestroy.class);
+    beanFactory.addBeanPostProcessor(postProcessor);
     beanFactory.registerBeanDefinition(LIFECYCLE_TEST_BEAN, beanDefinition);
     return beanFactory;
   }

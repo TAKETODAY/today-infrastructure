@@ -18,17 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.classloading;
+
+import cn.taketoday.core.OverridingClassLoader;
+import cn.taketoday.lang.Nullable;
 
 /**
- * @author Juergen Hoeller
- * @author Chris Beams
+ * ClassLoader that can be used to load classes without bringing them
+ * into the parent loader. Intended to support JPA "temp class loader"
+ * requirement, but not JPA-specific.
+ *
+ * @author Rod Johnson
+ * @since 4.0
  */
-public class DoubleScanTests extends SimpleScanTests {
+public class SimpleThrowawayClassLoader extends OverridingClassLoader {
 
-  @Override
-  protected String[] getConfigLocations() {
-    return new String[] { "doubleScanTests.xml" };
+  static {
+    ClassLoader.registerAsParallelCapable();
+  }
+
+  /**
+   * Create a new SimpleThrowawayClassLoader for the given ClassLoader.
+   *
+   * @param parent the ClassLoader to build a throwaway ClassLoader for
+   */
+  public SimpleThrowawayClassLoader(@Nullable ClassLoader parent) {
+    super(parent);
   }
 
 }

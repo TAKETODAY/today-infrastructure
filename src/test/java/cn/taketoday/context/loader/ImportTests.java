@@ -27,20 +27,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import jakarta.annotation.PreDestroy;
-
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Autowired;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
+import jakarta.annotation.PreDestroy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -100,7 +99,7 @@ class ImportTests {
   public static class TESTSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
       return NO_IMPORTS;
     }
   }
@@ -124,8 +123,7 @@ class ImportTests {
 
     @Nullable
     @Override
-    public String[] selectImports(
-            EnableAop target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context) {
+    public String[] selectImports(EnableAop target, AnnotationMetadata annotatedMetadata) {
       this.enableAop = target;
       this.annotatedMetadata = annotatedMetadata;
       this.context.unwrapFactory(SingletonBeanRegistry.class).registerSingleton(this);

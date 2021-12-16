@@ -22,10 +22,12 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.factory.AbstractFactoryBean;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author Juergen Hoeller
@@ -107,7 +109,7 @@ public class Spr15275Tests {
     public FactoryBean<Foo> foo() {
       return new AbstractFactoryBean<Foo>() {
         @Override
-        public Foo createInstance() {
+        public Foo createBeanInstance() {
           return new Foo("x");
         }
 
@@ -132,7 +134,7 @@ public class Spr15275Tests {
     public FactoryBean<FooInterface> foo() {
       return new AbstractFactoryBean<FooInterface>() {
         @Override
-        public FooInterface createInstance() {
+        public FooInterface createBeanInstance() {
           return new Foo("x");
         }
 
@@ -157,7 +159,7 @@ public class Spr15275Tests {
     public AbstractFactoryBean<FooInterface> foo() {
       return new AbstractFactoryBean<FooInterface>() {
         @Override
-        public FooInterface createInstance() {
+        public FooInterface createBeanInstance() {
           return new Foo("x");
         }
 

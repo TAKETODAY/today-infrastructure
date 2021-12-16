@@ -20,12 +20,14 @@
 
 package cn.taketoday.context.annotation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 
-import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.BeanDefinition;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -37,16 +39,27 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class InvalidConfigurationClassDefinitionTests {
 
+  private StandardBeanFactory beanFactory;
+
+  private DefinitionLoadingContext loadingContext;
+
+  @BeforeEach
+  void setup() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    beanFactory = context.getBeanFactory();
+  }
+
   @Test
   public void configurationClassesMayNotBeFinal() {
     @Configuration
     final class Config { }
 
-    BeanDefinition configBeanDef = BeanDefinition(Config.class).getBeanDefinition();
+    BeanDefinition configBeanDef = new BeanDefinition(Config.class);
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("config", configBeanDef);
 
-    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
     assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() ->
                     pp.postProcessBeanFactory(beanFactory))
             .withMessageContaining("Remove the final modifier");

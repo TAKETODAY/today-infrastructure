@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * by any child threads spawned by the current thread if the
  * {@code inheritable} flag is set to {@code true}.
  *
- * <p>Used as a central holder for the current Locale in Spring,
+ * <p>Used as a central holder for the current Locale in Framework,
  * wherever necessary: for example, in MessageSourceAccessor.
  * DispatcherServlet automatically exposes its current Locale here.
  * Other applications can expose theirs too, to make classes like
@@ -178,7 +178,7 @@ public final class LocaleContextHolder {
    * <p><b>NOTE:</b> This can be useful to set an application-level
    * default locale which differs from the JVM-wide default locale.
    * However, this requires each such application to operate against
-   * locally deployed Spring Framework jars. Do not deploy Spring
+   * locally deployed Framework jars. Do not deploy Framework
    * as a shared library at the server level in such a scenario!
    *
    * @param locale the default locale (or {@code null} for none,
@@ -286,7 +286,7 @@ public final class LocaleContextHolder {
    * <p><b>NOTE:</b> This can be useful to set an application-level
    * default time zone which differs from the JVM-wide default time zone.
    * However, this requires each such application to operate against
-   * locally deployed Spring Framework jars. Do not deploy Spring
+   * locally deployed  Framework jars. Do not deploy Framework
    * as a shared library at the server level in such a scenario!
    *
    * @param timeZone the default time zone (or {@code null} for none,

@@ -74,7 +74,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
   /**
    * Create a new instance with a default {@link AsyncUncaughtExceptionHandler}.
    *
-   * @param defaultExecutor the {@link Executor} (typically a Spring {@link AsyncTaskExecutor}
+   * @param defaultExecutor the {@link Executor} (typically a Framework {@link AsyncTaskExecutor}
    * or {@link java.util.concurrent.ExecutorService}) to delegate to;
    * a local executor for this interceptor will be built otherwise
    */
@@ -85,7 +85,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
   /**
    * Create a new {@code AsyncExecutionInterceptor}.
    *
-   * @param defaultExecutor the {@link Executor} (typically a Spring {@link AsyncTaskExecutor}
+   * @param defaultExecutor the {@link Executor} (typically a Framework {@link AsyncTaskExecutor}
    * or {@link java.util.concurrent.ExecutorService}) to delegate to;
    * a local executor for this interceptor will be built otherwise
    * @param exceptionHandler the {@link AsyncUncaughtExceptionHandler} to use
@@ -135,7 +135,6 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
   }
 
   /**
-   * This implementation is a no-op for compatibility in Spring 3.1.2.
    * Subclasses may override to provide support for extracting qualifier information,
    * e.g. via an annotation on the given method.
    *

@@ -26,12 +26,12 @@ import java.lang.instrument.ClassFileTransformer;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
-import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.instrument.classloading.LoadTimeWeaver;
+import cn.taketoday.context.classloading.LoadTimeWeaver;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Unit tests for @EnableLoadTimeWeaving
@@ -40,13 +40,6 @@ import static org.mockito.Mockito.verify;
  * @since 3.1
  */
 public class EnableLoadTimeWeavingTests {
-
-  @Test
-  public void control() {
-    GenericXmlApplicationContext ctx =
-            new GenericXmlApplicationContext(getClass(), "EnableLoadTimeWeavingTests-context.xml");
-    ctx.getBean("loadTimeWeaver", LoadTimeWeaver.class);
-  }
 
   @Test
   public void enableLTW_withAjWeavingDisabled() {

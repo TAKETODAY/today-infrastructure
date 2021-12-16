@@ -34,15 +34,15 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
-import cn.taketoday.core.env.MutablePropertySources;
-import cn.taketoday.core.io.support.EncodedResource;
-import cn.taketoday.core.io.support.PropertiesLoaderUtils;
-import cn.taketoday.core.io.support.PropertySourceFactory;
+import cn.taketoday.core.io.EncodedResource;
+import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.io.PropertySourceFactory;
 import jakarta.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +68,7 @@ class PropertySourceAnnotationTests {
 
     // assert that the property source was added last to the set of sources
     String name;
-    MutablePropertySources sources = ctx.getEnvironment().getPropertySources();
+    cn.taketoday.core.env.PropertySources sources = ctx.getEnvironment().getPropertySources();
     Iterator<cn.taketoday.core.env.PropertySource<?>> iterator = sources.iterator();
     do {
       name = iterator.next().getName();
@@ -416,9 +416,10 @@ class PropertySourceAnnotationTests {
   static class MyCustomFactory implements PropertySourceFactory {
 
     @Override
-    public cn.taketoday.core.env.PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-      Properties props = PropertiesLoaderUtils.loadProperties(resource);
-      return new cn.taketoday.core.env.PropertySource<Properties>("my" + name, props) {
+    public cn.taketoday.core.env.PropertySource<?> createPropertySource(
+            String name, EncodedResource resource) throws IOException {
+      Properties props = PropertiesUtils.loadProperties(resource);
+      return new cn.taketoday.core.env.PropertySource<>("my" + name, props) {
         @Override
         public Object getProperty(String name) {
           String value = props.getProperty(name);

@@ -33,12 +33,12 @@ import cn.taketoday.lang.Nullable;
 public interface AnnotationImportSelector<A extends Annotation> extends AnnotationProvider<A>, ImportSelector {
 
   @Override
-  default String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
+  default String[] selectImports(AnnotationMetadata importingClassMetadata) {
     final A target = getAnnotation(importingClassMetadata);
-    return selectImports(target, importingClassMetadata, context);
+    return selectImports(target, importingClassMetadata);
   }
 
   @Nullable
-  String[] selectImports(A target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context);
+  String[] selectImports(A target, AnnotationMetadata annotatedMetadata);
 
 }

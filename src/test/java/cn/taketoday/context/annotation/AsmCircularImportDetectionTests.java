@@ -20,10 +20,11 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.core.io.DefaultResourceLoader;
-import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import org.junit.jupiter.api.BeforeEach;
+
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 
 /**
  * Unit test proving that ASM-based {@link ConfigurationClassParser} correctly detects
@@ -32,16 +33,20 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
  * @author Chris Beams
  */
 public class AsmCircularImportDetectionTests extends AbstractCircularImportDetectionTests {
+  private StandardBeanFactory beanFactory;
+
+  private DefinitionLoadingContext loadingContext;
+
+  @BeforeEach
+  void setup() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    beanFactory = context.getBeanFactory();
+  }
 
   @Override
   protected ConfigurationClassParser newParser() {
-    return new ConfigurationClassParser(
-            new CachingMetadataReaderFactory(),
-            new FailFastProblemReporter(),
-            new StandardEnvironment(),
-            new DefaultResourceLoader(),
-            new AnnotationBeanNameGenerator(),
-            new StandardBeanFactory());
+    return new ConfigurationClassParser(loadingContext);
   }
 
   @Override

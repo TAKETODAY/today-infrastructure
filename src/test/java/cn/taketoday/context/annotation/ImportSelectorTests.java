@@ -39,27 +39,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.EnvironmentAware;
-import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
 
 /**
@@ -203,8 +203,9 @@ public class ImportSelectorTests {
   static class AwareConfig {
   }
 
-  private static class SampleImportSelector implements ImportSelector,
-                                                       BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
+  private static class SampleImportSelector
+          implements ImportSelector, BeanClassLoaderAware,
+                     ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
 
     static ClassLoader classLoader;
     static ResourceLoader resourceLoader;
@@ -257,7 +258,6 @@ public class ImportSelectorTests {
   }
 
   public static class ImportSelector1 implements ImportSelector {
-
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
       ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
@@ -272,10 +272,10 @@ public class ImportSelectorTests {
       ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
       return new String[] { ImportedSelector2.class.getName() };
     }
+
   }
 
   public static class DeferredImportSelector1 implements DeferredImportSelector, Ordered {
-
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
       ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
@@ -286,16 +286,17 @@ public class ImportSelectorTests {
     public int getOrder() {
       return Ordered.LOWEST_PRECEDENCE;
     }
+
   }
 
   @Order(Ordered.HIGHEST_PRECEDENCE)
   public static class DeferredImportSelector2 implements DeferredImportSelector {
-
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
       ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
       return new String[] { DeferredImportedSelector2.class.getName() };
     }
+
   }
 
   @Configuration
@@ -345,8 +346,7 @@ public class ImportSelectorTests {
 
   @Configuration
   @Import(IndirectImportSelector.class)
-  public static class IndirectConfig {
-  }
+  public static class IndirectConfig { }
 
   public static class IndirectImportSelector implements ImportSelector {
 
@@ -491,8 +491,9 @@ public class ImportSelectorTests {
 
   }
 
-  public static class TestImportGroup implements DeferredImportSelector.Group,
-                                                 BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
+  public static class TestImportGroup
+          implements DeferredImportSelector.Group,
+                     BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
 
     static ClassLoader classLoader;
     static ResourceLoader resourceLoader;
@@ -500,7 +501,7 @@ public class ImportSelectorTests {
     static Environment environment;
 
     static AtomicInteger instancesCount = new AtomicInteger();
-    static MultiValueMap<AnnotationMetadata, String> imports = new LinkedMultiValueMap<>();
+    static MultiValueMap<AnnotationMetadata, String> imports = MultiValueMap.fromLinkedHashMap();
 
     public TestImportGroup() {
       TestImportGroup.instancesCount.incrementAndGet();

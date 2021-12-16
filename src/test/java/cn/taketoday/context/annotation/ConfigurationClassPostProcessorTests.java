@@ -51,6 +51,7 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;

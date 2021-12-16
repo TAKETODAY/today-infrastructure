@@ -85,7 +85,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   /**
    * Create a new instance with a default {@link AsyncUncaughtExceptionHandler}.
    *
-   * @param defaultExecutor the {@code Executor} (typically a Spring {@code AsyncTaskExecutor}
+   * @param defaultExecutor the {@code Executor} (typically a Framework {@code AsyncTaskExecutor}
    * or {@link java.util.concurrent.ExecutorService}) to delegate to, unless a more specific
    * executor has been requested via a qualifier on the async method, in which case the
    * executor will be looked up at invocation time against the enclosing bean factory
@@ -98,7 +98,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   /**
    * Create a new {@link AsyncExecutionAspectSupport} with the given exception handler.
    *
-   * @param defaultExecutor the {@code Executor} (typically a Spring {@code AsyncTaskExecutor}
+   * @param defaultExecutor the {@code Executor} (typically a Framework {@code AsyncTaskExecutor}
    * or {@link java.util.concurrent.ExecutorService}) to delegate to, unless a more specific
    * executor has been requested via a qualifier on the async method, in which case the
    * executor will be looked up at invocation time against the enclosing bean factory
@@ -124,7 +124,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   /**
    * Supply the executor to be used when executing async methods.
    *
-   * @param defaultExecutor the {@code Executor} (typically a Spring {@code AsyncTaskExecutor}
+   * @param defaultExecutor the {@code Executor} (typically a Framework {@code AsyncTaskExecutor}
    * or {@link java.util.concurrent.ExecutorService}) to delegate to, unless a more specific
    * executor has been requested via a qualifier on the async method, in which case the
    * executor will be looked up at invocation time against the enclosing bean factory

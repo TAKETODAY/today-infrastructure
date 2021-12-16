@@ -41,7 +41,7 @@ import javax.lang.model.element.TypeElement;
 
 /**
  * Annotation {@link Processor} that writes a {@link CandidateComponentsMetadata}
- * file for spring components.
+ * file for Framework components.
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller

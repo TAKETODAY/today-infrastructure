@@ -22,7 +22,6 @@ package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -69,8 +68,7 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
    * returns {@code null}
    */
   @Override
-  public final String[] selectImports(
-          AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
+  public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
     Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
     Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
 

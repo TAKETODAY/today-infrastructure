@@ -71,7 +71,7 @@ public class PersistenceExceptionTranslationPostProcessor extends AbstractBeanFa
    * Set the 'repository' annotation type.
    * The default repository annotation type is the {@link Repository} annotation.
    * <p>This setter property exists so that developers can provide their own
-   * (non-Spring-specific) annotation type to indicate that a class has a
+   * (non-Framework-specific) annotation type to indicate that a class has a
    * repository role.
    *
    * @param repositoryAnnotationType the desired annotation type

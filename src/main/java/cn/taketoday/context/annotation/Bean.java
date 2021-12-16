@@ -122,7 +122,7 @@ import cn.taketoday.lang.Value;
  * same class by calling them <i>directly</i>. This ensures that references between beans
  * are strongly typed and navigable. Such so-called <em>'inter-bean references'</em> are
  * guaranteed to respect scoping and AOP semantics, just like {@code getBean()} lookups
- * would. These are the semantics known from the original 'Spring JavaConfig' project
+ * would. These are the semantics known from the original 'Framework JavaConfig' project
  * which require CGLIB subclassing of each such configuration class at runtime. As a
  * consequence, {@code @Configuration} classes and their factory methods must not be
  * marked as final or private in this mode. For example:
@@ -160,10 +160,10 @@ import cn.taketoday.lang.Value;
  * <p>In contrast to the semantics for bean methods in {@code @Configuration} classes,
  * <em>'inter-bean references'</em> are not supported in <em>lite</em> mode. Instead,
  * when one {@code @Bean}-method invokes another {@code @Bean}-method in <em>lite</em>
- * mode, the invocation is a standard Java method invocation; Spring does not intercept
+ * mode, the invocation is a standard Java method invocation; Framework does not intercept
  * the invocation via a CGLIB proxy. This is analogous to inter-{@code @Transactional}
- * method calls where in proxy mode, Spring does not intercept the invocation &mdash;
- * Spring does so only in AspectJ mode.
+ * method calls where in proxy mode, Framework does not intercept the invocation &mdash;
+ * Framework does so only in AspectJ mode.
  *
  * <p>For example:
  *
@@ -187,7 +187,7 @@ import cn.taketoday.lang.Value;
  *
  * <h3>{@code BeanFactoryPostProcessor}-returning {@code @Bean} methods</h3>
  *
- * <p>Special consideration must be taken for {@code @Bean} methods that return Spring
+ * <p>Special consideration must be taken for {@code @Bean} methods that return Framework
  * {@link BeanFactoryPostProcessor BeanFactoryPostProcessor}
  * ({@code BFPP}) types. Because {@code BFPP} objects must be instantiated very early in the
  * container lifecycle, they can interfere with processing of annotations such as {@code @Autowired},

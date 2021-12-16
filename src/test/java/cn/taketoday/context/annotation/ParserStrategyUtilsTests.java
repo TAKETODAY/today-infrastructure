@@ -27,14 +27,15 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.InputStream;
 
-import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.EnvironmentAware;
-import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
@@ -146,8 +147,9 @@ public class ParserStrategyUtilsTests {
   }
 
   private <T> T instantiateClass(Class<T> clazz) {
-    return ParserStrategyUtils.instantiateClass(clazz, clazz, this.environment,
-            this.resourceLoader, this.registry);
+
+    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(registry, null);
+    return ParserStrategyUtils.instantiateClass(clazz, clazz, loadingContext);
   }
 
   static class NoArgsConstructor implements BeanClassLoaderAware,

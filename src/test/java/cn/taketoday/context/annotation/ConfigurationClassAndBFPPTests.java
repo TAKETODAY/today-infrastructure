@@ -22,11 +22,12 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.lang.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

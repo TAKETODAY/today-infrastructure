@@ -28,12 +28,15 @@ import cn.taketoday.aop.support.DynamicMethodMatcherPointcut;
 import cn.taketoday.aop.support.interceptor.DebugInterceptor;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.event.TestApplicationListener;
 import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;

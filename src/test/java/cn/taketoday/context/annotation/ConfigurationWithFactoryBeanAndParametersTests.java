@@ -23,10 +23,12 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.lang.Autowired;
+import cn.taketoday.lang.Value;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test case cornering the bug initially raised with SPR-8762, in which a

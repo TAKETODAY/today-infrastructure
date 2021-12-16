@@ -20,16 +20,19 @@
 
 package cn.taketoday.context.annotation.configuration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.DependsOn;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -179,9 +182,19 @@ public class BeanAnnotationAttributePropagationTests {
   private BeanDefinition beanDef(Class<?> configClass) {
     StandardBeanFactory factory = new StandardBeanFactory();
     factory.registerBeanDefinition("config", new BeanDefinition(configClass));
-    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
     pp.postProcessBeanFactory(factory);
     return factory.getBeanDefinition("foo");
   }
 
+  private StandardBeanFactory beanFactory;
+
+  private DefinitionLoadingContext loadingContext;
+
+  @BeforeEach
+  void setup() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    beanFactory = context.getBeanFactory();
+  }
 }

@@ -286,7 +286,7 @@ public class ConfigurationBeanReader implements BeanFactoryPostProcessor {
     // use import selector to select bean to register
     if (ImportSelector.class.isAssignableFrom(importClass)) {
       String[] imports = this.<ImportSelector>createImporter(importMetadata, importClass)
-              .selectImports(importMetadata, context);
+              .selectImports(importMetadata);
       if (ObjectUtils.isNotEmpty(imports)) {
         for (String select : imports) {
           AnnotationMetadata annotationMetadata = context.getAnnotationMetadata(select);

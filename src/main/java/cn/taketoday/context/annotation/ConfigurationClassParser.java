@@ -92,7 +92,7 @@ import cn.taketoday.util.StringUtils;
  * registered immediately).
  *
  * <p>This ASM-based implementation avoids reflection and eager class loading in order to
- * interoperate effectively with lazy class loading in a Spring ApplicationContext.
+ * interoperate effectively with lazy class loading in a Framework ApplicationContext.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
@@ -576,7 +576,7 @@ class ConfigurationClassParser {
               this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
             }
             else {
-              String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata(), loadingContext);
+              String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
               Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);
               processImports(configClass, currentSourceClass, importSourceClasses, exclusionFilter, false);
             }
@@ -852,7 +852,6 @@ class ConfigurationClassParser {
   private static class DeferredImportSelectorGrouping {
 
     private final DeferredImportSelector.Group group;
-
     private final List<DeferredImportSelectorHolder> deferredImports = new ArrayList<>();
 
     DeferredImportSelectorGrouping(Group group) {
@@ -890,16 +889,11 @@ class ConfigurationClassParser {
 
   private static class DefaultDeferredImportSelectorGroup implements Group {
 
-    private final List<Entry> imports = new ArrayList<>();
-    private final DefinitionLoadingContext loadingContext;
-
-    private DefaultDeferredImportSelectorGroup(DefinitionLoadingContext loadingContext) {
-      this.loadingContext = loadingContext;
-    }
+    private final ArrayList<Entry> imports = new ArrayList<>();
 
     @Override
     public void process(AnnotationMetadata metadata, DeferredImportSelector selector) {
-      for (String importClassName : selector.selectImports(metadata, loadingContext)) {
+      for (String importClassName : selector.selectImports(metadata)) {
         this.imports.add(new Entry(metadata, importClassName));
       }
     }

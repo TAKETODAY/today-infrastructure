@@ -27,33 +27,32 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.HashSet;
 
+import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.annotation.CustomAutowireConfigurer;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.EnvironmentAware;
-import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
-import cn.taketoday.context.annotation.ComponentScanParserTests.KustomAnnotationAutowiredBean;
 import cn.taketoday.context.annotation.componentscan.simple.ClassWithNestedComponents;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.TypeFilter;
+import cn.taketoday.lang.Autowired;
 import example.scannable.CustomComponent;
 import example.scannable.CustomStereotype;
 import example.scannable.DefaultNamedComponent;
@@ -65,7 +64,6 @@ import example.scannable_implicitbasepackage.ConfigurableComponent;
 import example.scannable_scoped.CustomScopeAnnotationBean;
 import example.scannable_scoped.MyScope;
 
-import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.BeanDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -151,9 +149,9 @@ public class ComponentScanAnnotationIntegrationTests {
   public void viaBeanRegistration() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("componentScanAnnotatedConfig",
-            BeanDefinition(ComponentScanAnnotatedConfig.class).getBeanDefinition());
+            new BeanDefinition(ComponentScanAnnotatedConfig.class));
     bf.registerBeanDefinition("configurationClassPostProcessor",
-            BeanDefinition(ConfigurationClassPostProcessor.class).getBeanDefinition());
+            new BeanDefinition(ConfigurationClassPostProcessor.class));
     DefaultApplicationContext ctx = new DefaultApplicationContext(bf);
     ctx.refresh();
     ctx.getBean(ComponentScanAnnotatedConfig.class);
@@ -196,6 +194,34 @@ public class ComponentScanAnnotationIntegrationTests {
     assertThat(ctx.getBeanFactory().containsSingleton("componentScanParserTests.KustomAnnotationAutowiredBean")).isFalse();
     KustomAnnotationAutowiredBean testBean = ctx.getBean("componentScanParserTests.KustomAnnotationAutowiredBean", KustomAnnotationAutowiredBean.class);
     assertThat(testBean.getDependency()).isNotNull();
+  }
+
+  /**
+   * Intentionally spelling "custom" with a "k" since there are numerous
+   * classes in this package named *Custom*.
+   */
+  public static class KustomAnnotationAutowiredBean {
+
+    @Autowired
+    @CustomAnnotation
+    private KustomAnnotationDependencyBean dependency;
+
+    public KustomAnnotationDependencyBean getDependency() {
+      return this.dependency;
+    }
+  }
+
+  @Target({ ElementType.TYPE, ElementType.FIELD })
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface CustomAnnotation {
+  }
+
+  /**
+   * Intentionally spelling "custom" with a "k" since there are numerous
+   * classes in this package named *Custom*.
+   */
+  @CustomAnnotation
+  public static class KustomAnnotationDependencyBean {
   }
 
   @Test
@@ -284,8 +310,8 @@ public class ComponentScanAnnotationIntegrationTests {
   public static class ComposedAnnotationConfig {
   }
 
-  public static class AwareTypeFilter implements TypeFilter, EnvironmentAware,
-                                                 ResourceLoaderAware, BeanClassLoaderAware, BeanFactoryAware {
+  public static class AwareTypeFilter
+          implements TypeFilter, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware, BeanFactoryAware {
 
     private BeanFactory beanFactory;
     private ClassLoader classLoader;
@@ -382,29 +408,42 @@ class MyScopeMetadataResolver extends AnnotationScopeMetadataResolver {
   }
 }
 
+class CustomTypeFilter implements TypeFilter {
+
+  /**
+   * Intentionally spelling "custom" with a "k" since there are numerous
+   * classes in this package named *Custom*.
+   */
+  @Override
+  public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) {
+    return metadataReader.getClassMetadata().getClassName().contains("Kustom");
+  }
+}
+
 @Configuration
 @ComponentScan(
         basePackages = "cn.taketoday.context.annotation",
         useDefaultFilters = false,
-        includeFilters = @Filter(type = FilterType.CUSTOM, classes = ComponentScanParserTests.CustomTypeFilter.class),
+        includeFilters = @Filter(type = FilterType.CUSTOM,
+                                 classes = CustomTypeFilter.class),
         // exclude this class from scanning since it's in the scanned package
         excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ComponentScanWithCustomTypeFilter.class),
         lazyInit = true)
 class ComponentScanWithCustomTypeFilter {
 
-  @Bean
-  @SuppressWarnings({ "rawtypes", "serial", "unchecked" })
-  public static CustomAutowireConfigurer customAutowireConfigurer() {
-    CustomAutowireConfigurer cac = new CustomAutowireConfigurer();
-    cac.setCustomQualifierTypes(new HashSet() {{
-      add(ComponentScanParserTests.CustomAnnotation.class);
-    }});
-    return cac;
-  }
-
-  public ComponentScanParserTests.KustomAnnotationAutowiredBean testBean() {
-    return new ComponentScanParserTests.KustomAnnotationAutowiredBean();
-  }
+//  @Bean
+//  @SuppressWarnings({ "rawtypes", "serial", "unchecked" })
+//  public static CustomAutowireConfigurer customAutowireConfigurer() {
+//    CustomAutowireConfigurer cac = new CustomAutowireConfigurer();
+//    cac.setCustomQualifierTypes(new HashSet() {{
+//      add(ComponentScanParserTests.CustomAnnotation.class);
+//    }});
+//    return cac;
+//  }
+//
+//  public ComponentScanParserTests.KustomAnnotationAutowiredBean testBean() {
+//    return new ComponentScanParserTests.KustomAnnotationAutowiredBean();
+//  }
 }
 
 @Configuration
@@ -417,7 +456,7 @@ class ComponentScanWithAwareTypeFilter { }
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable",
-               scopedProxy = ScopedProxyMode.INTERFACES,
+//               scopedProxy = ScopedProxyMode.INTERFACES,
                useDefaultFilters = false,
                includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ScopedProxyTestBean.class))
 class ComponentScanWithScopedProxy { }

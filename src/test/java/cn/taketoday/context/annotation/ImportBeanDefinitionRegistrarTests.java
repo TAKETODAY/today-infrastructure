@@ -27,15 +27,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
@@ -73,8 +73,9 @@ public class ImportBeanDefinitionRegistrarTests {
   public @interface Sample {
   }
 
-  private static class SampleRegistrar implements ImportBeanDefinitionRegistrar,
-                                                  BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
+  private static class SampleRegistrar
+          implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware,
+                     ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
 
     static ClassLoader classLoader;
     static ResourceLoader resourceLoader;
@@ -102,8 +103,8 @@ public class ImportBeanDefinitionRegistrarTests {
     }
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-                                        BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+
     }
   }
 

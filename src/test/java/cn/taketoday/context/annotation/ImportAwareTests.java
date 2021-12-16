@@ -28,21 +28,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.scheduling.annotation.AsyncAnnotationBeanPostProcessor;
-import cn.taketoday.util.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +67,7 @@ public class ImportAwareTests {
     AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
     assertThat(importMetadata).isNotNull();
     assertThat(importMetadata.getClassName()).isEqualTo(ImportingConfig.class.getName());
-    AnnotationAttributes importAttribs = AnnotationConfigUtils.attributesFor(importMetadata, Import.class);
+    AnnotationAttributes importAttribs = AnnotationAttributes.fromMetadata(importMetadata, Import.class);
     Class<?>[] importedClasses = importAttribs.getClassArray("value");
     assertThat(importedClasses[0].getName()).isEqualTo(ImportedConfig.class.getName());
   }
@@ -83,7 +83,7 @@ public class ImportAwareTests {
     AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
     assertThat(importMetadata).isNotNull();
     assertThat(importMetadata.getClassName()).isEqualTo(IndirectlyImportingConfig.class.getName());
-    AnnotationAttributes enableAttribs = AnnotationConfigUtils.attributesFor(importMetadata, EnableImportedConfig.class);
+    AnnotationAttributes enableAttribs = AnnotationAttributes.fromMetadata(importMetadata, EnableImportedConfig.class);
     String foo = enableAttribs.getString("foo");
     assertThat(foo).isEqualTo("xyz");
   }
@@ -99,7 +99,7 @@ public class ImportAwareTests {
     AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
     assertThat(importMetadata).isNotNull();
     assertThat(importMetadata.getClassName()).isEqualTo(ImportingConfigLite.class.getName());
-    AnnotationAttributes importAttribs = AnnotationConfigUtils.attributesFor(importMetadata, Import.class);
+    AnnotationAttributes importAttribs = AnnotationAttributes.fromMetadata(importMetadata, Import.class);
     Class<?>[] importedClasses = importAttribs.getClassArray("value");
     assertThat(importedClasses[0].getName()).isEqualTo(ImportedConfigLite.class.getName());
   }
@@ -228,7 +228,7 @@ public class ImportAwareTests {
     }
   }
 
-  static class BPP implements BeanPostProcessor, BeanFactoryAware {
+  static class BPP implements InitializationBeanPostProcessor, BeanFactoryAware {
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -267,16 +267,18 @@ public class ImportAwareTests {
     static boolean called;
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+
       BeanDefinition beanDefinition = new BeanDefinition();
       beanDefinition.setBeanClassName(String.class.getName());
-      registry.registerBeanDefinition("registrarImportedBean", beanDefinition);
+      context.registerBeanDefinition("registrarImportedBean", beanDefinition);
       BeanDefinition beanDefinition2 = new BeanDefinition();
       beanDefinition2.setBeanClass(OtherImportedConfig.class);
-      registry.registerBeanDefinition("registrarImportedConfig", beanDefinition2);
+      context.registerBeanDefinition("registrarImportedConfig", beanDefinition2);
       Assert.state(!called, "ImportedRegistrar called twice");
       called = true;
     }
+
   }
 
   @EnableSomeConfiguration("bar")
@@ -357,7 +359,7 @@ public class ImportAwareTests {
 
     @Override
     public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-      return (context.getBeanFactory().getBeanNamesForType(MetadataHolder.class, true, false).length == 0);
+      return (context.getBeanFactory().getBeanNamesForType(MetadataHolder.class, true, false).size() == 0);
     }
 
     @Override

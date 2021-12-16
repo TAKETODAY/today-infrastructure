@@ -28,10 +28,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -320,9 +321,10 @@ public class ConfigurationClassWithConditionTests {
     }
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-                                        BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+
     }
+
   }
 
   static class ImportSelectorNotCreated implements ImportSelector {
@@ -333,7 +335,7 @@ public class ConfigurationClassWithConditionTests {
     }
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+    public String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
       return new String[] {};
     }
 

@@ -46,7 +46,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * }</pre>
  *
  * <p>This enables detection of {@link Scheduled @Scheduled} annotations on any
- * Spring-managed bean in the container. For example, given a class {@code MyTask}:
+ * Framework-managed bean in the container. For example, given a class {@code MyTask}:
  *
  * <pre class="code">
  * package com.myco.tasks;
@@ -98,7 +98,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  *     }
  * }</pre>
  *
- * <p>By default, Spring will search for an associated scheduler definition: either
+ * <p>By default, Framework will search for an associated scheduler definition: either
  * a unique {@link cn.taketoday.scheduling.TaskScheduler} bean in the context,
  * or a {@code TaskScheduler} bean named "taskScheduler" otherwise; the same lookup
  * will also be performed for a {@link java.util.concurrent.ScheduledExecutorService}
@@ -128,7 +128,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * }</pre>
  *
  * <p>Note in the example above the use of {@code @Component(destroyMethod="shutdown")}.
- * This ensures that the task executor is properly shut down when the Spring
+ * This ensures that the task executor is properly shut down when the Framework
  * application context itself is closed.
  *
  * <p>Implementing {@code SchedulingConfigurer} also allows for fine-grained
@@ -161,7 +161,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  *     }
  * }</pre>
  *
- * <p>For reference, the example above can be compared to the following Spring XML
+ * <p>For reference, the example above can be compared to the following Framework XML
  * configuration:
  *
  * <pre class="code">
