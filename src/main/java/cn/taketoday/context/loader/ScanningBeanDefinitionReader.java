@@ -29,7 +29,6 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/10/2 23:38
@@ -61,70 +60,31 @@ public class ScanningBeanDefinitionReader {
    * @throws BeanDefinitionStoreException If BeanDefinition could not be store
    * @since 4.0
    */
-  public int scanPackages(String... basePackages) throws BeanDefinitionStoreException {
+  public int scan(String... basePackages) throws BeanDefinitionStoreException {
     // Loading candidates components
     log.info("Scanning candidates components from packages: {}", Arrays.toString(basePackages));
 
     int beanDefinitionCount = registry.getBeanDefinitionCount();
     for (String location : basePackages) {
-      scanFromPackage(location);
+      doScanning(location);
     }
     int afterScanCount = registry.getBeanDefinitionCount();
     log.info("There are [{}] components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(basePackages));
     return afterScanCount - beanDefinitionCount;
   }
 
-  public void scanFromPackage(String packageName) {
-    doScanning(packageName);
-  }
-
-  /**
-   * Load {@link BeanDefinition}s from input pattern locations
-   *
-   * @param patternLocations package locations
-   * @throws BeanDefinitionStoreException If BeanDefinition could not be store
-   * @since 4.0
-   */
-  public int scan(String... patternLocations) {
-    // Loading candidates components
-    log.info("Scanning candidates components from resource location: '{}'", Arrays.toString(patternLocations));
-    int beanDefinitionCount = registry.getBeanDefinitionCount();
-
-    for (String location : patternLocations) {
-      doScanning(location);
-    }
-
-    int afterScanCount = registry.getBeanDefinitionCount();
-    log.info("There are [{}] components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(patternLocations));
-    return afterScanCount - beanDefinitionCount;
-  }
-
-  public void doScanning(String patternLocation) {
+  public void doScanning(String basePackage) {
     if (log.isDebugEnabled()) {
-      log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
+      log.debug("Scanning component candidates from pattern location: [{}]", basePackage);
     }
     try {
-      componentProvider.scan(patternLocation, (metadataReader, metadataReaderFactory) -> {
+      componentProvider.scan(basePackage, (metadataReader, metadataReaderFactory) -> {
         scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
       });
     }
     catch (IOException e) {
       throw new BeanDefinitionStoreException("I/O failure during classpath scanning", e);
     }
-  }
-
-  /**
-   * Resolve the specified base package into a pattern specification for
-   * the package search path.
-   * <p>The default implementation resolves placeholders against system properties,
-   * and converts a "."-based package path to a "/"-based resource path.
-   *
-   * @param basePackage the base package as specified by the user
-   * @return the pattern specification to be used for package searching
-   */
-  protected String resolveBasePackage(String basePackage) {
-    // TODO resolveRequiredPlaceholders
-    return ClassUtils.convertClassNameToResourcePath(basePackage);
   }
 
   @SafeVarargs

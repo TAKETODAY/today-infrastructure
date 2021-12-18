@@ -150,8 +150,6 @@ public @interface ComponentScan {
    */
   boolean lazyInit() default false;
 
-  String[] patternLocations() default {};
-
   Class<? extends BeanDefinitionLoadingStrategy>[] loadingStrategies() default {};
 
   /**
