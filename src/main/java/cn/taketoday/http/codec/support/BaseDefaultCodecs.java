@@ -84,8 +84,8 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
-            ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
+    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader)
+            && ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
     synchronossMultipartPresent = ClassUtils.isPresent("org.synchronoss.cloud.nio.multipart.NioMultipartParser", classLoader);

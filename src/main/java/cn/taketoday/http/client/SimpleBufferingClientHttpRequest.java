@@ -96,12 +96,11 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
    */
   static void addHeaders(HttpURLConnection connection, HttpHeaders headers) {
     String method = connection.getRequestMethod();
-    if (method.equals("PUT") || method.equals("DELETE")) {
-      if (!StringUtils.hasText(headers.getFirst(HttpHeaders.ACCEPT))) {
-        // Avoid "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
-        // from HttpUrlConnection which prevents JSON error response details.
-        headers.set(HttpHeaders.ACCEPT, "*/*");
-      }
+    if ((method.equals("PUT") || method.equals("DELETE"))
+            && !StringUtils.hasText(headers.getFirst(HttpHeaders.ACCEPT))) {
+      // Avoid "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
+      // from HttpUrlConnection which prevents JSON error response details.
+      headers.set(HttpHeaders.ACCEPT, "*/*");
     }
 
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
