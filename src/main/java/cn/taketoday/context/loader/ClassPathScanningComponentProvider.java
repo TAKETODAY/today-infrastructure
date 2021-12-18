@@ -142,6 +142,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * Scan the class path for candidate components.
    *
    * @param basePackage the package to check for annotated classes
+   * @throws IOException sneaky throw from {@link PatternResourceLoader#getResources(String)}
    */
   public void scan(String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     doScanCandidateComponents(basePackage, metadataReaderConsumer);

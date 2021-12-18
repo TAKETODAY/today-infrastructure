@@ -275,11 +275,10 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    */
   private void applyDefaultCharset() {
     for (HttpMessageConverter<?> candidate : this.partConverters) {
-      if (candidate instanceof AbstractHttpMessageConverter<?> converter) {
+      if (candidate instanceof AbstractHttpMessageConverter<?> converter
+              && converter.getDefaultCharset() != null) {
         // Only override default charset if the converter operates with a charset to begin with...
-        if (converter.getDefaultCharset() != null) {
-          converter.setDefaultCharset(this.charset);
-        }
+        converter.setDefaultCharset(this.charset);
       }
     }
   }
@@ -472,13 +471,13 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     LinkedHashMap<String, String> parameters = new LinkedHashMap<>(contentType.getParameters().size() + 2);
     parameters.putAll(contentType.getParameters());
 
-    byte[] boundary = generateMultipartBoundary();
-    if (!isFilenameCharsetSet()) {
-      if (!this.charset.equals(StandardCharsets.UTF_8) &&
-              !this.charset.equals(StandardCharsets.US_ASCII)) {
-        parameters.put("charset", this.charset.name());
-      }
+    if (!isFilenameCharsetSet()
+            && !this.charset.equals(StandardCharsets.UTF_8)
+            && !this.charset.equals(StandardCharsets.US_ASCII)) {
+      parameters.put("charset", this.charset.name());
     }
+
+    byte[] boundary = generateMultipartBoundary();
     parameters.put("boundary", new String(boundary, StandardCharsets.US_ASCII));
 
     // Add parameters to output content type

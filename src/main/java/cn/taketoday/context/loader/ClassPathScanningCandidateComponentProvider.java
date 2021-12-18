@@ -264,7 +264,7 @@ public class ClassPathScanningCandidateComponentProvider
               componentsIndex, basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
     }
     else {
-      super.scan(basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
+      scan(basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
     }
   }
 
