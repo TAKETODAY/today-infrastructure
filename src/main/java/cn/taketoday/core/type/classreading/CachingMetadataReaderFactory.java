@@ -78,9 +78,8 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
    */
   public CachingMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {
     super(resourceLoader);
-    if (resourceLoader instanceof DefaultResourceLoader) {
-      this.metadataReaderCache =
-              ((DefaultResourceLoader) resourceLoader).getResourceCache(MetadataReader.class);
+    if (resourceLoader instanceof DefaultResourceLoader loader) {
+      this.metadataReaderCache = loader.getResourceCache(MetadataReader.class);
     }
     else {
       setCacheLimit(DEFAULT_CACHE_LIMIT);
@@ -160,7 +159,6 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 
   @SuppressWarnings("serial")
   private static class LocalResourceCache extends LinkedHashMap<Resource, MetadataReader> {
-
     private volatile int cacheLimit;
 
     public LocalResourceCache(int cacheLimit) {
