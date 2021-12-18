@@ -134,7 +134,7 @@ public class BeanMethodQualificationTests {
   @Test
   public void testBeanNamesForAnnotation() {
     StandardApplicationContext ctx = new StandardApplicationContext(StandardConfig.class);
-    assertThat(ctx.getBeanNamesForAnnotation(Configuration.class)).isEqualTo(new String[] { "beanMethodQualificationTests.StandardConfig" });
+    assertThat(ctx.getBeanNamesForAnnotation(Configuration.class)).isEqualTo(new String[] { "standardConfig" });
     assertThat(ctx.getBeanNamesForAnnotation(Scope.class)).isEqualTo(new String[] {});
     assertThat(ctx.getBeanNamesForAnnotation(Lazy.class)).isEqualTo(new String[] { "testBean1" });
     assertThat(ctx.getBeanNamesForAnnotation(Boring.class)).isEqualTo(new String[] { "testBean2" });

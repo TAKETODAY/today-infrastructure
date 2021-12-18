@@ -45,6 +45,7 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -159,12 +160,6 @@ class ConfigurationClassBeanDefinitionReader {
     List<String> names = new ArrayList<>(Arrays.asList(component.getStringArray("name")));
     String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
-    // Register aliases even when overridden
-    BeanDefinitionRegistry registry = loadingContext.getRegistry();
-    for (String alias : names) {
-      registry.registerAlias(beanName, alias);
-    }
-
     // Has this effectively been overridden before (e.g. via XML)?
     if (isOverriddenByExistingDefinition(componentMethod, beanName)) {
       if (beanName.equals(componentMethod.getConfigurationClass().getBeanName())) {
@@ -175,12 +170,16 @@ class ConfigurationClassBeanDefinitionReader {
       return;
     }
 
-    ConfigBeanDefinition beanDef = new ConfigBeanDefinition(beanName, metadata, configClass.getMetadata());
+    ConfigBeanDefinition beanDef = new ConfigBeanDefinition(metadata, configClass.getMetadata());
     boolean disableDependencyInjectionAll = configClass.getMetadata().isAnnotated(
             DisableAllDependencyInjection.class.getName());
     boolean enableDependencyInjection = isEnableDependencyInjection(
             annotations, disableDependencyInjectionAll);
 
+    beanDef.setName(beanName);
+    if (!names.isEmpty()) {
+      beanDef.setAliases(names.toArray(Constant.EMPTY_STRING_ARRAY));
+    }
     beanDef.setEnableDependencyInjection(enableDependencyInjection);
 
     if (metadata.isStatic()) {
@@ -221,7 +220,7 @@ class ConfigurationClassBeanDefinitionReader {
       logger.trace(String.format("Registering bean definition for @Component method %s.%s()",
               configClass.getMetadata().getClassName(), beanName));
     }
-    registry.registerBeanDefinition(beanName, beanDef);
+    loadingContext.registerBeanDefinition(beanDef);
   }
 
   private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableDependencyInjectionAll) {

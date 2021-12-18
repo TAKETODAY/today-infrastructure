@@ -119,6 +119,7 @@ public class DestroyMethodInferenceTests {
     ctx.registerBeanDefinition(new BeanDefinition("x10", WithAutoCloseable.class));
     ctx.registerBeanDefinition(new BeanDefinition("x3", WithLocalCloseMethod.class));
     ctx.registerBeanDefinition(new BeanDefinition("x4", WithNoCloseMethod.class));
+    ctx.refresh();
 
     WithLocalCloseMethod x1 = ctx.getBean("x1", WithLocalCloseMethod.class);
     WithLocalCloseMethod x2 = ctx.getBean("x2", WithLocalCloseMethod.class);

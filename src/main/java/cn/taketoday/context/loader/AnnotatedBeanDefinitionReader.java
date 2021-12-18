@@ -28,6 +28,7 @@ import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -269,7 +270,13 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
         definition.setScope(Scope.PROTOTYPE);
       }
 
-      beanNamePopulator.populateName(definition, this.registry);
+      if (ignoreAnnotation && beanNamePopulator instanceof AnnotationBeanNamePopulator) {
+        definition.setName(BeanDefinitionBuilder.defaultBeanName(clazz));
+      }
+      else {
+        beanNamePopulator.populateName(definition, this.registry);
+      }
+
       definition.setInstanceSupplier(supplier);
 
       if (ignoreAnnotation) {

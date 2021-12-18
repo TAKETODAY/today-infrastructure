@@ -87,8 +87,8 @@ class ConfigurationClassPostProcessorTests {
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
-    loadingContext = new DefinitionLoadingContext(beanFactory, context);
     beanFactory = context.getBeanFactory();
+    loadingContext = new DefinitionLoadingContext(beanFactory, context);
   }
 
   /**

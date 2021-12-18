@@ -367,9 +367,8 @@ public class DefaultApplicationContext
    * @since 4.0
    */
   public <T> void registerBean(
-          Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
-          throws BeanDefinitionStoreException //
-  {
+          Class<T> clazz, Supplier<T> supplier,
+          boolean prototype, boolean ignoreAnnotation) throws BeanDefinitionStoreException {
     getBeanDefinitionReader().registerBean(clazz, supplier, prototype, ignoreAnnotation);
   }
 
