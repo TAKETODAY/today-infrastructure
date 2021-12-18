@@ -36,10 +36,10 @@ import java.util.function.Supplier;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -796,6 +796,12 @@ public abstract class AbstractBeanFactory
 
   private Class<?> getTypeForFactoryBean(
           BeanDefinition definition, Class<?> factoryBeanClass, boolean allowFactoryBeanInit) {
+
+    ResolvableType fromAttributes = getTypeForFactoryBeanFromAttributes(definition);
+    if (fromAttributes != ResolvableType.NONE) {
+      return fromAttributes.resolve();
+    }
+
     String factoryMethodName = definition.getFactoryMethodName();
     String factoryBeanName = definition.getFactoryBeanName();
     if (factoryMethodName != null) {
@@ -1505,6 +1511,26 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
   // FactoryBean
   //---------------------------------------------------------------------
+
+  /**
+   * Determine the bean type for a FactoryBean by inspecting its attributes for a
+   * {@link FactoryBean#OBJECT_TYPE_ATTRIBUTE} value.
+   *
+   * @param attributes the attributes to inspect
+   * @return a {@link ResolvableType} extracted from the attributes or
+   * {@code ResolvableType.NONE}
+   * @since 4.0
+   */
+  ResolvableType getTypeForFactoryBeanFromAttributes(AttributeAccessor attributes) {
+    Object attribute = attributes.getAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE);
+    if (attribute instanceof ResolvableType) {
+      return (ResolvableType) attribute;
+    }
+    if (attribute instanceof Class) {
+      return ResolvableType.fromClass((Class<?>) attribute);
+    }
+    return ResolvableType.NONE;
+  }
 
   /**
    * Get a FactoryBean for the given bean if possible.

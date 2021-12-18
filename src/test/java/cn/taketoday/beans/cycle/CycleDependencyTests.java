@@ -49,6 +49,7 @@ class CycleDependencyTests {
   void testCycleDependency() {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.scan("cn.taketoday.beans.cycle");
+      applicationContext.refresh();
       assertEquals(8, applicationContext.getBeanDefinitionCount());
       applicationContext.refresh();
 

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
 import cn.taketoday.core.type.AnnotationMetadata;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**

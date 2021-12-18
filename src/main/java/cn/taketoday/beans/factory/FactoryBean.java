@@ -42,6 +42,17 @@ import cn.taketoday.lang.Nullable;
 public interface FactoryBean<T> {
 
   /**
+   * The name of an attribute that can be
+   * {@link cn.taketoday.core.AttributeAccessor#setAttribute set} on a
+   * {@link cn.taketoday.beans.factory.BeanDefinition} so that
+   * factory beans can signal their object type when it can't be deduced from
+   * the factory bean class.
+   *
+   * @since 4.0
+   */
+  String OBJECT_TYPE_ATTRIBUTE = "factoryBeanObjectType";
+
+  /**
    * Return an instance (possibly shared or independent) of the object
    * managed by this factory.
    * <p>As with a {@link BeanFactory}, this allows support for both the

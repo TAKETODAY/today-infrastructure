@@ -28,6 +28,8 @@ import cn.taketoday.context.annotation.componentscan.level1.Level1Config;
 import cn.taketoday.context.annotation.componentscan.level2.Level2Config;
 import cn.taketoday.context.annotation.componentscan.level3.Level3Component;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 /**
  * Tests ensuring that configuration classes marked with @ComponentScan
  * may be processed recursively

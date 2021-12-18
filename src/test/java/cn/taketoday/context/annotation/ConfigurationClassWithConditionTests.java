@@ -335,7 +335,7 @@ public class ConfigurationClassWithConditionTests {
     }
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
       return new String[] {};
     }
 

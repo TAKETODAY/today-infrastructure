@@ -27,6 +27,8 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.role.ComponentWithRole;
 import cn.taketoday.context.annotation.role.ComponentWithoutRole;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 /**
  * Tests the use of the @Role and @Description annotation on @Bean methods and @Component classes.
  *

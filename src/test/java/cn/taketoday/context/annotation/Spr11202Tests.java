@@ -67,7 +67,7 @@ public class Spr11202Tests {
   protected static class Selector implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
       return new String[0];
     }
   }
