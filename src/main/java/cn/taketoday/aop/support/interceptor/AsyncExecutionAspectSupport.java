@@ -21,7 +21,6 @@
 package cn.taketoday.aop.support.interceptor;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -33,7 +32,6 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanException;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.AsyncTaskExecutor;
@@ -63,6 +61,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @since 4.0
  */
 public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
+  private static final Logger log = LoggerFactory.getLogger(AsyncExecutionAspectSupport.class);
 
   /**
    * The default name of the {@link TaskExecutor} bean to pick up: "taskExecutor".
@@ -71,16 +70,11 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    */
   public static final String DEFAULT_TASK_EXECUTOR_BEAN_NAME = "taskExecutor";
 
-  private static final Logger log = LoggerFactory.getLogger(AsyncExecutionAspectSupport.class);
-
-  private final Map<Method, AsyncTaskExecutor> executors = new ConcurrentHashMap<>(16);
-
-  private SingletonSupplier<Executor> defaultExecutor;
-
-  private SingletonSupplier<AsyncUncaughtExceptionHandler> exceptionHandler;
-
   @Nullable
   private BeanFactory beanFactory;
+  private SingletonSupplier<Executor> defaultExecutor;
+  private SingletonSupplier<AsyncUncaughtExceptionHandler> exceptionHandler;
+  private final ConcurrentHashMap<Method, AsyncTaskExecutor> executors = new ConcurrentHashMap<>(16);
 
   /**
    * Create a new instance with a default {@link AsyncUncaughtExceptionHandler}.
@@ -234,31 +228,27 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         // Search for TaskExecutor bean... not plain Executor since that would
         // match with ScheduledExecutorService as well, which is unusable for
         // our purposes here. TaskExecutor is more clearly designed for it.
-        return beanFactory.getBean(TaskExecutor.class);
+        Executor executor = beanFactory.getBean(TaskExecutor.class);
+        if (executor == null) {
+          log.debug("Could not find default TaskExecutor bean");
+          executor = beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
+          if (executor == null) {
+            log.info("No task executor bean found for async processing: " +
+                    "no bean of type TaskExecutor and no bean named 'taskExecutor' either");
+            // Giving up -> either using local default executor or none at all...
+          }
+        }
+        return executor;
       }
       catch (NoUniqueBeanException ex) {
         log.debug("Could not find unique TaskExecutor bean", ex);
-        try {
-          return beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
+        Executor executor = beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
+        if (executor == null) {
+          log.info("More than one TaskExecutor bean found within the context, and none is named " +
+                  "'taskExecutor'. Mark one of them as primary or name it 'taskExecutor' (possibly " +
+                  "as an alias) in order to use it for async processing: {}", ex.getBeanNamesFound());
         }
-        catch (NoSuchBeanDefinitionException ex2) {
-          if (log.isInfoEnabled()) {
-            log.info("More than one TaskExecutor bean found within the context, and none is named " +
-                    "'taskExecutor'. Mark one of them as primary or name it 'taskExecutor' (possibly " +
-                    "as an alias) in order to use it for async processing: {}", ex.getBeanNamesFound());
-          }
-        }
-      }
-      catch (NoSuchBeanDefinitionException ex) {
-        log.debug("Could not find default TaskExecutor bean", ex);
-        try {
-          return beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
-        }
-        catch (NoSuchBeanDefinitionException ex2) {
-          log.info("No task executor bean found for async processing: " +
-                  "no bean of type TaskExecutor and no bean named 'taskExecutor' either");
-        }
-        // Giving up -> either using local default executor or none at all...
+        return executor;
       }
     }
     return null;

@@ -73,17 +73,16 @@ public abstract class AbstractAdvisingBeanPostProcessor
       return bean;
     }
 
-    if (bean instanceof Advised advised) {
-      if (!advised.isFrozen() && isEligible(AopUtils.getTargetClass(bean))) {
-        // Add our local Advisor to the existing proxy's Advisor chain...
-        if (this.beforeExistingAdvisors) {
-          advised.addAdvisor(0, this.advisor);
-        }
-        else {
-          advised.addAdvisor(this.advisor);
-        }
-        return bean;
+    if (bean instanceof Advised advised
+            && !advised.isFrozen() && isEligible(AopUtils.getTargetClass(bean))) {
+      // Add our local Advisor to the existing proxy's Advisor chain...
+      if (this.beforeExistingAdvisors) {
+        advised.addAdvisor(0, this.advisor);
       }
+      else {
+        advised.addAdvisor(this.advisor);
+      }
+      return bean;
     }
 
     if (isEligible(bean, beanName)) {
