@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.proxy;
 
-import java.util.Objects;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
@@ -73,11 +71,11 @@ public abstract class ProxyUtils {
    */
   public static boolean shouldProxyTargetClass(
           ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
-
-    if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
-      BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
-      assert bd != null;
-      return Boolean.TRUE.equals(bd.getAttribute(PRESERVE_TARGET_CLASS_ATTRIBUTE));
+    if (beanName != null) {
+      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+      if (definition != null) {
+        return Boolean.TRUE.equals(definition.getAttribute(PRESERVE_TARGET_CLASS_ATTRIBUTE));
+      }
     }
     return false;
   }
@@ -94,16 +92,15 @@ public abstract class ProxyUtils {
   @Nullable
   public static Class<?> determineTargetClass(
           ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
-
     if (beanName == null) {
       return null;
     }
-    if (beanFactory.containsBeanDefinition(beanName)) {
-      BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
-      assert bd != null;
-      Class<?> targetClass = (Class<?>) bd.getAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE);
-      if (targetClass != null) {
-        return targetClass;
+
+    BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+    if (definition != null) {
+      Object attribute = definition.getAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE);
+      if (attribute instanceof Class) {
+        return (Class<?>) attribute;
       }
     }
     return beanFactory.getType(beanName);
@@ -118,10 +115,11 @@ public abstract class ProxyUtils {
    */
   static void exposeTargetClass(
           ConfigurableBeanFactory beanFactory, @Nullable String beanName, Class<?> targetClass) {
-
-    if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
-      Objects.requireNonNull(beanFactory.getBeanDefinition(beanName))
-              .setAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE, targetClass);
+    if (beanName != null) {
+      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+      if (definition != null) {
+        definition.setAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE, targetClass);
+      }
     }
   }
 
